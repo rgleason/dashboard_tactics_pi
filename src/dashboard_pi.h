@@ -36,7 +36,7 @@
 
 #ifndef _TACTICSPI_H_
 #include "tactics_pi.h"
-#endif // Perfomance and tactics instruments, comment out to exclude code
+#endif // Perfomance and tactics instruments
 
 #define     PLUGIN_VERSION_MAJOR    1
 #define     PLUGIN_VERSION_MINOR    3

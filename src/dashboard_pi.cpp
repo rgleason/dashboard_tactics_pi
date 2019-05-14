@@ -55,10 +55,45 @@ int g_iDashDistanceUnit;
 int g_iDashWindSpeedUnit;
 int g_iUTCOffset;
 double g_dDashDBTOffset;
-#ifdef _TACTICSPI_H_
-bool g_bUsePerformance;
-#endif // _TACTICSPI_H_
 
+#ifdef _TACTICSPI_H_
+double g_dalphaDeltCoG;
+double g_dalphaLaylinedDampFactor;
+double g_dLeewayFactor;
+double g_dfixedLeeway;
+double g_dalpha_currdir;
+int g_iMinLaylineWidth;
+int g_iMaxLaylineWidth;
+double g_dLaylineLengthonChart;
+Polar* BoatPolar;
+bool g_bDisplayCurrentOnChart;
+wxString g_path_to_PolarFile;
+PlugIn_Route *m_pRoute = NULL;
+PlugIn_Waypoint *m_pMark = NULL;
+double g_dmark_lat = NAN;
+double g_dmark_lon = NAN;
+double g_dcur_lat = NAN;
+double g_dcur_lon = NAN;
+double g_dheel[6][5];
+bool g_bUseHeelSensor;
+bool g_bUseFixedLeeway;
+bool g_bManHeelInput;
+bool g_bCorrectSTWwithLeeway;  //if true STW is corrected with Leeway (in case Leeway is available)
+bool g_bCorrectAWwithHeel;    //if true, AWS/AWA will be corrected with Heel-Angle
+bool g_bForceTrueWindCalculation;    //if true, NMEA Data for TWS,TWA,TWD is not used, but the plugin calculated data is used
+bool g_bUseSOGforTWCalc; //if true, use SOG instead of STW to calculate TWS,TWA,TWD
+bool g_bShowWindbarbOnChart;
+bool g_bShowPolarOnChart;
+bool g_bPersistentChartPolarAnimation; // If true, continue timer based functions to animate performance on the chart
+bool g_bExpPerfData01;
+bool g_bExpPerfData02;
+bool g_bExpPerfData03;
+bool g_bExpPerfData04;
+bool g_bExpPerfData05;
+bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
+bool b_tactics_dc_message_shown = false;
+wxString g_sCMGSynonym, g_sVMGSynonym;
+#endif // _TACTICSPI_H_
 
 #if !defined(NAN)
 static const long long lNaN = 0xfff8000000000000;
@@ -92,9 +127,17 @@ enum {
     ID_DBP_I_DPT, ID_DBP_D_DPT, ID_DBP_I_TMP, ID_DBP_I_VMG, ID_DBP_D_VMG, ID_DBP_I_RSA,
     ID_DBP_D_RSA, ID_DBP_I_SAT, ID_DBP_D_GPS, ID_DBP_I_PTR, ID_DBP_I_GPSUTC, ID_DBP_I_SUN,
     ID_DBP_D_MON, ID_DBP_I_ATMP, ID_DBP_I_AWA, ID_DBP_I_TWA, ID_DBP_I_TWD, ID_DBP_I_TWS,
-    ID_DBP_D_TWD, ID_DBP_I_HDM, ID_DBP_D_HDT, ID_DBP_D_WDH, ID_DBP_I_VLW1, ID_DBP_I_VLW2, ID_DBP_D_MDA, ID_DBP_I_MDA,ID_DBP_D_BPH, ID_DBP_I_FOS,
-    ID_DBP_M_COG, ID_DBP_I_PITCH, ID_DBP_I_HEEL, ID_DBP_D_AWA_TWA, ID_DBP_I_GPSLCL, ID_DBP_I_CPULCL, ID_DBP_I_SUNLCL,
-    ID_DBP_LAST_ENTRY //this has a reference in one of the routines; defining a "LAST_ENTRY" and setting the reference to it, is one codeline less to change (and find) when adding new instruments :-)
+    ID_DBP_D_TWD, ID_DBP_I_HDM, ID_DBP_D_HDT, ID_DBP_D_WDH, ID_DBP_I_VLW1, ID_DBP_I_VLW2,
+    ID_DBP_D_MDA,ID_DBP_I_MDA,ID_DBP_D_BPH, ID_DBP_I_FOS, ID_DBP_M_COG, ID_DBP_I_PITCH,
+    ID_DBP_I_HEEL, ID_DBP_D_AWA_TWA, ID_DBP_I_GPSLCL, ID_DBP_I_CPULCL, ID_DBP_I_SUNLCL,
+#ifdef _TACTICSPI_H_
+    ID_DBP_I_LEEWAY, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD, ID_DBP_D_BRG, ID_DBP_I_POLSPD,
+    ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE, ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG,
+    ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND, ID_DBP_D_POLCOMP,
+#endif // _TACTICSPI_H_
+    ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
+                         setting the reference to it, is one codeline less to change (and find)
+                         when adding new instruments :-) */
 };
 
 bool IsObsolete( int id ) {
@@ -200,6 +243,36 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local CPU Clock" );
     case ID_DBP_I_SUNLCL:
         return _( "Local Sunrise/Sunset" );
+#ifdef _TACTICSPI_H_
+	case  ID_DBP_I_LEEWAY:
+		return _("Leeway");
+	case ID_DBP_I_CURRDIR:
+		return _("Current Direction");
+	case ID_DBP_I_CURRSPD:
+		return _("Current Speed");
+	case ID_DBP_D_BRG:
+		return _("Bearing Compass");
+	case	ID_DBP_I_POLSPD:
+		return _("Polar Speed");
+	case	ID_DBP_I_POLVMG:
+		return _("Actual ") + g_sVMGSynonym;
+	case	ID_DBP_I_POLTVMG:
+		return _("Target ") + g_sVMGSynonym;
+	case	ID_DBP_I_POLTVMGANGLE:
+		return _("Target ") + g_sVMGSynonym + _("-Angle");
+	case	ID_DBP_I_POLCMG:
+		return _("Actual ") + g_sCMGSynonym;
+	case	ID_DBP_I_POLTCMG:
+		return _("Target ") + g_sCMGSynonym;
+	case	ID_DBP_I_POLTCMGANGLE:
+		return _("Target ") + g_sCMGSynonym + _("-Angle");
+	case ID_DBP_D_POLPERF:
+		return _("Polar Performance");
+	case ID_DBP_D_AVGWIND:
+		return _("Average Wind");
+	case ID_DBP_D_POLCOMP:
+		return _("Polar Compass");
+#endif // _TACTICSPI_H
     }
     return _T("");
 }
@@ -239,6 +312,18 @@ void getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_I_FOS:
     case ID_DBP_I_PITCH:
     case ID_DBP_I_HEEL:
+#ifdef _TACTICSPI_H_
+	case ID_DBP_I_LEEWAY:
+	case ID_DBP_I_CURRDIR:
+	case ID_DBP_I_CURRSPD:
+	case ID_DBP_I_POLSPD:
+	case ID_DBP_I_POLVMG:
+	case ID_DBP_I_POLTVMG:
+	case ID_DBP_I_POLTVMGANGLE:
+	case ID_DBP_I_POLCMG:
+	case ID_DBP_I_POLTCMG:
+	case ID_DBP_I_POLTCMGANGLE:
+#endif // _TACTICSPI_H
         item.SetImage( 0 );
         break;
     case ID_DBP_D_SOG:
@@ -258,12 +343,18 @@ void getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_D_MON:
     case ID_DBP_D_WDH:
     case ID_DBP_D_BPH:
+#ifdef _TACTICSPI_H_
+	case ID_DBP_D_BRG:
+	case ID_DBP_D_POLPERF:
+	case ID_DBP_D_AVGWIND:
+	case ID_DBP_D_POLCOMP:
+#endif // _TACTICSPI_H
         item.SetImage( 1 );
         break;
     }
 }
 
-/*  These two function were taken from gpxdocument.cpp */
+/*  These two function were taken from gpxdocument.cpp (route_pi) */
 int GetRandomNumber(int range_min, int range_max)
 {
     long u = (long)wxRound(((double)rand() / ((double)(RAND_MAX) + 1) * (range_max - range_min)) + range_min);
@@ -284,13 +375,13 @@ wxString GetUUID(void)
         int node_low;
     } uuid;
 
-    uuid.time_low = GetRandomNumber(0, 2147483647);//FIXME: the max should be set to something like MAXINT32, but it doesn't compile un gcc...
-    uuid.time_mid = GetRandomNumber(0, 65535);
-    uuid.time_hi_and_version = GetRandomNumber(0, 65535);
-    uuid.clock_seq_hi_and_rsv = GetRandomNumber(0, 255);
-    uuid.clock_seq_low = GetRandomNumber(0, 255);
-    uuid.node_hi = GetRandomNumber(0, 65535);
-    uuid.node_low = GetRandomNumber(0, 2147483647);
+    uuid.time_low = GetRandomNumber(0, INT_MAX);
+    uuid.time_mid = GetRandomNumber(0, USHRT_MAX);
+    uuid.time_hi_and_version = GetRandomNumber(0, USHRT_MAX);
+    uuid.clock_seq_hi_and_rsv = GetRandomNumber(0,UCHAR_MAX);
+    uuid.clock_seq_low = GetRandomNumber(0, UCHAR_MAX);
+    uuid.node_hi = GetRandomNumber(0, USHRT_MAX);
+    uuid.node_low = GetRandomNumber(0, INT_MAX);
 
     /* Set the two most significant bits (bits 6 and 7) of the
      * clock_seq_hi_and_rsv to zero and one, respectively. */
@@ -1952,30 +2043,7 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     m_pChoiceWindSpeedUnit->SetSelection( g_iDashWindSpeedUnit );
     itemFlexGridSizer04->Add( m_pChoiceWindSpeedUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
 
-#ifdef _TACTICSPI_H_
-    // Performance and Tactics tab
-    wxScrolledWindow *itemPanelNotebook03 = new wxScrolledWindow(
-        itemNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxVSCROLL);
-
-#ifdef __OCPN__ANDROID__
-    int scrollRate = 1;
-#else
-    int scrollRate = 5;
-#endif // __OCPN__ANDROID__
-    itemPanelNotebook03->SetScrollRate(0, scrollRate);
-    wxBoxSizer* itemBoxSizer06 = new wxBoxSizer(wxVERTICAL);
-    itemPanelNotebook03->SetSizer(itemBoxSizer06);
-    itemNotebook->AddPage(itemPanelNotebook03, _("Options"));
-    
-    //-------------------- Enable / Disable - Performance and Tactics instruments and their functions
-	m_ButtonUsePerformance = new wxRadioButton(
-        itemPanelNotebook03, wxID_ANY, _("Performance and tactics"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-	m_ButtonUsePerformance->SetValue(g_bUsePerformance);
-	m_ButtonUsePerformance->SetToolTip(_("Enable or disable perfomance instruments and tactical functionalites"));
-	wxStaticText* itemStaticText23 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
-	//--------------------
-
-#endif // _TACTICSPI_H_
+    //////////////////////////////////////////////////////////////
 
     wxStdDialogButtonSizer* DialogButtonSizer = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
     itemBoxSizerMainPanel->Add( DialogButtonSizer, 0, wxALIGN_RIGHT | wxALL, 5 );
