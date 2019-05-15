@@ -2,8 +2,8 @@
  * $Id: dashboard_pi.cpp, v1.0 2010/08/05 SethDart Exp $
  *
  * Project:  OpenCPN
- * Purpose:  Dashboard Plugin
- * Author:   Jean-Eudes Onfray
+ * Purpose:  Dashboard Plugin with  Tactics performance enhancements
+ * Author:   Jean-Eudes Onfray / Thomas Rauch
  *
  ***************************************************************************
  *   Copyright (C) 2010 by David S. Register                               *
@@ -450,7 +450,14 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
+#ifdef _TACTICSPI_H_
+    mBRG_Watchdog = 2;
+    mTWS_Watchdog = 5;
+    mTWD_Watchdog = 5;
+    mAWS_Watchdog = 2;
+ #endif // _TACTICSPI_H
 
+    
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontLabel = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
