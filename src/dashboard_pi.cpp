@@ -121,7 +121,11 @@ extern "C" DECL_EXP void destroy_pi( opencpn_plugin* p )
 // !!! WARNING !!!
 // do not change the order, add new instruments at the end, before ID_DBP_LAST_ENTRY!
 // otherwise, for users with an existing opencpn.ini file, their instruments are changing !
+#ifndef _TACTICSPI_H_
 enum {
+#else
+enum eInstruments {
+#endif // _TACTICSPI_H_
     ID_DBP_I_POS, ID_DBP_I_SOG, ID_DBP_D_SOG, ID_DBP_I_COG, ID_DBP_D_COG, ID_DBP_I_STW,
     ID_DBP_I_HDT, ID_DBP_D_AW, ID_DBP_D_AWA, ID_DBP_I_AWS, ID_DBP_D_AWS, ID_DBP_D_TW,
     ID_DBP_I_DPT, ID_DBP_D_DPT, ID_DBP_I_TMP, ID_DBP_I_VMG, ID_DBP_D_VMG, ID_DBP_I_RSA,
@@ -138,15 +142,26 @@ enum {
     */
     ID_DBP_R_AAAA, ID_DBP_R_AAAB, ID_DBP_R_AAAC, ID_DBP_R_AAAD, ID_DBP_R_AAAE, ID_DBP_R_AAAF,
     ID_DBP_R_AABA, ID_DBP_R_AABB, ID_DBP_R_AABC, ID_DBP_R_AABD, ID_DBP_R_AABE, ID_DBP_R_AABF,
-    // These are the actual Tactics instrument enumerations.
-    ID_DBP_I_LEEWAY, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD, ID_DBP_D_BRG, ID_DBP_I_POLSPD,
+    /* These are the actual Tactics instrument enumerations, note _FIRST and _LAST markers;
+       they are used to defined instrument belonging to "performance" category (i.e. Tactics).
+       If you need to add new perfomance instruments, put them just before ID_DPB_PERF_LAST. */
+    ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD, ID_DBP_D_BRG, ID_DBP_I_POLSPD,
     ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE, ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG,
-    ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND, ID_DBP_D_POLCOMP,
+    ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND, ID_DBP_D_POLCOMP, ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
                          when adding new instruments :-) */
 };
+
+#ifdef _TACTICSPI_H_
+// This function can be used to separate the original dashboard instruments from the original dashboard instruments
+bool IsTacticsInstrument( int id ) {
+    if ( id > ID_DPB_PERF_FIRST && id < ID_DPB_PERF_LAST )
+        return true;
+    return false;
+}
+#endif // _TACTICSPI_H_
 
 bool IsObsolete( int id ) {
     switch( id ) {
@@ -271,33 +286,33 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local Sunrise/Sunset" );
 #ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
-		return _("Leeway");
+		return _("^Leeway");
 	case ID_DBP_I_CURRDIR:
-		return _("Current Direction");
+		return _("^Current Direction");
 	case ID_DBP_I_CURRSPD:
-		return _("Current Speed");
+		return _("^Current Speed");
 	case ID_DBP_D_BRG:
-		return _("Bearing Compass");
+		return _("^Bearing Compass");
 	case	ID_DBP_I_POLSPD:
-		return _("Polar Speed");
+		return _("^Polar Speed");
 	case	ID_DBP_I_POLVMG:
-		return _("Actual ") + g_sVMGSynonym;
+		return _("^Actual ") + g_sVMGSynonym;
 	case	ID_DBP_I_POLTVMG:
-		return _("Target ") + g_sVMGSynonym;
+		return _("^Target ") + g_sVMGSynonym;
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("Target ") + g_sVMGSynonym + _("-Angle");
+		return _("^Target ") + g_sVMGSynonym + _("-Angle");
 	case	ID_DBP_I_POLCMG:
-		return _("Actual ") + g_sCMGSynonym;
+		return _("^Actual ") + g_sCMGSynonym;
 	case	ID_DBP_I_POLTCMG:
-		return _("Target ") + g_sCMGSynonym;
+		return _("^Target ") + g_sCMGSynonym;
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("Target ") + g_sCMGSynonym + _("-Angle");
+		return _("^Target ") + g_sCMGSynonym + _("-Angle");
 	case ID_DBP_D_POLPERF:
-		return _("Polar Performance");
+		return _("^Polar Performance");
 	case ID_DBP_D_AVGWIND:
-		return _("Average Wind");
+		return _("^Average Wind");
 	case ID_DBP_D_POLCOMP:
-		return _("Polar Compass");
+		return _("^Polar Compass");
 #endif // _TACTICSPI_H
     }
     return _T("");
@@ -2246,7 +2261,7 @@ void DashboardPreferencesDialog::OnInstrumentAdd( wxCommandEvent& event )
 
     if( pdlg.ShowModal() == wxID_OK ) {
         wxListItem item;
-        getListItemForInstrument( item, pdlg.GetInstrumentAdded() );
+        (void) getListItemForInstrument( item, pdlg.GetInstrumentAdded() );
         item.SetId( m_pListCtrlInstruments->GetItemCount() );
         m_pListCtrlInstruments->InsertItem( item );
         m_pListCtrlInstruments->SetColumnWidth( 0, wxLIST_AUTOSIZE );
@@ -2307,6 +2322,24 @@ void DashboardPreferencesDialog::OnInstrumentDown( wxCommandEvent& event )
 //    Add Instrument Dialog Implementation
 //
 //----------------------------------------------------------------
+#ifdef _TACTICSPI_H_
+/* Provide a callback method to tweak the alphabetical ascending order of the instrument list(s)
+   so that tactics and performance instruments are listed at the end, after the dashbaord std.
+   instruments. */
+int wxCALLBACK InstrumentListSortCallback (wxIntPtr item1, wxIntPtr item2, wxIntPtr WXUNUSED(sortData))
+{
+    if ( IsTacticsInstrument( item1 ) && !IsTacticsInstrument( item2 ) ) {
+        return 1;
+    } // first instrument is Tactics and second is Dashboard, Dashboard instruments first
+    else {
+        if ( !IsTacticsInstrument( item1 ) && IsTacticsInstrument( item2 ) ) {
+            return -1;
+        } // first instrument is Dashboard and second is Tactics, keep that way
+    } // else check the other way around
+    // Both are the same, either Tactics or Dashboard, let the alphabeting order prevail
+    return 0;
+}
+#endif // _TACTICSPI_H
 
 AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     wxDialog( pparent, id, _("Add instrument"), wxDefaultPosition, wxDefaultSize,
@@ -2327,6 +2360,7 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     itemBoxSizer01->Add( m_pListCtrlInstruments, 0, wxEXPAND | wxALL, 5 );
     m_pListCtrlInstruments->AssignImageList( imglist, wxIMAGE_LIST_SMALL );
     m_pListCtrlInstruments->InsertColumn( 0, _("Instruments") );
+    
     wxStdDialogButtonSizer* DialogButtonSizer = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
     itemBoxSizer01->Add( DialogButtonSizer, 0, wxALIGN_RIGHT | wxALL, 5 );
 
@@ -2338,7 +2372,10 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
             m_pListCtrlInstruments->InsertItem( item );
         }
     }
-
+#ifdef _TACTICSPI_H_
+    // Provide a dual sorting callback so that Tactics and Dashboard instruments are kept apart.
+    m_pListCtrlInstruments->SortItems( InstrumentListSortCallback, 0);
+#endif // _TACTICSPI_H_
     m_pListCtrlInstruments->SetColumnWidth( 0, wxLIST_AUTOSIZE );
     m_pListCtrlInstruments->SetItemState( 0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED );
     Fit();

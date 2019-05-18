@@ -159,7 +159,7 @@ public:
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
-
+    
 private:
     bool LoadConfig(void);
     void ApplyConfig(void);
@@ -227,9 +227,6 @@ public:
     wxSpinCtrlDouble             *m_pSpinDBTOffset;
     wxChoice                     *m_pChoiceDistanceUnit;
     wxChoice                     *m_pChoiceWindSpeedUnit;
-#ifdef _TACTICSPI_H_
-    wxRadioButton                *m_ButtonUsePerformance;
-#endif // _TACTICSPI_H_
 
 private:
     void UpdateDashboardButtonsState(void);
@@ -260,6 +257,7 @@ public:
 
 private:
     wxListCtrl*                   m_pListCtrlInstruments;
+
 };
 
 enum

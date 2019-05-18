@@ -89,6 +89,7 @@ tactics_pi::tactics_pi( void )
 
 	m_bTrueWind_available = false;
 
+
 	BoatPolar = new Polar(this);
 	if (g_path_to_PolarFile != _T("NULL"))
 		BoatPolar->loadPolar(g_path_to_PolarFile);
