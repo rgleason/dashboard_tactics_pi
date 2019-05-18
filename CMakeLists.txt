@@ -57,6 +57,8 @@ IF(MSVC)
     ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE)
 ENDIF(MSVC)
 
+# Uncomment the following to remove all tactics_pi originated code
+ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
 
 
 #  QT_ANDROID is a cross-build, so the native FIND_PACKAGE(wxWidgets...) and wxWidgets_USE_FILE is not useful.

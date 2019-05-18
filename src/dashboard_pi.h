@@ -34,10 +34,6 @@
 #include "wx/wx.h"
 #endif //precompiled headers
 
-#ifndef _TACTICSPI_H_
-#include "tactics_pi.h"
-#endif // Perfomance and tactics instruments
-
 #define     PLUGIN_VERSION_MAJOR    1
 #define     PLUGIN_VERSION_MINOR    3
 
@@ -51,8 +47,15 @@
 #include <wx/spinctrl.h>
 #include <wx/aui/aui.h>
 #include <wx/fontpicker.h>
+#include <wx/unichar.h>
 //wx2.9 #include <wx/wrapsizer.h>
 #include "ocpn_plugin.h"
+
+#ifdef _INCLUDE_TACTICS_PI_
+#ifndef _TACTICSPI_H_
+#include "tactics_pi.h"
+#endif // _TACTICSPI_H_
+#endif // _INCLUDE_TACTICS_PI_
 
 #include "nmea0183/nmea0183.h"
 #include "instrument.h"
@@ -119,7 +122,7 @@ WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
 //----------------------------------------------------------------------------------------------------------
 
 
-class dashboard_pi : public wxTimer, opencpn_plugin_16
+class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_16
 {
 public:
     dashboard_pi(void *ppimgr);

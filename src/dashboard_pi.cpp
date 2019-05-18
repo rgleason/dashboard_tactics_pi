@@ -2,8 +2,8 @@
  * $Id: dashboard_pi.cpp, v1.0 2010/08/05 SethDart Exp $
  *
  * Project:  OpenCPN
- * Purpose:  Dashboard Plugin with  Tactics performance enhancements
- * Author:   Jean-Eudes Onfray / Thomas Rauch
+ * Purpose:  Dashboard Plugin
+ * Author:   Jean-Eudes Onfray
  *
  ***************************************************************************
  *   Copyright (C) 2010 by David S. Register                               *
@@ -131,6 +131,14 @@ enum {
     ID_DBP_D_MDA,ID_DBP_I_MDA,ID_DBP_D_BPH, ID_DBP_I_FOS, ID_DBP_M_COG, ID_DBP_I_PITCH,
     ID_DBP_I_HEEL, ID_DBP_D_AWA_TWA, ID_DBP_I_GPSLCL, ID_DBP_I_CPULCL, ID_DBP_I_SUNLCL,
 #ifdef _TACTICSPI_H_
+    /* The below lines are allows the base dashboard code defining more instruments:
+       If there will be new instruments (now after ID_DBP_I_SUNLCL), remove the same
+       number of these buffer enumeration values. This way, if there is opencpn.ini file
+       with the Tactics instruments, they will not point to a wrong Tactics instrument!
+    */
+    ID_DBP_R_AAAA, ID_DBP_R_AAAB, ID_DBP_R_AAAC, ID_DBP_R_AAAD, ID_DBP_R_AAAE, ID_DBP_R_AAAF,
+    ID_DBP_R_AABA, ID_DBP_R_AABB, ID_DBP_R_AABC, ID_DBP_R_AABD, ID_DBP_R_AABE, ID_DBP_R_AABF,
+    // These are the actual Tactics instrument enumerations.
     ID_DBP_I_LEEWAY, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD, ID_DBP_D_BRG, ID_DBP_I_POLSPD,
     ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE, ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG,
     ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND, ID_DBP_D_POLCOMP,
@@ -142,8 +150,26 @@ enum {
 
 bool IsObsolete( int id ) {
     switch( id ) {
-    case ID_DBP_D_AWA: return true;
-    default: return false;
+    case ID_DBP_D_AWA:
+#ifdef _TACTICSPI_H_
+        /* Please see above, placeholders for evenual new dashboard_pi instuments before tactics_pi instruments:
+           the enumeration and this "obsolence" list must match. */
+    case ID_DBP_R_AAAA:
+    case ID_DBP_R_AAAB:
+    case ID_DBP_R_AAAC:
+    case ID_DBP_R_AAAD:
+    case ID_DBP_R_AAAE:
+    case ID_DBP_R_AAAF:
+    case ID_DBP_R_AABA:
+    case ID_DBP_R_AABB:
+    case ID_DBP_R_AABC:
+    case ID_DBP_R_AABD:
+    case ID_DBP_R_AABE:
+    case ID_DBP_R_AABF:
+#endif // _TACTICSPI_H_
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -277,10 +303,13 @@ wxString getInstrumentCaption( unsigned int id )
     return _T("");
 }
 
-void getListItemForInstrument( wxListItem &item, unsigned int id )
+bool getListItemForInstrument( wxListItem &item, unsigned int id )
 {
+    wxString sCapt = getInstrumentCaption( id );
+    if ( sCapt.IsEmpty() || sCapt.IsNull() || sCapt.Cmp(_T("")) == 0 )
+        return false;
     item.SetData( id );
-    item.SetText( getInstrumentCaption( id ) );
+    item.SetText( sCapt );
     switch( id ){
     case ID_DBP_I_POS:
     case ID_DBP_I_SOG:
@@ -352,6 +381,7 @@ void getListItemForInstrument( wxListItem &item, unsigned int id )
         item.SetImage( 1 );
         break;
     }
+    return true;
 }
 
 /*  These two function were taken from gpxdocument.cpp (route_pi) */
@@ -415,7 +445,7 @@ wxString MakeName()
 //---------------------------------------------------------------------------------------------------------
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
-    wxTimer( this ), opencpn_plugin_16( ppimgr )
+    tactics_pi(), wxTimer( this ), opencpn_plugin_16( ppimgr )
 {
     // Create the PlugIn icons
     initialize_images();
@@ -450,13 +480,6 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
-#ifdef _TACTICSPI_H_
-    mBRG_Watchdog = 2;
-    mTWS_Watchdog = 5;
-    mTWD_Watchdog = 5;
-    mAWS_Watchdog = 2;
- #endif // _TACTICSPI_H
-
     
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -473,10 +496,6 @@ int dashboard_pi::Init( void )
     //    And load the configuration items
     LoadConfig();
 
-    //    This PlugIn needs a toolbar icon
-    //    m_toolbar_item_id = InsertPlugInTool( _T(""), _img_dashboard, _img_dashboard, wxITEM_CHECK,
-    //            _("Dashboard"), _T(""), NULL, DASHBOARD_TOOL_POSITION, 0, this );
-    
     wxString shareLocn =*GetpSharedDataLocation() +
         _T("plugins") + wxFileName::GetPathSeparator() +
         _T("dashboard_pi") + wxFileName::GetPathSeparator()
@@ -485,16 +504,19 @@ int dashboard_pi::Init( void )
     wxString normalIcon = shareLocn + _T("Dashboard.svg");
     wxString toggledIcon = shareLocn + _T("Dashboard_toggled.svg");
     wxString rolloverIcon = shareLocn + _T("Dashboard_rollover.svg");
-     
-    //  For journeyman styles, we prefer the built-in raster icons which match the rest of the toolbar.
+
+    /* For journeyman styles, we prefer the built-in raster icons
+       which match the rest of the toolbar. */
     if(GetActiveStyleName().Lower() != _T("traditional")){
         normalIcon = _T("");
         toggledIcon = _T("");
         rolloverIcon = _T("");
     }
          
-    m_toolbar_item_id = InsertPlugInToolSVG( _T(""), normalIcon, rolloverIcon, toggledIcon, wxITEM_CHECK,
-                                             _("Dashboard"), _T(""), NULL, DASHBOARD_TOOL_POSITION, 0, this );
+    m_toolbar_item_id = InsertPlugInToolSVG(
+        _T(""), normalIcon, rolloverIcon, toggledIcon,
+        wxITEM_CHECK, _("Dashboard"), _T(""), NULL,
+        DASHBOARD_TOOL_POSITION, 0, this );
     
     
     ApplyConfig();
@@ -506,9 +528,21 @@ int dashboard_pi::Init( void )
 
     Start( 1000, wxTIMER_CONTINUOUS );
 
-    return ( WANTS_CURSOR_LATLON | WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL
-             | WANTS_PREFERENCES | WANTS_CONFIG | WANTS_NMEA_SENTENCES | WANTS_NMEA_EVENTS
-             | USES_AUI_MANAGER | WANTS_PLUGIN_MESSAGING );
+    return ( WANTS_CURSOR_LATLON |
+             WANTS_TOOLBAR_CALLBACK |
+             INSTALLS_TOOLBAR_TOOL |
+             WANTS_PREFERENCES |
+             WANTS_CONFIG |
+             WANTS_NMEA_SENTENCES |
+             WANTS_NMEA_EVENTS |
+             USES_AUI_MANAGER |
+#ifndef _TACTICSPI_H_
+             WANTS_PLUGIN_MESSAGING );
+#else
+             WANTS_PLUGIN_MESSAGING |
+		    WANTS_OPENGL_OVERLAY_CALLBACK |
+		    WANTS_OVERLAY_CALLBACK );
+#endif // _TACTICSPI_H_
 }
 
 bool dashboard_pi::DeInit( void )
@@ -2148,9 +2182,11 @@ void DashboardPreferencesDialog::UpdateDashboardButtonsState()
         m_pListCtrlInstruments->DeleteAllItems();
         for( size_t i = 0; i < cont->m_aInstrumentList.GetCount(); i++ ) {
             wxListItem item;
-            getListItemForInstrument( item, cont->m_aInstrumentList.Item( i ) );
-            item.SetId( m_pListCtrlInstruments->GetItemCount() );
-            m_pListCtrlInstruments->InsertItem( item );
+            if (getListItemForInstrument(
+                    item, cont->m_aInstrumentList.Item( i ) ) ) {
+                item.SetId( m_pListCtrlInstruments->GetItemCount() );
+                m_pListCtrlInstruments->InsertItem( item );
+            }
         }
 
         m_pListCtrlInstruments->SetColumnWidth( 0, wxLIST_AUTOSIZE );
@@ -2297,9 +2333,10 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     for( unsigned int i = ID_DBP_I_POS; i < ID_DBP_LAST_ENTRY; i++ ) { //do not reference an instrument, but the last dummy entry in the list
         wxListItem item;
         if( IsObsolete( i ) ) continue;
-        getListItemForInstrument( item, i );
-        item.SetId( i );
-        m_pListCtrlInstruments->InsertItem( item );
+        if ( getListItemForInstrument( item, i ) ) {
+            item.SetId( i );
+            m_pListCtrlInstruments->InsertItem( item );
+        }
     }
 
     m_pListCtrlInstruments->SetColumnWidth( 0, wxLIST_AUTOSIZE );

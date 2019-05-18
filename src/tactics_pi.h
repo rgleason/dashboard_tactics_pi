@@ -43,20 +43,6 @@
 #include <wx/fontpicker.h>
 #include <wx/glcanvas.h>
 
-#include "ocpn_plugin.h"
-#include "nmea0183/nmea0183.h"
-#include "instrument.h"
-#include "speedometer.h"
-#include "compass.h"
-#include "wind.h"
-#include "rudder_angle.h"
-#include "gps.h"
-#include "depth.h"
-#include "clock.h"
-#include "wind_history.h"
-#include "baro_history.h"
-#include "from_ownship.h"
-#include "iirfilter.h"
 #include "performance.h"
 #include "bearingcompass.h"
 #include "avg_wind.h"
@@ -116,6 +102,132 @@ class Polar;
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
+#include "ocpn_plugin.h"
+#include "nmea0183/nmea0183.h"
+#include "instrument.h"
+#include "speedometer.h"
+#include "compass.h"
+#include "wind.h"
+#include "rudder_angle.h"
+#include "gps.h"
+#include "depth.h"
+#include "clock.h"
+#include "wind_history.h"
+#include "baro_history.h"
+#include "from_ownship.h"
+#include "iirfilter.h"
+
+class tactics_pi
+{
+public:
+    tactics_pi(void) {};
+    ~tactics_pi(void) {};
+private:
+    wxFileConfig        *m_pconfig;
+    wxAuiManager        *m_pauimgr;
+    int                  m_toolbar_item_id;
+
+    // wxArrayOfTactics     m_ArrayOfTacticsWindow;
+    int                  m_show_id;
+    int                  m_hide_id;
+
+    NMEA0183             m_NMEA0183; // Used to parse NMEA Sentences
+    short                mPriPosition;
+    short                mPriCOGSOG;
+    short                mPriHeadingM;
+    short                mPriHeadingT;
+    short                mPriVar;
+    short                mPriDateTime;
+    short                mPriAWA;
+    short                mPriTWA;
+    short                mPriDepth;
+    double               mVar;
+    // FFU
+    double               mSatsInView;
+    double               mHdm;
+    double               calmHdt;
+    wxDateTime           mUTCDateTime;
+    int                  m_config_version;
+    wxString             m_VDO_accumulator;
+    int                  mHDx_Watchdog;
+    int                  mHDT_Watchdog;
+    int                  mGPS_Watchdog;
+    int                  mVar_Watchdog;
+    int                  mBRG_Watchdog;
+    int                  mTWD_Watchdog;
+    int                  mTWS_Watchdog;
+    int                  mAWS_Watchdog;
+    // Bearing compass + TWA/TWD calculation
+    wxMenu               *m_pmenu;
+    double               mHdt;
+    double               mStW;
+    double               mSOG;
+    double               mCOG;
+    double               mlat;
+    double               mlon;
+    double               mheel;
+    double               msensorheel;
+    double               mLeeway;
+    double               m_calcTWS;
+    double               m_calcTWA;
+    double               m_calcTWD; //temp testing for Windbarb display
+    wxString             mHeelUnit, mAWAUnit, mAWSUnit;
+    double               mAWA, mAWS, mTWA, mTWD, mTWS;
+    bool                 m_bTrueWind_available;
+    bool                 m_bLaylinesIsVisible;
+    bool                 m_bDisplayCurrentOnChart;
+    bool                 m_bShowWindbarbOnChart;
+    bool                 m_bShowPolarOnChart;
+    bool                 m_LeewayOK;
+    bool                 m_bNKE_TrueWindTableBug;
+    double               m_VWR_AWA;
+    double               alpha_currspd, alpha_CogHdt;
+    double               m_ExpSmoothCurrSpd;
+    double               m_ExpSmoothCurrDir;
+    double               m_ExpSmoothSog;
+    double               m_ExpSmoothSinCurrDir;
+    double               m_ExpSmoothCosCurrDir;
+    double               m_tempSmoothedLaylineCOG;
+    double               m_ExpSmoothDiffCogHdt;
+    double               m_LaylineDegRange;
+    double               m_COGRange[COGRANGE];
+    double               m_ExpSmoothDegRange;
+    double               m_alphaDeltaCog;
+    double               m_LaylineSmoothedCog;
+    double               m_ExpSmoothSinCog;
+    double               m_ExpSmoothCosCog;
+    //Performance variables
+    double               mPolarTargetSpeed;
+    double               mPredictedHdG;
+    double               mPredictedCoG;
+    double               mPredictedSoG;
+    double               mPercentTargetVMGupwind;
+    double               mPercentTargetVMGdownwind;
+    TargetxMG            tvmg;
+    TargetxMG            tcmg;
+    double               mVMGGain;
+    double               mCMGGain;
+    double               mVMGoptAngle;
+    double               mCMGoptAngle;
+    double               mBRG;
+    wxDC                *m_pdc;
+    wxPoint              vpoints[3];
+    wxPoint              tackpoints[3];
+    double               m_CurrentDirection;
+
+    DoubleExpSmooth     *mSinCurrDir;
+    DoubleExpSmooth     *mCosCurrDir;
+    ExpSmooth           *mExpSmoothCurrSpd;
+    DoubleExpSmooth     *mExpSmoothSog;
+    DoubleExpSmooth     *mExpSmSinCog;
+    DoubleExpSmooth     *mExpSmCosCog;
+    ExpSmooth           *mExpSmDegRange;
+    ExpSmooth           *mExpSmDiffCogHdt;
+
+    iirfilter            mSOGFilter;
+    iirfilter            mCOGFilter;
+
+};
 
 // class tactics_pi : public wxTimer, opencpn_plugin_112
 // {
@@ -426,4 +538,3 @@ class Polar;
 // };
 
 #endif
-
