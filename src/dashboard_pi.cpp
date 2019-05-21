@@ -56,45 +56,6 @@ int g_iDashWindSpeedUnit;
 int g_iUTCOffset;
 double g_dDashDBTOffset;
 
-#ifdef _TACTICSPI_H_
-double g_dalphaDeltCoG;
-double g_dalphaLaylinedDampFactor;
-double g_dLeewayFactor;
-double g_dfixedLeeway;
-double g_dalpha_currdir;
-int g_iMinLaylineWidth;
-int g_iMaxLaylineWidth;
-double g_dLaylineLengthonChart;
-Polar* BoatPolar;
-bool g_bDisplayCurrentOnChart;
-wxString g_path_to_PolarFile;
-PlugIn_Route *m_pRoute = NULL;
-PlugIn_Waypoint *m_pMark = NULL;
-double g_dmark_lat = NAN;
-double g_dmark_lon = NAN;
-double g_dcur_lat = NAN;
-double g_dcur_lon = NAN;
-double g_dheel[6][5];
-bool g_bUseHeelSensor;
-bool g_bUseFixedLeeway;
-bool g_bManHeelInput;
-bool g_bCorrectSTWwithLeeway;  //if true STW is corrected with Leeway (in case Leeway is available)
-bool g_bCorrectAWwithHeel;    //if true, AWS/AWA will be corrected with Heel-Angle
-bool g_bForceTrueWindCalculation;    //if true, NMEA Data for TWS,TWA,TWD is not used, but the plugin calculated data is used
-bool g_bUseSOGforTWCalc; //if true, use SOG instead of STW to calculate TWS,TWA,TWD
-bool g_bShowWindbarbOnChart;
-bool g_bShowPolarOnChart;
-bool g_bPersistentChartPolarAnimation; // If true, continue timer based functions to animate performance on the chart
-bool g_bExpPerfData01;
-bool g_bExpPerfData02;
-bool g_bExpPerfData03;
-bool g_bExpPerfData04;
-bool g_bExpPerfData05;
-bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
-bool b_tactics_dc_message_shown = false;
-wxString g_sCMGSynonym, g_sVMGSynonym;
-#endif // _TACTICSPI_H_
-
 #if !defined(NAN)
 static const long long lNaN = 0xfff8000000000000;
 #define NAN (*(double*)&lNaN)
@@ -1591,6 +1552,7 @@ bool dashboard_pi::LoadConfig( void )
     wxFileConfig *pConf = (wxFileConfig *) m_pconfig;
 
     if( pConf ) {
+       
         pConf->SetPath( _T("/PlugIns/Dashboard") );
 
         wxString version;
@@ -1689,7 +1651,9 @@ bool dashboard_pi::LoadConfig( void )
             }
                 
         }
-
+#ifdef _TACTICSPI_H_
+        tactics_pi::LoadConfig( pConf );
+#endif // _TACTICSPI_H_
         return true;
     } else
         return false;

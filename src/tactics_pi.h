@@ -227,6 +227,9 @@ private:
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
 
+private:
+    bool                 b_tactics_dc_message_shown = false;
+
 };
 
 // class tactics_pi : public wxTimer, opencpn_plugin_112
