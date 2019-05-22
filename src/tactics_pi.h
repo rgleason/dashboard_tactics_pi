@@ -120,8 +120,11 @@ class Polar;
 class tactics_pi
 {
 public:
-    tactics_pi(void) {};
-    ~tactics_pi(void) {};
+    tactics_pi(void);
+    ~tactics_pi(void);
+    bool LoadConfig( wxFileConfig *pConf );
+    static wxString get_sCMGSynonym(void);
+    static wxString get_sVMGSynonym(void);
 private:
     wxFileConfig        *m_pconfig;
     wxAuiManager        *m_pauimgr;
@@ -226,9 +229,10 @@ private:
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
-
-private:
     bool                 b_tactics_dc_message_shown = false;
+
+    bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );
+    bool LoadConfigTacticsPlugin( wxFileConfig *pConf );
 
 };
 

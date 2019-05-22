@@ -63,6 +63,9 @@ bool g_bExpPerfData04;
 bool g_bExpPerfData05;
 bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
 wxString g_sCMGSynonym, g_sVMGSynonym;
+wxString tactics_pi::get_sCMGSynonym(void) {return g_sCMGSynonym;};
+wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
+
 
 //---------------------------------------------------------------------------------------------------------
 //
@@ -150,8 +153,8 @@ bool tactics_pi::LoadConfig( wxFileConfig *pConf )
 	if (pConf) {
 
         wxString basePath = pConf->GetPath();
-        wxstring perfPath = _T("/Performance");
-        wxConfigPathChanger tempConfigPath( pConf, basePath + perfPath);
+        wxString perfPath = _T("/Performance");
+        wxConfigPathChanger tempConfigPath( (wxConfigBase *)pConf, basePath + perfPath);
         if (this->LoadConfig_CheckTacticsPlugin( pConf )) {
             return true;
         } // then check if tactic_pi parameters exists and propose to import - if imported, that's it: config loaded
@@ -182,7 +185,8 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
         return false;
     if (!pConf->Exists(_T("/PlugIns/Tactics/Performance")))
         return false;
-    wxString message(_("Do you want to import existing Tactics plugin settings into Dashboard's integrated Tactics settings? "));
+    wxString message(
+        _("Import existing Tactics plugin settings into Dashboard's integrated Tactics settings? (Cancel=later)"));
     wxMessageDialog *dlg = new wxMessageDialog(
         GetOCPNCanvasWindow(), message, _T("Dashboard configuration choice"), wxYES_NO|wxCANCEL);
     int choice = dlg->ShowModal();
@@ -197,21 +201,23 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
         } // then do not import, attempt to import from local
         else {
             g_bTacticsImportChecked = false;
-            return false
+            return false;
         } // else not sure (cancel): not now, but will ask again
     } // else no or cancel
 }
 /*
  This is the actual load method, it may be used twice:
- once for the importing the original tactics_pi plugin settings and, after that,
- to import the same values, but from the dashboard_pi plugins new Performance group
+ once, initially, for the importing the original tactics_pi plugin settings and then,
+ after that, to import the same values, but from the dashboard_pi plugin's
+ new Performance group where we keep the settings, separeted from the tactics_pi plugin
+ settings, for more freedom for the future development of dashboard_pi but also 
+ to avoid confusion in case the two plugins are used in same installation.
 */
 bool tactics_pi::LoadConfigTacticsPlugin( wxFileConfig *pConf )
 {
     if (!pConf)
         return false;
 
-    pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
     pConf->Read(_T("PolarFile"), &g_path_to_PolarFile, _T("NULL"));
     pConf->Read(_T("BoatLeewayFactor"), &g_dLeewayFactor, 10);
     pConf->Read(_T("fixedLeeway"), &g_dfixedLeeway, 30);
@@ -254,5 +260,167 @@ bool tactics_pi::LoadConfigTacticsPlugin( wxFileConfig *pConf )
  
 }
 
+/*********************************************************************************
+Taken from cutil
+**********************************************************************************/
+inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2) {
+	double dx1, dx2;
+	double dy1, dy2;
 
+	dx1 = p1.x - p0.x; dx2 = p2.x - p0.x;
+	dy1 = p1.y - p0.y; dy2 = p2.y - p0.y;
 
+	/* This is basically a slope comparison: we don't do divisions because
+
+	* of divide by zero possibilities with pure horizontal and pure
+	* vertical lines.
+	*/
+	return ((dx1 * dy2 > dy1 * dx2) ? 1 : -1);
+
+}
+/*********************************************************************************
+returns true if we have a line intersection.
+Taken from cutil, but with double variables
+**********************************************************************************/
+inline bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4)
+{
+	return (((myCCW(p1, p2, p3) * myCCW(p1, p2, p4)) <= 0)
+		&& ((myCCW(p3, p4, p1) * myCCW(p3, p4, p2) <= 0)));
+
+}
+/********************************************************************************
+calculate Line intersection between 2 lines, each described by 2 points
+return lat/lon of intersection point
+basic calculation:
+int p1[] = { -4,  5, 1 };
+int p2[] = { -2, -5, 1 };
+int p3[] = { -6,  2, 1 };
+int p4[] = {  5,  4, 1 };
+int l1[3], l2[3], s[3];
+double sch[2];
+l1[0] = p1[1] * p2[2] - p1[2] * p2[1];
+l1[1] = p1[2] * p2[0] - p1[0] * p2[2];
+l1[2] = p1[0] * p2[1] - p1[1] * p2[0];
+l2[0] = p3[1] * p4[2] - p3[2] * p4[1];
+l2[1] = p3[2] * p4[0] - p3[0] * p4[2];
+l2[2] = p3[0] * p4[1] - p3[1] * p4[0];
+s[0] = l1[1] * l2[2] - l1[2] * l2[1];
+s[1] = l1[2] * l2[0] - l1[0] * l2[2];
+s[2] = l1[0] * l2[1] - l1[1] * l2[0];
+sch[0] = (double)s[0] / (double)s[2];
+sch[1] = (double)s[1] / (double)s[2];
+*********************************************************************************/
+wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2, wxRealPoint line2point1, wxRealPoint line2point2)
+{
+	wxRealPoint intersect;
+	intersect.x = -999.;
+	intersect.y = -999.;
+	if (IsLineIntersect(line1point1, line1point2, line2point1, line2point2)){
+		double line1[3], line2[3], s[3];
+		line1[0] = line1point1.y * 1. - 1. * line1point2.y;
+		line1[1] = 1. * line1point2.x - line1point1.x * 1.;
+		line1[2] = line1point1.x * line1point2.y - line1point1.y * line1point2.x;
+		line2[0] = line2point1.y * 1. - 1. * line2point2.y;
+		line2[1] = 1. * line2point2.x - line2point1.x * 1.;
+		line2[2] = line2point1.x * line2point2.y - line2point1.y * line2point2.x;
+		s[0] = line1[1] * line2[2] - line1[2] * line2[1];
+		s[1] = line1[2] * line2[0] - line1[0] * line2[2];
+		s[2] = line1[0] * line2[1] - line1[1] * line2[0];
+		intersect.x = s[0] / s[2];
+		intersect.y = s[1] / s[2];
+	}
+	return intersect;
+}
+/*********************************************************************************
+Function calculates the time to sail for a given distance, TWA and TWS, based on
+the polar data
+**********************************************************************************/
+double CalcPolarTimeToMark(double distance, double twa, double tws)
+{
+	double pspd = BoatPolar->GetPolarSpeed(twa, tws);
+	return distance / pspd;
+}
+/*********************************************************************************
+Function returns the (smaller) TWA of a given TWD and Course.
+Used for Target-CMG calculation.
+It covers the 359 - 0 degree problem
+e.g. : TWD = 350, ctm = 10; the TWA is returned as 20 degrees
+(and not 340 if we'd do a simple TWD - ctm)
+**********************************************************************************/
+double getMarkTWA(double twd, double ctm)
+{
+	double val, twa;
+	if (twd > 180)
+	{
+		val = twd - 180;
+		if (ctm < val)
+			twa = 360 - twd + ctm;
+		else
+			twa = twd > ctm ? twd - ctm : ctm - twd;
+	}
+	else
+	{
+		val = twd + 180;
+		if (ctm > val)
+			twa = 360 - ctm + twd;
+		else
+			twa = twd > ctm ? twd - ctm : ctm - twd;
+	}
+	return twa;
+}
+/*********************************************************************************
+Function returns the (smaller) degree range of 2 angular values
+on the compass rose (without sign)
+It covers the 359 - 0 degree problem
+e.g. : max = 350, min = 10; the rage is returned as 20 degrees
+(and not 340 if we'd do a simple max - min)
+**********************************************************************************/
+double getDegRange(double max, double min)
+{
+	double val, range;
+	if (max > 180)
+	{
+		val = max - 180;
+		if (min < val)
+			range = 360 - max + min;
+		else
+			range = max > min ? max - min : min - max;
+	}
+	else
+	{
+		val = max + 180;
+		if (min > val)
+			range = 360 - min + max;
+		else
+			range = max > min ? max - min : min - max;
+	}
+	return range;
+}
+/*********************************************************************************
+Function returns the (smaller) signed degree range of 2 angular values
+on the compass rose (clockwise is +)
+It covers the 359 - 0 degree problem
+e.g. : fromAngle = 350, toAngle = 10; the range is returned as +20 degrees
+(and not 340 if we'd do a simple fromAngle - toAngle)
+**********************************************************************************/
+double getSignedDegRange(double fromAngle, double toAngle)
+{
+	double val, range;
+	if (fromAngle > 180)
+	{
+		val = fromAngle - 180;
+		if (toAngle < val)
+			range = 360 - fromAngle + toAngle;
+		else
+			range = toAngle - fromAngle;
+	}
+	else
+	{
+		val = fromAngle + 180;
+		if (toAngle > val)
+			range = -(360 - toAngle + fromAngle);
+		else
+			range = toAngle - fromAngle;
+	}
+	return range;
+}

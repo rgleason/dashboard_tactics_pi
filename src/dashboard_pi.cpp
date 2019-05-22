@@ -257,17 +257,17 @@ wxString getInstrumentCaption( unsigned int id )
 	case	ID_DBP_I_POLSPD:
 		return _("^Polar Speed");
 	case	ID_DBP_I_POLVMG:
-		return _("^Actual ") + g_sVMGSynonym;
+		return _("^Actual ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMG:
-		return _("^Target ") + g_sVMGSynonym;
+		return _("^Target ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("^Target ") + g_sVMGSynonym + _("-Angle");
+		return _("^Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
 	case	ID_DBP_I_POLCMG:
-		return _("^Actual ") + g_sCMGSynonym;
+		return _("^Actual ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMG:
-		return _("^Target ") + g_sCMGSynonym;
+		return _("^Target ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("^Target ") + g_sCMGSynonym + _("-Angle");
+		return _("^Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
 	case ID_DBP_D_POLPERF:
 		return _("^Polar Performance");
 	case ID_DBP_D_AVGWIND:

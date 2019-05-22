@@ -81,6 +81,8 @@ FIND_PACKAGE(Gettext REQUIRED)
 SET(SRC_DASHBOARD
     src/dashboard_pi.h
     src/dashboard_pi.cpp
+    src/tactics_pi.h
+    src/tactics_pi.cpp
     src/instrument.cpp
     src/instrument.h
     src/iirfilter.h
@@ -109,6 +111,8 @@ SET(SRC_DASHBOARD
     src/baro_history.h
     src/from_ownship.cpp
     src/from_ownship.h
+    src/performance.h
+    src/performance.cpp
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
     include/wx/json_defs.h
