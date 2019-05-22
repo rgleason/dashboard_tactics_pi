@@ -17,6 +17,8 @@ install:
   - set WXWIN=C:\wxWidgets-3.1.2.
   - set wxWidgets_ROOT_DIR=%WXWIN%
   - set wxWidgets_LIB_DIR=%WXWIN%\lib\vc_dll
+  - set wxWidgets_LIBRARIES=%wxWidgets_LIB_DIR%
+  - set wxWidgets_INCLUDE_DIRS=%WXWIN%\include
   - cmd: SET PATH=%PATH%;%WXWIN%;%wxWidgets_LIB_DIR%;C:\Program Files (x86)\Poedit\Gettexttools\bin;
 
   # install dependencies:
