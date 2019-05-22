@@ -1,4 +1,4 @@
-clone_folder: c:\project\projections_pi
+clone_folder: c:\project\dashboard_pi
 shallow_clone: true
 image:
 - Visual Studio 2015
@@ -23,7 +23,7 @@ install:
   - choco install poedit nsis -x86
 
   # Download and unzip wxwidgets
-  - ps: Start-FileDownload http://downloads.sourceforge.net/project/wxwindows/3.1.2./wxWidgets-3.1.2..zip
+  - ps: Start-FileDownload http://downloads.sourceforge.net/project/wxwindows/3.1.2./wxWidgets-3.1.2.zip
   - cmd: 7z x wxwidgets-3.1.2..zip -o%WXWIN% > null
 
   # some debugging information
@@ -36,12 +36,12 @@ install:
   - cmd: nmake -f makefile.vc BUILD=debug SHARED=1 CFLAGS=/D_USING_V120_SDK71_ CXXFLAGS=/D_USING_V120_SDK71_
 
 before_build:
-  - cd c:\project\projections_pi
+  - cd c:\project\dashboard_pi
   - mkdir build
   - cd build
-  - ps: Start-FileDownload https://downloads.sourceforge.net/project/opencpnplugins/opencpn_lib/4.2-vc120_xp/opencpn.lib
-  - ps: Start-FileDownload https://downloads.sourceforge.net/project/opencpnplugins/opencpn_packaging_data/OpenCPN_buildwin.7z
-  - cmd: 7z x -y OpenCPN_buildwin.7z -oc:\project\projections_pi
+  - ps: Start-FileDownload https://github.com/canne/dashboard_pi/releases/download/0.0.1/opencpn.lib
+#  - ps: Start-FileDownload https://downloads.sourceforge.net/project/opencpnplugins/opencpn_packaging_data/OpenCPN_buildwin.7z
+#  - cmd: 7z x -y OpenCPN_buildwin.7z -oc:\project\dashboard_pi
   - cmake -T v120_xp ..
 
 build_script:
