@@ -30,10 +30,10 @@ install:
   - set
   # - cmake --help
 
-  # build wxWidgets
-  - cmd: cd %WXWIN%\build\msw\
-  - cmd: nmake -f makefile.vc BUILD=release SHARED=1 CFLAGS=/D_USING_V120_SDK71_ CXXFLAGS=/D_USING_V120_SDK71_
-  - cmd: nmake -f makefile.vc BUILD=debug SHARED=1 CFLAGS=/D_USING_V120_SDK71_ CXXFLAGS=/D_USING_V120_SDK71_
+  # build wxWidgets (see above, not source code package but precompiled)
+#  - cmd: cd %WXWIN%\build\msw\
+#  - cmd: nmake -f makefile.vc BUILD=release SHARED=1 CFLAGS=/D_USING_V120_SDK71_ CXXFLAGS=/D_USING_V120_SDK71_
+#  - cmd: nmake -f makefile.vc BUILD=debug SHARED=1 CFLAGS=/D_USING_V120_SDK71_ CXXFLAGS=/D_USING_V120_SDK71_
 
 before_build:
   - cd c:\project\dashboard_pi
@@ -42,7 +42,7 @@ before_build:
   - ps: Start-FileDownload https://github.com/canne/dashboard_pi/releases/download/0.0.1/opencpn.lib
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/opencpnplugins/opencpn_packaging_data/OpenCPN_buildwin.7z
   - cmd: 7z x -y OpenCPN_buildwin.7z -oc:\project\dashboard_pi
-  - cmake -T v120_xp ..
+  - cmake -T v141_xp ..
 
 build_script:
   # - cmake --build . --config debug
