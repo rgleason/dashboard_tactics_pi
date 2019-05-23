@@ -29,8 +29,12 @@ SET(VERBOSE_NAME Dashboard)
 SET(TITLE_NAME Dashboard)
 SET(CPACK_PACKAGE_CONTACT "TBD")
 
-# Uncomment the following to remove all tactics_pi originated code from compilation _and_ build
-ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
+# Comment out the following to remove all tactics_pi originated code from compilation _and_ build
+SET(TACTICS_INSTRUMENTS ON)
+
+IF (DEFINED TACTICS_INSTRUMENTS)
+  ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
+ENDIF (DEFINED TACTICS_INSTRUMENTS)
 
 INCLUDE("cmake/PluginConfigure.cmake")
 
@@ -73,14 +77,14 @@ SET(SRC_DASHBOARD
     include/wx/jsonwriter.h
 )
 
-IF(DEFINED -D_INCLUDE_TACTICS_PI_)
+IF (DEFINED TACTICS_INSTRUMENTS)
   SET(SRC_TACTICS
       src/tactics_pi.h
       src/tactics_pi.cpp
       src/performance.h
       src/performance.cpp
   )
-ENDIF (DEFINED -D_INCLUDE_TACTICS_PI_)
+ENDIF (DEFINED TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -151,20 +155,12 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
-IF(DEFINED -D_INCLUDE_TACTICS_PI_)
+IF (DEFINED TACTICS_INSTRUMENTS)
   SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
-ELSE(DEFINED -D_INCLUDE_TACTICS_PI_)
+ELSE (DEFINED TACTICS_INSTRUMENTS)
   SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
-ENDIF (DEFINED -D_INCLUDE_TACTICS_PI_)
+ENDIF (DEFINED TACTICS_INSTRUMENTS)
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
-
-#target_include_directories(${PACKAGE_NAME} PRIVATE
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include/wx
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src/nmea0183
-#)
-#target_link_libraries( ${PACKAGE_NAME} opencpn )
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")
