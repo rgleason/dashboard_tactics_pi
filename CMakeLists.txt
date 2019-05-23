@@ -24,65 +24,19 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
 CMAKE_POLICY(SET CMP0043 NEW)
 
 PROJECT(dashboard_pi)
-
 SET(PACKAGE_NAME dashboard_pi)
-SET(PLUGIN_SOURCE_DIR .)
-MESSAGE (STATUS "")
-MESSAGE (STATUS "*** Staging to build ${PACKAGE_NAME} ***")
+SET(VERBOSE_NAME Dashboard)
+SET(TITLE_NAME Dashboard)
+SET(CPACK_PACKAGE_CONTACT "TBD")
 
-#SET(CMAKE_BUILD_TYPE Debug)
-SET(CMAKE_MACOSX_RPATH "ON")
-
-
-# require proper c++
-#ADD_DEFINITIONS( "-Wall -ansi -pedantic -Wno-variadic-macros" )
-#TODO: Should we use  -fno-stack-protector
-#  IF NOT DEBUGGING CFLAGS="-O2 -march=native"
-IF(NOT WIN32 AND NOT APPLE)
-    ADD_DEFINITIONS( "-Wall -O2 -fexceptions -fvisibility=hidden" )
-    IF(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
-      SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
-    ENDIF(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
-ENDIF(NOT WIN32 AND NOT APPLE)
-
-IF( APPLE )
-    ADD_COMPILE_OPTIONS( "-O3" "-fexceptions" "-fvisibility=hidden" )
-    ADD_COMPILE_OPTIONS("-Wno-unused" "-Wno-overloaded-virtual")
-   SET(CMAKE_SHARED_LINKER_FLAGS "-Wl -undefined dynamic_lookup")
-ENDIF( APPLE )
-
-# Add some definitions to satisfy MSVC
-IF(MSVC)
-    ADD_DEFINITIONS(-D__MSVC__)
-    ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE)
-ENDIF(MSVC)
-
-# Uncomment the following to remove all tactics_pi originated code
+# Uncomment the following to remove all tactics_pi originated code from compilation _and_ build
 ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
 
-
-#  QT_ANDROID is a cross-build, so the native FIND_PACKAGE(wxWidgets...) and wxWidgets_USE_FILE is not useful.
-IF(NOT QT_ANDROID)
-IF(NOT DEFINED wxWidgets_USE_FILE)
-  SET(wxWidgets_USE_LIBS base core net xml html adv)
-  SET(BUILD_SHARED_LIBS TRUE)
-  FIND_PACKAGE(wxWidgets REQUIRED)
-ENDIF(NOT DEFINED wxWidgets_USE_FILE)
-
-  INCLUDE(${wxWidgets_USE_FILE})
-ENDIF(NOT QT_ANDROID)
-
-FIND_PACKAGE(Gettext REQUIRED)
-
-# For convenience we define the sources as a variable. You can add
-# header files and cpp/c files and CMake will sort them out
-
+INCLUDE("cmake/PluginConfigure.cmake")
 
 SET(SRC_DASHBOARD
     src/dashboard_pi.h
     src/dashboard_pi.cpp
-    src/tactics_pi.h
-    src/tactics_pi.cpp
     src/instrument.cpp
     src/instrument.h
     src/iirfilter.h
@@ -111,8 +65,6 @@ SET(SRC_DASHBOARD
     src/baro_history.h
     src/from_ownship.cpp
     src/from_ownship.h
-    src/performance.h
-    src/performance.cpp
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
     include/wx/json_defs.h
@@ -120,6 +72,15 @@ SET(SRC_DASHBOARD
     include/wx/jsonval.h
     include/wx/jsonwriter.h
 )
+
+IF(DEFINED -D_INCLUDE_TACTICS_PI_)
+  SET(SRC_TACTICS
+      src/tactics_pi.h
+      src/tactics_pi.cpp
+      src/performance.h
+      src/performance.cpp
+  )
+ENDIF (DEFINED -D_INCLUDE_TACTICS_PI_)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -189,89 +150,21 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.cpp
     src/nmea0183/xdr.hpp
 )
-##INCLUDE_DIRECTORIES(src/nmea0183)
 
+IF(DEFINED -D_INCLUDE_TACTICS_PI_)
+  SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
+ELSE(DEFINED -D_INCLUDE_TACTICS_PI_)
+  SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
+ENDIF (DEFINED -D_INCLUDE_TACTICS_PI_)
+ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 
-SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
-SET(BUILD_SHARED_LIBS "ON")
-ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC_DASHBOARD} ${SRC_NMEA0183} )
-target_include_directories(${PACKAGE_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/wx
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/nmea0183
-)
-target_link_libraries( ${PACKAGE_NAME} opencpn )
-
-IF (WIN32 AND NOT MSVC)
-  SET( CMAKE_SHARED_LINKER_FLAGS "-L../../" )
-ENDIF()
-
-# On Android, PlugIns need a specific linkage set....
-IF (QT_ANDROID )
-  # These libraries are needed to create PlugIns on Android.
-  
-  SET(OCPN_Core_LIBRARIES
-        # Presently, Android Plugins are built in the core tree, so the variables {wxQT_BASE}, etc.
-        # flow to this module from above.  If we want to build Android plugins out-of-core, this will need improvement.
-
-        # TODO This is pretty ugly, but there seems no way to avoid specifying a full path in a cross build....
-        /home/dsr/Projects/opencpn_sf/opencpn/build-opencpn-Android_for_armeabi_v7a_GCC_4_8_Qt_5_5_0-Debug/libopencpn.so
-
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_baseu-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_core-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_html-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_baseu_xml-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_qa-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_adv-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_aui-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_baseu_net-3.1-arm-linux-androideabi.a
-        ${wxQt_Base}/${wxQt_Build}/lib/libwx_qtu_gl-3.1-arm-linux-androideabi.a
-        ${Qt_Base}/android_armv7/lib/libQt5Core.so
-        ${Qt_Base}/android_armv7/lib/libQt5OpenGL.so
-        ${Qt_Base}/android_armv7/lib/libQt5Widgets.so
-        ${Qt_Base}/android_armv7/lib/libQt5Gui.so
-        ${Qt_Base}/android_armv7/lib/libQt5AndroidExtras.so
-        
-        ${NDK_Base}/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/libgnustl_shared.so
-        )
-
-ENDIF(QT_ANDROID)
-
-TARGET_LINK_LIBRARIES( ${PACKAGE_NAME} ${wxWidgets_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ${PACKAGE_NAME} ${OCPN_Core_LIBRARIES} )
-if (TARGET ocpn::wxsvg)
-    TARGET_LINK_LIBRARIES( ${PACKAGE_NAME} ocpn::wxsvg )
-endif()
-
-
-IF(APPLE)
-    INSTALL(TARGETS ${PACKAGE_NAME} BUNDLE LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/OpenCPN.app/Contents/PlugIns)
-   
-   IF(EXISTS ${PROJECT_SOURCE_DIR}/data)
-    INSTALL(DIRECTORY data DESTINATION ${CMAKE_BINARY_DIR}/OpenCPN.app/Contents/SharedSupport/plugins/${PACKAGE_NAME})
-    ENDIF()
-
-ENDIF(APPLE)
-
-IF(UNIX AND NOT APPLE)
-    INSTALL(TARGETS ${PACKAGE_NAME} RUNTIME LIBRARY DESTINATION ${PREFIX_PLUGINS})
-
-    IF(EXISTS ${PROJECT_SOURCE_DIR}/data)
-        SET(PREFIX_PARENTDATA ${PREFIX_DATA}/${PARENT})
-        INSTALL(DIRECTORY data DESTINATION ${PREFIX_PARENTDATA}/plugins/${PACKAGE_NAME})
-    ENDIF()
-ENDIF(UNIX AND NOT APPLE)
-
-IF(WIN32)
-    INSTALL(TARGETS ${PACKAGE_NAME} RUNTIME DESTINATION "plugins")
-  
-    SET(INSTALL_DIRECTORY "plugins/${PACKAGE_NAME}")
-
-    IF(EXISTS ${PROJECT_SOURCE_DIR}/data)
-    INSTALL(DIRECTORY data DESTINATION "${INSTALL_DIRECTORY}")
-    ENDIF(EXISTS ${PROJECT_SOURCE_DIR}/data)
-ENDIF(WIN32)
+#target_include_directories(${PACKAGE_NAME} PRIVATE
+#    ${CMAKE_CURRENT_SOURCE_DIR}/include
+#    ${CMAKE_CURRENT_SOURCE_DIR}/include/wx
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/nmea0183
+#)
+#target_link_libraries( ${PACKAGE_NAME} opencpn )
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")
