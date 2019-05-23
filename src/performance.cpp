@@ -64,8 +64,6 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindo
 	m_format = format;
 	m_data = _T("---");
 	m_pconfig = GetOCPNConfigObject();
-//	BoatPolar = new Polar(this);
-//	BoatPolar->loadPolar(_T(""));
 	mTWS = NAN;
 	mHDT = NAN;
 	mTWA = NAN;
@@ -75,7 +73,6 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindo
 	mBRG = -1;
     mTWD = NAN;
 	stwunit = _T("");
-
 }
 /***********************************************************************************
 
@@ -143,7 +140,6 @@ void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString 
   
   if (st == OCPN_DBP_STC_STW){
     
-    //mSTW = data;
     //convert to knots first
     mSTW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
     stwunit = unit;
@@ -167,20 +163,6 @@ void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString 
   }
   else if (st == OCPN_DBP_STC_BRG){
     mBRG = data;
-    /*if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)){
-      mBRG = data;
-      //m_ToWpt = unit;
-      //wxLogMessage(_T("RMB mBRG=%.2f"), mBRG);
-      }
-      else{
-      if (m_pMark && m_lat>0 && m_lon>0) {
-      double dist;
-      DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
-      //m_ToWpt = _T("TacticsWP");
-      // wxLogMessage(_T("TacticsWP m_pMark->m_lat=%f, m_pMark->m_lon=%f, m_lat=%f, m_lon=%f, mBRG=%.2f"), m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon,mBRG);
-      
-      }
-      }*/
   }
   else if (st == OCPN_DBP_STC_TWS){
     //mTWS = data;
@@ -280,7 +262,6 @@ void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString 
   }
   else if (m_displaytype == POLARTARGETCMGANGLE){
     if (!std::isnan(mSTW) && mBRG >= 0 && !std::isnan(mHDT)) {
-      double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
       TargetxMG TCMGMax, TCMGMin;
       TCMGMax.TargetAngle = NAN;
       if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG >= 0)
@@ -418,7 +399,7 @@ void Polar::loadPolar(wxString FilePath)
 
       while (!stream.Eof())
       {
-        int col = 0, i = 0, x = 0;
+        int col = 0, i = 0;
         wxString s;
 
         wxString str = in.ReadLine();				// read line by line
@@ -436,14 +417,10 @@ void Polar::loadPolar(wxString FilePath)
           {
             mode = 2;
             sep = 1;
-            //x = wxAtoi(WS[0]);
-            //col = (x + 1) / 2 - 1;
             col = wxAtoi(WS[0]);
 
             for (i = 1; i < (int)WS.GetCount(); i += 2)
             {
-              //x = wxAtoi(WS[i]);
-              //row = (x + 2) / 5 - 1;
               row = wxAtoi(WS[i]);
               s = WS[i + 1];
 
@@ -524,15 +501,13 @@ void Polar::loadPolar(wxString FilePath)
       }
 
     } //TR23.04.
-// temporary output of Polar-Lookuptable to file ...
+    // temporary output of Polar-Lookuptable to file ...
 	wxString path_to_PolarLookupOutputFile = _T("NULL");
 	if (pConf) {
 		pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
 		pConf->Read(_T("PolarLookupTableOutputFile"), &path_to_PolarLookupOutputFile, _T("NULL"));
 	}
 
-	//wxString file = _T("C:/TEMP/Polar.txt");
-	//wxFileOutputStream outstream(file);
 	if (path_to_PolarLookupOutputFile != _T("NULL")){
 		wxFileOutputStream outstream(path_to_PolarLookupOutputFile);
 		wxTextOutputStream out(outstream);
@@ -855,7 +830,6 @@ TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 
 	int i_tws = wxRound(TWS);
     double range = getSignedDegRange(TWD, BRG);
-    double absrange = range < 0 ? -range : range;
     double diffAngle = 0;
     int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
 	int k = 0;
@@ -1373,197 +1347,7 @@ void  TacticsInstrument_PolarPerformance::DrawBoatSpeedScale(wxGCDC* dc)
   for (int i = 0; i < num_of_scales; i++)
     dc->DrawText(label[i], m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height - (m_DrawAreaRect.height* i * 1./(double)(num_of_scales-1)) - height / 2));
 }
-//*********************************************************************************
-// draw boat speed legend (right side)
-//*********************************************************************************
-/*void  TacticsInstrument_PolarPerformance::DrawBoatSpeedScale(wxGCDC* dc)
-{
-  wxString label1, label2, label3, label4, label5;
-  wxColour cl;
-  wxPen pen;
-  int width, height;
-  double BoatSpdScale;
-  int tmpval = (int)(m_MaxBoatSpd + 2) % 2;
-  m_MaxBoatSpdScale = (int)(m_MaxBoatSpd + 2 - tmpval);
 
-  cl = wxColour(204, 41, 41, 255); //red, opague
-
-  dc->SetTextForeground(cl);
-  dc->SetFont(*g_pFontSmall);
-  if (!m_IsRunning) {
-    label1.Printf(_T("--- %s"), m_STWUnit);
-    label2 = label1;
-    label3 = label1;
-    label4 = label1;
-    label5 = label1;
-  }
-  else {
-    //we round the speed up to the next full knot ==> the top and bottom line have full numbers as legend (e.g. 23 kn -- 0 kn)
-    //but the intermediate lines may have decimal values (e.g. center line : 23/2=11.5 or quarter line 23/4=5.75), so in worst case
-    //we end up with 23 - 17.25 - 11.5 - 5.75 - 0
-    //The goal is to draw the legend with decimals only, if we really have them !
-    
-    // label 1 : legend for bottom line. By definition always w/o decimals
-    label1.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(m_MinBoatSpd, g_iDashSpeedUnit), m_STWUnit.c_str());
-    // label 2 : 1/4
-    BoatSpdScale = m_MaxBoatSpdScale / 4.;
-    label2.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(BoatSpdScale, g_iDashSpeedUnit), m_STWUnit.c_str());
-    // label 3 : legend for center line
-    BoatSpdScale = m_MaxBoatSpdScale / 2.;
-    label3.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(BoatSpdScale, g_iDashSpeedUnit), m_STWUnit.c_str());
-    // label 4 :  3/4
-    BoatSpdScale = m_MaxBoatSpdScale*3. / 4.;
-    label4.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(BoatSpdScale, g_iDashSpeedUnit), m_STWUnit.c_str());
-    // label 5 : legend for top line
-    label5.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(m_MaxBoatSpdScale, g_iDashSpeedUnit), m_STWUnit.c_str());
-  }
-  //draw the legend with the labels; find the widest string and store it in m_RightLegend.
-  // m_RightLegend is the basis for the horizontal lines !
-  dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend = width;
-  dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend = wxMax(width, m_RightLegend);
-  dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend = wxMax(width, m_RightLegend);
-  dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend = wxMax(width, m_RightLegend);
-  dc->GetTextExtent(label1, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend = wxMax(width, m_RightLegend);
-
-  m_RightLegend += 4; //leave some space to the edge
-  dc->DrawText(label5, m_WindowRect.width - m_RightLegend, m_TopLineHeight - height / 2);
-  dc->DrawText(label4, m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height / 4 - height / 2));
-  dc->DrawText(label3, m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height / 2 - height / 2));
-  dc->DrawText(label2, m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.75 - height / 2));
-  dc->DrawText(label1, m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height - height / 2));
-}
-
-//*********************************************************************************
-// draw percent boat speed scale (left side)
-//*********************************************************************************
-void  TacticsInstrument_PolarPerformance::DrawPercentSpeedScale(wxGCDC* dc)
-{
-  wxString label1, label2, label3, label4, label5, label100;
-  wxColour cl;
-  int width, height;
-  double val1;
-  double BoatSpdScale;
-
-  cl = wxColour(61, 61, 204, 255);
-  dc->SetTextForeground(cl);
-  dc->SetFont(*g_pFontSmall);
-  int tmpval = (int)(m_MaxPercent + 10) % 10;
-  m_MaxPercentScale = (int)(m_MaxPercent + 10 - tmpval);
-  if (m_MaxPercentScale < 100.0)m_MaxPercentScale = 100.0;
-  if (!m_IsRunning) {
-    label1.Printf(_T("--- %s"), m_PercentUnit);
-    label2 = label1;
-    label3 = label1;
-    label4 = label1;
-    label5 = label1;
-    label100 = label1;
-  }
-  else {
-    //we round the speed up to the next full knot ==> the top and bottom line have full numbers as legend (e.g. 23 kn -- 0 kn)
-    //but the intermediate lines may have decimal values (e.g. center line : 23/2=11.5 or quarter line 23/4=5.75), so in worst case
-    //we end up with 23 - 17.25 - 11.5 - 5.75 - 0
-    //The goal is to draw the legend with decimals only, if we really have them !
-    //
-    // legend for 100 %
-    label100.Printf(_T("%.0f %s"), 100.0, m_PercentUnit);
-    // top legend for max %
-    label1.Printf(_T("%.0f %s"), m_MaxPercentScale, m_PercentUnit);
-    // 3/4 legend
-    BoatSpdScale = m_MaxPercentScale*3. / 4.;
-    // do we need a decimal ?
-    val1 = (int)((BoatSpdScale - (int)BoatSpdScale) * 100);
-    if (val1 == 25 || val1 == 75)  // it's a .25 or a .75
-      label2.Printf(_T("%.2f %s"), BoatSpdScale, m_PercentUnit);
-    else if (val1 == 50)
-      label2.Printf(_T("%.1f %s"), BoatSpdScale, m_PercentUnit);
-    else
-      label2.Printf(_T("%.0f %s"), BoatSpdScale, m_PercentUnit);
-    // center legend
-    BoatSpdScale = m_MaxPercentScale / 2.;
-    // center line can either have a .0 or .5 value !
-    if ((int)(BoatSpdScale * 10) % 10 == 5)
-      label3.Printf(_T("%.1f %s"), BoatSpdScale, m_PercentUnit);
-    else
-      label3.Printf(_T("%.0f %s"), BoatSpdScale, m_PercentUnit);
-
-    // 1/4 legend
-    BoatSpdScale = m_MaxPercentScale / 4.;
-    // do we need a decimal ?
-    val1 = (int)((BoatSpdScale - (int)BoatSpdScale) * 100);
-    if (val1 == 25 || val1 == 75)
-      label4.Printf(_T("%.2f %s"), BoatSpdScale, m_PercentUnit);
-    else if (val1 == 50)
-      label4.Printf(_T("%.1f %s"), BoatSpdScale, m_PercentUnit);
-    else
-      label4.Printf(_T("%.0f %s"), BoatSpdScale, m_PercentUnit);
-
-    //bottom legend for min wind, always 0
-    label5.Printf(_T("%.0f %s"), 0.0, m_PercentUnit);
-  }
-  if (m_MaxPercentScale > 100.0){
-    dc->GetTextExtent(label100, &width, &height, 0, 0, g_pFontSmall);
-    dc->DrawText(label100, 4, (int)(m_TopLineHeight + m_DrawAreaRect.height * 100.0 / m_MaxPercentScale - height / 2));
-  }
-  dc->GetTextExtent(label1, &m_LeftLegend, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label1, 4, (int)(m_TopLineHeight - height / 2));
-  dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label2, 4, (int)(m_TopLineHeight + m_DrawAreaRect.height / 4 - height / 2));
-  m_LeftLegend = wxMax(width, m_LeftLegend);
-  dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label3, 4, (int)(m_TopLineHeight + m_DrawAreaRect.height / 2 - height / 2));
-  m_LeftLegend = wxMax(width, m_LeftLegend);
-  dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label4, 4, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.75 - height / 2));
-  m_LeftLegend = wxMax(width, m_LeftLegend);
-  dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label5, 4, (int)(m_TopLineHeight + m_DrawAreaRect.height - height / 2));
-  m_LeftLegend = wxMax(width, m_LeftLegend);
-  m_LeftLegend += 4;
-}*/
-//*********************************************************************************
-//draw background
-//*********************************************************************************
-/*void TacticsInstrument_PolarPerformance::DrawBackground(wxGCDC* dc)
-{
-  wxString label, label1, label2, label3, label4, label5;
-  wxColour cl;
-  wxPen pen;
-  //---------------------------------------------------------------------------------
-  // draw legends for speed and direction
-  //---------------------------------------------------------------------------------
-  DrawBoatSpeedScale(dc);
-  DrawPercentSpeedScale(dc);
-
-  //---------------------------------------------------------------------------------
-  // horizontal lines
-  //---------------------------------------------------------------------------------
-  //100% line
-  if (m_MaxPercentScale > 100.0){
-    GetGlobalColor(_T("URED"), &cl);
-    pen.SetColour(cl);
-    dc->SetPen(pen);
-    dc->DrawLine(m_LeftLegend + 3, (int)(m_TopLineHeight + m_DrawAreaRect.height * 100.0 / m_MaxPercentScale), m_WindowRect.width - 3 - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height * 100.0 / m_MaxPercentScale));
-  }
-  GetGlobalColor(_T("UBLCK"), &cl);
-  pen.SetColour(cl);
-  dc->SetPen(pen);
-  dc->DrawLine(m_LeftLegend + 3, m_TopLineHeight, m_WindowRect.width - 3 - m_RightLegend, m_TopLineHeight); // the upper line
-  dc->DrawLine(m_LeftLegend + 3, (int)(m_TopLineHeight + m_DrawAreaRect.height), m_WindowRect.width - 3 - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height));
-  pen.SetStyle(wxPENSTYLE_DOT);
-  dc->SetPen(pen);
-  dc->DrawLine(m_LeftLegend + 3, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.25), m_WindowRect.width - 3 - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.25));
-  dc->DrawLine(m_LeftLegend + 3, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.75), m_WindowRect.width - 3 - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.75));
-#ifdef __WXMSW__  
-  pen.SetStyle(wxSHORT_DASH);
-  dc->SetPen(pen);
-#endif  
-  dc->DrawLine(m_LeftLegend + 3, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.5), m_WindowRect.width - 3 - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height*0.5));
-}*/
 //*********************************************************************************
 // draw percent boat speed scale (left side)
 //*********************************************************************************

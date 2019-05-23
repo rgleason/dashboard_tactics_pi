@@ -207,13 +207,8 @@ wxJSONValue::wxJSONValue()
 wxJSONRefData*
 wxJSONValue::Init( wxJSONType type )
 {
-    wxJSONRefData* data = GetRefData();
-    if ( data != 0 ) {
-        UnRef();
-    }
-
-    // we allocate a new instance of the referenced data
-    data = new wxJSONRefData();
+    wxJSONRefData* data;
+    data = GetRefData();
     wxJSON_ASSERT( data );
 
     // in release builds we do not have ASSERT so we check 'data' before
@@ -3060,7 +3055,8 @@ wxJSONValue::CreateRefData() const
 wxJSONRefData*
 wxJSONValue::COW()
 {
-    wxJSONRefData* data = GetRefData();
+    wxJSONRefData* data;
+    data = GetRefData();
     wxLogTrace( cowTraceMask, _T("(%s) COW() START data=%p data->m_count=%d"),
              __PRETTY_FUNCTION__, data, data->GetRefCount());
     UnShare();

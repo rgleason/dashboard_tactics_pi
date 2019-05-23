@@ -247,33 +247,33 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local Sunrise/Sunset" );
 #ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
-		return _("^Leeway");
+		return _("+Leeway");
 	case ID_DBP_I_CURRDIR:
-		return _("^Current Direction");
+		return _("+Current Direction");
 	case ID_DBP_I_CURRSPD:
-		return _("^Current Speed");
+		return _("+Current Speed");
 	case ID_DBP_D_BRG:
-		return _("^Bearing Compass");
+		return _("+Bearing Compass");
 	case	ID_DBP_I_POLSPD:
-		return _("^Polar Speed");
+		return _("+Polar Speed");
 	case	ID_DBP_I_POLVMG:
-		return _("^Actual ") + tactics_pi::get_sVMGSynonym();
+		return _("+Actual ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMG:
-		return _("^Target ") + tactics_pi::get_sVMGSynonym();
+		return _("+Target ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("^Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
+		return _("+Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
 	case	ID_DBP_I_POLCMG:
-		return _("^Actual ") + tactics_pi::get_sCMGSynonym();
+		return _("+Actual ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMG:
-		return _("^Target ") + tactics_pi::get_sCMGSynonym();
+		return _("+Target ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("^Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
+		return _("+Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
 	case ID_DBP_D_POLPERF:
-		return _("^Polar Performance");
+		return _("+Polar Performance");
 	case ID_DBP_D_AVGWIND:
-		return _("^Average Wind");
+		return _("+Average Wind");
 	case ID_DBP_D_POLCOMP:
-		return _("^Polar Compass");
+		return _("+Polar Compass");
 #endif // _TACTICSPI_H
     }
     return _T("");
@@ -421,7 +421,11 @@ wxString MakeName()
 //---------------------------------------------------------------------------------------------------------
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
-    tactics_pi(), wxTimer( this ), opencpn_plugin_16( ppimgr )
+#ifdef _TACTICSPI_H_
+    tactics_pi(), wxTimer( this ), opencpn_plugin_112( ppimgr )
+#else
+     wxTimer( this ), opencpn_plugin_16( ppimgr )
+#endif // _TACTICSPI_H_
 {
     // Create the PlugIn icons
     initialize_images();
@@ -439,7 +443,11 @@ dashboard_pi::~dashboard_pi( void )
 
 int dashboard_pi::Init( void )
 {
+#ifdef _TACTICSPI_H_
+    AddLocaleCatalog( _T("opencpn-dashboard+tactics_pi") );
+#else
     AddLocaleCatalog( _T("opencpn-dashboard_pi") );
+#endif // _TACTICSPI_H_
 
     mVar = NAN;
     mPriPosition = 99;
@@ -619,18 +627,31 @@ wxBitmap *dashboard_pi::GetPlugInBitmap()
 
 wxString dashboard_pi::GetCommonName()
 {
+#ifdef _TACTICSPI_H_
+    return _("Dashboard+Tactics");
+#else
     return _("Dashboard");
+#endif // _TACTICSPI_H_
 }
 
 wxString dashboard_pi::GetShortDescription()
 {
-    return _("Dashboard PlugIn for OpenCPN");
+#ifdef _TACTICSPI_H_
+    return _("Dashboard+Tactics");
+#else
+    return _("Dashboard");
+#endif // _TACTICSPI_H_
 }
 
 wxString dashboard_pi::GetLongDescription()
 {
+#ifdef _TACTICSPI_H_
+    return _("Dashboard PlugIn with Tactics for OpenCPN\n\
+Provides navigation instruments and performance functions from NMEA sources.");
+#else
     return _("Dashboard PlugIn for OpenCPN\n\
 Provides navigation instrument display from NMEA source.");
+#endif // _TACTICSPI_H_
 
 }
 

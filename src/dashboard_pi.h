@@ -35,7 +35,7 @@
 #endif //precompiled headers
 
 #define     PLUGIN_VERSION_MAJOR    1
-#define     PLUGIN_VERSION_MINOR    3
+#define     PLUGIN_VERSION_MINOR    4
 
 #define     MY_API_VERSION_MAJOR    1
 #define     MY_API_VERSION_MINOR    6
@@ -122,7 +122,12 @@ WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
 //----------------------------------------------------------------------------------------------------------
 
 
-class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_16
+class dashboard_pi : public
+#ifdef _TACTICSPI_H_
+    tactics_pi, wxTimer, opencpn_plugin_112
+#else
+    wxTimer, opencpn_plugin_16
+#endif // _TACTICSPI_H_
 {
 public:
     dashboard_pi(void *ppimgr);
