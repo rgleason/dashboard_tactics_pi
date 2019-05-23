@@ -23,18 +23,24 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
 CMAKE_POLICY(SET CMP0043 NEW)
 
-PROJECT(dashboard_pi)
-SET(PACKAGE_NAME dashboard_pi)
-SET(VERBOSE_NAME Dashboard)
-SET(TITLE_NAME Dashboard)
-SET(CPACK_PACKAGE_CONTACT "TBD")
-
-# Comment out the following to remove all tactics_pi originated code from compilation _and_ build
+# ON = performance instruments, OFF = remove all tactics_pi originated code from compilation _and_ build
 SET(TACTICS_INSTRUMENTS ON)
 
-IF (DEFINED TACTICS_INSTRUMENTS)
+PROJECT(dashboard_pi)
+IF (TACTICS_INSTRUMENTS)
+   SET(PACKAGE_NAME dashboard_tactics_pi)
+   SET(VERBOSE_NAME Dashboard with Tactics)
+   SET(TITLE_NAME Dashboard with Tactics)
+ELSE (TACTICS_INSTRUMENTS)
+   SET(PACKAGE_NAME dashboard_pi)
+   SET(VERBOSE_NAME Dashboard)
+   SET(TITLE_NAME Dashboard)
+ENDIF (TACTICS_INSTRUMENTS
+SET(CPACK_PACKAGE_CONTACT "TBD")
+
+IF (TACTICS_INSTRUMENTS)
   ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
-ENDIF (DEFINED TACTICS_INSTRUMENTS)
+ENDIF (TACTICS_INSTRUMENTS)
 
 INCLUDE("cmake/PluginConfigure.cmake")
 
@@ -77,14 +83,14 @@ SET(SRC_DASHBOARD
     include/wx/jsonwriter.h
 )
 
-IF (DEFINED TACTICS_INSTRUMENTS)
+IF (TACTICS_INSTRUMENTS)
   SET(SRC_TACTICS
       src/tactics_pi.h
       src/tactics_pi.cpp
       src/performance.h
       src/performance.cpp
   )
-ENDIF (DEFINED TACTICS_INSTRUMENTS)
+ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -155,11 +161,11 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
-IF (DEFINED TACTICS_INSTRUMENTS)
+IF (TACTICS_INSTRUMENTS)
   SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
-ELSE (DEFINED TACTICS_INSTRUMENTS)
+ELSE (TACTICS_INSTRUMENTS)
   SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
-ENDIF (DEFINED TACTICS_INSTRUMENTS)
+ENDIF (TACTICS_INSTRUMENTS)
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 
 INCLUDE("cmake/PluginInstall.cmake")
