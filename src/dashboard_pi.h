@@ -38,7 +38,13 @@
 #define     PLUGIN_VERSION_MINOR    4
 
 #define     MY_API_VERSION_MAJOR    1
+#ifdef _TACTICSPI_H_
 #define     MY_API_VERSION_MINOR    6
+#else
+#define     MY_API_VERSION_MINOR    12
+#endif // _TACTICSPI_H_
+
+
 
 #include <wx/notebook.h>
 #include <wx/fileconf.h>

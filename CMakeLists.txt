@@ -23,7 +23,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
 CMAKE_POLICY(SET CMP0043 NEW)
 
-# ON = performance instruments, OFF = remove all tactics_pi originated code from compilation _and_ build
+# ON = performance instruments, OFF = exclude all tactics_pi originated code from compilation _and_ build
 SET(TACTICS_INSTRUMENTS ON)
 
 PROJECT(dashboard_pi)
