@@ -433,8 +433,13 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 
 dashboard_pi::~dashboard_pi( void )
 {
+#ifdef _TACTICSPI_H_
+    delete _img_dashboard_tactics_pi;
+    delete _img_dashboard_tactics;
+#else
     delete _img_dashboard_pi;
     delete _img_dashboard;
+#endif // _TACTICSPI_H_
     delete _img_dial;
     delete _img_instrument;
     delete _img_minus;
@@ -444,7 +449,7 @@ dashboard_pi::~dashboard_pi( void )
 int dashboard_pi::Init( void )
 {
 #ifdef _TACTICSPI_H_
-    AddLocaleCatalog( _T("opencpn-dashboard+tactics_pi") );
+    AddLocaleCatalog( _T("opencpn-dashboard-tactics_pi") );
 #else
     AddLocaleCatalog( _T("opencpn-dashboard_pi") );
 #endif // _TACTICSPI_H_
@@ -482,26 +487,44 @@ int dashboard_pi::Init( void )
 
     wxString shareLocn =*GetpSharedDataLocation() +
         _T("plugins") + wxFileName::GetPathSeparator() +
-        _T("dashboard_pi") + wxFileName::GetPathSeparator()
-        +_T("data") + wxFileName::GetPathSeparator();
+#ifdef _TACTICSPI_H_
+        _T("dashboard_tactics_pi") +
+#else
+        _T("dashboard_pi") +
+#endif // _TACTICSPI_H_
+        wxFileName::GetPathSeparator() +
+        _T("data") + wxFileName::GetPathSeparator();
     
+#ifdef _TACTICSPI_H_
+    wxString normalIcon = shareLocn + _T("Dashboard_Tactics.svg");
+    wxString toggledIcon = shareLocn + _T("Dashboard_Tactics_toggled.svg");
+    wxString rolloverIcon = shareLocn + _T("Dashboard_Tactics_rollover.svg");
+#else
     wxString normalIcon = shareLocn + _T("Dashboard.svg");
     wxString toggledIcon = shareLocn + _T("Dashboard_toggled.svg");
     wxString rolloverIcon = shareLocn + _T("Dashboard_rollover.svg");
+#endif // _TACTICSPI_H_
 
     /* For journeyman styles, we prefer the built-in raster icons
        which match the rest of the toolbar. */
+#ifndef _TACTICSPI_H_
     if(GetActiveStyleName().Lower() != _T("traditional")){
         normalIcon = _T("");
         toggledIcon = _T("");
         rolloverIcon = _T("");
     }
+#endif // _TACTICSPI_H_
          
     m_toolbar_item_id = InsertPlugInToolSVG(
         _T(""), normalIcon, rolloverIcon, toggledIcon,
-        wxITEM_CHECK, _("Dashboard"), _T(""), NULL,
+        wxITEM_CHECK,
+#ifdef _TACTICSPI_H_
+        _("Dashboard_Tactics"),
+#else
+        _("Dashboard"),
+#endif // _TACTICSPI_H_
+        _T(""), NULL,
         DASHBOARD_TOOL_POSITION, 0, this );
-    
     
     ApplyConfig();
 
@@ -622,13 +645,17 @@ int dashboard_pi::GetPlugInVersionMinor()
 
 wxBitmap *dashboard_pi::GetPlugInBitmap()
 {
+#ifdef _TACTICSPI_H_
+    return _img_dashboard_tactics_pi;
+#else
     return _img_dashboard_pi;
+#endif // _TACTICSPI_H_
 }
 
 wxString dashboard_pi::GetCommonName()
 {
 #ifdef _TACTICSPI_H_
-    return _("Dashboard+Tactics");
+    return _("Dashboard_Tactics");
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
@@ -637,7 +664,7 @@ wxString dashboard_pi::GetCommonName()
 wxString dashboard_pi::GetShortDescription()
 {
 #ifdef _TACTICSPI_H_
-    return _("Dashboard+Tactics");
+    return _("Dashboard and Tactics");
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
@@ -1625,7 +1652,13 @@ bool dashboard_pi::LoadConfig( void )
                 ar.Add( ID_DBP_D_GPS );
             }
 
-            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(), _("Dashboard"), _T("V"), ar );
+            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
+#ifdef _TACTICSPI_H_
+                                                                           _("Dashboard_Tactics"),
+#else
+                                                                           _("Dashboard"),
+#endif // _TACTICSPI_H_    
+                                                                           _T("V"), ar );
             cont->m_bPersVisible = true;
             m_ArrayOfDashboardWindow.Add(cont);
             
@@ -1638,7 +1671,12 @@ bool dashboard_pi::LoadConfig( void )
                 wxString name;
                 pConf->Read( _T("Name"), &name, MakeName() );
                 wxString caption;
-                pConf->Read( _T("Caption"), &caption, _("Dashboard") );
+                pConf->Read( _T("Caption"), &caption,
+#ifdef _TACTICSPI_H_
+                             _("Dashboard_Tactics") );
+#else
+                             _("Dashboard") );
+#endif // _TACTICSPI_H_    
                 wxString orient;
                 pConf->Read( _T("Orientation"), &orient, _T("V") );
                 int i_cnt;
@@ -1826,13 +1864,22 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     wxFlexGridSizer *itemFlexGridSizer01 = new wxFlexGridSizer( 2 );
     itemFlexGridSizer01->AddGrowableCol( 1 );
     itemPanelNotebook01->SetSizer( itemFlexGridSizer01 );
-    itemNotebook->AddPage( itemPanelNotebook01, _("Dashboard") );
+    itemNotebook->AddPage( itemPanelNotebook01,
+#ifdef _TACTICSPI_H_
+                          _("Dashboard_Tactics") );
+#else
+                          _("Dashboard") );
+#endif // _TACTICSPI_H_    
 
     wxBoxSizer *itemBoxSizer01 = new wxBoxSizer( wxVERTICAL );
     itemFlexGridSizer01->Add( itemBoxSizer01, 1, wxEXPAND | wxTOP | wxLEFT, border_size );
 
     wxImageList *imglist1 = new wxImageList( 32, 32, true, 1 );
+#ifdef _TACTICSPI_H_
+    imglist1->Add( *_img_dashboard_tactics_pi );
+#else
     imglist1->Add( *_img_dashboard_pi );
+#endif // _TACTICSPI_H_
 
     m_pListCtrlDashboards = new wxListCtrl( itemPanelNotebook01, wxID_ANY, wxDefaultPosition,
                                             wxSize( 50, 200 ), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL );
@@ -1865,7 +1912,12 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     wxBoxSizer* itemBoxSizer03 = new wxBoxSizer( wxVERTICAL );
     m_pPanelDashboard->SetSizer( itemBoxSizer03 );
 
-    wxStaticBox* itemStaticBox02 = new wxStaticBox( m_pPanelDashboard, wxID_ANY, _("Dashboard") );
+    wxStaticBox* itemStaticBox02 = new wxStaticBox( m_pPanelDashboard, wxID_ANY,
+#ifdef _TACTICSPI_H_
+                                                    _("Dashboard_Tactics") );
+#else
+                                                    _("Dashboard") );
+#endif // _TACTICSPI_H_    
     wxStaticBoxSizer* itemStaticBoxSizer02 = new wxStaticBoxSizer( itemStaticBox02, wxHORIZONTAL );
     itemBoxSizer03->Add( itemStaticBoxSizer02, 0, wxEXPAND | wxALL, border_size );
     wxFlexGridSizer *itemFlexGridSizer = new wxFlexGridSizer( 2 );
@@ -2207,7 +2259,13 @@ void DashboardPreferencesDialog::OnDashboardAdd( wxCommandEvent& event )
     // Data is index in m_Config
     m_pListCtrlDashboards->SetItemData( idx, m_Config.GetCount() );
     wxArrayInt ar;
-    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(), _("Dashboard"), _T("V"), ar );
+    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
+#ifdef _TACTICSPI_H_
+                                                                  _("Dashboard_Tactics"),
+#else
+                                                                  _("Dashboard"),
+#endif // _TACTICSPI_H_    
+                                                                  _T("V"), ar );
     dwc->m_bIsVisible = true;
     m_Config.Add( dwc );
 }
@@ -2384,7 +2442,11 @@ unsigned int AddInstrumentDlg::GetInstrumentAdded()
 DashboardWindow::DashboardWindow( wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
                                   dashboard_pi* plugin, int orient, DashboardWindowContainer* mycont ) :
     wxWindow( pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE,
+#ifdef _TACTICSPI_H_
+              _T("Dashboard_Tactics") )
+#else
               _T("Dashboard") )
+#endif // _TACTICSPI_H_    
 {
     m_pauimgr = auimgr;
     m_plugin = plugin;

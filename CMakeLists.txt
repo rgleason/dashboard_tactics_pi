@@ -28,7 +28,7 @@ SET(TACTICS_INSTRUMENTS ON)
 
 PROJECT(dashboard_pi)
 IF (TACTICS_INSTRUMENTS)
-   SET(PACKAGE_NAME dashboard+tactics_pi)
+   SET(PACKAGE_NAME dashboard_tactics_pi)
    SET(VERBOSE_NAME Dashboard with Tactics Performance)
    SET(TITLE_NAME Dashboard with Tactics)
 ELSE (TACTICS_INSTRUMENTS)

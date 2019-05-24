@@ -6,11 +6,17 @@
 #ifndef WX_PRECOMP
 #	include <wx/wx.h>
 #endif
+#include "dashboard_pi.h"
 
 extern void initialize_images(void);
 
+#ifdef _TACTICSPI_H_
+extern wxBitmap *_img_dashboard_tactics_pi; // if needed, separate icons can be created...
+extern wxBitmap *_img_dashboard_tactics;    // ... if built-in dashboard has a copyright.
+#else
 extern wxBitmap *_img_dashboard_pi;
 extern wxBitmap *_img_dashboard;
+#endif // _TACTICSPI_H_
 extern wxBitmap *_img_dial;
 extern wxBitmap *_img_instrument;
 extern wxBitmap *_img_minus;

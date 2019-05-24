@@ -34,18 +34,6 @@
 #include "wx/wx.h"
 #endif //precompiled headers
 
-#define     PLUGIN_VERSION_MAJOR    1
-#define     PLUGIN_VERSION_MINOR    4
-
-#define     MY_API_VERSION_MAJOR    1
-#ifdef _TACTICSPI_H_
-#define     MY_API_VERSION_MINOR    6
-#else
-#define     MY_API_VERSION_MINOR    12
-#endif // _TACTICSPI_H_
-
-
-
 #include <wx/notebook.h>
 #include <wx/fileconf.h>
 #include <wx/listctrl.h>
@@ -62,6 +50,16 @@
 #include "tactics_pi.h"
 #endif // _TACTICSPI_H_
 #endif // _INCLUDE_TACTICS_PI_
+
+#define     PLUGIN_VERSION_MAJOR    1
+#define     PLUGIN_VERSION_MINOR    4
+
+#define     MY_API_VERSION_MAJOR    1
+#ifdef _TACTICSPI_H_
+#define     MY_API_VERSION_MINOR    12
+#else
+#define     MY_API_VERSION_MINOR    6
+#endif // _TACTICSPI_H_
 
 #include "nmea0183/nmea0183.h"
 #include "instrument.h"
