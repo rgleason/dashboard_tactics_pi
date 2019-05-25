@@ -22,4 +22,16 @@ extern wxBitmap *_img_instrument;
 extern wxBitmap *_img_minus;
 extern wxBitmap *_img_plus;
 
+#ifdef OCPN_USE_SVG
+#ifdef _TACTICSPI_H_
+extern wxString _svg_dashboard_tactics;
+extern wxString _svg_dashboard_tactics_rollover;
+extern wxString _svg_dashboard_tactics_toggled;
+#else
+extern wxString _svg_dashboard;
+extern wxString _svg_dashboard_rollover;
+extern wxString _svg_dashboard_toggled;
+#endif // _TACTICSPI_H_
+#endif //  OCPN_USE_SVG
+
 #endif /* ICONS_H */

@@ -128,8 +128,9 @@ bool IsObsolete( int id ) {
     switch( id ) {
     case ID_DBP_D_AWA:
 #ifdef _TACTICSPI_H_
-        /* Please see above, placeholders for evenual new dashboard_pi instuments before tactics_pi instruments:
-           the enumeration and this "obsolence" list must match. */
+        /* Please see above, placeholders for evenual new dashboard_pi insteuments shall go
+           before tactics_pi instruments: the eInstruments enumeration and this
+           "obsolence" list, a placeholder between the two instrument lists must match. */
     case ID_DBP_R_AAAA:
     case ID_DBP_R_AAAB:
     case ID_DBP_R_AAAC:
@@ -485,28 +486,28 @@ int dashboard_pi::Init( void )
     //    And load the configuration items
     LoadConfig();
 
-    wxString shareLocn =*GetpSharedDataLocation() +
-        _T("plugins") + wxFileName::GetPathSeparator() +
+#ifdef OCPN_USE_SVG
+    m_toolbar_item_id = InsertPlugInToolSVG(
+        this->GetCommonName(),
 #ifdef _TACTICSPI_H_
-        _T("dashboard_tactics_pi") +
+        _svg_dashboard_tactics, _svg_dashboard_tactics_rollover, _svg_dashboard_tactics_toggled,
 #else
-        _T("dashboard_pi") +
+        _svg_dashboard, _svg_dashboard_rollover, _svg_dashboard_toggled,
 #endif // _TACTICSPI_H_
-        wxFileName::GetPathSeparator() +
-        _T("data") + wxFileName::GetPathSeparator();
-    
+        wxITEM_CHECK, this->GetShortDescription(), _T( "" ), NULL, DASHBOARD_TOOL_POSITION, 0, this);
+#else
+    // Use memory allocated PNG-images (icons.cpp)
+    m_toolbar_item_id = InsertPlugInTool
+        (_T(""),
 #ifdef _TACTICSPI_H_
-    wxString normalIcon = shareLocn + _T("Dashboard_Tactics.svg");
-    wxString toggledIcon = shareLocn + _T("Dashboard_Tactics_toggled.svg");
-    wxString rolloverIcon = shareLocn + _T("Dashboard_Tactics_rollover.svg");
+         _img_dashboard_tactics_pi, _img_dashboard_tactics_pi,
 #else
-    wxString normalIcon = shareLocn + _T("Dashboard.svg");
-    wxString toggledIcon = shareLocn + _T("Dashboard_toggled.svg");
-    wxString rolloverIcon = shareLocn + _T("Dashboard_rollover.svg");
+         _img_dashboard_pi, _img_dashboard_pi,
 #endif // _TACTICSPI_H_
+         wxITEM_CHECK, this->GetCommonName(), _T(""), NULL,
+         DASHBOARD_TOOL_POSITION, 0, this);
+#endif // OCPN_USE_SVG
 
-    /* For journeyman styles, we prefer the built-in raster icons
-       which match the rest of the toolbar. */
 #ifndef _TACTICSPI_H_
     if(GetActiveStyleName().Lower() != _T("traditional")){
         normalIcon = _T("");
@@ -515,17 +516,6 @@ int dashboard_pi::Init( void )
     }
 #endif // _TACTICSPI_H_
          
-    m_toolbar_item_id = InsertPlugInToolSVG(
-        _T(""), normalIcon, rolloverIcon, toggledIcon,
-        wxITEM_CHECK,
-#ifdef _TACTICSPI_H_
-        _("Dashboard_Tactics"),
-#else
-        _("Dashboard"),
-#endif // _TACTICSPI_H_
-        _T(""), NULL,
-        DASHBOARD_TOOL_POSITION, 0, this );
-    
     ApplyConfig();
 
     //  If we loaded a version 1 config setup, convert now to version 2
@@ -646,9 +636,9 @@ int dashboard_pi::GetPlugInVersionMinor()
 wxBitmap *dashboard_pi::GetPlugInBitmap()
 {
 #ifdef _TACTICSPI_H_
-    return _img_dashboard_tactics_pi;
+    return new wxBitmap(_img_dashboard_tactics_pi->ConvertToImage().Copy());
 #else
-    return _img_dashboard_pi;
+    return new wxBitmap(_img_dashboard_pi->ConvertToImage().Copy());
 #endif // _TACTICSPI_H_
 }
 
