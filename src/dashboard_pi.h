@@ -166,6 +166,10 @@ public:
     void PopulateContextMenu( wxMenu* menu );
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
+#ifdef _TACTICSPI_H_
+    bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
+    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+#endif // _TACTICSPI_H_ 
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
     

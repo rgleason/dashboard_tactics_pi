@@ -1841,6 +1841,17 @@ void dashboard_pi::ShowDashboard( size_t id, bool visible )
     }
 }
 
+#ifdef _TACTICSPI_H_
+bool dashboard_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
+{
+    return tactics_pi::RenderOverlay( dc, vp );
+}
+bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
+{
+    return tactics_pi::RenderGLOverlay( pcontext, vp );
+}
+#endif // _TACTICSPI_H_ 
+
 /* DashboardPreferencesDialog
  *
  */

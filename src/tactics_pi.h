@@ -127,6 +127,24 @@ public:
     bool LoadConfig(void);
     void ApplyConfig(void);
     bool SaveConfig(void);
+    bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
+    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    void DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    void DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    void DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp);
+    void DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle );
+    void DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, wxString color, int size, double rad);
+    void ToggleLaylineRender(wxWindow* parent);
+    void ToggleCurrentRender(wxWindow* parent);
+    void TogglePolarRender(wxWindow* parent);
+    void ToggleWindbarbRender(wxWindow* parent);
+    bool GetLaylineVisibility(wxWindow* parent);
+    bool GetWindbarbVisibility(wxWindow* parent);
+    bool GetCurrentVisibility(wxWindow* parent);
+    bool GetPolarVisibility(wxWindow* parent);
+    void CalculateLaylineDegreeRange(void);
+
+
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
 private:
@@ -271,22 +289,6 @@ private:
 //       void CalculatePerformanceData(void);
 //       void CalculatePredictedCourse(void);
 // 	  void SetCalcVariables(int st, double value, wxString unit);
-// 	  bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
-// 	  bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-// 	  void DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-// 	  void DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-//       void DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp);
-//       void DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle );
-//       //void DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle, double TargetAngle, wxString color, double rad);
-//       void DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, wxString color, int size, double rad);
-//       void ToggleLaylineRender(wxWindow* parent);
-//       void ToggleCurrentRender(wxWindow* parent);
-//       void TogglePolarRender(wxWindow* parent);
-//       void ToggleWindbarbRender(wxWindow* parent);
-//       bool GetLaylineVisibility(wxWindow* parent);
-//       bool GetWindbarbVisibility(wxWindow* parent);
-//       bool GetCurrentVisibility(wxWindow* parent);
-//       bool GetPolarVisibility(wxWindow* parent);
 //       void OnContextMenuItemCallback(int id);
 
 // private:
