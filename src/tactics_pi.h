@@ -122,10 +122,16 @@ class tactics_pi
 public:
     tactics_pi(void);
     ~tactics_pi(void);
+    int tactics_pi::Init( opencpn_plugin *hostplugin );
     bool LoadConfig( wxFileConfig *pConf );
+    void tactics_pi::ApplyConfig(void);
+    bool tactics_pi::SaveConfig( wxFileConfig *pConf );
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
 private:
+    opencpn_plugin      *m_hostplugin;
+    wxString             m_hostplugin_config_path;
+    wxString             m_this_config_path;
     wxFileConfig        *m_pconfig;
     wxAuiManager        *m_pauimgr;
     int                  m_toolbar_item_id;
@@ -232,7 +238,12 @@ private:
     bool                 b_tactics_dc_message_shown = false;
 
     bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );
-    bool LoadConfigTacticsPlugin( wxFileConfig *pConf );
+    void ImportStandaloneTacticsSettings ( wxFileConfig *pConf );
+    bool StandaloneTacticsSettingsExists ( wxFileConfig *pConf );
+    void LoadTacticsPluginBasePart ( wxFileConfig *pConf );
+    void LoadTacticsPluginPerformancePart ( wxFileConfig *pConf );
+    void SaveTacticsPluginBasePart ( wxFileConfig *pConf );
+    void SaveTacticsPluginPerformancePart ( wxFileConfig *pConf );
 
 };
 

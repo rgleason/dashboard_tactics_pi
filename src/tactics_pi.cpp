@@ -75,6 +75,7 @@ wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
 
 tactics_pi::tactics_pi( void )
 {
+    m_hostplugin = NULL;
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
 	alpha_currspd = 0.2;  //smoothing constant for current speed
@@ -130,17 +131,6 @@ tactics_pi::tactics_pi( void )
 
      b_tactics_dc_message_shown = false;
 
-	BoatPolar = new Polar(this);
-	if (g_path_to_PolarFile != _T("NULL"))
-		BoatPolar->loadPolar(g_path_to_PolarFile);
-	else
-		BoatPolar->loadPolar(_T("NULL"));
-	//    This PlugIn needs a toolbar icon
-	wxString shareLocn = *GetpSharedDataLocation() +
-		_T("plugins") + wxFileName::GetPathSeparator() +
-		_T("tactics_pi") + wxFileName::GetPathSeparator()
-		+ _T("data") + wxFileName::GetPathSeparator();
-
 }
 
 tactics_pi::~tactics_pi( void )
@@ -148,21 +138,150 @@ tactics_pi::~tactics_pi( void )
 
 }
 
+int tactics_pi::Init( opencpn_plugin *hostplugin )
+{
+    m_hostplugin = hostplugin;
+    mVar = NAN;
+    mPriPosition = 99;
+    mPriCOGSOG = 99;
+    mPriHeadingT = 99; // True heading
+    mPriHeadingM = 99; // Magnetic heading
+    mPriVar = 99;
+    mPriDateTime = 99;
+    mPriAWA = 99; // Relative wind
+    mPriTWA = 99; // True wind
+    mPriDepth = 99;
+    m_config_version = -1;
+    mHDx_Watchdog = 2;
+    mHDT_Watchdog = 2;
+    mGPS_Watchdog = 5;
+    mVar_Watchdog = 2;
+    mBRG_Watchdog = 2;
+    mTWS_Watchdog = 5;
+    mTWD_Watchdog = 5;
+    mAWS_Watchdog = 2;
+    m_bNKE_TrueWindTableBug = false;
+    m_VWR_AWA = 10;
+	alpha_currspd = 0.2;  //smoothing constant for current speed
+	alpha_CogHdt = 0.1; // smoothing constant for diff. btw. Cog & Hdt
+	m_ExpSmoothCurrSpd = NAN;
+	m_ExpSmoothCurrDir = NAN;
+	m_ExpSmoothSog = NAN;
+	m_ExpSmoothSinCurrDir = NAN;
+	m_ExpSmoothCosCurrDir = NAN;
+	m_ExpSmoothSinCog = NAN;
+	m_ExpSmoothCosCog = NAN;
+	m_CurrentDirection = NAN;
+	m_LaylineSmoothedCog = NAN;
+	m_LaylineDegRange = 0;
+	mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
+	mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
+	mExpSmoothCurrSpd = new ExpSmooth(alpha_currspd);
+	mExpSmoothSog = new DoubleExpSmooth(0.4);
+    mExpSmSinCog = new DoubleExpSmooth(
+        g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
+    mExpSmCosCog = new DoubleExpSmooth(
+        g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
+    m_ExpSmoothDegRange = 0;
+	mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
+	mExpSmDegRange->SetInitVal(g_iMinLaylineWidth);
+	mExpSmDiffCogHdt = new ExpSmooth(alpha_CogHdt);
+	mExpSmDiffCogHdt->SetInitVal(0);
+	m_bShowPolarOnChart = false;
+	m_bShowWindbarbOnChart = false;
+	m_bDisplayCurrentOnChart = false;
+	m_LeewayOK = false;
+	mHdt = NAN;
+	mStW = NAN;
+	mTWA = NAN;
+	mTWD = NAN;
+	mTWS = NAN;
+	m_calcTWA = NAN;
+	m_calcTWD = NAN;
+	m_calcTWS = NAN;
+	mSOG = NAN;
+	mCOG = NAN;
+	mlat = NAN;
+	mlon = NAN;
+	mheel = NAN;
+	mLeeway = NAN;
+	mPolarTargetSpeed = NAN;
+	mBRG = NAN;
+	mVMGGain = mCMGGain = mVMGoptAngle = mCMGoptAngle = 0.0;
+	mPredictedCoG = NAN;
+	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = NAN;
+
+	m_bTrueWind_available = false;
+
+	BoatPolar = new Polar(this);
+	if (g_path_to_PolarFile != _T("NULL"))
+		BoatPolar->loadPolar(g_path_to_PolarFile);
+	else
+		BoatPolar->loadPolar(_T("NULL"));
+
+	// Context menue for making marks    
+	m_pmenu = new wxMenu();
+	// this is a dummy menu required by Windows as parent to item created
+	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set Tactics Mark "));
+	int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
+	SetCanvasContextMenuItemViz(miid, true);
+
+	return (WANTS_CURSOR_LATLON |
+		WANTS_TOOLBAR_CALLBACK |
+		INSTALLS_TOOLBAR_TOOL |
+		WANTS_PREFERENCES |
+		WANTS_CONFIG |
+		WANTS_NMEA_SENTENCES |
+		WANTS_NMEA_EVENTS |
+		USES_AUI_MANAGER |
+		WANTS_PLUGIN_MESSAGING |
+		WANTS_OPENGL_OVERLAY_CALLBACK |
+		WANTS_OVERLAY_CALLBACK
+		);
+}
+
+
+
 bool tactics_pi::LoadConfig( wxFileConfig *pConf )
 {
-	if (pConf) {
-
-        wxString basePath = pConf->GetPath();
-        wxString perfPath = _T("/Performance");
-        wxConfigPathChanger tempConfigPath( (wxConfigBase *)pConf, basePath + perfPath);
-        if (this->LoadConfig_CheckTacticsPlugin( pConf )) {
-            return true;
-        } // then check if tactic_pi parameters exists and propose to import - if imported, that's it: config loaded
-        // otherwise, if not imported from the original, standalone Tactics Plugin, we must have our own values now:
-        return this->LoadConfigTacticsPlugin( pConf );
-    }
-    else
+	if (!pConf)
         return false;
+
+    this->m_hostplugin_config_path = pConf->GetPath();
+    this->m_this_config_path =
+        this->m_hostplugin_config_path + _T("/Tactics");
+    pConf->SetPath( this->m_this_config_path );
+    if (!this->LoadConfig_CheckTacticsPlugin( pConf )) {
+        /* If not imported from the tactics_pi
+         standalone Tactics Plugin, we must have our own
+         settings in ini-file by now: */
+        pConf->SetPath( this->m_this_config_path );
+        bool bUserDecision = g_bTacticsImportChecked;
+        this->LoadTacticsPluginBasePart( pConf );
+        g_bTacticsImportChecked = bUserDecision;
+        pConf->SetPath( this->m_this_config_path + _T("/Performance"));
+        this->LoadTacticsPluginPerformancePart( pConf );
+    }
+    else {
+        /* Placeholder for the future possible case, where
+           in this plugin new instruments and/or settings
+           have been introduced but tactic_pi plugins has
+           not those settings or instruments in the ini-file:
+           Those settings would have not value at this point.
+           For the time being, and I hope it remains so, the
+           settings are the same but kept in two different places
+           in the ini-file. */
+    }
+    BoatPolar = NULL;
+    /* Unlike the tactics_pi plugin, Dashboard  not absolutely require
+       to have polar-file - it may be that the user is not
+       interested in performance part. Yet. We can ask that later. */
+    if (g_path_to_PolarFile != _T("NULL")) {
+        BoatPolar = new Polar(this);
+        BoatPolar->loadPolar(g_path_to_PolarFile);
+    }
+    
+    return true;
 }
 /*
  Check and swap to original TacticsPlugin group if the user wish to import from there, return false if no import
@@ -170,33 +289,34 @@ bool tactics_pi::LoadConfig( wxFileConfig *pConf )
 bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
 {
     bool bCheckIt = false;
-    if (!pConf->Exists(_T("TacticsImportChecked"))) {
-            pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, true);
-            bCheckIt = true;
-        } // then check if tactic_pi parameters exists and propose to import
+    pConf->SetPath( this->m_this_config_path );
+   if (!pConf->Exists(_T("TacticsImportChecked"))) {
+        g_bTacticsImportChecked = false;
+        bCheckIt = true;
+    } // then this must be the first run...
     else {
-        pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, true);
-        if (!g_bTacticsImportChecked) {
+        pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, false);
+        if (!g_bTacticsImportChecked)
             bCheckIt = true;
-            g_bTacticsImportChecked = true;
-        }
-    } // else check is done only once, normally, unless TacticsImportChecked is altered manually to false
+    } /* else check is done only once, normally, unless
+         TacticsImportChecked is altered manually to false */
     if (!bCheckIt)
         return false;
-    if (!pConf->Exists(_T("/PlugIns/Tactics/Performance")))
+    if (!this->StandaloneTacticsSettingsExists ( pConf )) 
         return false;
     wxString message(
         _("Import existing Tactics plugin settings into Dashboard's integrated Tactics settings? (Cancel=later)"));
     wxMessageDialog *dlg = new wxMessageDialog(
         GetOCPNCanvasWindow(), message, _T("Dashboard configuration choice"), wxYES_NO|wxCANCEL);
     int choice = dlg->ShowModal();
-    if ( choice == wxID_YES ) { 
-        wxConfigPathChanger tempConfigPath( pConf, "/PlugIns/Tactics/Performance");
-        this->LoadConfigTacticsPlugin( pConf );
+    if ( choice == wxID_YES ) {
+        this->ImportStandaloneTacticsSettings ( pConf );
+        g_bTacticsImportChecked = true;
         return true;
     } // then import
     else {
         if (choice == wxID_NO ) { 
+            g_bTacticsImportChecked = true;
             return false;
         } // then do not import, attempt to import from local
         else {
@@ -205,19 +325,46 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
         } // else not sure (cancel): not now, but will ask again
     } // else no or cancel
 }
-/*
- This is the actual load method, it may be used twice:
- once, initially, for the importing the original tactics_pi plugin settings and then,
- after that, to import the same values, but from the dashboard_pi plugin's
- new Performance group where we keep the settings, separeted from the tactics_pi plugin
- settings, for more freedom for the future development of dashboard_pi but also 
- to avoid confusion in case the two plugins are used in same installation.
-*/
-bool tactics_pi::LoadConfigTacticsPlugin( wxFileConfig *pConf )
+void tactics_pi::ImportStandaloneTacticsSettings ( wxFileConfig *pConf )
 {
-    if (!pConf)
-        return false;
+    pConf->SetPath( "/PlugIns/Tactics" );
+    this->LoadTacticsPluginBasePart( pConf );
+    pConf->SetPath( "/PlugIns/Tactics/Performance" );
+    this->LoadTacticsPluginPerformancePart( pConf );
+}
 
+bool tactics_pi::StandaloneTacticsSettingsExists ( wxFileConfig *pConf )
+{
+    pConf->SetPath( "/PlugIns/Tactics/Performance" );
+    if (pConf->Exists(_T("PolarFile")))
+        return true;
+    return false;
+}
+
+/*
+  Load tactics_pi settings from the Tactics base group,
+  underneath the group given in pConf object (you must set it).
+*/
+void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
+{
+    pConf->Read(_T("CurrentDampingFactor"), &g_dalpha_currdir, 0.008);
+    pConf->Read(_T("LaylineDampingFactor"), &g_dalphaLaylinedDampFactor, 0.15);
+    pConf->Read(_T("LaylineLenghtonChart"), &g_dLaylineLengthonChart, 10.0);
+    pConf->Read(_T("MinLaylineWidth"), &g_iMinLaylineWidth, 4);
+    pConf->Read(_T("MaxLaylineWidth"), &g_iMaxLaylineWidth, 30);
+    pConf->Read(_T("LaylineWidthDampingFactor"), &g_dalphaDeltCoG, 0.25);
+    pConf->Read(_T("ShowCurrentOnChart"), &g_bDisplayCurrentOnChart, false);
+    m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
+    pConf->Read(_T("CMGSynonym"), &g_sCMGSynonym, _T("CMG"));
+    pConf->Read(_T("VMGSynonym"), &g_sVMGSynonym, _T("VMG"));
+    pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, false);
+}
+/*
+  Import tactics_pi settings from the Tactics Performance Group,
+  underneath the group given in pConf object (you must set it)
+*/
+void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
+{
     pConf->Read(_T("PolarFile"), &g_path_to_PolarFile, _T("NULL"));
     pConf->Read(_T("BoatLeewayFactor"), &g_dLeewayFactor, 10);
     pConf->Read(_T("fixedLeeway"), &g_dfixedLeeway, 30);
@@ -255,9 +402,77 @@ bool tactics_pi::LoadConfigTacticsPlugin( wxFileConfig *pConf )
     pConf->Read(_T("ExpCurrent"), &g_bExpPerfData05, false);
     pConf->Read(_T("NKE_TrueWindTableBug"), &g_bNKE_TrueWindTableBug, false);
     m_bNKE_TrueWindTableBug = g_bNKE_TrueWindTableBug;
+}
+void tactics_pi::ApplyConfig(void)
+{
+}
 
+bool tactics_pi::SaveConfig( wxFileConfig *pConf )
+{
+    if (!pConf)
+        return false;
+    pConf->SetPath( this->m_this_config_path );
+    SaveTacticsPluginBasePart ( pConf );
+    pConf->SetPath( this->m_this_config_path + _T("/Performance"));
+    SaveTacticsPluginPerformancePart ( pConf );
     return true;
- 
+}
+/*
+  Save tactics_pi settings into the Tactics base group,
+  underneath the group given in pConf object (you have to set it).
+*/
+void tactics_pi::SaveTacticsPluginBasePart ( wxFileConfig *pConf )
+{
+    pConf->Write(_T("CurrentDampingFactor"), g_dalpha_currdir);
+    pConf->Write(_T("LaylineDampingFactor"), g_dalphaLaylinedDampFactor);
+    pConf->Write(_T("LaylineLenghtonChart"), g_dLaylineLengthonChart);
+    pConf->Write(_T("MinLaylineWidth"), g_iMinLaylineWidth);
+    pConf->Write(_T("MaxLaylineWidth"), g_iMaxLaylineWidth);
+    pConf->Write(_T("LaylineWidthDampingFactor"), g_dalphaDeltCoG);
+    pConf->Write(_T("ShowCurrentOnChart"), g_bDisplayCurrentOnChart);
+    pConf->Write(_T("CMGSynonym"), g_sCMGSynonym);
+    pConf->Write(_T("VMGSynonym"), g_sVMGSynonym);
+    pConf->Write(_T("TacticsImportChecked"), g_bTacticsImportChecked);
+}
+/*
+  Save tactics_pi settings into the Tactics Performance Group,
+  underneath the group given in pConf object (you have to set it).
+*/
+void tactics_pi::SaveTacticsPluginPerformancePart ( wxFileConfig *pConf )
+{
+    pConf->Write(_T("PolarFile"), g_path_to_PolarFile);
+    pConf->Write(_T("BoatLeewayFactor"), g_dLeewayFactor);
+    pConf->Write(_T("fixedLeeway"), g_dfixedLeeway);
+    pConf->Write(_T("UseHeelSensor"), g_bUseHeelSensor);
+    pConf->Write(_T("UseFixedLeeway"), g_bUseFixedLeeway);
+    pConf->Write(_T("UseManHeelInput"), g_bManHeelInput);
+    pConf->Write(_T("CorrectSTWwithLeeway"), g_bCorrectSTWwithLeeway);
+    pConf->Write(_T("CorrectAWwithHeel"), g_bCorrectAWwithHeel);
+    pConf->Write(_T("ForceTrueWindCalculation"), g_bForceTrueWindCalculation);
+    pConf->Write(_T("UseSOGforTWCalc"), g_bUseSOGforTWCalc);
+    pConf->Write(_T("ShowWindbarbOnChart"), g_bShowWindbarbOnChart);
+    pConf->Write(_T("ShowPolarOnChart"), g_bShowPolarOnChart);
+    pConf->Write(_T("Heel_5kn_45Degree"), g_dheel[1][1]);
+    pConf->Write(_T("Heel_5kn_90Degree"), g_dheel[1][2]);
+    pConf->Write(_T("Heel_5kn_135Degree"), g_dheel[1][3]);
+    pConf->Write(_T("Heel_10kn_45Degree"), g_dheel[2][1]);
+    pConf->Write(_T("Heel_10kn_90Degree"), g_dheel[2][2]);
+    pConf->Write(_T("Heel_10kn_135Degree"), g_dheel[2][3]);
+    pConf->Write(_T("Heel_15kn_45Degree"), g_dheel[3][1]);
+    pConf->Write(_T("Heel_15kn_90Degree"), g_dheel[3][2]);
+    pConf->Write(_T("Heel_15kn_135Degree"), g_dheel[3][3]);
+    pConf->Write(_T("Heel_20kn_45Degree"), g_dheel[4][1]);
+    pConf->Write(_T("Heel_20kn_90Degree"), g_dheel[4][2]);
+    pConf->Write(_T("Heel_20kn_135Degree"), g_dheel[4][3]);
+    pConf->Write(_T("Heel_25kn_45Degree"), g_dheel[5][1]);
+    pConf->Write(_T("Heel_25kn_90Degree"), g_dheel[5][2]);
+    pConf->Write(_T("Heel_25kn_135Degree"), g_dheel[5][3]);
+    pConf->Write(_T("ExpPolarSpeed"), g_bExpPerfData01);
+    pConf->Write(_T("ExpCourseOtherTack"), g_bExpPerfData02);
+    pConf->Write(_T("ExpTargetVMG"), g_bExpPerfData03);
+    pConf->Write(_T("ExpVMG_CMG_Diff_Gain"), g_bExpPerfData04);
+    pConf->Write(_T("ExpCurrent"), g_bExpPerfData05);
+    pConf->Write(_T("NKE_TrueWindTableBug"), g_bNKE_TrueWindTableBug);
 }
 
 /*********************************************************************************

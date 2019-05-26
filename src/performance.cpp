@@ -354,7 +354,7 @@ Polar::~Polar(void)
 Load a new polar file and read it into the polar array
 Parameter
 (input) FilePath = path to polar file;
-_T("")     : read from opencpn.ini file;
+_T("")     : open dialog and update  g_path_to_PolarFile
 _T("NULL") : just initialize array (to work w/o polar)
 ************************************************************************************/
 void Polar::loadPolar(wxString FilePath)
@@ -364,41 +364,31 @@ void Polar::loadPolar(wxString FilePath)
 	wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
 	if (FilePath == _T("")) { //input parameter empty, read from config
-
-		if (pConf) {
-
-			pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
-
-			pConf->Read(_T("PolarFile"), &filePath, _T("NULL"));
-			fname = filePath;
-
-		}
-		if (filePath == _T("NULL")) {
-			wxFileDialog fdlg(GetOCPNCanvasWindow(), _("tactics_pi: Select a Polar-File"), _T(""));
-			if (fdlg.ShowModal() == wxID_CANCEL) return;
-			filePath = fdlg.GetPath();
-			fname = fdlg.GetFilename();
-
-		}
-	}
-	else{
-		filePath = FilePath;
+        wxFileDialog fdlg(
+            GetOCPNCanvasWindow(),
+            _("Tactics Performance: Select a polar file"), _T(""));
+        if (fdlg.ShowModal() == wxID_CANCEL)
+            return;
+        filePath = fdlg.GetPath();
+        fname = fdlg.GetFilename();
         fname = filePath;
 	}
 
+    if (filePath == _T("NULL"))
+        return;
+
 	reset();
 
-    if (filePath != _T("NULL")) {  //TR23.04.
-      wxFileInputStream stream(filePath);
-      wxTextInputStream in(stream);
-      wxString wdirstr, wsp;
+    wxFileInputStream stream(filePath);
+    wxTextInputStream in(stream);
+    wxString wdirstr, wsp;
 
-      bool first = true;
-      int mode = -1, row = -1, sep = -1;
-      wxArrayString WS, WSS;
+    bool first = true;
+    int mode = -1, row = -1, sep = -1;
+    wxArrayString WS, WSS;
 
-      while (!stream.Eof())
-      {
+    while (!stream.Eof())
+    {
         int col = 0, i = 0;
         wxString s;
 
@@ -406,130 +396,102 @@ void Polar::loadPolar(wxString FilePath)
         if (stream.Eof()) break;
         if (first)
         {
-          WS = wxStringTokenize(str, _T(";,\t "));
-          WS[0] = WS[0].Upper();
-          if (WS[0].Find(_T("TWA\\TWS")) != -1 || WS[0].Find(_T("TWA/TWS")) != -1 || WS[0].Find(_T("TWA")) != -1)
-          {
-            mode = 1;
-            sep = 1;
-          }
-          else if (WS[0].IsNumber())
-          {
-            mode = 2;
-            sep = 1;
-            col = wxAtoi(WS[0]);
-
-            for (i = 1; i < (int)WS.GetCount(); i += 2)
+            WS = wxStringTokenize(str, _T(";,\t "));
+            WS[0] = WS[0].Upper();
+            if (WS[0].Find(_T("TWA\\TWS")) != -1 ||
+                WS[0].Find(_T("TWA/TWS")) != -1 ||
+                WS[0].Find(_T("TWA")) != -1)
             {
-              row = wxAtoi(WS[i]);
-              s = WS[i + 1];
-
-              if (col > WINDSPEED - 1) break;
-              if (s == _T("0") || s == _T("0.00") || s == _T("0.0") || s == _T("0.000")){
-                continue;
-              }
-              if (col < WINDSPEED + 1) {
-                setValue(s, row, col);
-              }
+                mode = 1;
+                sep = 1;
             }
-          }
-          else if (!WS[0].IsNumber()){
-            continue;
-          }
+            else if (WS[0].IsNumber())
+            {
+                mode = 2;
+                sep = 1;
+                col = wxAtoi(WS[0]);
 
-          if (sep == -1){
-            wxMessageBox(_("Format in this file not recognised"));
-            return;
-          }
+                for (i = 1; i < (int)WS.GetCount(); i += 2)
+                {
+                    row = wxAtoi(WS[i]);
+                    s = WS[i + 1];
 
-          first = false;
-          if (mode != 0)
-            continue;
+                    if (col > WINDSPEED - 1) break;
+                    if (s == _T("0") || s == _T("0.00") ||
+                        s == _T("0.0") || s == _T("0.000")){
+                        continue;
+                    }
+                    if (col < WINDSPEED + 1) {
+                        setValue(s, row, col);
+                    }
+                }
+            }
+            else if (!WS[0].IsNumber()){
+                continue;
+            }
+
+            if (sep == -1){
+                wxMessageBox(_("Format in this file not recognised"));
+                return;
+            }
+
+            first = false;
+            if (mode != 0)
+                continue;
         }
         if (mode == 1) // Formats OCPN/QTVlm/MAXSea/CVS 
         {
-          WSS = wxStringTokenize(str, _T(";,\t "));
-          if (WSS[0] == _T("0") && mode == 1)
-          {
-            row++; continue;
-          }
-          else if (row == -1)
-            row++;
-          row = wxAtoi(WSS[0]);
-          for (i = 1; i < (int)WSS.GetCount(); i++)
-          {
-            s = WSS[i];
-            if (col > WINDSPEED - 1) break;
-            if (s == _T("0") || s == _T("0.00") || s == _T("0.0") || s == _T("0.000")){
-              continue;
+            WSS = wxStringTokenize(str, _T(";,\t "));
+            if (WSS[0] == _T("0") && mode == 1)
+            {
+                row++; continue;
             }
-            col = wxAtoi(WS[i]);
-            setValue(s, row, col);
-          }
+            else if (row == -1)
+                row++;
+            row = wxAtoi(WSS[0]);
+            for (i = 1; i < (int)WSS.GetCount(); i++)
+            {
+                s = WSS[i];
+                if (col > WINDSPEED - 1) break;
+                if (s == _T("0") || s == _T("0.00") ||
+                    s == _T("0.0") || s == _T("0.000")){
+                    continue;
+                }
+                col = wxAtoi(WS[i]);
+                setValue(s, row, col);
+            }
         }
 
         if (mode == 2) // Format Expedition
         {
-          WS = wxStringTokenize(str, _T(";,\t "));
-          //x = wxAtoi(WS[0]);
-          //col = (x + 1) / 2 - 1;
-          col = wxAtoi(WS[0]);
+            WS = wxStringTokenize(str, _T(";,\t "));
+            //x = wxAtoi(WS[0]);
+            //col = (x + 1) / 2 - 1;
+            col = wxAtoi(WS[0]);
 
-          for (i = 1; i < (int)WS.GetCount(); i += 2)
-          {
-            //x = wxAtoi(WS[i]);
-            //row = (x + 2) / 5 - 1;
-            row = wxAtoi(WS[i]);
-            s = WS[i + 1];
-            if (col > WINDSPEED - 1) break;
-            if (s == _T("0") || s == _T("0.00") || s == _T("0.0") || s == _T("0.000"))
+            for (i = 1; i < (int)WS.GetCount(); i += 2)
             {
-              continue;
+                //x = wxAtoi(WS[i]);
+                //row = (x + 2) / 5 - 1;
+                row = wxAtoi(WS[i]);
+                s = WS[i + 1];
+                if (col > WINDSPEED - 1) break;
+                if (s == _T("0") || s == _T("0.00") ||
+                    s == _T("0.0") || s == _T("0.000"))
+                {
+                    continue;
+                }
+                //if (col < 21)
+                if (col < WINDSPEED + 1){
+                    setValue(s, row, col);
+                }
             }
-            //if (col < 21)
-            if (col < WINDSPEED + 1){
-              setValue(s, row, col);
-            }
-          }
         }
-      }
-      completePolar();
-      g_path_to_PolarFile = filePath;
-      if (pConf) {
-        pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
-        pConf->Write(_T("PolarFile"), g_path_to_PolarFile);
-      }
-
-    } //TR23.04.
-    // temporary output of Polar-Lookuptable to file ...
-	wxString path_to_PolarLookupOutputFile = _T("NULL");
-	if (pConf) {
-		pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
-		pConf->Read(_T("PolarLookupTableOutputFile"), &path_to_PolarLookupOutputFile, _T("NULL"));
-	}
-
-	if (path_to_PolarLookupOutputFile != _T("NULL")){
-		wxFileOutputStream outstream(path_to_PolarLookupOutputFile);
-		wxTextOutputStream out(outstream);
-
-		wxString str = _T("d/s");
-        for (int i = 0; i <= WINDSPEED; i++){
-			str = wxString::Format(_T("%s\t%02d"), str, i);
-		}
-		str = str + _T("\n");
-		out.WriteString(str);				// write line by line
-		for (int n = 0; n < WINDDIR; n++){
-			str = wxString::Format(_T("%d\t"), n);
-            for (int i = 0; i <= WINDSPEED; i++){
-				str = wxString::Format(_T("%s\t%.2f"), str, windsp[i].winddir[n]);
-			}
-			str = str + _T("\n");
-			out.WriteString(str);				// write line by line
-
-		}
-		outstream.Close();
-	}
-	//wxMessageBox(_T("Polar ") + fname + _T(" loaded"));
+    }
+    completePolar();
+    g_path_to_PolarFile = filePath;
+    //wxMessageBox(_T("Polar ") + fname + _T(" loaded"));
+    return;
 }
 /***********************************************************************************
 

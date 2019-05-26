@@ -248,33 +248,33 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local Sunrise/Sunset" );
 #ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
-		return _("+Leeway");
+		return _("^Leeway");
 	case ID_DBP_I_CURRDIR:
-		return _("+Current Direction");
+		return _("^Current Direction");
 	case ID_DBP_I_CURRSPD:
-		return _("+Current Speed");
+		return _("^Current Speed");
 	case ID_DBP_D_BRG:
-		return _("+Bearing Compass");
+		return _("^Bearing Compass");
 	case	ID_DBP_I_POLSPD:
-		return _("+Polar Speed");
+		return _("^Polar Speed");
 	case	ID_DBP_I_POLVMG:
-		return _("+Actual ") + tactics_pi::get_sVMGSynonym();
+		return _("^Actual ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMG:
-		return _("+Target ") + tactics_pi::get_sVMGSynonym();
+		return _("^Target ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("+Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
+		return _("^Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
 	case	ID_DBP_I_POLCMG:
-		return _("+Actual ") + tactics_pi::get_sCMGSynonym();
+		return _("^Actual ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMG:
-		return _("+Target ") + tactics_pi::get_sCMGSynonym();
+		return _("^Target ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("+Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
+		return _("^Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
 	case ID_DBP_D_POLPERF:
-		return _("+Polar Performance");
+		return _("^Polar Performance");
 	case ID_DBP_D_AVGWIND:
-		return _("+Average Wind");
+		return _("^Average Wind");
 	case ID_DBP_D_POLCOMP:
-		return _("+Polar Compass");
+		return _("^Polar Compass");
 #endif // _TACTICSPI_H
     }
     return _T("");
@@ -515,6 +515,10 @@ int dashboard_pi::Init( void )
         rolloverIcon = _T("");
     }
 #endif // _TACTICSPI_H_
+
+#ifdef _TACTICSPI_H
+    int what_tactics_pi_wants = tactics_pi::Init( this );
+#endif //  _TACTICSPI_H
          
     ApplyConfig();
 
@@ -525,21 +529,19 @@ int dashboard_pi::Init( void )
 
     Start( 1000, wxTIMER_CONTINUOUS );
 
-    return ( WANTS_CURSOR_LATLON |
-             WANTS_TOOLBAR_CALLBACK |
-             INSTALLS_TOOLBAR_TOOL |
-             WANTS_PREFERENCES |
-             WANTS_CONFIG |
-             WANTS_NMEA_SENTENCES |
-             WANTS_NMEA_EVENTS |
-             USES_AUI_MANAGER |
-#ifndef _TACTICSPI_H_
-             WANTS_PLUGIN_MESSAGING );
-#else
-             WANTS_PLUGIN_MESSAGING |
-		    WANTS_OPENGL_OVERLAY_CALLBACK |
-		    WANTS_OVERLAY_CALLBACK );
-#endif // _TACTICSPI_H_
+    return (
+#ifdef _TACTICSPI_H
+        what_tactics_pi_wants |
+#endif //  _TACTICSPI_H
+        WANTS_CURSOR_LATLON |
+        WANTS_TOOLBAR_CALLBACK |
+        INSTALLS_TOOLBAR_TOOL |
+        WANTS_PREFERENCES |
+        WANTS_CONFIG |
+        WANTS_NMEA_SENTENCES |
+        WANTS_NMEA_EVENTS |
+        USES_AUI_MANAGER |
+        WANTS_PLUGIN_MESSAGING );
 }
 
 bool dashboard_pi::DeInit( void )
@@ -1701,6 +1703,7 @@ bool dashboard_pi::LoadConfig( void )
                 
         }
 #ifdef _TACTICSPI_H_
+        pConf->SetPath( _T("/PlugIns/Dashboard") );
         tactics_pi::LoadConfig( pConf );
 #endif // _TACTICSPI_H_
         return true;
@@ -1744,8 +1747,13 @@ bool dashboard_pi::SaveConfig( void )
                 pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
                               cont->m_aInstrumentList.Item( j ) );
         }
-
+#ifdef _TACTICSPI_H_
+        pConf->SetPath( _T("/PlugIns/Dashboard") );
+        return tactics_pi::SaveConfig( pConf );
+#else
         return true;
+#endif // _TACTICSPI_H_
+        
     } else
         return false;
 }
@@ -1803,6 +1811,9 @@ void dashboard_pi::ApplyConfig( void )
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
     mCOGFilter.setFC(g_iDashCOGDamp ? 1.0 / (2.0*g_iDashCOGDamp) : 0.0);
     mCOGFilter.setType(IIRFILTER_TYPE_DEG);
+#ifdef _TACTICSPI_H_
+    tactics_pi::ApplyConfig();
+#endif // _TACTICSPI_H_
 }
 
 void dashboard_pi::PopulateContextMenu( wxMenu* menu )
@@ -1831,7 +1842,13 @@ void dashboard_pi::ShowDashboard( size_t id, bool visible )
 
 DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWindowID id,
                                                         wxArrayOfDashboard config ) :
-    wxDialog( parent, id, _("Dashboard preferences"), wxDefaultPosition, wxDefaultSize,
+    wxDialog( parent, id,
+#ifdef _TACTICSPI_H_
+              _("Dashboard and Tactics preferences"),
+#else
+              _("Dashboard preferences"),
+#endif // _TACTICSPI_H_
+              wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_DIALOG_STYLE )
 {
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( DashboardPreferencesDialog::OnCloseDialog ),
