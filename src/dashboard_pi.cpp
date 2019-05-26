@@ -484,6 +484,7 @@ int dashboard_pi::Init( void )
     m_pconfig = GetOCPNConfigObject();
 
     //    And load the configuration items
+
     LoadConfig();
 
 #ifdef OCPN_USE_SVG
@@ -516,12 +517,13 @@ int dashboard_pi::Init( void )
     }
 #endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H
-    int what_tactics_pi_wants = tactics_pi::Init( this );
+    ApplyConfig();
+    
+#ifdef _TACTICSPI_H_
+    m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
+    int what_tactics_pi_wants = tactics_pi::Init( this, m_pconfig );
 #endif //  _TACTICSPI_H
          
-    ApplyConfig();
-
     //  If we loaded a version 1 config setup, convert now to version 2
     if(m_config_version == 1) {
         SaveConfig();
@@ -569,6 +571,10 @@ bool dashboard_pi::DeInit( void )
     delete g_pFontData;
     delete g_pFontLabel;
     delete g_pFontSmall;
+
+#ifdef _TACTICSPI_H_
+    return tactics_pi::DeInit( this );
+#endif //  _TACTICSPI_H
 
     return true;
 }
@@ -1702,10 +1708,6 @@ bool dashboard_pi::LoadConfig( void )
             }
                 
         }
-#ifdef _TACTICSPI_H_
-        pConf->SetPath( _T("/PlugIns/Dashboard") );
-        tactics_pi::LoadConfig( pConf );
-#endif // _TACTICSPI_H_
         return true;
     } else
         return false;
@@ -1714,7 +1716,6 @@ bool dashboard_pi::LoadConfig( void )
 bool dashboard_pi::SaveConfig( void )
 {
     wxFileConfig *pConf = (wxFileConfig *) m_pconfig;
-
     if( pConf ) {
         pConf->SetPath( _T("/PlugIns/Dashboard") );
         pConf->Write( _T("Version"), _T("2") );
@@ -1747,13 +1748,7 @@ bool dashboard_pi::SaveConfig( void )
                 pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
                               cont->m_aInstrumentList.Item( j ) );
         }
-#ifdef _TACTICSPI_H_
-        pConf->SetPath( _T("/PlugIns/Dashboard") );
-        return tactics_pi::SaveConfig( pConf );
-#else
         return true;
-#endif // _TACTICSPI_H_
-        
     } else
         return false;
 }
@@ -1811,9 +1806,6 @@ void dashboard_pi::ApplyConfig( void )
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
     mCOGFilter.setFC(g_iDashCOGDamp ? 1.0 / (2.0*g_iDashCOGDamp) : 0.0);
     mCOGFilter.setType(IIRFILTER_TYPE_DEG);
-#ifdef _TACTICSPI_H_
-    tactics_pi::ApplyConfig();
-#endif // _TACTICSPI_H_
 }
 
 void dashboard_pi::PopulateContextMenu( wxMenu* menu )

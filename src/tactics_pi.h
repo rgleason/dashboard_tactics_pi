@@ -122,50 +122,18 @@ class tactics_pi
 public:
     tactics_pi(void);
     ~tactics_pi(void);
-    int tactics_pi::Init( opencpn_plugin *hostplugin );
-    bool LoadConfig( wxFileConfig *pConf );
-    void tactics_pi::ApplyConfig(void);
-    bool tactics_pi::SaveConfig( wxFileConfig *pConf );
+    int Init( opencpn_plugin *hostplugin, wxFileConfig *pConf );
+    bool DeInit( opencpn_plugin *hostplugin );
+    bool LoadConfig(void);
+    void ApplyConfig(void);
+    bool SaveConfig(void);
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
 private:
     opencpn_plugin      *m_hostplugin;
+    wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
     wxString             m_this_config_path;
-    wxFileConfig        *m_pconfig;
-    wxAuiManager        *m_pauimgr;
-    int                  m_toolbar_item_id;
-
-    // wxArrayOfTactics     m_ArrayOfTacticsWindow;
-    int                  m_show_id;
-    int                  m_hide_id;
-
-    NMEA0183             m_NMEA0183; // Used to parse NMEA Sentences
-    short                mPriPosition;
-    short                mPriCOGSOG;
-    short                mPriHeadingM;
-    short                mPriHeadingT;
-    short                mPriVar;
-    short                mPriDateTime;
-    short                mPriAWA;
-    short                mPriTWA;
-    short                mPriDepth;
-    double               mVar;
-    // FFU
-    double               mSatsInView;
-    double               mHdm;
-    double               calmHdt;
-    wxDateTime           mUTCDateTime;
-    int                  m_config_version;
-    wxString             m_VDO_accumulator;
-    int                  mHDx_Watchdog;
-    int                  mHDT_Watchdog;
-    int                  mGPS_Watchdog;
-    int                  mVar_Watchdog;
-    int                  mBRG_Watchdog;
-    int                  mTWD_Watchdog;
-    int                  mTWS_Watchdog;
-    int                  mAWS_Watchdog;
     // Bearing compass + TWA/TWD calculation
     wxMenu               *m_pmenu;
     double               mHdt;
@@ -233,8 +201,6 @@ private:
     ExpSmooth           *mExpSmDegRange;
     ExpSmooth           *mExpSmDiffCogHdt;
 
-    iirfilter            mSOGFilter;
-    iirfilter            mCOGFilter;
     bool                 b_tactics_dc_message_shown = false;
 
     bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );

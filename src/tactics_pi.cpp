@@ -76,6 +76,7 @@ wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
 tactics_pi::tactics_pi( void )
 {
     m_hostplugin = NULL;
+    m_hostplugin_pconfig = NULL;
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
 	alpha_currspd = 0.2;  //smoothing constant for current speed
@@ -135,31 +136,14 @@ tactics_pi::tactics_pi( void )
 
 tactics_pi::~tactics_pi( void )
 {
-
+    return;
 }
 
-int tactics_pi::Init( opencpn_plugin *hostplugin )
+int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 {
     m_hostplugin = hostplugin;
-    mVar = NAN;
-    mPriPosition = 99;
-    mPriCOGSOG = 99;
-    mPriHeadingT = 99; // True heading
-    mPriHeadingM = 99; // Magnetic heading
-    mPriVar = 99;
-    mPriDateTime = 99;
-    mPriAWA = 99; // Relative wind
-    mPriTWA = 99; // True wind
-    mPriDepth = 99;
-    m_config_version = -1;
-    mHDx_Watchdog = 2;
-    mHDT_Watchdog = 2;
-    mGPS_Watchdog = 5;
-    mVar_Watchdog = 2;
-    mBRG_Watchdog = 2;
-    mTWS_Watchdog = 5;
-    mTWD_Watchdog = 5;
-    mAWS_Watchdog = 2;
+    m_hostplugin_pconfig = pConf;
+    m_hostplugin_config_path = pConf->GetPath();
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
 	alpha_currspd = 0.2;  //smoothing constant for current speed
@@ -213,11 +197,8 @@ int tactics_pi::Init( opencpn_plugin *hostplugin )
 
 	m_bTrueWind_available = false;
 
-	BoatPolar = new Polar(this);
-	if (g_path_to_PolarFile != _T("NULL"))
-		BoatPolar->loadPolar(g_path_to_PolarFile);
-	else
-		BoatPolar->loadPolar(_T("NULL"));
+    this->LoadConfig();
+    this->ApplyConfig();
 
 	// Context menue for making marks    
 	m_pmenu = new wxMenu();
@@ -240,14 +221,20 @@ int tactics_pi::Init( opencpn_plugin *hostplugin )
 		);
 }
 
-
-
-bool tactics_pi::LoadConfig( wxFileConfig *pConf )
+bool tactics_pi::DeInit(opencpn_plugin *hostplugin )
 {
+	SaveConfig();
+
+	return true;
+}
+
+
+bool tactics_pi::LoadConfig()
+{
+    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
 	if (!pConf)
         return false;
 
-    this->m_hostplugin_config_path = pConf->GetPath();
     this->m_this_config_path =
         this->m_hostplugin_config_path + _T("/Tactics");
     pConf->SetPath( this->m_this_config_path );
@@ -258,20 +245,15 @@ bool tactics_pi::LoadConfig( wxFileConfig *pConf )
         pConf->SetPath( this->m_this_config_path );
         bool bUserDecision = g_bTacticsImportChecked;
         this->LoadTacticsPluginBasePart( pConf );
-        g_bTacticsImportChecked = bUserDecision;
         pConf->SetPath( this->m_this_config_path + _T("/Performance"));
         this->LoadTacticsPluginPerformancePart( pConf );
-    }
+        g_bTacticsImportChecked = bUserDecision;
+    } // then load from this plugin's sub-group
     else {
-        /* Placeholder for the future possible case, where
-           in this plugin new instruments and/or settings
-           have been introduced but tactic_pi plugins has
-           not those settings or instruments in the ini-file:
-           Those settings would have not value at this point.
-           For the time being, and I hope it remains so, the
-           settings are the same but kept in two different places
-           in the ini-file. */
-    }
+        bool bUserDecision = g_bTacticsImportChecked;
+        this->ImportStandaloneTacticsSettings ( pConf );
+        g_bTacticsImportChecked = bUserDecision;
+    } // else load from the tactics_pi plugin's group
     BoatPolar = NULL;
     /* Unlike the tactics_pi plugin, Dashboard  not absolutely require
        to have polar-file - it may be that the user is not
@@ -310,7 +292,7 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
         GetOCPNCanvasWindow(), message, _T("Dashboard configuration choice"), wxYES_NO|wxCANCEL);
     int choice = dlg->ShowModal();
     if ( choice == wxID_YES ) {
-        this->ImportStandaloneTacticsSettings ( pConf );
+        
         g_bTacticsImportChecked = true;
         return true;
     } // then import
@@ -327,6 +309,7 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
 }
 void tactics_pi::ImportStandaloneTacticsSettings ( wxFileConfig *pConf )
 {
+    // Here we suppose that both tactics_pi and this Dashboard implementation are identical
     pConf->SetPath( "/PlugIns/Tactics" );
     this->LoadTacticsPluginBasePart( pConf );
     pConf->SetPath( "/PlugIns/Tactics/Performance" );
@@ -405,10 +388,12 @@ void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
 }
 void tactics_pi::ApplyConfig(void)
 {
+    return;
 }
 
-bool tactics_pi::SaveConfig( wxFileConfig *pConf )
+bool tactics_pi::SaveConfig()
 {
+    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
     if (!pConf)
         return false;
     pConf->SetPath( this->m_this_config_path );
