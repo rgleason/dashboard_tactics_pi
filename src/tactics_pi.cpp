@@ -144,6 +144,10 @@ int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     m_hostplugin = hostplugin;
     m_hostplugin_pconfig = pConf;
     m_hostplugin_config_path = pConf->GetPath();
+    mBRG_Watchdog = 2;
+    mTWS_Watchdog = 5;
+    mTWD_Watchdog = 5;
+    mAWS_Watchdog = 2;
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
 	alpha_currspd = 0.2;  //smoothing constant for current speed
@@ -221,13 +225,38 @@ int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 		);
 }
 
-bool tactics_pi::DeInit(opencpn_plugin *hostplugin )
+bool tactics_pi::DeInit()
 {
-	SaveConfig();
+	this->SaveConfig();
 
 	return true;
 }
+void tactics_pi::Notify()
+{
+    mBRG_Watchdog--;
+    if (mBRG_Watchdog <= 0) {
+      SendSentenceToAllInstruments(OCPN_DBP_STC_BRG, NAN, _T("\u00B0"));
+    }
+    mTWS_Watchdog--;
+    if (mTWS_Watchdog <= 0) {
+      mTWS = NAN;
+      SendSentenceToAllInstruments(OCPN_DBP_STC_TWS, NAN, _T(""));
+    }
+    mTWD_Watchdog--;
+    if (mTWD_Watchdog <= 0) {
+      mTWD = NAN;
+      mTWA = NAN;
+      SendSentenceToAllInstruments(OCPN_DBP_STC_TWD, NAN, _T("\u00B0"));
+      SendSentenceToAllInstruments(OCPN_DBP_STC_TWA, NAN, _T("\u00B0"));
+    }
+    mAWS_Watchdog--;
+    if (mAWS_Watchdog <= 0) {
+      SendSentenceToAllInstruments(OCPN_DBP_STC_AWS, NAN, _T(""));
+    }
 
+    this->ExportPerformanceData();
+
+}
 
 bool tactics_pi::LoadConfig()
 {
@@ -460,9 +489,97 @@ void tactics_pi::SaveTacticsPluginPerformancePart ( wxFileConfig *pConf )
     pConf->Write(_T("NKE_TrueWindTableBug"), g_bNKE_TrueWindTableBug);
 }
 
-/*********************************************************************************
+/*********************************************************************
+NMEA $PNKEP (NKE style) performance data
+**********************************************************************/
+void tactics_pi::ExportPerformanceData(void)
+{
+	//PolarTargetSpeed
+	if (g_bExpPerfData01 && !std::isnan(mPolarTargetSpeed)){
+		createPNKEP_NMEA(1, mPolarTargetSpeed, mPolarTargetSpeed  * 1.852, 0, 0);
+	}
+	//todo : extract mPredictedCoG calculation from layline.calc and add to CalculatePerformanceData
+	if (g_bExpPerfData02 && !std::isnan(mPredictedCoG)){
+		createPNKEP_NMEA(2, mPredictedCoG, 0, 0, 0); // course (CoG) on other tack
+	}
+	//Target VMG angle, act. VMG % upwind, act. VMG % downwind
+	if (g_bExpPerfData03 && !std::isnan(tvmg.TargetAngle) && tvmg.TargetSpeed > 0){
+		createPNKEP_NMEA(3, tvmg.TargetAngle, mPercentTargetVMGupwind, mPercentTargetVMGdownwind, 0);
+	}
+	//Gain VMG de 0 à 999%, Angle pour optimiser le VMG de 0 à 359°,Gain CMG de 0 à 999%,Angle pour optimiser le CMG de 0 à 359°
+	if (g_bExpPerfData04)
+		createPNKEP_NMEA(4, mCMGoptAngle, mCMGGain, mVMGoptAngle, mVMGGain);
+	//current direction, current speed kts, current speed in km/h,
+	if (g_bExpPerfData05 && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
+		createPNKEP_NMEA(5, m_CurrentDirection, m_ExpSmoothCurrSpd, m_ExpSmoothCurrSpd  * 1.852, 0);
+	}
+}
+
+void tactics_pi::createPNKEP_NMEA(int sentence, double data1, double data2, double data3, double data4)
+{
+	wxString nmeastr = "";
+	switch (sentence)
+	{
+	case 0:
+		//strcpy(nmeastr, "$PNKEPA,");
+		break;
+	case 1:
+		nmeastr = _T("$PNKEP,01,") + wxString::Format("%.2f,N,", data1) + wxString::Format("%.2f,K", data2);
+		break;
+	case 2:
+		/*course on next tack(code PNKEP02)
+		$PNKEP, 02, x.x*hh<CR><LF>
+		\ Cap sur bord Opposé / prochain bord de 0 à 359°*/
+		nmeastr = _T("$PNKEP,02,") + wxString::Format("%.1f", data1);
+		break;
+	case 3:
+		/*    $PNKEP, 03, x.x, x.x, x.x*hh<CR><LF>
+		|    |     \ performance downwind from 0 to 99 %
+		|     \ performance upwind from 0 to 99 %
+		\ opt.VMG angle  0 à 359°  */
+		nmeastr = _T("$PNKEP,03,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f", data3);
+		break;
+	case 4:
+		/*Calculates the gain for VMG & CMG and stores it in the variables
+		mVMGGain, mCMGGain,mVMGoptAngle,mCMGoptAngle
+		Gain is the percentage btw. the current boat speed mStW value and Target-VMG/CMG
+		Question : shouldn't we compare act.VMG with Target-VMG ? To be investigated ...
+		$PNKEP, 04, x.x, x.x, x.x, x.x*hh<CR><LF>
+		|    |    |    \ Gain VMG de 0 à 999 %
+		|    |     \ Angle pour optimiser le VMG de 0 à 359°
+		|    \ Gain CMG de 0 à 999 %
+		\ Angle pour optimiser le CMG de 0 à 359°*/
+		nmeastr = _T("$PNKEP,04,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f,", data3) + wxString::Format("%.1f", data4);
+		break;
+	case 5:
+		nmeastr = _T("$PNKEP,05,") + wxString::Format("%.1f,", data1) + wxString::Format("%.2f,N,", data2) + wxString::Format("%.2f,K", data3);
+		break;
+	default:
+		nmeastr = _T("");
+		break;
+	}
+	if (nmeastr != "")
+		SendNMEASentence(nmeastr);
+}
+/***********************************************************************
+Put the created NMEA record ot O's NMEA data stream
+Taken from nmeaconverter_pi.
+All credits to Pavel !
+***********************************************************************/
+void tactics_pi::SendNMEASentence(wxString sentence)
+{
+	wxString Checksum = ComputeChecksum(sentence);
+	sentence = sentence.Append(wxT("*"));
+	sentence = sentence.Append(Checksum);
+	sentence = sentence.Append(wxT("\r\n"));
+	//wxLogMessage(sentence);
+	PushNMEABuffer(sentence);
+}
+
+
+/*********************************************************************
 Taken from cutil
-**********************************************************************************/
+*********************************************************************/
 inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2) {
 	double dx1, dx2;
 	double dy1, dy2;
@@ -478,17 +595,17 @@ inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2) {
 	return ((dx1 * dy2 > dy1 * dx2) ? 1 : -1);
 
 }
-/*********************************************************************************
+/*********************************************************************
 returns true if we have a line intersection.
 Taken from cutil, but with double variables
-**********************************************************************************/
+**********************************************************************/
 inline bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4)
 {
 	return (((myCCW(p1, p2, p3) * myCCW(p1, p2, p4)) <= 0)
 		&& ((myCCW(p3, p4, p1) * myCCW(p3, p4, p2) <= 0)));
 
 }
-/********************************************************************************
+/*********************************************************************
 calculate Line intersection between 2 lines, each described by 2 points
 return lat/lon of intersection point
 basic calculation:
@@ -509,7 +626,7 @@ s[1] = l1[2] * l2[0] - l1[0] * l2[2];
 s[2] = l1[0] * l2[1] - l1[1] * l2[0];
 sch[0] = (double)s[0] / (double)s[2];
 sch[1] = (double)s[1] / (double)s[2];
-*********************************************************************************/
+**********************************************************************/
 wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2, wxRealPoint line2point1, wxRealPoint line2point2)
 {
 	wxRealPoint intersect;
@@ -531,22 +648,22 @@ wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2
 	}
 	return intersect;
 }
-/*********************************************************************************
-Function calculates the time to sail for a given distance, TWA and TWS, based on
-the polar data
-**********************************************************************************/
+/**********************************************************************
+Function calculates the time to sail for a given distance, TWA and TWS,
+based on the polar data
+***********************************************************************/
 double CalcPolarTimeToMark(double distance, double twa, double tws)
 {
 	double pspd = BoatPolar->GetPolarSpeed(twa, tws);
 	return distance / pspd;
 }
-/*********************************************************************************
+/**********************************************************************
 Function returns the (smaller) TWA of a given TWD and Course.
 Used for Target-CMG calculation.
 It covers the 359 - 0 degree problem
 e.g. : TWD = 350, ctm = 10; the TWA is returned as 20 degrees
 (and not 340 if we'd do a simple TWD - ctm)
-**********************************************************************************/
+***********************************************************************/
 double getMarkTWA(double twd, double ctm)
 {
 	double val, twa;
@@ -568,13 +685,13 @@ double getMarkTWA(double twd, double ctm)
 	}
 	return twa;
 }
-/*********************************************************************************
+/**********************************************************************
 Function returns the (smaller) degree range of 2 angular values
 on the compass rose (without sign)
 It covers the 359 - 0 degree problem
 e.g. : max = 350, min = 10; the rage is returned as 20 degrees
 (and not 340 if we'd do a simple max - min)
-**********************************************************************************/
+**********************************************************************/
 double getDegRange(double max, double min)
 {
 	double val, range;
@@ -596,13 +713,13 @@ double getDegRange(double max, double min)
 	}
 	return range;
 }
-/*********************************************************************************
+/**********************************************************************
 Function returns the (smaller) signed degree range of 2 angular values
 on the compass rose (clockwise is +)
 It covers the 359 - 0 degree problem
 e.g. : fromAngle = 350, toAngle = 10; the range is returned as +20 degrees
 (and not 340 if we'd do a simple fromAngle - toAngle)
-**********************************************************************************/
+***********************************************************************/
 double getSignedDegRange(double fromAngle, double toAngle)
 {
 	double val, range;
@@ -623,4 +740,17 @@ double getSignedDegRange(double fromAngle, double toAngle)
 			range = toAngle - fromAngle;
 	}
 	return range;
+}
+/**********************************************************************
+Calculate the checksum of the created NMEA record.
+Taken from nmeaconverter_pi.
+All credits to Pavel !
+***********************************************************************/
+wxString tactics_pi::ComputeChecksum(wxString sentence)
+{
+	unsigned char calculated_checksum = 0;
+	for (wxString::const_iterator i = sentence.begin() + 1; i != sentence.end() && *i != '*'; ++i)
+		calculated_checksum ^= static_cast<unsigned char> (*i);
+
+	return(wxString::Format(wxT("%02X"), calculated_checksum));
 }

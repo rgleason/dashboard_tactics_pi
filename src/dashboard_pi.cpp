@@ -573,7 +573,7 @@ bool dashboard_pi::DeInit( void )
     delete g_pFontSmall;
 
 #ifdef _TACTICSPI_H_
-    return tactics_pi::DeInit( this );
+    return tactics_pi::DeInit();
 #endif //  _TACTICSPI_H
 
     return true;
@@ -619,6 +619,10 @@ void dashboard_pi::Notify()
         mSatsInView = 0;
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
     }
+#ifdef _TACTICSPI_H_
+    tactics_pi::Notify();
+#endif //  _TACTICSPI_H
+    return;
 }
 
 int dashboard_pi::GetAPIVersionMajor()
@@ -682,6 +686,15 @@ Provides navigation instrument display from NMEA source.");
 
 void dashboard_pi::SendSentenceToAllInstruments( int st, double value, wxString unit )
 {
+#ifdef _TACTICSPI_H_
+    /* Tactics instruments have suffered in tactics_pi from receiving
+       NaN values causing scaling and other errors. Cure at source: */
+    if (std::isnan(value))
+        return;
+    wxLogMessage(
+        "dashboard_pi::SendSentenceToAllInstruments %d, %f, %s",
+        st, value, unit );
+#endif
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) dashboard_window->SendSentenceToAllInstruments( st, value, unit );

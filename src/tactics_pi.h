@@ -48,16 +48,13 @@
 #include "avg_wind.h"
 #include "polarcompass.h"
 
-class TacticsWindow;
-class TacticsWindowContainer;
-class TacticsInstrumentContainer;
 class Polar;
 
-#define TACTICS_TOOL_POSITION -1          // Request default positioning of toolbar tool
+// #define TACTICS_TOOL_POSITION -1          // Request default positioning of toolbar tool
 
-#define gps_watchdog_timeout_ticks  10
-#define CURR_RECORD_COUNT 20
-#define COGRANGE 60
+// #define gps_watchdog_timeout_ticks  10
+// #define CURR_RECORD_COUNT 20
+// #define COGRANGE 60
 
 // class TacticsWindowContainer
 // {
@@ -78,23 +75,23 @@ class Polar;
 
 // class TacticsInstrumentContainer
 // {
-//       public:
-//             TacticsInstrumentContainer(int id, TacticsInstrument *instrument, int capa){
-//                   m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; }
-//             ~TacticsInstrumentContainer(){ delete m_pInstrument; }
-
-//             TacticsInstrument    *m_pInstrument;
-//             int                     m_ID;
-//             int                     m_cap_flag;
+// public:
+//     TacticsInstrumentContainer(int id, DashboardInstrument *instrument, int capa){
+//         m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; }
+//     ~TacticsInstrumentContainer(){ delete m_pInstrument; }
+    
+//     TacticsInstrument    *m_pInstrument;
+//     int                   m_ID;
+//     int                   m_cap_flag;
 // };
 
-//    Dynamic arrays of pointers need explicit macros in wx261
+// //    Dynamic arrays of pointers need explicit macros in wx261
 // #ifdef __WX261
-// WX_DEFINE_ARRAY_PTR(DashboardWindowContainer *, wxArrayOfDashboard);
-// WX_DEFINE_ARRAY_PTR(DashboardInstrumentContainer *, wxArrayOfInstrument);
+// // WX_DEFINE_ARRAY_PTR(DashboardWindowContainer *, wxArrayOfDashboard);
+// WX_DEFINE_ARRAY_PTR(TacticsInstrumentContainer *, wxArrayOfInstrument);
 // #else
-// WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);
-// WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
+// // WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);
+// WX_DEFINE_ARRAY(TacticsInstrumentContainer *, wxArrayOfInstrument);
 // #endif
 
 
@@ -103,19 +100,21 @@ class Polar;
 //----------------------------------------------------------------------------------------------------------
 
 #include "ocpn_plugin.h"
-#include "nmea0183/nmea0183.h"
+// #include "nmea0183/nmea0183.h"
 #include "instrument.h"
-#include "speedometer.h"
-#include "compass.h"
-#include "wind.h"
-#include "rudder_angle.h"
-#include "gps.h"
-#include "depth.h"
-#include "clock.h"
-#include "wind_history.h"
-#include "baro_history.h"
-#include "from_ownship.h"
-#include "iirfilter.h"
+// #include "speedometer.h"
+// #include "compass.h"
+// #include "wind.h"
+// #include "rudder_angle.h"
+// #include "gps.h"
+// #include "depth.h"
+// #include "clock.h"
+// #include "wind_history.h"
+// #include "baro_history.h"
+// #include "from_ownship.h"
+// #include "iirfilter.h"
+
+
 
 class tactics_pi
 {
@@ -123,7 +122,8 @@ public:
     tactics_pi(void);
     ~tactics_pi(void);
     int Init( opencpn_plugin *hostplugin, wxFileConfig *pConf );
-    bool DeInit( opencpn_plugin *hostplugin );
+    bool DeInit(void);
+    void Notify(void);
     bool LoadConfig(void);
     void ApplyConfig(void);
     bool SaveConfig(void);
@@ -134,6 +134,11 @@ private:
     wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
     wxString             m_this_config_path;
+
+    int                  mBRG_Watchdog;
+    int                  mTWD_Watchdog;
+    int                  mTWS_Watchdog;
+    int                  mAWS_Watchdog;
     // Bearing compass + TWA/TWD calculation
     wxMenu               *m_pmenu;
     double               mHdt;
@@ -210,6 +215,14 @@ private:
     void LoadTacticsPluginPerformancePart ( wxFileConfig *pConf );
     void SaveTacticsPluginBasePart ( wxFileConfig *pConf );
     void SaveTacticsPluginPerformancePart ( wxFileConfig *pConf );
+    virtual void SendSentenceToAllInstruments(
+        int st, double value, wxString unit ) = 0;
+    void ExportPerformanceData(void);
+    void createPNKEP_NMEA(
+        int sentence, double data1, double data2,
+        double data3, double data4 );
+    void SendNMEASentence( wxString sentence );
+    wxString ComputeChecksum(wxString sentence);
 
 };
 
@@ -257,10 +270,6 @@ private:
 // 	  void CalculateLaylineDegreeRange(void);
 //       void CalculatePerformanceData(void);
 //       void CalculatePredictedCourse(void);
-//       void ExportPerformanceData(void);
-//       wxString ComputeChecksum(wxString sentence);
-//       void SendNMEASentence(wxString sentence);
-//       void createPNKEP_NMEA(int sentence, double data1, double data2, double data3, double data4);
 // 	  void SetCalcVariables(int st, double value, wxString unit);
 // 	  bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
 // 	  bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
@@ -283,7 +292,6 @@ private:
 // private:
 //       bool LoadConfig(void);
 //       void ApplyConfig(void);
-//       void SendSentenceToAllInstruments(int st, double value, wxString unit);
 //       void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
 //       void SendUtcTimeToAllInstruments( wxDateTime value );
 
