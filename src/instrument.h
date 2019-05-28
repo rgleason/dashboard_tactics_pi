@@ -58,8 +58,8 @@ class DashboardInstrument_Single;
 class DashboardInstrument_Position;
 class DashboardInstrument_Sun;
 
-enum
-{
+#ifndef _TACTICSPI_H_
+enum {
     OCPN_DBP_STC_LAT = 1 << 0,
     OCPN_DBP_STC_LON = 1 << 1,
     OCPN_DBP_STC_SOG = 1 << 2,
@@ -92,6 +92,48 @@ enum
     OCPN_DBP_STC_MCOG = 1 << 29,  // Magnetic Course over Ground
 	OCPN_DBP_STC_PITCH = 1 << 30, //Pitch
 	OCPN_DBP_STC_HEEL = 1 << 31   //Heel 
+#else
+enum eSentenceType {
+        OCPN_DBP_STC_LAT,
+        OCPN_DBP_STC_LON,
+        OCPN_DBP_STC_SOG,
+        OCPN_DBP_STC_COG,
+        OCPN_DBP_STC_STW,
+        OCPN_DBP_STC_HDM,
+        OCPN_DBP_STC_HDT,
+        OCPN_DBP_STC_HMV, // Magnetic variation
+        OCPN_DBP_STC_BRG,
+        OCPN_DBP_STC_AWA,
+        OCPN_DBP_STC_AWS,
+        OCPN_DBP_STC_TWA,
+        OCPN_DBP_STC_TWS,
+        OCPN_DBP_STC_DPT,
+        OCPN_DBP_STC_TMP,
+        OCPN_DBP_STC_VMG,
+        OCPN_DBP_STC_RSA,
+        OCPN_DBP_STC_SAT,
+        OCPN_DBP_STC_GPS,
+        OCPN_DBP_STC_PLA, // Cursor latitude
+        OCPN_DBP_STC_PLO, // Cursor longitude
+        OCPN_DBP_STC_CLK,
+        OCPN_DBP_STC_MON,
+        OCPN_DBP_STC_ATMP, //AirTemp
+        OCPN_DBP_STC_TWD,
+        OCPN_DBP_STC_TWS2,
+        OCPN_DBP_STC_VLW1, // Trip Log
+        OCPN_DBP_STC_VLW2,  // Sum Log
+        OCPN_DBP_STC_MDA,  // Bareometic pressure
+        OCPN_DBP_STC_MCOG,  // Magnetic Course over Ground
+        OCPN_DBP_STC_PITCH, //Pitch
+        OCPN_DBP_STC_HEEL,
+        OCPN_DBP_STC_LEEWAY,
+        OCPN_DBP_STC_CURRDIR,
+        OCPN_DBP_STC_CURRSPD,
+        OCPN_DBP_STC_DTW,
+        OCPN_DBP_STC_BC,
+        OCPN_DBP_STC_TWAMARK,  // TWA to a Waypoint
+        OCPN_DBP_STC_POLPERF // Polar Performance
+#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrument : public wxControl

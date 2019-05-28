@@ -157,58 +157,6 @@ int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     mTWS_Watchdog = 5;
     mTWD_Watchdog = 5;
     mAWS_Watchdog = 2;
-    m_bNKE_TrueWindTableBug = false;
-    m_VWR_AWA = 10;
-	alpha_currspd = 0.2;  //smoothing constant for current speed
-	alpha_CogHdt = 0.1; // smoothing constant for diff. btw. Cog & Hdt
-	m_ExpSmoothCurrSpd = NAN;
-	m_ExpSmoothCurrDir = NAN;
-	m_ExpSmoothSog = NAN;
-	m_ExpSmoothSinCurrDir = NAN;
-	m_ExpSmoothCosCurrDir = NAN;
-	m_ExpSmoothSinCog = NAN;
-	m_ExpSmoothCosCog = NAN;
-	m_CurrentDirection = NAN;
-	m_LaylineSmoothedCog = NAN;
-	m_LaylineDegRange = 0;
-	mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
-	mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
-	mExpSmoothCurrSpd = new ExpSmooth(alpha_currspd);
-	mExpSmoothSog = new DoubleExpSmooth(0.4);
-    mExpSmSinCog = new DoubleExpSmooth(
-        g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
-    mExpSmCosCog = new DoubleExpSmooth(
-        g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
-    m_ExpSmoothDegRange = 0;
-	mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
-	mExpSmDegRange->SetInitVal(g_iMinLaylineWidth);
-	mExpSmDiffCogHdt = new ExpSmooth(alpha_CogHdt);
-	mExpSmDiffCogHdt->SetInitVal(0);
-	m_bShowPolarOnChart = false;
-	m_bShowWindbarbOnChart = false;
-	m_bDisplayCurrentOnChart = false;
-	m_LeewayOK = false;
-	mHdt = NAN;
-	mStW = NAN;
-	mTWA = NAN;
-	mTWD = NAN;
-	mTWS = NAN;
-	m_calcTWA = NAN;
-	m_calcTWD = NAN;
-	m_calcTWS = NAN;
-	mSOG = NAN;
-	mCOG = NAN;
-	mlat = NAN;
-	mlon = NAN;
-	mheel = NAN;
-	mLeeway = NAN;
-	mPolarTargetSpeed = NAN;
-	mBRG = NAN;
-	mVMGGain = mCMGGain = mVMGoptAngle = mCMGoptAngle = 0.0;
-	mPredictedCoG = NAN;
-	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = NAN;
-
-	m_bTrueWind_available = false;
 
     this->LoadConfig();
     this->ApplyConfig();
@@ -1613,3 +1561,46 @@ wxString tactics_pi::ComputeChecksum(wxString sentence)
 	return(wxString::Format(wxT("%02X"), calculated_checksum));
 }
 
+/**********************************************************************
+NKE has a bug in its TWS calculation with activated(!) "True Wind Tables"
+in combination of Multigraphic instrument and HR wind sensor. This almost
+duplicates the TWS values delivered in MWD & VWT and destroys the Wind
+history view, showing weird peaks. It is particularly annoying when @anchor
+and trying to record windspeeds ...
+It seems to happen only when 
+* VWR sentence --> AWA changes from "Left" to "Right" through 0° AWA
+* with low AWA values like 0...4 degrees
+NMEA stream looks like this:
+                 $IIMWD,,,349,M,6.6,N,3.4,M*29                 6.6N TWS
+                 $IIVWT, 3, R, 7.1, N, 3.7, M, 13.1, K * 63
+                 $IIVWR, 0, R, 7.9, N, 4.1, M, 14.6, K * 6F    it seems to begin with 0°AWA ...
+                 $IIMWD, , , 346, M, 15.3, N, 7.9, M * 18      jump from 6.6 to 15.3 TWS ...
+                 $IIVWT, 7, R, 15.3, N, 7.9, M, 28.3, K * 56   VWT also has 15.3 TWS
+                 $IIVWR, 1, L, 8.6, N, 4.4, M, 15.9, K * 7B     1°AWA
+                 $IIMWD, , , 345, M, 15.8, N, 8.1, M * 17       still 15.8 TWS
+                 $IIVWT, 1, L, 8.6, N, 4.4, M, 15.9, K * 7D     VWT now back to 8.6 TWS
+                 $IIVWR, 0, R, 9.0, N, 4.6, M, 16.7, K * 6C     passing 0°AWA again
+                 $IIMWD, , , 335, M, 17.6, N, 9.1, M * 1D       jump to 17.6 TWS
+                 $IIVWT, 8, R, 17.6, N, 9.1, M, 32.6, K * 56    still 17.6 TWS 
+                 $IIVWR, 4, R, 9.1, N, 4.7, M, 16.9, K * 66     VWR increasing to 4°AWA...
+                 $IIMWD, , , 335, M, 9.0, N, 4.6, M*2E          and back to normal, 9 TWS
+Trying to catch this here, return true if detected and if the check
+is explictly requested in the ini-file. The implementation of
+the SetNMEASentence in the child class can then simply drop this data.
+***********************************************************************/
+bool tactics_pi::SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots)
+{
+    if (!m_bNKE_TrueWindTableBug)
+        return false;
+    if (std::isnan(SentenceWindSpeedKnots))
+        return false;
+    if (std::isnan(mTWS))
+        return false;
+    if ((m_VWR_AWA < 8.0) && (SentenceWindSpeedKnots > mTWS*1.7)){
+        /* wxLogMessage(
+            "MWD-Sentence, MWD-Spd=%f,mTWS=%f,VWR_AWA=%f,NKE_BUG=%d",
+            SentenceWindSpeedKnots, mTWS, m_VWR_AWA, m_bNKE_TrueWindTableBug); */
+        return true;
+    } // then conditions explained in the above description have been met
+    return false;
+}

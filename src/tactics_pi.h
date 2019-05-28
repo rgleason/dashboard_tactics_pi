@@ -50,11 +50,12 @@
 
 class Polar;
 
-// #define TACTICS_TOOL_POSITION -1          // Request default positioning of toolbar tool
-
-// #define gps_watchdog_timeout_ticks  10
-// #define CURR_RECORD_COUNT 20
-// #define COGRANGE 60
+#define aws_watchdog_timeout_ticks 10
+#define brg_watchdog_timeout_ticks 10
+#define twd_watchdog_timeout_ticks 10
+#define tws_watchdog_timeout_ticks 10
+#define CURR_RECORD_COUNT 20
+#define COGRANGE 60
 
 // class TacticsWindowContainer
 // {
@@ -144,6 +145,13 @@ public:
     bool GetPolarVisibility(wxWindow* parent);
     void CalculateLaylineDegreeRange(void);
 
+    virtual void SetNMEASentence(wxString &sentence) = 0;
+    void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_TWS_Watchdog(void){mTWS_Watchdog = tws_watchdog_timeout_ticks;}
+    bool SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots);
+
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
@@ -196,6 +204,7 @@ private:
     double               m_LaylineSmoothedCog;
     double               m_ExpSmoothSinCog;
     double               m_ExpSmoothCosCog;
+    //  double                m_alphaLaylineCog;
     //Performance variables
     double               mPolarTargetSpeed;
     double               mPredictedHdG;
@@ -223,7 +232,7 @@ private:
     DoubleExpSmooth     *mExpSmCosCog;
     ExpSmooth           *mExpSmDegRange;
     ExpSmooth           *mExpSmDiffCogHdt;
-
+    
     bool                 b_tactics_dc_message_shown = false;
 
     bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );
@@ -241,8 +250,8 @@ private:
         double data3, double data4 );
     void SendNMEASentence( wxString sentence );
     wxString ComputeChecksum(wxString sentence);
-
 };
+
 
 // class tactics_pi : public wxTimer, opencpn_plugin_112
 // {
@@ -266,7 +275,6 @@ private:
 //       wxString GetLongDescription();
 
 // //    The optional method overrides
-//       void SetNMEASentence(wxString &sentence);
 //       void SetPositionFix(PlugIn_Position_Fix &pfix);
 //       void SetCursorLatLon(double lat, double lon);
 //       int GetToolbarToolCount(void);
@@ -311,7 +319,7 @@ private:
 //       // FFU
 //       double               mSatsInView;
 // 	  double               mHdm;
-// 	  double               calmHdt;
+// 	  double               calmHdt;  /////////// 2019-05-27 NOTE: in dashboard_pi this called heading, not member variable!
 //       wxDateTime           mUTCDateTime;
 //       int                  m_config_version;
 //       wxString             m_VDO_accumulator;
@@ -324,23 +332,6 @@ private:
 //       int                  mTWS_Watchdog;
 //       int                  mAWS_Watchdog;
 
-// 	  // TR : bearing compass + TWA/TWD calculation
-// 	  wxMenu               *m_pmenu;
-// 	  double               mHdt, mStW, mSOG, mCOG, mlat, mlon, mheel,msensorheel, mLeeway;
-//       double               m_calcTWS, m_calcTWA, m_calcTWD; //temp testing for Windbarb display
-// 	  wxString             mHeelUnit, mAWAUnit, mAWSUnit;
-// 	  double               mAWA, mAWS, mTWA, mTWD, mTWS;
-//       bool                 m_bTrueWind_available, m_bLaylinesIsVisible, m_bDisplayCurrentOnChart, m_bShowWindbarbOnChart, m_bShowPolarOnChart;
-// 	  bool                 m_LeewayOK;
-//       bool                 m_bNKE_TrueWindTableBug;
-//       double               m_VWR_AWA;
-// 	  double               alpha_currspd, alpha_CogHdt;
-// 	  double               m_ExpSmoothCurrSpd, m_ExpSmoothCurrDir,m_ExpSmoothSog;
-// 	  double               m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir;
-// 	  double               m_tempSmoothedLaylineCOG;
-// 	  double			   m_ExpSmoothDiffCogHdt;
-// 	  double               m_LaylineDegRange, m_COGRange[COGRANGE], m_ExpSmoothDegRange, m_alphaDeltaCog;
-//       double               m_LaylineSmoothedCog, m_ExpSmoothSinCog, m_ExpSmoothCosCog;// , m_alphaLaylineCog;
 //       //Performance Variables
 //       double               mPolarTargetSpeed, mPredictedHdG, mPredictedCoG, mPredictedSoG, mPercentTargetVMGupwind, mPercentTargetVMGdownwind;
 //       TargetxMG tvmg,tcmg;
