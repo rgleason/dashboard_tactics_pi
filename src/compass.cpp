@@ -41,15 +41,28 @@
     #include <wx/wx.h>
 #endif
 
-DashboardInstrument_Compass::DashboardInstrument_Compass( wxWindow *parent, wxWindowID id, wxString title, int cap_flag) :
-      DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
+DashboardInstrument_Compass::DashboardInstrument_Compass(
+    wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+    unsigned long long cap_flag
+#else
+    int cap_flag
+#endif // _TACTICSPI_H_
+    ) : DashboardInstrument_Dial(
+        parent, id, title, cap_flag, 0, 360, 0, 360)
 {
       SetOptionMarker(5, DIAL_MARKER_SIMPLE, 2);
       SetOptionLabel(20, DIAL_LABEL_ROTATED);
       SetOptionMainValue( _T("%.0f"), DIAL_POSITION_INSIDE);
 }
 
-void DashboardInstrument_Compass::SetData(int st, double data, wxString unit)
+void DashboardInstrument_Compass::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
       if (st == m_MainValueCap)
       {

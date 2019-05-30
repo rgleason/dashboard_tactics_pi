@@ -40,7 +40,14 @@
     #include <wx/wx.h>
 #endif
 
-DashboardInstrument_Clock::DashboardInstrument_Clock( wxWindow *parent, wxWindowID id, wxString title, int cap_flag, wxString format ) :
+DashboardInstrument_Clock::DashboardInstrument_Clock(
+    wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+    unsigned long long cap_flag,
+#else
+    int cap_flag,
+#endif // _TACTICSPI_H_
+    wxString format ) :
       DashboardInstrument_Single( parent, id, title, cap_flag, format )
 {
     // if format contains the string "LCL" then display time in local TZ
@@ -64,7 +71,12 @@ wxSize DashboardInstrument_Clock::GetSize( int orient, wxSize hint )
       }
 }
 
-void DashboardInstrument_Clock::SetData( int, double, wxString )
+void DashboardInstrument_Clock::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st, double data, wxString unit)
+#else
+    int, double, wxString )
+#endif // _TACTICSPI_H_
 {
 // Nothing to do here but we want to override the default
 }
@@ -100,7 +112,12 @@ DashboardInstrument_CPUClock::DashboardInstrument_CPUClock( wxWindow *parent, wx
     DashboardInstrument_Clock( parent, id, title, OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON | OCPN_DBP_STC_CLK, format )
 { }
 
-void DashboardInstrument_CPUClock::SetData( int, double, wxString )
+void DashboardInstrument_CPUClock::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st, double data, wxString unit)
+#else
+    int, double, wxString)
+#endif // _TACTICSPI_H_
 {
     // Nothing to do here but we want to override the default
 }
@@ -131,7 +148,13 @@ wxSize DashboardInstrument_Moon::GetSize( int orient, wxSize hint )
       }
 }
 
-void DashboardInstrument_Moon::SetData( int st, double value, wxString format )
+void DashboardInstrument_Moon::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+     double value, wxString format )
 {
     if( st == OCPN_DBP_STC_LAT ) {
         m_hemisphere = (value < 0 ? _T("S") : _T("N") );
@@ -332,7 +355,13 @@ void DashboardInstrument_Sun::SetUtcTime( wxDateTime data )
     }
 }
 
-void DashboardInstrument_Sun::SetData( int st, double data, wxString unit )
+void DashboardInstrument_Sun::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+     double data, wxString format )
 {
       if( st == OCPN_DBP_STC_LAT )
       {

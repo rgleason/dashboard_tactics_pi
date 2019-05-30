@@ -52,7 +52,7 @@
 #endif // _INCLUDE_TACTICS_PI_
 
 #define     PLUGIN_VERSION_MAJOR    1
-#define     PLUGIN_VERSION_MINOR    4
+#define     PLUGIN_VERSION_MINOR    5
 
 #define     MY_API_VERSION_MAJOR    1
 #ifdef _TACTICSPI_H_
@@ -103,13 +103,24 @@ public:
 class DashboardInstrumentContainer
 {
 public:
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa){
-        m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; }
+    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
+#ifdef _TACTICSPI_H_
+    unsigned long long capa
+#else
+    int capa
+#endif // _TACTICSPI_H_
+        ) {
+        m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
+    }
     ~DashboardInstrumentContainer(){ delete m_pInstrument; }
 
     DashboardInstrument    *m_pInstrument;
     int                     m_ID;
+#ifdef _TACTICSPI_H_
+    unsigned long long      m_cap_flag;
+#else
     int                     m_cap_flag;
+#endif // _TACTICSPI_H_
 };
 
 //    Dynamic arrays of pointers need explicit macros in wx261
@@ -176,7 +187,13 @@ public:
 private:
     bool LoadConfig(void);
     void ApplyConfig(void);
-    void SendSentenceToAllInstruments(int st, double value, wxString unit);
+    void SendSentenceToAllInstruments(
+#ifdef _TACTICSPI_H_
+        unsigned long long st,
+#else
+        int st,
+#endif // _TACTICSPI_H_
+       double value, wxString unit);
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
@@ -301,7 +318,13 @@ public:
     void OnContextMenuSelect( wxCommandEvent& evt );
     bool isInstrumentListEqual( const wxArrayInt& list );
     void SetInstrumentList( wxArrayInt list );
-    void SendSentenceToAllInstruments( int st, double value, wxString unit );
+    void SendSentenceToAllInstruments(
+#ifdef _TACTICSPI_H_
+        unsigned long long st,
+#else
+        int st,
+#endif // _TACTICSPI_H_
+       double value, wxString unit );
     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
     void SendUtcTimeToAllInstruments( wxDateTime value );
     void ChangePaneOrientation( int orient, bool updateAUImgr );

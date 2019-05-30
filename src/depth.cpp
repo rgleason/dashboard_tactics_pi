@@ -68,7 +68,13 @@ wxSize DashboardInstrument_Depth::GetSize( int orient, wxSize hint )
       }
 }
 
-void DashboardInstrument_Depth::SetData(int st, double data, wxString unit)
+void DashboardInstrument_Depth::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
       if (st == OCPN_DBP_STC_DPT)
       {

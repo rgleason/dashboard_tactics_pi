@@ -45,17 +45,21 @@
 
 class DashboardInstrument_RudderAngle: public DashboardInstrument_Dial
 {
-      public:
-            DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title);
-            ~DashboardInstrument_RudderAngle(void){}
+public:
+    DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title);
+    ~DashboardInstrument_RudderAngle(void){}
 
-            wxSize GetSize( int orient, wxSize hint );
-            void SetData(int, double, wxString);
+    wxSize GetSize( int orient, wxSize hint );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
 
-      private:
+private:
 
-      protected:
-            void DrawFrame(wxGCDC* dc);
+protected:
+    void DrawFrame(wxGCDC* dc);
             void DrawBackground(wxGCDC* dc);
 };
 

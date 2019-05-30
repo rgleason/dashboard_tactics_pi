@@ -38,7 +38,7 @@
 #include <map>
 
 #include "instrument.h"
-#include "dial.h"
+// #include "dial.h"
 
 WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
 
@@ -73,7 +73,7 @@ public:
 	~TacticsInstrument_PerformanceSingle(){}
 
 	wxSize GetSize(int orient, wxSize hint);
-	void SetData(int st, double data, wxString unit);
+	void SetData(unsigned long long st, double data, wxString unit);
 	void SetDisplayType(int displaytype);
 	double mTWS;
 	double mTWA;
@@ -246,7 +246,7 @@ class TacticsInstrument_PolarPerformance : public DashboardInstrument
 public:
   TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title);
   ~TacticsInstrument_PolarPerformance(void){}
-  void SetData(int, double, wxString);
+  void SetData(unsigned long long st, double data, wxString unit);
   wxSize GetSize(int orient, wxSize hint);
 
 private:

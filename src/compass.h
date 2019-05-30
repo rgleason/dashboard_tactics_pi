@@ -55,18 +55,29 @@
 //+------------------------------------------------------------------------------
 class DashboardInstrument_Compass: public DashboardInstrument_Dial
 {
-      public:
-            DashboardInstrument_Compass(wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
+public:
+    DashboardInstrument_Compass(
+        wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+        unsigned long long cap_flag
+#else
+        int cap_flag
+#endif // _TACTICSPI_H_
+                );
 
-            ~DashboardInstrument_Compass(void){}
+    ~DashboardInstrument_Compass(void){}
 
-            void SetData(int, double, wxString);
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
 
-      private:
+private:
 
-      protected:
-            void DrawBackground(wxGCDC* dc);
-            void DrawForeground(wxGCDC* dc);
+protected:
+    void DrawBackground(wxGCDC* dc);
+    void DrawForeground(wxGCDC* dc);
 };
 
 #endif // __Compass_H__

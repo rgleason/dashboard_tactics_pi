@@ -41,9 +41,18 @@
 //
 //----------------------------------------------------------------
 
-DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title, int cap_flag)
-      :wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
+DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                        unsigned long long cap_flag
+#else
+                        int cap_flag
+#endif // _TACTICSPI_H_
+    ):wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
+    wxLogMessage(
+        "DashboardInstrument::DashboardInstrument()");
+
+
       m_title = title;
       m_cap_flag = cap_flag;
 
@@ -66,7 +75,9 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
       
 #ifdef __WXOSX__
       Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(DashboardInstrument::MouseEvent), NULL, this);
-#endif      
+#endif
+      wxLogMessage(
+          "DashboardInstrument::DashboardInstrument() - done.");
 }
 
 void DashboardInstrument::MouseEvent( wxMouseEvent &event )
@@ -81,7 +92,11 @@ void DashboardInstrument::MouseEvent( wxMouseEvent &event )
     }
 }
 
-int DashboardInstrument::GetCapacity()
+#ifdef _TACTICSPI_H_
+    unsigned long long DashboardInstrument::GetCapacity()
+#else
+    int DashboardInstrument::GetCapacity()
+#endif // _TACTICSPI_H_
 {
       return m_cap_flag;
 }
@@ -178,7 +193,13 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
 //
 //----------------------------------------------------------------
 
-DashboardInstrument_Single::DashboardInstrument_Single(wxWindow *pparent, wxWindowID id, wxString title, int cap_flag, wxString format)
+DashboardInstrument_Single::DashboardInstrument_Single(wxWindow *pparent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                       unsigned long long cap_flag,
+#else
+                                                       int cap_flag,
+#endif // _TACTICSPI_H_
+                                                       wxString format)
       :DashboardInstrument(pparent, id, title, cap_flag)
 {
       m_format = format;
@@ -231,7 +252,13 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
 
 }
 
-void DashboardInstrument_Single::SetData(int st, double data, wxString unit)
+void DashboardInstrument_Single::SetData(
+#ifdef _TACTICSPI_H_
+        unsigned long long st,
+#else
+        int st,
+#endif // _TACTICSPI_H_
+        double data, wxString unit)
 {
       if (m_cap_flag & st){
             if(!std::isnan(data) && (data < 9999)){
@@ -270,7 +297,15 @@ void DashboardInstrument_Single::SetData(int st, double data, wxString unit)
 //
 //----------------------------------------------------------------
 
-DashboardInstrument_Position::DashboardInstrument_Position(wxWindow *pparent, wxWindowID id, wxString title, int cap_flag1, int cap_flag2)
+DashboardInstrument_Position::DashboardInstrument_Position(wxWindow *pparent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                           unsigned long long cap_flag1,
+                                                           unsigned long long cap_flag2
+#else
+                                                           int cap_flag1,
+                                                           int cap_flag2
+#endif // _TACTICSPI_H_
+    )
       :DashboardInstrument(pparent, id, title, cap_flag1 | cap_flag2)
 {
 
@@ -329,7 +364,13 @@ void DashboardInstrument_Position::Draw(wxGCDC* dc)
 
 }
 
-void DashboardInstrument_Position::SetData(int st, double data, wxString unit)
+void DashboardInstrument_Position::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
       if (st == m_cap_flag1)
       {

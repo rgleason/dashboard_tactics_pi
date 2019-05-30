@@ -48,26 +48,30 @@
 
 class DashboardInstrument_Depth: public DashboardInstrument
 {
-      public:
-            DashboardInstrument_Depth( wxWindow *parent, wxWindowID id, wxString title);
+public:
+    DashboardInstrument_Depth( wxWindow *parent, wxWindowID id, wxString title);
 
-            ~DashboardInstrument_Depth(void){}
+    ~DashboardInstrument_Depth(void){}
 
-            wxSize GetSize( int orient, wxSize hint );
-            void SetData(int, double, wxString);
+    wxSize GetSize( int orient, wxSize hint );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
 
-      private:
+private:
 
-      protected:
-            double m_ArrayDepth[DEPTH_RECORD_COUNT];
-            double m_MaxDepth;
-            double m_Depth;
-            wxString m_DepthUnit;
-            wxString m_Temp;
-
-            void Draw(wxGCDC* dc);
-            void DrawBackground(wxGCDC* dc);
-            void DrawForeground(wxGCDC* dc);
+protected:
+    double m_ArrayDepth[DEPTH_RECORD_COUNT];
+    double m_MaxDepth;
+    double m_Depth;
+    wxString m_DepthUnit;
+    wxString m_Temp;
+    
+    void Draw(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc);
+    void DrawForeground(wxGCDC* dc);
 };
 
 #endif // __DEPTH_H__

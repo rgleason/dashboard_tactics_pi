@@ -54,42 +54,60 @@
 //+------------------------------------------------------------------------------
 class DashboardInstrument_Wind: public DashboardInstrument_Dial
 {
-      public:
-            DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
+public:
+    DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                             unsigned long long cap_flag
+#else
+                                             int cap_flag
+#endif // _TACTICSPI_H_
+        );
+    
+    ~DashboardInstrument_Wind(void){}
 
-            ~DashboardInstrument_Wind(void){}
+private:
 
-      private:
-
-      protected:
-            void DrawBackground(wxGCDC* dc);
+protected:
+    void DrawBackground(wxGCDC* dc);
 };
 
 class DashboardInstrument_WindCompass: public DashboardInstrument_Dial
 {
-      public:
-            DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
+public:
+    DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                     unsigned long long cap_flag
+#else
+                                     int cap_flag
+#endif // _TACTICSPI_H_
+        );
 
-            ~DashboardInstrument_WindCompass(void){}
+    ~DashboardInstrument_WindCompass(void){}
 
-      private:
+private:
 
-      protected:
-            void DrawBackground(wxGCDC* dc);
+protected:
+    void DrawBackground(wxGCDC* dc);
 };
 
 class DashboardInstrument_TrueWindAngle: public DashboardInstrument_Dial
 {
-      public:
-            DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
+public:
+    DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                       unsigned long long cap_flag
+#else
+                                       int cap_flag
+#endif // _TACTICSPI_H_
+        );
+    
+    ~DashboardInstrument_TrueWindAngle(void){}
 
-            ~DashboardInstrument_TrueWindAngle(void){}
+private:
 
-      private:
+protected:
 
-      protected:
-
-            void DrawBackground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc);
 };
 /*****************************************************************************
 Apparent & True wind angle combined in one dial instrument
@@ -98,11 +116,20 @@ Author: Thomas Rauch
 class DashboardInstrument_AppTrueWindAngle : public DashboardInstrument_Dial
 {
 public:
-	DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
-
+	DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                         unsigned long long cap_flag
+#else
+                                         int cap_flag
+#endif // _TACTICSPI_H_
+        );
+    
 	~DashboardInstrument_AppTrueWindAngle(void){}
-	void SetData(int, double, wxString);
-
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
 
 private:
 

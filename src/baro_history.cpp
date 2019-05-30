@@ -50,30 +50,36 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA)
 {     SetDrawSoloInPane(true);
 
-
-
-      m_MaxPress = 0;
-      m_MinPress =(double)1200;
-      m_TotalMaxPress = 0;
-      m_TotalMinPress=1200;
-      m_Press = 0;
-      m_TopLineHeight=30;
-      m_SpdRecCnt=0;
-      m_SpdStartVal=-1;
-      m_IsRunning=false;
-      m_SampleCount=0;
-      m_LeftLegend=3;
-      m_RightLegend=3;
-      for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
+    wxLogMessage(
+        "DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory()");
+    
+    m_MaxPress = 0;
+    m_MinPress =(double)1200;
+    m_TotalMaxPress = 0;
+    m_TotalMinPress=1200;
+    m_Press = 0;
+    m_TopLineHeight=30;
+    m_SpdRecCnt=0;
+    m_SpdStartVal=-1;
+    m_IsRunning=false;
+    m_SampleCount=0;
+    m_LeftLegend=3;
+    m_RightLegend=3;
+    for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         m_ArrayPressHistory[idx] = -1;
         m_ExpSmoothArrayPressure[idx] = -1;
         m_ArrayRecTime[idx]=wxDateTime::Now().GetTm();
         m_ArrayRecTime[idx].year=999;
-      }
-      alpha=0.01;  //smoothing constant
-      m_WindowRect=GetClientRect();
-      m_DrawAreaRect=GetClientRect();
-      m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
+    }
+    alpha=0.01;  //smoothing constant
+    m_WindowRect=GetClientRect();
+    m_DrawAreaRect=GetClientRect();
+    m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
+
+        wxLogMessage(
+        "DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory() - done.");
+
+
 }
 
 wxSize DashboardInstrument_BaroHistory::GetSize( int orient, wxSize hint )
@@ -88,8 +94,17 @@ wxSize DashboardInstrument_BaroHistory::GetSize( int orient, wxSize hint )
         return wxSize( wxMax(hint.x, DefaultWidth), wxMax(m_TitleHeight+140, hint.y) );
       }
 }
-void DashboardInstrument_BaroHistory::SetData(int st, double data, wxString unit)
+void DashboardInstrument_BaroHistory::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
+    wxLogMessage(
+        "DashboardInstrument_BaroHistory::SetData(%llx %f %s)", st, data, unit);
+    
     if (st == OCPN_DBP_STC_MDA) {
       m_Press = data;
       if(m_SpdRecCnt++<=5) m_SpdStartVal+=data;

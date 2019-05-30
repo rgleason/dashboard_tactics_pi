@@ -48,26 +48,30 @@
 
 class DashboardInstrument_GPS: public DashboardInstrument
 {
-      public:
-            DashboardInstrument_GPS( wxWindow *parent, wxWindowID id, wxString title);
+public:
+    DashboardInstrument_GPS( wxWindow *parent, wxWindowID id, wxString title);
 
-            ~DashboardInstrument_GPS(void){}
+    ~DashboardInstrument_GPS(void){}
 
-            wxSize GetSize( int orient, wxSize hint );
-            void SetData(int, double, wxString) {};
-            void SetSatInfo(int cnt, int seq, SAT_INFO sats[4]);
+    wxSize GetSize( int orient, wxSize hint );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit){}
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
+    void SetSatInfo(int cnt, int seq, SAT_INFO sats[4]);
 
-      private:
+private:
 
-      protected:
-            int m_cx, m_cy, m_radius;
-            int m_SatCount;
-            SAT_INFO m_SatInfo[12];
+protected:
+    int m_cx, m_cy, m_radius;
+    int m_SatCount;
+    SAT_INFO m_SatInfo[12];
 
-            void Draw(wxGCDC* dc);
-            void DrawFrame(wxGCDC* dc);
-            void DrawBackground(wxGCDC* dc);
-            void DrawForeground(wxGCDC* dc);
+    void Draw(wxGCDC* dc);
+    void DrawFrame(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc);
+    void DrawForeground(wxGCDC* dc);
 };
 
 #endif // __GPS_H__

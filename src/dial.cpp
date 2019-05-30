@@ -55,8 +55,14 @@ double deg2rad(double angle)
       return angle/180.0*M_PI;
 }
 
-DashboardInstrument_Dial::DashboardInstrument_Dial( wxWindow *parent, wxWindowID id, wxString title, int cap_flag,
-                  int s_angle, int r_angle, int s_value, int e_value) : DashboardInstrument(parent, id, title, cap_flag)
+DashboardInstrument_Dial::DashboardInstrument_Dial(
+    wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+    unsigned long long cap_flag,
+#else
+    int cap_flag,
+#endif // _TACTICSPI_H_
+    int s_angle, int r_angle, int s_value, int e_value) : DashboardInstrument(parent, id, title, cap_flag)
 {
       m_AngleStart = s_angle;
       m_AngleRange = r_angle;
@@ -93,7 +99,13 @@ wxSize DashboardInstrument_Dial::GetSize( int orient, wxSize hint )
       }
 }
 
-void DashboardInstrument_Dial::SetData(int st, double data, wxString unit)
+void DashboardInstrument_Dial::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.

@@ -91,7 +91,13 @@ wxSize DashboardInstrument_WindDirHistory::GetSize( int orient, wxSize hint )
         return wxSize( wxMax(hint.x, DefaultWidth), wxMax(m_TitleHeight+140, hint.y) );
       }
 }
-void DashboardInstrument_WindDirHistory::SetData(int st, double data, wxString unit)
+void DashboardInstrument_WindDirHistory::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
   if (st == OCPN_DBP_STC_TWD || st == OCPN_DBP_STC_TWS) {
     if (st == OCPN_DBP_STC_TWD) {

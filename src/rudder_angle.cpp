@@ -68,7 +68,13 @@ wxSize DashboardInstrument_RudderAngle::GetSize( int orient, wxSize hint )
       return wxSize( w, m_TitleHeight+w*.7 );
 }
 
-void DashboardInstrument_RudderAngle::SetData(int st, double data, wxString unit)
+void DashboardInstrument_RudderAngle::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
       if (st == m_MainValueCap)
       {

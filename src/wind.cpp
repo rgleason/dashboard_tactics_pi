@@ -45,7 +45,13 @@
 // Display the arrow for MainValue (wind angle)
 // We also want the extra value (wind speed) displayed inside the dial
 
-DashboardInstrument_Wind::DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title, int cap_flag) :
+DashboardInstrument_Wind::DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                    unsigned long long cap_flag
+#else
+                                                    int cap_flag
+#endif // _TACTICSPI_H_
+                                                    ) :
       DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
 {
       SetOptionMarker(10, DIAL_MARKER_REDGREENBAR, 3);
@@ -59,7 +65,13 @@ void DashboardInstrument_Wind::DrawBackground(wxGCDC* dc)
     DrawBoat( dc, m_cx, m_cy, m_radius );
 }
 
-DashboardInstrument_WindCompass::DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title, int cap_flag ) :
+DashboardInstrument_WindCompass::DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                                  unsigned long long cap_flag
+#else
+                                                                  int cap_flag
+#endif // _TACTICSPI_H_
+    ) :
       DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360 )
 {
       SetOptionMarker(5, DIAL_MARKER_SIMPLE, 2);
@@ -75,8 +87,14 @@ void DashboardInstrument_WindCompass::DrawBackground(wxGCDC* dc)
 // Display the arrow for MainValue (wind angle)
 // We also want the extra value (wind speed) displayed inside the dial
 
-DashboardInstrument_TrueWindAngle::DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title, int cap_flag) :
-      DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
+DashboardInstrument_TrueWindAngle::DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                                      unsigned long long cap_flag
+#else
+                                                                      int cap_flag
+#endif // _TACTICSPI_H_
+    ) :
+    DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
 {
       SetOptionMarker(10, DIAL_MARKER_REDGREENBAR, 3);
       // Labels are set static because we've no logic to display them this way
@@ -93,8 +111,14 @@ void DashboardInstrument_TrueWindAngle::DrawBackground(wxGCDC* dc)
   Apparent & True wind angle combined in one dial instrument
   Author: Thomas Rauch
 ******************************************************************************/
-DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title, int cap_flag) :
-DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
+DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                                                                           unsigned long long cap_flag
+#else
+                                                                           int cap_flag
+#endif // _TACTICSPI_H_
+    ) :
+    DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 {
 	SetOptionMarker(10, DIAL_MARKER_REDGREENBAR, 3);
 	// Labels are set static because we've no logic to display them this way
@@ -107,7 +131,13 @@ void DashboardInstrument_AppTrueWindAngle::DrawBackground(wxGCDC* dc)
 	DrawBoat(dc, m_cx, m_cy, m_radius);
 }
 
-void DashboardInstrument_AppTrueWindAngle::SetData(int st, double data, wxString unit)
+void DashboardInstrument_AppTrueWindAngle::SetData(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double data, wxString unit)
 {
 	if (st == OCPN_DBP_STC_TWA){
 		m_MainValueTrue = data;

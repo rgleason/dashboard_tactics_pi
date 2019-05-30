@@ -243,7 +243,7 @@ private:
     void SaveTacticsPluginBasePart ( wxFileConfig *pConf );
     void SaveTacticsPluginPerformancePart ( wxFileConfig *pConf );
     virtual void SendSentenceToAllInstruments(
-        int st, double value, wxString unit ) = 0;
+        unsigned long long st, double value, wxString unit ) = 0;
     void ExportPerformanceData(void);
     void createPNKEP_NMEA(
         int sentence, double data1, double data2,
@@ -290,13 +290,13 @@ private:
 //       int GetTacticsWindowShownCount();
 //       void SetPluginMessage(wxString &message_id, wxString &message_body);
 // 	  //TR
-// 	  void CalculateCurrent(int st, double value, wxString unit);
-// 	  void CalculateLeeway(int st, double value, wxString unit);
-// 	  void CalculateTrueWind(int st, double value, wxString unit);
+// 	  void CalculateCurrent(unsigned long long st, double value, wxString unit);
+// 	  void CalculateLeeway(unsigned long long st, double value, wxString unit);
+// 	  void CalculateTrueWind(unsigned long long st, double value, wxString unit);
 // 	  void CalculateLaylineDegreeRange(void);
 //       void CalculatePerformanceData(void);
 //       void CalculatePredictedCourse(void);
-// 	  void SetCalcVariables(int st, double value, wxString unit);
+// 	  void SetCalcVariables(unsigned long long st, double value, wxString unit);
 //       void OnContextMenuItemCallback(int id);
 
 // private:
@@ -504,7 +504,7 @@ private:
 //     void OnContextMenuSelect( wxCommandEvent& evt );
 //     bool isInstrumentListEqual( const wxArrayInt& list );
 //     void SetInstrumentList( wxArrayInt list );
-//     void SendSentenceToAllInstruments( int st, double value, wxString unit );
+//     void SendSentenceToAllInstruments( unsigned long long st, double value, wxString unit );
 //     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
 //     void SendUtcTimeToAllInstruments( wxDateTime value );
 //     void ChangePaneOrientation( int orient, bool updateAUImgr );

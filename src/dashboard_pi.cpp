@@ -581,6 +581,9 @@ bool dashboard_pi::DeInit( void )
 
 void dashboard_pi::Notify()
 {
+    wxLogMessage(
+        "dashboard_pi::Notify()");
+
     SendUtcTimeToAllInstruments( mUTCDateTime );
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
@@ -620,8 +623,13 @@ void dashboard_pi::Notify()
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
     }
 #ifdef _TACTICSPI_H_
+    wxLogMessage(
+        "dashboard_pi::Notify() tactics_pi::Notify()");
     tactics_pi::Notify();
 #endif //  _TACTICSPI_H
+    wxLogMessage(
+        "dashboard_pi::Notify() - done.");
+        
     return;
 }
 
@@ -684,8 +692,22 @@ Provides navigation instrument display from NMEA source.");
 
 }
 
-void dashboard_pi::SendSentenceToAllInstruments( int st, double value, wxString unit )
+void dashboard_pi::SendSentenceToAllInstruments(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double value, wxString unit )
 {
+#ifdef _TACTICSPI_H_
+    // Probably good to have during the development phase at least... 
+    if (std::isnan(value))
+        return;
+    wxLogMessage(
+        "dashboard_pi::SendSentenceToAllInstruments %llx, %f, %s",
+        st, value, unit );
+#endif
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) dashboard_window->SendSentenceToAllInstruments( st, value, unit );
@@ -1935,6 +1957,12 @@ void dashboard_pi::PopulateContextMenu( wxMenu* menu )
 
 void dashboard_pi::ShowDashboard( size_t id, bool visible )
 {
+    wxLogMessage(
+        "dashboard_pi::ShowDashboard(%d, %b)", id, visible);
+
+    wxLogMessage(
+        "dashboard_pi::ShowDashboard() - m_ArrayOfDashboardWindow.GetCount() = %d", m_ArrayOfDashboardWindow.GetCount());
+
     if ( id < m_ArrayOfDashboardWindow.GetCount() ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( id );
         m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( visible );
@@ -1942,15 +1970,24 @@ void dashboard_pi::ShowDashboard( size_t id, bool visible )
         cont->m_bPersVisible = visible;
         m_pauimgr->Update();
     }
+    wxLogMessage(
+        "dashboard_pi::ShowDashboard() - done");
+
 }
 
 #ifdef _TACTICSPI_H_
 bool dashboard_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 {
+    wxLogMessage(
+        "dashboard_pi::RenderOverlay()");
+
     return tactics_pi::RenderOverlay( dc, vp );
 }
 bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
+    wxLogMessage(
+        "dashboard_pi::RenderGLOverlay()");
+
     return tactics_pi::RenderGLOverlay( pcontext, vp );
 }
 #endif // _TACTICSPI_H_ 
@@ -2574,6 +2611,9 @@ DashboardWindow::DashboardWindow( wxWindow *pparent, wxWindowID id, wxAuiManager
               _T("Dashboard") )
 #endif // _TACTICSPI_H_    
 {
+    wxLogMessage(
+        "dashboard_pi DashboardWindow::DashboardWindow()");
+
     m_pauimgr = auimgr;
     m_plugin = plugin;
     m_Container = mycont;
@@ -2586,6 +2626,8 @@ DashboardWindow::DashboardWindow( wxWindow *pparent, wxWindowID id, wxAuiManager
              this );
     Connect( wxEVT_COMMAND_MENU_SELECTED,
              wxCommandEventHandler( DashboardWindow::OnContextMenuSelect ), NULL, this );
+    wxLogMessage(
+        "dashboard_pi DashboardWindow::DashboardWindow() - done.");
 }
 
 DashboardWindow::~DashboardWindow()
@@ -2598,6 +2640,8 @@ DashboardWindow::~DashboardWindow()
 
 void DashboardWindow::OnSize( wxSizeEvent& event )
 {
+    wxLogMessage(
+        "DashboardWindow::OnSize()");
     event.Skip();
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
@@ -2605,6 +2649,8 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
     }
     Layout();
     Refresh();
+    wxLogMessage(
+        "DashboardWindow::OnSize() - done.");
 }
 
 void DashboardWindow::OnContextMenu( wxContextMenuEvent& event )
@@ -2735,11 +2781,29 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
        // rudder range
 
        */
+    wxLogMessage(
+        "DashboardWindows::SetInstrumentList()");
+
+    // wxMessageBox(_T("DashboardWindows::SetInstrumentList() - entry, Clear()"));
+
+    wxLogMessage(
+        "DashboardWindows::SetInstrumentList() - entry, Clear()");
+        
     m_ArrayOfInstrument.Clear();
+    
+    wxLogMessage(
+        "DashboardWindows::SetInstrumentList() - itemBoxSizer->Clear( true );");
+    
     itemBoxSizer->Clear( true );
+
+    wxLogMessage(
+        "DashboardWindows::SetInstrumentList() - list.GetCount() = %d", list.GetCount());
+
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
         DashboardInstrument *instrument = NULL;
+        wxLogMessage(
+            "DashboardWindows::SetInstrumentList() - id = %d", id );
         switch( id ){
         case ID_DBP_I_POS:
             instrument = new DashboardInstrument_Position( this, wxID_ANY,
@@ -2999,10 +3063,24 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     Fit();
     Layout();
     SetMinSize( itemBoxSizer->GetMinSize() );
+
+    wxLogMessage(
+        "DashboardWindows::SetInstrumentList() - done.");
+
 }
 
-void DashboardWindow::SendSentenceToAllInstruments( int st, double value, wxString unit )
+void DashboardWindow::SendSentenceToAllInstruments(
+#ifdef _TACTICSPI_H_
+    unsigned long long st,
+#else
+    int st,
+#endif // _TACTICSPI_H_
+    double value, wxString unit )
 {
+    wxLogMessage(
+        "DashboardWindows::()SendSentenceToAllInstruments()");
+
+    // wxMessageBox(_T("DashboardWindows::SetInstrumentList() - entry, Clear()"));
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         if( m_ArrayOfInstrument.Item( i )->m_cap_flag & st ) m_ArrayOfInstrument.Item( i )->m_pInstrument->SetData(
             st, value, unit );
@@ -3011,6 +3089,8 @@ void DashboardWindow::SendSentenceToAllInstruments( int st, double value, wxStri
 
 void DashboardWindow::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] )
 {
+    wxLogMessage(
+        "DashboardWindows::()SendSatInfoToAllInstruments()");
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         if( ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf(
@@ -3021,6 +3101,9 @@ void DashboardWindow::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sa
 
 void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
 {
+    wxLogMessage(
+        "DashboardWindows::()SendUtcTimeToAllInstruments()");
+
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         if( ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_CLK )
             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )

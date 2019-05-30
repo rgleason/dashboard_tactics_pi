@@ -47,12 +47,22 @@ extern int g_iUTCOffset;    // get offset from dashboard_pi.cpp
 class DashboardInstrument_Clock: public DashboardInstrument_Single
 {
 public:
-    DashboardInstrument_Clock( wxWindow *parent, wxWindowID id, wxString title, int cap_flag=OCPN_DBP_STC_CLK, wxString format=_T("%02i:%02i:%02i UTC") );
+    DashboardInstrument_Clock( wxWindow *parent, wxWindowID id, wxString title,
+#ifdef _TACTICSPI_H_
+                               unsigned long long cap_flag=OCPN_DBP_STC_CLK,
+#else
+                               int cap_flag=OCPN_DBP_STC_CLK,
+#endif // _TACTICSPI_H_
+                               wxString format=_T("%02i:%02i:%02i UTC") );
 
     ~DashboardInstrument_Clock(void){}
 
     wxSize GetSize( int orient, wxSize hint );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
     void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
     virtual void SetUtcTime(wxDateTime value);
     wxString GetDisplayTime( wxDateTime UTCtime );
     bool getUTC() { return bUTC; }
@@ -69,7 +79,11 @@ public:
     ~DashboardInstrument_Moon(){}
 
     wxSize GetSize( int orient, wxSize hint );
-    void SetData( int, double, wxString );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
     void Draw(wxGCDC* dc);
     void SetUtcTime(wxDateTime value);
 
@@ -89,7 +103,11 @@ public:
 
     wxSize GetSize( int orient, wxSize hint );
     void Draw(wxGCDC* dc);
-    void SetData( int st, double data, wxString unit );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
     void SetUtcTime( wxDateTime value );
 
 private:
@@ -109,7 +127,11 @@ public:
 
     ~DashboardInstrument_CPUClock() {}
 
-    void SetData( int, double, wxString );
+#ifdef _TACTICSPI_H_
+    void SetData(unsigned long long st, double data, wxString unit);
+#else
+    void SetData(int, double, wxString);
+#endif // _TACTICSPI_H_
 
     void SetUtcTime( wxDateTime value );
 };

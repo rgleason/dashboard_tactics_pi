@@ -41,7 +41,6 @@
 #include "nmea0183/nmea0183.h"
 
 #include "performance.h"
-#include "instrument.h"
 #include <map>
 #include <cmath>
 
@@ -133,7 +132,7 @@ void TacticsInstrument_PerformanceSingle::SetDisplayType(int type){
 /***********************************************************************************
 
 ************************************************************************************/
-void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString unit)
+void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double data, wxString unit)
 {
   if (std::isnan(data))
     return;
@@ -1184,7 +1183,7 @@ wxSize TacticsInstrument_PolarPerformance::GetSize(int orient, wxSize hint)
     return wxSize(wxMax(hint.x, DefaultWidth), wxMax(m_TitleHeight + 140, hint.y));
   }
 }
-void TacticsInstrument_PolarPerformance::SetData(int st, double data, wxString unit)
+void TacticsInstrument_PolarPerformance::SetData(unsigned long long st, double data, wxString unit)
 {
   if (std::isnan(data))
     return;
