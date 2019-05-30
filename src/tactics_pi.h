@@ -186,6 +186,7 @@ private:
     bool                 m_bDisplayCurrentOnChart;
     bool                 m_bShowWindbarbOnChart;
     bool                 m_bShowPolarOnChart;
+    bool                 m_bPersistentChartPolarAnimation;
     bool                 m_LeewayOK;
     bool                 m_bNKE_TrueWindTableBug;
     double               m_VWR_AWA;
@@ -356,109 +357,116 @@ private:
 // //      DECLARE_EVENT_TABLE();
 // };
 
-// class TacticsPreferencesDialog : public wxDialog
-// {
-// public:
-//       TacticsPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfTactics config );
-//       ~TacticsPreferencesDialog() {}
+class TacticsPreferencesDialog : public wxDialog
+{
+public:
+    TacticsPreferencesDialog( wxWindow *pparent, wxWindowID id, const wxString derivtitle );
+    ~TacticsPreferencesDialog() {}
 
-//       void OnCloseDialog(wxCloseEvent& event);
-//       void OnTacticsSelected(wxListEvent& event);
-//       void OnTacticsAdd(wxCommandEvent& event);
-//       void OnTacticsDelete(wxCommandEvent& event);
-//       void OnInstrumentSelected(wxListEvent& event);
-//       void OnInstrumentAdd(wxCommandEvent& event);
-//       void OnInstrumentEdit(wxCommandEvent& event);
-//       void OnInstrumentDelete(wxCommandEvent& event);
-//       void OnInstrumentUp(wxCommandEvent& event);
-//       void OnInstrumentDown(wxCommandEvent& event);
-//       void OnPrefScroll(wxCommandEvent& event);
-// 	  void SelectPolarFile(wxCommandEvent& event);
-//       void OnAWSAWACorrectionUpdated(wxCommandEvent& event);
-//       void OnManualHeelUpdate(wxCommandEvent& event);
-//       void OnAlphaCurrDirSliderUpdated(wxCommandEvent& event);
-//       void ApplyPrefs(wxCommandEvent& event);
-// 	  void SaveTacticsConfig();
+    virtual void TacticsPreferencesInit(wxNotebook *itemNotebook, int border_size) final;
 
-//       wxArrayOfTactics            m_Config;
-//       wxFontPickerCtrl             *m_pFontPickerTitle;
-//       wxFontPickerCtrl             *m_pFontPickerData;
-//       wxFontPickerCtrl             *m_pFontPickerLabel;
-//       wxFontPickerCtrl             *m_pFontPickerSmall;
-//       wxSpinCtrl                   *m_pSpinSpeedMax;
-//       wxSpinCtrl                   *m_pSpinCOGDamp;
-//       wxSpinCtrl                   *m_pSpinSOGDamp;
-//       wxChoice                     *m_pChoiceSpeedUnit;
-//       wxChoice                     *m_pChoiceDepthUnit;
-//       wxChoice                     *m_pChoiceDistanceUnit;
-//       wxChoice                     *m_pChoiceWindSpeedUnit;
+    virtual void TacticsPreferencesPanel(void) final;
 
-//       wxSpinCtrlDouble             *m_alphaDeltCoG; //TR
-//       wxSpinCtrlDouble             *m_alphaLaylineDampFactor;//TR
-//       wxSpinCtrl                   *m_minLayLineWidth;//TR
-// 	  wxSpinCtrl                   *m_maxLayLineWidth;//TR
-//       wxSpinCtrlDouble             *m_LeewayFactor;//TR
-//       wxSpinCtrl           *m_AlphaCurrDir; //TR
-//       wxSpinCtrlDouble             *m_fixedLeeway;//TR
-//       //wxSlider                     *m_AlphaCurrDir; //TR
-// 	  wxButton                     *m_buttonLoadPolar;//TR
-//       wxButton                     *m_buttonPrefsApply;//TR
-//        wxButton                     *m_buttonPrefOK;//TR
-// 	  wxTextCtrl                   *m_pTextCtrlPolar; //TR
-//       wxSpinCtrlDouble             *m_pLaylineLength; //TR
-//       wxSpinCtrlDouble             *m_heel5_45;
-//       wxSpinCtrlDouble             *m_heel5_90;
-//       wxSpinCtrlDouble             *m_heel5_135;
-//       wxSpinCtrlDouble             *m_heel10_45;
-//       wxSpinCtrlDouble             *m_heel10_90;
-//       wxSpinCtrlDouble             *m_heel10_135;
-//       wxSpinCtrlDouble             *m_heel15_45;
-//       wxSpinCtrlDouble             *m_heel15_90;
-//       wxSpinCtrlDouble             *m_heel15_135;
-//       wxSpinCtrlDouble             *m_heel20_45;
-//       wxSpinCtrlDouble             *m_heel20_90;
-//       wxSpinCtrlDouble             *m_heel20_135;
-//       wxSpinCtrlDouble             *m_heel25_45;
-//       wxSpinCtrlDouble             *m_heel25_90;
-//       wxSpinCtrlDouble             *m_heel25_135;
-// 	  wxTextCtrl                   *m_UseHeelSensor;
-// 	  wxCheckBox                   *m_CurrentOnChart;
-// 	  wxRadioButton                *m_ButtonLeewayFactor;
-// 	  wxRadioButton                *m_ButtonFixedLeeway;
-// 	  wxRadioButton                *m_ButtonHeelInput;
-// 	  wxRadioButton                *m_ButtonUseHeelSensor;
-//       wxCheckBox                   *m_CorrectSTWwithLeeway;
-//       wxCheckBox                   *m_CorrectAWwithHeel;
-//       wxCheckBox                   *m_ForceTrueWindCalculation;
-//       wxCheckBox                   *m_UseSOGforTWCalc;
-//       wxCheckBox                   *m_ShowWindbarbOnChart;
-//       wxCheckBox                   *m_ShowPolarOnChart;
-//       wxRadioButton                *m_ButtonExpNKE;
-//       wxCheckBox                   *m_ExpPerfData01;
-//       wxCheckBox                   *m_ExpPerfData02;
-//       wxCheckBox                   *m_ExpPerfData03;
-//       wxCheckBox                   *m_ExpPerfData04;
-//       wxCheckBox                   *m_ExpPerfData05;
-// private:
-//       void UpdateTacticsButtonsState(void);
-//       void UpdateButtonsState(void);
-//       wxFileConfig     *m_pconfig;
+    // void OnCloseDialog(wxCloseEvent& event);
+    // void OnTacticsSelected(wxListEvent& event);
+    // void OnTacticsAdd(wxCommandEvent& event);
+    // void OnTacticsDelete(wxCommandEvent& event);
+    // void OnInstrumentSelected(wxListEvent& event);
+    // void OnInstrumentAdd(wxCommandEvent& event);
+    // void OnInstrumentEdit(wxCommandEvent& event);
+    // void OnInstrumentDelete(wxCommandEvent& event);
+    // void OnInstrumentUp(wxCommandEvent& event);
+    // void OnInstrumentDown(wxCommandEvent& event);
+    // void OnPrefScroll(wxCommandEvent& event);
+    void SelectPolarFile(wxCommandEvent& event);
+    void OnAWSAWACorrectionUpdated(wxCommandEvent& event);
+    void OnManualHeelUpdate(wxCommandEvent& event);
+    // void OnAlphaCurrDirSliderUpdated(wxCommandEvent& event);
+    // void ApplyPrefs(wxCommandEvent& event);
+    // void SaveTacticsConfig();
 
-//       int                           curSel;
-//       wxListCtrl                   *m_pListCtrlTacticss;
-//       wxBitmapButton               *m_pButtonAddTactics;
-//       wxBitmapButton               *m_pButtonDeleteTactics;
-//       wxPanel                      *m_pPanelTactics;
-//       wxTextCtrl                   *m_pTextCtrlCaption;
-//       wxCheckBox                   *m_pCheckBoxIsVisible;
-//       wxChoice                     *m_pChoiceOrientation;
-//       wxListCtrl                   *m_pListCtrlInstruments;
-//       wxButton                     *m_pButtonAdd;
-//       wxButton                     *m_pButtonEdit;
-//       wxButton                     *m_pButtonDelete;
-//       wxButton                     *m_pButtonUp;
-//       wxButton                     *m_pButtonDown;
-// };
+    // wxArrayOfTactics            m_Config;
+    // wxFontPickerCtrl             *m_pFontPickerTitle;
+    // wxFontPickerCtrl             *m_pFontPickerData;
+    // wxFontPickerCtrl             *m_pFontPickerLabel;
+    // wxFontPickerCtrl             *m_pFontPickerSmall;
+    // wxSpinCtrl                   *m_pSpinSpeedMax;
+    // wxSpinCtrl                   *m_pSpinCOGDamp;
+    // wxSpinCtrl                   *m_pSpinSOGDamp;
+    // wxChoice                     *m_pChoiceSpeedUnit;
+    // wxChoice                     *m_pChoiceDepthUnit;
+    // wxChoice                     *m_pChoiceDistanceUnit;
+    // wxChoice                     *m_pChoiceWindSpeedUnit;
+
+    wxNotebook                   *m_itemNotebook;
+    int                           m_border_size;
+    
+    wxSpinCtrlDouble             *m_alphaDeltCoG; //TR
+    wxSpinCtrlDouble             *m_alphaLaylineDampFactor;//TR
+    wxSpinCtrl                   *m_minLayLineWidth;//TR
+    wxSpinCtrl                   *m_maxLayLineWidth;//TR
+    wxSpinCtrlDouble             *m_LeewayFactor;//TR
+    wxSpinCtrl                   *m_AlphaCurrDir; //TR
+    wxSpinCtrlDouble             *m_fixedLeeway;//TR
+    wxButton                     *m_buttonLoadPolar;//TR
+    wxButton                     *m_buttonPrefsApply;//TR
+    wxButton                     *m_buttonPrefOK;//TR
+    wxTextCtrl                   *m_pTextCtrlPolar; //TR
+    wxSpinCtrlDouble             *m_pLaylineLength; //TR
+    wxSpinCtrlDouble             *m_heel5_45;
+    wxSpinCtrlDouble             *m_heel5_90;
+    wxSpinCtrlDouble             *m_heel5_135;
+    wxSpinCtrlDouble             *m_heel10_45;
+    wxSpinCtrlDouble             *m_heel10_90;
+    wxSpinCtrlDouble             *m_heel10_135;
+    wxSpinCtrlDouble             *m_heel15_45;
+    wxSpinCtrlDouble             *m_heel15_90;
+    wxSpinCtrlDouble             *m_heel15_135;
+    wxSpinCtrlDouble             *m_heel20_45;
+    wxSpinCtrlDouble             *m_heel20_90;
+    wxSpinCtrlDouble             *m_heel20_135;
+    wxSpinCtrlDouble             *m_heel25_45;
+    wxSpinCtrlDouble             *m_heel25_90;
+    wxSpinCtrlDouble             *m_heel25_135;
+    wxTextCtrl                   *m_UseHeelSensor;
+    wxCheckBox                   *m_CurrentOnChart;
+    wxRadioButton                *m_ButtonLeewayFactor;
+    wxRadioButton                *m_ButtonFixedLeeway;
+    wxRadioButton                *m_ButtonHeelInput;
+    wxRadioButton                *m_ButtonUseHeelSensor;
+    wxCheckBox                   *m_CorrectSTWwithLeeway;
+    wxCheckBox                   *m_CorrectAWwithHeel;
+    wxCheckBox                   *m_ForceTrueWindCalculation;
+    wxCheckBox                   *m_UseSOGforTWCalc;
+    wxCheckBox                   *m_ShowWindbarbOnChart;
+    wxCheckBox                   *m_ShowPolarOnChart;
+    wxRadioButton                *m_ButtonExpNKE;
+    wxCheckBox                   *m_ExpPerfData01;
+    wxCheckBox                   *m_ExpPerfData02;
+    wxCheckBox                   *m_ExpPerfData03;
+    wxCheckBox                   *m_ExpPerfData04;
+    wxCheckBox                   *m_ExpPerfData05;
+    wxCheckBox                   *m_PersistentChartPolarAnimation;
+private:
+    void UpdateTacticsButtonsState(void);
+    void UpdateButtonsState(void);
+    wxFileConfig     *m_pconfig;
+
+    int                           curSel;
+    wxListCtrl                   *m_pListCtrlTacticss;
+    wxBitmapButton               *m_pButtonAddTactics;
+    wxBitmapButton               *m_pButtonDeleteTactics;
+    wxPanel                      *m_pPanelTactics;
+    wxTextCtrl                   *m_pTextCtrlCaption;
+    wxCheckBox                   *m_pCheckBoxIsVisible;
+    wxChoice                     *m_pChoiceOrientation;
+    wxListCtrl                   *m_pListCtrlInstruments;
+    wxButton                     *m_pButtonAdd;
+    wxButton                     *m_pButtonEdit;
+    wxButton                     *m_pButtonDelete;
+    wxButton                     *m_pButtonUp;
+    wxButton                     *m_pButtonDown;
+};
 
 // class AddInstrumentDlg : public wxDialog
 // {

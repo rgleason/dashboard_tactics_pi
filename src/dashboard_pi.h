@@ -225,10 +225,19 @@ private:
     //      DECLARE_EVENT_TABLE();
 };
 
-class DashboardPreferencesDialog : public wxDialog
+class DashboardPreferencesDialog : public
+#ifdef _TACTICSPI_H_
+    TacticsPreferencesDialog
+#else
+    wxDialog
+#endif // _TACTICSPI_H_
 {
 public:
-    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config );
+    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config 
+#ifdef _TACTICSPI_H_
+                                , wxString commonName
+#endif // _TACTICSPI_H_
+        );
     ~DashboardPreferencesDialog() {}
 
     void OnCloseDialog(wxCloseEvent& event);
@@ -244,6 +253,9 @@ public:
     void SaveDashboardConfig();
 
     wxArrayOfDashboard            m_Config;
+#ifdef _TACTICSPI_H_
+    wxNotebook                   *m_itemNotebook;
+#endif // _TACTICSPI_H_    
     wxFontPickerCtrl             *m_pFontPickerTitle;
     wxFontPickerCtrl             *m_pFontPickerData;
     wxFontPickerCtrl             *m_pFontPickerLabel;

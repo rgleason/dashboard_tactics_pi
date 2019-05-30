@@ -1567,7 +1567,11 @@ int dashboard_pi::GetToolbarToolCount( void )
 void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 {
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
-                                                                         m_ArrayOfDashboardWindow );
+                                                                         m_ArrayOfDashboardWindow
+#ifdef _TACTICSPI_H_
+                                                                         , GetCommonName()
+#endif // _TACTICSPI_H_
+     );
 
     if( dialog->ShowModal() == wxID_OK ) {
         delete g_pFontTitle;
@@ -2002,15 +2006,14 @@ bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
  */
 
 DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWindowID id,
-                                                        wxArrayOfDashboard config ) :
-    wxDialog( parent, id,
+                                                        wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
-              _("Dashboard and Tactics preferences"),
+                                                        , wxString commonName ) :
+TacticsPreferencesDialog ( parent, id, commonName + _(" preferences") )
 #else
-              _("Dashboard preferences"),
+     ) :wxDialog( parent, id, _("Dashboard preferences"),
+              wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE )
 #endif // _TACTICSPI_H_
-              wxDefaultPosition, wxDefaultSize,
-              wxDEFAULT_DIALOG_STYLE )
 {
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( DashboardPreferencesDialog::OnCloseDialog ),
              NULL, this );
@@ -2023,9 +2026,14 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     wxBoxSizer* itemBoxSizerMainPanel = new wxBoxSizer( wxVERTICAL );
     SetSizer( itemBoxSizerMainPanel );
 
-    wxNotebook *itemNotebook = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-                                               wxNB_TOP );
+    wxNotebook *itemNotebook = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP );
+
     itemBoxSizerMainPanel->Add( itemNotebook, 1, wxALL | wxEXPAND, border_size );
+    
+#ifdef _TACTICSPI_H_
+    m_itemNotebook = itemNotebook;
+    this->TacticsPreferencesInit( m_itemNotebook, border_size );
+#endif // _TACTICSPI_H_    
 
     wxPanel *itemPanelNotebook01 = new wxPanel( itemNotebook, wxID_ANY, wxDefaultPosition,
                                                 wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2034,31 +2042,36 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     itemPanelNotebook01->SetSizer( itemFlexGridSizer01 );
     itemNotebook->AddPage( itemPanelNotebook01,
 #ifdef _TACTICSPI_H_
-                          _("Dashboard_Tactics") );
+                           commonName
 #else
-                          _("Dashboard") );
-#endif // _TACTICSPI_H_    
+                           _("Dashboard")
+#endif // _TACTICSPI_H_
+        );
 
     wxBoxSizer *itemBoxSizer01 = new wxBoxSizer( wxVERTICAL );
     itemFlexGridSizer01->Add( itemBoxSizer01, 1, wxEXPAND | wxTOP | wxLEFT, border_size );
 
-    wxImageList *imglist1 = new wxImageList( 32, 32, true, 1 );
+    wxImageList *imglist1 = new wxImageList( 32, 32, true, 1);
+    imglist1->Add(
 #ifdef _TACTICSPI_H_
-    imglist1->Add( *_img_dashboard_tactics_pi );
+        *_img_dashboard_tactics_pi
 #else
-    imglist1->Add( *_img_dashboard_pi );
+        *_img_dashboard_pi
 #endif // _TACTICSPI_H_
+        );
 
-    m_pListCtrlDashboards = new wxListCtrl( itemPanelNotebook01, wxID_ANY, wxDefaultPosition,
-                                            wxSize( 50, 200 ), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL );
+    m_pListCtrlDashboards = new wxListCtrl(
+        itemPanelNotebook01, wxID_ANY, wxDefaultPosition,
+        wxSize( 50, 200 ), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL );
     m_pListCtrlDashboards->AssignImageList( imglist1, wxIMAGE_LIST_SMALL );
     m_pListCtrlDashboards->InsertColumn( 0, _T("") );
-    m_pListCtrlDashboards->Connect( wxEVT_COMMAND_LIST_ITEM_SELECTED,
-                                    wxListEventHandler(DashboardPreferencesDialog::OnDashboardSelected), NULL, this );
+    m_pListCtrlDashboards->Connect(
+        wxEVT_COMMAND_LIST_ITEM_SELECTED,
+        wxListEventHandler(DashboardPreferencesDialog::OnDashboardSelected), NULL, this );
     m_pListCtrlDashboards->Connect( wxEVT_COMMAND_LIST_ITEM_DESELECTED,
                                     wxListEventHandler(DashboardPreferencesDialog::OnDashboardSelected), NULL, this );
     itemBoxSizer01->Add( m_pListCtrlDashboards, 1, wxEXPAND, 0 );
-
+    
     wxBoxSizer *itemBoxSizer02 = new wxBoxSizer( wxHORIZONTAL );
     itemBoxSizer01->Add( itemBoxSizer02 );
 
@@ -2082,10 +2095,11 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
 
     wxStaticBox* itemStaticBox02 = new wxStaticBox( m_pPanelDashboard, wxID_ANY,
 #ifdef _TACTICSPI_H_
-                                                    _("Dashboard_Tactics") );
+                                                    commonName
 #else
-                                                    _("Dashboard") );
-#endif // _TACTICSPI_H_    
+                                                    _("Dashboard")
+#endif // _TACTICSPI_H_
+        );
     wxStaticBoxSizer* itemStaticBoxSizer02 = new wxStaticBoxSizer( itemStaticBox02, wxHORIZONTAL );
     itemBoxSizer03->Add( itemStaticBoxSizer02, 0, wxEXPAND | wxALL, border_size );
     wxFlexGridSizer *itemFlexGridSizer = new wxFlexGridSizer( 2 );
@@ -2305,6 +2319,9 @@ DashboardPreferencesDialog::DashboardPreferencesDialog( wxWindow *parent, wxWind
     itemFlexGridSizer04->Add( m_pChoiceWindSpeedUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
 
     //////////////////////////////////////////////////////////////
+#ifdef _TACTICSPI_H_
+    this->TacticsPreferencesPanel();
+#endif // _TACTICSPI_H_
 
     wxStdDialogButtonSizer* DialogButtonSizer = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
     itemBoxSizerMainPanel->Add( DialogButtonSizer, 0, wxALIGN_RIGHT | wxALL, 5 );
@@ -2559,7 +2576,11 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     wxBoxSizer* itemBoxSizer01 = new wxBoxSizer( wxVERTICAL );
     SetSizer( itemBoxSizer01 );
     wxStaticText* itemStaticText01 = new wxStaticText( this, wxID_ANY,
-                                                       _("Select instrument to add:"), wxDefaultPosition, wxDefaultSize, 0 );
+                                                       _("Select instrument to add:")
+#ifdef _TACTICSPI_H_
+                                                       + _("\n(^Tactics at the end of the list)")
+#endif // _TACTICSPI_H_
+                                                       , wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer01->Add( itemStaticText01, 0, wxEXPAND | wxALL, 5 );
 
     wxImageList *imglist = new wxImageList( 20, 20, true, 2 );
