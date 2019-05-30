@@ -57,7 +57,7 @@ public:
 #ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit){}
 #else
-    void SetData(int, double, wxString);
+    void SetData(int st, double data, wxString unit){}
 #endif // _TACTICSPI_H_
     void SetSatInfo(int cnt, int seq, SAT_INFO sats[4]);
 

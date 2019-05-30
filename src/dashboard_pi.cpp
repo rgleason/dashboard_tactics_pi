@@ -510,10 +510,15 @@ int dashboard_pi::Init( void )
 #endif // OCPN_USE_SVG
 
 #ifndef _TACTICSPI_H_
+    /* porting note: I reckon that this is obsolete in ov50, but since the code is there
+       let's keep it in the non-Tactics-version compilation. */
     if(GetActiveStyleName().Lower() != _T("traditional")){
-        normalIcon = _T("");
-        toggledIcon = _T("");
-        rolloverIcon = _T("");
+        wxString normalIcon = _T("");
+        wxString toggledIcon = _T("");
+        wxString rolloverIcon = _T("");
+        m_toolbar_item_id = InsertPlugInToolSVG(
+            _T(""), normalIcon, rolloverIcon, toggledIcon, wxITEM_CHECK,
+            _("Dashboard"), _T(""), NULL,DASHBOARD_TOOL_POSITION, 0, this);
     }
 #endif // _TACTICSPI_H_
 
