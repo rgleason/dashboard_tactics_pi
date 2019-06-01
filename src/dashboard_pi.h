@@ -315,11 +315,22 @@ enum
     ID_DASH_UNDOCK
 };
 
-class DashboardWindow : public wxWindow
+class DashboardWindow : public
+#ifdef _TACTICSPI_H_
+    TacticsWindow
+#else
+    wxDialog
+#endif // _TACTICSPI_H_
 {
 public:
-    DashboardWindow( wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr, dashboard_pi* plugin,
-                     int orient, DashboardWindowContainer* mycont );
+    DashboardWindow(
+        wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
+        dashboard_pi* plugin,
+        int orient, DashboardWindowContainer* mycont
+#ifdef _TACTICSPI_H_
+        , wxString commonName
+#endif // _TACTICSPI_H_
+        );
     ~DashboardWindow();
 
     void SetColorScheme( PI_ColorScheme cs );

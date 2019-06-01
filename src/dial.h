@@ -69,6 +69,10 @@ typedef enum
       DIAL_POSITION_TOPRIGHT,
       DIAL_POSITION_BOTTOMLEFT,
       DIAL_POSITION_BOTTOMRIGHT
+#ifdef _TACTICSPI_H_
+      ,
+      DIAL_POSITION_TOPINSIDE
+#endif // _TACTICSPI_H_
 } DialPositionOption;
 
 extern double rad2deg(double angle);

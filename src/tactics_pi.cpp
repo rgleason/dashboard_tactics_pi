@@ -46,6 +46,7 @@ int g_iMinLaylineWidth;
 int g_iMaxLaylineWidth;
 double g_dLaylineLengthonChart;
 Polar* BoatPolar;
+bool g_bDisplayLaylinesOnChart;
 bool g_bDisplayCurrentOnChart;
 wxString g_path_to_PolarFile;
 PlugIn_Route *m_pRoute = NULL;
@@ -322,6 +323,7 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Read(_T("MinLaylineWidth"), &g_iMinLaylineWidth, 4);
     pConf->Read(_T("MaxLaylineWidth"), &g_iMaxLaylineWidth, 30);
     pConf->Read(_T("LaylineWidthDampingFactor"), &g_dalphaDeltCoG, 0.25);
+    pConf->Read(_T("ShowLaylinesOnChart"), &g_bDisplayLaylinesOnChart, false);
     pConf->Read(_T("ShowCurrentOnChart"), &g_bDisplayCurrentOnChart, false);
     m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
     pConf->Read(_T("CMGSynonym"), &g_sCMGSynonym, _T("CMG"));
@@ -402,6 +404,7 @@ void tactics_pi::SaveTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Write(_T("MinLaylineWidth"), g_iMinLaylineWidth);
     pConf->Write(_T("MaxLaylineWidth"), g_iMaxLaylineWidth);
     pConf->Write(_T("LaylineWidthDampingFactor"), g_dalphaDeltCoG);
+    pConf->Write(_T("ShowLaylinesOnChart"), g_bDisplayLaylinesOnChart);
     pConf->Write(_T("ShowCurrentOnChart"), g_bDisplayCurrentOnChart);
     pConf->Write(_T("CMGSynonym"), g_sCMGSynonym);
     pConf->Write(_T("VMGSynonym"), g_sVMGSynonym);
@@ -1277,38 +1280,43 @@ void tactics_pi::DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, 
 /***********************************************************************
 Toggle Layline Render overlay
 ************************************************************************/
-void tactics_pi::ToggleLaylineRender(wxWindow* parent)
+void tactics_pi::ToggleLaylineRender()
 {
 	m_bLaylinesIsVisible = m_bLaylinesIsVisible ? false : true;
+    g_bDisplayLaylinesOnChart = m_bLaylinesIsVisible;
+    
 }
-void tactics_pi::ToggleCurrentRender(wxWindow* parent)
+void tactics_pi::ToggleCurrentRender()
 {
 	m_bDisplayCurrentOnChart = m_bDisplayCurrentOnChart ? false : true;
+    g_bDisplayCurrentOnChart = m_bDisplayCurrentOnChart;
 }
-void tactics_pi::TogglePolarRender(wxWindow* parent)
+void tactics_pi::TogglePolarRender()
 {
 	m_bShowPolarOnChart = m_bShowPolarOnChart ? false : true;
+    m_bDisplayCurrentOnChart = m_bShowPolarOnChart;
 }
-void tactics_pi::ToggleWindbarbRender(wxWindow* parent)
+void tactics_pi::ToggleWindbarbRender()
 {
 	m_bShowWindbarbOnChart = m_bShowWindbarbOnChart ? false : true;
+    g_bShowWindbarbOnChart = m_bShowWindbarbOnChart;
 }
 
 /**********************************************************************
  **********************************************************************/
-bool tactics_pi::GetLaylineVisibility(wxWindow* parent)
+bool tactics_pi::GetLaylineVisibility()
 {
 	return m_bLaylinesIsVisible;
 }
-bool tactics_pi::GetCurrentVisibility(wxWindow* parent)
+bool tactics_pi::GetCurrentVisibility()
 {
 	return m_bDisplayCurrentOnChart;
 }
-bool tactics_pi::GetWindbarbVisibility(wxWindow* parent)
+bool tactics_pi::GetWindbarbVisibility()
 {
 	return m_bShowWindbarbOnChart;
 }
-bool tactics_pi::GetPolarVisibility(wxWindow* parent)
+bool tactics_pi::GetPolarVisibility()
 {
 	return m_bShowPolarOnChart;
 }
@@ -1608,7 +1616,14 @@ bool tactics_pi::SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots)
     return false;
 }
 
-TacticsPreferencesDialog::TacticsPreferencesDialog(wxWindow *parent, wxWindowID id, const wxString derivtitle) :
+//----------------------------------------------------------------
+//    Tactics Preference Dialogs Implementation
+//    porting note: as virtual parent for child dialog which will
+//                  create and deal with buttons outside the tabs.
+//----------------------------------------------------------------
+
+TacticsPreferencesDialog::TacticsPreferencesDialog(
+    wxWindow *parent, wxWindowID id, const wxString derivtitle ) :
 	wxDialog(
         parent, id, derivtitle, wxDefaultPosition, wxDefaultSize,
         wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER)
@@ -1951,7 +1966,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//--------------------
 	m_PersistentChartPolarAnimation = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Persistent Chart Perf. Animations"));
 	itemFlexGridSizerExpData->Add(m_PersistentChartPolarAnimation, 0, wxEXPAND, 5);
-	m_ExpPerfData05->SetValue(g_bPersistentChartPolarAnimation);
+  m_PersistentChartPolarAnimation->SetValue(g_bPersistentChartPolarAnimation);
 
     return;
 }
@@ -1983,14 +1998,132 @@ void TacticsPreferencesDialog::OnAWSAWACorrectionUpdated(wxCommandEvent& event)
 
 void TacticsPreferencesDialog::SelectPolarFile(wxCommandEvent& event)
 {
-	wxFileDialog fdlg(GetOCPNCanvasWindow(), _("Select a Polar-File"), _T(""));
-	if (fdlg.ShowModal() == wxID_CANCEL) return;
+	wxFileDialog fdlg(
+        GetOCPNCanvasWindow(), _("Select a Polar-File"), _T(""));
+	if (fdlg.ShowModal() == wxID_CANCEL)
+        return;
 	g_path_to_PolarFile = fdlg.GetPath();
 	BoatPolar->loadPolar(g_path_to_PolarFile);
-	if (m_pTextCtrlPolar)  m_pTextCtrlPolar->SetValue(g_path_to_PolarFile);
-	wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
-	if (pConf) {
-		pConf->SetPath(_T("/PlugIns/Tactics/Performance"));
-		pConf->Write(_T("PolarFile"), g_path_to_PolarFile);
+	if (m_pTextCtrlPolar)
+        m_pTextCtrlPolar->SetValue(g_path_to_PolarFile);
+}
+
+void TacticsPreferencesDialog::SaveTacticsConfig()
+{
+	g_dLeewayFactor = m_LeewayFactor->GetValue();
+	g_dfixedLeeway = m_fixedLeeway->GetValue();
+
+	g_dalpha_currdir = (double)m_AlphaCurrDir->GetValue() / 1000.0;
+	//    g_dalpha_currdir = m_AlphaCurrDir->GetValue();
+	g_dalphaDeltCoG = m_alphaDeltCoG->GetValue();
+    g_dalphaLaylinedDampFactor = m_alphaLaylineDampFactor->GetValue();
+	g_dLaylineLengthonChart = m_pLaylineLength->GetValue();
+	g_iMinLaylineWidth = m_minLayLineWidth->GetValue();
+	g_iMaxLaylineWidth = m_maxLayLineWidth->GetValue();
+	g_bDisplayCurrentOnChart = m_CurrentOnChart->GetValue();
+	g_dheel[1][1] = m_heel5_45->GetValue();
+	g_dheel[1][2] = m_heel5_90->GetValue();
+	g_dheel[1][3] = m_heel5_135->GetValue();
+	g_dheel[2][1] = m_heel10_45->GetValue();
+	g_dheel[2][2] = m_heel10_90->GetValue();
+	g_dheel[2][3] = m_heel10_135->GetValue();
+	g_dheel[3][1] = m_heel15_45->GetValue();
+	g_dheel[3][2] = m_heel15_90->GetValue();
+	g_dheel[3][3] = m_heel15_135->GetValue();
+	g_dheel[4][1] = m_heel20_45->GetValue();
+	g_dheel[4][2] = m_heel20_90->GetValue();
+	g_dheel[4][3] = m_heel20_135->GetValue();
+	g_dheel[5][1] = m_heel25_45->GetValue();
+	g_dheel[5][2] = m_heel25_90->GetValue();
+	g_dheel[5][3] = m_heel25_135->GetValue();
+
+	g_bUseHeelSensor = m_ButtonUseHeelSensor->GetValue();
+	g_bUseFixedLeeway = m_ButtonFixedLeeway->GetValue();
+	g_bManHeelInput = m_ButtonHeelInput->GetValue();
+	g_path_to_PolarFile = m_pTextCtrlPolar->GetValue();
+	g_bCorrectSTWwithLeeway = m_CorrectSTWwithLeeway->GetValue();
+	g_bCorrectAWwithHeel = m_CorrectAWwithHeel->GetValue();
+	g_bForceTrueWindCalculation = m_ForceTrueWindCalculation->GetValue();
+	g_bUseSOGforTWCalc = m_UseSOGforTWCalc->GetValue();
+	g_bShowWindbarbOnChart = m_ShowWindbarbOnChart->GetValue();
+	g_bShowPolarOnChart = m_ShowPolarOnChart->GetValue();
+	g_bExpPerfData01 = m_ExpPerfData01->GetValue();
+	g_bExpPerfData02 = m_ExpPerfData02->GetValue();
+	g_bExpPerfData03 = m_ExpPerfData03->GetValue();
+	g_bExpPerfData04 = m_ExpPerfData04->GetValue();
+	g_bExpPerfData05 = m_ExpPerfData05->GetValue();
+    g_bPersistentChartPolarAnimation =
+        m_PersistentChartPolarAnimation->GetValue();
+}
+
+//----------------------------------------------------------------
+//    Tactics Window Implementation
+//    porting note: as virtual parent for child window class
+//----------------------------------------------------------------
+
+TacticsWindow::TacticsWindow (
+    wxWindow *pparent, wxWindowID id,
+    tactics_pi *tactics, const wxString derivtitle ) :
+    wxWindow(
+        pparent, id, wxDefaultPosition, wxDefaultSize,
+        wxBORDER_NONE, derivtitle )
+{
+    m_plugin = tactics;
+    return;
+}
+
+TacticsWindow::~TacticsWindow()
+{
+    return;
+}
+
+void TacticsWindow::InsertTacticsIntoContextMenu ( wxMenu *contextMenu )
+{
+    wxMenuItem* btnShowLaylines = contextMenu->AppendCheckItem(
+        ID_DASH_LAYLINE, _("^Show Laylines"));
+    btnShowLaylines->Check(m_plugin->GetLaylineVisibility());
+
+    wxMenuItem* btnShowCurrent = contextMenu->AppendCheckItem(
+        ID_DASH_CURRENT, _("^Show Current"));
+    btnShowCurrent->Check(m_plugin->GetCurrentVisibility());
+
+	wxMenuItem* btnShowWindbarb = contextMenu->AppendCheckItem(
+        ID_DASH_WINDBARB, _("^Show Windbarb"));
+	btnShowWindbarb->Check(m_plugin->GetWindbarbVisibility());
+
+	wxMenuItem* btnShowPolar = contextMenu->AppendCheckItem(
+        ID_DASH_POLAR, _("^Show Polar"));
+	btnShowPolar->Check(m_plugin->GetPolarVisibility());
+
+    return;
+}
+
+void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
+{
+    bool toggled = false;
+	switch (eventId){
+	case ID_DASH_LAYLINE: {
+		m_plugin->ToggleLaylineRender();
+        toggled = true;
 	}
+	case ID_DASH_CURRENT: {
+		m_plugin->ToggleCurrentRender();
+        toggled = true;
+	}
+	case ID_DASH_POLAR: {
+		m_plugin->TogglePolarRender();
+        toggled = true;
+	}
+	case ID_DASH_WINDBARB: {
+		m_plugin->ToggleWindbarbRender();
+        toggled = true;
+	}
+	}
+    /* Port note: Parent cannot save for child,
+       child cannot save for parent. */
+       if ( toggled )
+       m_plugin->SaveConfig();
+
+	return;
+
 }

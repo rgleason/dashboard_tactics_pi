@@ -56,46 +56,46 @@ class DoubleExpSmooth;
 //|
 //+------------------------------------------------------------------------------
 
-// class TacticsInstrument_BearingCompass : public TacticsInstrument_Dial
-// {
-//       public:
-// 		  TacticsInstrument_BearingCompass(wxWindow *parent, wxWindowID id, wxString title, int cap_flag);
+class TacticsInstrument_BearingCompass : public DashboardInstrument_Dial
+{
+public:
+    TacticsInstrument_BearingCompass(wxWindow *parent, wxWindowID id, wxString title, unsigned long long cap_flag);
 
-// 		  ~TacticsInstrument_BearingCompass(void){ SaveConfig(); }
+    ~TacticsInstrument_BearingCompass(void){ SaveConfig(); }
 
-//             void SetData(int, double, wxString);
-// 			bool SaveConfig(void);
-// 			double m_Bearing,  m_ExtraValueDTW, m_CurrDir, m_CurrSpeed, m_currAngleStart, m_TWA, m_TWD, m_AWA,m_TWS, m_Hdt, m_Leeway;
-//             //double m_RMBlat, m_RMBlon;
-// 			double m_diffCogHdt;
-// 			double m_lat, m_lon,m_StW,m_predictedSog;
-// 			//double m_AngleStart;
-//             wxString m_BearingUnit, m_ExtraValueDTWUnit,  m_ToWpt, m_CurrDirUnit, m_CurrSpeedUnit, m_curTack, m_targetTack, m_LeewayUnit;
-// 			//double m_ExpSmoothDegRange, m_oldExpSmoothDegRange, m_alphaDeltaCog, alpha_diffCogHdt ;
-// 			double m_ExpSmoothDegRange, alpha_diffCogHdt;
-// 			//double m_LaylineDegRange, m_minLaylineDegRange, m_maxLaylineDegRange, m_COGRange[COGRANGE], m_Cog;
-// 			double m_LaylineDegRange, m_COGRange[COGRANGE], m_Cog;
-// 			double	m_ExpSmoothDiffCogHdt, m_oldExpSmoothDiffCogHdt;
-// 			ExpSmooth  *mExpSmDegRange;
+    void SetData(unsigned long long, double, wxString);
+    bool SaveConfig(void);
+    double m_Bearing,  m_ExtraValueDTW, m_CurrDir, m_CurrSpeed, m_currAngleStart, m_TWA, m_TWD, m_AWA,m_TWS, m_Hdt, m_Leeway;
+    //double m_RMBlat, m_RMBlon;
+    double m_diffCogHdt;
+    double m_lat, m_lon,m_StW,m_predictedSog;
+    //double m_AngleStart;
+    wxString m_BearingUnit, m_ExtraValueDTWUnit,  m_ToWpt, m_CurrDirUnit, m_CurrSpeedUnit, m_curTack, m_targetTack, m_LeewayUnit;
+    //double m_ExpSmoothDegRange, m_oldExpSmoothDegRange, m_alphaDeltaCog, alpha_diffCogHdt ;
+    double m_ExpSmoothDegRange, alpha_diffCogHdt;
+    //double m_LaylineDegRange, m_minLaylineDegRange, m_maxLaylineDegRange, m_COGRange[COGRANGE], m_Cog;
+    double m_LaylineDegRange, m_COGRange[COGRANGE], m_Cog;
+    double	m_ExpSmoothDiffCogHdt, m_oldExpSmoothDiffCogHdt;
+    ExpSmooth  *mExpSmDegRange;
 
-//       private:
-// 		  bool LoadConfig(void);
-// 		  wxFileConfig     *m_pconfig;
+private:
+    bool LoadConfig(void);
+    wxFileConfig     *m_pconfig;
 
-//       protected:
-//             void DrawBackground(wxGCDC* dc);
-// 			void DrawForeground(wxGCDC* dc);
-// 			void DrawBearing(wxGCDC* dc);
-// 			void DrawWindAngles(wxGCDC* dc);
-//             //void DrawPolar(wxGCDC* dc);
-//             void DrawTargetxMGAngle(wxGCDC* dc);
-//             void DrawTargetAngle(wxGCDC* dc, double TargetAngle, wxString color1, int size);
-//             void DrawCurrent(wxGCDC* dc);
-// 			void DrawLaylines(wxGCDC* dc);
-// 			virtual void DrawData(wxGCDC* dc, double value, wxString unit, wxString format, DialPositionOption position);
-// 			virtual void Draw(wxGCDC* dc);
-// 			void CalculateLaylineDegreeRange(void);
-// };
+protected:
+    void DrawBackground(wxGCDC* dc);
+    void DrawForeground(wxGCDC* dc);
+    void DrawBearing(wxGCDC* dc);
+    void DrawWindAngles(wxGCDC* dc);
+    //void DrawPolar(wxGCDC* dc);
+    void DrawTargetxMGAngle(wxGCDC* dc);
+    void DrawTargetAngle(wxGCDC* dc, double TargetAngle, wxString color1, int size);
+    void DrawCurrent(wxGCDC* dc);
+    void DrawLaylines(wxGCDC* dc);
+    virtual void DrawData(wxGCDC* dc, double value, wxString unit, wxString format, DialPositionOption position);
+    virtual void Draw(wxGCDC* dc);
+    void CalculateLaylineDegreeRange(void);
+};
 
 #endif // __BearingCompass_H__
 

@@ -135,14 +135,14 @@ public:
     void DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp);
     void DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle );
     void DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, wxString color, int size, double rad);
-    void ToggleLaylineRender(wxWindow* parent);
-    void ToggleCurrentRender(wxWindow* parent);
-    void TogglePolarRender(wxWindow* parent);
-    void ToggleWindbarbRender(wxWindow* parent);
-    bool GetLaylineVisibility(wxWindow* parent);
-    bool GetWindbarbVisibility(wxWindow* parent);
-    bool GetCurrentVisibility(wxWindow* parent);
-    bool GetPolarVisibility(wxWindow* parent);
+    void ToggleLaylineRender(void);
+    void ToggleCurrentRender(void);
+    void TogglePolarRender(void);
+    void ToggleWindbarbRender(void);
+    bool GetLaylineVisibility(void);
+    bool GetWindbarbVisibility(void);
+    bool GetCurrentVisibility(void);
+    bool GetPolarVisibility(void);
     void CalculateLaylineDegreeRange(void);
 
     virtual void SetNMEASentence(wxString &sentence) = 0;
@@ -360,12 +360,14 @@ private:
 class TacticsPreferencesDialog : public wxDialog
 {
 public:
-    TacticsPreferencesDialog( wxWindow *pparent, wxWindowID id, const wxString derivtitle );
+    TacticsPreferencesDialog(
+        wxWindow *pparent, wxWindowID id, const wxString derivtitle );
     ~TacticsPreferencesDialog() {}
 
-    virtual void TacticsPreferencesInit(wxNotebook *itemNotebook, int border_size) final;
-
+    virtual void TacticsPreferencesInit(
+        wxNotebook *itemNotebook, int border_size) final;
     virtual void TacticsPreferencesPanel(void) final;
+    virtual void SaveTacticsConfig(void) final;
 
     // void OnCloseDialog(wxCloseEvent& event);
     // void OnTacticsSelected(wxListEvent& event);
@@ -383,7 +385,6 @@ public:
     void OnManualHeelUpdate(wxCommandEvent& event);
     // void OnAlphaCurrDirSliderUpdated(wxCommandEvent& event);
     // void ApplyPrefs(wxCommandEvent& event);
-    // void SaveTacticsConfig();
 
     // wxArrayOfTactics            m_Config;
     // wxFontPickerCtrl             *m_pFontPickerTitle;
@@ -485,24 +486,24 @@ private:
 //       ID_DASHBOARD_WINDOW
 // };
 
-// enum
-// {
-//       ID_DASH_PREFS = 999,
-//       ID_DASH_VERTICAL,
-//       ID_DASH_HORIZONTAL,
-// 	  ID_DASH_LAYLINE,
-//       ID_DASH_CURRENT,
-//       ID_DASH_POLAR,
-//       ID_DASH_WINDBARB,
-//       ID_DASH_UNDOCK
-// };
+enum eTacticsMenuItemsId {
+      ID_DASH_TACTICS_PREFS = 999,
+	  ID_DASH_LAYLINE,
+      ID_DASH_CURRENT,
+      ID_DASH_POLAR,
+      ID_DASH_WINDBARB
+};
 
-// class TacticsWindow : public wxWindow
-// {
-// public:
-//     TacticsWindow( wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr, tactics_pi* plugin,
-//              int orient, TacticsWindowContainer* mycont );
-//     ~TacticsWindow();
+class TacticsWindow : public wxWindow
+{
+public:
+    TacticsWindow(
+        wxWindow *pparent, wxWindowID id,
+        tactics_pi *tactics, const wxString derivtitle );
+    ~TacticsWindow();
+
+    virtual void InsertTacticsIntoContextMenu ( wxMenu *contextMenu );
+    virtual void TacticsInContextMenuAction ( const int eventId );
 
 //     void SetColorScheme( PI_ColorScheme cs );
 //     void SetSizerOrientation( int orient );
@@ -521,13 +522,13 @@ private:
 
 //     TacticsWindowContainer* m_Container;
 
-// private:
+private:
 //       wxAuiManager         *m_pauimgr;
-//       tactics_pi*         m_plugin;
+    tactics_pi*         m_plugin;
 
 // //wx2.9      wxWrapSizer*          itemBoxSizer;
 //       wxBoxSizer*          itemBoxSizer;
 //       wxArrayOfInstrument  m_ArrayOfInstrument;
-// };
+};
 
 #endif
