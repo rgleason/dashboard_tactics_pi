@@ -3065,7 +3065,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
         case ID_DBP_D_BRG:  // Bearing Compass
 			instrument = new TacticsInstrument_BearingCompass(
                 this, wxID_ANY,
-				getInstrumentCaption(id), OCPN_DBP_STC_COG |
+                getInstrumentCaption(id), OCPN_DBP_STC_COG |
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_CURRDIR |
                 OCPN_DBP_STC_CURRSPD | OCPN_DBP_STC_TWA |
                 OCPN_DBP_STC_LEEWAY | OCPN_DBP_STC_HDT |
@@ -3080,7 +3080,24 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
              instrument)->SetOptionExtraValue(
                  OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
 			break;
-
+		case ID_DBP_D_POLCOMP: // Polar Compass
+			instrument = new TacticsInstrument_PolarCompass(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_COG |
+                OCPN_DBP_STC_BRG | OCPN_DBP_STC_CURRDIR |
+                OCPN_DBP_STC_CURRSPD | OCPN_DBP_STC_TWA |
+                OCPN_DBP_STC_LEEWAY | OCPN_DBP_STC_HDT |
+                OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON |
+                OCPN_DBP_STC_STW | OCPN_DBP_STC_AWA |
+                OCPN_DBP_STC_TWS | OCPN_DBP_STC_TWD);
+            ((DashboardInstrument_Dial *) instrument)->SetOptionMarker(
+                5, DIAL_MARKER_SIMPLE, 2);
+            ((DashboardInstrument_Dial *) instrument)->SetOptionLabel(
+                30, DIAL_LABEL_ROTATED);
+            ((DashboardInstrument_Dial *)
+             instrument)->SetOptionExtraValue(
+                 OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
+            break;
 #endif // _TACTICSPI_H_
         }
         if( instrument ) {

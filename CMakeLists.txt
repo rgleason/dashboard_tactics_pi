@@ -91,6 +91,8 @@ IF (TACTICS_INSTRUMENTS)
       src/performance.cpp
       src/bearingcompass.h
       src/bearingcompass.cpp
+      src/polarcompass.h
+      src/polarcompass.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 
