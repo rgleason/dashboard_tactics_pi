@@ -69,7 +69,7 @@ double getSignedDegRange(double max, double min);
 class TacticsInstrument_PerformanceSingle : public DashboardInstrument
 {
 public:
-	TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, int cap, wxString format);
+	TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format);
 	~TacticsInstrument_PerformanceSingle(){}
 
 	wxSize GetSize(int orient, wxSize hint);

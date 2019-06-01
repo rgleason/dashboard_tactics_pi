@@ -107,9 +107,10 @@ enum eInstruments {
     /* These are the actual Tactics instrument enumerations, note _FIRST and _LAST markers;
        they are used to defined instrument belonging to "performance" category (i.e. Tactics).
        If you need to add new perfomance instruments, put them just before ID_DPB_PERF_LAST. */
-    ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD, ID_DBP_D_BRG, ID_DBP_I_POLSPD,
-    ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE, ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG,
-    ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND, ID_DBP_D_POLCOMP, ID_DPB_PERF_LAST,
+    ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_TWAMARK, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD,
+    ID_DBP_D_BRG, ID_DBP_I_POLSPD, ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE,
+    ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG, ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND,
+    ID_DBP_D_POLCOMP, ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
@@ -250,6 +251,8 @@ wxString getInstrumentCaption( unsigned int id )
 #ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
 		return _("^Leeway");
+    case ID_DBP_I_TWAMARK:
+        return _("^TWA to Waypoint");
 	case ID_DBP_I_CURRDIR:
 		return _("^Current Direction");
 	case ID_DBP_I_CURRSPD:
@@ -321,6 +324,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_I_HEEL:
 #ifdef _TACTICSPI_H_
 	case ID_DBP_I_LEEWAY:
+    case ID_DBP_I_TWAMARK:
 	case ID_DBP_I_CURRDIR:
 	case ID_DBP_I_CURRSPD:
 	case ID_DBP_I_POLSPD:
@@ -3097,6 +3101,15 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             ((DashboardInstrument_Dial *)
              instrument)->SetOptionExtraValue(
                  OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
+            break;
+		case ID_DBP_I_TWAMARK:
+			instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id),
+                OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD |
+                OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON, _T("%5.0f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(TWAMARK);
             break;
 #endif // _TACTICSPI_H_
         }

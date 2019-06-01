@@ -57,7 +57,7 @@ extern int g_iSpeedFormat;
 //    TacticsInstrument_Simple Implementation
 //
 //----------------------------------------------------------------
-TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, int cap_flag, wxString format)
+TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
 	m_format = format;
