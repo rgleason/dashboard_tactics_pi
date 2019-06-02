@@ -266,13 +266,15 @@ wxString getInstrumentCaption( unsigned int id )
 	case	ID_DBP_I_POLTVMG:
 		return _("^Target ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("^Target ") + tactics_pi::get_sVMGSynonym() + _("-Angle");
+		return _("^Target ") +
+            tactics_pi::get_sVMGSynonym() + _("-Angle");
 	case	ID_DBP_I_POLCMG:
 		return _("^Actual ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMG:
 		return _("^Target ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("^Target ") + tactics_pi::get_sCMGSynonym() + _("-Angle");
+		return _("^Target ") +
+            tactics_pi::get_sCMGSynonym() + _("-Angle");
 	case ID_DBP_D_POLPERF:
 		return _("^Polar Performance");
 	case ID_DBP_D_AVGWIND:
@@ -490,6 +492,11 @@ int dashboard_pi::Init( void )
 
     //    And load the configuration items
 
+#ifdef _TACTICSPI_H_
+    m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
+    int what_tactics_pi_wants = tactics_pi::Init( this, m_pconfig );
+#endif //  _TACTICSPI_H
+         
     LoadConfig();
 
 #ifdef OCPN_USE_SVG
@@ -529,11 +536,6 @@ int dashboard_pi::Init( void )
 
     ApplyConfig();
     
-#ifdef _TACTICSPI_H_
-    m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
-    int what_tactics_pi_wants = tactics_pi::Init( this, m_pconfig );
-#endif //  _TACTICSPI_H
-         
     //  If we loaded a version 1 config setup, convert now to version 2
     if(m_config_version == 1) {
         SaveConfig();
@@ -3280,29 +3282,50 @@ void DashboardWindow::SendSentenceToAllInstruments(
     double value, wxString unit )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
-        if( m_ArrayOfInstrument.Item( i )->m_cap_flag & st ) m_ArrayOfInstrument.Item( i )->m_pInstrument->SetData(
-            st, value, unit );
+        
+        if (
+#ifdef _TACTICSPI_H_
+            (!((m_ArrayOfInstrument.Item( i )->m_cap_flag & st) == 0ULL))
+#else
+             m_ArrayOfInstrument.Item( i )->m_cap_flag & st
+#endif // _TACTICSPI_H_
+                )
+            m_ArrayOfInstrument.Item( i )->m_pInstrument->SetData(
+                st, value, unit );
     }
 }
 
 void DashboardWindow::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
-        if( ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
+        if(
+#ifdef _TACTICSPI_H_
+             (!((m_ArrayOfInstrument.Item( i )->m_cap_flag &
+                 OCPN_DBP_STC_GPS) == 0ULL))
+#else
+             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
+#endif // _TACTICSPI_H_
             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf(
                 CLASSINFO(DashboardInstrument_GPS)))
-            ((DashboardInstrument_GPS*)m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetSatInfo(cnt, seq, sats);
+            ((DashboardInstrument_GPS*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetSatInfo(
+                cnt, seq, sats);
     }
 }
 
 void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
-        if( ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_CLK )
-            && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
+         if(
+#ifdef _TACTICSPI_H_
+             (!((m_ArrayOfInstrument.Item( i )->m_cap_flag &
+                 OCPN_DBP_STC_CLK) == 0ULL))
+#else
+             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
+#endif // _TACTICSPI_H_
+             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Sun ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Moon ) ) ) )
-            ((DashboardInstrument_Clock*)m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
+            ((DashboardInstrument_Clock*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
     }
 }
 

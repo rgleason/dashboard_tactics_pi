@@ -1630,9 +1630,9 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
             value_twa = mTWA;
             unit_twa = mAWAUnit;
             st_tws = OCPN_DBP_STC_TWS;
-            value_twa = mTWS;
-            unit_twa = mAWSUnit;
-            st_twd = OCPN_DBP_STC_TWS;
+            value_tws = mTWS;
+            unit_tws = mAWSUnit;
+            st_twd = OCPN_DBP_STC_TWD;
             value_twd = mTWD;
             unit_twd = _T("\u00B0T");
             return true;
@@ -1930,7 +1930,7 @@ Set MARK Position
 void tactics_pi::TacticsOnContextMenuItemCallback(int id)
 {
     m_pMark = new PlugIn_Waypoint(
-        g_dcur_lat, g_dcur_lon, _T("circle"), _T("^TacticsWP"),
+        g_dcur_lat, g_dcur_lon, _T("activepoint"), _T("^TacticsWP"),
         _T("^TacticsWP"));
     g_dmark_lat = m_pMark->m_lat;
     g_dmark_lon = m_pMark->m_lon;
