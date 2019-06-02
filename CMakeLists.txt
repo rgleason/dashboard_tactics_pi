@@ -93,6 +93,8 @@ IF (TACTICS_INSTRUMENTS)
       src/bearingcompass.cpp
       src/polarcompass.h
       src/polarcompass.cpp
+      src/avg_wind.h
+      src/avg_wind.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 

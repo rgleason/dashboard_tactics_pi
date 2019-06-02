@@ -178,6 +178,8 @@ public:
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
 #ifdef _TACTICSPI_H_
+    void SendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit);
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
 #endif // _TACTICSPI_H_ 
@@ -187,13 +189,13 @@ public:
 private:
     bool LoadConfig(void);
     void ApplyConfig(void);
-    void SendSentenceToAllInstruments(
 #ifdef _TACTICSPI_H_
-        unsigned long long st,
+    void pSendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit);
 #else
-        int st,
+    void SendSentenceToAllInstruments(
+        int st, double value, wxString unit);
 #endif // _TACTICSPI_H_
-       double value, wxString unit);
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 

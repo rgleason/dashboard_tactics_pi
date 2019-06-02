@@ -152,6 +152,37 @@ public:
     void SetNMEASentence_Arm_TWS_Watchdog(void){mTWS_Watchdog = tws_watchdog_timeout_ticks;}
     bool SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots);
 
+    void CalculateCurrent(
+        unsigned long long st, double value, wxString unit);
+    void CalculateLeeway(
+        unsigned long long st, double value, wxString unit);
+    void CalculateTrueWind(
+        unsigned long long st, double value, wxString unit);
+    void CalculatePerformanceData(void);
+    void CalculatePredictedCourse(void);
+    void SetCalcVariables(
+        unsigned long long st, double value, wxString unit);
+    void OnContextMenuItemCallback(int id);
+
+    virtual void SendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit ) = 0;
+    virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
+        unsigned long long st, double &value, wxString &unit ) final;
+    bool SendSentenceToAllInstruments_GetCalculatedTrueWind(
+        unsigned long long st, double value, wxString unit,
+        unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
+        unsigned long long &st_tws, double &value_tws, wxString &unit_tws,
+        unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+        );
+    bool SendSentenceToAllInstruments_GetCalculatedLeeway(
+    unsigned long long &st_leeway, double &value_leeway,
+    wxString &unit_leeway);
+    bool SendSentenceToAllInstruments_GetCalculatedCurrent(
+        unsigned long long st, double value, wxString unit,
+        unsigned long long &st_currdir, double &value_currdir,
+        wxString &unit_currdir,
+        unsigned long long &st_currspd, double &value_currspd,
+        wxString &unit_currspd);
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
@@ -179,8 +210,14 @@ private:
     double               m_calcTWS;
     double               m_calcTWA;
     double               m_calcTWD; //temp testing for Windbarb display
-    wxString             mHeelUnit, mAWAUnit, mAWSUnit;
-    double               mAWA, mAWS, mTWA, mTWD, mTWS;
+    wxString             mHeelUnit;
+    wxString             mAWAUnit;
+    wxString             mAWSUnit;
+    double               mAWA;
+    double               mAWS;
+    double               mTWA;
+    double               mTWD;
+    double               mTWS;
     bool                 m_bTrueWind_available;
     bool                 m_bLaylinesIsVisible;
     bool                 m_bDisplayCurrentOnChart;
@@ -243,8 +280,6 @@ private:
     void LoadTacticsPluginPerformancePart ( wxFileConfig *pConf );
     void SaveTacticsPluginBasePart ( wxFileConfig *pConf );
     void SaveTacticsPluginPerformancePart ( wxFileConfig *pConf );
-    virtual void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit ) = 0;
     void ExportPerformanceData(void);
     void createPNKEP_NMEA(
         int sentence, double data1, double data2,
@@ -502,8 +537,10 @@ public:
         tactics_pi *tactics, const wxString derivtitle );
     ~TacticsWindow();
 
-    virtual void InsertTacticsIntoContextMenu ( wxMenu *contextMenu );
-    virtual void TacticsInContextMenuAction ( const int eventId );
+    virtual void InsertTacticsIntoContextMenu (
+        wxMenu *contextMenu ) final;
+    virtual void TacticsInContextMenuAction (
+        const int eventId ) final;
 
 //     void SetColorScheme( PI_ColorScheme cs );
 //     void SetSizerOrientation( int orient );

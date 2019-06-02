@@ -695,19 +695,79 @@ Provides navigation instrument display from NMEA source.");
 
 }
 
-void dashboard_pi::SendSentenceToAllInstruments(
 #ifdef _TACTICSPI_H_
-    unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
-    double value, wxString unit )
+void dashboard_pi::pSendSentenceToAllInstruments(
+    unsigned long long st, double value, wxString unit )
 {
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
-        if( dashboard_window ) dashboard_window->SendSentenceToAllInstruments( st, value, unit );
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window )
+            dashboard_window->SendSentenceToAllInstruments(
+                st, value, unit );
     }
 }
+
+void dashboard_pi::SendSentenceToAllInstruments(
+    unsigned long long st, double value, wxString unit )
+{
+    double distvalue = value;
+    wxString distunit = unit;
+    (void) this->SendSentenceToAllInstruments_PerformanceCorrections (
+            st, distvalue, distunit );
+
+    pSendSentenceToAllInstruments( st, distvalue, distunit );
+
+    unsigned long long st_twa, st_tws, st_twd;
+    double value_twa, value_tws, value_twd;
+    wxString unit_twa, unit_tws, unit_twd;
+    if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
+            st, value, unit,
+            st_twa, value_twa, unit_twa,
+            st_tws, value_tws, unit_tws,
+            st_twd, value_twd, unit_twd)) {
+        pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
+        pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
+        pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
+    } // then calculated wind values required and need to be distributed
+    unsigned long long st_leeway;
+    double value_leeway;
+    wxString unit_leeway;
+    if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
+            st_leeway, value_leeway, unit_leeway)) {
+        pSendSentenceToAllInstruments( st_leeway, value_leeway,
+                                       unit_leeway );
+    } // then calculated leeway required and need to be distributed
+   unsigned long long st_currdir, st_currspd;
+    double value_currdir, value_currspd;
+    wxString unit_currdir, unit_currspd;
+    if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
+            st, value, unit,
+            st_currdir, value_currdir, unit_currdir,
+            st_currspd, value_currspd, unit_currspd)) {
+        pSendSentenceToAllInstruments(
+            st_currdir, value_currdir, unit_currdir );
+        pSendSentenceToAllInstruments(
+            st_currspd, value_currspd, unit_currspd );
+    } // then calculated current required and need to be distributed
+    // Take this opportunity to calculate the performance values
+    this->CalculatePerformanceData();
+}
+
+#else
+
+void dashboard_pi::SendSentenceToAllInstruments(
+    int st, double value, wxString unit )
+{
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window )
+            dashboard_window->SendSentenceToAllInstruments(
+                st, value, unit );
+    }
+}
+#endif // _TACTICSPI_H_
 
 void dashboard_pi::SendUtcTimeToAllInstruments( wxDateTime value )
 {
@@ -880,14 +940,14 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 if( !std::isnan(m_NMEA0183.Hdg.MagneticSensorHeadingDegrees) ) {
                     if( !std::isnan( mVar )  && (mPriHeadingT > 3) ){
                         mPriHeadingT = 4;
- #ifdef _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
                         /* Porting note: tactics_pi has contained the below corrections
                            since 2015, in "HDG" and in "HDM" with a class variable.Now, in  ov50,
                            the correction has been implemented in dashboard_pi, but with
                            a local variable. Since tactics_pi does not use the class
                            variable anywhere, we retain the solution of dashboard_pi.
                            (You can delete this note and the conditional compilation) */
-#endif
+#endif // _TACTICSPI_H_
                         double heading = mHdm + mVar;
                         if (heading < 0)
                             heading += 360;
@@ -990,7 +1050,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 /* Porting note: tactics_pi has the below two sentence commented out,
                    for no obvious reason. dashboard_pi solution is retained.
                    (You can delete this note and the conditional compilation) */
-#endif
+#endif // _TACTICSPI_H_
                 SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1, toUsrDistance_Plugin( m_NMEA0183.Vlw.TripMileage, g_iDashDistanceUnit ),
                                               getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ) );
 
@@ -3060,32 +3120,14 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                                                            getInstrumentCaption( id ), _T( "%02i:%02i:%02i LCL" ) );
 			break;
 #ifdef _TACTICSPI_H_
-		case ID_DBP_I_LEEWAY:
-			instrument = new DashboardInstrument_Single(
+        case ID_DBP_I_LEEWAY:
+            instrument = new DashboardInstrument_Single(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_LEEWAY,
                 _T("%2.1f"));
             break;
         case ID_DBP_D_BRG:  // Bearing Compass
-			instrument = new TacticsInstrument_BearingCompass(
-                this, wxID_ANY,
-                getInstrumentCaption(id), OCPN_DBP_STC_COG |
-                OCPN_DBP_STC_BRG | OCPN_DBP_STC_CURRDIR |
-                OCPN_DBP_STC_CURRSPD | OCPN_DBP_STC_TWA |
-                OCPN_DBP_STC_LEEWAY | OCPN_DBP_STC_HDT |
-                OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON |
-                OCPN_DBP_STC_STW | OCPN_DBP_STC_AWA |
-                OCPN_DBP_STC_TWS | OCPN_DBP_STC_TWD);
-			((DashboardInstrument_Dial *) instrument)->SetOptionMarker(
-                5, DIAL_MARKER_SIMPLE, 2);
-			((DashboardInstrument_Dial *) instrument)->SetOptionLabel(
-                30, DIAL_LABEL_ROTATED);
-			((DashboardInstrument_Dial *)
-             instrument)->SetOptionExtraValue(
-                 OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
-			break;
-		case ID_DBP_D_POLCOMP: // Polar Compass
-			instrument = new TacticsInstrument_PolarCompass(
+            instrument = new TacticsInstrument_BearingCompass(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_COG |
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_CURRDIR |
@@ -3102,8 +3144,26 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
              instrument)->SetOptionExtraValue(
                  OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
             break;
-		case ID_DBP_I_TWAMARK:
-			instrument = new TacticsInstrument_PerformanceSingle(
+        case ID_DBP_D_POLCOMP: // Polar Compass
+            instrument = new TacticsInstrument_PolarCompass(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_COG |
+                OCPN_DBP_STC_BRG | OCPN_DBP_STC_CURRDIR |
+                OCPN_DBP_STC_CURRSPD | OCPN_DBP_STC_TWA |
+                OCPN_DBP_STC_LEEWAY | OCPN_DBP_STC_HDT |
+                OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON |
+                OCPN_DBP_STC_STW | OCPN_DBP_STC_AWA |
+                OCPN_DBP_STC_TWS | OCPN_DBP_STC_TWD);
+            ((DashboardInstrument_Dial *) instrument)->SetOptionMarker(
+                5, DIAL_MARKER_SIMPLE, 2);
+            ((DashboardInstrument_Dial *) instrument)->SetOptionLabel(
+                30, DIAL_LABEL_ROTATED);
+            ((DashboardInstrument_Dial *)
+             instrument)->SetOptionExtraValue(
+                 OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
+            break;
+        case ID_DBP_I_TWAMARK:
+            instrument = new TacticsInstrument_PerformanceSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id),
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD |
@@ -3111,13 +3171,82 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             ((TacticsInstrument_PerformanceSingle *)
              instrument)->SetDisplayType(TWAMARK);
             break;
+		case ID_DBP_I_POLSPD:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARSPEED);
+            break;
+        case ID_DBP_I_POLVMG:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARVMG);
+            break;
+        case ID_DBP_I_POLTVMG:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARTARGETVMG);
+            break;
+        case ID_DBP_I_POLTVMGANGLE:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARTARGETVMGANGLE);
+            break;
+        case ID_DBP_I_POLCMG:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_COG | OCPN_DBP_STC_SOG | OCPN_DBP_STC_BRG |
+                OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARCMG);
+            break;
+        case ID_DBP_I_POLTCMG:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS | OCPN_DBP_STC_HDT |
+                OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD | OCPN_DBP_STC_LAT |
+                OCPN_DBP_STC_LON, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARTARGETCMG);
+            break;
+        case ID_DBP_I_POLTCMGANGLE:
+            instrument = new TacticsInstrument_PerformanceSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_STW |
+                OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS | OCPN_DBP_STC_HDT |
+                OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD | OCPN_DBP_STC_LAT |
+                OCPN_DBP_STC_LON, _T("%.2f"));
+            ((TacticsInstrument_PerformanceSingle *)
+             instrument)->SetDisplayType(POLARTARGETCMGANGLE);
+            break;
+        case ID_DBP_D_POLPERF:
+            instrument = new TacticsInstrument_PolarPerformance(
+                this, wxID_ANY, getInstrumentCaption(id));
+            break;
+        case ID_DBP_D_AVGWIND:
+            instrument = new TacticsInstrument_AvgWindDir(
+                this, wxID_ANY, getInstrumentCaption(id));
+            break;
 #endif // _TACTICSPI_H_
         }
         if( instrument ) {
             instrument->instrumentTypeId = id;
             m_ArrayOfInstrument.Add(
-                new DashboardInstrumentContainer( id, instrument,
-                                                  instrument->GetCapacity() ) );
+                new DashboardInstrumentContainer(
+                    id, instrument, instrument->GetCapacity() ) );
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
             if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
                 itemBoxSizer->AddSpacer( 5 );

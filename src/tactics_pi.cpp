@@ -1322,11 +1322,11 @@ bool tactics_pi::GetPolarVisibility()
 }
 
 /*******************************************************************
- *******************************************************************/
+ Calculate degree-range for laylines
+ Do some exponential smoothing on degree range of COGs and  COG itself
+*******************************************************************/
 void tactics_pi::CalculateLaylineDegreeRange(void)
 {
-	//calculate degree-range for laylines
-	//do some exponential smoothing on degree range of COGs and  COG itself
     if (!std::isnan(mCOG)){
         if (mCOG != m_COGRange[0]){
             if (std::isnan(m_ExpSmoothSinCog)) m_ExpSmoothSinCog = 0;
@@ -1341,7 +1341,8 @@ void tactics_pi::CalculateLaylineDegreeRange(void)
                 }
             }
             m_LaylineDegRange = getDegRange(maxcog, mincog);
-            for (int i = 0; i < COGRANGE - 1; i++) m_COGRange[i + 1] = m_COGRange[i];
+            for (int i = 0; i < COGRANGE - 1; i++)
+                m_COGRange[i + 1] = m_COGRange[i];
             m_COGRange[0] = mCOG;
             if (m_LaylineDegRange < g_iMinLaylineWidth){
                 m_LaylineDegRange = g_iMinLaylineWidth;
@@ -1357,15 +1358,16 @@ void tactics_pi::CalculateLaylineDegreeRange(void)
             m_ExpSmoothSinCog = mExpSmSinCog->GetSmoothVal(sin(rad));
             m_ExpSmoothCosCog = mExpSmCosCog->GetSmoothVal(cos(rad));
 
-            m_LaylineSmoothedCog = (int)(90. - (atan2(m_ExpSmoothSinCog, m_ExpSmoothCosCog)*180. / M_PI) + 360.) % 360;
-
-
+            m_LaylineSmoothedCog =
+                (int)(90. - (atan2(m_ExpSmoothSinCog,
+                                   m_ExpSmoothCosCog)*180. / M_PI) +
+                      360.) % 360;
             mExpSmDegRange->SetAlpha(g_dalphaDeltCoG);
-            m_ExpSmoothDegRange = mExpSmDegRange->GetSmoothVal(m_LaylineDegRange);
+            m_ExpSmoothDegRange =
+                mExpSmDegRange->GetSmoothVal(m_LaylineDegRange);
         }
     }
 }
-
 
 /**********************************************************************
 Draw the OpenGL Windbarb on the ships position overlay
@@ -1471,6 +1473,557 @@ void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
     }
 }
 
+/********************************************************************
+Before the derived class which implements the abstract method
+SendSentenceToAllInstruments() actually sends the sentences to
+the instrumetns in its windows, it needs to call this method to
+correct the values which are destined to Tactics performance
+instruments. According settings and the sentence, may return an
+corrected value (cf. the documentation for operation principles).
+true - correction or unit change has taken place
+false - no correction required or needed, unaltered
+*********************************************************************/
+bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
+        unsigned long long st, double &value, wxString &unit )
+{
+    SetCalcVariables(st, value, unit); // Tactics awareness
+
+    if (st == OCPN_DBP_STC_AWS){
+        /* Correct AWS with heel if global variable set and heel
+           is available. The correction only makes sense if one
+           uses a heel sensor. 
+           AWS_corrected =
+           AWS_measured * cos(AWA_measured) / cos(AWA_corrected) */
+        if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
+            !std::isnan(mheel) && !std::isnan(value)) {
+            double newvalue = value / cos(mheel*M_PI / 180.);
+            value = newvalue;
+            return true;
+        }
+    }
+    if (st == OCPN_DBP_STC_STW){
+        /* Correct STW with Leeway if global variable set and heel
+           is available. The correction only makes sense if one
+           uses a heel sensor. */
+        if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor &&
+            !std::isnan(mLeeway) && !std::isnan(mheel)) {
+            double newvalue = value / cos(mLeeway *M_PI / 180.0);
+            value = newvalue;
+            return true;
+        }
+    }
+    if (st == OCPN_DBP_STC_BRG){
+        if (m_pMark && !std::isnan(mlat) && !std::isnan(mlon)) {
+            double dist;
+            double newvalue;
+            DistanceBearingMercator_Plugin(m_pMark->m_lat,
+                                           m_pMark->m_lon, mlat, mlon,
+                                           &newvalue, &dist);
+            value = newvalue;
+            unit = _T("TacticsWP");
+            //m_BearingUnit = _T("\u00B0");
+            return true;
+        }
+    }
+    if (st == OCPN_DBP_STC_AWA){
+        if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
+            !std::isnan(mLeeway) && !std::isnan(mheel)){
+            /* Correct AWA with heel if global variable set and heel
+               is available. Correction only makes sense with heel
+               sensor is available */
+            double tan_awa = tan(value * M_PI / 180.);
+            double awa_heel;
+            if (std::isnan(tan_awa))
+                awa_heel = value;
+            else
+            {
+                double cos_heel = cos(mheel * M_PI / 180.);
+                awa_heel = atan(tan_awa / cos_heel) *180. / M_PI;
+                if (value >= 0.0){
+                    if (value > 90.0)
+                        awa_heel += 180.0;
+                }
+                else{
+                    if (value < -90.0)
+                        awa_heel -= 180.0;
+                }
+            }
+            value = awa_heel;
+            return true;
+        }
+    }
+    if (g_bForceTrueWindCalculation &&
+        ((st == OCPN_DBP_STC_TWS || st == OCPN_DBP_STC_TWA ||
+          st == OCPN_DBP_STC_TWD) && !std::isnan(value)))
+        return false;
+
+    return false;
+}
+/********************************************************************
+Likewise to SendSentenceToAllInstruments_PerformanceCorrections(),
+this method is to be called from the derived class which implements
+SendSentenceToAllInstruments() - if Tactics is requested to calculate
+the true wind, and it is available and 
+values up to date and send those values to instrument windows as well.
+*********************************************************************/
+bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
+    unsigned long long st, double value, wxString unit,
+    unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
+    unsigned long long &st_tws, double &value_tws, wxString &unit_tws,
+    unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+    )
+{
+    double spdval;
+
+    if (st == OCPN_DBP_STC_TWA)
+        m_bTrueWind_available = true;
+    if (st == OCPN_DBP_STC_TWS)
+        m_bTrueWind_available = true;
+    if (st == OCPN_DBP_STC_TWD)
+        m_bTrueWind_available = true;
+
+    if (st == OCPN_DBP_STC_AWS && !std::isnan(mStW) &&
+        !std::isnan(mSOG)){
+        //  Calculate TWS (from AWS and StW/SOG)
+        spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
+        // only start calculating if we have a full set of data
+        if ((g_bForceTrueWindCalculation) &&
+            mAWA >= 0 && mAWS>=0  && spdval >= 0 && mAWAUnit != _("") &&
+            !std::isnan(mHdt)) {
+            //we have to do the calculation in knots
+            double aws_kts = fromUsrSpeed_Plugin(mAWS,
+                                                 g_iDashWindSpeedUnit);
+            spdval = fromUsrSpeed_Plugin(spdval, g_iDashSpeedUnit);
+            
+            mTWA = 0;
+            mTWD = 0.;
+            if (mAWA < 180.) {
+                mTWA = 90. - (180. / M_PI*atan((aws_kts*cos(mAWA*M_PI / 180.) - spdval) / (aws_kts*sin(mAWA*M_PI / 180.))));
+            }
+            else if (mAWA > 180.) {
+                mTWA = 360. - (90. - (180. / M_PI*atan((aws_kts*cos((180. - (mAWA - 180.))*M_PI / 180.) - spdval) / (aws_kts*sin((180. - (mAWA - 180.))*M_PI / 180.)))));
+            }
+            else {
+                mTWA = 180.;
+            }
+            mTWS = sqrt(pow((aws_kts*cos(mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(mAWA*M_PI / 180.), 2));
+            /* ToDo: adding leeway needs to be reviewed, as the direction
+               of the bow is still based in the magnetic compass,
+               no matter if leeway or not ...
+               if (!std::isnan(mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
+               mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA + mLeeway : mHdt - mTWA + mLeeway;
+               }
+               else*/
+            mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA : mHdt - mTWA;
+            //endif
+            if (mTWD >= 360) mTWD -= 360;
+            if (mTWD < 0) mTWD += 360;
+            //convert mTWS back to user wind speed settings
+            mTWS = toUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
+            m_calcTWS = mTWS;
+            m_calcTWD = mTWD;
+            m_calcTWA = mTWA;
+            if (mAWSUnit == _(""))
+                mAWSUnit = mAWAUnit;
+            mTWD_Watchdog = twd_watchdog_timeout_ticks;
+            st_twa = OCPN_DBP_STC_TWA;
+            value_twa = mTWA;
+            unit_twa = mAWAUnit;
+            st_tws = OCPN_DBP_STC_TWS;
+            value_twa = mTWS;
+            unit_twa = mAWSUnit;
+            st_twd = OCPN_DBP_STC_TWS;
+            value_twd = mTWD;
+            unit_twd = _T("\u00B0T");
+            return true;
+        }
+        else {
+            //        m_calcTWS = mTWS = NAN;
+            //        m_calcTWD = mTWD = NAN;
+            //m_calcTWA = mTWA = NAN;
+            m_calcTWS = NAN;
+            m_calcTWD = NAN;
+            m_calcTWA = NAN;
+        }
+    }
+    return false;
+}
+
+
+/********************************************************************
+set system variables
+*********************************************************************/
+void tactics_pi::SetCalcVariables(
+    unsigned long long st, double value, wxString unit)
+{
+    switch (st) {
+    case OCPN_DBP_STC_AWA:
+        mAWA = value;
+        mAWAUnit = unit;
+        break;
+    case OCPN_DBP_STC_AWS:
+        mAWS = value;
+        mAWSUnit = unit;
+        break;
+    case  OCPN_DBP_STC_TWA:
+        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWA)){ //otherwise we distribute the original O TWA
+            mTWA = m_calcTWA;
+        }
+        else
+            mTWA = value;
+        break;
+    case  OCPN_DBP_STC_TWS:
+        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWS)){ //otherwise we distribute the original O TWS
+            mTWS = m_calcTWS;
+        }
+        else
+            mTWS = value;
+        break;
+    case  OCPN_DBP_STC_TWD:
+        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWD)){ //otherwise we distribute the original O TWD
+            mTWD = m_calcTWD;
+        }
+        else
+            mTWD = value;
+        break;
+    case OCPN_DBP_STC_STW:
+        mStW = value;
+        break;
+    case OCPN_DBP_STC_HDT:
+        mHdt = value;
+        break;
+    case OCPN_DBP_STC_HEEL:
+        if (g_bUseHeelSensor){
+            mheel = value;
+            mHeelUnit = unit;
+        }
+        msensorheel = value; //TR TEMP for testing !
+        break;
+    case OCPN_DBP_STC_COG:
+        mCOG = value;
+        break;
+    case OCPN_DBP_STC_SOG:
+        mSOG = value;
+        break;
+    case OCPN_DBP_STC_LAT:
+        mlat = value;
+        break;
+    case OCPN_DBP_STC_LON:
+        mlon = value;
+        break;
+    case OCPN_DBP_STC_CURRDIR:
+        m_CurrentDirection = value;
+        break;
+    case OCPN_DBP_STC_CURRSPD:
+        m_ExpSmoothCurrSpd = value;
+        break;
+    case OCPN_DBP_STC_BRG:
+        mBRG = value;
+        break;
+    default:
+        break;
+    }
+    if (g_bManHeelInput){
+        mHeelUnit = (mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
+        g_dheel[0][0] = g_dheel[1][0] = g_dheel[2][0] = g_dheel[3][0] = g_dheel[4][0] = g_dheel[5][0] = g_dheel[0][1] = g_dheel[0][2] = g_dheel[0][3] = g_dheel[0][4] = 0.0;
+        if (std::isnan(mTWS)) mTWS = 0;
+        if (std::isnan(mTWA)) mTWA = 0;
+        int twsmin = (int)(mTWS / 5);
+        int twsmax = twsmin + 1;
+        int twamin = (int)(mTWA / 45);
+        int twamax = twamin + 1;
+        double tws1 = twsmin*5.;
+        double tws2 = twsmax * 5.;
+        double twa1 = twamin * 45.;
+        double twa2 = twamax * 45.;
+
+
+        double twsfact = (mTWS - tws1) / (tws2 - tws1);
+        double twafact = (mTWA - twa1) / (twa2 - twa1);
+        double heel1 = g_dheel[twsmin][twamin] + twsfact*(g_dheel[twsmax][twamin] - g_dheel[twsmin][twamin]);
+        double heel2 = g_dheel[twsmin][twamax] + twsfact*(g_dheel[twsmax][twamax] - g_dheel[twsmin][twamax]);
+
+        mheel = heel1 + twafact*(heel2 - heel1);
+        if (mHeelUnit == _T("\u00B0l")) mheel = -mheel;
+    }
+    if (!std::isnan(mLeeway)){
+        if (mLeeway >= -90 && mLeeway <= 90)
+            m_LeewayOK = true;
+    }
+}
+
+/********************************************************************
+Likewise to SendSentenceToAllInstruments_PerformanceCorrections(),
+this method is to be called from the derived class which implements
+SendSentenceToAllInstruments() - if Tactics is requested to calculate
+the the leeway from heel we need to send those values to instruments
+if the return value is true.
+*********************************************************************/
+bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
+    unsigned long long &st_leeway, double &value_leeway,
+    wxString &unit_leeway)
+{
+    if (g_bUseFixedLeeway){
+        mHeelUnit =
+            (mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
+        mLeeway = g_dfixedLeeway;
+        if (std::isnan(mheel)) mheel = 0;
+
+        if (mHeelUnit == _T("\u00B0l") && mLeeway > 0) mLeeway = -mLeeway;
+        if (mHeelUnit == _T("\u00B0r") && mLeeway < 0) mLeeway = -mLeeway;
+    }
+
+    else {//g_bUseHeelSensor or g_bManHeelInput
+
+        // only start calculating if we have a full set of data
+        if (!std::isnan(mheel) && !std::isnan(mStW)) {
+            double stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+
+            // calculate Leeway based on Heel
+            if (mheel == 0)
+                mLeeway = 0;
+            else if (mStW == 0)
+                mLeeway = g_dfixedLeeway;
+            else
+                mLeeway = (g_dLeewayFactor*mheel) / (stw_kts*stw_kts);
+            if (mLeeway > g_dfixedLeeway) mLeeway = g_dfixedLeeway;
+            if (mLeeway < -g_dfixedLeeway) mLeeway = -g_dfixedLeeway;
+            //22.04TR : auf neg. Werte prüfen !!!
+            mHeelUnit = (mheel < 0) ? _T("\u00B0l") : _T("\u00B0r");
+            st_leeway = OCPN_DBP_STC_LEEWAY;
+            value_leeway = mLeeway;
+            unit_leeway = mHeelUnit;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**********************************************************************
+Likewise to SendSentenceToAllInstruments_PerformanceCorrections(),
+this method is to be called from the derived class which implements
+SendSentenceToAllInstruments() - if Tactics is requested to calculate
+the the leeway from heel we need to send those values to instruments
+if the return value is true:
+Calculate Current with DES
+using COG/SOG-Vector + HDT/STW-Vector
+from the heel sensor we get the boat drift due to heel = Leeway
+the whole drift angle btw. COG and HDT is a mixture of Leeway  + current
+first we apply leeway to HDT, and get CRS = Course through water
+The remaining diff btw. CRS & COG is current
+based on actual position, we calculate lat/lon of the endpoints of both vectors  (COG/HDT = direction, SOG/STW = length)
+then we take lat/lon from the endpoints of these vectors and calculate current between them with length (=speed) and direction
+return the endpoint of SOG,COG
+
+ToDo :
+we're already calculating in "user speed data", but the exp. smoothing is done on the value itself.
+On unit-change, the smoothed data values need to be converted from "old" to "new"
+************************************************************************/
+bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
+    unsigned long long st, double value, wxString unit,
+    unsigned long long &st_currdir, double &value_currdir,
+    wxString &unit_currdir,
+    unsigned long long &st_currspd, double &value_currspd,
+    wxString &unit_currspd)
+{
+
+    //don't calculate on ALL incoming sentences ...
+    if (st == OCPN_DBP_STC_HDT) {
+
+        // ... and only start calculating if we have a full set of data
+      if (!std::isnan(mheel) && m_LeewayOK && !std::isnan(mCOG) &&
+          !std::isnan(mSOG) && !std::isnan(mStW) && !std::isnan(mHdt) &&
+          !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway))
+      {
+
+            double COGlon, COGlat;
+            //we have to do the calculation in knots ...
+            double sog_kts, stw_kts;
+            sog_kts = fromUsrSpeed_Plugin(mSOG, g_iDashSpeedUnit);
+            stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+            //calculate endpoint of COG/SOG
+            PositionBearingDistanceMercator_Plugin(
+                mlat, mlon, mCOG, sog_kts, &COGlat, &COGlon);
+
+            //------------------------------------ 
+            //correct HDT with Leeway
+            //------------------------------------
+
+            //         ^ Hdt, STW
+            // Wind   /
+            // -->   /        Leeway
+            //      /
+            //     /----------> CRS, STW (stw_corr)
+            //     \
+                  //      \        Current
+            //       \ COG,SOG
+            //        V        
+            // if wind is from port, heel & mLeeway will be positive (to starboard), adding degrees on the compass rose
+            //  CRS = Hdt + Leeway
+            //  if wind is from starboard, heel/mLeeway are negative (to port), mLeeway has to be substracted from Hdt
+            //   As mLeeway is a signed double, so we can generally define : CRS = Hdt + mLeeway 
+            double CourseThroughWater = mHdt + mLeeway;
+            if (CourseThroughWater >= 360) CourseThroughWater -= 360;
+            if (CourseThroughWater < 0) CourseThroughWater += 360;
+            double CRSlat, CRSlon;
+            //calculate endpoint of StW/KdW;
+            double stw_corr;
+            //correct only if not already done before via preference setting
+            if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor && !std::isnan(mLeeway) && !std::isnan(mheel)) //in this case STW is already corrected !!!
+                stw_corr = stw_kts;
+            else
+                stw_corr = stw_kts / cos(mLeeway *M_PI / 180.0); //we have to correct StW for CRS as well.
+            PositionBearingDistanceMercator_Plugin(mlat, mlon, CourseThroughWater, stw_corr, &CRSlat, &CRSlon);
+
+            //calculate the Current vector with brg & speed from the 2 endpoints above
+            double currdir = 0, currspd = 0;
+            //currdir = local_bearing(StWlat, StWlon, COGlat, COGlon );
+            //currspd = local_distance(COGlat, COGlon, StWlat, StWlon);
+            DistanceBearingMercator_Plugin(COGlat, COGlon, CRSlat, CRSlon, &currdir, &currspd);
+            // double exponential smoothing on currdir / currspd
+            if (currspd < 0) currspd = 0;
+            if (std::isnan(m_ExpSmoothCurrSpd))
+                m_ExpSmoothCurrSpd = currspd;
+            if (std::isnan(m_ExpSmoothCurrDir))
+                m_ExpSmoothCurrDir = currdir;
+
+            double currdir_tan = currdir;
+            mExpSmoothCurrSpd->SetAlpha(alpha_currspd);
+            m_ExpSmoothCurrSpd = mExpSmoothCurrSpd->GetSmoothVal(currspd);
+
+            double rad = (90 - currdir_tan)*M_PI / 180.;
+            mSinCurrDir->SetAlpha(g_dalpha_currdir);
+            mCosCurrDir->SetAlpha(g_dalpha_currdir);
+            m_ExpSmoothSinCurrDir = mSinCurrDir->GetSmoothVal(sin(rad));
+            m_ExpSmoothCosCurrDir = mCosCurrDir->GetSmoothVal(cos(rad));
+            m_CurrentDirection = (90. - (atan2(m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir)*180. / M_PI) + 360.);
+            while (m_CurrentDirection >= 360) m_CurrentDirection -= 360;
+            // temporary output of Currdir to file ...
+            //str = wxString::Format(_T("%.2f;%.2f\n"), currdir, m_CurrentDirection);
+            //out.WriteString(str);
+            st_currdir = OCPN_DBP_STC_CURRDIR;
+            value_currdir = m_CurrentDirection;
+            unit_currdir = _T("\u00B0");
+            st_currspd = OCPN_DBP_STC_CURRSPD;
+            value_currspd = toUsrSpeed_Plugin(
+                m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
+            unit_currspd = getUsrSpeedUnit_Plugin(g_iDashSpeedUnit);
+            return true;
+        }
+        else{
+            m_CurrentDirection = NAN;
+            m_ExpSmoothCurrSpd = NAN;
+        }
+    }
+    return false;
+}
+
+/**********************************************************************
+Set MARK Position
+***********************************************************************/
+void tactics_pi::OnContextMenuItemCallback(int id)
+{
+    m_pMark = new PlugIn_Waypoint(
+        g_dcur_lat, g_dcur_lon, _T("circle"), _T("Tactics temp. WP"),
+        _T("TacticsWP"));
+    g_dmark_lat = m_pMark->m_lat;
+    g_dmark_lon = m_pMark->m_lon;
+    AddSingleWaypoint(m_pMark, false);
+    m_pMark->m_CreateTime = wxDateTime::Now().GetTm();
+}
+
+/***********************************************************************
+Central routine to calculate the polar based performance data,
+independent of the use of any instrument or setting
+***********************************************************************/
+void tactics_pi::CalculatePerformanceData(void)
+{
+    if (std::isnan(mTWA) || std::isnan(mTWS)) {
+        return;
+    }
+
+    mPolarTargetSpeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
+    //transfer targetangle dependent on AWA, not TWA
+    if (mAWA <= 90)
+        tvmg = BoatPolar->Calc_TargetVMG(60, mTWS);
+    else
+        tvmg = BoatPolar->Calc_TargetVMG(120, mTWS);
+
+    // get Target VMG Angle from Polar
+    //tvmg = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
+    if (tvmg.TargetSpeed > 0 && !std::isnan(mStW)) {
+        double VMG = BoatPolar->Calc_VMG(mTWA, mStW);
+        mPercentTargetVMGupwind = mPercentTargetVMGdownwind = 0;
+        if (mTWA < 90){
+            mPercentTargetVMGupwind = fabs(VMG / tvmg.TargetSpeed * 100.);
+        }
+        if (mTWA > 90){
+            mPercentTargetVMGdownwind = fabs(VMG / tvmg.TargetSpeed * 100.);
+        }
+        //mVMGGain = 100.0 - mStW/tvmg.TargetSpeed  * 100.;
+        mVMGGain = 100.0 - VMG / tvmg.TargetSpeed  * 100.;
+    }
+    else
+    {
+        mPercentTargetVMGupwind = mPercentTargetVMGdownwind = 0;
+        mVMGGain = 0;
+    }
+    if (tvmg.TargetAngle >= 0 && tvmg.TargetAngle < 360) {
+        mVMGoptAngle = getSignedDegRange(mTWA, tvmg.TargetAngle);
+    }
+    else
+        mVMGoptAngle = 0;
+
+    if (mBRG >= 0 && !std::isnan(mHdt) && !std::isnan(mStW) && !std::isnan(mTWD)){
+        tcmg = BoatPolar->Calc_TargetCMG(mTWS, mTWD, mBRG);
+        double actcmg = BoatPolar->Calc_CMG(mHdt, mStW, mBRG);
+        // mCMGGain = (tcmg.TargetSpeed >0) ? (100.0 - mStW / tcmg.TargetSpeed *100.) : 0.0;
+        mCMGGain = (tcmg.TargetSpeed >0) ? (100.0 - actcmg / tcmg.TargetSpeed *100.) : 0.0;
+        if (tcmg.TargetAngle >= 0 && tcmg.TargetAngle < 360) {
+            mCMGoptAngle = getSignedDegRange(mTWA, tcmg.TargetAngle);
+        }
+        else
+            mCMGoptAngle = 0;
+
+    }
+    CalculatePredictedCourse();
+}
+
+/**********************************************************************
+Calculates the predicted course/speed on the other tack and stores it
+in the variables mPredictedCoG, mPredictedSoG
+**********************************************************************/
+void tactics_pi::CalculatePredictedCourse(void)
+{
+    double predictedKdW; //==predicted Course Through Water
+    if (!std::isnan(mStW) && !std::isnan(mHdt) && !std::isnan(mTWA) && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway) && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
+      //New: with BearingCompass in Head-Up mode = Hdt
+      double Leeway = (mHeelUnit == _T("\u00B0L")) ? -mLeeway : mLeeway;
+      //todo : assuming TWAunit = AWAunit ...
+      if (mAWAUnit == _T("\u00B0L")){ //currently wind is from port, target is from starboard ...
+        predictedKdW = mHdt - 2 * mTWA - Leeway;
+      }
+      else if (mAWAUnit == _T("\u00B0R")){ //so, currently wind from starboard
+        predictedKdW = mHdt + 2 * mTWA - Leeway;
+      }
+      else {
+        predictedKdW = (mTWA < 10) ? 180 : 0; // should never happen, but is this correct ???
+      }
+      if (predictedKdW >= 360) predictedKdW -= 360;
+      if (predictedKdW < 0) predictedKdW += 360;
+      double predictedLatHdt, predictedLonHdt, predictedLatCog, predictedLonCog;
+      //double predictedCoG;
+      //standard triangle calculation to get predicted CoG / SoG
+      //get endpoint from boat-position by applying  KdW, StW
+      PositionBearingDistanceMercator_Plugin(mlat, mlon, predictedKdW, mStW, &predictedLatHdt, &predictedLonHdt);
+      //wxLogMessage(_T("Step1: m_lat=%f,m_lon=%f, predictedKdW=%f,m_StW=%f --> predictedLatHdt=%f,predictedLonHdt=%f\n"), m_lat, m_lon, predictedKdW, m_StW, predictedLatHdt, predictedLonHdt);
+      //apply surface current with direction & speed to endpoint from above
+      PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, m_CurrentDirection, m_ExpSmoothCurrSpd, &predictedLatCog, &predictedLonCog);
+      //wxLogMessage(_T("Step2: predictedLatHdt=%f,predictedLonHdt=%f, m_CurrDir=%f,m_CurrSpeed=%f --> predictedLatCog=%f,predictedLonCog=%f\n"), predictedLatHdt, predictedLonHdt, m_CurrDir, m_CurrSpeed, predictedLatCog, predictedLonCog);
+      //now get predicted CoG & SoG as difference between the 2 endpoints (coordinates) from above
+      DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, mlat, mlon, &mPredictedCoG, &mPredictedSoG);
+    }
+}
 
 /*********************************************************************
 NMEA $PNKEP (NKE style) performance data
