@@ -87,6 +87,25 @@ tactics_pi::tactics_pi( void )
 {
     m_hostplugin = NULL;
     m_hostplugin_pconfig = NULL;
+    b_tactics_dc_message_shown = false;
+
+}
+
+tactics_pi::~tactics_pi( void )
+{
+    return;
+}
+
+int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
+{
+    m_hostplugin = hostplugin;
+    m_hostplugin_pconfig = pConf;
+    m_hostplugin_config_path = pConf->GetPath();
+    mBRG_Watchdog = 2;
+    mTWS_Watchdog = 5;
+    mTWD_Watchdog = 5;
+    mAWS_Watchdog = 2;
+    
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
 	alpha_currspd = 0.2;  //smoothing constant for current speed
@@ -140,32 +159,13 @@ tactics_pi::tactics_pi( void )
 
 	m_bTrueWind_available = false;
 
-     b_tactics_dc_message_shown = false;
-
-}
-
-tactics_pi::~tactics_pi( void )
-{
-    return;
-}
-
-int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
-{
-    m_hostplugin = hostplugin;
-    m_hostplugin_pconfig = pConf;
-    m_hostplugin_config_path = pConf->GetPath();
-    mBRG_Watchdog = 2;
-    mTWS_Watchdog = 5;
-    mTWD_Watchdog = 5;
-    mAWS_Watchdog = 2;
-
     this->LoadConfig();
     this->ApplyConfig();
 
 	// Context menue for making marks    
 	m_pmenu = new wxMenu();
 	// this is a dummy menu required by Windows as parent to item created
-	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set Tactics Mark "));
+	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ^Tactics Waypoint"));
 	int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
 	SetCanvasContextMenuItemViz(miid, true);
 
@@ -623,7 +623,7 @@ double getSignedDegRange(double fromAngle, double toAngle)
 Draw the OpenGL overlay
 Called by Plugin Manager on main system process cycle
 **********************************************************************/
-bool tactics_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
+bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
 	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
 	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
@@ -641,7 +641,7 @@ bool tactics_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 	return true;
 }
 
-bool tactics_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
+bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 {
 	if (b_tactics_dc_message_shown == false) {
         b_tactics_dc_message_shown = true;
@@ -739,8 +739,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 		DrawWindBarb(boat, vp);
 		DrawPolar(vp, boat, mTWD);
 	}
-	//wxString GUID = _T("TacticsWP");
-	if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)) m_pMark = NULL;
+	//wxString GUID = _T("^TacticsWP");
+	if (!GetSingleWaypoint(_T("^TacticsWP"), m_pMark)) m_pMark = NULL;
 	if (m_pMark){
 		/*********************************************************************
 		Draw wind barb on mark position
@@ -854,9 +854,9 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
             //            wxLogMessage("mlat=%f, mlon=%f,currspd=%f,predictedCoG=%f, mTWA=%f,mLeeway=%f, g_iDashSpeedUnit=%d", mlat, mlon, currspd_kts, mPredictedCoG, mTWA, mLeeway,g_iDashSpeedUnit);
             //wxLogMessage("tackpoints[0].x=%d, tackpoints[0].y=%d,tackpoints[1].x=%d, tackpoints[1].y=%d,tackpoints[2].x=%d, tackpoints[2].y=%d", tackpoints[0].x, tackpoints[0].y, tackpoints[1].x, tackpoints[1].y, tackpoints[2].x, tackpoints[2].y);
-            //wxString GUID = _T("TacticsWP");
+            //wxString GUID = _T("^TacticsWP");
 
-			//if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)) m_pMark = NULL;
+			//if (!GetSingleWaypoint(_T("^TacticsWP"), m_pMark)) m_pMark = NULL;
 			if (m_pMark)
 			{
 /*********************************************************************
@@ -1520,7 +1520,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
                                            m_pMark->m_lon, mlat, mlon,
                                            &newvalue, &dist);
             value = newvalue;
-            unit = _T("TacticsWP");
+            unit = _T("^TacticsWP");
             //m_BearingUnit = _T("\u00B0");
             return true;
         }
@@ -1918,14 +1918,20 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
     return false;
 }
 
+void tactics_pi::TacticsSetCursorLatLon(double lat, double lon)
+{
+	g_dcur_lat = lat;
+	g_dcur_lon = lon;
+}
+
 /**********************************************************************
 Set MARK Position
 ***********************************************************************/
-void tactics_pi::OnContextMenuItemCallback(int id)
+void tactics_pi::TacticsOnContextMenuItemCallback(int id)
 {
     m_pMark = new PlugIn_Waypoint(
-        g_dcur_lat, g_dcur_lon, _T("circle"), _T("Tactics temp. WP"),
-        _T("TacticsWP"));
+        g_dcur_lat, g_dcur_lon, _T("circle"), _T("^TacticsWP"),
+        _T("^TacticsWP"));
     g_dmark_lat = m_pMark->m_lat;
     g_dmark_lon = m_pMark->m_lon;
     AddSingleWaypoint(m_pMark, false);
@@ -2161,9 +2167,10 @@ bool tactics_pi::SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots)
     if (std::isnan(mTWS))
         return false;
     if ((m_VWR_AWA < 8.0) && (SentenceWindSpeedKnots > mTWS*1.7)){
-        /* wxLogMessage(
-            "MWD-Sentence, MWD-Spd=%f,mTWS=%f,VWR_AWA=%f,NKE_BUG=%d",
-            SentenceWindSpeedKnots, mTWS, m_VWR_AWA, m_bNKE_TrueWindTableBug); */
+     wxLogMessage(
+            "dashboard_tactics: NKE MWD-Sentence filtered, see m_bNKE_TrueWindTableBug setting. MWD-Spd=%f,mTWS=%f,VWR_AWA=%f,NKE_BUG=%d",
+            SentenceWindSpeedKnots, mTWS, m_VWR_AWA,
+            m_bNKE_TrueWindTableBug);
         return true;
     } // then conditions explained in the above description have been met
     return false;
@@ -2658,23 +2665,27 @@ void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
 	case ID_DASH_LAYLINE: {
 		m_plugin->ToggleLaylineRender();
         toggled = true;
+        break;
 	}
 	case ID_DASH_CURRENT: {
 		m_plugin->ToggleCurrentRender();
         toggled = true;
+        break;
 	}
 	case ID_DASH_POLAR: {
 		m_plugin->TogglePolarRender();
         toggled = true;
+        break;
 	}
 	case ID_DASH_WINDBARB: {
 		m_plugin->ToggleWindbarbRender();
         toggled = true;
+        break;
 	}
 	}
     /* Port note: Parent cannot save for child,
        child cannot save for parent. */
-       if ( toggled )
+    if ( toggled )
        m_plugin->SaveConfig();
 
 	return;

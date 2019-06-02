@@ -128,10 +128,17 @@ public:
     bool LoadConfig(void);
     void ApplyConfig(void);
     bool SaveConfig(void);
-    bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
-    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
+    virtual bool TacticsRenderOverlay(
+        wxDC &dc, PlugIn_ViewPort *vp) final;
+    virtual bool RenderGLOverlay(
+        wxGLContext *pcontext, PlugIn_ViewPort *vp) = 0;
+    virtual bool TacticsRenderGLOverlay(
+        wxGLContext *pcontext, PlugIn_ViewPort *vp) final;
     void DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    virtual void SetCursorLatLon(double lat, double lon) = 0;
+    virtual void TacticsSetCursorLatLon(double lat, double lon) final;
     void DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp);
     void DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle );
     void DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, wxString color, int size, double rad);
@@ -143,7 +150,6 @@ public:
     bool GetWindbarbVisibility(void);
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
-    void CalculateLaylineDegreeRange(void);
 
     virtual void SetNMEASentence(wxString &sentence) = 0;
     void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
@@ -158,11 +164,14 @@ public:
         unsigned long long st, double value, wxString unit);
     void CalculateTrueWind(
         unsigned long long st, double value, wxString unit);
+    void CalculateLaylineDegreeRange(void);
     void CalculatePerformanceData(void);
     void CalculatePredictedCourse(void);
     void SetCalcVariables(
         unsigned long long st, double value, wxString unit);
-    void OnContextMenuItemCallback(int id);
+    
+    virtual void OnContextMenuItemCallback(int id) = 0;
+    virtual void TacticsOnContextMenuItemCallback(int id) final;
 
     virtual void SendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit ) = 0;
@@ -521,12 +530,13 @@ private:
 //       ID_DASHBOARD_WINDOW
 // };
 
-enum eTacticsMenuItemsId {
-      ID_DASH_TACTICS_PREFS = 999,
-	  ID_DASH_LAYLINE,
-      ID_DASH_CURRENT,
-      ID_DASH_POLAR,
-      ID_DASH_WINDBARB
+enum eIdDashTacticsContextMenu {
+    ID_DASH_TACTICS_PREFS_START = 10000,
+    ID_DASH_LAYLINE,
+    ID_DASH_CURRENT,
+    ID_DASH_POLAR,
+    ID_DASH_WINDBARB,
+    ID_DASH_TACTICS_PREFS_END
 };
 
 class TacticsWindow : public wxWindow

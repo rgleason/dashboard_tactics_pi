@@ -82,12 +82,19 @@ protected:
     double m_TotalMaxWindSpd; // since O is started
     double m_WindDir;
     double m_WindSpd;
+#ifdef _TACTICSPI_H_
+    double m_TrueWindDir;
+    double m_TrueWindSpd;
+#endif // _TACTICSPI_H_
     double m_MaxWindSpdScale;
     double m_ratioW;
     double m_oldDirVal;
     bool m_IsRunning;
     int m_SampleCount;
     wxString m_WindSpeedUnit;
+#ifdef _TACTICSPI_H_
+    wxTimer m_WindHistUpdTimer;
+#endif // _TACTICSPI_H_
 
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
@@ -104,8 +111,10 @@ protected:
     void DrawWindDirScale(wxGCDC* dc);
     void DrawWindSpeedScale(wxGCDC* dc);
     wxString GetWindDirStr(wxString WindDir);
+#ifdef _TACTICSPI_H_
+    void OnWindHistUpdTimer(wxTimerEvent & event);
+#endif // _TACTICSPI_H_
 };
-
 
 
 #endif // __WIND_HISTORY_H__

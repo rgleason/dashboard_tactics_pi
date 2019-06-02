@@ -163,6 +163,15 @@ public:
     wxString GetShortDescription();
     wxString GetLongDescription();
 
+#ifdef _TACTICSPI_H_
+    // implementation of parent classes methods (w/ call-backs)
+    void OnContextMenuItemCallback(int id);
+    void SendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit);
+    bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
+    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+#endif // _TACTICSPI_H_ 
+
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
     void SetPositionFix(PlugIn_Position_Fix &pfix);
@@ -177,12 +186,6 @@ public:
     void PopulateContextMenu( wxMenu* menu );
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
-#ifdef _TACTICSPI_H_
-    void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit);
-    bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
-    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-#endif // _TACTICSPI_H_ 
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
     

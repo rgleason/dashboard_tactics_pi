@@ -41,43 +41,146 @@
     #include <wx/wx.h>
 #endif
 
+#ifdef _TACTICSPI_H_
+extern int g_iDashWindSpeedUnit;
+#endif // _TACTICSPI_H_
 
 //************************************************************************************************************************
 // History of wind direction
 //************************************************************************************************************************
 
 DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow *parent, wxWindowID id, wxString title) :
-      DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD | OCPN_DBP_STC_TWS)
+    DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD | OCPN_DBP_STC_TWS)
 {     SetDrawSoloInPane(true);
-      m_MaxWindDir = -1;
-      m_WindDir = -1;
-      m_WindDirRange=90;
-      m_MaxWindSpd = 0;
-      m_WindSpeedUnit = _("--");
-      m_TotalMaxWindSpd = 0;
-      m_WindSpd = 0;
-      m_TopLineHeight=30;
-      m_SpdRecCnt=0;
-      m_DirRecCnt=0;
-      m_SpdStartVal=-1;
-      m_DirStartVal=-1;
-      m_IsRunning=false;
-      m_SampleCount=0;
-      m_LeftLegend=3;
-      m_RightLegend=3;
-      for (int idx = 0; idx < WIND_RECORD_COUNT; idx++) {
+    m_MaxWindDir = -1;
+    m_WindDir = -1;
+#ifdef _TACTICSPI_H_
+    m_TrueWindDir = NAN;
+    m_TrueWindSpd = NAN;
+    m_WindSpeedUnit = _T("--");
+#else
+    m_WindSpeedUnit = _("--");
+#endif // _TACTICSPI_H_
+    m_WindDirRange=90;
+    m_MaxWindSpd = 0;
+    m_TrueWindDir = NAN;
+    m_TrueWindSpd = NAN;
+    m_WindDirRange=90;
+    m_MaxWindSpd = 0;
+    m_WindSpeedUnit = _T("--");
+    m_TotalMaxWindSpd = 0;
+    m_WindSpd = 0;
+    m_TopLineHeight=30;
+    m_SpdRecCnt=0;
+    m_DirRecCnt=0;
+    m_SpdStartVal=-1;
+    m_DirStartVal=-1;
+    m_IsRunning=false;
+    m_SampleCount=0;
+    m_LeftLegend=3;
+    m_RightLegend=3;
+    for (int idx = 0; idx < WIND_RECORD_COUNT; idx++) {
         m_ArrayWindDirHistory[idx] = -1;
         m_ArrayWindSpdHistory[idx] = -1;
         m_ExpSmoothArrayWindSpd[idx] = -1;
         m_ExpSmoothArrayWindDir[idx] = -1;
         m_ArrayRecTime[idx]=wxDateTime::Now().GetTm();
         m_ArrayRecTime[idx].year=999;
-      }
-      alpha=0.01;  //smoothing constant
-      m_WindowRect=GetClientRect();
-      m_DrawAreaRect=GetClientRect();
-      m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
+    }
+    alpha=0.01;  //smoothing constant
+    m_WindowRect=GetClientRect();
+    m_DrawAreaRect=GetClientRect();
+    m_DrawAreaRect.SetHeight(
+        m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
+#ifdef _TACTICSPI_H_
+    m_WindHistUpdTimer.Start(1000, wxTIMER_CONTINUOUS);
+    m_WindHistUpdTimer.Connect(
+        wxEVT_TIMER,
+        wxTimerEventHandler(
+            DashboardInstrument_WindDirHistory::OnWindHistUpdTimer),
+        NULL, this);
+#endif // _TACTICSPI_H_
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_WindDirHistory::OnWindHistUpdTimer(
+    wxTimerEvent &event)
+{
+    if (!std::isnan(m_TrueWindDir) && !std::isnan(m_TrueWindSpd)){
+        m_WindDir = m_TrueWindDir;
+        m_WindSpd = m_TrueWindSpd;
+        //start working after we collected 5 records each, as start values for the smoothed curves
+        if (m_SpdRecCnt >= 3 && m_DirRecCnt >= 3) {
+            m_IsRunning = true;
+            m_SampleCount =
+                m_SampleCount < WIND_RECORD_COUNT ?
+                                m_SampleCount + 1 : WIND_RECORD_COUNT;
+            m_MaxWindDir = 0;
+            m_MinWindDir = 360;
+            m_MaxWindSpd = 0;
+            //data shifting
+            for (int idx = 1; idx < WIND_RECORD_COUNT; idx++) {
+                if (WIND_RECORD_COUNT - m_SampleCount <= idx)
+                    m_MinWindDir =
+                        wxMin(m_ArrayWindDirHistory[idx], m_MinWindDir);
+                m_MaxWindDir =
+                    wxMax(m_ArrayWindDirHistory[idx - 1], m_MaxWindDir);
+                m_MaxWindSpd =
+                    wxMax(m_ArrayWindSpdHistory[idx - 1], m_MaxWindSpd);
+                m_ArrayWindDirHistory[idx - 1] =
+                    m_ArrayWindDirHistory[idx];
+                m_ArrayWindSpdHistory[idx - 1] =
+                    m_ArrayWindSpdHistory[idx];
+                m_ExpSmoothArrayWindSpd[idx - 1] =
+                    m_ExpSmoothArrayWindSpd[idx];
+                m_ExpSmoothArrayWindDir[idx - 1] =
+                    m_ExpSmoothArrayWindDir[idx];
+                m_ArrayRecTime[idx - 1] =
+                    m_ArrayRecTime[idx];
+            }
+            double diff = m_WindDir - m_oldDirVal;
+            if (diff < -270) {
+                m_WindDir += 360;
+            }
+            else
+                if (diff > 270) {
+                    m_WindDir -= 360;
+                }
+            m_ArrayWindDirHistory[WIND_RECORD_COUNT - 1] = m_WindDir;
+            m_ArrayWindSpdHistory[WIND_RECORD_COUNT - 1] = m_WindSpd;
+            if (m_SampleCount < 2) {
+                m_ArrayWindSpdHistory[WIND_RECORD_COUNT - 2] = m_WindSpd;
+                m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT - 2] =
+                    m_WindSpd;
+                m_ArrayWindDirHistory[WIND_RECORD_COUNT - 2] = m_WindDir;
+                m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 2] =
+                    m_WindDir;
+            }
+            m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT - 1] =
+                alpha*m_ArrayWindSpdHistory[WIND_RECORD_COUNT - 2] +
+                (1 - alpha)
+                * m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT - 2];
+            m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 1] =
+                alpha*m_ArrayWindDirHistory[WIND_RECORD_COUNT - 2] +
+                (1 - alpha)
+                * m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 2];
+
+            m_ArrayRecTime[WIND_RECORD_COUNT - 1] =
+                wxDateTime::Now().GetTm( );
+            m_oldDirVal = m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 1];
+            //include the new/latest value in the max/min value test too
+            m_MaxWindDir = wxMax(m_WindDir, m_MaxWindDir);
+            m_MinWindDir = wxMin(m_WindDir, m_MinWindDir);
+            m_MaxWindSpd = wxMax(m_WindSpd, m_MaxWindSpd);
+            //get the overall max Wind Speed
+            m_TotalMaxWindSpd = wxMax(m_WindSpd, m_TotalMaxWindSpd);
+
+            // set wind angle scale to full +/- 90° depending on the real max/min value recorded
+            SetMinMaxWindScale();
+        }
+    }
+}
+#endif // _TACTICSPI_H_
 
 wxSize DashboardInstrument_WindDirHistory::GetSize( int orient, wxSize hint )
 {
@@ -99,102 +202,129 @@ void DashboardInstrument_WindDirHistory::SetData(
 #endif // _TACTICSPI_H_
     double data, wxString unit)
 {
-  if (st == OCPN_DBP_STC_TWD || st == OCPN_DBP_STC_TWS) {
-    if (st == OCPN_DBP_STC_TWD) {
-      m_WindDir = data;
-	  if (m_DirRecCnt <= 5){
-		  m_DirStartVal += data;
-		  m_DirRecCnt++;
-	  }
-    }
-    if (st == OCPN_DBP_STC_TWS && data < 200.0) {
-      m_WindSpd = data;
-	  // if unit changes, reset everything ...
-	  if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _("--")) {
-		  m_MaxWindDir = -1;
-		  m_WindDir = -1;
-		  m_WindDirRange = 90;
-		  m_MaxWindSpd = 0;
-		  m_TotalMaxWindSpd = 0;
-		  m_WindSpd = 0;
-		  m_SpdRecCnt = 0;
-		  m_DirRecCnt = 0;
-		  m_SpdStartVal = -1;
-		  m_DirStartVal = -1;
-		  m_IsRunning = false;
-		  m_SampleCount = 0;
-		  m_LeftLegend = 3;
-		  m_RightLegend = 3;
-		  for (int idx = 0; idx < WIND_RECORD_COUNT; idx++) {
-			  m_ArrayWindDirHistory[idx] = -1;
-			  m_ArrayWindSpdHistory[idx] = -1;
-			  m_ExpSmoothArrayWindSpd[idx] = -1;
-			  m_ExpSmoothArrayWindDir[idx] = -1;
-			  m_ArrayRecTime[idx] = wxDateTime::Now().GetTm();
-			  m_ArrayRecTime[idx].year = 999;
-		  }
-	  }
-	  m_WindSpeedUnit = unit;
-	  if (m_SpdRecCnt <= 5){
-		  m_SpdStartVal += data;
-		  m_SpdRecCnt++;
-	  }
-    }
-    if ( m_SpdRecCnt == 5 && m_DirRecCnt == 5) {
-      m_WindSpd=  m_SpdStartVal/5;
-      m_WindDir = m_DirStartVal/5;
-      m_oldDirVal=m_WindDir; // make sure we don't get a diff > or <180 in the initial run
-    }
-    //start working after we collected 5 records each, as start values for the smoothed curves
-    if (m_SpdRecCnt > 5 && m_DirRecCnt > 5) {
-      m_IsRunning=true;
-      m_SampleCount = m_SampleCount<WIND_RECORD_COUNT? m_SampleCount+1:WIND_RECORD_COUNT;
-      m_MaxWindDir = 0;
-      m_MinWindDir = 360;
-      m_MaxWindSpd = 0;
-      //data shifting
-      for (int idx = 1; idx < WIND_RECORD_COUNT; idx++) {
-        if (WIND_RECORD_COUNT-m_SampleCount <= idx)
-          m_MinWindDir = wxMin(m_ArrayWindDirHistory[idx],m_MinWindDir);
-        m_MaxWindDir = wxMax(m_ArrayWindDirHistory[idx-1],m_MaxWindDir);
-        m_MaxWindSpd   = wxMax(m_ArrayWindSpdHistory[idx-1],m_MaxWindSpd);
-        m_ArrayWindDirHistory[idx-1] = m_ArrayWindDirHistory[idx];
-        m_ArrayWindSpdHistory[idx-1] = m_ArrayWindSpdHistory[idx];
-        m_ExpSmoothArrayWindSpd[idx-1]=m_ExpSmoothArrayWindSpd[idx];
-        m_ExpSmoothArrayWindDir[idx-1]=m_ExpSmoothArrayWindDir[idx];
-        m_ArrayRecTime[idx-1]=m_ArrayRecTime[idx];
-      }
-      double diff=m_WindDir - m_oldDirVal;
-      if (diff < -270) {
-        m_WindDir+=360;
-      }
-      else
-      if( diff > 270) {
-        m_WindDir-=360;
-      }
-      m_ArrayWindDirHistory[WIND_RECORD_COUNT-1] = m_WindDir;
-      m_ArrayWindSpdHistory[WIND_RECORD_COUNT-1] = m_WindSpd;
-      if( m_SampleCount<2) {
-        m_ArrayWindSpdHistory[WIND_RECORD_COUNT-2] = m_WindSpd;
-        m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-2]= m_WindSpd;
-        m_ArrayWindDirHistory[WIND_RECORD_COUNT-2] = m_WindDir;
-        m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-2]= m_WindDir;
-      }
-      m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-1]=alpha*m_ArrayWindSpdHistory[WIND_RECORD_COUNT-2]+(1-alpha)*m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-2];
-      m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-1]=alpha*m_ArrayWindDirHistory[WIND_RECORD_COUNT-2]+(1-alpha)*m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-2];
-      m_ArrayRecTime[WIND_RECORD_COUNT-1]=wxDateTime::Now().GetTm();
-      m_oldDirVal=m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-1];
-      //include the new/latest value in the max/min value test too
-      m_MaxWindDir = wxMax(m_WindDir,m_MaxWindDir);
-      m_MinWindDir = wxMin(m_WindDir,m_MinWindDir);
-      m_MaxWindSpd   = wxMax(m_WindSpd,m_MaxWindSpd);
-      //get the overall max Wind Speed
-      m_TotalMaxWindSpd = wxMax(m_WindSpd,m_TotalMaxWindSpd);
+    if (st == OCPN_DBP_STC_TWD || st == OCPN_DBP_STC_TWS
+#ifdef _TACTICSPI_H_
+        && (!std::isnan(data))
+#endif // _TACTICSPI_H_
+        ) {
+        if (st == OCPN_DBP_STC_TWD) {
+#ifdef _TACTICSPI_H_
+            m_TrueWindDir = data;
+#else
+            m_WindDir = data;
+#endif // _TACTICSPI_H_
+            if (m_DirRecCnt <= 5){
+                m_DirStartVal += data;
+                m_DirRecCnt++;
+            }
+        }
+        if (st == OCPN_DBP_STC_TWS && data < 200.0) {
+            m_WindSpd = data;
+#ifdef _TACTICSPI_H_
+            //convert to knots first
+            m_TrueWindSpd = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
+#endif // _TACTICSPI_H_
+            // if unit changes, reset everything ...
+            if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _("--")) {
+                m_MaxWindDir = -1;
+                m_WindDir = -1;
+                m_WindDirRange = 90;
+                m_MaxWindSpd = 0;
+                m_TotalMaxWindSpd = 0;
+                m_WindSpd = 0;
+                m_SpdRecCnt = 0;
+                m_DirRecCnt = 0;
+                m_SpdStartVal = -1;
+                m_DirStartVal = -1;
+                m_IsRunning = false;
+                m_SampleCount = 0;
+                m_LeftLegend = 3;
+                m_RightLegend = 3;
+                for (int idx = 0; idx < WIND_RECORD_COUNT; idx++) {
+                    m_ArrayWindDirHistory[idx] = -1;
+                    m_ArrayWindSpdHistory[idx] = -1;
+                    m_ExpSmoothArrayWindSpd[idx] = -1;
+                    m_ExpSmoothArrayWindDir[idx] = -1;
+                    m_ArrayRecTime[idx] = wxDateTime::Now().GetTm();
+                    m_ArrayRecTime[idx].year = 999;
+                }
+            }
+            m_WindSpeedUnit = unit;
+            if (m_SpdRecCnt <= 5){
+                m_SpdStartVal += data;
+                m_SpdRecCnt++;
+            }
+        }
+        if ( m_SpdRecCnt == 5 && m_DirRecCnt == 5) {
+            m_WindSpd=  m_SpdStartVal/5;
+            m_WindDir = m_DirStartVal/5;
+            m_oldDirVal=m_WindDir; // make sure we don't get a diff > or <180 in the initial run
+        }
+#ifndef _TACTICSPI_H_
+        //start working after we collected 5 records each, as start values for the smoothed curves
+        if (m_SpdRecCnt > 5 && m_DirRecCnt > 5) {
+            m_IsRunning=true;
+            m_SampleCount =
+                m_SampleCount<WIND_RECORD_COUNT ?
+                              m_SampleCount+1:WIND_RECORD_COUNT;
+            m_MaxWindDir = 0;
+            m_MinWindDir = 360;
+            m_MaxWindSpd = 0;
+            //data shifting
+            for (int idx = 1; idx < WIND_RECORD_COUNT; idx++) {
+                if (WIND_RECORD_COUNT-m_SampleCount <= idx)
+                    m_MinWindDir =
+                        wxMin(m_ArrayWindDirHistory[idx],m_MinWindDir);
+                m_MaxWindDir =
+                    wxMax(m_ArrayWindDirHistory[idx-1],m_MaxWindDir);
+                m_MaxWindSpd   =
+                    wxMax(m_ArrayWindSpdHistory[idx-1],m_MaxWindSpd);
+                m_ArrayWindDirHistory[idx-1] =
+                    m_ArrayWindDirHistory[idx];
+                m_ArrayWindSpdHistory[idx-1] =
+                    m_ArrayWindSpdHistory[idx];
+                m_ExpSmoothArrayWindSpd[idx-1] =
+                    m_ExpSmoothArrayWindSpd[idx];
+                m_ExpSmoothArrayWindDir[idx-1] =
+                    m_ExpSmoothArrayWindDir[idx];
+                m_ArrayRecTime[idx-1] = m_ArrayRecTime[idx];
+            }
+            double diff=m_WindDir - m_oldDirVal;
+            if (diff < -270) {
+                m_WindDir+=360;
+            }
+            else
+                if( diff > 270) {
+                    m_WindDir-=360;
+                }
+            m_ArrayWindDirHistory[WIND_RECORD_COUNT-1] = m_WindDir;
+            m_ArrayWindSpdHistory[WIND_RECORD_COUNT-1] = m_WindSpd;
+            if( m_SampleCount<2) {
+                m_ArrayWindSpdHistory[WIND_RECORD_COUNT-2] = m_WindSpd;
+                m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-2]= m_WindSpd;
+                m_ArrayWindDirHistory[WIND_RECORD_COUNT-2] = m_WindDir;
+                m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-2]= m_WindDir;
+            }
+            m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-1] =
+               alpha*m_ArrayWindSpdHistory[WIND_RECORD_COUNT-2]+
+                (1-alpha)*m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT-2];
+            m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-1]=
+                alpha*m_ArrayWindDirHistory[WIND_RECORD_COUNT-2]+
+                (1-alpha)*m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-2];
+            m_ArrayRecTime[WIND_RECORD_COUNT-1]=wxDateTime::Now().GetTm();
+            m_oldDirVal=m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT-1];
+            //include the new/latest value in the max/min value test too
+            m_MaxWindDir = wxMax(m_WindDir,m_MaxWindDir);
+            m_MinWindDir = wxMin(m_WindDir,m_MinWindDir);
+            m_MaxWindSpd   = wxMax(m_WindSpd,m_MaxWindSpd);
+            //get the overall max Wind Speed
+            m_TotalMaxWindSpd = wxMax(m_WindSpd,m_TotalMaxWindSpd);
 
-      // set wind angle scale to full +/- 90° depending on the real max/min value recorded
-      SetMinMaxWindScale();
+            // set wind angle scale to full +/- 90° depending on the real max/min value recorded
+            SetMinMaxWindScale();
+        }
+#endif // _TACTICSPI_H_
     }
-  }
 }
 
 void DashboardInstrument_WindDirHistory::Draw(wxGCDC* dc)

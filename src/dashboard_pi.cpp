@@ -475,7 +475,7 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
-    
+
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontLabel = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -751,6 +751,7 @@ void dashboard_pi::SendSentenceToAllInstruments(
             st_currspd, value_currspd, unit_currspd );
     } // then calculated current required and need to be distributed
     // Take this opportunity to calculate the performance values
+    this->CalculateLaylineDegreeRange();
     this->CalculatePerformanceData();
 }
 
@@ -1067,11 +1068,14 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 if( m_NMEA0183.Mwd.WindAngleTrue < 999. ) { //if WindAngleTrue is available, use it ...
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWD, m_NMEA0183.Mwd.WindAngleTrue,
                                                   _T("\u00B0T") );
+#ifdef _TACTICSPI_H_
+                    this->SetNMEASentence_Arm_TWD_Watchdog();
+#endif // _TACTICSPI_H_                
                 } else if( m_NMEA0183.Mwd.WindAngleMagnetic < 999. ) { //otherwise try WindAngleMagnetic ...
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWD, m_NMEA0183.Mwd.WindAngleMagnetic,
                                                   _T("\u00B0M") );
 #ifdef _TACTICSPI_H_
-                    tactics_pi::SetNMEASentence_Arm_TWD_Watchdog();
+                    this->SetNMEASentence_Arm_TWD_Watchdog();
 #endif // _TACTICSPI_H_                
                 }
 #ifdef _TACTICSPI_H_
@@ -1572,8 +1576,12 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
 
 void dashboard_pi::SetCursorLatLon( double lat, double lon )
 {
+#ifdef _TACTICSPI_H_    
+    this->TacticsSetCursorLatLon(lat, lon);
+#endif // _TACTICSPI_H_ 
     SendSentenceToAllInstruments( OCPN_DBP_STC_PLA, lat, _T("SDMM") );
     SendSentenceToAllInstruments( OCPN_DBP_STC_PLO, lon, _T("SDMM") );
+    
 }
 
 void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body)
@@ -1768,6 +1776,15 @@ void dashboard_pi::OnToolbarToolCallback( int id )
     SetToolbarItemState( m_toolbar_item_id, GetDashboardWindowShownCount() != 0/*cnt==0*/);
     m_pauimgr->Update();
 }
+
+#ifdef _TACTICSPI_H_
+void dashboard_pi::OnContextMenuItemCallback(int id)
+{
+    // so far only thes  parent class deals with this event
+    this->TacticsOnContextMenuItemCallback(id);
+    return;
+}
+#endif // _TACTICSPI_H_ 
 
 void dashboard_pi::UpdateAuiStatus( void )
 {
@@ -2033,17 +2050,11 @@ void dashboard_pi::ShowDashboard( size_t id, bool visible )
 #ifdef _TACTICSPI_H_
 bool dashboard_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 {
-    wxLogMessage(
-        "dashboard_pi::RenderOverlay()");
-
-    return tactics_pi::RenderOverlay( dc, vp );
+    return this->TacticsRenderOverlay( dc, vp );
 }
 bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-    wxLogMessage(
-        "dashboard_pi::RenderGLOverlay()");
-
-    return tactics_pi::RenderGLOverlay( pcontext, vp );
+    return this->TacticsRenderGLOverlay( pcontext, vp );
 }
 #endif // _TACTICSPI_H_ 
 
@@ -2747,6 +2758,7 @@ void DashboardWindow::OnContextMenu( wxContextMenuEvent& event )
     m_plugin->PopulateContextMenu( contextMenu );
     
 #ifdef _TACTICSPI_H_
+    contextMenu->AppendSeparator();
     this->InsertTacticsIntoContextMenu ( contextMenu );
 #endif // _TACTICSPI_H_
 
