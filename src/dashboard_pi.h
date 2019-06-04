@@ -274,6 +274,9 @@ public:
     wxSpinCtrlDouble             *m_pSpinDBTOffset;
     wxChoice                     *m_pChoiceDistanceUnit;
     wxChoice                     *m_pChoiceWindSpeedUnit;
+#ifdef _TACTICSPI_H_
+    wxChoice                     *m_pChoiceTemperatureUnit;
+#endif // _TACTICSPI_H_    
 
 private:
     void UpdateDashboardButtonsState(void);

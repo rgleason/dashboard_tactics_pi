@@ -264,6 +264,10 @@ void DashboardInstrument_Single::SetData(
             if(!std::isnan(data) && (data < 9999)){
                 if (unit == _T("C"))
                   m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("C");
+#ifdef _TACTICSPI_H_
+                else if (unit == _T("F"))
+                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("F");
+#endif // _TACTICSPI_H_
                 else if (unit == _T("\u00B0"))
                   m_data = wxString::Format(m_format, data)+DEGREE_SIGN;
                 else if (unit == _T("\u00B0T"))

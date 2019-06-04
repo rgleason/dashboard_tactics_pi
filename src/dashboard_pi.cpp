@@ -54,6 +54,9 @@ int g_iDashSOGDamp;
 int g_iDashDepthUnit;
 int g_iDashDistanceUnit;
 int g_iDashWindSpeedUnit;
+#ifdef _TACTICSPI_H_
+int g_iDashTemperatureUnit;
+#endif // _TACTICSPI_H_ 
 int g_iUTCOffset;
 double g_dDashDBTOffset;
 
@@ -422,6 +425,25 @@ wxString MakeName()
     return _T("DASH_") + GetUUID();
 }
 
+#ifdef _TACTICSPI_H_
+// implement rule for *TMP and *ATMP sentences according g_iDashTemperatureUnit selection (C=0, F=1)
+void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &TemperatureUnitOfMeasurement)
+{
+    if ( (TemperatureUnitOfMeasurement == _T("C")) && (g_iDashTemperatureUnit == 0) )
+        return;
+    if ( (TemperatureUnitOfMeasurement == _T("F")) && (g_iDashTemperatureUnit == 1) )
+        return;
+    if ( TemperatureUnitOfMeasurement == _T("C") ) {
+        TemperatureUnitOfMeasurement = _T("F");
+        TemperatureValue = TemperatureValue * 1.8 + 32.0;
+        return;
+    } // then convert Celcius to Fahrenheit
+    // otherwise, convert Fahrenheit to Celcius
+    TemperatureUnitOfMeasurement = _T("C");
+    TemperatureValue = (TemperatureValue - 32.0) / 1.8;
+    return;
+}
+#endif // _TACTICSPI_H_
 //---------------------------------------------------------------------------------------------------------
 //
 //          PlugIn initialization and de-init
@@ -1010,8 +1032,15 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                   double   m_NMEA0183.Mta.Temperature;
                   wxString m_NMEA0183.Mta.UnitOfMeasurement;
                 */
+#ifdef _TACTICSPI_H_
+                double TemperatureValue               = m_NMEA0183.Mta.Temperature;
+                wxString TemperatureUnitOfMeasurement = m_NMEA0183.Mta.UnitOfMeasurement;
+                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                SendSentenceToAllInstruments( OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
+#else
                 SendSentenceToAllInstruments( OCPN_DBP_STC_ATMP, m_NMEA0183.Mta.Temperature,
                                               m_NMEA0183.Mta.UnitOfMeasurement );
+#endif // _TACTICSPI_H_
             }
         } else if( m_NMEA0183.LastSentenceIDReceived == _T("MDA") ) {  //Barometric pressure
             if( m_NMEA0183.Parse() ) {
@@ -1038,8 +1067,14 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                   double   m_NMEA0183.Mtw.Temperature;
                   wxString m_NMEA0183.Mtw.UnitOfMeasurement;
                 */
+#ifdef _TACTICSPI_H_
+                wxString TemperatureUnitOfMeasurement = m_NMEA0183.Mtw.UnitOfMeasurement;
+                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                SendSentenceToAllInstruments( OCPN_DBP_STC_TMP, TemperatureValue, TemperatureUnitOfMeasurement );
+#else
                 SendSentenceToAllInstruments( OCPN_DBP_STC_TMP, m_NMEA0183.Mtw.Temperature,
                                               m_NMEA0183.Mtw.UnitOfMeasurement );
+#endif // _TACTICSPI_H_
             }
 
         }
@@ -1398,24 +1433,29 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                     xdrdata = m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData;
                     // XDR Airtemp
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerType == _T("C")) {
-                        SendSentenceToAllInstruments(OCPN_DBP_STC_ATMP, xdrdata , m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement);
+#ifdef _TACTICSPI_H_
+                        double TemperatureValue               = xdrdata;
+                        wxString TemperatureUnitOfMeasurement = m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement;
+                        checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
+#else
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_ATMP, xdrdata , m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement);
+#endif // _TACTICSPI_H_
                     }
 #ifdef _TACTICSPI_H_
-                    else {
-                        // NKE style of XDR Airtemp
-                        if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("AirTemp")){
-                            SendSentenceToAllInstruments(
-                                OCPN_DBP_STC_ATMP, m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData,
-                                m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement);
-                        }
-                        if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_OUTAIR_T") ||
-                            m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_OUTSIDE_T")){
-                            SendSentenceToAllInstruments(
-                                OCPN_DBP_STC_ATMP, m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData,
-                                m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement);
-                        }
-                    } // else not XDR Temperature Transducer
-#endif // _TACTICSPI_H_                
+                    // NKE style of XDR Airtemp etc. cf. original Tactics Plugin
+                    if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("AirTemp") ||
+                        m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_OUTAIR_T") ||
+                        m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_OUTSIDE_T")){
+                        double TemperatureValue               = xdrdata;
+                        wxString TemperatureUnitOfMeasurement = m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement;
+                        checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
+                    }
+#endif // _TACTICSPI_H_
                     // XDR Pressure
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerType == _T("P")) {
                         if (m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement == _T("B")) {
@@ -1424,31 +1464,15 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         }
                     }
 #ifdef _TACTICSPI_H_
-                    else {
-                        // NKE style of XDR Barometer
-                        // (porting note: while above works w/ Boehlken barometer, this one does not: NKE!)
-                        if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Barometer")){
-                            double data;
-                            if (m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement == _T("B"))
-                                data = m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData * 1000.;
-                            else
-                                data = m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData;
-                            SendSentenceToAllInstruments(OCPN_DBP_STC_MDA, data, _T("hPa"));
-                        }
-                    } // else not XDR Pressure Transducer
+                    if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Barometer")){
+                        double data = xdrdata;
+                        if (m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement == _T("B"))
+                            data = xdrdata * 1000.;
+                        SendSentenceToAllInstruments(OCPN_DBP_STC_MDA, data, _T("hPa"));
+                    }
 #endif // _TACTICSPI_H_                
                     // XDR Pitch (=Nose up/down) or Heel (stb/port)
-#ifndef _TACTICSPI_H_
-                    /* (porting note): while the below angluar dispacement transducer type detection
-                       works and makes perfectly sense, there is no way at this point toto guarantee
-                       that NKE instruments, primary source for the original tactics_pi development,
-                       are actually sending it. Probably yes, but since the original code did not
-                       check for this, we'll drop it here for now : PTCH (NKE) and PITCH are
-                       exclusive enough! This resolves the dilemma to repeat or not the entire block.
-                       When somebody can confirm that NKE sets TransducerType "A", let's bring back
-                       this line for tactics_pi */
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerType == _T("A")) {
-#endif // _TACTICSPI_H_                
                         if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("PTCH")
                             || m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("PITCH")) {
                             if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
@@ -1463,40 +1487,47 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_PITCH, xdrdata, xdrunit);
                         }
-                        // XDR Heel
-#ifdef _TACTICSPI_H_
-                        else if ((m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) ||
-                                 (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Heel Angle"))) {
-#else
-                        else if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) {
-#endif // _TACTICSPI_H_                
-                            if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
-                                xdrunit = _T("\u00B0 to Starboard");
-                            }
-                            else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
-                                xdrunit = _T("\u00B0 to Port");
-                                xdrdata *= -1;
-                            }
-                            else {
-                                xdrunit = _T("\u00B0");
-                            }
-                            SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
-                        }
-#ifndef _TACTICSPI_H_
                     }
-#endif // _TACTICSPI_H_
+                    // XDR Heel
+#ifdef _TACTICSPI_H_
+                    else if ((m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) ||
+                             (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Heel Angle"))) {
+#else
+                    else if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) {
+#endif // _TACTICSPI_H_                
+                        if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
+                            xdrunit = _T("\u00B0 to Starboard");
+                        }
+                        else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
+                            xdrunit = _T("\u00B0 to Port");
+                            xdrdata *= -1;
+                        }
+                        else {
+                            xdrunit = _T("\u00B0");
+                        }
+                        SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
+                    }
                     //Nasa style water temp
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_WATER_T")){
+#ifdef _TACTICSPI_H_
+                        double TemperatureValue               = xdrdata;
+                        wxString TemperatureUnitOfMeasurement = m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement;
+                        checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
+#else
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_TMP,
                             m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData,m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement);
+#endif // _TACTICSPI_H_
                     }
                 }
             }
         }
-        else if (m_NMEA0183.LastSentenceIDReceived == _T("ZDA")) {
-            if( m_NMEA0183.Parse() ) {
-                if( mPriDateTime >= 2 ) {
+            
+       else if (m_NMEA0183.LastSentenceIDReceived == _T("ZDA")) {
+           if( m_NMEA0183.Parse() ) {
+               if( mPriDateTime >= 2 ) {
                     mPriDateTime = 2;
 
                     /*
@@ -1842,6 +1873,9 @@ bool dashboard_pi::LoadConfig( void )
         pConf->Read( _T("WindSpeedUnit"), &g_iDashWindSpeedUnit, 0 );
 
         pConf->Read( _T("UTCOffset"), &g_iUTCOffset, 0 );
+#ifdef _TACTICSPI_H_
+        pConf->Read( _T("TemperatureUnit"), &g_iDashTemperatureUnit, 0 );
+#endif // _TACTICSPI_H_        
 
         int d_cnt;
         pConf->Read( _T("DashboardCount"), &d_cnt, -1 );
@@ -1948,6 +1982,9 @@ bool dashboard_pi::SaveConfig( void )
         pConf->Write( _T("DepthOffset"), g_dDashDBTOffset );
         pConf->Write( _T("DistanceUnit"), g_iDashDistanceUnit );
         pConf->Write( _T("WindSpeedUnit"), g_iDashWindSpeedUnit );
+#ifdef _TACTICSPI_H_
+        pConf->Write( _T("TemperatureUnit"), g_iDashTemperatureUnit );
+#endif // _TACTICSPI_H_        
         pConf->Write( _T("UTCOffset"), g_iUTCOffset );
 
         pConf->Write( _T("DashboardCount" ), (int) m_ArrayOfDashboardWindow.GetCount() );
@@ -2378,6 +2415,17 @@ TacticsPreferencesDialog ( parent, id, commonName + _(" preferences") )
     m_pChoiceWindSpeedUnit->SetSelection( g_iDashWindSpeedUnit );
     itemFlexGridSizer04->Add( m_pChoiceWindSpeedUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
 
+#ifdef _TACTICSPI_H_
+    wxStaticText* itemStaticText0c = new wxStaticText( itemPanelNotebook02, wxID_ANY, _("Temperature units:"),
+                                                       wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer04->Add( itemStaticText0c, 0, wxEXPAND | wxALL, border_size );
+    wxString m_TempUnitChoices[] = { _("Celsius"), _("Fahrenheit") };
+    int m_TempUnitNChoices = sizeof( m_TempUnitChoices ) / sizeof( wxString );
+    m_pChoiceTemperatureUnit = new wxChoice( itemPanelNotebook02, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_TempUnitNChoices, m_TempUnitChoices, 0 );
+    m_pChoiceTemperatureUnit->SetSelection( g_iDashTemperatureUnit );
+    itemFlexGridSizer04->Add( m_pChoiceTemperatureUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
+#endif // _TACTICSPI_H_
+
     //////////////////////////////////////////////////////////////
 #ifdef _TACTICSPI_H_
     this->TacticsPreferencesPanel();
@@ -2433,6 +2481,9 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
     g_iDashDepthUnit = m_pChoiceDepthUnit->GetSelection() + 3;
     g_iDashDistanceUnit = m_pChoiceDistanceUnit->GetSelection() - 1;
     g_iDashWindSpeedUnit = m_pChoiceWindSpeedUnit->GetSelection();
+#ifdef _TACTICSPI_H_
+    g_iDashTemperatureUnit = m_pChoiceTemperatureUnit->GetSelection();
+#endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
     this->SaveTacticsConfig();
