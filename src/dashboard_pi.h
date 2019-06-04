@@ -202,6 +202,9 @@ private:
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
+#ifdef _TACTICSPI_H_
+    int               m_iPlugInRequirements;
+#endif // _TACTICSPI_H_
     wxFileConfig     *m_pconfig;
     wxAuiManager     *m_pauimgr;
     int              m_toolbar_item_id;

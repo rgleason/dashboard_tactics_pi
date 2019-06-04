@@ -43,6 +43,10 @@
 #include "wx/jsonreader.h"
 #include "wx/jsonwriter.h"
 
+#include "ocpn_plugin.h"
+#include <wx/glcanvas.h>
+
+
 wxFont *g_pFontTitle;
 wxFont *g_pFontData;
 wxFont *g_pFontLabel;
@@ -516,7 +520,7 @@ int dashboard_pi::Init( void )
 
 #ifdef _TACTICSPI_H_
     m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
-    int what_tactics_pi_wants = tactics_pi::Init( this, m_pconfig );
+    int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
 #endif //  _TACTICSPI_H
          
     LoadConfig();
@@ -565,10 +569,18 @@ int dashboard_pi::Init( void )
 
     Start( 1000, wxTIMER_CONTINUOUS );
 
+#ifdef _TACTICSPI_H_
+    m_iPlugInRequirements = // dashboard_pi requirements
+        WANTS_CURSOR_LATLON | WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL |
+        WANTS_PREFERENCES   | WANTS_CONFIG           | WANTS_NMEA_SENTENCES  |
+        WANTS_NMEA_EVENTS   | USES_AUI_MANAGER       | WANTS_PLUGIN_MESSAGING;
+    wxLogMessage("dashboard_pi req = %x", m_iPlugInRequirements);
+    wxLogMessage("tactics_pi req = %x", what_tactics_pi_wants);
+    m_iPlugInRequirements = what_tactics_pi_wants | m_iPlugInRequirements;
+    wxLogMessage("dashboard_tactics_pi init ret = %x", m_iPlugInRequirements);
+    return m_iPlugInRequirements;
+#else
     return (
-#ifdef _TACTICSPI_H
-        what_tactics_pi_wants |
-#endif //  _TACTICSPI_H
         WANTS_CURSOR_LATLON |
         WANTS_TOOLBAR_CALLBACK |
         INSTALLS_TOOLBAR_TOOL |
@@ -578,6 +590,7 @@ int dashboard_pi::Init( void )
         WANTS_NMEA_EVENTS |
         USES_AUI_MANAGER |
         WANTS_PLUGIN_MESSAGING );
+#endif //  _TACTICSPI_H
 }
 
 bool dashboard_pi::DeInit( void )
@@ -607,7 +620,7 @@ bool dashboard_pi::DeInit( void )
     delete g_pFontSmall;
 
 #ifdef _TACTICSPI_H_
-    return tactics_pi::DeInit();
+    return this->TacticsDeInit();
 #endif //  _TACTICSPI_H
 
     return true;
@@ -655,7 +668,7 @@ void dashboard_pi::Notify()
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
     }
 #ifdef _TACTICSPI_H_
-    tactics_pi::Notify();
+    this->TacticsNotify();
 #endif //  _TACTICSPI_H
     return;
 }
@@ -1068,6 +1081,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                   wxString m_NMEA0183.Mtw.UnitOfMeasurement;
                 */
 #ifdef _TACTICSPI_H_
+                double TemperatureValue = m_NMEA0183.Mtw.Temperature;
                 wxString TemperatureUnitOfMeasurement = m_NMEA0183.Mtw.UnitOfMeasurement;
                 checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                 SendSentenceToAllInstruments( OCPN_DBP_STC_TMP, TemperatureValue, TemperatureUnitOfMeasurement );
@@ -1116,7 +1130,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
 #endif // _TACTICSPI_H_                
                 }
 #ifdef _TACTICSPI_H_
-                if (!tactics_pi::SetNMEASentenceMWD_NKEbug(m_NMEA0183.Mwd.WindSpeedKnots)) {
+                if (!this->SetNMEASentenceMWD_NKEbug(m_NMEA0183.Mwd.WindSpeedKnots)) {
 #endif // _TACTICSPI_H_                
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_TWS, toUsrSpeed_Plugin( m_NMEA0183.Mwd.WindSpeedKnots, g_iDashWindSpeedUnit ),
@@ -1160,7 +1174,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                                                                              g_iDashWindSpeedUnit ),
                                                           getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
 #ifdef _TACTICSPI_H_
-                            tactics_pi::SetNMEASentence_Arm_AWS_Watchdog();
+                            this->SetNMEASentence_Arm_AWS_Watchdog();
 #endif // _TACTICSPI_H_                
                         }
                     } else if( m_NMEA0183.Mwv.Reference == _T("T") ) // Theoretical (aka True)
@@ -1188,7 +1202,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                                                                              g_iDashWindSpeedUnit ),
                                                           getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
 #ifdef _TACTICSPI_H_
-                            tactics_pi::SetNMEASentence_Arm_TWS_Watchdog();
+                            this->SetNMEASentence_Arm_TWS_Watchdog();
 #endif // _TACTICSPI_H_                
                         }
                     }
@@ -1209,7 +1223,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
 					SendSentenceToAllInstruments(
                         OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
 				if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue))
-                    tactics_pi::SetNMEASentence_Arm_BRG_Watchdog();
+                    this->SetNMEASentence_Arm_BRG_Watchdog();
 			}
 		}
 #endif // _TACTICSPI_H_                

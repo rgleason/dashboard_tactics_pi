@@ -51,6 +51,7 @@ bool g_bDisplayCurrentOnChart;
 wxString g_path_to_PolarFile;
 PlugIn_Route *m_pRoute = NULL;
 PlugIn_Waypoint *m_pMark = NULL;
+wxString g_sMarkGUID = _T("^TacticsWP");
 double g_dmark_lat = NAN;
 double g_dmark_lon = NAN;
 double g_dcur_lat = NAN;
@@ -96,7 +97,7 @@ tactics_pi::~tactics_pi( void )
     return;
 }
 
-int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
+int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 {
     m_hostplugin = hostplugin;
     m_hostplugin_pconfig = pConf;
@@ -159,13 +160,15 @@ int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 
 	m_bTrueWind_available = false;
 
-    this->LoadConfig();
-    this->ApplyConfig();
+    (void) DeleteSingleWaypoint (g_sMarkGUID);
+
+    this->TacticsLoadConfig();
+    this->TacticsApplyConfig();
 
 	// Context menue for making marks    
 	m_pmenu = new wxMenu();
 	// this is a dummy menu required by Windows as parent to item created
-	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ^Tactics Waypoint"));
+	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ") + g_sMarkGUID);
 	int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
 	SetCanvasContextMenuItemViz(miid, true);
 
@@ -183,13 +186,19 @@ int tactics_pi::Init( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 		);
 }
 
-bool tactics_pi::DeInit()
+bool tactics_pi::TacticsDeInit()
 {
-	this->SaveConfig();
+	this->TacticsSaveConfig();
+
+    if (m_pRoute){
+		m_pRoute->pWaypointList->DeleteContents(true);
+		DeletePlugInRoute(m_pRoute->m_GUID);
+	}
+    (void) DeleteSingleWaypoint (g_sMarkGUID);
 
 	return true;
 }
-void tactics_pi::Notify()
+void tactics_pi::TacticsNotify()
 {
     mBRG_Watchdog--;
     if (mBRG_Watchdog <= 0) {
@@ -216,7 +225,7 @@ void tactics_pi::Notify()
 
 }
 
-bool tactics_pi::LoadConfig()
+bool tactics_pi::TacticsLoadConfig()
 {
     wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
 	if (!pConf)
@@ -376,12 +385,19 @@ void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
     pConf->Read(_T("NKE_TrueWindTableBug"), &g_bNKE_TrueWindTableBug, false);
     m_bNKE_TrueWindTableBug = g_bNKE_TrueWindTableBug;
 }
-void tactics_pi::ApplyConfig(void)
+void tactics_pi::TacticsApplyConfig(void)
 {
+
+    if (!(BoatPolar == NULL)) {
+        if (g_path_to_PolarFile != _T("NULL"))
+            BoatPolar->loadPolar(g_path_to_PolarFile);
+        else
+            BoatPolar->loadPolar(_T("NULL"));
+    }
     return;
 }
 
-bool tactics_pi::SaveConfig()
+bool tactics_pi::TacticsSaveConfig()
 {
     wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
     if (!pConf)
@@ -739,8 +755,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 		DrawWindBarb(boat, vp);
 		DrawPolar(vp, boat, mTWD);
 	}
-	//wxString GUID = _T("^TacticsWP");
-	if (!GetSingleWaypoint(_T("^TacticsWP"), m_pMark)) m_pMark = NULL;
+	if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
+        m_pMark = NULL;
 	if (m_pMark){
 		/*********************************************************************
 		Draw wind barb on mark position
@@ -764,7 +780,7 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 			if (std::isnan(m_LaylineSmoothedCog)) m_LaylineSmoothedCog = mCOG;
             if (std::isnan(mLeeway)) mLeeway = 0.0;
 			/**********************************************************************
-			Draw the boat laylines, independent from the "Temp. Tactics WP"
+			Draw the boat laylines, independent from the g_sMarkGUID
 			The first (foreward) layline is on the COG pointer
 ***********************************************************************/
 			wxString curTack = mAWAUnit;
@@ -854,9 +870,10 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
             //            wxLogMessage("mlat=%f, mlon=%f,currspd=%f,predictedCoG=%f, mTWA=%f,mLeeway=%f, g_iDashSpeedUnit=%d", mlat, mlon, currspd_kts, mPredictedCoG, mTWA, mLeeway,g_iDashSpeedUnit);
             //wxLogMessage("tackpoints[0].x=%d, tackpoints[0].y=%d,tackpoints[1].x=%d, tackpoints[1].y=%d,tackpoints[2].x=%d, tackpoints[2].y=%d", tackpoints[0].x, tackpoints[0].y, tackpoints[1].x, tackpoints[1].y, tackpoints[2].x, tackpoints[2].y);
-            //wxString GUID = _T("^TacticsWP");
+            //wxString GUID = g_sMarkGUID;
 
-			//if (!GetSingleWaypoint(_T("^TacticsWP"), m_pMark)) m_pMark = NULL;
+			//if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
+            //     m_pMark = NULL;
 			if (m_pMark)
 			{
 /*********************************************************************
@@ -1520,8 +1537,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
                                            m_pMark->m_lon, mlat, mlon,
                                            &newvalue, &dist);
             value = newvalue;
-            unit = _T("^TacticsWP");
-            //m_BearingUnit = _T("\u00B0");
+            unit = g_sMarkGUID;
             return true;
         }
     }
@@ -1930,8 +1946,7 @@ Set MARK Position
 void tactics_pi::TacticsOnContextMenuItemCallback(int id)
 {
     m_pMark = new PlugIn_Waypoint(
-        g_dcur_lat, g_dcur_lon, _T("activepoint"), _T("^TacticsWP"),
-        _T("^TacticsWP"));
+        g_dcur_lat, g_dcur_lon, _T("activepoint"), g_sMarkGUID, g_sMarkGUID);
     g_dmark_lat = m_pMark->m_lat;
     g_dmark_lon = m_pMark->m_lon;
     AddSingleWaypoint(m_pMark, false);
@@ -2214,7 +2229,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 
 	wxBoxSizer* itemBoxSizer06 = new wxBoxSizer(wxVERTICAL);
 	itemPanelNotebook03->SetSizer(itemBoxSizer06);
-	m_itemNotebook->AddPage(itemPanelNotebook03, _("^Tactics"));
+	m_itemNotebook->AddPage(itemPanelNotebook03, _("^Tactics Performance Parameters"));
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox05 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Laylines"));
 	wxStaticBoxSizer* itemStaticBoxSizer05 = new wxStaticBoxSizer(itemStaticBox05, wxHORIZONTAL);
@@ -2480,7 +2495,8 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 
 	m_buttonLoadPolar = new wxButton(itemPanelNotebook03, wxID_ANY, _("Load"), wxDefaultPosition, wxDefaultSize, 0);
 	itemFlexGridSizer09->Add(m_buttonLoadPolar, 0, wxALIGN_LEFT | wxALL, 5);
-	m_buttonLoadPolar->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(TacticsPreferencesDialog::SelectPolarFile), NULL, this);
+    m_buttonLoadPolar->Connect(
+        wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(TacticsPreferencesDialog::SelectPolarFile), NULL, this);
 
 	m_ShowPolarOnChart = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Show Polar on Chart (OpenGL)"));
 	itemFlexGridSizer09->Add(m_ShowPolarOnChart, 0, wxEXPAND, 5);

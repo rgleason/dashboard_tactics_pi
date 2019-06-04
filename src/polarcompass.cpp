@@ -47,6 +47,7 @@ extern int g_iMinLaylineWidth;
 extern int g_iMaxLaylineWidth;
 extern Polar* BoatPolar;
 extern PlugIn_Waypoint *m_pMark;
+extern wxString g_sMarkGUID;
 extern int g_iDashDistanceUnit;
 extern int g_iDashSpeedUnit;
 
@@ -116,7 +117,7 @@ void TacticsInstrument_PolarCompass::SetData(unsigned long long st,
 	}
 
 	else if (st == OCPN_DBP_STC_DTW) {
-		if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)){
+		if (!GetSingleWaypoint(g_sMarkGUID, m_pMark)){
 			m_ExtraValueDTW = data;
 			m_ExtraValueDTWUnit = unit;
 		}
@@ -154,7 +155,7 @@ void TacticsInstrument_PolarCompass::SetData(unsigned long long st,
 		m_diffCogHdt = m_Cog - m_Hdt;
     }
 	if (st == OCPN_DBP_STC_BRG) {
-//		if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)){
+//		if (!GetSingleWaypoint(g_sMarkGUID, m_pMark)){
 			m_Bearing = data;
 			m_ToWpt = unit;
 		/*}
@@ -162,18 +163,19 @@ void TacticsInstrument_PolarCompass::SetData(unsigned long long st,
 			if (m_pMark) {
 				double dist;
 				DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &m_Bearing, &dist);
-				m_ToWpt = _T("TacticsWP");
+				m_ToWpt = g_sMarkGUID;
 				m_ExtraValueDTW = toUsrDistance_Plugin(dist, g_iDashDistanceUnit);
 				m_ExtraValueDTWUnit = getUsrDistanceUnit_Plugin(g_iDashDistanceUnit);
 			}
 		}*/
 		m_BearingUnit = _T("\u00B0");
 	}
-    if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)) m_pMark = NULL;
+    if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
+        m_pMark = NULL;
     if (m_pMark && !std::isnan(m_lat) && !std::isnan(m_lon)) {
       double dist;
       DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &m_Bearing, &dist);
-      m_ToWpt = _T("TacticsWP");
+      m_ToWpt = g_sMarkGUID;
       m_ExtraValueDTW = toUsrDistance_Plugin(dist, g_iDashDistanceUnit);
       m_ExtraValueDTWUnit = getUsrDistanceUnit_Plugin(g_iDashDistanceUnit);
       m_BearingUnit = _T("\u00B0");

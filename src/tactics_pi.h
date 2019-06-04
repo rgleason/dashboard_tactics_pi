@@ -122,12 +122,18 @@ class tactics_pi
 public:
     tactics_pi(void);
     ~tactics_pi(void);
-    int Init( opencpn_plugin *hostplugin, wxFileConfig *pConf );
-    bool DeInit(void);
-    void Notify(void);
-    bool LoadConfig(void);
-    void ApplyConfig(void);
-    bool SaveConfig(void);
+    virtual int Init(void) = 0;
+    virtual int TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf ) final;
+    virtual bool DeInit(void) = 0;
+    virtual bool TacticsDeInit(void) final;
+    virtual void Notify(void) = 0;
+    virtual void TacticsNotify(void) final;
+    virtual bool LoadConfig(void) = 0;
+    virtual bool TacticsLoadConfig(void) final;
+    virtual void ApplyConfig(void) = 0;
+    virtual void TacticsApplyConfig(void) final;
+    virtual bool SaveConfig(void) = 0;
+    virtual bool TacticsSaveConfig(void) final;
     virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
     virtual bool TacticsRenderOverlay(
         wxDC &dc, PlugIn_ViewPort *vp) final;

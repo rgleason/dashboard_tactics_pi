@@ -50,6 +50,7 @@ extern wxString g_path_to_PolarFile;
 extern int g_iDashWindSpeedUnit;
 extern int g_iDashSpeedUnit;
 extern PlugIn_Waypoint *m_pMark;
+extern wxString g_sMarkGUID;
 extern int g_iSpeedFormat;
 
 // ----------------------------------------------------------------
@@ -174,11 +175,11 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
   else if (st == OCPN_DBP_STC_TWD){
     mTWD = data;
   }
-  if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)) m_pMark = NULL;
+  if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
+      m_pMark = NULL;
   if (m_pMark && m_lat > 0 && m_lon > 0) {
     double dist;
     DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
-    //m_ToWpt = _T("TacticsWP");
   }
   if (!std::isnan(mSTW) && !std::isnan(mTWA) && !std::isnan(mTWS)){
     
@@ -309,7 +310,7 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	stdPath += s + _T("opencpn");
 #endif
 
-	wxString basePath = stdPath + s + _T("plugins") + s + _T("tactics_pi") + s + _T("data") + s;
+	wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
 	logbookDataPath = basePath;
 
 	reset();
@@ -376,7 +377,7 @@ void Polar::loadPolar(wxString FilePath)
     if (filePath == _T("NULL"))
         return;
 
-	reset();
+	this->reset();
 
     wxFileInputStream stream(filePath);
     wxTextInputStream in(stream);

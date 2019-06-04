@@ -49,9 +49,6 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 #endif // _TACTICSPI_H_
     ):wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
-    wxLogMessage(
-        "DashboardInstrument::DashboardInstrument()");
-
 
       m_title = title;
       m_cap_flag = cap_flag;
@@ -76,8 +73,6 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 #ifdef __WXOSX__
       Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(DashboardInstrument::MouseEvent), NULL, this);
 #endif
-      wxLogMessage(
-          "DashboardInstrument::DashboardInstrument() - done.");
 }
 
 void DashboardInstrument::MouseEvent( wxMouseEvent &event )
