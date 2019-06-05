@@ -359,26 +359,29 @@ _T("NULL") : just initialize array (to work w/o polar)
 ************************************************************************************/
 void Polar::loadPolar(wxString FilePath)
 {
-	wxString filePath = _T("NULL");
+    wxString filePath = _T("NULL");
     wxString fname = _T("");
-	wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
-	if (FilePath == _T("")) { //input parameter empty, read from config
+    if (FilePath == _T("")) { //input parameter empty, ask the path from the user
         wxFileDialog fdlg(
             GetOCPNCanvasWindow(),
-            _("Tactics Performance: Select a polar file"), _T(""));
+            _("^Tactics Performance Parameters: Select a polar file"), _T(""));
         if (fdlg.ShowModal() == wxID_CANCEL)
             return;
         filePath = fdlg.GetPath();
         fname = fdlg.GetFilename();
         fname = filePath;
+    }
+    else {
+        filePath = FilePath;
+        fname = filePath;
 	}
+
+    this->reset();
 
     if (filePath == _T("NULL"))
         return;
-
-	this->reset();
-
+    
     wxFileInputStream stream(filePath);
     wxTextInputStream in(stream);
     wxString wdirstr, wsp;
@@ -392,7 +395,7 @@ void Polar::loadPolar(wxString FilePath)
         int col = 0, i = 0;
         wxString s;
 
-        wxString str = in.ReadLine();				// read line by line
+        wxString str = in.ReadLine();               // read line by line
         if (stream.Eof()) break;
         if (first)
         {

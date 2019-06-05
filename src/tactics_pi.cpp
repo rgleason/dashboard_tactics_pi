@@ -333,6 +333,7 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Read(_T("MaxLaylineWidth"), &g_iMaxLaylineWidth, 30);
     pConf->Read(_T("LaylineWidthDampingFactor"), &g_dalphaDeltCoG, 0.25);
     pConf->Read(_T("ShowLaylinesOnChart"), &g_bDisplayLaylinesOnChart, false);
+    m_bLaylinesIsVisible = g_bDisplayLaylinesOnChart;
     pConf->Read(_T("ShowCurrentOnChart"), &g_bDisplayCurrentOnChart, false);
     m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
     pConf->Read(_T("CMGSynonym"), &g_sCMGSynonym, _T("CMG"));
@@ -1311,7 +1312,7 @@ void tactics_pi::ToggleCurrentRender()
 void tactics_pi::TogglePolarRender()
 {
 	m_bShowPolarOnChart = m_bShowPolarOnChart ? false : true;
-    m_bDisplayCurrentOnChart = m_bShowPolarOnChart;
+    g_bShowPolarOnChart = m_bShowPolarOnChart;
 }
 void tactics_pi::ToggleWindbarbRender()
 {
@@ -1497,13 +1498,18 @@ the instrumetns in its windows, it needs to call this method to
 correct the values which are destined to Tactics performance
 instruments. According settings and the sentence, may return an
 corrected value (cf. the documentation for operation principles).
-true - correction or unit change has taken place
-false - no correction required or needed, unaltered
+true - yes, pass the sentence to instruments
+false - no, do not pass the sentence to instruments, true wind
+            corrections will follow.
 *********************************************************************/
 bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit )
 {
-    SetCalcVariables(st, value, unit); // Tactics awareness
+
+    if ( ( g_bForceTrueWindCalculation &&
+           ((st == OCPN_DBP_STC_TWS || st == OCPN_DBP_STC_TWA ||
+             st == OCPN_DBP_STC_TWD) && !std::isnan(value))) )
+        return false;
 
     if (st == OCPN_DBP_STC_AWS){
         /* Correct AWS with heel if global variable set and heel
@@ -1532,7 +1538,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
     if (st == OCPN_DBP_STC_BRG){
         if (m_pMark && !std::isnan(mlat) && !std::isnan(mlon)) {
             double dist;
-            double newvalue;
+            double newvalue = value;
             DistanceBearingMercator_Plugin(m_pMark->m_lat,
                                            m_pMark->m_lon, mlat, mlon,
                                            &newvalue, &dist);
@@ -1568,12 +1574,8 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
             return true;
         }
     }
-    if (g_bForceTrueWindCalculation &&
-        ((st == OCPN_DBP_STC_TWS || st == OCPN_DBP_STC_TWA ||
-          st == OCPN_DBP_STC_TWD) && !std::isnan(value)))
-        return false;
-
-    return false;
+ 
+    return true;
 }
 /********************************************************************
 Likewise to SendSentenceToAllInstruments_PerformanceCorrections(),

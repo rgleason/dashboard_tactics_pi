@@ -750,10 +750,13 @@ void dashboard_pi::SendSentenceToAllInstruments(
 {
     double distvalue = value;
     wxString distunit = unit;
-    (void) this->SendSentenceToAllInstruments_PerformanceCorrections (
-            st, distvalue, distunit );
-
-    pSendSentenceToAllInstruments( st, distvalue, distunit );
+    if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
+             st, distvalue, distunit ) ) {
+        this->SetCalcVariables(st, distvalue, distunit);
+        pSendSentenceToAllInstruments( st, distvalue, distunit );
+    }
+    else
+        this->SetCalcVariables(st, value, unit);
 
     unsigned long long st_twa, st_tws, st_twd;
     double value_twa, value_tws, value_twd;
@@ -1039,7 +1042,9 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
 
             }
-        } else if( m_NMEA0183.LastSentenceIDReceived == _T("MTA") ) {  //Air temperature
+        }
+
+        else if( m_NMEA0183.LastSentenceIDReceived == _T("MTA") ) {  //Air temperature
             if( m_NMEA0183.Parse() ) {
                 /*
                   double   m_NMEA0183.Mta.Temperature;
@@ -1055,7 +1060,9 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                                               m_NMEA0183.Mta.UnitOfMeasurement );
 #endif // _TACTICSPI_H_
             }
-        } else if( m_NMEA0183.LastSentenceIDReceived == _T("MDA") ) {  //Barometric pressure
+        }
+
+        else if( m_NMEA0183.LastSentenceIDReceived == _T("MDA") ) {  //Barometric pressure
             if( m_NMEA0183.Parse() ) {
                 // TODO make posibilyti to select between Bar or InchHg
                 /*
@@ -1074,6 +1081,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
             }
 
         }
+        
         else if( m_NMEA0183.LastSentenceIDReceived == _T("MTW") ) {
             if( m_NMEA0183.Parse() ) {
                 /*
@@ -1092,6 +1100,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
             }
 
         }
+        
         else if( m_NMEA0183.LastSentenceIDReceived == _T("VLW") ) {
             if( m_NMEA0183.Parse() ) {
                 /*
@@ -1177,8 +1186,9 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             this->SetNMEASentence_Arm_AWS_Watchdog();
 #endif // _TACTICSPI_H_                
                         }
-                    } else if( m_NMEA0183.Mwv.Reference == _T("T") ) // Theoretical (aka True)
-                    {
+                    }
+
+                    else if( m_NMEA0183.Mwv.Reference == _T("T") ) { // Theoretical (aka True)
                         if( mPriTWA >= 1 ) {
                             mPriTWA = 1;
                             wxString m_twaunit;
@@ -1224,8 +1234,8 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
 				if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue))
                     this->SetNMEASentence_Arm_BRG_Watchdog();
-			}
-		}
+            }
+        }
 #endif // _TACTICSPI_H_                
         
         else if( m_NMEA0183.LastSentenceIDReceived == _T("RMC") ) {
