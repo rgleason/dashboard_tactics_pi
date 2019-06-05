@@ -101,9 +101,11 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_MDA   = 1 << 28,  // Bareometic pressure
     OCPN_DBP_STC_MCOG  = 1 << 29,  // Magnetic Course over Ground
 	OCPN_DBP_STC_PITCH = 1 << 30,  //Pitch
-	OCPN_DBP_STC_HEEL  = 1 << 31  //Heel 
-#ifdef _TACTICSPI_H_
-    , // >32 sentence capacity identifiers needs 64 bits enumeration
+#ifndef _TACTICSPI_H_
+	OCPN_DBP_STC_HEEL  = 1 << 31  //Heel
+#else
+    // >32 sentence capacity identifiers needs 64 bits enumeration
+	OCPN_DBP_STC_HEEL    = 1ULL << 31  //Heel
     OCPN_DBP_STC_LEEWAY  = 1ULL << 32,
     OCPN_DBP_STC_CURRDIR = 1ULL << 33,
     OCPN_DBP_STC_CURRSPD = 1ULL << 34,
