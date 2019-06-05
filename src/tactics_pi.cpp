@@ -1495,21 +1495,15 @@ void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
 Before the derived class which implements the abstract method
 SendSentenceToAllInstruments() actually sends the sentences to
 the instrumetns in its windows, it needs to call this method to
-correct the values which are destined to Tactics performance
-instruments. According settings and the sentence, may return an
+correct the values if Tactics performance functions are activated.
+According to the settings and the sentence, it may return an
 corrected value (cf. the documentation for operation principles).
-true - yes, pass the sentence to instruments
-false - no, do not pass the sentence to instruments, true wind
-            corrections will follow.
+true - yes, pass sentence with corrected values/units to instruments
+false - no, continue processing
 *********************************************************************/
 bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit )
 {
-
-    if ( ( g_bForceTrueWindCalculation &&
-           ((st == OCPN_DBP_STC_TWS || st == OCPN_DBP_STC_TWA ||
-             st == OCPN_DBP_STC_TWD) && !std::isnan(value))) )
-        return false;
 
     if (st == OCPN_DBP_STC_AWS){
         /* Correct AWS with heel if global variable set and heel
@@ -1577,6 +1571,32 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
  
     return true;
 }
+
+/********************************************************************
+Before the derived class which implements the abstract method
+SendSentenceToAllInstruments() actually sends the sentences to
+the instrumetns in its windows, it needs to call this method to
+check that if the sentence is needed to in true wind calculations.
+false - no, do not launch the true wind calculations, continue
+true - yes, use 
+*********************************************************************/
+
+bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
+        unsigned long long st, double value )
+{
+    if (st == OCPN_DBP_STC_TWA)
+        m_bTrueWind_available = true;
+    if (st == OCPN_DBP_STC_TWS)
+        m_bTrueWind_available = true;
+    if (st == OCPN_DBP_STC_TWD)
+        m_bTrueWind_available = true;
+    
+    if ( ( st == OCPN_DBP_STC_AWS && !std::isnan(mStW) &&
+           !std::isnan(mSOG) ) )
+        return true; // condition to calculate the true wind
+    return false;
+}
+
 /********************************************************************
 Likewise to SendSentenceToAllInstruments_PerformanceCorrections(),
 this method is to be called from the derived class which implements
@@ -1592,13 +1612,6 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     )
 {
     double spdval;
-
-    if (st == OCPN_DBP_STC_TWA)
-        m_bTrueWind_available = true;
-    if (st == OCPN_DBP_STC_TWS)
-        m_bTrueWind_available = true;
-    if (st == OCPN_DBP_STC_TWD)
-        m_bTrueWind_available = true;
 
     if (st == OCPN_DBP_STC_AWS && !std::isnan(mStW) &&
         !std::isnan(mSOG)){
@@ -1781,6 +1794,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
     unsigned long long &st_leeway, double &value_leeway,
     wxString &unit_leeway)
 {
+    bool calculatedLeeway = false;
+    
     if (g_bUseFixedLeeway){
         mHeelUnit =
             (mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
@@ -1789,6 +1804,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
 
         if (mHeelUnit == _T("\u00B0l") && mLeeway > 0) mLeeway = -mLeeway;
         if (mHeelUnit == _T("\u00B0r") && mLeeway < 0) mLeeway = -mLeeway;
+        calculatedLeeway = true;
     }
 
     else {//g_bUseHeelSensor or g_bManHeelInput
@@ -1808,11 +1824,14 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
             if (mLeeway < -g_dfixedLeeway) mLeeway = -g_dfixedLeeway;
             //22.04TR : auf neg. Werte prüfen !!!
             mHeelUnit = (mheel < 0) ? _T("\u00B0l") : _T("\u00B0r");
-            st_leeway = OCPN_DBP_STC_LEEWAY;
-            value_leeway = mLeeway;
-            unit_leeway = mHeelUnit;
-            return true;
+            calculatedLeeway = true;
         }
+    }
+    if ( calculatedLeeway ) {
+        st_leeway = OCPN_DBP_STC_LEEWAY;
+        value_leeway = mLeeway;
+        unit_leeway = mHeelUnit;
+        return true;
     }
     return false;
 }

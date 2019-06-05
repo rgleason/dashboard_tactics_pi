@@ -733,6 +733,12 @@ Provides navigation instrument display from NMEA source.");
 }
 
 #ifdef _TACTICSPI_H_
+/* Porting note: this section is the cornerstone of the Tactics porting effort.
+   The below private method is about the original dashboard's simple and real
+   method: it merely passes to dashboard instruments the NMEA sentences. Now,
+   the NMEA sentences are first fed to Tactic's different engines in
+   the original method and optional, Tactics specific NMEA sentences are
+   passed to instruments here as in the original Dashboard_pi. */
 void dashboard_pi::pSendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit )
 {
@@ -744,53 +750,82 @@ void dashboard_pi::pSendSentenceToAllInstruments(
                 st, value, unit );
     }
 }
-
+/* Porting note: with Tactics new, virtual NMEA sentences are introduced, like
+   the true wind calculations. Likewise, the bearing to the ^TacticsWP (if it
+   exists) to performance instruments as a specific NMEA sentence having
+   a special unit. Current speed and leeway are also virtual, calculated
+   NMEA sentences. To the outside world we can publish target angle information
+   and similar to be displayed to the helmsman on a performance instruments.
+   This is not enough: it is also possible to make corrections to the
+   NMEA sentences coming from the boat's instruments (you need to read
+   the excellent documentation of Tactics plugin for the theory).
+   For these calculations, Tactics class and its helpers are using the real
+   NMEA senteces. The logic of these operations is strict and defined below.
+   It is not recommend to alter or experiment with this logic without a good
+   understanding of the Tactics class' internal variables and how they get
+   their data. A good debugging tool is a must to visualize the actual value
+   and unit versus the calculated value(s) and unit(s). */
 void dashboard_pi::SendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit )
 {
-    double distvalue = value;
-    wxString distunit = unit;
-    if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
-             st, distvalue, distunit ) ) {
-        this->SetCalcVariables(st, distvalue, distunit);
-        pSendSentenceToAllInstruments( st, distvalue, distunit );
-    }
-    else
-        this->SetCalcVariables(st, value, unit);
-
-    unsigned long long st_twa, st_tws, st_twd;
-    double value_twa, value_tws, value_twd;
-    wxString unit_twa, unit_tws, unit_twd;
-    if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
-            st, value, unit,
-            st_twa, value_twa, unit_twa,
-            st_tws, value_tws, unit_tws,
-            st_twd, value_twd, unit_twd)) {
-        pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
-        pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
-        pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
-    } // then calculated wind values required and need to be distributed
-    unsigned long long st_leeway;
-    double value_leeway;
-    wxString unit_leeway;
-    if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
-            st_leeway, value_leeway, unit_leeway)) {
-        pSendSentenceToAllInstruments( st_leeway, value_leeway,
-                                       unit_leeway );
-    } // then calculated leeway required and need to be distributed
-   unsigned long long st_currdir, st_currspd;
-    double value_currdir, value_currspd;
-    wxString unit_currdir, unit_currspd;
-    if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
-            st, value, unit,
-            st_currdir, value_currdir, unit_currdir,
-            st_currspd, value_currspd, unit_currspd)) {
-        pSendSentenceToAllInstruments(
-            st_currdir, value_currdir, unit_currdir );
-        pSendSentenceToAllInstruments(
-            st_currspd, value_currspd, unit_currspd );
-    } // then calculated current required and need to be distributed
-    // Take this opportunity to calculate the performance values
+    if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
+             st, value ) ) {
+        unsigned long long st_twa, st_tws, st_twd;
+        double value_twa, value_tws, value_twd;
+        wxString unit_twa, unit_tws, unit_twd;
+        if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
+                st, value, unit,
+                st_twa, value_twa, unit_twa,
+                st_tws, value_tws, unit_tws,
+                st_twd, value_twd, unit_twd)) {
+            pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
+            pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
+            pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
+        } // then calculated wind values required and need to be distributed
+        else {
+            this->SetCalcVariables(st, value, unit);
+            pSendSentenceToAllInstruments( st, value, unit );
+        } // else send the received wind data, anyway
+    } // then Tactics true wind calculations
+    else {
+        // we have sentence which may or may not require correction
+        double distvalue = value;
+        wxString distunit = unit;
+        bool perfCorrections = false;
+        if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
+                 st, distvalue, distunit ) ) {
+            perfCorrections = true;
+            this->SetCalcVariables(st, distvalue, distunit);
+            pSendSentenceToAllInstruments( st, distvalue, distunit );
+        } // then send with corrections
+        else {
+            this->SetCalcVariables(st, value, unit);
+            pSendSentenceToAllInstruments( st, value, unit );
+        } // else send the sentence as it is
+        // Leeway
+        unsigned long long st_leeway;
+        double value_leeway;
+        wxString unit_leeway;
+        if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
+                st_leeway, value_leeway, unit_leeway)) {
+            pSendSentenceToAllInstruments( st_leeway, value_leeway,
+                                           unit_leeway );
+        } // then calculated leeway required, is avalaible can be be distributed
+        // Current
+        unsigned long long st_currdir, st_currspd;
+        double value_currdir, value_currspd;
+        wxString unit_currdir, unit_currspd;
+        if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
+                st, (perfCorrections ? distvalue : value), (perfCorrections ? distunit : unit),
+                st_currdir, value_currdir, unit_currdir,
+                st_currspd, value_currspd, unit_currspd)) {
+            pSendSentenceToAllInstruments(
+                st_currdir, value_currdir, unit_currdir );
+            pSendSentenceToAllInstruments(
+                st_currspd, value_currspd, unit_currspd );
+        } // then calculated current required and need to be distributed
+    } // else no true wind calculations
+    // Take this opportunity to keep the Tactics performance enginge ticking for rendering
     this->CalculateLaylineDegreeRange();
     this->CalculatePerformanceData();
 }
@@ -1511,25 +1546,24 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_PITCH, xdrdata, xdrunit);
                         }
-                    }
-                    // XDR Heel
 #ifdef _TACTICSPI_H_
-                    else if ((m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) ||
-                             (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Heel Angle"))) {
+                        else if ((m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) ||
+                                 (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Heel Angle"))) {
 #else
-                    else if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) {
+                        else if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) {
 #endif // _TACTICSPI_H_                
-                        if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
-                            xdrunit = _T("\u00B0 to Starboard");
+                            if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
+                                xdrunit = _T("\u00B0 to Starboard");
+                            }
+                            else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
+                                xdrunit = _T("\u00B0 to Port");
+                                xdrdata *= -1;
+                            }
+                            else {
+                                xdrunit = _T("\u00B0");
+                            }
+                            SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
                         }
-                        else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
-                            xdrunit = _T("\u00B0 to Port");
-                            xdrdata *= -1;
-                        }
-                        else {
-                            xdrunit = _T("\u00B0");
-                        }
-                        SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
                     }
                     //Nasa style water temp
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ENV_WATER_T")){

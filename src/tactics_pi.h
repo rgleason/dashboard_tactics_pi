@@ -183,21 +183,23 @@ public:
         unsigned long long st, double value, wxString unit ) = 0;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit ) final;
-    bool SendSentenceToAllInstruments_GetCalculatedTrueWind(
+    virtual bool SendSentenceToAllInstruments_LaunchTrueWindCalculations(
+        unsigned long long st, double value ) final;
+    virtual bool SendSentenceToAllInstruments_GetCalculatedTrueWind(
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
         unsigned long long &st_tws, double &value_tws, wxString &unit_tws,
         unsigned long long &st_twd, double &value_twd, wxString &unit_twd
-        );
-    bool SendSentenceToAllInstruments_GetCalculatedLeeway(
-    unsigned long long &st_leeway, double &value_leeway,
-    wxString &unit_leeway);
-    bool SendSentenceToAllInstruments_GetCalculatedCurrent(
+        ) final;
+    virtual bool SendSentenceToAllInstruments_GetCalculatedLeeway(
+        unsigned long long &st_leeway, double &value_leeway,
+        wxString &unit_leeway) final;
+    virtual bool SendSentenceToAllInstruments_GetCalculatedCurrent(
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_currdir, double &value_currdir,
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
-        wxString &unit_currspd);
+        wxString &unit_currspd) final;
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
