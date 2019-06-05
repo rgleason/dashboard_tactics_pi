@@ -105,7 +105,7 @@ enum eSentenceType : unsigned long long {
 	OCPN_DBP_STC_HEEL  = 1 << 31  //Heel
 #else
     // >32 sentence capacity identifiers needs 64 bits enumeration
-	OCPN_DBP_STC_HEEL    = 1ULL << 31  //Heel
+	OCPN_DBP_STC_HEEL    = 1ULL << 31,  //Heel
     OCPN_DBP_STC_LEEWAY  = 1ULL << 32,
     OCPN_DBP_STC_CURRDIR = 1ULL << 33,
     OCPN_DBP_STC_CURRSPD = 1ULL << 34,
