@@ -302,7 +302,13 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
  dc->DrawText(wxString::Format(_(" Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "),m_MaxPress,hour,min,m_TotalMaxPress,m_TotalMinPress), m_LeftLegend+3+2+degw, m_TopLineHeight-degh+5);
   pen.SetStyle(wxPENSTYLE_SOLID);
   pen.SetColour(wxColour(61,61,204,96)); //blue, transparent
-  pen.SetWidth(1);
+  pen.SetWidth(
+#ifdef _TACTICSPI_H_
+                         2
+#else
+                         1
+#endif // _TACTICS_PI_H
+      );
   dc->SetPen( pen );
   ratioH = (double)m_DrawAreaRect.height / (double)m_MaxPressScale ;
 
