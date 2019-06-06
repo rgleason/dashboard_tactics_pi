@@ -57,43 +57,6 @@ class Polar;
 #define CURR_RECORD_COUNT 20
 #define COGRANGE 60
 
-// class TacticsWindowContainer
-// {
-//       public:
-//             TacticsWindowContainer(TacticsWindow *tactics_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-//                   m_pTacticsWindow = tactics_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; }
-
-//             ~TacticsWindowContainer(){}
-//             TacticsWindow              *m_pTacticsWindow;
-//             bool                          m_bIsVisible;
-//             bool                          m_bIsDeleted;
-//             bool                          m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
-//             wxString                      m_sName;
-//             wxString                      m_sCaption;
-//             wxString                      m_sOrientation;
-//             wxArrayInt                    m_aInstrumentList;
-// };
-
-// class TacticsInstrumentContainer
-// {
-// public:
-//     TacticsInstrumentContainer(int id, DashboardInstrument *instrument, int capa){
-//         m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; }
-//     ~TacticsInstrumentContainer(){ delete m_pInstrument; }
-    
-//     TacticsInstrument    *m_pInstrument;
-//     int                   m_ID;
-//     int                   m_cap_flag;
-// };
-
-// //    Dynamic arrays of pointers need explicit macros in wx261
-// #ifdef __WX261
-// // WX_DEFINE_ARRAY_PTR(DashboardWindowContainer *, wxArrayOfDashboard);
-// WX_DEFINE_ARRAY_PTR(TacticsInstrumentContainer *, wxArrayOfInstrument);
-// #else
-// // WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);
-// WX_DEFINE_ARRAY(TacticsInstrumentContainer *, wxArrayOfInstrument);
-// #endif
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -135,6 +98,8 @@ public:
     virtual bool SaveConfig(void) = 0;
     virtual bool TacticsSaveConfig(void) final;
     virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
+    virtual void UpdateAuiStatus(void) = 0;
+    virtual void SetToggledStateVisible(bool isvisible) final;
     virtual bool TacticsRenderOverlay(
         wxDC &dc, PlugIn_ViewPort *vp) final;
     virtual bool RenderGLOverlay(
@@ -203,6 +168,7 @@ public:
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
+    void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;} 
 private:
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
@@ -237,9 +203,13 @@ private:
     double               mTWS;
     bool                 m_bTrueWind_available;
     bool                 m_bLaylinesIsVisible;
+    bool                 m_bLaylinesIsVisibleSavedState;
     bool                 m_bDisplayCurrentOnChart;
+    bool                 m_bDisplayCurrentOnChartSavedState;
     bool                 m_bShowWindbarbOnChart;
+    bool                 m_bShowWindbarbOnChartSavedState;
     bool                 m_bShowPolarOnChart;
+    bool                 m_bShowPolarOnChartSavedState;
     bool                 m_bPersistentChartPolarAnimation;
     bool                 m_LeewayOK;
     bool                 m_bNKE_TrueWindTableBug;
@@ -289,6 +259,8 @@ private:
     ExpSmooth           *mExpSmDiffCogHdt;
     
     bool                 b_tactics_dc_message_shown = false;
+    bool                 m_bToggledStateVisible;
+    bool                 m_bToggledStateVisibleDefined;
 
     bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );
     void ImportStandaloneTacticsSettings ( wxFileConfig *pConf );
@@ -305,110 +277,6 @@ private:
     wxString ComputeChecksum(wxString sentence);
 };
 
-
-// class tactics_pi : public wxTimer, opencpn_plugin_112
-// {
-// public:
-//       tactics_pi(void *ppimgr);
-//       ~tactics_pi(void);
-
-// //    The required PlugIn Methods
-//       int Init(void);
-//       bool DeInit(void);
-
-//       void Notify();
-
-//       int GetAPIVersionMajor();
-//       int GetAPIVersionMinor();
-//       int GetPlugInVersionMajor();
-//       int GetPlugInVersionMinor();
-//       wxBitmap *GetPlugInBitmap();
-//       wxString GetCommonName();
-//       wxString GetShortDescription();
-//       wxString GetLongDescription();
-
-// //    The optional method overrides
-//       void SetPositionFix(PlugIn_Position_Fix &pfix);
-//       void SetCursorLatLon(double lat, double lon);
-//       int GetToolbarToolCount(void);
-//       void OnToolbarToolCallback(int id);
-//       void ShowPreferencesDialog( wxWindow* parent );
-//       void SetColorScheme(PI_ColorScheme cs);
-//       void OnPaneClose( wxAuiManagerEvent& event );
-//       void UpdateAuiStatus(void);
-//       bool SaveConfig(void);
-//       void PopulateContextMenu( wxMenu* menu );
-//       void ShowTactics( size_t id, bool visible );
-//       int GetToolbarItemId(){ return m_toolbar_item_id; }
-//       int GetTacticsWindowShownCount();
-//       void SetPluginMessage(wxString &message_id, wxString &message_body);
-// 	  //TR
-// 	  void CalculateCurrent(unsigned long long st, double value, wxString unit);
-// 	  void CalculateLeeway(unsigned long long st, double value, wxString unit);
-// 	  void CalculateTrueWind(unsigned long long st, double value, wxString unit);
-// 	  void CalculateLaylineDegreeRange(void);
-//       void CalculatePerformanceData(void);
-//       void CalculatePredictedCourse(void);
-// 	  void SetCalcVariables(unsigned long long st, double value, wxString unit);
-//       void OnContextMenuItemCallback(int id);
-
-// private:
-//       bool LoadConfig(void);
-//       void ApplyConfig(void);
-//       void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
-//       void SendUtcTimeToAllInstruments( wxDateTime value );
-
-//       wxFileConfig         *m_pconfig;
-//       wxAuiManager         *m_pauimgr;
-//       int                  m_toolbar_item_id;
-
-//       wxArrayOfTactics     m_ArrayOfTacticsWindow;
-//       int                  m_show_id;
-//       int                  m_hide_id;
-
-//       NMEA0183             m_NMEA0183;                 // Used to parse NMEA Sentences
-//       short                mPriPosition, mPriCOGSOG, mPriHeadingM, mPriHeadingT, mPriVar, mPriDateTime, mPriAWA, mPriTWA, mPriDepth;
-//       double               mVar;
-//       // FFU
-//       double               mSatsInView;
-// 	  double               mHdm;
-// 	  double               calmHdt;  /////////// 2019-05-27 NOTE: in dashboard_pi this called heading, not member variable!
-//       wxDateTime           mUTCDateTime;
-//       int                  m_config_version;
-//       wxString             m_VDO_accumulator;
-//       int                  mHDx_Watchdog;
-//       int                  mHDT_Watchdog;
-//       int                  mGPS_Watchdog;
-//       int                  mVar_Watchdog;
-//       int                  mBRG_Watchdog;
-//       int                  mTWD_Watchdog;
-//       int                  mTWS_Watchdog;
-//       int                  mAWS_Watchdog;
-
-//       //Performance Variables
-//       double               mPolarTargetSpeed, mPredictedHdG, mPredictedCoG, mPredictedSoG, mPercentTargetVMGupwind, mPercentTargetVMGdownwind;
-//       TargetxMG tvmg,tcmg;
-//       double               mVMGGain, mCMGGain, mVMGoptAngle, mCMGoptAngle,mBRG;
-// 	  wxDC            *m_pdc;
-// 	  wxPoint         vpoints[3],tackpoints[3];
-// 	  double          m_CurrentDirection;
-
-// 	  DoubleExpSmooth *mSinCurrDir;
-// 	  DoubleExpSmooth *mCosCurrDir;
-// 	  ExpSmooth       *mExpSmoothCurrSpd;
-// 	  DoubleExpSmooth *mExpSmoothSog;
-//       DoubleExpSmooth       *mExpSmSinCog;
-//       DoubleExpSmooth       *mExpSmCosCog;
-// 	  ExpSmooth       *mExpSmDegRange;
-// 	  ExpSmooth       *mExpSmDiffCogHdt;
-
-//       iirfilter            mSOGFilter;
-//       iirfilter            mCOGFilter;
-
-// //protected:
-// //      DECLARE_EVENT_TABLE();
-// };
-
 class TacticsPreferencesDialog : public wxDialog
 {
 public:
@@ -421,35 +289,9 @@ public:
     virtual void TacticsPreferencesPanel(void) final;
     virtual void SaveTacticsConfig(void) final;
 
-    // void OnCloseDialog(wxCloseEvent& event);
-    // void OnTacticsSelected(wxListEvent& event);
-    // void OnTacticsAdd(wxCommandEvent& event);
-    // void OnTacticsDelete(wxCommandEvent& event);
-    // void OnInstrumentSelected(wxListEvent& event);
-    // void OnInstrumentAdd(wxCommandEvent& event);
-    // void OnInstrumentEdit(wxCommandEvent& event);
-    // void OnInstrumentDelete(wxCommandEvent& event);
-    // void OnInstrumentUp(wxCommandEvent& event);
-    // void OnInstrumentDown(wxCommandEvent& event);
-    // void OnPrefScroll(wxCommandEvent& event);
     void SelectPolarFile(wxCommandEvent& event);
     void OnAWSAWACorrectionUpdated(wxCommandEvent& event);
     void OnManualHeelUpdate(wxCommandEvent& event);
-    // void OnAlphaCurrDirSliderUpdated(wxCommandEvent& event);
-    // void ApplyPrefs(wxCommandEvent& event);
-
-    // wxArrayOfTactics            m_Config;
-    // wxFontPickerCtrl             *m_pFontPickerTitle;
-    // wxFontPickerCtrl             *m_pFontPickerData;
-    // wxFontPickerCtrl             *m_pFontPickerLabel;
-    // wxFontPickerCtrl             *m_pFontPickerSmall;
-    // wxSpinCtrl                   *m_pSpinSpeedMax;
-    // wxSpinCtrl                   *m_pSpinCOGDamp;
-    // wxSpinCtrl                   *m_pSpinSOGDamp;
-    // wxChoice                     *m_pChoiceSpeedUnit;
-    // wxChoice                     *m_pChoiceDepthUnit;
-    // wxChoice                     *m_pChoiceDistanceUnit;
-    // wxChoice                     *m_pChoiceWindSpeedUnit;
 
     wxNotebook                   *m_itemNotebook;
     int                           m_border_size;
@@ -521,23 +363,6 @@ private:
     wxButton                     *m_pButtonDown;
 };
 
-// class AddInstrumentDlg : public wxDialog
-// {
-// public:
-//       AddInstrumentDlg(wxWindow *pparent, wxWindowID id);
-//       ~AddInstrumentDlg() {}
-
-//       unsigned int GetInstrumentAdded();
-
-// private:
-//       wxListCtrl*                   m_pListCtrlInstruments;
-// };
-
-// enum
-// {
-//       ID_DASHBOARD_WINDOW
-// };
-
 enum eIdDashTacticsContextMenu {
     ID_DASH_TACTICS_PREFS_START = 10000,
     ID_DASH_LAYLINE,
@@ -560,30 +385,11 @@ public:
     virtual void TacticsInContextMenuAction (
         const int eventId ) final;
 
-//     void SetColorScheme( PI_ColorScheme cs );
-//     void SetSizerOrientation( int orient );
-//     int GetSizerOrientation();
-//     void OnSize( wxSizeEvent& evt );
-//     void OnContextMenu( wxContextMenuEvent& evt );
-//     void OnContextMenuSelect( wxCommandEvent& evt );
-//     bool isInstrumentListEqual( const wxArrayInt& list );
-//     void SetInstrumentList( wxArrayInt list );
-//     void SendSentenceToAllInstruments( unsigned long long st, double value, wxString unit );
-//     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
-//     void SendUtcTimeToAllInstruments( wxDateTime value );
-//     void ChangePaneOrientation( int orient, bool updateAUImgr );
-
-// /*TODO: OnKeyPress pass event to main window or disable focus*/
-
-//     TacticsWindowContainer* m_Container;
 
 private:
-//       wxAuiManager         *m_pauimgr;
+
     tactics_pi*         m_plugin;
 
-// //wx2.9      wxWrapSizer*          itemBoxSizer;
-//       wxBoxSizer*          itemBoxSizer;
-//       wxArrayOfInstrument  m_ArrayOfInstrument;
 };
 
 #endif

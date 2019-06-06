@@ -203,15 +203,16 @@ private:
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
 #ifdef _TACTICSPI_H_
+    bool              m_bToggledStateVisible;
     int               m_iPlugInRequirements;
 #endif // _TACTICSPI_H_
     wxFileConfig     *m_pconfig;
     wxAuiManager     *m_pauimgr;
     int              m_toolbar_item_id;
 
-    wxArrayOfDashboard       m_ArrayOfDashboardWindow;
-    int               m_show_id;
-    int               m_hide_id;
+    wxArrayOfDashboard   m_ArrayOfDashboardWindow;
+    int                  m_show_id;
+    int                  m_hide_id;
 
     NMEA0183             m_NMEA0183;                 // Used to parse NMEA Sentences
     short                mPriPosition, mPriCOGSOG, mPriHeadingM, mPriHeadingT, mPriVar, mPriDateTime, mPriAWA, mPriTWA, mPriDepth;

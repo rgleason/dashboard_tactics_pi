@@ -137,6 +137,7 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 	m_bShowPolarOnChart = false;
 	m_bShowWindbarbOnChart = false;
 	m_bDisplayCurrentOnChart = false;
+    m_bToggledStateVisibleDefined = false;
 	m_LeewayOK = false;
 	mHdt = NAN;
 	mStW = NAN;
@@ -184,6 +185,50 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 		WANTS_OPENGL_OVERLAY_CALLBACK |
 		WANTS_OVERLAY_CALLBACK
 		);
+}
+
+void tactics_pi::SetToggledStateVisible( bool isvisible )
+{
+    if ( !m_bToggledStateVisibleDefined ) {
+        m_bToggledStateVisibleDefined = true;
+        m_bToggledStateVisible = isvisible;
+        if ( !isvisible ) {
+            if ( !m_bPersistentChartPolarAnimation ) {
+                m_bLaylinesIsVisibleSavedState = m_bLaylinesIsVisible;
+                m_bLaylinesIsVisible = false;
+                m_bDisplayCurrentOnChartSavedState = m_bDisplayCurrentOnChart;
+                m_bDisplayCurrentOnChart = false;
+                m_bShowWindbarbOnChartSavedState = m_bShowWindbarbOnChart;
+                m_bShowWindbarbOnChart = false;
+                m_bShowPolarOnChartSavedState = m_bShowPolarOnChart;
+                m_bShowPolarOnChart = false;
+            } // then don't show chart animation when not visible
+        } // then started as not visible
+    } // then this is the first ever state definition
+    if ( m_bToggledStateVisible == isvisible )
+        return;
+    m_bToggledStateVisible = isvisible;
+    if ( isvisible ) {
+        if ( !m_bPersistentChartPolarAnimation ) {
+            m_bLaylinesIsVisible = m_bLaylinesIsVisibleSavedState;
+            m_bDisplayCurrentOnChart = m_bDisplayCurrentOnChartSavedState;
+            m_bShowWindbarbOnChart = m_bShowWindbarbOnChartSavedState;
+            m_bShowPolarOnChart = m_bShowPolarOnChartSavedState;
+        } // if non persistent animation was disabled 
+    } // actions from invisible to visible
+    else {
+        if ( !m_bPersistentChartPolarAnimation ) {
+            m_bLaylinesIsVisibleSavedState = m_bLaylinesIsVisible;
+            m_bLaylinesIsVisible = false;
+            m_bDisplayCurrentOnChartSavedState = m_bDisplayCurrentOnChart;
+            m_bDisplayCurrentOnChart = false;
+            m_bShowWindbarbOnChartSavedState = m_bShowWindbarbOnChart;
+            m_bShowWindbarbOnChart = false;
+            m_bShowPolarOnChartSavedState = m_bShowPolarOnChart;
+            m_bShowPolarOnChart = false;
+        } // if non persistent animation is required 
+    } // else actions from visible to invisible
+    return;
 }
 
 bool tactics_pi::TacticsDeInit()
@@ -395,6 +440,10 @@ void tactics_pi::TacticsApplyConfig(void)
         else
             BoatPolar->loadPolar(_T("NULL"));
     }
+    m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
+    m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
+    m_bShowPolarOnChart = g_bShowPolarOnChart;
+    m_bPersistentChartPolarAnimation = g_bPersistentChartPolarAnimation;
     return;
 }
 
@@ -2607,48 +2656,48 @@ void TacticsPreferencesDialog::SelectPolarFile(wxCommandEvent& event)
 
 void TacticsPreferencesDialog::SaveTacticsConfig()
 {
-	g_dLeewayFactor = m_LeewayFactor->GetValue();
-	g_dfixedLeeway = m_fixedLeeway->GetValue();
+    g_dLeewayFactor = m_LeewayFactor->GetValue();
+    g_dfixedLeeway = m_fixedLeeway->GetValue();
 
-	g_dalpha_currdir = (double)m_AlphaCurrDir->GetValue() / 1000.0;
-	//    g_dalpha_currdir = m_AlphaCurrDir->GetValue();
-	g_dalphaDeltCoG = m_alphaDeltCoG->GetValue();
+    g_dalpha_currdir = (double)m_AlphaCurrDir->GetValue() / 1000.0;
+    //    g_dalpha_currdir = m_AlphaCurrDir->GetValue();
+    g_dalphaDeltCoG = m_alphaDeltCoG->GetValue();
     g_dalphaLaylinedDampFactor = m_alphaLaylineDampFactor->GetValue();
-	g_dLaylineLengthonChart = m_pLaylineLength->GetValue();
-	g_iMinLaylineWidth = m_minLayLineWidth->GetValue();
-	g_iMaxLaylineWidth = m_maxLayLineWidth->GetValue();
-	g_bDisplayCurrentOnChart = m_CurrentOnChart->GetValue();
-	g_dheel[1][1] = m_heel5_45->GetValue();
-	g_dheel[1][2] = m_heel5_90->GetValue();
-	g_dheel[1][3] = m_heel5_135->GetValue();
-	g_dheel[2][1] = m_heel10_45->GetValue();
-	g_dheel[2][2] = m_heel10_90->GetValue();
-	g_dheel[2][3] = m_heel10_135->GetValue();
-	g_dheel[3][1] = m_heel15_45->GetValue();
-	g_dheel[3][2] = m_heel15_90->GetValue();
-	g_dheel[3][3] = m_heel15_135->GetValue();
-	g_dheel[4][1] = m_heel20_45->GetValue();
-	g_dheel[4][2] = m_heel20_90->GetValue();
-	g_dheel[4][3] = m_heel20_135->GetValue();
-	g_dheel[5][1] = m_heel25_45->GetValue();
-	g_dheel[5][2] = m_heel25_90->GetValue();
-	g_dheel[5][3] = m_heel25_135->GetValue();
+    g_dLaylineLengthonChart = m_pLaylineLength->GetValue();
+    g_iMinLaylineWidth = m_minLayLineWidth->GetValue();
+    g_iMaxLaylineWidth = m_maxLayLineWidth->GetValue();
+    g_bDisplayCurrentOnChart = m_CurrentOnChart->GetValue();
+    g_dheel[1][1] = m_heel5_45->GetValue();
+    g_dheel[1][2] = m_heel5_90->GetValue();
+    g_dheel[1][3] = m_heel5_135->GetValue();
+    g_dheel[2][1] = m_heel10_45->GetValue();
+    g_dheel[2][2] = m_heel10_90->GetValue();
+    g_dheel[2][3] = m_heel10_135->GetValue();
+    g_dheel[3][1] = m_heel15_45->GetValue();
+    g_dheel[3][2] = m_heel15_90->GetValue();
+    g_dheel[3][3] = m_heel15_135->GetValue();
+    g_dheel[4][1] = m_heel20_45->GetValue();
+    g_dheel[4][2] = m_heel20_90->GetValue();
+    g_dheel[4][3] = m_heel20_135->GetValue();
+    g_dheel[5][1] = m_heel25_45->GetValue();
+    g_dheel[5][2] = m_heel25_90->GetValue();
+    g_dheel[5][3] = m_heel25_135->GetValue();
 
-	g_bUseHeelSensor = m_ButtonUseHeelSensor->GetValue();
-	g_bUseFixedLeeway = m_ButtonFixedLeeway->GetValue();
-	g_bManHeelInput = m_ButtonHeelInput->GetValue();
-	g_path_to_PolarFile = m_pTextCtrlPolar->GetValue();
-	g_bCorrectSTWwithLeeway = m_CorrectSTWwithLeeway->GetValue();
-	g_bCorrectAWwithHeel = m_CorrectAWwithHeel->GetValue();
-	g_bForceTrueWindCalculation = m_ForceTrueWindCalculation->GetValue();
-	g_bUseSOGforTWCalc = m_UseSOGforTWCalc->GetValue();
-	g_bShowWindbarbOnChart = m_ShowWindbarbOnChart->GetValue();
-	g_bShowPolarOnChart = m_ShowPolarOnChart->GetValue();
-	g_bExpPerfData01 = m_ExpPerfData01->GetValue();
-	g_bExpPerfData02 = m_ExpPerfData02->GetValue();
-	g_bExpPerfData03 = m_ExpPerfData03->GetValue();
-	g_bExpPerfData04 = m_ExpPerfData04->GetValue();
-	g_bExpPerfData05 = m_ExpPerfData05->GetValue();
+    g_bUseHeelSensor = m_ButtonUseHeelSensor->GetValue();
+    g_bUseFixedLeeway = m_ButtonFixedLeeway->GetValue();
+    g_bManHeelInput = m_ButtonHeelInput->GetValue();
+    g_path_to_PolarFile = m_pTextCtrlPolar->GetValue();
+    g_bCorrectSTWwithLeeway = m_CorrectSTWwithLeeway->GetValue();
+    g_bCorrectAWwithHeel = m_CorrectAWwithHeel->GetValue();
+    g_bForceTrueWindCalculation = m_ForceTrueWindCalculation->GetValue();
+    g_bUseSOGforTWCalc = m_UseSOGforTWCalc->GetValue();
+    g_bShowWindbarbOnChart = m_ShowWindbarbOnChart->GetValue();
+    g_bShowPolarOnChart = m_ShowPolarOnChart->GetValue();
+    g_bExpPerfData01 = m_ExpPerfData01->GetValue();
+    g_bExpPerfData02 = m_ExpPerfData02->GetValue();
+    g_bExpPerfData03 = m_ExpPerfData03->GetValue();
+    g_bExpPerfData04 = m_ExpPerfData04->GetValue();
+    g_bExpPerfData05 = m_ExpPerfData05->GetValue();
     g_bPersistentChartPolarAnimation =
         m_PersistentChartPolarAnimation->GetValue();
 }

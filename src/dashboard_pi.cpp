@@ -781,6 +781,8 @@ void dashboard_pi::SendSentenceToAllInstruments(
             pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
             pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
             pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
+            this->SetNMEASentence_Arm_TWD_Watchdog();
+            this->SetNMEASentence_Arm_TWS_Watchdog();
         } // then calculated wind values required and need to be distributed
         else {
             this->SetCalcVariables(st, value, unit);
@@ -1864,7 +1866,15 @@ void dashboard_pi::OnToolbarToolCallback( int id )
     }
     // Toggle is handled by the toolbar but we must keep plugin manager b_toggle updated
     // to actual status to ensure right status upon toolbar rebuild
+#ifdef _TACTICSPI_H_
+    int iToolbarToolCallbackShownWindows = GetDashboardWindowShownCount();
+    ( iToolbarToolCallbackShownWindows != 0 ?
+        m_bToggledStateVisible = true : m_bToggledStateVisible = false );
+    SetToolbarItemState( m_toolbar_item_id, m_bToggledStateVisible );
+    this->SetToggledStateVisible( m_bToggledStateVisible );
+#else
     SetToolbarItemState( m_toolbar_item_id, GetDashboardWindowShownCount() != 0/*cnt==0*/);
+#endif // _TACTICSPI_H_ 
     m_pauimgr->Update();
 }
 
@@ -1894,8 +1904,15 @@ void dashboard_pi::UpdateAuiStatus( void )
     m_pauimgr->Update();
     
     //    We use this callback here to keep the context menu selection in sync with the window state
-
+#ifdef _TACTICSPI_H_
+    int iUpdateAuiShownWindows = GetDashboardWindowShownCount();
+    ( iUpdateAuiShownWindows != 0 ? 
+        m_bToggledStateVisible = true : m_bToggledStateVisible = false );
+    SetToolbarItemState( m_toolbar_item_id, m_bToggledStateVisible );
+    this->SetToggledStateVisible( m_bToggledStateVisible );
+#else
     SetToolbarItemState( m_toolbar_item_id, GetDashboardWindowShownCount() != 0 );
+#endif // _TACTICSPI_H_ 
 }
 
 bool dashboard_pi::LoadConfig( void )
@@ -2118,6 +2135,10 @@ void dashboard_pi::ApplyConfig( void )
             }
         }
     }
+#ifdef _TACTICSPI_H_
+    this->TacticsApplyConfig();
+#endif // _TACTICSPI_H_
+     
     m_pauimgr->Update();
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
     mCOGFilter.setFC(g_iDashCOGDamp ? 1.0 / (2.0*g_iDashCOGDamp) : 0.0);
