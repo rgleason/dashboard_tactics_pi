@@ -102,10 +102,12 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     m_hostplugin = hostplugin;
     m_hostplugin_pconfig = pConf;
     m_hostplugin_config_path = pConf->GetPath();
-    mBRG_Watchdog = 2;
-    mTWS_Watchdog = 5;
-    mTWD_Watchdog = 5;
-    mAWS_Watchdog = 2;
+    
+    SetNMEASentence_Arm_AWS_Watchdog();
+    SetNMEASentence_Arm_BRG_Watchdog();
+    SetNMEASentence_Arm_TWD_Watchdog();
+    SetNMEASentence_Arm_TWS_Watchdog();
+    SetNMEASentence_Arm_VMG_Watchdog();
     
     m_bNKE_TrueWindTableBug = false;
     m_VWR_AWA = 10;
@@ -248,11 +250,13 @@ void tactics_pi::TacticsNotify()
     mBRG_Watchdog--;
     if (mBRG_Watchdog <= 0) {
       SendSentenceToAllInstruments(OCPN_DBP_STC_BRG, NAN, _T("\u00B0"));
+      SetNMEASentence_Arm_BRG_Watchdog();
     }
     mTWS_Watchdog--;
     if (mTWS_Watchdog <= 0) {
       mTWS = NAN;
       SendSentenceToAllInstruments(OCPN_DBP_STC_TWS, NAN, _T(""));
+      SetNMEASentence_Arm_TWS_Watchdog();
     }
     mTWD_Watchdog--;
     if (mTWD_Watchdog <= 0) {
@@ -260,10 +264,18 @@ void tactics_pi::TacticsNotify()
       mTWA = NAN;
       SendSentenceToAllInstruments(OCPN_DBP_STC_TWD, NAN, _T("\u00B0"));
       SendSentenceToAllInstruments(OCPN_DBP_STC_TWA, NAN, _T("\u00B0"));
+      SetNMEASentence_Arm_TWD_Watchdog();
     }
     mAWS_Watchdog--;
     if (mAWS_Watchdog <= 0) {
       SendSentenceToAllInstruments(OCPN_DBP_STC_AWS, NAN, _T(""));
+      SetNMEASentence_Arm_AWS_Watchdog();
+    }
+
+    mVMG_Watchdog--;
+    if (mVMG_Watchdog <= 0) {
+      SendSentenceToAllInstruments(OCPN_DBP_STC_VMG, NAN, _T(""));
+      SetNMEASentence_Arm_VMG_Watchdog();
     }
 
     this->ExportPerformanceData();
@@ -1548,7 +1560,7 @@ correct the values if Tactics performance functions are activated.
 According to the settings and the sentence, it may return an
 corrected value (cf. the documentation for operation principles).
 true - yes, pass sentence with corrected values/units to instruments
-false - no, continue processing
+false - no, continue processing, we've changed nothing
 *********************************************************************/
 bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit )
@@ -1618,7 +1630,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
         }
     }
  
-    return true;
+    return false;
 }
 
 /********************************************************************

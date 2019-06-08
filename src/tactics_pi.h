@@ -54,6 +54,7 @@ class Polar;
 #define brg_watchdog_timeout_ticks 10
 #define twd_watchdog_timeout_ticks 10
 #define tws_watchdog_timeout_ticks 10
+#define vmg_watchdog_timeout_ticks 10
 #define CURR_RECORD_COUNT 20
 #define COGRANGE 60
 
@@ -127,6 +128,7 @@ public:
     void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_TWS_Watchdog(void){mTWS_Watchdog = tws_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_VMG_Watchdog(void){mVMG_Watchdog = vmg_watchdog_timeout_ticks;}
     bool SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots);
 
     void CalculateCurrent(
@@ -179,6 +181,7 @@ private:
     int                  mTWD_Watchdog;
     int                  mTWS_Watchdog;
     int                  mAWS_Watchdog;
+    int                  mVMG_Watchdog;
     // Bearing compass + TWA/TWD calculation
     wxMenu               *m_pmenu;
     double               mHdt;

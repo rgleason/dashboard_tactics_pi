@@ -107,6 +107,15 @@ void DashboardInstrument_Dial::SetData(
 #endif // _TACTICSPI_H_
     double data, wxString unit)
 {
+#ifdef _TACTICSPI_H_
+    if ( std::isnan(data) ) {
+        if ( st == m_MainValueCap )
+            m_MainValue = 0.0;
+        if ( st == m_ExtraValueCap )
+            m_ExtraValue = 0.0;
+        return;
+    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
+#endif // _TACTICSPI_H_
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
       if ( (st == m_MainValueCap) && (data < 1200.0) )
