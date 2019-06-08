@@ -1261,14 +1261,14 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
         else if (m_NMEA0183.LastSentenceIDReceived == _T("RMB")) {
             if (m_NMEA0183.Parse()) {
                 if (m_NMEA0183.Rmb.IsDataValid == NTrue) {
-                    if ( !std::isnan(m_NMEA0183.Rmb.BaringToDestinationDegreesTrue) &&
-                         (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999.) // empty field
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.Rmb.To);
+                    if ( !std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue) &&
+                         (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999.) ) // empty field
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.Rmb.To);
                     if ( !std::isnan(m_NMEA0183.Rmb.RangeToDestinationNauticalMiles) &&
-                         (m_NMEA0183.Rmb.RangeToDestinationNauticalMiles < 999.) // empty field
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_DTW, m_NMEA0183.Rmb.RangeToDestinationNauticalMiles, _T("Nm"));
+                         (m_NMEA0183.Rmb.RangeToDestinationNauticalMiles < 999.) ) // empty field
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_DTW, m_NMEA0183.Rmb.RangeToDestinationNauticalMiles, _T("Nm"));
                     /* 
                        Note: there are no consumers in Tactics functions for the below sentence but without it
                        the Dashboard's VMG-instruments remain silent when there is next active waypoint set
@@ -1276,7 +1276,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                        to the autopilot and  other interested parties like. If the GitHub issue #1422 is
                        recognized and fixed in OpenCPN, this note and the below sentences can be removed */
                     if ( !std::isnan(m_NMEA0183.Rmb.DestinationClosingVelocityKnots) &&
-                         (m_NMEA0183.Rmb.DestinationClosingVelocityKnots < 999.) // empty field
+                         (m_NMEA0183.Rmb.DestinationClosingVelocityKnots < 999.) ) // empty field
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_VMG, toUsrSpeed_Plugin(
                                 m_NMEA0183.Rmb.DestinationClosingVelocityKnots, g_iDashWindSpeedUnit ),
@@ -1284,7 +1284,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 }
                 else {
                     if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue) &&
-                        m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999. ) {
+                        (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999. ) ) {
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
                         this->SetNMEASentence_Arm_BRG_Watchdog();
