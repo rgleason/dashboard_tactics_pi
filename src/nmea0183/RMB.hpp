@@ -63,6 +63,10 @@ class RMB : public RESPONSE
       double           BearingToDestinationDegreesTrue;
       double           DestinationClosingVelocityKnots;
       NMEA0183_BOOLEAN IsArrivalCircleEntered;
+#ifdef _TACTICSPI_H_
+       wxString         FAA_ModeIndicator;
+       bool             isVersion2dot3OrLater;
+#endif // _TACTICSPI_H_
 
       /*
       ** Methods

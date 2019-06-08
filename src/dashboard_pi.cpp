@@ -1259,18 +1259,37 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
 
 #ifdef _TACTICSPI_H_
         else if (m_NMEA0183.LastSentenceIDReceived == _T("RMB")) {
-			if (m_NMEA0183.Parse()) {
-				if (m_NMEA0183.Rmb.IsDataValid == NTrue) {
-					SendSentenceToAllInstruments(
+            if (m_NMEA0183.Parse()) {
+                if (m_NMEA0183.Rmb.IsDataValid == NTrue) {
+                    if ( !std::isnan(m_NMEA0183.Rmb.BaringToDestinationDegreesTrue) &&
+                         (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999.) // empty field
+                    SendSentenceToAllInstruments(
                         OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.Rmb.To);
-					SendSentenceToAllInstruments(
+                    if ( !std::isnan(m_NMEA0183.Rmb.RangeToDestinationNauticalMiles) &&
+                         (m_NMEA0183.Rmb.RangeToDestinationNauticalMiles < 999.) // empty field
+                    SendSentenceToAllInstruments(
                         OCPN_DBP_STC_DTW, m_NMEA0183.Rmb.RangeToDestinationNauticalMiles, _T("Nm"));
-				}
-				else
-					SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
-				if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue))
-                    this->SetNMEASentence_Arm_BRG_Watchdog();
+                    /* 
+                       Note: there are no consumers in Tactics functions for the below sentence but without it
+                       the Dashboard's VMG-instruments remain silent when there is next active waypoint set
+                       by the OpenCPN's routing functions. We capture here the sentence send by OpenCPN
+                       to the autopilot and  other interested parties like. If the GitHub issue #1422 is
+                       recognized and fixed in OpenCPN, this note and the below sentences can be removed */
+                    if ( !std::isnan(m_NMEA0183.Rmb.DestinationClosingVelocityKnots) &&
+                         (m_NMEA0183.Rmb.DestinationClosingVelocityKnots < 999.) // empty field
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_VMG, toUsrSpeed_Plugin(
+                                m_NMEA0183.Rmb.DestinationClosingVelocityKnots, g_iDashWindSpeedUnit ),
+                            getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
+                }
+                else {
+                    if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue) &&
+                        m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999. ) {
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
+                        this->SetNMEASentence_Arm_BRG_Watchdog();
+                    } // else valid bearing destination
+                } // else Tactics performance engine created virtual sentence - bearing to Tactics WP
             }
         }
 #endif // _TACTICSPI_H_                
