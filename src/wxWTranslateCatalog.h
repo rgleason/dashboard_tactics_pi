@@ -33,9 +33,9 @@
 #undef _
 #endif // _
 #if wxCHECK_VERSION(3,0,0)
-#define _(s) wxGetTranslation((s), wxS("opencpn-dashboard_pi"))
+#define _(s) wxGetTranslation((s), wxS("opencpn-dashboard_tactics_pi"))
 #else // wxCHECK_VERSION(3,0,0)
-    #define _(s) wxGetTranslation(wxT(s), wxT("opencpn-dashboard_pi"))
+    #define _(s) wxGetTranslation(wxT(s), wxT("opencpn-dashboard_tactics_pi"))
 #endif // wxCHECK_VERSION(3,0,0)
 #endif // WXINTL_NO_GETTEXT_MACRO
 
