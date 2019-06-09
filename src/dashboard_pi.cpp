@@ -1460,7 +1460,10 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         OCPN_DBP_STC_AWS, toUsrSpeed_Plugin(
                             m_NMEA0183.Vwr.WindSpeedKnots, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-                    /*
+#ifdef _TACTICSPI_H_
+                    this->SetNMEASentence_Arm_AWS_Watchdog();
+#endif // _TACTICSPI_H_                
+                   /*
                       double m_NMEA0183.Vwr.WindSpeedms;
                       double m_NMEA0183.Vwr.WindSpeedKmh;
                     */
