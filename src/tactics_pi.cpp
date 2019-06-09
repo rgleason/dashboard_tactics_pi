@@ -1,5 +1,5 @@
 /***************************************************************************
-* $Id: tactics_pi.cpp, v1.0 2016/06/07 tomBigSpeedy Exp $
+* $id: tactics_pi.cpp, v1.0 2016/06/07 tomBigSpeedy Exp $
 *
 * Project:  OpenCPN
 * Purpose:  tactics Plugin
@@ -86,9 +86,9 @@ wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
 
 tactics_pi::tactics_pi( void )
 {
-    m_hostplugin = NULL;
-    m_hostplugin_pconfig = NULL;
-    b_tactics_dc_message_shown = false;
+    this->m_hostplugin = NULL;
+    this->m_hostplugin_pconfig = NULL;
+    this->b_tactics_dc_message_shown = false;
 
 }
 
@@ -99,9 +99,9 @@ tactics_pi::~tactics_pi( void )
 
 int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 {
-    m_hostplugin = hostplugin;
-    m_hostplugin_pconfig = pConf;
-    m_hostplugin_config_path = pConf->GetPath();
+    this->m_hostplugin = hostplugin;
+    this->m_hostplugin_pconfig = pConf;
+    this->m_hostplugin_config_path = pConf->GetPath();
     
     SetNMEASentence_Arm_AWS_Watchdog();
     SetNMEASentence_Arm_BRG_Watchdog();
@@ -109,59 +109,59 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     SetNMEASentence_Arm_TWS_Watchdog();
     SetNMEASentence_Arm_VMG_Watchdog();
     
-    m_bNKE_TrueWindTableBug = false;
-    m_VWR_AWA = 10;
-	alpha_currspd = 0.2;  //smoothing constant for current speed
-	alpha_CogHdt = 0.1; // smoothing constant for diff. btw. Cog & Hdt
-	m_ExpSmoothCurrSpd = NAN;
-	m_ExpSmoothCurrDir = NAN;
-	m_ExpSmoothSog = NAN;
-	m_ExpSmoothSinCurrDir = NAN;
-	m_ExpSmoothCosCurrDir = NAN;
-	m_ExpSmoothSinCog = NAN;
-	m_ExpSmoothCosCog = NAN;
-	m_CurrentDirection = NAN;
-	m_LaylineSmoothedCog = NAN;
+    this->m_bNKE_TrueWindTableBug = false;
+    this->m_VWR_AWA = 10;
+	this->alpha_currspd = 0.2;  //smoothing constant for current speed
+	this->alpha_CogHdt = 0.1; // smoothing constant for diff. btw. Cog & Hdt
+	this->m_ExpSmoothCurrSpd = NAN;
+	this->m_ExpSmoothCurrDir = NAN;
+	this->m_ExpSmoothSog = NAN;
+	this->m_ExpSmoothSinCurrDir = NAN;
+	this->m_ExpSmoothCosCurrDir = NAN;
+	this->m_ExpSmoothSinCog = NAN;
+	this->m_ExpSmoothCosCog = NAN;
+	this->m_CurrentDirection = NAN;
+	this->m_LaylineSmoothedCog = NAN;
 	m_LaylineDegRange = 0;
-	mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
-	mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
-	mExpSmoothCurrSpd = new ExpSmooth(alpha_currspd);
-	mExpSmoothSog = new DoubleExpSmooth(0.4);
-    mExpSmSinCog = new DoubleExpSmooth(
+	this->mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
+	this->mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
+	this->mExpSmoothCurrSpd = new ExpSmooth(this->alpha_currspd);
+	this->mExpSmoothSog = new DoubleExpSmooth(0.4);
+    this->mExpSmSinCog = new DoubleExpSmooth(
         g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
-    mExpSmCosCog = new DoubleExpSmooth(
+    this->mExpSmCosCog = new DoubleExpSmooth(
         g_dalphaLaylinedDampFactor);//prev. ExpSmooth(...
-    m_ExpSmoothDegRange = 0;
-	mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
-	mExpSmDegRange->SetInitVal(g_iMinLaylineWidth);
-	mExpSmDiffCogHdt = new ExpSmooth(alpha_CogHdt);
-	mExpSmDiffCogHdt->SetInitVal(0);
-	m_bShowPolarOnChart = false;
-	m_bShowWindbarbOnChart = false;
-	m_bDisplayCurrentOnChart = false;
-    m_bToggledStateVisibleDefined = false;
-	m_LeewayOK = false;
-	mHdt = NAN;
-	mStW = NAN;
-	mTWA = NAN;
-	mTWD = NAN;
-	mTWS = NAN;
-	m_calcTWA = NAN;
-	m_calcTWD = NAN;
-	m_calcTWS = NAN;
-	mSOG = NAN;
-	mCOG = NAN;
-	mlat = NAN;
+    this->m_ExpSmoothDegRange = 0;
+	this->mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
+	this->mExpSmDegRange->SetInitVal(g_iMinLaylineWidth);
+	this->mExpSmDiffCogHdt = new ExpSmooth(this->alpha_CogHdt);
+	this->mExpSmDiffCogHdt->SetInitVal(0);
+	this->m_bShowPolarOnChart = false;
+	this->m_bShowWindbarbOnChart = false;
+	this->m_bDisplayCurrentOnChart = false;
+    this->m_bToggledStateVisibleDefined = false;
+	this->m_LeewayOK = false;
+	this->mHdt = NAN;
+	this->mStW = NAN;
+	this->mTWA = NAN;
+	this->mTWD = NAN;
+	this->mTWS = NAN;
+	this->m_calcTWA = NAN;
+	this->m_calcTWD = NAN;
+	this->m_calcTWS = NAN;
+	this->mSOG = NAN;
+	this->mCOG = NAN;
+	this->mlat = NAN;
 	mlon = NAN;
-	mheel = NAN;
-	mLeeway = NAN;
-	mPolarTargetSpeed = NAN;
-	mBRG = NAN;
-	mVMGGain = mCMGGain = mVMGoptAngle = mCMGoptAngle = 0.0;
-	mPredictedCoG = NAN;
-	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = NAN;
+	this->mheel = NAN;
+	this->mLeeway = NAN;
+	this->mPolarTargetSpeed = NAN;
+	this->mBRG = NAN;
+	this->mVMGGain = this->mCMGGain = this->mVMGoptAngle = this->mCMGoptAngle = 0.0;
+	this->mPredictedCoG = NAN;
+	for (int i = 0; i < COGRANGE; i++) this->m_COGRange[i] = NAN;
 
-	m_bTrueWind_available = false;
+	this->m_bTrueWind_available = false;
 
     (void) DeleteSingleWaypoint (g_sMarkGUID);
 
@@ -169,10 +169,10 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     this->TacticsApplyConfig();
 
 	// Context menue for making marks    
-	m_pmenu = new wxMenu();
+	this->m_pmenu = new wxMenu();
 	// this is a dummy menu required by Windows as parent to item created
-	wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ") + g_sMarkGUID);
-	int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
+	wxMenuItem *pmi = new wxMenuItem(this->m_pmenu, -1, _T("Set ") + g_sMarkGUID);
+	int miid = AddCanvasContextMenuItem(pmi, this->m_hostplugin);
 	SetCanvasContextMenuItemViz(miid, true);
 
 	return (WANTS_CURSOR_LATLON |
@@ -191,43 +191,43 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
 
 void tactics_pi::SetToggledStateVisible( bool isvisible )
 {
-    if ( !m_bToggledStateVisibleDefined ) {
-        m_bToggledStateVisibleDefined = true;
-        m_bToggledStateVisible = isvisible;
+    if ( !this->m_bToggledStateVisibleDefined ) {
+        this->m_bToggledStateVisibleDefined = true;
+        this->m_bToggledStateVisible = isvisible;
         if ( !isvisible ) {
-            if ( !m_bPersistentChartPolarAnimation ) {
-                m_bLaylinesIsVisibleSavedState = m_bLaylinesIsVisible;
-                m_bLaylinesIsVisible = false;
-                m_bDisplayCurrentOnChartSavedState = m_bDisplayCurrentOnChart;
-                m_bDisplayCurrentOnChart = false;
-                m_bShowWindbarbOnChartSavedState = m_bShowWindbarbOnChart;
-                m_bShowWindbarbOnChart = false;
-                m_bShowPolarOnChartSavedState = m_bShowPolarOnChart;
-                m_bShowPolarOnChart = false;
+            if ( !this->m_bPersistentChartPolarAnimation ) {
+                this->m_bLaylinesIsVisibleSavedState = this->m_bLaylinesIsVisible;
+                this->m_bLaylinesIsVisible = false;
+                this->m_bDisplayCurrentOnChartSavedState = this->m_bDisplayCurrentOnChart;
+                this->m_bDisplayCurrentOnChart = false;
+                this->m_bShowWindbarbOnChartSavedState = this->m_bShowWindbarbOnChart;
+                this->m_bShowWindbarbOnChart = false;
+                this->m_bShowPolarOnChartSavedState = this->m_bShowPolarOnChart;
+                this->m_bShowPolarOnChart = false;
             } // then don't show chart animation when not visible
         } // then started as not visible
     } // then this is the first ever state definition
-    if ( m_bToggledStateVisible == isvisible )
+    if ( this->m_bToggledStateVisible == isvisible )
         return;
-    m_bToggledStateVisible = isvisible;
+    this->m_bToggledStateVisible = isvisible;
     if ( isvisible ) {
-        if ( !m_bPersistentChartPolarAnimation ) {
-            m_bLaylinesIsVisible = m_bLaylinesIsVisibleSavedState;
-            m_bDisplayCurrentOnChart = m_bDisplayCurrentOnChartSavedState;
-            m_bShowWindbarbOnChart = m_bShowWindbarbOnChartSavedState;
-            m_bShowPolarOnChart = m_bShowPolarOnChartSavedState;
+        if ( !this->m_bPersistentChartPolarAnimation ) {
+            this->m_bLaylinesIsVisible = this->m_bLaylinesIsVisibleSavedState;
+            this->m_bDisplayCurrentOnChart = this->m_bDisplayCurrentOnChartSavedState;
+            this->m_bShowWindbarbOnChart = this->m_bShowWindbarbOnChartSavedState;
+            this->m_bShowPolarOnChart = this->m_bShowPolarOnChartSavedState;
         } // if non persistent animation was disabled 
     } // actions from invisible to visible
     else {
-        if ( !m_bPersistentChartPolarAnimation ) {
-            m_bLaylinesIsVisibleSavedState = m_bLaylinesIsVisible;
-            m_bLaylinesIsVisible = false;
-            m_bDisplayCurrentOnChartSavedState = m_bDisplayCurrentOnChart;
-            m_bDisplayCurrentOnChart = false;
-            m_bShowWindbarbOnChartSavedState = m_bShowWindbarbOnChart;
-            m_bShowWindbarbOnChart = false;
-            m_bShowPolarOnChartSavedState = m_bShowPolarOnChart;
-            m_bShowPolarOnChart = false;
+        if ( !this->m_bPersistentChartPolarAnimation ) {
+            this->m_bLaylinesIsVisibleSavedState = this->m_bLaylinesIsVisible;
+            this->m_bLaylinesIsVisible = false;
+            this->m_bDisplayCurrentOnChartSavedState = this->m_bDisplayCurrentOnChart;
+            this->m_bDisplayCurrentOnChart = false;
+            this->m_bShowWindbarbOnChartSavedState = this->m_bShowWindbarbOnChart;
+            this->m_bShowWindbarbOnChart = false;
+            this->m_bShowPolarOnChartSavedState = this->m_bShowPolarOnChart;
+            this->m_bShowPolarOnChart = false;
         } // if non persistent animation is required 
     } // else actions from visible to invisible
     return;
@@ -247,44 +247,45 @@ bool tactics_pi::TacticsDeInit()
 }
 void tactics_pi::TacticsNotify()
 {
-    mBRG_Watchdog--;
-    if (mBRG_Watchdog <= 0) {
-      SendSentenceToAllInstruments(OCPN_DBP_STC_BRG, NAN, _T("\u00B0"));
-      SetNMEASentence_Arm_BRG_Watchdog();
+    this->mBRG_Watchdog--;
+    if (this->mBRG_Watchdog <= 0) {
+        SendSentenceToAllInstruments(OCPN_DBP_STC_BRG, NAN, _T("\u00B0"));
+        SetNMEASentence_Arm_BRG_Watchdog();
     }
-    mTWS_Watchdog--;
-    if (mTWS_Watchdog <= 0) {
-      mTWS = NAN;
-      SendSentenceToAllInstruments(OCPN_DBP_STC_TWS, NAN, _T(""));
-      SetNMEASentence_Arm_TWS_Watchdog();
+    this->mTWS_Watchdog--;
+    if (this->mTWS_Watchdog <= 0) {
+        this->mTWS = NAN;
+        SendSentenceToAllInstruments(OCPN_DBP_STC_TWS, NAN, _T(""));
+        SetNMEASentence_Arm_TWS_Watchdog();
     }
-    mTWD_Watchdog--;
-    if (mTWD_Watchdog <= 0) {
-      mTWD = NAN;
-      mTWA = NAN;
-      SendSentenceToAllInstruments(OCPN_DBP_STC_TWD, NAN, _T("\u00B0"));
-      SendSentenceToAllInstruments(OCPN_DBP_STC_TWA, NAN, _T("\u00B0"));
-      SetNMEASentence_Arm_TWD_Watchdog();
+    this->mTWD_Watchdog--;
+    if (this->mTWD_Watchdog <= 0) {
+        this->mTWD = NAN;
+        this->mTWA = NAN;
+        SendSentenceToAllInstruments(OCPN_DBP_STC_TWD, NAN, _T("\u00B0"));
+        SendSentenceToAllInstruments(OCPN_DBP_STC_TWA, NAN, _T("\u00B0"));
+        SetNMEASentence_Arm_TWD_Watchdog();
     }
-    mAWS_Watchdog--;
-    if (mAWS_Watchdog <= 0) {
-      SendSentenceToAllInstruments(OCPN_DBP_STC_AWS, NAN, _T(""));
-      SetNMEASentence_Arm_AWS_Watchdog();
+    this->mAWS_Watchdog--;
+    if (this->mAWS_Watchdog <= 0) {
+        this->mAWS = NAN;
+        SendSentenceToAllInstruments(OCPN_DBP_STC_AWS, NAN, _T(""));
+        SetNMEASentence_Arm_AWS_Watchdog();
     }
-
-    mVMG_Watchdog--;
-    if (mVMG_Watchdog <= 0) {
-      SendSentenceToAllInstruments(OCPN_DBP_STC_VMG, NAN, _T(""));
-      SetNMEASentence_Arm_VMG_Watchdog();
+    
+    this->mVMG_Watchdog--;
+    if (this->mVMG_Watchdog <= 0) {
+        SendSentenceToAllInstruments(OCPN_DBP_STC_VMG, NAN, _T(""));
+        SetNMEASentence_Arm_VMG_Watchdog();
     }
-
+    
     this->ExportPerformanceData();
 
 }
 
 bool tactics_pi::TacticsLoadConfig()
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
+    wxFileConfig *pConf = (wxFileConfig *) this->m_hostplugin_pconfig;
 	if (!pConf)
         return false;
 
@@ -390,9 +391,9 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Read(_T("MaxLaylineWidth"), &g_iMaxLaylineWidth, 30);
     pConf->Read(_T("LaylineWidthDampingFactor"), &g_dalphaDeltCoG, 0.25);
     pConf->Read(_T("ShowLaylinesOnChart"), &g_bDisplayLaylinesOnChart, false);
-    m_bLaylinesIsVisible = g_bDisplayLaylinesOnChart;
+    this->m_bLaylinesIsVisible = g_bDisplayLaylinesOnChart;
     pConf->Read(_T("ShowCurrentOnChart"), &g_bDisplayCurrentOnChart, false);
-    m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
+    this->m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
     pConf->Read(_T("CMGSynonym"), &g_sCMGSynonym, _T("CMG"));
     pConf->Read(_T("VMGSynonym"), &g_sVMGSynonym, _T("VMG"));
     pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, false);
@@ -429,11 +430,11 @@ void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
     pConf->Read(_T("CorrectAWwithHeel"), &g_bCorrectAWwithHeel, false);    //if true, AWS/AWA are corrected with Heel-Angle
     pConf->Read(_T("ForceTrueWindCalculation"), &g_bForceTrueWindCalculation, false);    //if true, NMEA Data for TWS,TWA,TWD is not used, but the plugin calculated data is used
     pConf->Read(_T("ShowWindbarbOnChart"), &g_bShowWindbarbOnChart, false);
-    m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
+    this->m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
     pConf->Read(_T("ShowPolarOnChart"), &g_bShowPolarOnChart, false);
-    m_bShowPolarOnChart = g_bShowPolarOnChart;
+    this->m_bShowPolarOnChart = g_bShowPolarOnChart;
     pConf->Read(_T("PersistentChartPolarAnimation"), &g_bPersistentChartPolarAnimation, true);
-    m_bPersistentChartPolarAnimation = g_bPersistentChartPolarAnimation;
+    this->m_bPersistentChartPolarAnimation = g_bPersistentChartPolarAnimation;
     pConf->Read(_T("UseSOGforTWCalc"), &g_bUseSOGforTWCalc, false);
     pConf->Read(_T("ExpPolarSpeed"), &g_bExpPerfData01, false);
     pConf->Read(_T("ExpCourseOtherTack"), &g_bExpPerfData02, false);
@@ -441,7 +442,7 @@ void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
     pConf->Read(_T("ExpVMG_CMG_Diff_Gain"), &g_bExpPerfData04, false);
     pConf->Read(_T("ExpCurrent"), &g_bExpPerfData05, false);
     pConf->Read(_T("NKE_TrueWindTableBug"), &g_bNKE_TrueWindTableBug, false);
-    m_bNKE_TrueWindTableBug = g_bNKE_TrueWindTableBug;
+    this->m_bNKE_TrueWindTableBug = g_bNKE_TrueWindTableBug;
 }
 void tactics_pi::TacticsApplyConfig(void)
 {
@@ -452,16 +453,16 @@ void tactics_pi::TacticsApplyConfig(void)
         else
             BoatPolar->loadPolar(_T("NULL"));
     }
-    m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
-    m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
-    m_bShowPolarOnChart = g_bShowPolarOnChart;
-    m_bPersistentChartPolarAnimation = g_bPersistentChartPolarAnimation;
+    this->m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
+    this->m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
+    this->m_bShowPolarOnChart = g_bShowPolarOnChart;
+    this->m_bPersistentChartPolarAnimation = g_bPersistentChartPolarAnimation;
     return;
 }
 
 bool tactics_pi::TacticsSaveConfig()
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
+    wxFileConfig *pConf = (wxFileConfig *) this->m_hostplugin_pconfig;
     if (!pConf)
         return false;
     pConf->SetPath( this->m_this_config_path );
@@ -703,8 +704,8 @@ Called by Plugin Manager on main system process cycle
 **********************************************************************/
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
-	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
+	this->b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
+	if (this->m_bLaylinesIsVisible || this->m_bDisplayCurrentOnChart || this->m_bShowWindbarbOnChart || this->m_bShowPolarOnChart){
 		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_BLEND);
@@ -721,8 +722,8 @@ bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *
 
 bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 {
-	if (b_tactics_dc_message_shown == false) {
-        b_tactics_dc_message_shown = true;
+	if (!this->b_tactics_dc_message_shown) {
+        this->b_tactics_dc_message_shown = true;
         
 		wxString message(_("You have to turn on OpenGL to use chart overlay "));
 		wxMessageDialog dlg(GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"), wxOK);
@@ -736,7 +737,7 @@ Draw the OpenGL Layline overlay
 *********************************************************************/
 void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	if (m_bDisplayCurrentOnChart && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(m_CurrentDirection)) {
+	if (this->m_bDisplayCurrentOnChart && !std::isnan(this->mlat) && !std::isnan(mlon) && !std::isnan(this->m_CurrentDirection)) {
 		//draw the current on the chart here
 		/*
          *           0
@@ -749,11 +750,11 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
          *        4    3
          */
 		wxPoint boat;
-		GetCanvasPixLL(vp, &boat, mlat, mlon);
+		GetCanvasPixLL(vp, &boat, this->mlat, mlon);
 
 		double m_radius = 100;
 		wxRealPoint currpoints[7];
-		double currval = m_CurrentDirection;
+		double currval = this->m_CurrentDirection;
 		double rotate = vp->rotation;
 		double currvalue = ((currval - 90.) * M_PI / 180) + rotate;
 
@@ -776,9 +777,9 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         //below 0.2 knots the current generally gets inaccurate, as the error level gets too high.
         // as a hint, fade the current transparency below 0.25 knots...
         //        int curr_trans = 164;
-        //        if (m_ExpSmoothCurrSpd <= 0.20) {
+        //        if (this->m_ExpSmoothCurrSpd <= 0.20) {
         //          fading : 0.2 * 5 = 1 --> we set full transp. >=0.2
-        //          curr_trans = m_ExpSmoothCurrSpd * 5 * curr_trans;
+        //          curr_trans = this->m_ExpSmoothCurrSpd * 5 * curr_trans;
         //          if (curr_trans < 50) curr_trans = 50;  //lower limit
         //        }
         //        GLubyte red(7), green(107), blue(183), alpha(curr_trans);
@@ -807,15 +808,15 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 {
 	wxPoint  mark_center;
 	wxPoint boat;
-	if (!std::isnan(mlat) && !std::isnan(mlon)) {
-		GetCanvasPixLL(vp, &vpoints[0], mlat, mlon);
-		boat = vpoints[0];
+	if (!std::isnan(this->mlat) && !std::isnan(mlon)) {
+		GetCanvasPixLL(vp, &this->vpoints[0], this->mlat, mlon);
+		boat = this->vpoints[0];
 		/*********************************************************************
 		Draw wind barb on boat position
 ***********************************************************************/
-        //mTWD=NAN caught in subroutines
+        //this->mTWD=NAN caught in subroutines
 		DrawWindBarb(boat, vp);
-		DrawPolar(vp, boat, mTWD);
+		DrawPolar(vp, boat, this->mTWD);
 	}
 	if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
         m_pMark = NULL;
@@ -837,15 +838,15 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
 	}
 
-	if (m_bLaylinesIsVisible){
-        if (!std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mCOG) && !std::isnan(mHdt) && !std::isnan(mStW) && !std::isnan(mTWS) && !std::isnan(mTWA)) {
-			if (std::isnan(m_LaylineSmoothedCog)) m_LaylineSmoothedCog = mCOG;
-            if (std::isnan(mLeeway)) mLeeway = 0.0;
+	if (this->m_bLaylinesIsVisible){
+        if (!std::isnan(this->mlat) && !std::isnan(mlon) && !std::isnan(this->mCOG) && !std::isnan(this->mHdt) && !std::isnan(this->mStW) && !std::isnan(this->mTWS) && !std::isnan(this->mTWA)) {
+			if (std::isnan(this->m_LaylineSmoothedCog)) this->m_LaylineSmoothedCog = this->mCOG;
+            if (std::isnan(this->mLeeway)) this->mLeeway = 0.0;
 			/**********************************************************************
 			Draw the boat laylines, independent from the g_sMarkGUID
 			The first (foreward) layline is on the COG pointer
 ***********************************************************************/
-			wxString curTack = mAWAUnit;
+			wxString curTack = this->mAWAUnit;
 			wxString targetTack = _T("");
 			//it shows '°L'= wind from left = port tack or '°R'=wind from right = starboard tack
 			//we're on port tack, so vertical layline is red
@@ -860,14 +861,14 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 				targetTack = _T("L");
 			}
 			double tmplat1, tmplon1, tmplat2, tmplon2;
-			PositionBearingDistanceMercator_Plugin(mlat, mlon, m_LaylineSmoothedCog - m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat1, &tmplon1);
-			GetCanvasPixLL(vp, &vpoints[1], tmplat1, tmplon1);
-			PositionBearingDistanceMercator_Plugin(mlat, mlon, m_LaylineSmoothedCog + m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat2, &tmplon2);
-			GetCanvasPixLL(vp, &vpoints[2], tmplat2, tmplon2);
+			PositionBearingDistanceMercator_Plugin(this->mlat, mlon, this->m_LaylineSmoothedCog - this->m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat1, &tmplon1);
+			GetCanvasPixLL(vp, &this->vpoints[1], tmplat1, tmplon1);
+			PositionBearingDistanceMercator_Plugin(this->mlat, mlon, this->m_LaylineSmoothedCog + this->m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat2, &tmplon2);
+			GetCanvasPixLL(vp, &this->vpoints[2], tmplat2, tmplon2);
 			glBegin(GL_TRIANGLES);
-			glVertex2d(vpoints[0].x, vpoints[0].y);
-			glVertex2d(vpoints[1].x, vpoints[1].y);
-			glVertex2d(vpoints[2].x, vpoints[2].y);
+			glVertex2d(this->vpoints[0].x, this->vpoints[0].y);
+			glVertex2d(this->vpoints[1].x, this->vpoints[1].y);
+			glVertex2d(this->vpoints[2].x, this->vpoints[2].y);
 			glEnd();
 			/*********************************************************************
 			Calculate and draw  the second boat layline (for other tack)
@@ -889,49 +890,49 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 			3. calculate angle (and speed) from curr pos to predictedLatCog, predictedLonCog; out : newCog + newSOG
 ************************************************************************/
 			double  diffCogHdt;
-			double tws_kts = fromUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
-			double stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
-			double currspd_kts = std::isnan(m_ExpSmoothCurrSpd) ? 0.0 : fromUsrSpeed_Plugin(m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
-			double currdir = std::isnan(m_CurrentDirection) ? 0.0 : m_CurrentDirection;
-			diffCogHdt = getDegRange(mCOG, mHdt);
-			mExpSmDiffCogHdt->SetAlpha(alpha_CogHdt);
-			m_ExpSmoothDiffCogHdt = mExpSmDiffCogHdt->GetSmoothVal((diffCogHdt < 0 ? -diffCogHdt : diffCogHdt));
+			double tws_kts = fromUsrSpeed_Plugin(this->mTWS, g_iDashWindSpeedUnit);
+			double stw_kts = fromUsrSpeed_Plugin(this->mStW, g_iDashSpeedUnit);
+			double currspd_kts = std::isnan(this->m_ExpSmoothCurrSpd) ? 0.0 : fromUsrSpeed_Plugin(this->m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
+			double currdir = std::isnan(this->m_CurrentDirection) ? 0.0 : this->m_CurrentDirection;
+			diffCogHdt = getDegRange(this->mCOG, this->mHdt);
+			this->mExpSmDiffCogHdt->SetAlpha(this->alpha_CogHdt);
+			this->m_ExpSmoothDiffCogHdt = this->mExpSmDiffCogHdt->GetSmoothVal((diffCogHdt < 0 ? -diffCogHdt : diffCogHdt));
 			if (targetTack == _T("R")){ // currently wind is from port ...now
-				mPredictedHdG = m_LaylineSmoothedCog - m_ExpSmoothDiffCogHdt - 2 * mTWA - fabs(mLeeway); //Leeway is signed 
+				this->mPredictedHdG = this->m_LaylineSmoothedCog - this->m_ExpSmoothDiffCogHdt - 2 * this->mTWA - fabs(this->mLeeway); //Leeway is signed 
 				GLubyte red(0), green(200), blue(0), alpha(128);
 				glColor4ub(0, 200, 0, 128);                 	// red, green, blue,  alpha
 			}
 			else if (targetTack == _T("L")){ //currently wind from starboard
-				mPredictedHdG = m_LaylineSmoothedCog + m_ExpSmoothDiffCogHdt + 2 * mTWA + fabs(mLeeway); //Leeway is signed 
+				this->mPredictedHdG = this->m_LaylineSmoothedCog + this->m_ExpSmoothDiffCogHdt + 2 * this->mTWA + fabs(this->mLeeway); //Leeway is signed 
 				GLubyte red(204), green(41), blue(41), alpha(128);
 				glColor4ub(204, 41, 41, 128);                 	// red, green, blue,  alpha
 			}
 			else {
-				mPredictedHdG = (mTWA < 10) ? 180 : 0;
+				this->mPredictedHdG = (this->mTWA < 10) ? 180 : 0;
 			}
-			if (mPredictedHdG < 0) mPredictedHdG += 360;
-			if (mPredictedHdG >= 360) mPredictedHdG -= 360;
+			if (this->mPredictedHdG < 0) this->mPredictedHdG += 360;
+			if (this->mPredictedHdG >= 360) this->mPredictedHdG -= 360;
 			double predictedLatHdt, predictedLonHdt, predictedLatCog, predictedLonCog;
 			double  predictedSog;
 			//apply current on predicted Heading
-			PositionBearingDistanceMercator_Plugin(mlat, mlon, mPredictedHdG, stw_kts, &predictedLatHdt, &predictedLonHdt);
+			PositionBearingDistanceMercator_Plugin(this->mlat, mlon, this->mPredictedHdG, stw_kts, &predictedLatHdt, &predictedLonHdt);
 			PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, currdir, currspd_kts, &predictedLatCog, &predictedLonCog);
-			DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, mlat, mlon, &mPredictedCoG, &predictedSog);
+			DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, this->mlat, mlon, &this->mPredictedCoG, &predictedSog);
 
-			tackpoints[0] = vpoints[0];
+			this->tackpoints[0] = this->vpoints[0];
 			double tmplat3, tmplon3, tmplat4, tmplon4;
-			PositionBearingDistanceMercator_Plugin(mlat, mlon, mPredictedCoG - m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat3, &tmplon3);
-			GetCanvasPixLL(vp, &tackpoints[1], tmplat3, tmplon3);
-			PositionBearingDistanceMercator_Plugin(mlat, mlon, mPredictedCoG + m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat4, &tmplon4);
-			GetCanvasPixLL(vp, &tackpoints[2], tmplat4, tmplon4);
+			PositionBearingDistanceMercator_Plugin(this->mlat, mlon, this->mPredictedCoG - this->m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat3, &tmplon3);
+			GetCanvasPixLL(vp, &this->tackpoints[1], tmplat3, tmplon3);
+			PositionBearingDistanceMercator_Plugin(this->mlat, mlon, this->mPredictedCoG + this->m_ExpSmoothDegRange / 2., g_dLaylineLengthonChart, &tmplat4, &tmplon4);
+			GetCanvasPixLL(vp, &this->tackpoints[2], tmplat4, tmplon4);
 			glBegin(GL_TRIANGLES);
-			glVertex2d(tackpoints[0].x, tackpoints[0].y);
-			glVertex2d(tackpoints[1].x, tackpoints[1].y);
-			glVertex2d(tackpoints[2].x, tackpoints[2].y);
+			glVertex2d(this->tackpoints[0].x, this->tackpoints[0].y);
+			glVertex2d(this->tackpoints[1].x, this->tackpoints[1].y);
+			glVertex2d(this->tackpoints[2].x, this->tackpoints[2].y);
 			glEnd();
 
-            //            wxLogMessage("mlat=%f, mlon=%f,currspd=%f,predictedCoG=%f, mTWA=%f,mLeeway=%f, g_iDashSpeedUnit=%d", mlat, mlon, currspd_kts, mPredictedCoG, mTWA, mLeeway,g_iDashSpeedUnit);
-            //wxLogMessage("tackpoints[0].x=%d, tackpoints[0].y=%d,tackpoints[1].x=%d, tackpoints[1].y=%d,tackpoints[2].x=%d, tackpoints[2].y=%d", tackpoints[0].x, tackpoints[0].y, tackpoints[1].x, tackpoints[1].y, tackpoints[2].x, tackpoints[2].y);
+            //            wxLogMessage("this->mlat=%f, mlon=%f,currspd=%f,predictedCoG=%f, this->mTWA=%f,this->mLeeway=%f, g_iDashSpeedUnit=%d", this->mlat, mlon, currspd_kts, this->mPredictedCoG, this->mTWA, this->mLeeway,g_iDashSpeedUnit);
+            //wxLogMessage("this->tackpoints[0].x=%d, this->tackpoints[0].y=%d,this->tackpoints[1].x=%d, this->tackpoints[1].y=%d,this->tackpoints[2].x=%d, this->tackpoints[2].y=%d", this->tackpoints[0].x, this->tackpoints[0].y, this->tackpoints[1].x, this->tackpoints[1].y, this->tackpoints[2].x, this->tackpoints[2].y);
             //wxString GUID = g_sMarkGUID;
 
 			//if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
@@ -958,26 +959,26 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 ***********************************************************************/
 				//calculate Course to Mark = CTM
 				double CTM, DistToMark, directLineTimeToMark, directLineTWA;
-				DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, mlat, mlon, &CTM, &DistToMark);
+				DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, this->mlat, mlon, &CTM, &DistToMark);
 				//calc time-to-mark on direct line, versus opt. TWA and intersection
-				directLineTWA = getMarkTWA(mTWD, CTM);
+				directLineTWA = getMarkTWA(this->mTWD, CTM);
 				directLineTimeToMark = CalcPolarTimeToMark(DistToMark, directLineTWA, tws_kts);
 				if (std::isnan(directLineTimeToMark)) directLineTimeToMark = 99999;
 				//use target VMG calculation for laylines-to-mark
-				TargetxMG tvmg = BoatPolar->Calc_TargetVMG(directLineTWA, tws_kts); // directLineTWA <= 90° --> upwind, >90 --> downwind
+				this->tvmg = BoatPolar->Calc_TargetVMG(directLineTWA, tws_kts); // directLineTWA <= 90° --> upwind, >90 --> downwind
 				//optional : use target CMG calculation for laylines-to-mark
-				//TargetxMG tvmg = BoatPolar->Calc_TargetCMG(mTWS,mTWD,CTM); // directLineTWA <= 90° --> upwind, >90 --> downwind
-				double sigCTM_TWA = getSignedDegRange(CTM, mTWD);
+				//this->tvmg = BoatPolar->Calc_TargetCMG(this->mTWS,this->mTWD,CTM); // directLineTWA <= 90° --> upwind, >90 --> downwind
+				double sigCTM_TWA = getSignedDegRange(CTM, this->mTWD);
 				double cur_tacklinedir, target_tacklinedir;
-				if (!std::isnan(tvmg.TargetAngle))
+				if (!std::isnan(this->tvmg.TargetAngle))
 				{
 					if (curTack == _T("\u00B0L")){
-						cur_tacklinedir = mTWD - tvmg.TargetAngle - fabs(mLeeway);  //- m_ExpSmoothDiffCogHdt
-						target_tacklinedir = mTWD + tvmg.TargetAngle + fabs(mLeeway);//+ m_ExpSmoothDiffCogHdt
+						cur_tacklinedir = this->mTWD - this->tvmg.TargetAngle - fabs(this->mLeeway);  //- this->m_ExpSmoothDiffCogHdt
+						target_tacklinedir = this->mTWD + this->tvmg.TargetAngle + fabs(this->mLeeway);//+ this->m_ExpSmoothDiffCogHdt
 					}
 					else{
-						cur_tacklinedir = mTWD + tvmg.TargetAngle + fabs(mLeeway);//+ m_ExpSmoothDiffCogHdt
-						target_tacklinedir = mTWD - tvmg.TargetAngle - fabs(mLeeway);//- m_ExpSmoothDiffCogHdt
+						cur_tacklinedir = this->mTWD + this->tvmg.TargetAngle + fabs(this->mLeeway);//+ this->m_ExpSmoothDiffCogHdt
+						target_tacklinedir = this->mTWD - this->tvmg.TargetAngle - fabs(this->mLeeway);//- this->m_ExpSmoothDiffCogHdt
 					}
 					while (cur_tacklinedir < 0) cur_tacklinedir += 360;
 					while (cur_tacklinedir > 359) cur_tacklinedir -= 360;
@@ -986,15 +987,15 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 					double lat, lon, curlat, curlon, act_sog;
 					wxRealPoint m_end, m_end2, c_end, c_end2;
 					//apply current on foreward layline
-					PositionBearingDistanceMercator_Plugin(mlat, mlon, cur_tacklinedir, stw_kts, &lat, &lon);
+					PositionBearingDistanceMercator_Plugin(this->mlat, mlon, cur_tacklinedir, stw_kts, &lat, &lon);
 					PositionBearingDistanceMercator_Plugin(lat, lon, currdir, currspd_kts, &curlat, &curlon);
-					DistanceBearingMercator_Plugin(curlat, curlon, mlat, mlon, &cur_tacklinedir, &act_sog);
-					//cur_tacklinedir=local_bearing(curlat, curlon, mlat, mlon);
+					DistanceBearingMercator_Plugin(curlat, curlon, this->mlat, mlon, &cur_tacklinedir, &act_sog);
+					//cur_tacklinedir=local_bearing(curlat, curlon, this->mlat, mlon);
 					//apply current on mark layline
-					PositionBearingDistanceMercator_Plugin(mlat, mlon, target_tacklinedir, stw_kts, &lat, &lon);
+					PositionBearingDistanceMercator_Plugin(this->mlat, mlon, target_tacklinedir, stw_kts, &lat, &lon);
 					PositionBearingDistanceMercator_Plugin(lat, lon, currdir, currspd_kts, &curlat, &curlon);
-					DistanceBearingMercator_Plugin(curlat, curlon, mlat, mlon, &target_tacklinedir, &act_sog);
-					//target_tacklinedir=local_bearing(curlat, curlon, mlat, mlon);
+					DistanceBearingMercator_Plugin(curlat, curlon, this->mlat, mlon, &target_tacklinedir, &act_sog);
+					//target_tacklinedir=local_bearing(curlat, curlon, this->mlat, mlon);
 					double cur_tacklinedir2 = cur_tacklinedir > 180 ? cur_tacklinedir - 180 : cur_tacklinedir + 180;
 
 					//Mark : get an end of the current dir
@@ -1004,9 +1005,9 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
 					double boat_fwTVMGDir = target_tacklinedir > 180 ? target_tacklinedir - 180 : target_tacklinedir + 180;
 					//Boat : get an end of the predicted layline
-					PositionBearingDistanceMercator_Plugin(mlat, mlon, boat_fwTVMGDir, DistToMark * 2, &c_end.y, &c_end.x);
+					PositionBearingDistanceMercator_Plugin(this->mlat, mlon, boat_fwTVMGDir, DistToMark * 2, &c_end.y, &c_end.x);
 					//Boat : get the second end of the same line on the opposite direction
-					PositionBearingDistanceMercator_Plugin(mlat, mlon, target_tacklinedir, DistToMark * 2, &c_end2.y, &c_end2.x);
+					PositionBearingDistanceMercator_Plugin(this->mlat, mlon, target_tacklinedir, DistToMark * 2, &c_end2.y, &c_end2.x);
 
 					// see if we have an intersection of the 2 laylines
 					wxRealPoint intersection_pos;
@@ -1017,8 +1018,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 						// now calc time-to-mark via intersection
 						double TimeToMarkwithIntersect, tempCTM, DistToMarkwInt, dist1, dist2;
 						//distance btw. Boat and intersection
-						DistanceBearingMercator_Plugin(mlat, mlon, intersection_pos.y, intersection_pos.x, &tempCTM, &dist1);
-						//dist1 = local_distance(mlat, mlon, intersection_pos.y, intersection_pos.x);
+						DistanceBearingMercator_Plugin(this->mlat, mlon, intersection_pos.y, intersection_pos.x, &tempCTM, &dist1);
+						//dist1 = local_distance(this->mlat, mlon, intersection_pos.y, intersection_pos.x);
 
 						//distance btw. Intersection - Mark
 						DistanceBearingMercator_Plugin(intersection_pos.y, intersection_pos.x, m_pMark->m_lat, m_pMark->m_lon, &tempCTM, &dist2);
@@ -1027,7 +1028,7 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 						//Total distance as sum of dist1 + dist2
 						//Note : current is NOT yet taken into account here !
 						DistToMarkwInt = dist1 + dist2;
-						TimeToMarkwithIntersect = CalcPolarTimeToMark(DistToMarkwInt, tvmg.TargetAngle, tws_kts);
+						TimeToMarkwithIntersect = CalcPolarTimeToMark(DistToMarkwInt, this->tvmg.TargetAngle, tws_kts);
 						if (std::isnan(TimeToMarkwithIntersect))TimeToMarkwithIntersect = 99999;
 						if (TimeToMarkwithIntersect > 0 && directLineTimeToMark > 0){
 							//only draw the laylines with intersection, if they are faster than the direct course
@@ -1106,12 +1107,12 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 				PositionBearingDistanceMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, target_tacklinedir, DistToMark * 2, &pm_end.y, &pm_end.x);
 				//Mark : get the second end of the same predicted layline on the opposite direction
 				PositionBearingDistanceMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, target_tacklinedir2, DistToMark * 2, &pm_end2.y, &pm_end2.x);
-				//PositionBearingDistanceMercator_Plugin(mlat, mlon, predictedCoG, g_dLaylineLengthonChart, &tmplat1, &tmplon1);
+				//PositionBearingDistanceMercator_Plugin(this->mlat, mlon, predictedCoG, g_dLaylineLengthonChart, &tmplat1, &tmplon1);
 				double boat_tckTVMGDir = cur_tacklinedir > 180 ? cur_tacklinedir - 180 : cur_tacklinedir + 180;
 				//Boat : get an end of the predicted layline
-				PositionBearingDistanceMercator_Plugin(mlat, mlon, boat_tckTVMGDir, DistToMark * 2, &pc_end.y, &pc_end.x);
+				PositionBearingDistanceMercator_Plugin(this->mlat, mlon, boat_tckTVMGDir, DistToMark * 2, &pc_end.y, &pc_end.x);
 				//Boat : get the second end of the same predicted layline on the opposite direction
-				PositionBearingDistanceMercator_Plugin(mlat, mlon, cur_tacklinedir, DistToMark * 2, &pc_end2.y, &pc_end2.x);
+				PositionBearingDistanceMercator_Plugin(this->mlat, mlon, cur_tacklinedir, DistToMark * 2, &pc_end2.y, &pc_end2.x);
 
 				// see if we have an intersection of the 2 laylines
 				wxRealPoint pIntersection_pos;
@@ -1122,15 +1123,15 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 					// now calc time-to-mark via intersection
 					double TimeToMarkwInt, tempCTM, DistToMarkwInt, dist1, dist2;
 					//distance btw. boat and intersection
-					DistanceBearingMercator_Plugin(mlat, mlon, pIntersection_pos.y, pIntersection_pos.x, &tempCTM, &dist1);
-					//dist1 = local_distance(mlat, mlon, pIntersection_pos.y, pIntersection_pos.x);
+					DistanceBearingMercator_Plugin(this->mlat, mlon, pIntersection_pos.y, pIntersection_pos.x, &tempCTM, &dist1);
+					//dist1 = local_distance(this->mlat, mlon, pIntersection_pos.y, pIntersection_pos.x);
 
 					//distance btw. Intersection - Mark
 					DistanceBearingMercator_Plugin(pIntersection_pos.y, pIntersection_pos.x, m_pMark->m_lat, m_pMark->m_lon, &tempCTM, &dist2);
 					//dist2 = local_distance(pIntersection_pos.y, pIntersection_pos.x, m_pMark->m_lat, m_pMark->m_lon);
 					//Total distance as sum of dist1 + dist2
 					DistToMarkwInt = dist1 + dist2;
-					TimeToMarkwInt = CalcPolarTimeToMark(DistToMarkwInt, tvmg.TargetAngle, tws_kts);
+					TimeToMarkwInt = CalcPolarTimeToMark(DistToMarkwInt, this->tvmg.TargetAngle, tws_kts);
 					if (std::isnan(TimeToMarkwInt))TimeToMarkwInt = 99999;
 					if (TimeToMarkwInt > 0 && directLineTimeToMark > 0){
 						//only draw the laylines with intersection, if they are faster than the direct course
@@ -1219,20 +1220,20 @@ What should be drawn:
 
 void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 {
-	if (m_bShowPolarOnChart && !std::isnan(mTWS) && !std::isnan(mTWD) && !std::isnan(mBRG)){
+	if (this->m_bShowPolarOnChart && !std::isnan(this->mTWS) && !std::isnan(this->mTWD) && !std::isnan(this->mBRG)){
 		glColor4ub(0, 0, 255, 192);	// red, green, blue,  alpha (byte values)
 		double polval[STEPS];
 		double max = 0;
 		double rotate = vp->rotation;
 		int i;
-		if (mTWS > 0){
-			TargetxMG vmg_up = BoatPolar->GetTargetVMGUpwind(mTWS);
-			TargetxMG vmg_dn = BoatPolar->GetTargetVMGDownwind(mTWS);
+		if (this->mTWS > 0){
+			TargetxMG vmg_up = BoatPolar->GetTargetVMGUpwind(this->mTWS);
+			TargetxMG vmg_dn = BoatPolar->GetTargetVMGDownwind(this->mTWS);
 			TargetxMG CmGMax, CmGMin;
-			BoatPolar->Calc_TargetCMG2(mTWS, mTWD, mBRG, &CmGMax, &CmGMin);  //CmGMax = the higher value, CmGMin the lower cmg value
+			BoatPolar->Calc_TargetCMG2(this->mTWS, this->mTWD, this->mBRG, &CmGMax, &CmGMin);  //CmGMax = the higher value, CmGMin the lower cmg value
 
 			for (i = 0; i < STEPS / 2; i++){ //0...179
-				polval[i] = BoatPolar->GetPolarSpeed(i * 2 + 1, mTWS); //polar data is 1...180 !!! i*2 : draw in 2° steps
+				polval[i] = BoatPolar->GetPolarSpeed(i * 2 + 1, this->mTWS); //polar data is 1...180 !!! i*2 : draw in 2° steps
 				polval[STEPS - 1 - i] = polval[i];
 				//if (std::isnan(polval[i])) polval[i] = polval[STEPS-1 - i] = 0.0;
 				if (polval[i]>max) max = polval[i];
@@ -1266,27 +1267,27 @@ void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 			glEnd();
 			//draw Target-VMG Angles now
 			if (!std::isnan(vmg_up.TargetAngle)){
-				rad = 81 * BoatPolar->GetPolarSpeed(vmg_up.TargetAngle, mTWS) / max;
+				rad = 81 * BoatPolar->GetPolarSpeed(vmg_up.TargetAngle, this->mTWS) / max;
 				DrawTargetAngle(vp, pp, PolarAngle + vmg_up.TargetAngle, _T("BLUE3"), 1, rad);
 				DrawTargetAngle(vp, pp, PolarAngle - vmg_up.TargetAngle, _T("BLUE3"), 1, rad);
 			}
 			if (!std::isnan(vmg_dn.TargetAngle)){
-				rad = 81 * BoatPolar->GetPolarSpeed(vmg_dn.TargetAngle, mTWS) / max;
+				rad = 81 * BoatPolar->GetPolarSpeed(vmg_dn.TargetAngle, this->mTWS) / max;
 				DrawTargetAngle(vp, pp, PolarAngle + vmg_dn.TargetAngle, _T("BLUE3"), 1, rad);
 				DrawTargetAngle(vp, pp, PolarAngle - vmg_dn.TargetAngle, _T("BLUE3"), 1, rad);
 			}
 			if (!std::isnan(CmGMax.TargetAngle)){
-				rad = 81 * BoatPolar->GetPolarSpeed(CmGMax.TargetAngle, mTWS) / max;
+				rad = 81 * BoatPolar->GetPolarSpeed(CmGMax.TargetAngle, this->mTWS) / max;
 				DrawTargetAngle(vp, pp, PolarAngle + CmGMax.TargetAngle, _T("URED"), 2, rad);
 			}
 			if (!std::isnan(CmGMin.TargetAngle)){
-				rad = 81 * BoatPolar->GetPolarSpeed(CmGMin.TargetAngle, mTWS) / max;
+				rad = 81 * BoatPolar->GetPolarSpeed(CmGMin.TargetAngle, this->mTWS) / max;
 				DrawTargetAngle(vp, pp, PolarAngle + CmGMin.TargetAngle, _T("URED"), 1, rad);
 			}
 			//Hdt line
-			if (!std::isnan(mHdt)){
+			if (!std::isnan(this->mHdt)){
 				wxPoint hdt;
-				anglevalue = deg2rad(mHdt) + deg2rad(0. - ANGLE_OFFSET) + rotate;
+				anglevalue = deg2rad(this->mHdt) + deg2rad(0. - ANGLE_OFFSET) + rotate;
 				rad = 81 * 1.1;
 				hdt.x = pp.x + (rad * cos(anglevalue));
 				hdt.y = pp.y + (rad * sin(anglevalue));
@@ -1361,43 +1362,43 @@ Toggle Layline Render overlay
 ************************************************************************/
 void tactics_pi::ToggleLaylineRender()
 {
-	m_bLaylinesIsVisible = m_bLaylinesIsVisible ? false : true;
-    g_bDisplayLaylinesOnChart = m_bLaylinesIsVisible;
+	this->m_bLaylinesIsVisible = this->m_bLaylinesIsVisible ? false : true;
+    g_bDisplayLaylinesOnChart = this->m_bLaylinesIsVisible;
     
 }
 void tactics_pi::ToggleCurrentRender()
 {
-	m_bDisplayCurrentOnChart = m_bDisplayCurrentOnChart ? false : true;
-    g_bDisplayCurrentOnChart = m_bDisplayCurrentOnChart;
+	this->m_bDisplayCurrentOnChart = this->m_bDisplayCurrentOnChart ? false : true;
+    g_bDisplayCurrentOnChart = this->m_bDisplayCurrentOnChart;
 }
 void tactics_pi::TogglePolarRender()
 {
-	m_bShowPolarOnChart = m_bShowPolarOnChart ? false : true;
-    g_bShowPolarOnChart = m_bShowPolarOnChart;
+	this->m_bShowPolarOnChart = this->m_bShowPolarOnChart ? false : true;
+    g_bShowPolarOnChart = this->m_bShowPolarOnChart;
 }
 void tactics_pi::ToggleWindbarbRender()
 {
-	m_bShowWindbarbOnChart = m_bShowWindbarbOnChart ? false : true;
-    g_bShowWindbarbOnChart = m_bShowWindbarbOnChart;
+	this->m_bShowWindbarbOnChart = this->m_bShowWindbarbOnChart ? false : true;
+    g_bShowWindbarbOnChart = this->m_bShowWindbarbOnChart;
 }
 
 /**********************************************************************
  **********************************************************************/
 bool tactics_pi::GetLaylineVisibility()
 {
-	return m_bLaylinesIsVisible;
+	return this->m_bLaylinesIsVisible;
 }
 bool tactics_pi::GetCurrentVisibility()
 {
-	return m_bDisplayCurrentOnChart;
+	return this->m_bDisplayCurrentOnChart;
 }
 bool tactics_pi::GetWindbarbVisibility()
 {
-	return m_bShowWindbarbOnChart;
+	return this->m_bShowWindbarbOnChart;
 }
 bool tactics_pi::GetPolarVisibility()
 {
-	return m_bShowPolarOnChart;
+	return this->m_bShowPolarOnChart;
 }
 
 /*******************************************************************
@@ -1406,23 +1407,23 @@ bool tactics_pi::GetPolarVisibility()
 *******************************************************************/
 void tactics_pi::CalculateLaylineDegreeRange(void)
 {
-    if (!std::isnan(mCOG)){
-        if (mCOG != m_COGRange[0]){
-            if (std::isnan(m_ExpSmoothSinCog)) m_ExpSmoothSinCog = 0;
-            if (std::isnan(m_ExpSmoothCosCog)) m_ExpSmoothCosCog = 0;
+    if (!std::isnan(this->mCOG)){
+        if (this->mCOG != this->m_COGRange[0]){
+            if (std::isnan(this->m_ExpSmoothSinCog)) this->m_ExpSmoothSinCog = 0;
+            if (std::isnan(this->m_ExpSmoothCosCog)) this->m_ExpSmoothCosCog = 0;
 
 
             double mincog = 360, maxcog = 0;
             for (int i = 0; i < COGRANGE; i++){
-                if (!std::isnan(m_COGRange[i])){
-                    mincog = wxMin(mincog, m_COGRange[i]);
-                    maxcog = wxMax(maxcog, m_COGRange[i]);
+                if (!std::isnan(this->m_COGRange[i])){
+                    mincog = wxMin(mincog, this->m_COGRange[i]);
+                    maxcog = wxMax(maxcog, this->m_COGRange[i]);
                 }
             }
             m_LaylineDegRange = getDegRange(maxcog, mincog);
             for (int i = 0; i < COGRANGE - 1; i++)
-                m_COGRange[i + 1] = m_COGRange[i];
-            m_COGRange[0] = mCOG;
+                this->m_COGRange[i + 1] = this->m_COGRange[i];
+            this->m_COGRange[0] = this->mCOG;
             if (m_LaylineDegRange < g_iMinLaylineWidth){
                 m_LaylineDegRange = g_iMinLaylineWidth;
             }
@@ -1431,19 +1432,19 @@ void tactics_pi::CalculateLaylineDegreeRange(void)
             }
 
             //shifting
-            double rad = (90 - mCOG)*M_PI / 180.;
-            mExpSmSinCog->SetAlpha(g_dalphaLaylinedDampFactor);
-            mExpSmCosCog->SetAlpha(g_dalphaLaylinedDampFactor);
-            m_ExpSmoothSinCog = mExpSmSinCog->GetSmoothVal(sin(rad));
-            m_ExpSmoothCosCog = mExpSmCosCog->GetSmoothVal(cos(rad));
+            double rad = (90 - this->mCOG)*M_PI / 180.;
+            this->mExpSmSinCog->SetAlpha(g_dalphaLaylinedDampFactor);
+            this->mExpSmCosCog->SetAlpha(g_dalphaLaylinedDampFactor);
+            this->m_ExpSmoothSinCog = this->mExpSmSinCog->GetSmoothVal(sin(rad));
+            this->m_ExpSmoothCosCog = this->mExpSmCosCog->GetSmoothVal(cos(rad));
 
-            m_LaylineSmoothedCog =
-                (int)(90. - (atan2(m_ExpSmoothSinCog,
-                                   m_ExpSmoothCosCog)*180. / M_PI) +
+            this->m_LaylineSmoothedCog =
+                (int)(90. - (atan2(this->m_ExpSmoothSinCog,
+                                   this->m_ExpSmoothCosCog)*180. / M_PI) +
                       360.) % 360;
-            mExpSmDegRange->SetAlpha(g_dalphaDeltCoG);
-            m_ExpSmoothDegRange =
-                mExpSmDegRange->GetSmoothVal(m_LaylineDegRange);
+            this->mExpSmDegRange->SetAlpha(g_dalphaDeltCoG);
+            this->m_ExpSmoothDegRange =
+                this->mExpSmDegRange->GetSmoothVal(m_LaylineDegRange);
         }
     }
 }
@@ -1454,8 +1455,8 @@ Basics taken from tackandlay_pi and adopted
 ***********************************************************************/
 void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
 {
-    if (m_bShowWindbarbOnChart && !std::isnan(mTWD) && !std::isnan(mTWS)){
-        if (mTWD >= 0 && mTWD < 360){
+    if (this->m_bShowWindbarbOnChart && !std::isnan(this->mTWD) && !std::isnan(this->mTWS)){
+        if (this->mTWD >= 0 && this->mTWD < 360){
             glColor4ub(0, 0, 255, 192);	// red, green, blue,  alpha (byte values)
             double rad_angle;
             double shaft_x, shaft_y;
@@ -1464,7 +1465,7 @@ void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
             double barb_length_0_x, barb_length_0_y, barb_length_1_x, barb_length_1_y;
             double barb_length_2_x, barb_length_2_y;
             double barb_3_x, barb_3_y, barb_4_x, barb_4_y, barb_length_3_x, barb_length_3_y, barb_length_4_x, barb_length_4_y;
-            double tws_kts = fromUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
+            double tws_kts = fromUsrSpeed_Plugin(this->mTWS, g_iDashWindSpeedUnit);
 
             double barb_length[50] = {
                 0, 0, 0, 0, 0,    //  0 knots
@@ -1502,11 +1503,11 @@ void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
                 p = 9;
             else if (tws_kts >= 48.)
                 p = 9;
-            //wxLogMessage("mTWS=%.2f --> p=%d", mTWS, p);
+            //wxLogMessage("this->mTWS=%.2f --> p=%d", this->mTWS, p);
             p = 5 * p;
 
             double rotate = vp->rotation;
-            rad_angle = ((mTWD - 90.) * M_PI / 180) + rotate;
+            rad_angle = ((this->mTWD - 90.) * M_PI / 180) + rotate;
 
             shaft_x = cos(rad_angle) * 90;
             shaft_y = sin(rad_angle) * 90;
@@ -1573,8 +1574,8 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
            AWS_corrected =
            AWS_measured * cos(AWA_measured) / cos(AWA_corrected) */
         if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
-            !std::isnan(mheel) && !std::isnan(value)) {
-            double newvalue = value / cos(mheel*M_PI / 180.);
+            !std::isnan(this->mheel) && !std::isnan(value)) {
+            double newvalue = value / cos(this->mheel*M_PI / 180.);
             value = newvalue;
             return true;
         }
@@ -1584,18 +1585,18 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
            is available. The correction only makes sense if one
            uses a heel sensor. */
         if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor &&
-            !std::isnan(mLeeway) && !std::isnan(mheel)) {
-            double newvalue = value / cos(mLeeway *M_PI / 180.0);
+            !std::isnan(this->mLeeway) && !std::isnan(this->mheel)) {
+            double newvalue = value / cos(this->mLeeway *M_PI / 180.0);
             value = newvalue;
             return true;
         }
     }
     if (st == OCPN_DBP_STC_BRG){
-        if (m_pMark && !std::isnan(mlat) && !std::isnan(mlon)) {
+        if (m_pMark && !std::isnan(this->mlat) && !std::isnan(mlon)) {
             double dist;
             double newvalue = value;
             DistanceBearingMercator_Plugin(m_pMark->m_lat,
-                                           m_pMark->m_lon, mlat, mlon,
+                                           m_pMark->m_lon, this->mlat, mlon,
                                            &newvalue, &dist);
             value = newvalue;
             unit = g_sMarkGUID;
@@ -1604,7 +1605,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
     }
     if (st == OCPN_DBP_STC_AWA){
         if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
-            !std::isnan(mLeeway) && !std::isnan(mheel)){
+            !std::isnan(this->mLeeway) && !std::isnan(this->mheel)){
             /* Correct AWA with heel if global variable set and heel
                is available. Correction only makes sense with heel
                sensor is available */
@@ -1614,7 +1615,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
                 awa_heel = value;
             else
             {
-                double cos_heel = cos(mheel * M_PI / 180.);
+                double cos_heel = cos(this->mheel * M_PI / 180.);
                 awa_heel = atan(tan_awa / cos_heel) *180. / M_PI;
                 if (value >= 0.0){
                     if (value > 90.0)
@@ -1639,23 +1640,42 @@ SendSentenceToAllInstruments() actually sends the sentences to
 the instrumetns in its windows, it needs to call this method to
 check that if the sentence is needed to in true wind calculations.
 false - no, do not launch the true wind calculations, continue
-true - yes, use 
+true - yes, use (and only call true wind calculations if this true)
 *********************************************************************/
 
 bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         unsigned long long st, double value )
 {
-    if (st == OCPN_DBP_STC_TWA)
-        m_bTrueWind_available = true;
-    if (st == OCPN_DBP_STC_TWS)
-        m_bTrueWind_available = true;
-    if (st == OCPN_DBP_STC_TWD)
-        m_bTrueWind_available = true;
-    
-    if ( ( st == OCPN_DBP_STC_AWS && !std::isnan(mStW) &&
-           !std::isnan(mSOG) ) )
-        return true; // condition to calculate the true wind
-    return false;
+    // Let's collect information about instruments providing true wind
+    if ( (st == OCPN_DBP_STC_TWA) &&
+         (st == OCPN_DBP_STC_TWS) &&
+         (st == OCPN_DBP_STC_TWD) )
+        this->m_bTrueWind_available = true;
+    // Here's the logic depending of the data and settings
+    if ( st != OCPN_DBP_STC_AWS ) // this is the data we're waiting
+        return false;
+    if ( std::isnan(value) ) // but it can be sent by the AWS watchdog
+        return false; // in this case no TW calculations, move on
+    if ( g_bForceTrueWindCalculation ) {
+        if ( this->m_bTrueWind_available ) // Force TW calc. selection no effect
+            return false;
+        if ( !( (this->mAWA >= 0.0) && (this->mAWS >= 0.0)  &&
+                (this->mAWAUnit != _("")) && !std::isnan(this->mHdt) ) ) // collect more data
+            return false;
+    } // then user is selecting Tactics true wind calculation
+    // Let's check that we have speed (water or ground available)
+    if ( g_bUseSOGforTWCalc ) {
+        if ( std::isnan(this->mSOG) )
+            return false; // no speed on ground available
+    } // then we want to use SOG instead of SOG
+    else {
+        if ( std::isnan(this->mStW) )
+            return false; // no speed on water available
+        if ( !(this->mStW > 0.0) )
+            return false; // boat is standing still, start moving first
+    } // else STW is used for speed
+    // all OK!
+    return true;
 }
 
 /********************************************************************
@@ -1674,68 +1694,68 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
 {
     double spdval;
 
-    if (st == OCPN_DBP_STC_AWS && !std::isnan(mStW) &&
-        !std::isnan(mSOG)){
+    if (st == OCPN_DBP_STC_AWS && !std::isnan(this->mStW) &&
+        !std::isnan(this->mSOG)){
         //  Calculate TWS (from AWS and StW/SOG)
-        spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
+        spdval = (g_bUseSOGforTWCalc) ? this->mSOG : this->mStW ;
         // only start calculating if we have a full set of data
-        if ((g_bForceTrueWindCalculation) &&
-            mAWA >= 0 && mAWS>=0  && spdval >= 0 && mAWAUnit != _("") &&
-            !std::isnan(mHdt)) {
+        if ( (!this->m_bTrueWind_available || g_bForceTrueWindCalculation) &&
+             (this->mAWA >= 0.0) && (this->mAWS >= 0.0)  && (spdval >= 0.0) &&
+             (this->mAWAUnit != _("")) && !std::isnan(this->mHdt) ) {
             //we have to do the calculation in knots
-            double aws_kts = fromUsrSpeed_Plugin(mAWS,
+            double aws_kts = fromUsrSpeed_Plugin(this->mAWS,
                                                  g_iDashWindSpeedUnit);
             spdval = fromUsrSpeed_Plugin(spdval, g_iDashSpeedUnit);
             
-            mTWA = 0;
-            mTWD = 0.;
-            if (mAWA < 180.) {
-                mTWA = 90. - (180. / M_PI*atan((aws_kts*cos(mAWA*M_PI / 180.) - spdval) / (aws_kts*sin(mAWA*M_PI / 180.))));
+            this->mTWA = 0;
+            this->mTWD = 0.;
+            if (this->mAWA < 180.) {
+                this->mTWA = 90. - (180. / M_PI*atan((aws_kts*cos(this->mAWA*M_PI / 180.) - spdval) / (aws_kts*sin(this->mAWA*M_PI / 180.))));
             }
-            else if (mAWA > 180.) {
-                mTWA = 360. - (90. - (180. / M_PI*atan((aws_kts*cos((180. - (mAWA - 180.))*M_PI / 180.) - spdval) / (aws_kts*sin((180. - (mAWA - 180.))*M_PI / 180.)))));
+            else if (this->mAWA > 180.) {
+                this->mTWA = 360. - (90. - (180. / M_PI*atan((aws_kts*cos((180. - (this->mAWA - 180.))*M_PI / 180.) - spdval) / (aws_kts*sin((180. - (this->mAWA - 180.))*M_PI / 180.)))));
             }
             else {
-                mTWA = 180.;
+                this->mTWA = 180.;
             }
-            mTWS = sqrt(pow((aws_kts*cos(mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(mAWA*M_PI / 180.), 2));
+            this->mTWS = sqrt(pow((aws_kts*cos(this->mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(this->mAWA*M_PI / 180.), 2));
             /* ToDo: adding leeway needs to be reviewed, as the direction
                of the bow is still based in the magnetic compass,
                no matter if leeway or not ...
-               if (!std::isnan(mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
-               mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA + mLeeway : mHdt - mTWA + mLeeway;
+               if (!std::isnan(this->mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
+               this->mTWD = (this->mAWAUnit == _T("\u00B0R")) ? this->mHdt + this->mTWA + this->mLeeway : this->mHdt - this->mTWA + this->mLeeway;
                }
                else*/
-            mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA : mHdt - mTWA;
+            this->mTWD = (this->mAWAUnit == _T("\u00B0R")) ? this->mHdt + this->mTWA : this->mHdt - this->mTWA;
             //endif
-            if (mTWD >= 360) mTWD -= 360;
-            if (mTWD < 0) mTWD += 360;
-            //convert mTWS back to user wind speed settings
-            mTWS = toUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
-            m_calcTWS = mTWS;
-            m_calcTWD = mTWD;
-            m_calcTWA = mTWA;
-            if (mAWSUnit == _(""))
-                mAWSUnit = mAWAUnit;
-            mTWD_Watchdog = twd_watchdog_timeout_ticks;
+            if (this->mTWD >= 360) this->mTWD -= 360;
+            if (this->mTWD < 0) this->mTWD += 360;
+            //convert this->mTWS back to user wind speed settings
+            this->mTWS = toUsrSpeed_Plugin(this->mTWS, g_iDashWindSpeedUnit);
+            this->m_calcTWS = this->mTWS;
+            this->m_calcTWD = this->mTWD;
+            this->m_calcTWA = this->mTWA;
+            if (this->mAWSUnit == _(""))
+                this->mAWSUnit = this->mAWAUnit;
+            this->mTWD_Watchdog = twd_watchdog_timeout_ticks;
             st_twa = OCPN_DBP_STC_TWA;
-            value_twa = mTWA;
-            unit_twa = mAWAUnit;
+            value_twa = this->mTWA;
+            unit_twa = this->mAWAUnit;
             st_tws = OCPN_DBP_STC_TWS;
-            value_tws = mTWS;
-            unit_tws = mAWSUnit;
+            value_tws = this->mTWS;
+            unit_tws = this->mAWSUnit;
             st_twd = OCPN_DBP_STC_TWD;
-            value_twd = mTWD;
+            value_twd = this->mTWD;
             unit_twd = _T("\u00B0T");
             return true;
         }
         else {
-            //        m_calcTWS = mTWS = NAN;
-            //        m_calcTWD = mTWD = NAN;
-            //m_calcTWA = mTWA = NAN;
-            m_calcTWS = NAN;
-            m_calcTWD = NAN;
-            m_calcTWA = NAN;
+            //        this->m_calcTWS = this->mTWS = NAN;
+            //        this->m_calcTWD = this->mTWD = NAN;
+            //this->m_calcTWA = this->mTWA = NAN;
+            this->m_calcTWS = NAN;
+            this->m_calcTWD = NAN;
+            this->m_calcTWA = NAN;
         }
     }
     return false;
@@ -1750,79 +1770,79 @@ void tactics_pi::SetCalcVariables(
 {
     switch (st) {
     case OCPN_DBP_STC_AWA:
-        mAWA = value;
-        mAWAUnit = unit;
+        this->mAWA = value;
+        this->mAWAUnit = unit;
         break;
     case OCPN_DBP_STC_AWS:
-        mAWS = value;
-        mAWSUnit = unit;
+        this->mAWS = value;
+        this->mAWSUnit = unit;
         break;
     case  OCPN_DBP_STC_TWA:
-        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWA)){ //otherwise we distribute the original O TWA
-            mTWA = m_calcTWA;
+        if (g_bForceTrueWindCalculation && !std::isnan(this->m_calcTWA)){ //otherwise we distribute the original O TWA
+            this->mTWA = this->m_calcTWA;
         }
         else
-            mTWA = value;
+            this->mTWA = value;
         break;
     case  OCPN_DBP_STC_TWS:
-        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWS)){ //otherwise we distribute the original O TWS
-            mTWS = m_calcTWS;
+        if (g_bForceTrueWindCalculation && !std::isnan(this->m_calcTWS)){ //otherwise we distribute the original O TWS
+            this->mTWS = this->m_calcTWS;
         }
         else
-            mTWS = value;
+            this->mTWS = value;
         break;
     case  OCPN_DBP_STC_TWD:
-        if (g_bForceTrueWindCalculation && !std::isnan(m_calcTWD)){ //otherwise we distribute the original O TWD
-            mTWD = m_calcTWD;
+        if (g_bForceTrueWindCalculation && !std::isnan(this->m_calcTWD)){ //otherwise we distribute the original O TWD
+            this->mTWD = this->m_calcTWD;
         }
         else
-            mTWD = value;
+            this->mTWD = value;
         break;
     case OCPN_DBP_STC_STW:
-        mStW = value;
+        this->mStW = value;
         break;
     case OCPN_DBP_STC_HDT:
-        mHdt = value;
+        this->mHdt = value;
         break;
     case OCPN_DBP_STC_HEEL:
         if (g_bUseHeelSensor){
-            mheel = value;
-            mHeelUnit = unit;
+            this->mheel = value;
+            this->mHeelUnit = unit;
         }
-        msensorheel = value; //TR TEMP for testing !
+        this->msensorheel = value; //TR TEMP for testing !
         break;
     case OCPN_DBP_STC_COG:
-        mCOG = value;
+        this->mCOG = value;
         break;
     case OCPN_DBP_STC_SOG:
-        mSOG = value;
+        this->mSOG = value;
         break;
     case OCPN_DBP_STC_LAT:
-        mlat = value;
+        this->mlat = value;
         break;
     case OCPN_DBP_STC_LON:
         mlon = value;
         break;
     case OCPN_DBP_STC_CURRDIR:
-        m_CurrentDirection = value;
+        this->m_CurrentDirection = value;
         break;
     case OCPN_DBP_STC_CURRSPD:
-        m_ExpSmoothCurrSpd = value;
+        this->m_ExpSmoothCurrSpd = value;
         break;
     case OCPN_DBP_STC_BRG:
-        mBRG = value;
+        this->mBRG = value;
         break;
     default:
         break;
     }
     if (g_bManHeelInput){
-        mHeelUnit = (mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
+        this->mHeelUnit = (this->mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
         g_dheel[0][0] = g_dheel[1][0] = g_dheel[2][0] = g_dheel[3][0] = g_dheel[4][0] = g_dheel[5][0] = g_dheel[0][1] = g_dheel[0][2] = g_dheel[0][3] = g_dheel[0][4] = 0.0;
-        if (std::isnan(mTWS)) mTWS = 0;
-        if (std::isnan(mTWA)) mTWA = 0;
-        int twsmin = (int)(mTWS / 5);
+        if (std::isnan(this->mTWS)) this->mTWS = 0;
+        if (std::isnan(this->mTWA)) this->mTWA = 0;
+        int twsmin = (int)(this->mTWS / 5);
         int twsmax = twsmin + 1;
-        int twamin = (int)(mTWA / 45);
+        int twamin = (int)(this->mTWA / 45);
         int twamax = twamin + 1;
         double tws1 = twsmin*5.;
         double tws2 = twsmax * 5.;
@@ -1830,17 +1850,17 @@ void tactics_pi::SetCalcVariables(
         double twa2 = twamax * 45.;
 
 
-        double twsfact = (mTWS - tws1) / (tws2 - tws1);
-        double twafact = (mTWA - twa1) / (twa2 - twa1);
+        double twsfact = (this->mTWS - tws1) / (tws2 - tws1);
+        double twafact = (this->mTWA - twa1) / (twa2 - twa1);
         double heel1 = g_dheel[twsmin][twamin] + twsfact*(g_dheel[twsmax][twamin] - g_dheel[twsmin][twamin]);
         double heel2 = g_dheel[twsmin][twamax] + twsfact*(g_dheel[twsmax][twamax] - g_dheel[twsmin][twamax]);
 
-        mheel = heel1 + twafact*(heel2 - heel1);
-        if (mHeelUnit == _T("\u00B0l")) mheel = -mheel;
+        this->mheel = heel1 + twafact*(heel2 - heel1);
+        if (this->mHeelUnit == _T("\u00B0l")) this->mheel = -this->mheel;
     }
-    if (!std::isnan(mLeeway)){
-        if (mLeeway >= -90 && mLeeway <= 90)
-            m_LeewayOK = true;
+    if (!std::isnan(this->mLeeway)){
+        if (this->mLeeway >= -90 && this->mLeeway <= 90)
+            this->m_LeewayOK = true;
     }
 }
 
@@ -1858,40 +1878,40 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
     bool calculatedLeeway = false;
     
     if (g_bUseFixedLeeway){
-        mHeelUnit =
-            (mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
-        mLeeway = g_dfixedLeeway;
-        if (std::isnan(mheel)) mheel = 0;
+        this->mHeelUnit =
+            (this->mAWAUnit == _T("\u00B0L")) ? _T("\u00B0r") : _T("\u00B0l");
+        this->mLeeway = g_dfixedLeeway;
+        if (std::isnan(this->mheel)) this->mheel = 0;
 
-        if (mHeelUnit == _T("\u00B0l") && mLeeway > 0) mLeeway = -mLeeway;
-        if (mHeelUnit == _T("\u00B0r") && mLeeway < 0) mLeeway = -mLeeway;
+        if (this->mHeelUnit == _T("\u00B0l") && this->mLeeway > 0) this->mLeeway = -this->mLeeway;
+        if (this->mHeelUnit == _T("\u00B0r") && this->mLeeway < 0) this->mLeeway = -this->mLeeway;
         calculatedLeeway = true;
     }
 
     else {//g_bUseHeelSensor or g_bManHeelInput
 
         // only start calculating if we have a full set of data
-        if (!std::isnan(mheel) && !std::isnan(mStW)) {
-            double stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+        if (!std::isnan(this->mheel) && !std::isnan(this->mStW)) {
+            double stw_kts = fromUsrSpeed_Plugin(this->mStW, g_iDashSpeedUnit);
 
             // calculate Leeway based on Heel
-            if (mheel == 0)
-                mLeeway = 0;
-            else if (mStW == 0)
-                mLeeway = g_dfixedLeeway;
+            if (this->mheel == 0)
+                this->mLeeway = 0;
+            else if (this->mStW == 0)
+                this->mLeeway = g_dfixedLeeway;
             else
-                mLeeway = (g_dLeewayFactor*mheel) / (stw_kts*stw_kts);
-            if (mLeeway > g_dfixedLeeway) mLeeway = g_dfixedLeeway;
-            if (mLeeway < -g_dfixedLeeway) mLeeway = -g_dfixedLeeway;
+                this->mLeeway = (g_dLeewayFactor*this->mheel) / (stw_kts*stw_kts);
+            if (this->mLeeway > g_dfixedLeeway) this->mLeeway = g_dfixedLeeway;
+            if (this->mLeeway < -g_dfixedLeeway) this->mLeeway = -g_dfixedLeeway;
             //22.04TR : auf neg. Werte prüfen !!!
-            mHeelUnit = (mheel < 0) ? _T("\u00B0l") : _T("\u00B0r");
+            this->mHeelUnit = (this->mheel < 0) ? _T("\u00B0l") : _T("\u00B0r");
             calculatedLeeway = true;
         }
     }
     if ( calculatedLeeway ) {
         st_leeway = OCPN_DBP_STC_LEEWAY;
-        value_leeway = mLeeway;
-        unit_leeway = mHeelUnit;
+        value_leeway = this->mLeeway;
+        unit_leeway = this->mHeelUnit;
         return true;
     }
     return false;
@@ -1929,19 +1949,19 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
     if (st == OCPN_DBP_STC_HDT) {
 
         // ... and only start calculating if we have a full set of data
-      if (!std::isnan(mheel) && m_LeewayOK && !std::isnan(mCOG) &&
-          !std::isnan(mSOG) && !std::isnan(mStW) && !std::isnan(mHdt) &&
-          !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway))
+      if (!std::isnan(this->mheel) && this->m_LeewayOK && !std::isnan(this->mCOG) &&
+          !std::isnan(this->mSOG) && !std::isnan(this->mStW) && !std::isnan(this->mHdt) &&
+          !std::isnan(this->mlat) && !std::isnan(mlon) && !std::isnan(this->mLeeway))
       {
 
             double COGlon, COGlat;
             //we have to do the calculation in knots ...
             double sog_kts, stw_kts;
-            sog_kts = fromUsrSpeed_Plugin(mSOG, g_iDashSpeedUnit);
-            stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+            sog_kts = fromUsrSpeed_Plugin(this->mSOG, g_iDashSpeedUnit);
+            stw_kts = fromUsrSpeed_Plugin(this->mStW, g_iDashSpeedUnit);
             //calculate endpoint of COG/SOG
             PositionBearingDistanceMercator_Plugin(
-                mlat, mlon, mCOG, sog_kts, &COGlat, &COGlon);
+                this->mlat, mlon, this->mCOG, sog_kts, &COGlat, &COGlon);
 
             //------------------------------------ 
             //correct HDT with Leeway
@@ -1956,22 +1976,22 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
                   //      \        Current
             //       \ COG,SOG
             //        V        
-            // if wind is from port, heel & mLeeway will be positive (to starboard), adding degrees on the compass rose
+            // if wind is from port, heel & this->mLeeway will be positive (to starboard), adding degrees on the compass rose
             //  CRS = Hdt + Leeway
-            //  if wind is from starboard, heel/mLeeway are negative (to port), mLeeway has to be substracted from Hdt
-            //   As mLeeway is a signed double, so we can generally define : CRS = Hdt + mLeeway 
-            double CourseThroughWater = mHdt + mLeeway;
+            //  if wind is from starboard, heel/this->mLeeway are negative (to port), this->mLeeway has to be substracted from Hdt
+            //   As this->mLeeway is a signed double, so we can generally define : CRS = Hdt + this->mLeeway 
+            double CourseThroughWater = this->mHdt + this->mLeeway;
             if (CourseThroughWater >= 360) CourseThroughWater -= 360;
             if (CourseThroughWater < 0) CourseThroughWater += 360;
             double CRSlat, CRSlon;
             //calculate endpoint of StW/KdW;
             double stw_corr;
             //correct only if not already done before via preference setting
-            if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor && !std::isnan(mLeeway) && !std::isnan(mheel)) //in this case STW is already corrected !!!
+            if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor && !std::isnan(this->mLeeway) && !std::isnan(this->mheel)) //in this case STW is already corrected !!!
                 stw_corr = stw_kts;
             else
-                stw_corr = stw_kts / cos(mLeeway *M_PI / 180.0); //we have to correct StW for CRS as well.
-            PositionBearingDistanceMercator_Plugin(mlat, mlon, CourseThroughWater, stw_corr, &CRSlat, &CRSlon);
+                stw_corr = stw_kts / cos(this->mLeeway *M_PI / 180.0); //we have to correct StW for CRS as well.
+            PositionBearingDistanceMercator_Plugin(this->mlat, mlon, CourseThroughWater, stw_corr, &CRSlat, &CRSlon);
 
             //calculate the Current vector with brg & speed from the 2 endpoints above
             double currdir = 0, currspd = 0;
@@ -1980,37 +2000,37 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             DistanceBearingMercator_Plugin(COGlat, COGlon, CRSlat, CRSlon, &currdir, &currspd);
             // double exponential smoothing on currdir / currspd
             if (currspd < 0) currspd = 0;
-            if (std::isnan(m_ExpSmoothCurrSpd))
-                m_ExpSmoothCurrSpd = currspd;
-            if (std::isnan(m_ExpSmoothCurrDir))
-                m_ExpSmoothCurrDir = currdir;
+            if (std::isnan(this->m_ExpSmoothCurrSpd))
+                this->m_ExpSmoothCurrSpd = currspd;
+            if (std::isnan(this->m_ExpSmoothCurrDir))
+                this->m_ExpSmoothCurrDir = currdir;
 
             double currdir_tan = currdir;
-            mExpSmoothCurrSpd->SetAlpha(alpha_currspd);
-            m_ExpSmoothCurrSpd = mExpSmoothCurrSpd->GetSmoothVal(currspd);
+            this->mExpSmoothCurrSpd->SetAlpha(this->alpha_currspd);
+            this->m_ExpSmoothCurrSpd = this->mExpSmoothCurrSpd->GetSmoothVal(currspd);
 
             double rad = (90 - currdir_tan)*M_PI / 180.;
-            mSinCurrDir->SetAlpha(g_dalpha_currdir);
-            mCosCurrDir->SetAlpha(g_dalpha_currdir);
-            m_ExpSmoothSinCurrDir = mSinCurrDir->GetSmoothVal(sin(rad));
-            m_ExpSmoothCosCurrDir = mCosCurrDir->GetSmoothVal(cos(rad));
-            m_CurrentDirection = (90. - (atan2(m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir)*180. / M_PI) + 360.);
-            while (m_CurrentDirection >= 360) m_CurrentDirection -= 360;
+            this->mSinCurrDir->SetAlpha(g_dalpha_currdir);
+            this->mCosCurrDir->SetAlpha(g_dalpha_currdir);
+            this->m_ExpSmoothSinCurrDir = this->mSinCurrDir->GetSmoothVal(sin(rad));
+            this->m_ExpSmoothCosCurrDir = this->mCosCurrDir->GetSmoothVal(cos(rad));
+            this->m_CurrentDirection = (90. - (atan2(this->m_ExpSmoothSinCurrDir, this->m_ExpSmoothCosCurrDir)*180. / M_PI) + 360.);
+            while (this->m_CurrentDirection >= 360) this->m_CurrentDirection -= 360;
             // temporary output of Currdir to file ...
-            //str = wxString::Format(_T("%.2f;%.2f\n"), currdir, m_CurrentDirection);
+            //str = wxString::Format(_T("%.2f;%.2f\n"), currdir, this->m_CurrentDirection);
             //out.WriteString(str);
             st_currdir = OCPN_DBP_STC_CURRDIR;
-            value_currdir = m_CurrentDirection;
+            value_currdir = this->m_CurrentDirection;
             unit_currdir = _T("\u00B0");
             st_currspd = OCPN_DBP_STC_CURRSPD;
             value_currspd = toUsrSpeed_Plugin(
-                m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
+                this->m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
             unit_currspd = getUsrSpeedUnit_Plugin(g_iDashSpeedUnit);
             return true;
         }
         else{
-            m_CurrentDirection = NAN;
-            m_ExpSmoothCurrSpd = NAN;
+            this->m_CurrentDirection = NAN;
+            this->m_ExpSmoothCurrSpd = NAN;
         }
     }
     return false;
@@ -2041,52 +2061,52 @@ independent of the use of any instrument or setting
 ***********************************************************************/
 void tactics_pi::CalculatePerformanceData(void)
 {
-    if (std::isnan(mTWA) || std::isnan(mTWS)) {
+    if (std::isnan(this->mTWA) || std::isnan(this->mTWS)) {
         return;
     }
 
-    mPolarTargetSpeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
+    this->mPolarTargetSpeed = BoatPolar->GetPolarSpeed(this->mTWA, this->mTWS);
     //transfer targetangle dependent on AWA, not TWA
-    if (mAWA <= 90)
-        tvmg = BoatPolar->Calc_TargetVMG(60, mTWS);
+    if (this->mAWA <= 90)
+        this->tvmg = BoatPolar->Calc_TargetVMG(60, this->mTWS);
     else
-        tvmg = BoatPolar->Calc_TargetVMG(120, mTWS);
+        this->tvmg = BoatPolar->Calc_TargetVMG(120, this->mTWS);
 
     // get Target VMG Angle from Polar
-    //tvmg = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
-    if (tvmg.TargetSpeed > 0 && !std::isnan(mStW)) {
-        double VMG = BoatPolar->Calc_VMG(mTWA, mStW);
-        mPercentTargetVMGupwind = mPercentTargetVMGdownwind = 0;
-        if (mTWA < 90){
-            mPercentTargetVMGupwind = fabs(VMG / tvmg.TargetSpeed * 100.);
+    //this->tvmg = BoatPolar->Calc_TargetVMG(this->mTWA, this->mTWS);
+    if (this->tvmg.TargetSpeed > 0 && !std::isnan(this->mStW)) {
+        double VMG = BoatPolar->Calc_VMG(this->mTWA, this->mStW);
+        this->mPercentTargetVMGupwind = this->mPercentTargetVMGdownwind = 0;
+        if (this->mTWA < 90){
+            this->mPercentTargetVMGupwind = fabs(VMG / this->tvmg.TargetSpeed * 100.);
         }
-        if (mTWA > 90){
-            mPercentTargetVMGdownwind = fabs(VMG / tvmg.TargetSpeed * 100.);
+        if (this->mTWA > 90){
+            this->mPercentTargetVMGdownwind = fabs(VMG / this->tvmg.TargetSpeed * 100.);
         }
-        //mVMGGain = 100.0 - mStW/tvmg.TargetSpeed  * 100.;
-        mVMGGain = 100.0 - VMG / tvmg.TargetSpeed  * 100.;
+        //this->mVMGGain = 100.0 - this->mStW/this->tvmg.TargetSpeed  * 100.;
+        this->mVMGGain = 100.0 - VMG / this->tvmg.TargetSpeed  * 100.;
     }
     else
     {
-        mPercentTargetVMGupwind = mPercentTargetVMGdownwind = 0;
-        mVMGGain = 0;
+        this->mPercentTargetVMGupwind = this->mPercentTargetVMGdownwind = 0;
+        this->mVMGGain = 0;
     }
-    if (tvmg.TargetAngle >= 0 && tvmg.TargetAngle < 360) {
-        mVMGoptAngle = getSignedDegRange(mTWA, tvmg.TargetAngle);
+    if (this->tvmg.TargetAngle >= 0 && this->tvmg.TargetAngle < 360) {
+        this->mVMGoptAngle = getSignedDegRange(this->mTWA, this->tvmg.TargetAngle);
     }
     else
-        mVMGoptAngle = 0;
+        this->mVMGoptAngle = 0;
 
-    if (mBRG >= 0 && !std::isnan(mHdt) && !std::isnan(mStW) && !std::isnan(mTWD)){
-        tcmg = BoatPolar->Calc_TargetCMG(mTWS, mTWD, mBRG);
-        double actcmg = BoatPolar->Calc_CMG(mHdt, mStW, mBRG);
-        // mCMGGain = (tcmg.TargetSpeed >0) ? (100.0 - mStW / tcmg.TargetSpeed *100.) : 0.0;
-        mCMGGain = (tcmg.TargetSpeed >0) ? (100.0 - actcmg / tcmg.TargetSpeed *100.) : 0.0;
-        if (tcmg.TargetAngle >= 0 && tcmg.TargetAngle < 360) {
-            mCMGoptAngle = getSignedDegRange(mTWA, tcmg.TargetAngle);
+    if (this->mBRG >= 0 && !std::isnan(this->mHdt) && !std::isnan(this->mStW) && !std::isnan(this->mTWD)){
+        this->tcmg = BoatPolar->Calc_TargetCMG(this->mTWS, this->mTWD, this->mBRG);
+        double actcmg = BoatPolar->Calc_CMG(this->mHdt, this->mStW, this->mBRG);
+        // this->mCMGGain = (this->tcmg.TargetSpeed >0) ? (100.0 - this->mStW / this->tcmg.TargetSpeed *100.) : 0.0;
+        this->mCMGGain = (this->tcmg.TargetSpeed >0) ? (100.0 - actcmg / this->tcmg.TargetSpeed *100.) : 0.0;
+        if (this->tcmg.TargetAngle >= 0 && this->tcmg.TargetAngle < 360) {
+            this->mCMGoptAngle = getSignedDegRange(this->mTWA, this->tcmg.TargetAngle);
         }
         else
-            mCMGoptAngle = 0;
+            this->mCMGoptAngle = 0;
 
     }
     CalculatePredictedCourse();
@@ -2094,23 +2114,23 @@ void tactics_pi::CalculatePerformanceData(void)
 
 /**********************************************************************
 Calculates the predicted course/speed on the other tack and stores it
-in the variables mPredictedCoG, mPredictedSoG
+in the variables this->mPredictedCoG, this->mPredictedSoG
 **********************************************************************/
 void tactics_pi::CalculatePredictedCourse(void)
 {
     double predictedKdW; //==predicted Course Through Water
-    if (!std::isnan(mStW) && !std::isnan(mHdt) && !std::isnan(mTWA) && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway) && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
+    if (!std::isnan(this->mStW) && !std::isnan(this->mHdt) && !std::isnan(this->mTWA) && !std::isnan(this->mlat) && !std::isnan(mlon) && !std::isnan(this->mLeeway) && !std::isnan(this->m_CurrentDirection) && !std::isnan(this->m_ExpSmoothCurrSpd)){
       //New: with BearingCompass in Head-Up mode = Hdt
-      double Leeway = (mHeelUnit == _T("\u00B0L")) ? -mLeeway : mLeeway;
+      double Leeway = (this->mHeelUnit == _T("\u00B0L")) ? -this->mLeeway : this->mLeeway;
       //todo : assuming TWAunit = AWAunit ...
-      if (mAWAUnit == _T("\u00B0L")){ //currently wind is from port, target is from starboard ...
-        predictedKdW = mHdt - 2 * mTWA - Leeway;
+      if (this->mAWAUnit == _T("\u00B0L")){ //currently wind is from port, target is from starboard ...
+        predictedKdW = this->mHdt - 2 * this->mTWA - Leeway;
       }
-      else if (mAWAUnit == _T("\u00B0R")){ //so, currently wind from starboard
-        predictedKdW = mHdt + 2 * mTWA - Leeway;
+      else if (this->mAWAUnit == _T("\u00B0R")){ //so, currently wind from starboard
+        predictedKdW = this->mHdt + 2 * this->mTWA - Leeway;
       }
       else {
-        predictedKdW = (mTWA < 10) ? 180 : 0; // should never happen, but is this correct ???
+        predictedKdW = (this->mTWA < 10) ? 180 : 0; // should never happen, but is this correct ???
       }
       if (predictedKdW >= 360) predictedKdW -= 360;
       if (predictedKdW < 0) predictedKdW += 360;
@@ -2118,13 +2138,13 @@ void tactics_pi::CalculatePredictedCourse(void)
       //double predictedCoG;
       //standard triangle calculation to get predicted CoG / SoG
       //get endpoint from boat-position by applying  KdW, StW
-      PositionBearingDistanceMercator_Plugin(mlat, mlon, predictedKdW, mStW, &predictedLatHdt, &predictedLonHdt);
+      PositionBearingDistanceMercator_Plugin(this->mlat, mlon, predictedKdW, this->mStW, &predictedLatHdt, &predictedLonHdt);
       //wxLogMessage(_T("Step1: m_lat=%f,m_lon=%f, predictedKdW=%f,m_StW=%f --> predictedLatHdt=%f,predictedLonHdt=%f\n"), m_lat, m_lon, predictedKdW, m_StW, predictedLatHdt, predictedLonHdt);
       //apply surface current with direction & speed to endpoint from above
-      PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, m_CurrentDirection, m_ExpSmoothCurrSpd, &predictedLatCog, &predictedLonCog);
+      PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, this->m_CurrentDirection, this->m_ExpSmoothCurrSpd, &predictedLatCog, &predictedLonCog);
       //wxLogMessage(_T("Step2: predictedLatHdt=%f,predictedLonHdt=%f, m_CurrDir=%f,m_CurrSpeed=%f --> predictedLatCog=%f,predictedLonCog=%f\n"), predictedLatHdt, predictedLonHdt, m_CurrDir, m_CurrSpeed, predictedLatCog, predictedLonCog);
       //now get predicted CoG & SoG as difference between the 2 endpoints (coordinates) from above
-      DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, mlat, mlon, &mPredictedCoG, &mPredictedSoG);
+      DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, this->mlat, mlon, &this->mPredictedCoG, &this->mPredictedSoG);
     }
 }
 
@@ -2134,23 +2154,23 @@ NMEA $PNKEP (NKE style) performance data
 void tactics_pi::ExportPerformanceData(void)
 {
 	//PolarTargetSpeed
-	if (g_bExpPerfData01 && !std::isnan(mPolarTargetSpeed)){
-		createPNKEP_NMEA(1, mPolarTargetSpeed, mPolarTargetSpeed  * 1.852, 0, 0);
+	if (g_bExpPerfData01 && !std::isnan(this->mPolarTargetSpeed)){
+		createPNKEP_NMEA(1, this->mPolarTargetSpeed, this->mPolarTargetSpeed  * 1.852, 0, 0);
 	}
-	//todo : extract mPredictedCoG calculation from layline.calc and add to CalculatePerformanceData
-	if (g_bExpPerfData02 && !std::isnan(mPredictedCoG)){
-		createPNKEP_NMEA(2, mPredictedCoG, 0, 0, 0); // course (CoG) on other tack
+	//todo : extract this->mPredictedCoG calculation from layline.calc and add to CalculatePerformanceData
+	if (g_bExpPerfData02 && !std::isnan(this->mPredictedCoG)){
+		createPNKEP_NMEA(2, this->mPredictedCoG, 0, 0, 0); // course (CoG) on other tack
 	}
 	//Target VMG angle, act. VMG % upwind, act. VMG % downwind
-	if (g_bExpPerfData03 && !std::isnan(tvmg.TargetAngle) && tvmg.TargetSpeed > 0){
-		createPNKEP_NMEA(3, tvmg.TargetAngle, mPercentTargetVMGupwind, mPercentTargetVMGdownwind, 0);
+	if (g_bExpPerfData03 && !std::isnan(this->tvmg.TargetAngle) && this->tvmg.TargetSpeed > 0){
+		createPNKEP_NMEA(3, this->tvmg.TargetAngle, this->mPercentTargetVMGupwind, this->mPercentTargetVMGdownwind, 0);
 	}
 	//Gain VMG de 0 à 999%, Angle pour optimiser le VMG de 0 à 359°,Gain CMG de 0 à 999%,Angle pour optimiser le CMG de 0 à 359°
 	if (g_bExpPerfData04)
-		createPNKEP_NMEA(4, mCMGoptAngle, mCMGGain, mVMGoptAngle, mVMGGain);
+		createPNKEP_NMEA(4, this->mCMGoptAngle, this->mCMGGain, this->mVMGoptAngle, this->mVMGGain);
 	//current direction, current speed kts, current speed in km/h,
-	if (g_bExpPerfData05 && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
-		createPNKEP_NMEA(5, m_CurrentDirection, m_ExpSmoothCurrSpd, m_ExpSmoothCurrSpd  * 1.852, 0);
+	if (g_bExpPerfData05 && !std::isnan(this->m_CurrentDirection) && !std::isnan(this->m_ExpSmoothCurrSpd)){
+		createPNKEP_NMEA(5, this->m_CurrentDirection, this->m_ExpSmoothCurrSpd, this->m_ExpSmoothCurrSpd  * 1.852, 0);
 	}
 }
 
@@ -2180,8 +2200,8 @@ void tactics_pi::createPNKEP_NMEA(int sentence, double data1, double data2, doub
 		break;
 	case 4:
 		/*Calculates the gain for VMG & CMG and stores it in the variables
-		mVMGGain, mCMGGain,mVMGoptAngle,mCMGoptAngle
-		Gain is the percentage btw. the current boat speed mStW value and Target-VMG/CMG
+		this->mVMGGain, this->mCMGGain,this->mVMGoptAngle,this->mCMGoptAngle
+		Gain is the percentage btw. the current boat speed this->mStW value and Target-VMG/CMG
 		Question : shouldn't we compare act.VMG with Target-VMG ? To be investigated ...
 		$PNKEP, 04, x.x, x.x, x.x, x.x*hh<CR><LF>
 		|    |    |    \ Gain VMG de 0 à 999 %
@@ -2257,17 +2277,17 @@ the SetNMEASentence in the child class can then simply drop this data.
 ***********************************************************************/
 bool tactics_pi::SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots)
 {
-    if (!m_bNKE_TrueWindTableBug)
+    if (!this->m_bNKE_TrueWindTableBug)
         return false;
     if (std::isnan(SentenceWindSpeedKnots))
         return false;
-    if (std::isnan(mTWS))
+    if (std::isnan(this->mTWS))
         return false;
-    if ((m_VWR_AWA < 8.0) && (SentenceWindSpeedKnots > mTWS*1.7)){
+    if ((this->m_VWR_AWA < 8.0) && (SentenceWindSpeedKnots > this->mTWS*1.7)){
      wxLogMessage(
-            "dashboard_tactics: NKE MWD-Sentence filtered, see m_bNKE_TrueWindTableBug setting. MWD-Spd=%f,mTWS=%f,VWR_AWA=%f,NKE_BUG=%d",
-            SentenceWindSpeedKnots, mTWS, m_VWR_AWA,
-            m_bNKE_TrueWindTableBug);
+            "dashboard_tactics: NKE MWD-Sentence filtered, see m_bNKE_TrueWindTableBug setting. MWD-Spd=%f,this->mTWS=%f,VWR_AWA=%f,NKE_BUG=%d",
+            SentenceWindSpeedKnots, this->mTWS, this->m_VWR_AWA,
+            this->m_bNKE_TrueWindTableBug);
         return true;
     } // then conditions explained in the above description have been met
     return false;
@@ -2292,7 +2312,7 @@ TacticsPreferencesDialog::TacticsPreferencesDialog(
 void TacticsPreferencesDialog::TacticsPreferencesInit( wxNotebook *itemNotebook, int border_size )
 {
     m_itemNotebook = itemNotebook;
-    m_border_size = border_size;
+    this->m_border_size = border_size;
 }
 
 void TacticsPreferencesDialog::TacticsPreferencesPanel()
@@ -2315,7 +2335,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox05 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Laylines"));
 	wxStaticBoxSizer* itemStaticBoxSizer05 = new wxStaticBoxSizer(itemStaticBox05, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer05, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer05, 0, wxEXPAND | wxALL, this->m_border_size);
 
 	wxFlexGridSizer *itemFlexGridSizer05 = new wxFlexGridSizer(2);
 	itemFlexGridSizer05->AddGrowableCol(1);
@@ -2325,7 +2345,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     wxStaticText* itemStaticText18 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Layline damping factor [0.025-1]:  "),
       wxDefaultPosition, wxDefaultSize, 0);
     itemStaticText18->SetToolTip(_("The layline damping factor determines how fast the  laylines react on your course changes, i.e. your COG changes.\n Low values mean high damping."));
-    itemFlexGridSizer05->Add(itemStaticText18, 0, wxEXPAND | wxALL, m_border_size);
+    itemFlexGridSizer05->Add(itemStaticText18, 0, wxEXPAND | wxALL, this->m_border_size);
     m_alphaLaylineDampFactor = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0.025, 1, g_dalphaLaylinedDampFactor, 0.001);
     itemFlexGridSizer05->Add(m_alphaLaylineDampFactor, 0, wxALIGN_LEFT, 0);
     m_alphaLaylineDampFactor->SetValue(g_dalphaLaylinedDampFactor);
@@ -2335,7 +2355,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	wxStaticText* itemStaticText20 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Layline width damping factor [0.025-1]:  "),
 		wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText20->SetToolTip(_("The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\nThe idea is to display the COG range where you're sailing to.\n Low values mean high damping."));
-	itemFlexGridSizer05->Add(itemStaticText20, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer05->Add(itemStaticText20, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_alphaDeltCoG = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0.025, 1, g_dalphaDeltCoG, 0.001);
 	itemFlexGridSizer05->Add(m_alphaDeltCoG, 0, wxALIGN_LEFT, 0);
 	m_alphaDeltCoG->SetValue(g_dalphaDeltCoG);
@@ -2346,7 +2366,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 		wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText19->SetToolTip(_("Length of the boat laylines in [nm]"));
 
-	itemFlexGridSizer05->Add(itemStaticText19, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer05->Add(itemStaticText19, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_pLaylineLength = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0.0, 20.0, g_dLaylineLengthonChart, 0.1);
 	itemFlexGridSizer05->Add(m_pLaylineLength, 0, wxALIGN_LEFT | wxALL, 0);
 	m_pLaylineLength->SetValue(g_dLaylineLengthonChart);
@@ -2355,7 +2375,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	wxStaticText* itemStaticText21 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Min. Layline Width [\u00B0]:"),
 		wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText21->SetToolTip(_("Min. width of boat laylines in degrees."));
-	itemFlexGridSizer05->Add(itemStaticText21, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer05->Add(itemStaticText21, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_minLayLineWidth = new wxSpinCtrl(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 20, g_iMinLaylineWidth);
 	m_minLayLineWidth->SetToolTip(_("Min. width of boat laylines in degrees."));
 	itemFlexGridSizer05->Add(m_minLayLineWidth, 0, wxALIGN_LEFT | wxALL, 0);
@@ -2364,14 +2384,14 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	wxStaticText* itemStaticText22 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Max. Layline Width [\u00B0]:"),
 		wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText22->SetToolTip(_("Max. width of boat laylines in degrees."));
-	itemFlexGridSizer05->Add(itemStaticText22, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer05->Add(itemStaticText22, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_maxLayLineWidth = new wxSpinCtrl(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 30, g_iMaxLaylineWidth);
 	m_maxLayLineWidth->SetToolTip(_("Max. width of boat laylines in degrees."));
 	itemFlexGridSizer05->Add(m_maxLayLineWidth, 0, wxALIGN_LEFT | wxALL, 0);
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox06 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Leeway"));
 	wxStaticBoxSizer* itemStaticBoxSizer06 = new wxStaticBoxSizer(itemStaticBox06, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer06, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer06, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer06 = new wxFlexGridSizer(2);
 	itemFlexGridSizer06->AddGrowableCol(1);
 	itemStaticBoxSizer06->Add(itemFlexGridSizer06, 1, wxEXPAND | wxALL, 0);
@@ -2380,7 +2400,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//--------------------
 	wxStaticText* itemStaticText23a = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Boat's Leeway factor [0-20]:  "), wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText23a->SetToolTip(_("Leeway='Drift' of boat due to heel/wind influence\nLow values mean high performance of hull\nLeeway = (LeewayFactor * Heel) / STW\u00B2;")); //²
-	itemFlexGridSizer06->Add(itemStaticText23a, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer06->Add(itemStaticText23a, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_LeewayFactor = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 20, g_dLeewayFactor, 0.01);
 	m_LeewayFactor->SetToolTip(_("Leeway='Drift' of boat due to heel/wind influence\nLow values mean high performance of hull\nLeeway = (LeewayFactor * Heel) / STW\u00B2;"));
 
@@ -2392,7 +2412,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_ButtonUseHeelSensor->SetValue(g_bUseHeelSensor);
 	m_ButtonUseHeelSensor->SetToolTip(_("Use the internal heel sensor if available\nImportant for the correct calculation of the surface current."));
 	wxStaticText* itemStaticText23b = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer06->Add(itemStaticText23b, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer06->Add(itemStaticText23b, 0, wxEXPAND | wxALL, this->m_border_size);
 	//--------------------
 	m_ButtonFixedLeeway = new wxRadioButton(itemPanelNotebook03, wxID_ANY, _("fixed/max Leeway [\u00B0]:"), wxDefaultPosition, wxDefaultSize, 0);
 	itemFlexGridSizer06->Add(m_ButtonFixedLeeway, 0, wxALL, 5);
@@ -2413,26 +2433,26 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_ButtonHeelInput->Connect(wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler(TacticsPreferencesDialog::OnManualHeelUpdate), NULL, this);
 
 	wxStaticText* itemStaticText23c = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer06->Add(itemStaticText23c, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer06->Add(itemStaticText23c, 0, wxEXPAND | wxALL, this->m_border_size);
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox07 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Heel"));
 	wxStaticBoxSizer* itemStaticBoxSizer07 = new wxStaticBoxSizer(itemStaticBox07, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer07, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer07, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer07 = new wxFlexGridSizer(4);
 	itemStaticBoxSizer07->Add(itemFlexGridSizer07, 1, wxEXPAND | wxALL, 0);
 
 	//--------------------
 	wxStaticText* itemStaticText23T0 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("TWS/TWA "), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23T0, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23T0, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxStaticText* itemStaticText23T1 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(" 45\u00B0"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23T1, 0, wxALIGN_CENTER | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23T1, 0, wxALIGN_CENTER | wxALL, this->m_border_size);
 	wxStaticText* itemStaticText23T2 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(" 90\u00B0"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23T2, 0, wxALIGN_CENTER | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23T2, 0, wxALIGN_CENTER | wxALL, this->m_border_size);
 	wxStaticText* itemStaticText23T3 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("135\u00B0"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23T3, 0, wxALIGN_CENTER | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23T3, 0, wxALIGN_CENTER | wxALL, this->m_border_size);
 	//--------------------
 	wxStaticText* itemStaticText23ws5 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("5 kn"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23ws5, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23ws5, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_heel5_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[1][1], 0.1);
 	itemFlexGridSizer07->Add(m_heel5_45, 0, wxALIGN_LEFT, 0);
 	m_heel5_45->SetValue(g_dheel[1][1]);
@@ -2446,7 +2466,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_heel5_135->SetValue(g_dheel[1][3]);
 	//--------------------
 	wxStaticText* itemStaticText23ws10 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("10 kn"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23ws10, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23ws10, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_heel10_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[2][1], 0.1);
 	itemFlexGridSizer07->Add(m_heel10_45, 0, wxALIGN_LEFT, 0);
 	m_heel10_45->SetValue(g_dheel[2][1]);
@@ -2460,7 +2480,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_heel10_135->SetValue(g_dheel[2][3]);
 	//--------------------
 	wxStaticText* itemStaticText23ws15 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("15 kn"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23ws15, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23ws15, 0, wxEXPAND | wxALL, this->m_border_size);
 
 	m_heel15_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][1], 0.1);
 	itemFlexGridSizer07->Add(m_heel15_45, 0, wxALIGN_LEFT, 0);
@@ -2475,7 +2495,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_heel15_135->SetValue(g_dheel[3][3]);
 	//--------------------
 	wxStaticText* itemStaticText23ws20 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("20 kn"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23ws20, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23ws20, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_heel20_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[4][1], 0.1);
 	itemFlexGridSizer07->Add(m_heel20_45, 0, wxALIGN_LEFT, 0);
 	m_heel20_45->SetValue(g_dheel[4][1]);
@@ -2489,7 +2509,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_heel20_135->SetValue(g_dheel[4][3]);
 	//--------------------
 	wxStaticText* itemStaticText23ws25 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("25 kn"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer07->Add(itemStaticText23ws25, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer07->Add(itemStaticText23ws25, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_heel25_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[5][1], 0.1);
 	itemFlexGridSizer07->Add(m_heel25_45, 0, wxALIGN_LEFT, 0);
 	m_heel25_45->SetValue(g_dheel[5][1]);
@@ -2505,7 +2525,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox08 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Current"));
 	wxStaticBoxSizer* itemStaticBoxSizer08 = new wxStaticBoxSizer(itemStaticBox08, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer08, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer08, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer08 = new wxFlexGridSizer(2);
 	itemFlexGridSizer08->AddGrowableCol(1);
 	itemStaticBoxSizer08->Add(itemFlexGridSizer08, 1, wxEXPAND | wxALL, 0);
@@ -2514,7 +2534,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//
 	wxStaticText* itemStaticText24 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Current damping factor [1-400]:  "), wxDefaultPosition, wxDefaultSize, 0);
 	itemStaticText24->SetToolTip(_("Stabilizes the surface current 'arrow' in the chart overlay, bearing compass and also the numerical instruments\nLow values mean high damping"));
-	itemFlexGridSizer08->Add(itemStaticText24, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer08->Add(itemStaticText24, 0, wxEXPAND | wxALL, this->m_border_size);
 	m_AlphaCurrDir = new wxSpinCtrl(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 1, 400, g_dalpha_currdir * 1000);
 	itemFlexGridSizer08->Add(m_AlphaCurrDir, 0, wxALIGN_LEFT, 0);
 	m_AlphaCurrDir->SetValue(g_dalpha_currdir * 1000);
@@ -2527,7 +2547,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox10 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("True Wind"));
 	wxStaticBoxSizer* itemStaticBoxSizer10 = new wxStaticBoxSizer(itemStaticBox10, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer10, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer10, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer10 = new wxFlexGridSizer(2);
 	itemFlexGridSizer10->AddGrowableCol(1);
 	itemStaticBoxSizer10->Add(itemFlexGridSizer10, 1, wxEXPAND | wxALL, 0);
@@ -2564,16 +2584,16 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox09 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Polar"));
 	wxStaticBoxSizer* itemStaticBoxSizer09 = new wxStaticBoxSizer(itemStaticBox09, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizer09, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizer09, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer09 = new wxFlexGridSizer(2);
 	itemFlexGridSizer09->AddGrowableCol(1);
 	itemStaticBoxSizer09->Add(itemFlexGridSizer09, 1, wxEXPAND | wxALL, 0);
 
 	wxStaticText* itemStaticText30 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Polar :"), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizer09->Add(itemStaticText30, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer09->Add(itemStaticText30, 0, wxEXPAND | wxALL, this->m_border_size);
 
 	m_pTextCtrlPolar = new wxTextCtrl(itemPanelNotebook03, wxID_ANY, g_path_to_PolarFile, wxDefaultPosition, wxDefaultSize);
-	itemFlexGridSizer09->Add(m_pTextCtrlPolar, 0, wxALIGN_LEFT | wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizer09->Add(m_pTextCtrlPolar, 0, wxALIGN_LEFT | wxEXPAND | wxALL, this->m_border_size);
 
 	m_buttonLoadPolar = new wxButton(itemPanelNotebook03, wxID_ANY, _("Load"), wxDefaultPosition, wxDefaultSize, 0);
 	itemFlexGridSizer09->Add(m_buttonLoadPolar, 0, wxALIGN_LEFT | wxALL, 5);
@@ -2587,7 +2607,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBoxExpData = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Export NMEA Performance Data"));
 	wxStaticBoxSizer* itemStaticBoxSizerExpData = new wxStaticBoxSizer(itemStaticBoxExpData, wxHORIZONTAL);
-	itemBoxSizer06->Add(itemStaticBoxSizerExpData, 0, wxEXPAND | wxALL, m_border_size);
+	itemBoxSizer06->Add(itemStaticBoxSizerExpData, 0, wxEXPAND | wxALL, this->m_border_size);
 	wxFlexGridSizer *itemFlexGridSizerExpData = new wxFlexGridSizer(2);
 	itemFlexGridSizerExpData->AddGrowableCol(1);
 	itemStaticBoxSizerExpData->Add(itemFlexGridSizerExpData, 1, wxEXPAND | wxALL, 0);
@@ -2598,7 +2618,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_ButtonExpNKE->SetToolTip(_("Currently only set up for NKE instruments. Exports a predefined set of up to 5 NMEA records which are 'known' by NKE instruments and can be displayed there.\nRead the manual how to set up the interface connection !"));
 
 	wxStaticText* itemStaticTextDummy = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
-	itemFlexGridSizerExpData->Add(itemStaticTextDummy, 0, wxEXPAND | wxALL, m_border_size);
+	itemFlexGridSizerExpData->Add(itemStaticTextDummy, 0, wxEXPAND | wxALL, this->m_border_size);
 	//--------------------
 	//--------------------
 	m_ExpPerfData01 = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Target Polar Speed"));
