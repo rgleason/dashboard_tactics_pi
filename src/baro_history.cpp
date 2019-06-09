@@ -50,9 +50,6 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA)
 {     SetDrawSoloInPane(true);
 
-    wxLogMessage(
-        "DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory()");
-    
     m_MaxPress = 0;
     m_MinPress =(double)1200;
     m_TotalMaxPress = 0;
@@ -76,10 +73,6 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_DrawAreaRect=GetClientRect();
     m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
 
-        wxLogMessage(
-        "DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory() - done.");
-
-
 }
 
 wxSize DashboardInstrument_BaroHistory::GetSize( int orient, wxSize hint )
@@ -102,8 +95,6 @@ void DashboardInstrument_BaroHistory::SetData(
 #endif // _TACTICSPI_H_
     double data, wxString unit)
 {
-    wxLogMessage(
-        "DashboardInstrument_BaroHistory::SetData(%llx %f %s)", st, data, unit);
     
     if (st == OCPN_DBP_STC_MDA) {
       m_Press = data;
