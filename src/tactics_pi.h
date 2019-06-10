@@ -124,11 +124,11 @@ public:
     bool GetPolarVisibility(void);
 
     virtual void SetNMEASentence(wxString &sentence) = 0;
-    void SetNMEASentence_Arm_AWS_Watchdog(void){this->mAWS_Watchdog = aws_watchdog_timeout_ticks;}
-    void SetNMEASentence_Arm_BRG_Watchdog(void){this->mBRG_Watchdog = brg_watchdog_timeout_ticks;}
-    void SetNMEASentence_Arm_TWD_Watchdog(void){this->mTWD_Watchdog = twd_watchdog_timeout_ticks;}
-    void SetNMEASentence_Arm_TWS_Watchdog(void){this->mTWS_Watchdog = tws_watchdog_timeout_ticks;}
-    void SetNMEASentence_Arm_VMG_Watchdog(void){this->mVMG_Watchdog = vmg_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_TWS_Watchdog(void){mTWS_Watchdog = tws_watchdog_timeout_ticks;}
+    void SetNMEASentence_Arm_VMG_Watchdog(void){mVMG_Watchdog = vmg_watchdog_timeout_ticks;}
     bool SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots);
 
     void CalculateCurrent(
