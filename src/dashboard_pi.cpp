@@ -2892,7 +2892,7 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
         inst->SetMinSize( inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() ) );
     }
 #ifdef _TACTICSPI_H_
-    itemBoxSizer->Fit(this);
+    // already doe SetInstrumentList() can be removed   itemBoxSizer->Fit(this);
 #endif // _TACTICSPI_H_
     Layout();
     Refresh();
@@ -3422,9 +3422,14 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             }
         }
     }
+#ifdef _TACTICSPI_H_
+    itemBoxSizer->Fit(this); // basically the same thing here than Fit(); but let's try this
+    itemBoxSizer->SetSizeHints(this); // like SetMinSize()
+#else
     Fit();
-    Layout();
     SetMinSize( itemBoxSizer->GetMinSize() );
+#endif // _TACTICSPI_H_
+    Layout();
 
 }
 
