@@ -2893,9 +2893,8 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
     }
 #ifdef _TACTICSPI_H_
     itemBoxSizer->Fit(this);
-#else
-    Layout();
 #endif // _TACTICSPI_H_
+    Layout();
     Refresh();
 }
 
