@@ -2892,7 +2892,8 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
         inst->SetMinSize( inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() ) );
     }
 #ifdef _TACTICSPI_H_
-    // already doe SetInstrumentList() can be removed   itemBoxSizer->Fit(this);
+    // above we have collected indiv. window sized, top level window can use SetSizeHints()
+    itemBoxSizer->SetSizeHints(this); // like SetMinSize(), calls Fit()
 #endif // _TACTICSPI_H_
     Layout();
     Refresh();
@@ -3412,6 +3413,17 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #endif // _TACTICSPI_H_
         }
         if( instrument ) {
+#ifdef _TACTICSPI_H_
+            // Dasboard bug #1425 - event real-time consideration:
+            // change order (for OnSize()): first itemBoxSizer, then instr. array
+            itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
+            if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
+                itemBoxSizer->AddSpacer( 5 );
+            instrument->instrumentTypeId = id;
+            m_ArrayOfInstrument.Add(
+                new DashboardInstrumentContainer(
+                    id, instrument, instrument->GetCapacity() ) );
+#else
             instrument->instrumentTypeId = id;
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
@@ -3419,12 +3431,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
             if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
                 itemBoxSizer->AddSpacer( 5 );
+#endif // _TACTICSPI_H_
             }
         }
     }
 #ifdef _TACTICSPI_H_
-    itemBoxSizer->Fit(this); // basically the same thing here than Fit(); but let's try this
-    itemBoxSizer->SetSizeHints(this); // like SetMinSize()
+    // itemBoxSizer->Fit(this); // if SetSizeHint() is called 
+    itemBoxSizer->SetSizeHints(this); // like SetMinSize(), calls Fit()
 #else
     Fit();
     SetMinSize( itemBoxSizer->GetMinSize() );
