@@ -2891,7 +2891,11 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
         inst->SetMinSize( inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() ) );
     }
+#ifdef _TACTICSPI_H_
+    itemBoxSizer->Fit(this);
+#else
     Layout();
+#endif // _TACTICSPI_H_
     Refresh();
 }
 
