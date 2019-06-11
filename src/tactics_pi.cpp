@@ -2744,7 +2744,7 @@ TacticsWindow::TacticsWindow (
     tactics_pi *tactics, const wxString derivtitle ) :
     wxWindow(
         pparent, id, wxDefaultPosition, wxDefaultSize,
-        wxBORDER_NONE, derivtitle )
+        wxBORDER_NONE || wxFULL_REPAINT_ON_RESIZE, derivtitle )
 {
     m_plugin = tactics;
     return;
