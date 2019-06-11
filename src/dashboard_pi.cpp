@@ -3043,6 +3043,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
        // rudder range
 
        */
+#ifdef _TACTICSPI_H_
+    // Tons of resize events will follow, detach the dynamic resize
+    Unbind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
+#endif // _TACTICSPI_H_
 
     m_ArrayOfInstrument.Clear();
 
@@ -3423,6 +3427,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #ifdef _TACTICSPI_H_
             // Dasboard bug #1425 - event real-time consideration:
             // change order (for OnSize()): first itemBoxSizer, then instr. array
+            // Note: with Unbind() event, order is not important, anymore
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
             if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
                 itemBoxSizer->AddSpacer( 5 );
@@ -3450,6 +3455,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     SetMinSize( itemBoxSizer->GetMinSize() );
 #endif // _TACTICSPI_H_
     Layout();
+#ifdef _TACTICSPI_H_
+    // Window has been resized here for once, reactive user resizing handling
+    Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
+#endif // _TACTICSPI_H_
 
 }
 
