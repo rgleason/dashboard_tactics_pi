@@ -3050,9 +3050,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     itemBoxSizer->Clear( true );
 
 #ifdef _TACTICSPI_H_
-    Fit();
-    SetMinSize( itemBoxSizer->GetMinSize() );
+    itemBoxSizer->SetSizeHints( this );
     Layout();
+    Refresh();
 #endif // _TACTICSPI_H_
 
     
@@ -3438,15 +3438,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
 #ifdef _TACTICSPI_H_
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
-            Fit();
-            SetMinSize( itemBoxSizer->GetMinSize() );
+            itemBoxSizer->SetSizeHints( this );
             Layout();
 #endif // _TACTICSPI_H_
             if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
                 itemBoxSizer->AddSpacer( 5 );
 #ifdef _TACTICSPI_H_
-                Fit();
-                SetMinSize( itemBoxSizer->GetMinSize() );
+                itemBoxSizer->SetSizeHints( this );
                 Layout();
 #endif // _TACTICSPI_H_
             }
@@ -3454,6 +3452,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     }
 #ifdef _TACTICSPI_H_
     itemBoxSizer->SetSizeHints( this );
+    Layout();
+    Refresh();
 #else
     Fit();
     SetMinSize( itemBoxSizer->GetMinSize() );
