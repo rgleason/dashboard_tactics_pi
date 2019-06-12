@@ -288,7 +288,7 @@ wxString getInstrumentCaption( unsigned int id )
 		return _("^Average Wind");
 	case ID_DBP_D_POLCOMP:
 		return _("^Polar Compass");
-#endif // _TACTICSPI_H
+#endif // _TACTICSPI_H_
     }
     return _T("");
 }
@@ -343,7 +343,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLCMG:
 	case ID_DBP_I_POLTCMG:
 	case ID_DBP_I_POLTCMGANGLE:
-#endif // _TACTICSPI_H
+#endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
     case ID_DBP_D_SOG:
@@ -368,7 +368,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_D_POLPERF:
 	case ID_DBP_D_AVGWIND:
 	case ID_DBP_D_POLCOMP:
-#endif // _TACTICSPI_H
+#endif // _TACTICSPI_H_
         item.SetImage( 1 );
         break;
     }
@@ -521,7 +521,7 @@ int dashboard_pi::Init( void )
 #ifdef _TACTICSPI_H_
     m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
-#endif //  _TACTICSPI_H
+#endif //  _TACTICSPI_H_
          
     LoadConfig();
 
@@ -590,7 +590,7 @@ int dashboard_pi::Init( void )
         WANTS_NMEA_EVENTS |
         USES_AUI_MANAGER |
         WANTS_PLUGIN_MESSAGING );
-#endif //  _TACTICSPI_H
+#endif //  _TACTICSPI_H_
 }
 
 bool dashboard_pi::DeInit( void )
@@ -621,7 +621,7 @@ bool dashboard_pi::DeInit( void )
 
 #ifdef _TACTICSPI_H_
     return this->TacticsDeInit();
-#endif //  _TACTICSPI_H
+#endif //  _TACTICSPI_H_
 
     return true;
 }
@@ -669,7 +669,7 @@ void dashboard_pi::Notify()
     }
 #ifdef _TACTICSPI_H_
     this->TacticsNotify();
-#endif //  _TACTICSPI_H
+#endif //  _TACTICSPI_H_
     return;
 }
 
@@ -2891,9 +2891,6 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
         inst->SetMinSize( inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() ) );
     }
-#ifdef _TACTICSPI_H_
-    // already doe SetInstrumentList() can be removed   itemBoxSizer->Fit(this);
-#endif // _TACTICSPI_H_
     Layout();
     Refresh();
 }
