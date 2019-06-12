@@ -2149,11 +2149,7 @@ void dashboard_pi::ApplyConfig( void )
             pane.Caption( cont->m_sCaption ).Show( cont->m_bIsVisible );
             if( !cont->m_pDashboardWindow->isInstrumentListEqual( cont->m_aInstrumentList ) ) {
                 cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList );
-#ifdef _TACTICSPI_H_
-                wxSize sz = cont->m_pDashboardWindow->GetSize();
-#else
                 wxSize sz = cont->m_pDashboardWindow->GetMinSize();
-#endif // _TACTICSPI_H_
                 pane.MinSize( sz ).BestSize( sz ).FloatingSize( sz );
             }
             if( cont->m_pDashboardWindow->GetSizerOrientation() != orient ) {
