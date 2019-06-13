@@ -91,8 +91,8 @@ public:
 
     ~DashboardWindowContainer(){}
     DashboardWindow              *m_pDashboardWindow;
-    bool                          m_bIsVisible; 
-    bool                          m_bIsDeleted; 
+    bool                          m_bIsVisible;
+    bool                          m_bIsDeleted;
     bool                          m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
     wxString                      m_sName;
     wxString                      m_sCaption;
@@ -170,7 +170,7 @@ public:
         unsigned long long st, double value, wxString unit);
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-#endif // _TACTICSPI_H_ 
+#endif // _TACTICSPI_H_
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
@@ -188,7 +188,7 @@ public:
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
-    
+
 private:
     bool LoadConfig(void);
     void ApplyConfig(void);
@@ -205,6 +205,7 @@ private:
 #ifdef _TACTICSPI_H_
     bool              m_bToggledStateVisible;
     int               m_iPlugInRequirements;
+    wxWindow          m_pluginFrame;
 #endif // _TACTICSPI_H_
     wxFileConfig     *m_pconfig;
     wxAuiManager     *m_pauimgr;
@@ -242,7 +243,7 @@ class DashboardPreferencesDialog : public
 #endif // _TACTICSPI_H_
 {
 public:
-    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config 
+    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
                                 , wxString commonName
 #endif // _TACTICSPI_H_
@@ -264,7 +265,7 @@ public:
     wxArrayOfDashboard            m_Config;
 #ifdef _TACTICSPI_H_
     wxNotebook                   *m_itemNotebook;
-#endif // _TACTICSPI_H_    
+#endif // _TACTICSPI_H_
     wxFontPickerCtrl             *m_pFontPickerTitle;
     wxFontPickerCtrl             *m_pFontPickerData;
     wxFontPickerCtrl             *m_pFontPickerLabel;
@@ -280,7 +281,7 @@ public:
     wxChoice                     *m_pChoiceWindSpeedUnit;
 #ifdef _TACTICSPI_H_
     wxChoice                     *m_pChoiceTemperatureUnit;
-#endif // _TACTICSPI_H_    
+#endif // _TACTICSPI_H_
 
 private:
     void UpdateDashboardButtonsState(void);
@@ -377,4 +378,3 @@ private:
 };
 
 #endif
-

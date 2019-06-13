@@ -510,6 +510,9 @@ int dashboard_pi::Init( void )
     g_pFontSmall = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
 
     m_pauimgr = GetFrameAuiManager();
+#ifdef _TACTICSPI_H_
+    m_pluginFrame = m_pauimgr->GetManagedWindow();
+#endif //  _TACTICSPI_H_
     m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
                         NULL, this );
 
@@ -2125,17 +2128,9 @@ void dashboard_pi::ApplyConfig( void )
                 GetOCPNCanvasWindow(), wxID_ANY,
                 m_pauimgr, this, orient, cont, GetCommonName() );
             newwin->SetInstrumentList( cont->m_aInstrumentList );
-            bool vertical;
-            if( !cont->m_pDashboardWindow ) {
-                vertical = true;
-                orient = wxVERTICAL;
-            } // then this was a first time window creation, set defaults
-            else {
-                if ( orient == wxVERTICAL )
-                    vertical = true;
-                else
-                    vertical = false;
-            } // else check what is the existing orientation
+            bool vertical = true;
+            if ( orient == wxHORIZONTAL )
+                vertical = false;
             wxSize sz = newwin->GetMinSize();
             // Mac has a little trouble with initial Layout() sizing...
 #ifdef __WXOSX__
@@ -2144,7 +2139,7 @@ void dashboard_pi::ApplyConfig( void )
 #endif
             wxPoint position;
             wxAuiPaneInfo p;
-            DashboardWindowContainer *newcont = new DashboardWindowContainer( newwin, cont->m_sName, cont->m_sCaption, cont->m_sOrientation, cont->m_aInstrumentList );          
+            DashboardWindowContainer *newcont = new DashboardWindowContainer( newwin, cont->m_sName, cont->m_sCaption, cont->m_sOrientation, cont->m_aInstrumentList );
             if ( !cont->m_pDashboardWindow ) {
                 position.x = 100;
                 position.y = 100;
@@ -2152,18 +2147,19 @@ void dashboard_pi::ApplyConfig( void )
                 m_pauimgr->AddPane( newwin, p);
             } // then this was a first time window creation, set defaults
             else {
+                position = cont->m_pDashboardWindow->GetPosition();
                 p = m_pauimgr->GetPane( cont->m_pDashboardWindow );
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                m_pauimgr->AddPane( newwin, p);
+                m_pauimgr->AddPane( newwin, p, position);
                 cont->m_pDashboardWindow->Close();
                 cont->m_pDashboardWindow->Destroy();
                 cont->m_pDashboardWindow = NULL;
                 m_ArrayOfDashboardWindow.Remove( cont );
-            } // else this was a recreation of an existing window, get its position 
+            } // else this was a recreation of an existing window
 
             m_ArrayOfDashboardWindow.Add( newcont );
 
-        } // else not deleted window, to be created or recreated
+        } // else not a deleted window, to be created or recreated
 #else
         else if( !cont->m_pDashboardWindow ) {
             // A new dashboard is created
@@ -2200,7 +2196,7 @@ void dashboard_pi::ApplyConfig( void )
         }
 #endif // _TACTICSPI_H_
     }
-    
+
 #ifdef _TACTICSPI_H_
     this->TacticsApplyConfig();
 #endif // _TACTICSPI_H_
@@ -2987,7 +2983,13 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
 
     switch( event.GetId() ){
     case ID_DASH_PREFS: {
-        m_plugin->ShowPreferencesDialog( this );
+      m_plugin->ShowPreferencesDialog(
+#ifdef _TACTICSPI_H_
+                m_pluginFrame // running as plugin, window as plugin
+#else
+                this // not perhaps a good idea, ApplyConfig() can delete this
+#endif //  _TACTICSPI_H_
+        );
         return; // Does it's own save.
     }
     case ID_DASH_VERTICAL: {
@@ -3099,7 +3101,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     Refresh();
 #endif // _TACTICSPI_H_
 
-    
+
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
         DashboardInstrument *instrument = NULL;
