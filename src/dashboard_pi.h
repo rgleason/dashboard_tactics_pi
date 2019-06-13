@@ -89,8 +89,22 @@ public:
     DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
         m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; }
 
+#ifdef _TACTICSPI_H_
+    DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
+            m_pDashboardWindow = sourcecont->m_pDashboardWindow;
+            m_bIsVisible       = sourcecont->m_bIsVisible;
+            m_bIsDeleted       = sourcecont->m_bIsDeleted;
+            m_bPersVisible     = sourcecont->m_bPersVisible;
+            m_sName            = sourcecont->m_sName;
+            m_sCaption         = sourcecont->m_sCaption;
+            m_sOrientation     = sourcecont->m_sOrientation;
+            m_aInstrumentList  = sourcecont->m_aInstrumentList;
+    }
+#endif // _TACTICSPI_H_
+ 
     ~DashboardWindowContainer(){}
-    DashboardWindow              *m_pDashboardWindow;
+
+DashboardWindow              *m_pDashboardWindow;
     bool                          m_bIsVisible;
     bool                          m_bIsDeleted;
     bool                          m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.

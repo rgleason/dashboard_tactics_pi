@@ -513,9 +513,10 @@ int dashboard_pi::Init( void )
 #ifdef _TACTICSPI_H_
     m_pluginFrame = m_pauimgr->GetManagedWindow();
 #endif //  _TACTICSPI_H_
+
     m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
                         NULL, this );
-
+    
     //    Get a pointer to the opencpn configuration object
     m_pconfig = GetOCPNConfigObject();
 
@@ -2124,40 +2125,56 @@ void dashboard_pi::ApplyConfig( void )
         }
 #ifdef _TACTICSPI_H_
         else {
-            DashboardWindow* newwin = new DashboardWindow(
+            DashboardWindowContainer *newcont = new DashboardWindowContainer( cont );
+            newcont->m_pDashboardWindow = new DashboardWindow(
                 GetOCPNCanvasWindow(), wxID_ANY,
-                m_pauimgr, this, orient, cont, GetCommonName() );
-            newwin->SetInstrumentList( cont->m_aInstrumentList );
+                m_pauimgr, this, orient, newcont, GetCommonName() );
+            newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
             bool vertical = true;
             if ( orient == wxHORIZONTAL )
                 vertical = false;
-            wxSize sz = newwin->GetMinSize();
+            wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
             // Mac has a little trouble with initial Layout() sizing...
 #ifdef __WXOSX__
             if(sz.x == 0)
                 sz.IncTo( wxSize( 160, 388) );
 #endif
             wxPoint position;
-            wxAuiPaneInfo p;
-            DashboardWindowContainer *newcont = new DashboardWindowContainer( newwin, cont->m_sName, cont->m_sCaption, cont->m_sOrientation, cont->m_aInstrumentList );
-            if ( !cont->m_pDashboardWindow ) {
+            // if ( !cont->m_pDashboardWindow ) {
                 position.x = 100;
                 position.y = 100;
-                p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( cont->m_bIsVisible ).Gripper(false) ;
-                m_pauimgr->AddPane( newwin, p);
-            } // then this was a first time window creation, set defaults
-            else {
-                position = cont->m_pDashboardWindow->GetPosition();
-                p = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+            // }
+            // else {
+            //     position = cont->m_pDashboardWindow->GetPosition();
+            // }
+            wxAuiPaneInfo p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( cont->m_bIsVisible ).Gripper(false) ;
+
+            m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+
+            if ( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                m_pauimgr->AddPane( newwin, p, position);
                 cont->m_pDashboardWindow->Close();
                 cont->m_pDashboardWindow->Destroy();
                 cont->m_pDashboardWindow = NULL;
                 m_ArrayOfDashboardWindow.Remove( cont );
-            } // else this was a recreation of an existing window
+                m_ArrayOfDashboardWindow.Add( newcont );
+            } // else recreation of a window
+            else {
+                cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
+            } // else brand new window
 
-            m_ArrayOfDashboardWindow.Add( newcont );
+            // else {
+            //     wxAuiPaneInfo newinfo;
+            //     p = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+            //     p.FloatingSize( sz );p.FloatingPosition( position );p.Float();
+            //     m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+            //     newinfo = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
+            //     cont->m_pDashboardWindow->Close();
+            //     cont->m_pDashboardWindow->Destroy();
+            //     cont->m_pDashboardWindow = NULL;
+            //     m_ArrayOfDashboardWindow.Remove( cont );
+            //     m_ArrayOfDashboardWindow.Add( newcont );
+            // } // else this was a recreation of an existing window
 
         } // else not a deleted window, to be created or recreated
 #else
@@ -2165,7 +2182,11 @@ void dashboard_pi::ApplyConfig( void )
             // A new dashboard is created
             cont->m_pDashboardWindow = new DashboardWindow(
                 GetOCPNCanvasWindow(), wxID_ANY,
-                m_pauimgr, this, orient, cont );
+                m_pauimgr, this, orient, cont
+#ifdef _TACTICSPI_H_
+                , GetCommonName()
+#endif // _TACTICSPI_H_
+                );
             cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList );
             bool vertical = orient == wxVERTICAL;
             wxSize sz = cont->m_pDashboardWindow->GetMinSize();
@@ -2985,9 +3006,9 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     case ID_DASH_PREFS: {
       m_plugin->ShowPreferencesDialog(
 #ifdef _TACTICSPI_H_
-                m_plugin->pGetPluginFrame() // running as plugin, window as plugin
+                m_plugin->pGetPluginFrame() // running dialog from plugin, can delete all windows
 #else
-                this // not perhaps a good idea, ApplyConfig() can delete this
+                this 
 #endif //  _TACTICSPI_H_
         );
         return; // Does it's own save.
