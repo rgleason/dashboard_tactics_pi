@@ -205,7 +205,7 @@ private:
 #ifdef _TACTICSPI_H_
     bool              m_bToggledStateVisible;
     int               m_iPlugInRequirements;
-    wxWindow          m_pluginFrame;
+    wxWindow         *m_pluginFrame;
 #endif // _TACTICSPI_H_
     wxFileConfig     *m_pconfig;
     wxAuiManager     *m_pauimgr;
