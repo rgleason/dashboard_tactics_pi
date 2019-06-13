@@ -188,6 +188,9 @@ public:
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
+    #ifdef _TACTICSPI_H_
+    wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
+    #endif // _TACTICSPI_H_
 
 private:
     bool LoadConfig(void);

@@ -2985,7 +2985,7 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     case ID_DASH_PREFS: {
       m_plugin->ShowPreferencesDialog(
 #ifdef _TACTICSPI_H_
-                m_plugin->m_pluginFrame // running as plugin, window as plugin
+                m_plugin->pGetPluginFrame() // running as plugin, window as plugin
 #else
                 this // not perhaps a good idea, ApplyConfig() can delete this
 #endif //  _TACTICSPI_H_
