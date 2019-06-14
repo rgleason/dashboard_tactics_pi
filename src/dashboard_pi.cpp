@@ -2140,19 +2140,29 @@ void dashboard_pi::ApplyConfig( void )
                 sz.IncTo( wxSize( 160, 388) );
 #endif
             wxPoint position;
-            // if ( !cont->m_pDashboardWindow ) {
+            if ( !cont->m_pDashboardWindow ) {
                 position.x = 100;
                 position.y = 100;
-            // }
-            // else {
-            //     position = cont->m_pDashboardWindow->GetPosition();
-            // }
-            wxAuiPaneInfo p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( cont->m_bIsVisible ).Gripper(false) ;
+            }
+            else {
+                wxAuiPaneInfo p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+                if ( p_cont.IsOk() && p_cont.IsDocked() ) {
+                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Float(); // force to org. pos.
+                    m_pauimgr->Update();
+                    position.x = 100;
+                    position.y = 100;
+                } // then last floating position has not much value since probably at the edge
+                else {
+                    position = p_cont.floating_pos;
+                } // else floating so let's use the original pane's location (can be negative if multi-screen)
+            }
+            wxAuiPaneInfo p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( newcont->m_bIsVisible ).Gripper(false) ;
 
             m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
 
             if ( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
+                m_pauimgr->Update();
                 cont->m_pDashboardWindow->Close();
                 cont->m_pDashboardWindow->Destroy();
                 cont->m_pDashboardWindow = NULL;
@@ -2161,10 +2171,7 @@ void dashboard_pi::ApplyConfig( void )
             } // else recreation of a window
             else {
                 cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-            } /* else brand new window
-                 Porting note: why the above brute force is used
-                 https://github.com/canne/dashboard_tactics_pi/commit/9f9f43080e003d30be23fb323aa8da86b6bfbb47#r33937468
-               */
+            } // else brand new window
 
         } // else not a deleted window, to be created or recreated
 #else
