@@ -516,7 +516,7 @@ int dashboard_pi::Init( void )
 
     m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
                         NULL, this );
-    
+
     //    Get a pointer to the opencpn configuration object
     m_pconfig = GetOCPNConfigObject();
 
@@ -2161,20 +2161,10 @@ void dashboard_pi::ApplyConfig( void )
             } // else recreation of a window
             else {
                 cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-            } // else brand new window
-
-            // else {
-            //     wxAuiPaneInfo newinfo;
-            //     p = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-            //     p.FloatingSize( sz );p.FloatingPosition( position );p.Float();
-            //     m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-            //     newinfo = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
-            //     cont->m_pDashboardWindow->Close();
-            //     cont->m_pDashboardWindow->Destroy();
-            //     cont->m_pDashboardWindow = NULL;
-            //     m_ArrayOfDashboardWindow.Remove( cont );
-            //     m_ArrayOfDashboardWindow.Add( newcont );
-            // } // else this was a recreation of an existing window
+            } /* else brand new window
+                 Porting note: why the above brute force is used
+                 https://github.com/canne/dashboard_tactics_pi/commit/9f9f43080e003d30be23fb323aa8da86b6bfbb47#r33937468
+               */
 
         } // else not a deleted window, to be created or recreated
 #else
@@ -3008,7 +2998,7 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
 #ifdef _TACTICSPI_H_
                 m_plugin->pGetPluginFrame() // running dialog from plugin, can delete all windows
 #else
-                this 
+                this
 #endif //  _TACTICSPI_H_
         );
         return; // Does it's own save.
