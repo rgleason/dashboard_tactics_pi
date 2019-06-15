@@ -26,6 +26,7 @@
 */
 
 #include "tactics_pi.h"
+using namespace std;
 
 extern int g_iDashSpeedMax;
 extern int g_iDashCOGDamp;

@@ -33,11 +33,18 @@
 #endif //precompiled headers
 
 #include <cmath>
+
 // xw 2.8
 #include <wx/filename.h>
 
 #include <typeinfo>
 #include "dashboard_pi.h"
+
+#ifdef _TACTICSPI_H_
+#include <random>
+using namespace std;
+#endif // _TACTICSPI_H_
+
 
 #include "icons.h"
 #include "wx/jsonreader.h"
@@ -378,9 +385,18 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 /*  These two function were taken from gpxdocument.cpp (route_pi) */
 int GetRandomNumber(int range_min, int range_max)
 {
+#ifdef _TACTICSPI_H_
+    // C++ 2011 and greater, instead of rand() which gives non-uniform results w/ float
+    std::random_device rd; // pseudo or real random device (non-cryptographic)
+    std::mt19937 mt( rd() ); // Fast and cross-platform consistent; Matsumoto and Nishimura, 1998
+    std::uniform_int_distribution<int> iRandomRange(range_min, range_max); // Park, Miller, and Stockmeyer, 1988, 1993
+    return iRandomRange( mt );
+#else
     long u = (long)wxRound(((double)rand() / ((double)(RAND_MAX) + 1) * (range_max - range_min)) + range_min);
     return (int)u;
+#endif // _TACTICSPI_H_
 }
+
 
 // RFC4122 version 4 compliant random UUIDs generator.
 wxString GetUUID(void)
@@ -564,7 +580,12 @@ int dashboard_pi::Init( void )
     }
 #endif // _TACTICSPI_H_
 
+#ifdef _TACTICSPI_H_
+    bool init = true;
+    ApplyConfig( init );
+#else
     ApplyConfig();
+#endif // _TACTICSPI_H_
 
     //  If we loaded a version 1 config setup, convert now to version 2
     if(m_config_version == 1) {
@@ -2107,7 +2128,13 @@ bool dashboard_pi::SaveConfig( void )
         return false;
 }
 
-void dashboard_pi::ApplyConfig( void )
+void dashboard_pi::ApplyConfig(
+#ifdef _TACTICSPI_H_
+    bool init
+#else
+    void
+#endif // _TACTICSPI_H_
+    )
 {
     // Reverse order to handle deletes
     for( size_t i = m_ArrayOfDashboardWindow.GetCount(); i > 0; i-- ) {
@@ -2129,6 +2156,9 @@ void dashboard_pi::ApplyConfig( void )
             newcont->m_pDashboardWindow = new DashboardWindow(
                 GetOCPNCanvasWindow(), wxID_ANY,
                 m_pauimgr, this, orient, newcont, GetCommonName() );
+            if ( !init ) {
+                newcont->m_sName = MakeName();
+            } // then this is a possible replacement pane of an existing pane, unique name needed for AUI
             newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
             bool vertical = true;
             if ( orient == wxHORIZONTAL )
@@ -2139,24 +2169,22 @@ void dashboard_pi::ApplyConfig( void )
             if(sz.x == 0)
                 sz.IncTo( wxSize( 160, 388) );
 #endif
-            wxPoint position;
-            if ( !cont->m_pDashboardWindow ) {
-                position.x = 100;
-                position.y = 100;
-            }
-            else {
+            wxPoint position = m_pluginFrame->GetPosition();
+            position.x += 100;
+            position.y += 100;
+            if ( cont->m_pDashboardWindow ) {
                 wxAuiPaneInfo p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
                 if ( p_cont.IsOk() && p_cont.IsDocked() ) {
-                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Float(); // force to org. pos.
+                    /* this is to play safe, make docked instrument pane floating before resizing,
+                       let the user to study is the new insrument pane good for being re-dockable. */
+                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Float();
                     m_pauimgr->Update();
-                    position.x = 100;
-                    position.y = 100;
                 } // then last floating position has not much value since probably at the edge
                 else {
                     position = p_cont.floating_pos;
-                } // else floating so let's use the original pane's location (can be negative if multi-screen)
-            }
-            wxAuiPaneInfo p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( newcont->m_bIsVisible ).Gripper(false) ;
+                } // else floating so let's use the original pane's location
+            } // then we're going to replace an existing pane
+            wxAuiPaneInfo p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( newcont->m_bIsVisible ).Gripper(false) ;
 
             m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
 
@@ -2168,10 +2196,10 @@ void dashboard_pi::ApplyConfig( void )
                 cont->m_pDashboardWindow = NULL;
                 m_ArrayOfDashboardWindow.Remove( cont );
                 m_ArrayOfDashboardWindow.Add( newcont );
-            } // else recreation of a window
+            } // else replacement of an existing pane
             else {
                 cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-            } // else brand new window
+            } // else brand new pane
 
         } // else not a deleted window, to be created or recreated
 #else

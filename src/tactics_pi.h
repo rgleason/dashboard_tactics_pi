@@ -94,7 +94,7 @@ public:
     virtual void TacticsNotify(void) final;
     virtual bool LoadConfig(void) = 0;
     virtual bool TacticsLoadConfig(void) final;
-    virtual void ApplyConfig(void) = 0;
+    virtual void ApplyConfig(bool init = false) = 0;
     virtual void TacticsApplyConfig(void) final;
     virtual bool SaveConfig(void) = 0;
     virtual bool TacticsSaveConfig(void) final;

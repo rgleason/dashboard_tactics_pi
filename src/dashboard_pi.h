@@ -208,7 +208,12 @@ public:
 
 private:
     bool LoadConfig(void);
+#ifdef _TACTICSPI_H_
+    void ApplyConfig( bool init=false );
+#else
     void ApplyConfig(void);
+#endif // _TACTICSPI_H_
+
 #ifdef _TACTICSPI_H_
     void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit);
