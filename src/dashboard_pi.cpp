@@ -2153,13 +2153,32 @@ void dashboard_pi::ApplyConfig(
 #ifdef _TACTICSPI_H_
         else {
             DashboardWindowContainer *newcont = new DashboardWindowContainer( cont );
-            newcont->m_pDashboardWindow = new DashboardWindow(
-                GetOCPNCanvasWindow(), wxID_ANY,
-                m_pauimgr, this, orient, newcont, GetCommonName() );
+            /*
+              Prepare a new window pane with instruments if first time or if a floating
+              replacement is needed
+            */
+            wxAuiPaneInfo p_cont;
+            bool isDocked = false;
             if ( !init ) {
+                if ( newcont->m_pDashboardWindow ) {
+                    p_cont = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
+                    if ( p_cont.IsOk() && p_cont.IsDocked() ) {
+                        isDocked = true;
+                    } // then window is in a pane which is docked
+                } // then this is non-init (run-time) and there is a window pane
+            } // then run-time
+            if ( init || (!init && !isDocked) ) {
+                newcont->m_pDashboardWindow = new DashboardWindow(
+                    GetOCPNCanvasWindow(), wxID_ANY,
+                    m_pauimgr, this, orient, newcont, GetCommonName() );
+                newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
+            } // then init or a run-time change on a window pane which is floating, create a pane 
+            if ( (!init && !isDocked) ) {
                 newcont->m_sName = MakeName();
-            } // then this is a possible replacement pane of an existing pane, unique name needed for AUI
-            newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
+            } // then this is a replacement pane of an existing floating pane, unique name needed for AUI
+            /*
+              Position of the frame, initial or existing.
+            */
             bool vertical = true;
             if ( orient == wxHORIZONTAL )
                 vertical = false;
@@ -2172,34 +2191,52 @@ void dashboard_pi::ApplyConfig(
             wxPoint position = m_pluginFrame->GetPosition();
             position.x += 100;
             position.y += 100;
-            if ( cont->m_pDashboardWindow ) {
-                wxAuiPaneInfo p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-                if ( p_cont.IsOk() && p_cont.IsDocked() ) {
-                    /* this is to play safe, make docked instrument pane floating before resizing,
-                       let the user to study is the new insrument pane good for being re-dockable. */
-                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Float();
+            if ( !init ) {
+                if ( newcont->m_pDashboardWindow ) {
+                    if ( p_cont.IsOk() ) 
+                        position = p_cont.floating_pos;
+                } // then there is a window in this pane
+            } // then this is a run-time call
+            /*
+              The logic for creating a new window pane is as follows
+              init: always create a new window pane
+              otherwise:
+              -         floating pane: create new one, replace the old one
+              -                        * this is because of suspected resizer bug
+                                         (wxWidgets or Dashboard) when instruments
+                                         are removed and the pane does not shrink
+              -         docked pane:   use existing one since there is no need for
+                                       pane resizing
+            */ 
+            if ( init || (!init && !isDocked) ) {
+                wxAuiPaneInfo p =
+                    wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible( false ).TopDockable(
+                        !vertical ).BottomDockable( !vertical ).LeftDockable( false ).RightDockable( vertical ).MinSize(
+                            sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show(
+                                newcont->m_bIsVisible ).Gripper(false) ;
+                m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                if ( cont->m_pDashboardWindow ) {
+                    m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                     m_pauimgr->Update();
-                } // then last floating position has not much value since probably at the edge
+                    cont->m_pDashboardWindow->Close();
+                    cont->m_pDashboardWindow->Destroy();
+                    cont->m_pDashboardWindow = NULL;
+                    m_ArrayOfDashboardWindow.Remove( cont );
+                    m_ArrayOfDashboardWindow.Add( newcont );
+                } // else replacement of an existing pane
                 else {
-                    position = p_cont.floating_pos;
-                } // else floating so let's use the original pane's location
-            } // then we're going to replace an existing pane
-            wxAuiPaneInfo p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible( false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( newcont->m_bIsVisible ).Gripper(false) ;
-
-            m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-
-            if ( cont->m_pDashboardWindow ) {
-                m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                m_pauimgr->Update();
-                cont->m_pDashboardWindow->Close();
-                cont->m_pDashboardWindow->Destroy();
-                cont->m_pDashboardWindow = NULL;
-                m_ArrayOfDashboardWindow.Remove( cont );
-                m_ArrayOfDashboardWindow.Add( newcont );
-            } // else replacement of an existing pane
+                    cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
+                } // else brand new pane
+            } // else new pane - an initial new one, or a new replacement of a floating pane
             else {
-                cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-            } // else brand new pane
+                m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption( newcont->m_sCaption ).Show( newcont->m_bIsVisible );
+                if( !newcont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
+                    newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
+                    wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
+                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).MinSize( sz ).BestSize( sz ).FloatingSize( sz );
+                    m_pauimgr->Update();
+                } // then there is change in the instrument list of a docked pane
+            } // else is non-init run on an existing and docked pane, keep it (no pane resizer bug[?])
 
         } // else not a deleted window, to be created or recreated
 #else
@@ -3074,6 +3111,28 @@ void DashboardWindow::SetColorScheme( PI_ColorScheme cs )
 
 void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
 {
+#ifdef _TACTICSPI_H_
+    wxRect rect = m_plugin->pGetPluginFrame()->GetRect();
+    wxPoint position;
+    position.x = rect.x + 100;
+    position.y = rect.y + 100;
+    if ( orient == this->GetSizerOrientation() ) {
+        wxAuiPaneInfo p = m_pauimgr->GetPane( m_Container->m_pDashboardWindow );
+        if ( p.IsOk() && p.IsDocked() ) {
+            rect = m_plugin->pGetPluginFrame()->GetRect();
+            if ( p.dock_direction ==  wxAUI_DOCK_RIGHT )
+                position.x = rect.x + rect.width - 325;
+            else
+                if ( p.dock_direction ==  wxAUI_DOCK_BOTTOM)
+                    position.y = rect.y + rect.height - 400;
+            m_pauimgr->GetPane( m_Container->m_pDashboardWindow ).FloatingPosition( position ).Float(); // undock if docked
+            if ( updateAUImgr )
+                m_plugin->ApplyConfig(); // will create a new pane, undocked but with same windows
+            return;
+        } // then a docked container, undock request
+    } // else there is no orientation request, check if this is undock request
+    // orientation change request
+#endif // _TACTICSPI_H_
     m_pauimgr->DetachPane( this );
     SetSizerOrientation( orient );
     bool vertical = orient == wxVERTICAL;
@@ -3081,10 +3140,23 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
     wxSize sz = GetMinSize();
     // We must change Name to reset AUI perpective
     m_Container->m_sName = MakeName();
-    m_pauimgr->AddPane( this, wxAuiPaneInfo().Name( m_Container->m_sName ).Caption(
-                            m_Container->m_sCaption ).CaptionVisible( true ).TopDockable( !vertical ).BottomDockable(
-                                !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize( sz ).BestSize(
-                                    sz ).FloatingSize( sz ).FloatingPosition( 100, 100 ).Float().Show( m_Container->m_bIsVisible ) );
+    m_pauimgr->AddPane(
+        this, wxAuiPaneInfo().Name( m_Container->m_sName ).Caption(
+            m_Container->m_sCaption ).CaptionVisible( true ).TopDockable( !vertical ).BottomDockable(
+                !vertical ).LeftDockable(
+#ifdef _TACTICSPI_H_
+                    false
+#else
+                    vertical
+#endif // _TACTICSPI_H_
+                    ).RightDockable( vertical ).MinSize( sz ).BestSize(
+                    sz ).FloatingSize( sz ).FloatingPosition(
+#ifdef _TACTICSPI_H_
+                        position
+#else
+                        100, 100
+#endif // _TACTICSPI_H_
+                        ).Float().Show( m_Container->m_bIsVisible ) );
     if ( updateAUImgr ) m_pauimgr->Update();
 }
 

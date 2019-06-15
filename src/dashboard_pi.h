@@ -105,13 +105,13 @@ public:
     ~DashboardWindowContainer(){}
 
 DashboardWindow              *m_pDashboardWindow;
-    bool                          m_bIsVisible;
-    bool                          m_bIsDeleted;
-    bool                          m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
-    wxString                      m_sName;
-    wxString                      m_sCaption;
-    wxString                      m_sOrientation;
-    wxArrayInt                    m_aInstrumentList;
+    bool                      m_bIsVisible;
+    bool                      m_bIsDeleted;
+    bool                      m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
+    wxString                  m_sName;
+    wxString                  m_sCaption;
+    wxString                  m_sOrientation;
+    wxArrayInt                m_aInstrumentList;
 };
 
 class DashboardInstrumentContainer
@@ -202,15 +202,15 @@ public:
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
     void SetPluginMessage(wxString &message_id, wxString &message_body);
-    #ifdef _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
-    #endif // _TACTICSPI_H_
+    void ApplyConfig( bool init=false );
+#endif // _TACTICSPI_H_
 
+    
 private:
     bool LoadConfig(void);
-#ifdef _TACTICSPI_H_
-    void ApplyConfig( bool init=false );
-#else
+#ifndef _TACTICSPI_H_
     void ApplyConfig(void);
 #endif // _TACTICSPI_H_
 
