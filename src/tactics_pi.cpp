@@ -1699,10 +1699,18 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
         !std::isnan(mSOG)){
         //  Calculate TWS (from AWS and StW/SOG)
         spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
+        /* The below is the single most important debugging tool for this method! We may need it again */
+        /*
+        wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind()- mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f",
+                       (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
+                       (m_bTrueWind_available?"true":"false"),(g_bForceTrueWindCalculation?"true":"false"),
+                       (std::isnan(mAWA)?999.99:mAWA), (std::isnan(mAWS)?999.99:mAWS),
+                       mAWAUnit, (std::isnan(mHdt)?999.99:mHdt) );
+        */
         // only start calculating if we have a full set of data
-        if ((g_bForceTrueWindCalculation) &&
-            (mAWA >= 0.0) && (mAWS >= 0.0)  && (spdval >= 0.0) && (mAWAUnit != _("")) &&
-            !std::isnan(mHdt)) {
+        if ((!m_bTrueWind_available || g_bForceTrueWindCalculation) &&
+            (mAWA >= 0.0) && (mAWS >= 0.0)  && (spdval >= 0.0) &&
+            (mAWAUnit != _("")) && !std::isnan(mHdt)) {
             //we have to do the calculation in knots
             double aws_kts = fromUsrSpeed_Plugin(mAWS,
                                                  g_iDashWindSpeedUnit);
