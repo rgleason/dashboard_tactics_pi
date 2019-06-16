@@ -54,6 +54,8 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
 {     SetDrawSoloInPane(true);
     m_MaxWindDir = -1;
     m_WindDir = -1;
+    m_WindDirRange=90;
+    m_MaxWindSpd = 0;
 #ifdef _TACTICSPI_H_
     m_TrueWindDir = NAN;
     m_TrueWindSpd = NAN;
@@ -61,13 +63,12 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
 #else
     m_WindSpeedUnit = _("--");
 #endif // _TACTICSPI_H_
-    m_WindDirRange=90;
-    m_MaxWindSpd = 0;
+#ifdef _TACTICSPI_H_
     m_TrueWindDir = NAN;
     m_TrueWindSpd = NAN;
     m_WindDirRange=90;
     m_MaxWindSpd = 0;
-    m_WindSpeedUnit = _T("--");
+#endif // _TACTICSPI_H_ 
     m_TotalMaxWindSpd = 0;
     m_WindSpd = 0;
     m_TopLineHeight=30;
