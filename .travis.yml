@@ -1,3 +1,4 @@
+# ov50 Linux/OSX build - courtesy to https://github.com/seandepagnier
 language: cpp
 
 matrix:
