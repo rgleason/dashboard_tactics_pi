@@ -2171,15 +2171,31 @@ void dashboard_pi::ApplyConfig(
                     } // then window is in a pane which is docked
                 } // then this is non-init (run-time) and there is a window pane
             } // then run-time
-            if ( init || (!init && !isDocked) ) {
+            bool addpane = false;
+            if ( init ) {
+                addpane = true;
+            } // in the init we need always a new pane
+            else {
+                if ( !isDocked ) {
+                    if ( cont->m_pDashboardWindow ) {
+                        if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
+                            addpane = true;
+                        } // then a change in instruments replacement window is needed, needs a pane
+                    } // there there is there is an instrument dashboard window
+                } // then not init and an exitisting floating pane
+            } // else not init, study run-time dashboard window
+
+            bool NewDashboardCreated = false;
+            if ( addpane ) {
                 newcont->m_pDashboardWindow = new DashboardWindow(
                     GetOCPNCanvasWindow(), wxID_ANY,
                     m_pauimgr, this, orient, (init ? cont : newcont), GetCommonName() );
+                newcont->m_pDashboardWindow->Show( false );
                 newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
-            } // then init or a run-time change on a window pane which is floating, create a pane 
-            if ( (!init && !isDocked) ) {
-                newcont->m_sName = MakeName();
-            } // then this is a replacement pane of an existing floating pane, unique name needed for AUI
+                if ( !init )
+                    newcont->m_sName = MakeName();
+                NewDashboardCreated = true;
+            } // then a pane will be added, create a window for it.
             /*
               Position of the frame, initial or existing.
             */
@@ -2214,17 +2230,6 @@ void dashboard_pi::ApplyConfig(
             */
             wxAuiPaneInfo p;
             if ( init || (!init && !isDocked) ) {
-                bool addpane = false;
-                if ( init ) {
-                    addpane = true;
-                } // if at startup, there is no pane so one needs to add one
-                else {
-                    if ( cont->m_pDashboardWindow ) {
-                        if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
-                            addpane =true;
-                        } // there is a change in the instrument list, replace
-                    } // there is an existing window so its replacement is possible
-                } // else not init (and the pane is not docked), there may be a reason to replace add a pane
                 if ( addpane ) {
                     p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
                         false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
@@ -2239,12 +2244,14 @@ void dashboard_pi::ApplyConfig(
                     m_ArrayOfDashboardWindow.Remove( cont );
                     m_ArrayOfDashboardWindow.Add( newcont );
                     m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                    newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
                     m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                     m_pauimgr->Update();
                 } // then we have created a pane and it is a replacement of an exiting pane, detach/destroy the old
                 else {
                     if ( init ) {
                         m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                        newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
                         m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                         cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
                         m_pauimgr->Update();
@@ -2252,10 +2259,12 @@ void dashboard_pi::ApplyConfig(
                     else {
                         m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                         m_pauimgr->Update();
-                        newcont->m_pDashboardWindow->Close();
-                        newcont->m_pDashboardWindow->Destroy();
-                        newcont->m_pDashboardWindow = NULL;
-                    } // no need to do anything, nothing has changed
+                        if ( NewDashboardCreated ) {
+                            newcont->m_pDashboardWindow->Close();
+                            newcont->m_pDashboardWindow->Destroy();
+                            newcont->m_pDashboardWindow = NULL;
+                        } // then just in case, garbage collection
+                    } // no need to do a replacement or to create a new window
                 } // else brand new pane or no action
             } // else new pane - an initial new one, or a new replacement of a floating pane
             else {
