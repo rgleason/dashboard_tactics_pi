@@ -1,5 +1,15 @@
+# ov50 Linux/OSX build - courtesy to https://github.com/seandepagnier
 language: cpp
+
+matrix:
+  include:
+    - dist: trusty
+      compiler: gcc
+    - os: osx
+      compiler: clang
+
 install:
+<<<<<<< HEAD
 - sudo apt-get -qq update
 - sudo apt-get install libwxgtk3.0-dev libwxgtk3.0-0 libgps-dev libglu1-mesa-dev libgtk2.0-dev
   libbz2-dev libtinyxml-dev
@@ -12,6 +22,44 @@ script:
 - mkdir build && cd build
 - cmake -DCMAKE_BUILD_TYPE=Release ../
 - make -j2 package
+=======
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]];
+      then
+        sudo apt-get -qq update;
+        sudo apt-get install libwxgtk3.0-dev libwxgtk3.0-0 libgps-dev libglu1-mesa-dev libgtk2.0-dev libbz2-dev libtinyxml-dev;
+        sudo apt-get install libexpat1-dev libcairo2-dev;
+        sudo apt-get install rpm;
+      fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+      then
+        brew install cairo libexif xz libarchive;
+        wget http://opencpn.navnux.org/build_deps/wx312_opencpn50_macos109.tar.xz;
+        tar xJf wx312_opencpn50_macos109.tar.xz -C /tmp;
+        export PATH="/usr/local/opt/gettext/bin:$PATH";
+        echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile;
+        wget http://opencpn.navnux.org/build_deps/Packages.dmg;
+        hdiutil attach Packages.dmg;
+        sudo installer -pkg "/Volumes/Packages 1.2.5/Install Packages.pkg" -target "/";
+      fi
+
+script:
+  - if [[ "${COVERITY_SCAN_BRANCH}" == 1 ]];
+    then
+      echo "Don't build on coverty_scan branch.";
+      exit 0;
+    fi
+  - mkdir build && cd build
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]];
+    then
+       cmake -DCMAKE_BUILD_TYPE=Release ../ && make -sj2 package;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+    then
+        cmake -DwxWidgets_CONFIG_EXECUTABLE=/tmp/wx312_opencpn50_macos109/bin/wx-config -DwxWidgets_CONFIG_OPTIONS="--prefix=/tmp/wx312_opencpn50_macos109" -DCMAKE_INSTALL_PREFIX=/tmp/opencpn -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 .. && make -sj2 && make create-pkg;
+     fi
+  - ls -l;
+
+>>>>>>> 3421e50a5872ae517aed56f94f2549e58ce07457
 notifications:
   email: false
 git:
@@ -31,9 +79,20 @@ deploy:
   file_glob: true
   file: "$TRAVIS_BUILD_DIR/build/*.{deb,rpm,dmg,txz,pkg.tar.xz}"
   skip_cleanup: true
+<<<<<<< HEAD
   on:
     tags: true
     branch: dev
     condition: "${#GitHub_auth_token} != 0"
 dd:
   secure: MD9qMrWp5dE4NQ6Vb+VrolORKIj70x3/FU066o9PZh3GLV8nDC9YTgspys+c/nDo2GbFrKcyzFu3BpeA1G0cfBOtzInKUkwm7Pl4TWCxgRuZiTE9ZwU0KaGgyUNeKDMKdjR7XdEfkqCd9iJZD+/dqDDwW3Nu4ScAmy3yyEL5AeQVmFFimdnwmpayR3RFX1UML5LBzeHJLXWFC2yPLIXkBoE78zdQLGISjxrzegYYOB+vql4OPmc9NFSDgsNpeMGtTfa0UQxq8wnOpClUB3nHG2sh8zR2iJHWzxU1aYb2jAvki1n/uJwHA+gFusgIZ9FUO65UL0D6aJTp7j4UTcQOe1s01e1q04exV4stVOMczJKqc76tSc7Bgl4lVdzlBUeFHsIYIbsovp0Q257L8oBenX23pTlAgSMXJSPz0eg7xiglyfElGQvBgkVRnJJc1lLGUhoGb2mUJJ993ramO1RjHn0TMMbPlusPow8Us8iVbKO866xzQxoSW+i65vXgXa/VYNRob7lqsBCCF7FmW2EiAfpCBI2arNaGw6zkE6NEGGPZKTnL7wbbdyaOFiedPlK9fAs0Bm3ba+fCmLItyiL1a7aJ5T0TWoGFe+Ky9KFnDM/LXeVkw1qM1UctDnDsPX1oaEFq3NUPVmuu3/48/+2qNOJFoE2hrKF7PHvZYYhw6ks=
+=======
+  on: # Set deploy conditions
+      # Deploy only when tag is specified
+      tags: true
+      # or his branch
+      branch: dev
+      # and only when API token is set
+      condition: "${#GitHub_auth_token} != 0"
+    
+>>>>>>> 3421e50a5872ae517aed56f94f2549e58ce07457
