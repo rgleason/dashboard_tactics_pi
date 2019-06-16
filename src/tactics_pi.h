@@ -281,7 +281,7 @@ class TacticsPreferencesDialog : public wxDialog
 {
 public:
     TacticsPreferencesDialog(
-        wxWindow *pparent, wxWindowID id, const wxString derivtitle );
+        wxWindow *pparent, wxWindowID id, const wxString derivtitle, wxPoint pos = wxDefaultPosition );
     ~TacticsPreferencesDialog() {}
 
     virtual void TacticsPreferencesInit(

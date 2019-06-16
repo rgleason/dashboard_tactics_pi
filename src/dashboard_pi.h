@@ -265,9 +265,9 @@ class DashboardPreferencesDialog : public
 #endif // _TACTICSPI_H_
 {
 public:
-    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
+    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config,
 #ifdef _TACTICSPI_H_
-                                , wxString commonName
+                                wxString commonName, wxPoint pos 
 #endif // _TACTICSPI_H_
         );
     ~DashboardPreferencesDialog() {}

@@ -1764,10 +1764,14 @@ int dashboard_pi::GetToolbarToolCount( void )
 
 void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 {
+#ifdef _TACTICSPI_H_
+    wxPoint pos = wxGetMousePosition();
+    pos.y -= 200;
+#endif // _TACTICSPI_H_
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow
 #ifdef _TACTICSPI_H_
-                                                                         , GetCommonName()
+                                                                         , GetCommonName(), pos
 #endif // _TACTICSPI_H_
      );
 
@@ -2170,7 +2174,7 @@ void dashboard_pi::ApplyConfig(
             if ( init || (!init && !isDocked) ) {
                 newcont->m_pDashboardWindow = new DashboardWindow(
                     GetOCPNCanvasWindow(), wxID_ANY,
-                    m_pauimgr, this, orient, newcont, GetCommonName() );
+                    m_pauimgr, this, orient, (init ? cont : newcont), GetCommonName() );
                 newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
             } // then init or a run-time change on a window pane which is floating, create a pane 
             if ( (!init && !isDocked) ) {
@@ -2207,26 +2211,52 @@ void dashboard_pi::ApplyConfig(
                                          are removed and the pane does not shrink
               -         docked pane:   use existing one since there is no need for
                                        pane resizing
-            */ 
+            */
+            wxAuiPaneInfo p;
             if ( init || (!init && !isDocked) ) {
-                wxAuiPaneInfo p =
-                    wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible( false ).TopDockable(
-                        !vertical ).BottomDockable( !vertical ).LeftDockable( false ).RightDockable( vertical ).MinSize(
-                            sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show(
-                                newcont->m_bIsVisible ).Gripper(false) ;
-                m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-                if ( cont->m_pDashboardWindow ) {
+                bool addpane = false;
+                if ( init ) {
+                    addpane = true;
+                } // if at startup, there is no pane so one needs to add one
+                else {
+                    if ( cont->m_pDashboardWindow ) {
+                        if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
+                            addpane =true;
+                        } // there is a change in the instrument list, replace
+                    } // there is an existing window so its replacement is possible
+                } // else not init (and the pane is not docked), there may be a reason to replace add a pane
+                if ( addpane ) {
+                    p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
+                        false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
+                            false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(
+                                sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
+                } // then it was necessary to add new pane for init or replacement resizing
+                if ( addpane && !init ) {
                     m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                    m_pauimgr->Update();
                     cont->m_pDashboardWindow->Close();
                     cont->m_pDashboardWindow->Destroy();
                     cont->m_pDashboardWindow = NULL;
                     m_ArrayOfDashboardWindow.Remove( cont );
                     m_ArrayOfDashboardWindow.Add( newcont );
-                } // else replacement of an existing pane
+                    m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
+                    m_pauimgr->Update();
+                } // then we have created a pane and it is a replacement of an exiting pane, detach/destroy the old
                 else {
-                    cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-                } // else brand new pane
+                    if ( init ) {
+                        m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                        m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
+                        cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
+                        m_pauimgr->Update();
+                    } // then a brand new window, registe it
+                    else {
+                        m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
+                        m_pauimgr->Update();
+                        newcont->m_pDashboardWindow->Close();
+                        newcont->m_pDashboardWindow->Destroy();
+                        newcont->m_pDashboardWindow = NULL;
+                    } // no need to do anything, nothing has changed
+                } // else brand new pane or no action
             } // else new pane - an initial new one, or a new replacement of a floating pane
             else {
                 m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption( newcont->m_sCaption ).Show( newcont->m_bIsVisible );
@@ -2329,8 +2359,8 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     wxWindow *parent, wxWindowID id,
     wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
-    , wxString commonName ) :
-TacticsPreferencesDialog ( parent, id, commonName + _(" preferences") )
+    , wxString commonName, wxPoint pos ) :
+    TacticsPreferencesDialog ( parent, id, commonName + _(" preferences"), pos )
 #else
      ) :wxDialog( parent, id, _("Dashboard preferences"),
               wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE )
@@ -2743,11 +2773,32 @@ void DashboardPreferencesDialog::UpdateDashboardButtonsState()
     //  Disable the Dashboard Delete button if the parent(Dashboard) of this dialog is selected.
     bool delete_enable = enable;
     if( item != -1 ) {
+#ifdef _TACTICSPI_H_
+        /*
+          In this implemenation the dialog parent is the plugin, not any particular dashboard window
+          so that we can destroy even the window from which we the dialog was started from.
+          However, let's follow the principle to always leave at least one window to be consistent
+          with the Dashboard-only code. It is also practical, and less confusing!
+        */
+        int NumberOfVisible = 0;
+        int NumberOfItemsLeft = (int) m_pListCtrlDashboards->GetItemCount();
+        if ( NumberOfItemsLeft <= 1)
+            delete_enable = false;
+        else {
+            for ( int i = 0; i < NumberOfItemsLeft; i++ ) {
+                if ( m_Config.Item( i )->m_bIsVisible )
+                    NumberOfVisible++;
+            } // For items available to delete
+            if ( NumberOfVisible <= 1 )
+                delete_enable = false;
+        }
+#else
         int sel = m_pListCtrlDashboards->GetItemData( item );
         DashboardWindowContainer *cont = m_Config.Item( sel );
         DashboardWindow *dash_sel = cont->m_pDashboardWindow;
         if(dash_sel == GetParent())
             delete_enable = false;
+#endif // _TACTICSPI_H_
     }
     m_pButtonDeleteDashboard->Enable( delete_enable );
 
@@ -3087,7 +3138,11 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     }
     case ID_DASH_UNDOCK: {
         ChangePaneOrientation( GetSizerOrientation( ), true );
+#ifdef _TACTICSPI_H_
+        break;      // Actually, the pane name has changed
+#else
         return;     // Nothing changed so nothing need be saved
+#endif //  _TACTICSPI_H_
     }
 #ifdef _TACTICSPI_H_
     default:
@@ -3126,8 +3181,18 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
                 if ( p.dock_direction ==  wxAUI_DOCK_BOTTOM)
                     position.y = rect.y + rect.height - 400;
             m_pauimgr->GetPane( m_Container->m_pDashboardWindow ).FloatingPosition( position ).Float(); // undock if docked
-            if ( updateAUImgr )
-                m_plugin->ApplyConfig(); // will create a new pane, undocked but with same windows
+            m_pauimgr->DetachPane( this );
+            wxSize sz = GetMinSize();
+            m_Container->m_sName = MakeName();
+            bool isvertical = ( (orient == wxVERTICAL) ? true : false );
+            m_pauimgr->AddPane(
+                this, wxAuiPaneInfo().Name( m_Container->m_sName ).Caption(
+                    m_Container->m_sCaption ).CaptionVisible( true ).TopDockable( !isvertical ).BottomDockable(
+                        !isvertical ).LeftDockable( false ).RightDockable( isvertical ).MinSize( sz ).BestSize(
+                    sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( m_Container->m_bIsVisible ) );
+            if ( updateAUImgr ){
+                m_pauimgr->Update();
+            } // then update (saving in event handler)
             return;
         } // then a docked container, undock request
     } // else there is no orientation request, check if this is undock request

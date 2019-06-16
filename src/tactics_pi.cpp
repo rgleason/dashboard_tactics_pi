@@ -2301,9 +2301,9 @@ bool tactics_pi::SetNMEASentenceMWD_NKEbug(double SentenceWindSpeedKnots)
 //----------------------------------------------------------------
 
 TacticsPreferencesDialog::TacticsPreferencesDialog(
-    wxWindow *parent, wxWindowID id, const wxString derivtitle ) :
+    wxWindow *parent, wxWindowID id, const wxString derivtitle, wxPoint pos ) :
 	wxDialog(
-        parent, id, derivtitle, wxDefaultPosition, wxDefaultSize,
+        parent, id, derivtitle, pos, wxDefaultSize ,
         wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER)
 {
     m_itemNotebook = NULL;
