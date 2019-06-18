@@ -9,7 +9,6 @@ matrix:
       compiler: clang
 
 install:
-<<<<<<< HEAD
 - sudo apt-get -qq update
 - sudo apt-get install libwxgtk3.0-dev libwxgtk3.0-0 libgps-dev libglu1-mesa-dev libgtk2.0-dev
   libbz2-dev libtinyxml-dev
@@ -22,7 +21,6 @@ script:
 - mkdir build && cd build
 - cmake -DCMAKE_BUILD_TYPE=Release ../
 - make -j2 package
-=======
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]];
       then
         sudo apt-get -qq update;
@@ -59,7 +57,6 @@ script:
      fi
   - ls -l;
 
->>>>>>> 3421e50a5872ae517aed56f94f2549e58ce07457
 notifications:
   email: false
 git:
