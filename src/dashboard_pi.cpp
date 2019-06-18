@@ -2181,6 +2181,12 @@ void dashboard_pi::ApplyConfig(
                         if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
                             addpane = true;
                         } // then a change in instruments replacement window is needed, needs a pane
+                        else {
+                             p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+                             if ( !p_cont.IsOk() ) {
+                                 addpane = true;
+                             } // then there is no pane for this window, create one
+                        } // else there is no change in the instrument list, check there is a pane
                     } // there there is there is an instrument dashboard window
                 } // then not init and an exitisting floating pane
             } // else not init, study run-time dashboard window
@@ -2202,16 +2208,11 @@ void dashboard_pi::ApplyConfig(
             bool vertical = true;
             if ( orient == wxHORIZONTAL )
                 vertical = false;
-            wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
-            // Mac has a little trouble with initial Layout() sizing...
-#ifdef __WXOSX__
-            if(sz.x == 0)
-                sz.IncTo( wxSize( 160, 388) );
-#endif
+
             wxPoint position = m_pluginFrame->GetPosition();
             position.x += 100;
             position.y += 100;
-            if ( !init ) {
+            if ( !init && NewDashboardCreated ) {
                 if ( newcont->m_pDashboardWindow ) {
                     if ( p_cont.IsOk() ) 
                         position = p_cont.floating_pos;
@@ -2231,6 +2232,12 @@ void dashboard_pi::ApplyConfig(
             wxAuiPaneInfo p;
             if ( init || (!init && !isDocked) ) {
                 if ( addpane ) {
+                    wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
+                    // Mac has a little trouble with initial Layout() sizing...
+#ifdef __WXOSX__
+                    if(sz.x == 0)
+                        sz.IncTo( wxSize( 160, 388) );
+#endif
                     p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
                         false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
                             false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(

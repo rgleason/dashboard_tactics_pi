@@ -52,7 +52,7 @@ bool g_bDisplayCurrentOnChart;
 wxString g_path_to_PolarFile;
 PlugIn_Route *m_pRoute = NULL;
 PlugIn_Waypoint *m_pMark = NULL;
-wxString g_sMarkGUID = _T("^TacticsWP");
+wxString g_sMarkGUID = "^TacticsWP";
 double g_dmark_lat = NAN;
 double g_dmark_lon = NAN;
 double g_dcur_lat = NAN;
