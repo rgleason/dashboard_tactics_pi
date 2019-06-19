@@ -64,7 +64,7 @@ deploy:
   api_key:
     secure: "nx4vqgIxFQ/EWo1K8gUoKLpAOZEdlD5HRp+X2un7f61ydLpJ160JwrfojlzROnG+sZsbqdcEnGqqP+Kb0UeDPqZTdCJNPIvqruntJs9l3pfq2PxnWqdvaZapxNiBZfotyyF16p9qYQHPNgPqLqgiOzbCvEBRPp580lRUmHjDUsKPS9lCahfKNOm0bqc6KmOQCkk3CM8x8YLq7UFt1hCnb35jBNskTB+ePlMfUwShb2E7EMZR/X4BER/IVphV+ovW/SRI3fKVZOQBpednpOcDRFsRp5CQQaZPQ5SuQQwqrDTX6fgzE0zqSyhLaumjccBgydviId8u4wjlfe4KhfXmMZIUoOUiyib89XBkMVHqDQLF24fN3ibr3kVDYeggaxqXEKppw9Dx4nbXHf1qMn9hCqWxrnGIUFySMtbO/u8OGbhSsQ/qQlyvHnEbpk9NFtpOzj6LomRYqG1vlIMKGEm3eh0r6g4mae3ZhROZvP1lAeA8ZjhNftanywCL2GsXQCWDsbyUd2u5akvcGG4D25t4Bx/cj4Z80gtfGXuNEZFlywP3R0NPls9C5dpYOhV5Zqd5wyEmYLosXSbRnfylBY7gNSI9rxacrulfNInZvCc/o9Fr+vT7pdMgcEi65zIkT8B0nHhhqzFISsS98cIiEY+J/c9qf5yBrcULOm9R8X3SMzI="
   file_glob: true
-  file: "$TRAVIS_BUILD_DIR/build/*.{deb,rpm,dmg,txz,pkg.tar.xz}"
+  file: "$TRAVIS_BUILD_DIR/build/*.{deb,rpm,dmg,txz,pkg,pkg.tar.xz}"
   skip_cleanup: true
   on:
     repo: canne/dashboard_tactics_pi
