@@ -2182,12 +2182,15 @@ void dashboard_pi::ApplyConfig(
                             addpane = true;
                         } // then a change in instruments replacement window is needed, needs a pane
                         else {
-                             p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-                             if ( !p_cont.IsOk() ) {
-                                 addpane = true;
-                             } // then there is no pane for this window, create one
+                            p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+                            if ( !p_cont.IsOk() ) {
+                                addpane = true;
+                            } // then there is no pane for this window, create one (with a replacement window)
                         } // else there is no change in the instrument list, check there is a pane
-                    } // there there is there is an instrument dashboard window
+                    } // then there is an instrument dashboard window
+                    else {
+                        addpane = true;
+                    } // else there is no instrument window
                 } // then not init and an exitisting floating pane
             } // else not init, study run-time dashboard window
 
@@ -2244,10 +2247,11 @@ void dashboard_pi::ApplyConfig(
                                 sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
                 } // then it was necessary to add new pane for init or replacement resizing
                 if ( addpane && !init ) {
-                    m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                    cont->m_pDashboardWindow->Close();
-                    cont->m_pDashboardWindow->Destroy();
-                    cont->m_pDashboardWindow = NULL;
+                    if ( cont->m_pDashboardWindow ) {
+                        m_pauimgr->DetachPane( cont->m_pDashboardWindow );
+                        cont->m_pDashboardWindow->Close();
+                        cont->m_pDashboardWindow->Destroy();
+                    } // then this is an existing window in an existing window pane, replaced with a new one
                     m_ArrayOfDashboardWindow.Remove( cont );
                     m_ArrayOfDashboardWindow.Add( newcont );
                     m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
