@@ -42,7 +42,10 @@
 #include <wx/aui/aui.h>
 #include <wx/fontpicker.h>
 #include <wx/glcanvas.h>
+#include <mutex>
 
+#include "ocpn_plugin.h"
+#include "instrument.h"
 #include "performance.h"
 #include "bearingcompass.h"
 #include "avg_wind.h"
@@ -63,21 +66,6 @@ class Polar;
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
-
-#include "ocpn_plugin.h"
-// #include "nmea0183/nmea0183.h"
-#include "instrument.h"
-// #include "speedometer.h"
-// #include "compass.h"
-// #include "wind.h"
-// #include "rudder_angle.h"
-// #include "gps.h"
-// #include "depth.h"
-// #include "clock.h"
-// #include "wind_history.h"
-// #include "baro_history.h"
-// #include "from_ownship.h"
-// #include "iirfilter.h"
 
 
 
@@ -142,7 +130,7 @@ public:
     void CalculatePredictedCourse(void);
     void SetCalcVariables(
         unsigned long long st, double value, wxString unit);
-    
+
     virtual void OnContextMenuItemCallback(int id) = 0;
     virtual void TacticsOnContextMenuItemCallback(int id) final;
 
@@ -170,7 +158,7 @@ public:
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
-    void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;} 
+    void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
 private:
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
@@ -179,11 +167,15 @@ private:
 
     int                  mBRG_Watchdog;
     int                  mTWD_Watchdog;
+    std::mutex           mtxTWD;
     int                  mTWS_Watchdog;
+    std::mutex           mtxTWS; // both mTWA and mTWS
     int                  mAWS_Watchdog;
+    std::mutex           mtxAWS;
     int                  mVMG_Watchdog;
+    std::mutex           mtxHdt;
+    std::mutex           mtxBRG;
     // Bearing compass + TWA/TWD calculation
-    wxMenu               *m_pmenu;
     double               mHdt;
     double               mStW;
     double               mSOG;
@@ -217,7 +209,8 @@ private:
     bool                 m_LeewayOK;
     bool                 m_bNKE_TrueWindTableBug;
     double               m_VWR_AWA;
-    double               alpha_currspd, alpha_CogHdt;
+    double               alpha_currspd;
+    double               alpha_CogHdt;
     double               m_ExpSmoothCurrSpd;
     double               m_ExpSmoothCurrDir;
     double               m_ExpSmoothSog;
@@ -257,10 +250,12 @@ private:
     DoubleExpSmooth     *mExpSmCosCog;
     ExpSmooth           *mExpSmDegRange;
     ExpSmooth           *mExpSmDiffCogHdt;
-    
-    bool                 b_tactics_dc_message_shown = false;
+
+    bool                 b_tactics_dc_message_shown;
     bool                 m_bToggledStateVisible;
     bool                 m_bToggledStateVisibleDefined;
+
+    wxMenu              *m_pmenu;
 
     bool LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf );
     void ImportStandaloneTacticsSettings ( wxFileConfig *pConf );
@@ -295,7 +290,7 @@ public:
 
     wxNotebook                   *m_itemNotebook;
     int                           m_border_size;
-    
+
     wxSpinCtrlDouble             *m_alphaDeltCoG; //TR
     wxSpinCtrlDouble             *m_alphaLaylineDampFactor;//TR
     wxSpinCtrl                   *m_minLayLineWidth;//TR

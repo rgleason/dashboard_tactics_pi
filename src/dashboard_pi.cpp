@@ -664,11 +664,13 @@ void dashboard_pi::Notify()
     if( mHDx_Watchdog <= 0 ) {
         mHdm = NAN;
         SendSentenceToAllInstruments( OCPN_DBP_STC_HDM, mHdm, _T("\u00B0") );
+        mHDx_Watchdog = gps_watchdog_timeout_ticks;
     }
 
     mHDT_Watchdog--;
     if( mHDT_Watchdog <= 0 ) {
         SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, NAN, _T("\u00B0T") );
+        mHDT_Watchdog = gps_watchdog_timeout_ticks;
     }
 
     mVar_Watchdog--;
@@ -676,6 +678,7 @@ void dashboard_pi::Notify()
         mVar = NAN;
         mPriVar = 99;
         SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, NAN, _T("\u00B0T") );
+        mVar_Watchdog = gps_watchdog_timeout_ticks;
     }
 
     mGPS_Watchdog--;
@@ -691,6 +694,7 @@ void dashboard_pi::Notify()
 
         mSatsInView = 0;
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
+        mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
 #ifdef _TACTICSPI_H_
     this->TacticsNotify();
