@@ -1660,7 +1660,8 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
     if ( g_bForceTrueWindCalculation ) {
         if ( m_bTrueWind_available ) // Force TW calc. selection no effect
             return false;
-        if ( !( (mAWA >= 0.0) && (mAWS >= 0.0)  &&
+        if ( !( !std::isnan(mAWA) && (mAWA >= 0.0) &&
+                !std::isnan(mAWS) && (mAWS >= 0.0)  &&
                 (mAWAUnit != _("")) && !std::isnan(mHdt) ) ) // collect more data
             return false;
     } // then user is selecting Tactics true wind calculation
@@ -1700,13 +1701,11 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
         //  Calculate TWS (from AWS and StW/SOG)
         spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
         /* The below is the single most important debugging tool for this method! We may need it again */
-        /*
         wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind()- mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f",
                        (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
                        (m_bTrueWind_available?"true":"false"),(g_bForceTrueWindCalculation?"true":"false"),
                        (std::isnan(mAWA)?999.99:mAWA), (std::isnan(mAWS)?999.99:mAWS),
                        mAWAUnit, (std::isnan(mHdt)?999.99:mHdt) );
-        */
         // only start calculating if we have a full set of data
         if ((!m_bTrueWind_available || g_bForceTrueWindCalculation) &&
             (mAWA >= 0.0) && (mAWS >= 0.0)  && (spdval >= 0.0) &&

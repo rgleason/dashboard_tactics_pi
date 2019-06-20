@@ -1571,14 +1571,6 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             SendSentenceToAllInstruments(OCPN_DBP_STC_MDA, xdrdata , _T("mBar") );
                         }
                     }
-#ifdef _TACTICSPI_H_
-                    if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("Barometer")){
-                        double data = xdrdata;
-                        if (m_NMEA0183.Xdr.TransducerInfo[i].UnitOfMeasurement == _T("B"))
-                            data = xdrdata * 1000.;
-                        SendSentenceToAllInstruments(OCPN_DBP_STC_MDA, data, _T("hPa"));
-                    }
-#endif // _TACTICSPI_H_
                     // XDR Pitch (=Nose up/down) or Heel (stb/port)
                     if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerType == _T("A")) {
                         if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("PTCH")
