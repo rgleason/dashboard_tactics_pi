@@ -1777,13 +1777,11 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
         std::unique_lock<std::mutex> lckmAWSmAWA( mtxAWS ); //
         std::unique_lock<std::mutex> lckmHdt( mtxHdt );
         /* The below is the single most important debugging tool for this method! We may need it again */
-        /* *********************
-        wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind()- mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f",
-                       (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
+        wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind()- mStW %f, mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f",
+                       (std::isnan(mStW)?999.99:mStW), (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
                        (m_bTrueWind_available?"true":"false"),(g_bForceTrueWindCalculation?"true":"false"),
                        (std::isnan(mAWA)?999.99:mAWA), (std::isnan(mAWS)?999.99:mAWS),
                        mAWAUnit, (std::isnan(mHdt)?999.99:mHdt) );
-        ********************* */
         // only start calculating if we have a full set of valid data!
         if ( !std::isnan(mAWA) && !std::isnan(mAWS) && !std::isnan(mHdt) ) {
             if ((!m_bTrueWind_available || g_bForceTrueWindCalculation) &&
@@ -1793,7 +1791,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
                 double aws_kts = fromUsrSpeed_Plugin(mAWS,
                                                      g_iDashWindSpeedUnit);
                 spdval = fromUsrSpeed_Plugin(spdval, g_iDashSpeedUnit);
-                std::unique_lock<std::mutex> lckmTWDmTWA( mtxTWD );
+                std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS );
+                std::unique_lock<std::mutex> lckmTWD( mtxTWD );
                 mTWA = 0;
                 mTWD = 0.;
                 if (mAWA < 180.) {
@@ -1837,13 +1836,15 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
                 return true;
             }
             else {
-                //        m_calcTWS = mTWS = NAN;
-                //        m_calcTWD = mTWD = NAN;
-                //m_calcTWA = mTWA = NAN;
                 m_calcTWS = NAN;
                 m_calcTWD = NAN;
                 m_calcTWA = NAN;
             }
+        }
+        else {
+          m_calcTWS = NAN;
+          m_calcTWD = NAN;
+          m_calcTWA = NAN;
         }
     }
     return false;
@@ -2059,7 +2060,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
 
         // ... and only start calculating if we have a full set of data
         std::unique_lock<std::mutex> lckmHdt( mtxHdt );
-        
+
         if (!std::isnan(mheel) && m_LeewayOK && !std::isnan(mCOG) &&
             !std::isnan(mSOG) && !std::isnan(mStW) && !std::isnan(mHdt) &&
             !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway)) {
