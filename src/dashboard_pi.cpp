@@ -1026,6 +1026,18 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         0.0 != m_NMEA0183.Hdg.MagneticVariationDegrees)
                     {
                         mPriVar = 2;
+#ifdef _TACTICSPI_H_
+                        /* Porting note: I am bit puzzled by this: here we override the mVar
+                           which was initially provided by O, in Plugin_Position_Fix().
+                           So, we trust the instrument. Fine. But Plugin_Position_Fix()
+                           is called by some timer, probably every second like everything
+                           in O. It will override mVar, which is used later on in
+                           calculations for _STC_HDT. Which sets the mHdt in tactics_pi.
+                           mHdt is used about in every algorithm. Now, if WMM-model value
+                           and the instrument do not agree, the below leads to a toggling
+                           mVar value, and as consequence to toggling mHdt value in Tactics.
+                        */
+#endif // _TACTICSPI_H_
                         if( m_NMEA0183.Hdg.MagneticVariationDirection == East )
                             mVar =  m_NMEA0183.Hdg.MagneticVariationDegrees;
                         else if( m_NMEA0183.Hdg.MagneticVariationDirection == West )
