@@ -599,10 +599,7 @@ int dashboard_pi::Init( void )
         WANTS_CURSOR_LATLON | WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL |
         WANTS_PREFERENCES   | WANTS_CONFIG           | WANTS_NMEA_SENTENCES  |
         WANTS_NMEA_EVENTS   | USES_AUI_MANAGER       | WANTS_PLUGIN_MESSAGING;
-    wxLogMessage("dashboard_pi req = %x", m_iPlugInRequirements);
-    wxLogMessage("tactics_pi req = %x", what_tactics_pi_wants);
     m_iPlugInRequirements = what_tactics_pi_wants | m_iPlugInRequirements;
-    wxLogMessage("dashboard_tactics_pi init ret = %x", m_iPlugInRequirements);
     return m_iPlugInRequirements;
 #else
     return (
@@ -2225,7 +2222,7 @@ void dashboard_pi::ApplyConfig(
             position.y += 100;
             if ( !init && NewDashboardCreated ) {
                 if ( newcont->m_pDashboardWindow ) {
-                    if ( p_cont.IsOk() ) 
+                    if ( p_cont.IsOk() )
                         position = p_cont.floating_pos;
                 } // then there is a window in this pane
             } // then this is a run-time call
