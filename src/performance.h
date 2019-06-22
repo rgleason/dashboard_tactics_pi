@@ -152,13 +152,15 @@ public:
 	TargetxMG Calc_TargetVMG(double TWA, double TWS);
     TargetxMG Calc_TargetCMG(double TWS, double TWD, double BRG);
     void Calc_TargetCMG2(double TWS, double TWD, double BRG, TargetxMG *TCMG1, TargetxMG*TCMG2);
+    bool isValid(void) { return m_bDataIsValid; };
 
 private:
 	wxDialog*	dlg;
 
-	wxString		logbookDataPath;
-	wxSize			center;
-	double			dist;
+    wxString          logbookDataPath;
+    wxSize            center;
+    double            dist;
+    bool              m_bDataIsValid;
 
 	double toRad(int angle);
 };

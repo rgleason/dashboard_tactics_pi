@@ -519,6 +519,8 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
+    // DEBUG
+    wxLogMessage ("dashboard_pi::Init() mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
 
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -671,6 +673,8 @@ void dashboard_pi::Notify()
     }
 
     mVar_Watchdog--;
+    // DEBUG
+    wxLogMessage ("dashboard_pi::Notify() mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
     if( mVar_Watchdog <= 0 ) {
         mVar = NAN;
         mPriVar = 99;
@@ -768,6 +772,8 @@ Provides navigation instrument display from NMEA source.");
 void dashboard_pi::pSendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit )
 {
+    // DEBUG
+    wxLogMessage( "dashboard_pi::pSendSentenceToAllInstruments() - st %llx, value %f, unit '%s' .", st, (std::isnan(value)?999.99:value), unit );
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
@@ -775,6 +781,8 @@ void dashboard_pi::pSendSentenceToAllInstruments(
             dashboard_window->SendSentenceToAllInstruments(
                 st, value, unit );
     }
+    // DEBUG
+    wxLogMessage( "dashboard_pi::pSendSentenceToAllInstruments() - done.");;
 }
 /* Porting note: with Tactics new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the ^TacticsWP (if it
@@ -794,6 +802,8 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 void dashboard_pi::SendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit )
 {
+    // DEBUG
+    wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - st %llx, value %f, unit '%s' .", st, (std::isnan(value)?999.99:value), unit );
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
         unsigned long long st_twa, st_tws, st_twd;
@@ -811,7 +821,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
             this->SetNMEASentence_Arm_TWS_Watchdog();
         } // then calculated wind values required and need to be distributed
         else {
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables()" );
             this->SetCalcVariables(st, value, unit);
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables() - returns." );
             pSendSentenceToAllInstruments( st, value, unit );
         } // else send the received wind data, anyway
     } // then Tactics true wind calculations
@@ -820,33 +834,57 @@ void dashboard_pi::SendSentenceToAllInstruments(
         double distvalue = value;
         wxString distunit = unit;
         bool perfCorrections = false;
+        // DEBUG
+        wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_PerformanceCorrections()" );
         if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
                  st, distvalue, distunit ) ) {
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_PerformanceCorrections() - needed:" );
             perfCorrections = true;
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables()" );
             this->SetCalcVariables(st, distvalue, distunit);
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables() - returns." );
             pSendSentenceToAllInstruments( st, distvalue, distunit );
         } // then send with corrections
         else {
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_PerformanceCorrections() -  _not_ needed:" );
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables()." );
             this->SetCalcVariables(st, value, unit);
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SetCalcVariables() - returns." );
             pSendSentenceToAllInstruments( st, value, unit );
         } // else send the sentence as it is
         // Leeway
         unsigned long long st_leeway;
         double value_leeway;
         wxString unit_leeway;
+        // DEBUG
+        wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_GetCalculatedLeeway()" );
         if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
                 st_leeway, value_leeway, unit_leeway)) {
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_GetCalculatedLeeway() - yes, send: " );
             pSendSentenceToAllInstruments( st_leeway, value_leeway,
                                            unit_leeway );
         } // then calculated leeway required, is avalaible can be be distributed
+        // DEBUG
+        wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_GetCalculatedLeeway() - no, no action. " );
         // Current
         unsigned long long st_currdir, st_currspd;
         double value_currdir, value_currspd;
         wxString unit_currdir, unit_currspd;
+        // DEBUG
+        wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_GetCalculatedCurrent()" );
         if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
                 st, (perfCorrections ? distvalue : value), (perfCorrections ? distunit : unit),
                 st_currdir, value_currdir, unit_currdir,
                 st_currspd, value_currspd, unit_currspd)) {
+            // DEBUG
+            wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->SendSentenceToAllInstruments_GetCalculatedCurrent() - yes, send (2x): " );
             pSendSentenceToAllInstruments(
                 st_currdir, value_currdir, unit_currdir );
             pSendSentenceToAllInstruments(
@@ -854,8 +892,14 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then calculated current required and need to be distributed
     } // else no true wind calculations
     // Take this opportunity to keep the Tactics performance enginge ticking for rendering
+    // DEBUG
+    wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->CalculateLaylineDegreeRange()" );
     this->CalculateLaylineDegreeRange();
+    // DEBUG
+    wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - this->CalculatePerformanceData()" );
     this->CalculatePerformanceData();
+    // DEBUG
+    wxLogMessage( "dashboard_pi::SendSentenceToAllInstruments() - done.");;
 }
 
 #else
@@ -1040,6 +1084,13 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         else if( m_NMEA0183.Hdg.MagneticVariationDirection == West )
                             mVar = -m_NMEA0183.Hdg.MagneticVariationDegrees;
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
+#ifdef _TACTICSPI_H_
+                        /* Porting note: Why not rearm the mVar_Watchdog?
+                        */
+                        mVar_Watchdog = gps_watchdog_timeout_ticks;
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'HDG' - 1 - mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
+#endif // _TACTICSPI_H_
                     }
 
                 }
@@ -1071,6 +1122,8 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             heading -= 360;
                         SendSentenceToAllInstruments(OCPN_DBP_STC_HDT, heading, _T("\u00B0"));
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'HDG' - 2 -  mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
                     }
                 }
             }
@@ -1098,6 +1151,8 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             heading -= 360;
                         SendSentenceToAllInstruments(OCPN_DBP_STC_HDT, heading, _T("\u00B0"));
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'HDM' -  mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
                     }
                 }
 
@@ -1111,10 +1166,14 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                     if( m_NMEA0183.Hdt.DegreesTrue < 999. ) {
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, m_NMEA0183.Hdt.DegreesTrue,
                                                       _T("\u00B0T") );
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'HDT' - 1 -  mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
                     }
                 }
                 if( !std::isnan(m_NMEA0183.Hdt.DegreesTrue) )
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'HDT' - 2 -  mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
 
             }
         }
@@ -1403,6 +1462,8 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             else if (m_NMEA0183.Rmc.MagneticVariationDirection == West)
                                 mVar = -m_NMEA0183.Rmc.MagneticVariation;
                             mVar_Watchdog = gps_watchdog_timeout_ticks;
+                        // DEBUG
+                        wxLogMessage ("dashboard_pi::SetNMEASentence() - 'RMC' -  mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
 
                             SendSentenceToAllInstruments(OCPN_DBP_STC_HMV, mVar, _T("\u00B0"));
                         }
@@ -1705,6 +1766,8 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
             mPriVar = 1;
             mVar = pfix.Var;
             mVar_Watchdog = gps_watchdog_timeout_ticks;
+            // DEBUG
+            wxLogMessage ("dashboard_pi::SetPositionFix() - mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
 
             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, pfix.Var, _T("\u00B0") );
         }
@@ -1757,6 +1820,8 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
             mPriVar = 4;
             mVar = decl_val;
             mVar_Watchdog = gps_watchdog_timeout_ticks;
+            // DEBUG
+            wxLogMessage ("dashboard_pi::SetPluginMessage() mVar: %f, mPriVar: %u, mPriHeadingT: %u, mVar_Watchdog: %u .", (std::isnan(mVar)?999.99:mVar), mPriVar, mPriHeadingT, mVar_Watchdog);
             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
         }
     }

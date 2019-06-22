@@ -359,12 +359,11 @@ bool tactics_pi::TacticsLoadConfig()
         this->ImportStandaloneTacticsSettings ( pConf );
         g_bTacticsImportChecked = bUserDecision;
     } // else load from the tactics_pi plugin's group
-    BoatPolar = NULL;
     /* Unlike the tactics_pi plugin, Dashboard  not absolutely require
        to have polar-file - it may be that the user is not
        interested in performance part. Yet. We can ask that later. */
+    BoatPolar = new Polar(this);
     if (g_path_to_PolarFile != _T("NULL")) {
-        BoatPolar = new Polar(this);
         BoatPolar->loadPolar(g_path_to_PolarFile);
     }
 
@@ -657,9 +656,12 @@ wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2
 /**********************************************************************
 Function calculates the time to sail for a given distance, TWA and TWS,
 based on the polar data
+returns NaN if no polar data or if it is not valid
 ***********************************************************************/
 double CalcPolarTimeToMark(double distance, double twa, double tws)
 {
+    if ( !BoatPolar->isValid() )
+        return NAN;
 	double pspd = BoatPolar->GetPolarSpeed(twa, tws);
 	return distance / pspd;
 }
@@ -889,7 +891,9 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
 	}
 
-	if (!m_bLaylinesIsVisible)
+	if ( !m_bLaylinesIsVisible )
+        return;
+    if ( !BoatPolar->isValid() )
         return;
     std::unique_lock<std::mutex> lckmTWDmTWA( mtxTWD ); // shared mutex mTWD and mTWA
     std::unique_lock<std::mutex> lckmTWS( mtxTWS );
@@ -1276,6 +1280,8 @@ What should be drawn:
 void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 {
     if ( !m_bShowPolarOnChart )
+        return;
+    if ( !BoatPolar->isValid() )
         return;
     std::unique_lock<std::mutex> lckmTWS( mtxTWS );
     std::unique_lock<std::mutex> lckmTWD( mtxTWD );
@@ -1769,85 +1775,117 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
 {
     double spdval;
 
-    if (st == OCPN_DBP_STC_AWS  &&
-        ( (!g_bUseSOGforTWCalc) && !!std::isnan(mStW) ) ||
-        ( (g_bUseSOGforTWCalc)  && !std::isnan(mSOG) ) ) {
-        //  Calculate TWS (from AWS and StW/SOG)
-        spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
-        std::unique_lock<std::mutex> lckmAWSmAWA( mtxAWS ); //
-        std::unique_lock<std::mutex> lckmHdt( mtxHdt );
-        /* The below is the single most important debugging tool for this method! We may need it again */
-        wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind()- mStW %f, mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f",
-                       (std::isnan(mStW)?999.99:mStW), (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
-                       (m_bTrueWind_available?"true":"false"),(g_bForceTrueWindCalculation?"true":"false"),
-                       (std::isnan(mAWA)?999.99:mAWA), (std::isnan(mAWS)?999.99:mAWS),
-                       mAWAUnit, (std::isnan(mHdt)?999.99:mHdt) );
-        // only start calculating if we have a full set of valid data!
-        if ( !std::isnan(mAWA) && !std::isnan(mAWS) && !std::isnan(mHdt) ) {
-            if ((!m_bTrueWind_available || g_bForceTrueWindCalculation) &&
-                (mAWA >= 0.0) && (mAWS >= 0.0)  && (spdval >= 0.0) &&
-                (mAWAUnit != _("")) ) {
-                //we have to do the calculation in knots
-                double aws_kts = fromUsrSpeed_Plugin(mAWS,
-                                                     g_iDashWindSpeedUnit);
-                spdval = fromUsrSpeed_Plugin(spdval, g_iDashSpeedUnit);
-                std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS );
-                std::unique_lock<std::mutex> lckmTWD( mtxTWD );
-                mTWA = 0;
-                mTWD = 0.;
-                if (mAWA < 180.) {
-                    mTWA = 90. - (180. / M_PI*atan((aws_kts*cos(mAWA*M_PI / 180.) - spdval) / (aws_kts*sin(mAWA*M_PI / 180.))));
-                }
-                else if (mAWA > 180.) {
-                    mTWA = 360. - (90. - (180. / M_PI*atan((aws_kts*cos((180. - (mAWA - 180.))*M_PI / 180.) - spdval) / (aws_kts*sin((180. - (mAWA - 180.))*M_PI / 180.)))));
-                }
-                else {
-                    mTWA = 180.;
-                }
-                mTWS = sqrt(pow((aws_kts*cos(mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(mAWA*M_PI / 180.), 2));
-                /* ToDo: adding leeway needs to be reviewed, as the direction
-                   of the bow is still based in the magnetic compass,
-                   no matter if leeway or not ...
-                   if (!std::isnan(mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
-                   mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA + mLeeway : mHdt - mTWA + mLeeway;
-                   }
-                   else*/
-                mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA : mHdt - mTWA;
-                //endif
-                if (mTWD >= 360) mTWD -= 360;
-                if (mTWD < 0) mTWD += 360;
-                //convert mTWS back to user wind speed settings
-                mTWS = toUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
-                m_calcTWS = mTWS;
-                m_calcTWD = mTWD;
-                m_calcTWA = mTWA;
-                if (mAWSUnit == _(""))
-                    mAWSUnit = mAWAUnit;
-                mTWD_Watchdog = twd_watchdog_timeout_ticks;
-                st_twa = OCPN_DBP_STC_TWA;
-                value_twa = mTWA;
-                unit_twa = mAWAUnit;
-                st_tws = OCPN_DBP_STC_TWS;
-                value_tws = mTWS;
-                unit_tws = mAWSUnit;
-                st_twd = OCPN_DBP_STC_TWD;
-                value_twd = mTWD;
-                unit_twd = _T("\u00B0T");
-                return true;
-            }
-            else {
-                m_calcTWS = NAN;
-                m_calcTWD = NAN;
-                m_calcTWA = NAN;
-            }
-        }
-        else {
-          m_calcTWS = NAN;
-          m_calcTWD = NAN;
-          m_calcTWA = NAN;
-        }
+    if ( st != OCPN_DBP_STC_AWS ) {
+        //DEBUG should not really happen
+        wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() -  no OCPN_DBP_STC_AWS - why are you calling met." );
+        return false;
     }
-    return false;
+
+    wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() - g_bUseSOGforTWCalc %s, mSOG %f, mStW %f .",
+                   (g_bUseSOGforTWCalc?"true":"false"), (std::isnan(mSOG)?999.99:mSOG), (std::isnan(mStW)?999.99:mStW) );
+    if ( g_bUseSOGforTWCalc ) {
+        if ( std::isnan(mSOG) )
+            return false;
+    } // then use SOG, check if value
+    else {
+        if ( std::isnan(mStW) )
+            return false;
+    } // else use StW, check if value
+
+    //  Calculate TWS (from AWS and StW/SOG)
+    spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
+    std::unique_lock<std::mutex> lckmAWSmAWA( mtxAWS ); //
+    std::unique_lock<std::mutex> lckmHdt( mtxHdt );
+    /* The below is the single most important debugging tool for this method! We may need it again */
+    wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() - mStW %f, mSOG %f, spdval %f, m_bTrueWind_available %s, g_bForceTrueWindCalculation %s, mAWA %f, mAWS %f, mAWAUnit '%s', mHdt %f .",
+                   (std::isnan(mStW)?999.99:mStW), (std::isnan(mSOG)?999.99:mSOG), (std::isnan(spdval)?999.99:spdval),
+                   (m_bTrueWind_available?"true":"false"),(g_bForceTrueWindCalculation?"true":"false"),
+                   (std::isnan(mAWA)?999.99:mAWA), (std::isnan(mAWS)?999.99:mAWS),
+                   mAWAUnit, (std::isnan(mHdt)?999.99:mHdt) );
+    // only start calculating if we have a full set of valid data!
+    if ( std::isnan(mAWA) || std::isnan(mAWS) || std::isnan(mHdt) ) {
+        m_calcTWS = NAN;
+        m_calcTWD = NAN;
+        m_calcTWA = NAN;
+        //DEBUG
+        wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() -  then (still or again) invalid values, cannot progress ." );
+        return false;
+    } // then (still or again) invalid values, cannot progress
+    if ( !(!m_bTrueWind_available || g_bForceTrueWindCalculation) ||
+         !(mAWA >= 0.0) || !(mAWS >= 0.0) || !(spdval >= 0.0) || !(mAWAUnit != _("")) ) {
+        m_calcTWS = NAN;
+        m_calcTWD = NAN;
+        m_calcTWA = NAN; 
+        //DEBUG
+        wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() -  calculation is not wanted/usable or valid values but zero value ." );
+        return false;
+    } // then calculation is not wanted/usable or valid values but zero value
+    //we have to do the calculation in knots
+    //DEBUG
+    wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() - g_iDashWindSpeedUnit %d .", g_iDashWindSpeedUnit );
+    double aws_kts = fromUsrSpeed_Plugin(mAWS,
+                                         g_iDashWindSpeedUnit);
+    if ( std::isnan( aws_kts ) ) {
+        m_calcTWS = NAN;
+        m_calcTWD = NAN;
+        m_calcTWA = NAN; 
+        //DEBUG
+        wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() -  then the AWS kts conversion by O failed, returning NaN, no speed value, cannot continue ." );
+    } // then the AWS kts conversion by O failed, returning NaN, no speed value, cannot continue
+    spdval = fromUsrSpeed_Plugin(spdval, g_iDashSpeedUnit);
+    if ( std::isnan( spdval ) ) {
+        m_calcTWS = NAN;
+        m_calcTWD = NAN;
+        m_calcTWA = NAN; 
+        //DEBUG
+        wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() -  then the speed (SOG or STW) kts conversion by O failed, returning NaN, no speed value, cannot continue ." );
+    } // then the speed kts conversion by O failed, returning NaN, no speed value, cannot continue
+    // Allright, now we can start the calculations
+    std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS );
+    std::unique_lock<std::mutex> lckmTWD( mtxTWD );
+    mTWA = 0;
+    mTWD = 0.;
+    if (mAWA < 180.) {
+        mTWA = 90. - (180. / M_PI*atan((aws_kts*cos(mAWA*M_PI / 180.) - spdval) / (aws_kts*sin(mAWA*M_PI / 180.))));
+    }
+    else if (mAWA > 180.) {
+        mTWA = 360. - (90. - (180. / M_PI*atan((aws_kts*cos((180. - (mAWA - 180.))*M_PI / 180.) - spdval) / (aws_kts*sin((180. - (mAWA - 180.))*M_PI / 180.)))));
+    }
+    else {
+        mTWA = 180.;
+    }
+    mTWS = sqrt(pow((aws_kts*cos(mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(mAWA*M_PI / 180.), 2));
+    /* ToDo: adding leeway needs to be reviewed, as the direction
+       of the bow is still based in the magnetic compass,
+       no matter if leeway or not ...
+       if (!std::isnan(mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
+       mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA + mLeeway : mHdt - mTWA + mLeeway;
+       }
+       else*/
+    mTWD = (mAWAUnit == _T("\u00B0R")) ? mHdt + mTWA : mHdt - mTWA;
+    //endif
+    if (mTWD >= 360) mTWD -= 360;
+    if (mTWD < 0) mTWD += 360;
+    //convert mTWS back to user wind speed settings
+    mTWS = toUsrSpeed_Plugin(mTWS, g_iDashWindSpeedUnit);
+    m_calcTWS = mTWS;
+    m_calcTWD = mTWD;
+    m_calcTWA = mTWA;
+    if (mAWSUnit == _(""))
+        mAWSUnit = mAWAUnit;
+    mTWD_Watchdog = twd_watchdog_timeout_ticks;
+    st_twa = OCPN_DBP_STC_TWA;
+    value_twa = mTWA;
+    unit_twa = mAWAUnit;
+    st_tws = OCPN_DBP_STC_TWS;
+    value_tws = mTWS;
+    unit_tws = mAWSUnit;
+    st_twd = OCPN_DBP_STC_TWD;
+    value_twd = mTWD;
+    unit_twd = _T("\u00B0T");
+    //DEBUG
+    wxLogMessage ("tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() - done, returns true." );
+    return true;
 }
 
 
@@ -2172,6 +2210,8 @@ independent of the use of any instrument or setting
 ***********************************************************************/
 void tactics_pi::CalculatePerformanceData(void)
 {
+    if ( !BoatPolar->isValid() )
+        return;
     std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS ); // lock both TWA and TWS
     std::unique_lock<std::mutex> lckmAWAmAWS( mtxAWS ); // shares mutex with AWS
     std::unique_lock<std::mutex> lckmBRG( mtxBRG );
@@ -2179,8 +2219,14 @@ void tactics_pi::CalculatePerformanceData(void)
     if (std::isnan(mTWA) || std::isnan(mTWS)) {
         return;
     }
+    // DEBUG
+    wxLogMessage( "tactics_pi::CalculatePerformanceData() - BoatPolar->GetPolarSpeed() ." );
 
     mPolarTargetSpeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
+
+    // DEBUG
+    wxLogMessage( "tactics_pi::CalculatePerformanceData() - BoatPolar->GetPolarSpeed() - returns." );
+
     //transfer targetangle dependent on AWA, not TWA
     if (mAWA <= 90)
         tvmg = BoatPolar->Calc_TargetVMG(60, mTWS);

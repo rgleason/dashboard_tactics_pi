@@ -294,6 +294,7 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	windSpeed = -1;
 	windAngle = -1;
 	windReference = wxEmptyString;
+    m_bDataIsValid = false;
 
 	timeout = 5;
 	wxString s = wxFileName::GetPathSeparator();
@@ -323,6 +324,7 @@ Polar::Polar(tactics_pi* parent)
   windSpeed = -1;
   windAngle = -1;
   windReference = wxEmptyString;
+  m_bDataIsValid = false;
 
   timeout = 5;
   wxString s = wxFileName::GetPathSeparator();
@@ -494,6 +496,7 @@ void Polar::loadPolar(wxString FilePath)
     completePolar();
     g_path_to_PolarFile = filePath;
     //wxMessageBox(_T("Polar ") + fname + _T(" loaded"));
+    m_bDataIsValid = true;
     return;
 }
 /***********************************************************************************
@@ -533,6 +536,8 @@ void Polar::reset()
       tws[i].tvmg_up.TargetAngle = tws[i].tvmg_up.TargetSpeed = 0;
       tws[i].tvmg_dn.TargetAngle = tws[i].tvmg_dn.TargetSpeed = 0;
     }
+    m_bDataIsValid = false;
+
 }
 
 /***********************************************************************************
