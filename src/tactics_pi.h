@@ -61,7 +61,12 @@ class Polar;
 #define CURR_RECORD_COUNT 20
 #define COGRANGE 60
 
-
+enum dbgTrueWindStartAWS_STC { DBGRES_AWS_STC_UNKNOWN, DBGRES_AWS_STC_WAIT, DBGRES_AWS_STC_AVAILABLE_INVALID, DBGRES_AWS_STC_AVAILABLE };
+enum dbgTrueWindStartForce { DBGRES_FORCE_UNKNOWN, DBGRES_FORCE_SELECTED_TW_AVAILABLE, DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE,
+                             DBGRES_FORCE_NOT_SELECTED_TW_AVAILABLE, DBGRES_FORCE_NOT_SELECTED_NO_TW_AVAILABLE };
+enum dbgTrueWindStartMval { DBGRES_MVAL_UNKNOWN, DBGRES_MVAL_INVALID, DBGRES_MVAL_AVAILABLE, DBGRES_MVAL_IS_ZERO };
+enum dbgTrueWindExecStat { DBGRES_EXEC_UNKNOWN, DBGRES_EXEC_FALSE, DBGRES_EXEC_TRUE };
+enum dbgPolarStat { DBGRES_POLAR_UNKNOWN, DBGRES_POLAR_INVALID, DBGRES_POLAR_VALID };
 
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn Class Definition
@@ -254,6 +259,16 @@ private:
     bool                 b_tactics_dc_message_shown;
     bool                 m_bToggledStateVisible;
     bool                 m_bToggledStateVisibleDefined;
+    int                  m_iDbgRes_TW_Calc_AWS_STC;
+    int                  m_iDbgRes_TW_Calc_AWS;
+    int                  m_iDbgRes_TW_Calc_Force;
+    int                  m_iDbgRes_TW_Calc_AWA;
+    int                  m_iDbgRes_TW_Calc_AWAUnit;
+    int                  m_iDbgRes_TW_Calc_Hdt;
+    int                  m_iDbgRes_TW_Calc_SOG;
+    int                  m_iDbgRes_TW_Calc_StW;
+    int                  m_iDbgRes_TW_Calc_Lau;
+    int                  m_iDbgRes_TW_Calc_Exe;
 
     wxMenu              *m_pmenu;
 

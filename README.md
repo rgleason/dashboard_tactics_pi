@@ -1,6 +1,29 @@
 Dashboard/Tactics Plugin for OpenCPN
 ====================================
-dashboard_pi with tactics performance enhancements (read more from tactics_pi.odt and tactics_pi.pdf)
+dashboard_pi with tactics_pi performance enhancements integrated.
+This plugin forks and merges the two mentioned plugins.
+It does complie as dashboard_pi alone, for testing purposes.
+
+It works like Dashboard for you but if you are interested in
+your boat's performance and have a polar file for it (or you
+can grab one from weather_routing_pi plugin), a new world of
+algorithm driven instrumens and helper functions will open to you!
+
+Also you have some couple of extras in Dashboard like the true
+wind calculation (by Tactics) and temperatures in C or F + some
+improvements behind the scenes which have not necessarily found
+yet their way to the built-in Dashboard.
+
+Algthough not mandatory, it is recommended to disable the built-in
+Dashboard (we use the same parameters), standalone Tactics plugin
+and WMM_pi plugin (unless you do not get the magnetic variation
+from your instruments).
+    
+Watching the numbers jumping on Tactics performance instruments
+maybe fun but to unleash their full power you should understand
+the theory behind them. Attached tactics_pi.odt or tactics_pi.pdf
+are highly recommended reading, written by the original author
+of those algorithms.
 
 In short (taken from the manual):
 
@@ -51,14 +74,14 @@ Prerequisites :
 * Apparent wind angle and apparent wind speed
 * Heel sensor which supplies your boat heel angle to O as XDR sentence
   --> If not available, there's a workaround with manual input
-* You need a polar file of your boat to use all polar based performance calculations
+* >>>> You need a polar file of your boat to use all polar based performance calculations  <<<<
 * Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible.
   Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
 
 Compiling
 =========
 
-* git clone git://github.com/tom-r/tactics_pi.git
+* git clone git://github.com/canne/dashboard_tactics_pi.git
 
 Under windows, you must find the file "opencpn.lib" (Visual Studio) which is built in the build directory after compiling opencpn. 
 This file must be copied to the plugins build directory.
@@ -68,10 +91,7 @@ Windows build :
 cd ..
 cd build
 cmake  -T v120_xp ..
-cmake --build . --config release
-cpack
-
-cpack requires NSIS to make an executable.
+cmake --build . --target package --config release
 
 Unix style build :
 ------------------
@@ -79,7 +99,8 @@ Unix style build :
 * cd build
 * cmake ..
 * make
-* make install
+* make package
+* sudo make install
 
 
 License
