@@ -88,10 +88,10 @@ This file must be copied to the plugins build directory.
 
 Windows build :
 ---------------
-cd ..
-cd build
-cmake  -T v120_xp ..
-cmake --build . --target package --config release
+* cd ..
+* cd build
+* cmake  -T v120_xp ..
+* cmake --build . --target package --config release
 
 Unix style build :
 ------------------
