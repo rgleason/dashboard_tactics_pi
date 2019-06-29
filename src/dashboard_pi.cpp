@@ -519,6 +519,7 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
+    mStW_Watchdog = 2;
 
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -678,6 +679,12 @@ void dashboard_pi::Notify()
         mVar_Watchdog = gps_watchdog_timeout_ticks;
     }
 
+    mStW_Watchdog--;
+    if( mStW_Watchdog <= 0 ) {
+        SendSentenceToAllInstruments( OCPN_DBP_STC_STW, NAN, "" );
+        mStW_Watchdog = gps_watchdog_timeout_ticks;
+    }
+
     mGPS_Watchdog--;
     if( mGPS_Watchdog <= 0 ) {
         SAT_INFO sats[4];
@@ -796,6 +803,8 @@ void dashboard_pi::SendSentenceToAllInstruments(
 {
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
+        this->SetCalcVariables(st, value, unit);
+        pSendSentenceToAllInstruments( st, value, unit );
         unsigned long long st_twa, st_tws, st_twd;
         double value_twa, value_tws, value_twd;
         wxString unit_twa, unit_tws, unit_twd;
@@ -1455,6 +1464,7 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 if( m_NMEA0183.Vhw.Knots < 999. ) {
                     SendSentenceToAllInstruments( OCPN_DBP_STC_STW, toUsrSpeed_Plugin( m_NMEA0183.Vhw.Knots, g_iDashSpeedUnit ),
                                                   getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
+                    mStW_Watchdog = gps_watchdog_timeout_ticks;
                 }
 
                 if( !std::isnan(m_NMEA0183.Vhw.DegreesMagnetic) )

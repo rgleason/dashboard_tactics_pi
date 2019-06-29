@@ -913,14 +913,6 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
 
 	if ( !m_bLaylinesIsVisible )
         return;
-    if ( !BoatPolar->isValid() ) {
-        if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
-            wxLogMessage ("dashboard_tactics_pi: >>> Missing or invalid Polar file: no Performance data, Laylines, Polar graphs available. <<<");
-            g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
-        } // then debug print
-        return;
-    } // then no polar or is invalid
-    g_iDbgRes_Polar_Status = DBGRES_POLAR_VALID;
     
     std::unique_lock<std::mutex> lckmTWDmTWA( mtxTWD ); // shared mutex mTWD and mTWA
     std::unique_lock<std::mutex> lckmTWS( mtxTWS );
@@ -1027,6 +1019,16 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         //     m_pMark = NULL;
         if (m_pMark)
         {
+            if ( !BoatPolar->isValid() ) {
+                if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
+                    wxLogMessage (
+                        "dashboard_tactics_pi: >>> Missing or invalid Polar file: no Performance data, Laylines, Polar graphs available. <<<");
+                    g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
+                } // then debug print
+                return;
+            } // then no polar or is invalid
+            g_iDbgRes_Polar_Status = DBGRES_POLAR_VALID;
+ 
             /*********************************************************************
 				Draw the laylines btw. mark and boat with max 1 tack
 				Additionally calculate if sailing the directline to
@@ -1926,7 +1928,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         if ( std::isnan(mStW) ) {
             if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_INVALID) ) {
                 wxLogMessage (
-                    "dashboard_tactics_pi: Tactics true wind calculations: StW calculations requested but Tactics has no valid intenal StW value.");
+                    "dashboard_tactics_pi: Tactics true wind calculations: StW calculations requested but Tactics has no valid internal StW value.");
                 m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_INVALID;
             } // then debug print
             m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;

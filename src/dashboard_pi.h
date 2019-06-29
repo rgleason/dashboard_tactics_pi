@@ -250,6 +250,9 @@ private:
     int                  mHDT_Watchdog;
     int                  mGPS_Watchdog;
     int                  mVar_Watchdog;
+#ifdef _TACTICSPI_H_
+    int                  mStW_Watchdog;
+#endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
