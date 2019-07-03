@@ -264,37 +264,37 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local Sunrise/Sunset" );
 #ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
-		return _("^Leeway");
+		return _(L"\u2191Leeway");
     case ID_DBP_I_TWAMARK:
-        return _("^TWA to Waypoint");
+        return _(L"\u2191TWA to Waypoint");
 	case ID_DBP_I_CURRDIR:
-		return _("^Current Direction");
+		return _(L"\u2191Current Direction");
 	case ID_DBP_I_CURRSPD:
-		return _("^Current Speed");
+		return _(L"\u2191Current Speed");
 	case ID_DBP_D_BRG:
-		return _("^Bearing Compass");
+		return _(L"\u2191Bearing Compass");
 	case	ID_DBP_I_POLSPD:
-		return _("^Polar Speed");
+		return _(L"\u2191Polar Speed");
 	case	ID_DBP_I_POLVMG:
-		return _("^Actual ") + tactics_pi::get_sVMGSynonym();
+		return _(L"\u2191Actual ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMG:
-		return _("^Target ") + tactics_pi::get_sVMGSynonym();
+		return _(L"\u2191Target ") + tactics_pi::get_sVMGSynonym();
 	case	ID_DBP_I_POLTVMGANGLE:
-		return _("^Target ") +
+		return _(L"\u2191Target ") +
             tactics_pi::get_sVMGSynonym() + _("-Angle");
 	case	ID_DBP_I_POLCMG:
-		return _("^Actual ") + tactics_pi::get_sCMGSynonym();
+		return _(L"\u2191Actual ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMG:
-		return _("^Target ") + tactics_pi::get_sCMGSynonym();
+		return _(L"\u2191Target ") + tactics_pi::get_sCMGSynonym();
 	case	ID_DBP_I_POLTCMGANGLE:
-		return _("^Target ") +
+		return _(L"\u2191Target ") +
             tactics_pi::get_sCMGSynonym() + _("-Angle");
 	case ID_DBP_D_POLPERF:
-		return _("^Polar Performance");
+		return _(L"\u2191Polar Performance");
 	case ID_DBP_D_AVGWIND:
-		return _("^Average Wind");
+		return _(L"\u2191Average Wind");
 	case ID_DBP_D_POLCOMP:
-		return _("^Polar Compass");
+		return _(L"\u2191Polar Compass");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -784,7 +784,7 @@ void dashboard_pi::pSendSentenceToAllInstruments(
     }
 }
 /* Porting note: with Tactics new, virtual NMEA sentences are introduced, like
-   the true wind calculations. Likewise, the bearing to the ^TacticsWP (if it
+   the true wind calculations. Likewise, the bearing to the \u2191TacticsWP (if it
    exists) to performance instruments as a specific NMEA sentence having
    a special unit. Current speed and leeway are also virtual, calculated
    NMEA sentences. To the outside world we can publish target angle information
@@ -3016,7 +3016,7 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     wxStaticText* itemStaticText01 = new wxStaticText( this, wxID_ANY,
                                                        _("Select instrument to add:")
 #ifdef _TACTICSPI_H_
-                                                       + _("\n(^Tactics at the end of the list)")
+                                                       + _(L"\n(\u2191Tactics at the end of the list)")
 #endif // _TACTICSPI_H_
                                                        , wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer01->Add( itemStaticText01, 0, wxEXPAND | wxALL, 5 );

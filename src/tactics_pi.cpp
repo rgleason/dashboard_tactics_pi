@@ -52,7 +52,7 @@ bool g_bDisplayCurrentOnChart;
 wxString g_path_to_PolarFile;
 PlugIn_Route *m_pRoute = NULL;
 PlugIn_Waypoint *m_pMark = NULL;
-wxString g_sMarkGUID = "^TacticsWP";
+wxString g_sMarkGUID = L"\u2191TacticsWP";
 double g_dmark_lat = NAN;
 double g_dmark_lon = NAN;
 double g_dcur_lat = NAN;
@@ -2711,7 +2711,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 
 	wxBoxSizer* itemBoxSizer06 = new wxBoxSizer(wxVERTICAL);
 	itemPanelNotebook03->SetSizer(itemBoxSizer06);
-	m_itemNotebook->AddPage(itemPanelNotebook03, _("^Tactics Performance Parameters"));
+	m_itemNotebook->AddPage(itemPanelNotebook03, _(L"\u2191Tactics Performance Parameters"));
 	//****************************************************************************************************
 	wxStaticBox* itemStaticBox05 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Laylines"));
 	wxStaticBoxSizer* itemStaticBoxSizer05 = new wxStaticBoxSizer(itemStaticBox05, wxHORIZONTAL);
@@ -2962,7 +2962,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_ShowWindbarbOnChart->SetToolTip(_("The default on program startup"));
 
 	//****************************************************************************************************
-	wxStaticBox* itemStaticBox09 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Polar - NOTE: ^Tactics instruments need your boat's polars!"));
+	wxStaticBox* itemStaticBox09 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _(L"Polar - NOTE: \u2191Tactics instruments need your boat's polars!"));
 	wxStaticBoxSizer* itemStaticBoxSizer09 = new wxStaticBoxSizer(itemStaticBox09, wxHORIZONTAL);
 	itemBoxSizer06->Add(itemStaticBoxSizer09, 0, wxEXPAND | wxALL, m_border_size);
 	wxFlexGridSizer *itemFlexGridSizer09 = new wxFlexGridSizer(2);
@@ -3138,19 +3138,19 @@ TacticsWindow::~TacticsWindow()
 void TacticsWindow::InsertTacticsIntoContextMenu ( wxMenu *contextMenu )
 {
     wxMenuItem* btnShowLaylines = contextMenu->AppendCheckItem(
-        ID_DASH_LAYLINE, _("^Show Laylines"));
+        ID_DASH_LAYLINE, _(L"\u2191Show Laylines"));
     btnShowLaylines->Check(m_plugin->GetLaylineVisibility());
 
     wxMenuItem* btnShowCurrent = contextMenu->AppendCheckItem(
-        ID_DASH_CURRENT, _("^Show Current"));
+        ID_DASH_CURRENT, _(L"\u2191Show Current"));
     btnShowCurrent->Check(m_plugin->GetCurrentVisibility());
 
 	wxMenuItem* btnShowWindbarb = contextMenu->AppendCheckItem(
-        ID_DASH_WINDBARB, _("^Show Windbarb"));
+        ID_DASH_WINDBARB, _(L"\u2191Show Windbarb"));
 	btnShowWindbarb->Check(m_plugin->GetWindbarbVisibility());
 
 	wxMenuItem* btnShowPolar = contextMenu->AppendCheckItem(
-        ID_DASH_POLAR, _("^Show Polar"));
+        ID_DASH_POLAR, _(L"\u2191Show Polar"));
 	btnShowPolar->Check(m_plugin->GetPolarVisibility());
 
     return;

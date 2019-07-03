@@ -50,7 +50,11 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
     ):wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
 
+#ifdef _TACTICSPI_H_
+    m_title = title.wc_str();
+#else
       m_title = title;
+#endif // _TACTICSPI_H_
       m_cap_flag = cap_flag;
 
       SetBackgroundStyle( wxBG_STYLE_CUSTOM );
