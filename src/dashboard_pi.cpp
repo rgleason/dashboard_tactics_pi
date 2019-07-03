@@ -3578,6 +3578,14 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                                                            getInstrumentCaption( id ), _T( "%02i:%02i:%02i LCL" ) );
 			break;
 #ifdef _TACTICSPI_H_
+		case ID_DBP_I_CURRDIR:
+			instrument = new DashboardInstrument_Single(this, wxID_ANY,
+				getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%2.0f"));
+			break;
+		case ID_DBP_I_CURRSPD:
+			instrument = new DashboardInstrument_Single(this, wxID_ANY,
+				getInstrumentCaption(id), OCPN_DBP_STC_CURRSPD, _T("%2.2f"));
+			break;
         case ID_DBP_I_LEEWAY:
             instrument = new DashboardInstrument_Single(
                 this, wxID_ANY,
