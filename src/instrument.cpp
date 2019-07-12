@@ -251,6 +251,27 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
 
 }
 
+#ifdef _TACTICSPI_H_
+wxString DashboardInstrument_Single::windDirUniCode (double windir)
+{
+    wxString retval = L"";
+    if ( (windir > 0.0) && (windir <= 79.0) )
+        retval = L"\u2199";
+    else if ( windir <= 99.0 )
+        retval = L"\u2192";
+    else if ( windir <= 180.0 )
+        retval = L"\u2196";
+    else if ( windir <= 259.0 )
+        retval = L"\u2197";
+    else if ( windir <= 279.0 )
+        retval = L"\u2190";
+    else if ( windir < 360.0 )
+        retval = L"\u2198";
+    retval = retval.wc_str(); // return always long format string
+    return retval;
+}
+#endif // _TACTICSPI_H_
+
 void DashboardInstrument_Single::SetData(
 #ifdef _TACTICSPI_H_
         unsigned long long st,
@@ -259,6 +280,10 @@ void DashboardInstrument_Single::SetData(
 #endif // _TACTICSPI_H_
         double data, wxString unit)
 {
+#ifdef _TACTICSPI_H_
+    // units strings shall allow passing long format strings
+    unit = unit.wc_str();
+#endif // _TACTICSPI_H_
       if (m_cap_flag & st){
             if(!std::isnan(data) && (data < 9999)){
                 if (unit == _T("C"))
@@ -280,13 +305,35 @@ void DashboardInstrument_Single::SetData(
 #ifdef _TACTICSPI_H_
                 else if (unit == _T("\u00B0l")){
                     if (data < 0) data = -data;
-                    m_data = +_T("<") +
+                    m_data = L"\u2190" +
                         wxString::Format(m_format, data) + DEGREE_SIGN;
+                }
+                else if (unit == _T("\u00B0rl")){ // wind arrow on starboard side
+                  if (data < 0) data = -data;
+                  m_data = wxString::Format(m_format, data) +
+                      //                      DEGREE_SIGN + windDirUniCode( data );
+                      DEGREE_SIGN + L"\u2196";
                 }
                 else if (unit == _T("\u00B0r")){
                   if (data < 0) data = -data;
                   m_data = wxString::Format(m_format, data) +
-                      DEGREE_SIGN + _T(">");
+                      DEGREE_SIGN + L"\u2192";
+                }
+                else if (unit == _T("\u00B0lr")){ // wind arrow on port side
+                    if (data < 0) data = -data;
+                    //                    m_data = windDirUniCode( data ) +
+                    m_data = L"\u2198" +
+                        wxString::Format(m_format, data) + DEGREE_SIGN;
+                }
+                else if (unit == _T("\u00B0u")){
+                  if (data < 0) data = -data;
+                  m_data = wxString::Format(m_format, data) +
+                      DEGREE_SIGN + L"\u2191";
+                }
+                else if (unit == _T("\u00B0d")){
+                  if (data < 0) data = -data;
+                  m_data = wxString::Format(m_format, data) +
+                      DEGREE_SIGN + L"\u2193";
                 }
 #endif // _TACTICSPI_H_
                 else if (unit == _T("N")) //Knots

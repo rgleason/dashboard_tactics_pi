@@ -1262,11 +1262,21 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             wxString m_awaunit;
                             double m_awaangle;
                             if (m_NMEA0183.Mwv.WindAngle >180) {
+#ifdef _TACTICSPI_H_
+                                m_awaunit = L"\u00B0lr"; // == wind arrow on port side
+#else
                                 m_awaunit = _T("\u00B0L");
+#endif // _TACTICSPI_H_
+
+                                
                                 m_awaangle = 180.0 - (m_NMEA0183.Mwv.WindAngle - 180.0);
                             }
                             else {
+#ifdef _TACTICSPI_H_
+                                m_awaunit = L"\u00B0rl"; // == wind arrow on starboard side
+#else
                                 m_awaunit = _T("\u00B0R");
+#endif // _TACTICSPI_H_
                                 m_awaangle = m_NMEA0183.Mwv.WindAngle;
                             }
                             SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
@@ -1287,11 +1297,19 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                             wxString m_twaunit;
                             double m_twaangle;
                             if (m_NMEA0183.Mwv.WindAngle >180) {
+#ifdef _TACTICSPI_H_
+                                m_twaunit = L"\u00B0lr";  // == wind arrow on port side
+#else
                                 m_twaunit = _T("\u00B0L");
+#endif // _TACTICSPI_H_
                                 m_twaangle = 180.0 - (m_NMEA0183.Mwv.WindAngle - 180.0);
                             }
                             else {
+#ifdef _TACTICSPI_H_
+                                m_twaunit = L"\u00B0rl";  // == wind arrow on starboard side
+#else
                                 m_twaunit = _T("\u00B0R");
+#endif // _TACTICSPI_H_
                                 m_twaangle = m_NMEA0183.Mwv.WindAngle;
                             }
                             SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
@@ -1510,7 +1528,11 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                     mPriAWA = 2;
 
                     wxString awaunit;
+#ifdef _TACTICSPI_H_
+                    awaunit = m_NMEA0183.Vwr.DirectionOfWind == Left ? L"\u00B0lr" : L"\u00B0rl";
+#else
                     awaunit = m_NMEA0183.Vwr.DirectionOfWind == Left ? _T("\u00B0L") : _T("\u00B0R");
+#endif // _TACTICSPI_H_
                     SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
                                                   m_NMEA0183.Vwr.WindDirectionMagnitude, awaunit );
                     SendSentenceToAllInstruments(
@@ -1537,7 +1559,11 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 if( mPriTWA >= 2 ) {
                     mPriTWA = 2;
                     wxString vwtunit;
+#ifdef _TACTICSPI_H_
+                    vwtunit = m_NMEA0183.Vwt.DirectionOfWind == Left ? L"\u00B0lr" : L"\u00B0rl";
+#else
                     vwtunit = m_NMEA0183.Vwt.DirectionOfWind == Left ? _T("\u00B0L") : _T("\u00B0R");
+#endif // _TACTICSPI_H_
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
                                                   m_NMEA0183.Vwt.WindDirectionMagnitude, vwtunit );
                     SendSentenceToAllInstruments(
@@ -1608,11 +1634,19 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("PTCH")
                             || m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("PITCH")) {
                             if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
-                                xdrunit = _T("\u00B0 Nose up");
+#ifdef _TACTICSPI_H_
+                               xdrunit = L"\u00B0u";
+#else
+                               xdrunit = _T("\u00B0 Nose up");
+#endif // _TACTICSPI_H_                                
                             }
                             else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
+#ifdef _TACTICSPI_H_
+                                xdrunit = L"\u00B0d";
+#else
                                 xdrunit = _T("\u00B0 Nose down");
                                 xdrdata *= -1;
+#endif // _TACTICSPI_H_                                
                             }
                             else {
                                 xdrunit = _T("\u00B0");
@@ -1626,11 +1660,19 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                         else if (m_NMEA0183.Xdr.TransducerInfo[i].TransducerName == _T("ROLL")) {
 #endif // _TACTICSPI_H_
                             if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData > 0) {
+#ifdef _TACTICSPI_H_
+                                xdrunit = L"\u00B0r";
+#else
                                 xdrunit = _T("\u00B0 to Starboard");
+#endif // _TACTICSPI_H_
                             }
                             else if (m_NMEA0183.Xdr.TransducerInfo[i].MeasurementData < 0) {
+#ifdef _TACTICSPI_H_
+                                xdrunit = L"\u00B0l";
+#else
                                 xdrunit = _T("\u00B0 to Port");
                                 xdrdata *= -1;
+#endif // _TACTICSPI_H_
                             }
                             else {
                                 xdrunit = _T("\u00B0");

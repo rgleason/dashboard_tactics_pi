@@ -188,6 +188,10 @@ protected:
     wxString          m_format;
     int               m_DataHeight;
 
+#ifdef _TACTICSPI_H_
+    wxString windDirUniCode (double windir);
+#endif // _TACTICSPI_H_
+
     void Draw(wxGCDC* dc);
 };
 
@@ -203,30 +207,30 @@ public:
                                    int cap_flag2=OCPN_DBP_STC_LON
 #endif // _TACTICSPI_H_
           );
-      ~DashboardInstrument_Position(){}
-
-      wxSize GetSize( int orient, wxSize hint );
-      void SetData(
+    ~DashboardInstrument_Position(){}
+    
+    wxSize GetSize( int orient, wxSize hint );
+    void SetData(
 #ifdef _TACTICSPI_H_
-          unsigned long long st,
+        unsigned long long st,
 #else
-          int st,
+        int st,
 #endif // _TACTICSPI_H_
-          double data, wxString unit);
+        double data, wxString unit);
 
 protected:
-      wxString          m_data1;
-      wxString          m_data2;
+    wxString          m_data1;
+    wxString          m_data2;
 #ifdef _TACTICSPI_H_
-      unsigned long long     m_cap_flag1;
-      unsigned long long     m_cap_flag2;
+    unsigned long long     m_cap_flag1;
+    unsigned long long     m_cap_flag2;
 #else
-      int               m_cap_flag1;
-      int               m_cap_flag2;
+    int               m_cap_flag1;
+    int               m_cap_flag2;
 #endif // _TACTICSPI_H_
-      int               m_DataHeight;
+    int               m_DataHeight;
 
-      void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc);
 };
 
 #endif

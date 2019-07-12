@@ -2260,7 +2260,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
                 mLeeway = (g_dLeewayFactor*mheel) / (stw_kts*stw_kts);
             if (mLeeway > g_dfixedLeeway) mLeeway = g_dfixedLeeway;
             if (mLeeway < -g_dfixedLeeway) mLeeway = -g_dfixedLeeway;
-            //22.04TR : auf neg. Werte pr�fen !!!
+            //22.04TR : auf neg. Werte prufen !!!
             mHeelUnit = (mheel < 0) ? _T("\u00B0l") : _T("\u00B0r");
             calculatedLeeway = true;
         }
