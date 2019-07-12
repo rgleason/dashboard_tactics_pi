@@ -188,10 +188,6 @@ protected:
     wxString          m_format;
     int               m_DataHeight;
 
-#ifdef _TACTICSPI_H_
-    wxString windDirUniCode (double windir);
-#endif // _TACTICSPI_H_
-
     void Draw(wxGCDC* dc);
 };
 
