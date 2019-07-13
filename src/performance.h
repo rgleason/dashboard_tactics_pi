@@ -240,7 +240,7 @@ private:
 
 };
 
-// // Warn: div by 0 if count == 1
+// Warn: div by 0 if count == 1
 #define DATA_RECORD_COUNT 1500
 
 class TacticsInstrument_PolarPerformance : public DashboardInstrument
@@ -268,7 +268,8 @@ protected:
   double m_MinBoatSpd;
   double m_BoatSpeedRange;
   double m_MaxPercent;  //...in array
-  double m_TotalMaxSpdPercent; // since O is started
+  double m_AvgSpdPercent;
+  ExpSmooth  *mExpSmAvgSpdPercent;
   double m_TWA, m_TWS, m_STW, m_PolarSpeedPercent, m_PolarSpeed;
   double m_MaxPercentScale, m_MaxBoatSpdScale;
   int num_of_scales;

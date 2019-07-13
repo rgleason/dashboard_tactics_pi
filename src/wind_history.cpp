@@ -706,8 +706,9 @@ void DashboardInstrument_WindDirHistory::DrawForeground(wxGCDC* dc)
     hour=0;
   }
   else {
-    min=m_ArrayRecTime[i].min;
-    hour=m_ArrayRecTime[i].hour;
+    wxDateTime localTime( m_ArrayRecTime[i] );
+    min = localTime.GetMinute( );
+    hour=localTime.GetHour( );
   }
   dc->DrawText(wxString::Format(_("Max %.1f %s since %02d:%02d  Overall %.1f %s"), m_MaxWindSpd, m_WindSpeedUnit.c_str(), hour, min, m_TotalMaxWindSpd, m_WindSpeedUnit.c_str()), m_LeftLegend + 3 + 2 + degw, m_TopLineHeight - degh + 5);
   pen.SetStyle(wxPENSTYLE_SOLID);
@@ -761,18 +762,19 @@ void DashboardInstrument_WindDirHistory::DrawForeground(wxGCDC* dc)
   int done=-1;
   wxPoint pointTime;
   for (int idx = 0; idx < WIND_RECORD_COUNT; idx++) {
-    sec = m_ArrayRecTime[idx].sec;
-    min=m_ArrayRecTime[idx].min;
-    hour=m_ArrayRecTime[idx].hour;
-    if(m_ArrayRecTime[idx].year!= 999) {
-      if ( (hour*100+min) != done && (min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
-        pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
-        dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
-        label.Printf(_T("%02d:%02d"), hour,min);
-        dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
-        dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
-        done=hour*100+min;
+      if (m_ArrayRecTime[idx].year != 999) {
+          wxDateTime localTime(m_ArrayRecTime[idx]);
+          min = localTime.GetMinute( );
+          hour=localTime.GetHour( );
+          sec=localTime.GetSecond( );
+          if ((hour * 100 + min) != done && (min % 5 == 0) && (sec == 0 || sec == 1)) {
+              pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
+              dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
+              label.Printf(_T("%02d:%02d"), hour,min);
+              dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
+              dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
+              done=hour*100+min;
+          }
       }
-    }
   }
 }

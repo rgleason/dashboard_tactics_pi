@@ -277,10 +277,6 @@ void DashboardInstrument_Single::SetData(
                   m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" true");
                 else if (unit == _T("\u00B0M"))
                   m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" mag");
-                else if (unit == _T("\u00B0L"))
-                  m_data = _T(">")+ wxString::Format(m_format, data)+DEGREE_SIGN;
-                else if (unit == _T("\u00B0R"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("<");
 #ifdef _TACTICSPI_H_
                 else if (unit == _T("\u00B0l")){
                     if (data < 0) data = -data;
@@ -314,6 +310,11 @@ void DashboardInstrument_Single::SetData(
                   m_data = wxString::Format(m_format, data) +
                       DEGREE_SIGN + L"\u2193";
                 }
+#else
+                else if (unit == _T("\u00B0L"))
+                  m_data = _T(">")+ wxString::Format(m_format, data)+DEGREE_SIGN;
+                else if (unit == _T("\u00B0R"))
+                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("<");
 #endif // _TACTICSPI_H_
                 else if (unit == _T("N")) //Knots
                   m_data = wxString::Format(m_format, data)+_T(" Kts");

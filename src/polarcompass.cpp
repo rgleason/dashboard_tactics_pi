@@ -325,7 +325,7 @@ void TacticsInstrument_PolarCompass::DrawWindAngles(wxGCDC* dc)
 
 		/* this is fix for a +/-180° round instrument, when m_MainValue is supplied as <0..180><L | R>
 		* for example TWA & AWA */
-		if (m_curTack == _T("\u00B0L"))
+		if (m_curTack == _T("\u00B0lr"))
 			data = 360 - TwaCog;
 		else
 			data = TwaCog;
@@ -577,9 +577,9 @@ void TacticsInstrument_PolarCompass::DrawData(wxGCDC* dc, double value,
 	{
 		if (unit == _T("\u00B0"))
 			text = wxString::Format(format, value) + DEGREE_SIGN;
-		else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
+		else if (unit == _T("\u00B0lr")) // No special display for now, might be XX°< (as in text-only instrument) - no support for B0R
 			text = wxString::Format(format, value) + DEGREE_SIGN;
-		else if (unit == _T("\u00B0R")) // No special display for now, might be >XX°
+		else if (unit == _T("\u00B0rl")) // No special display for now, might be >XX° - no support for B0L
 			text = wxString::Format(format, value) + DEGREE_SIGN;
 		else if (unit == _T("\u00B0T"))
 			text = wxString::Format(format, value) + DEGREE_SIGN + _T("T");
@@ -726,12 +726,12 @@ void TacticsInstrument_PolarCompass::DrawLaylines(wxGCDC* dc)
 		//m_curTack = TWA unit
 		//it shows L= wind from left = port tack or R=wind from right = starboard tack
 		//we're on port tack, so vertical layline is red
-		if (m_curTack == _T("\u00B0L")) {
+		if (m_curTack == _T("\u00B0lr")) {
 			vbrush.SetColour(wxColour(204, 41, 41, 128));  //red, transparent
 			tackbrush.SetColour(wxColour(0, 200, 0, 128)); //green, transparent
 			m_targetTack = _("R");
 		}
-		else if (m_curTack == _T("\u00B0R"))  {// we're on starboard tack, so vertical layline is green
+		else if (m_curTack == _T("\u00B0rl"))  {// we're on starboard tack, so vertical layline is green
 			vbrush.SetColour(wxColour(0, 200, 0, 128));      //green, transparent
 			tackbrush.SetColour(wxColour(204, 41, 41, 128)); //red, transparent
 			m_targetTack = _("L");
@@ -771,7 +771,7 @@ void TacticsInstrument_PolarCompass::DrawLaylines(wxGCDC* dc)
 		********************************************************************************************/
 		dc->SetBrush(tackbrush);
         double predictedKdW; //==predicted Course Through Water
-        double Leeway = (m_LeewayUnit == _T("\u00B0L")) ? -m_Leeway : m_Leeway;
+        double Leeway = (m_LeewayUnit == _T("\u00B0lr")) ? -m_Leeway : m_Leeway;
         if (m_targetTack == _T("R")){ // so currently wind is from port ...
 			//predictedKdW = m_Hdt - 2 * m_TWA - m_Leeway;
           predictedKdW = m_Hdt - 2 * m_TWA - Leeway;

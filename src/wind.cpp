@@ -252,7 +252,11 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
         /* this is fix for a +/-180 deg. round instrument, when
            m_MainValue is supplied as <0..180><L | R>
            * for example TWA & AWA */
+#ifdef _TACTICSPI_H_
+        if (m_MainValueTrueUnit == _T("\u00B0lr"))
+#else
         if (m_MainValueTrueUnit == _T("\u00B0L"))
+#endif // _TACTICSPI_H_
             data = 360 - m_MainValueTrue;
         else
             data = m_MainValueTrue;
@@ -292,7 +296,11 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 	/* this is fix for a +/-180deg. round instrument,
        when m_MainValue is supplied as <0..180><L | R>
        * for example TWA & AWA */
-	if (m_MainValueAppUnit == _T("\u00B0L"))
+#ifdef _TACTICSPI_H_
+    if (m_MainValueAppUnit == _T("\u00B0lr"))
+#else
+    if (m_MainValueAppUnit == _T("\u00B0L"))
+#endif // _TACTICSPI_H_
 		data = 360 - m_MainValueApp;
 	else
 		data = m_MainValueApp;
@@ -335,9 +343,17 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 	{
 		if (unit == _T("\u00B0"))
 			text = wxString::Format(format, value) + DEGREE_SIGN;
+#ifdef _TACTICSPI_H_
+		else if (unit == _T("\u00B0lr")) // No special display for now, might be XXdeg< (as in text-only instrument)
+#else
 		else if (unit == _T("\u00B0L")) // No special display for now, might be XXdeg< (as in text-only instrument)
+#endif // _TACTICSPI_H_
 			text = wxString::Format(format, value) + DEGREE_SIGN;
+#ifdef _TACTICSPI_H_
+		else if (unit == _T("\u00B0rl")) // No special display for now, might be >XXdeg
+#else
 		else if (unit == _T("\u00B0R")) // No special display for now, might be >XXdeg
+#endif // _TACTICSPI_H_
 			text = wxString::Format(format, value) + DEGREE_SIGN;
 		else if (unit == _T("\u00B0T"))
 			text = wxString::Format(format, value) + DEGREE_SIGN + _T("T");
