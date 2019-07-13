@@ -803,8 +803,21 @@ void dashboard_pi::SendSentenceToAllInstruments(
 {
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
-        this->SetCalcVariables(st, value, unit);
-        pSendSentenceToAllInstruments( st, value, unit );
+        // we have a valid AWS sentence here, it may require heel correction
+        double distvalue = value;
+        wxString distunit = unit;
+        bool perfCorrections = false;
+        if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
+                 st, distvalue, distunit ) ) {
+            perfCorrections = true;
+            this->SetCalcVariables(st, distvalue, distunit);
+            pSendSentenceToAllInstruments( st, distvalue, distunit );
+        } // then send with corrections
+        else {
+            this->SetCalcVariables(st, value, unit);
+            pSendSentenceToAllInstruments( st, value, unit );
+        } // else send the sentence as it is
+        // AWS corrected or not, it is now sent, move to TW calculations
         unsigned long long st_twa, st_tws, st_twd;
         double value_twa, value_tws, value_twd;
         wxString unit_twa, unit_tws, unit_twd;
