@@ -358,19 +358,25 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
   dc->SetFont(*g_pFontSmall);
   int done=-1;
   wxPoint pointTime;
+  int prevfiver=-5;
   for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
-    sec = m_ArrayRecTime[idx].sec;
-    min=m_ArrayRecTime[idx].min;
-    hour=m_ArrayRecTime[idx].hour;
-    if(m_ArrayRecTime[idx].year!= 999) {
-      if ( (hour*100+min) != done && ( min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
-        pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
-        dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
-        label.Printf(_T("%02d:%02d"), hour,min);
-        dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
-        dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
-        done=hour*100+min;
+      if (m_ArrayRecTime[idx].year != 999) {
+          wxDateTime localTime( m_ArrayRecTime[idx] );
+          min=localTime.GetMinute( );
+          hour=localTime.GetHour( );
+          sec=localTime.GetSecond( );
+          //          if ( (hour*100+min) != done && (min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
+          if ( (hour*100+min) != done && (min % 5 == 0 ) ) {
+              if ( min != prevfiver ) {
+                  pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
+                  dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
+                  label.Printf(_T("%02d:%02d"), hour,min);
+                  dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
+                  dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
+                  prevfiver = min;
+                  done=hour*100+min;
+              } // then avoid double printing in faster devices
+          }
       }
-    }
   }
 }
