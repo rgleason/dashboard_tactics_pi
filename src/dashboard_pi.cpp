@@ -1845,7 +1845,7 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 {
 #ifdef _TACTICSPI_H_
     wxPoint pos = wxGetMousePosition();
-    pos.y -= 200;
+    pos.y -= 500;
 #endif // _TACTICSPI_H_
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow
