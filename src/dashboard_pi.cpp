@@ -784,8 +784,8 @@ void dashboard_pi::pSendSentenceToAllInstruments(
     }
 }
 /* Porting note: with Tactics new, virtual NMEA sentences are introduced, like
-   the true wind calculations. Likewise, the bearing to the \u2191TacticsWP (if it
-   exists) to performance instruments as a specific NMEA sentence having
+   the true wind calculations. Likewise, the bearing to the \u2191TacticsWP
+   (if it exists) to performance instruments as a specific NMEA sentence having
    a special unit. Current speed and leeway are also virtual, calculated
    NMEA sentences. To the outside world we can publish target angle information
    and similar to be displayed to the helmsman on a performance instruments.
@@ -832,10 +832,6 @@ void dashboard_pi::SendSentenceToAllInstruments(
             this->SetNMEASentence_Arm_TWD_Watchdog();
             this->SetNMEASentence_Arm_TWS_Watchdog();
         } // then calculated wind values required and need to be distributed
-        else {
-            this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit );
-        } // else send the received wind data, anyway
     } // then Tactics true wind calculations
     else {
         // we have sentence which may or may not require correction

@@ -183,6 +183,7 @@ private:
     // Bearing compass + TWA/TWD calculation
     double               mHdt;
     double               mStW;
+    double               mStWnocorr;
     double               mSOG;
     double               mCOG;
     double               mlat;
@@ -197,7 +198,9 @@ private:
     wxString             mAWAUnit;
     wxString             mAWSUnit;
     double               mAWA;
+    double               mAWAnocorr;
     double               mAWS;
+    double               mAWSnocorr;
     double               mTWA;
     double               mTWD;
     double               mTWS;
@@ -252,6 +255,7 @@ private:
     double               mVMGoptAngle;
     double               mCMGoptAngle;
     double               mBRG;
+    double               mBRGnocorr;
     wxPoint              vpoints[3];
     wxPoint              tackpoints[3];
     double               m_CurrentDirection;

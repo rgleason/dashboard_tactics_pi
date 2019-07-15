@@ -117,6 +117,7 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     // please keep the below in same order than in class definition, please.
     mHdt = NAN;
     mStW = NAN;
+    mStWnocorr = NAN;
     mSOG = NAN;
     mCOG = NAN;
     mlat = NAN;
@@ -130,8 +131,10 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     mHeelUnit = "";
     mAWAUnit = "";
     mAWSUnit = "";
-    mAWS = NAN;
     mAWA = NAN;
+    mAWAnocorr = NAN;
+    mAWS = NAN;
+    mAWSnocorr = NAN;
     mTWA = NAN;
     mTWD = NAN;
     mTWS = NAN;
@@ -188,6 +191,7 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     mVMGoptAngle = NAN;
     mCMGoptAngle = NAN;
     mBRG = NAN;
+    mBRGnocorr = NAN;
     vpoints[0].x = 0;
     vpoints[0].y = 0;
     vpoints[1] = vpoints[0];
@@ -1723,6 +1727,9 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
 {
 
     if (st == OCPN_DBP_STC_AWS){
+        mAWS = value;
+        mAWSnocorr = NAN;
+        mAWSUnit = unit;
         /* Correct AWS with heel if global variable set and heel
            is available. The correction only makes sense if one
            uses a heel sensor.
@@ -1730,35 +1737,46 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
            AWS_measured * cos(AWA_measured) / cos(AWA_corrected) */
         if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
             !std::isnan(mheel) && !std::isnan(value)) {
-            double newvalue = value / cos(mheel*M_PI / 180.);
-            value = newvalue;
+            mAWSnocorr = value;
+            mAWS = value / cos(mheel*M_PI / 180.);
+            value = mAWS;
             return true;
         }
     }
     if (st == OCPN_DBP_STC_STW){
+        mStW = value;
+        mStWnocorr = NAN;
         /* Correct STW with Leeway if global variable set and heel
            is available. The correction only makes sense if one
            uses a heel sensor. */
         if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor &&
             !std::isnan(mLeeway) && !std::isnan(mheel)) {
-            double newvalue = value / cos(mLeeway *M_PI / 180.0);
-            value = newvalue;
+            mStWnocorr = value;
+            mStW = value / cos(mLeeway *M_PI / 180.0);
+            value = mStW;
             return true;
         }
     }
     if (st == OCPN_DBP_STC_BRG){
+        mBRG = value;
+        mBRGnocorr = NAN;
         if (m_pMark && !std::isnan(mlat) && !std::isnan(mlon)) {
             double dist;
             double newvalue = value;
+            mBRGnocorr = value;
             DistanceBearingMercator_Plugin(m_pMark->m_lat,
                                            m_pMark->m_lon, mlat, mlon,
                                            &newvalue, &dist);
-            value = newvalue;
+            mBRG = newvalue;
+            value = mBRG;
             unit = g_sMarkGUID;
             return true;
         }
     }
     if (st == OCPN_DBP_STC_AWA){
+        mAWA = value;
+        mAWAnocorr = NAN;
+        mAWAUnit = unit;
         if (g_bCorrectAWwithHeel == true && g_bUseHeelSensor &&
             !std::isnan(mLeeway) && !std::isnan(mheel)){
             /* Correct AWA with heel if global variable set and heel
@@ -1766,6 +1784,7 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
                sensor is available */
             double tan_awa = tan(value * M_PI / 180.);
             double awa_heel;
+            mAWAnocorr = value;
             if (std::isnan(tan_awa))
                 awa_heel = value;
             else
@@ -1781,7 +1800,8 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
                         awa_heel -= 180.0;
                 }
             }
-            value = awa_heel;
+            mAWA = awa_heel;
+            value = mAWA;
             return true;
         }
     }
@@ -2302,7 +2322,9 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
 
         // only start calculating if we have a full set of data
         if (!std::isnan(mheel) && !std::isnan(mStW)) {
-            double stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+            double stwvalue;
+            ( std::isnan(mStWnocorr) ? stwvalue = mStW : stwvalue = mStWnocorr );
+            double stw_kts = fromUsrSpeed_Plugin(stwvalue, g_iDashSpeedUnit);
 
             // calculate Leeway based on Heel
             if (mheel == 0)
