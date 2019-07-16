@@ -2391,7 +2391,12 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             //we have to do the calculation in knots ...
             double sog_kts, stw_kts;
             sog_kts = fromUsrSpeed_Plugin(mSOG, g_iDashSpeedUnit);
-            stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+            if ( g_bCorrectSTWwithLeeway )
+                stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit);
+            else
+                ( std::isnan( mStWnocorr ) ?
+                  stw_kts = fromUsrSpeed_Plugin(mStW, g_iDashSpeedUnit) :
+                  stw_kts = fromUsrSpeed_Plugin(mStWnocorr, g_iDashSpeedUnit) );
             //calculate endpoint of COG/SOG
             PositionBearingDistanceMercator_Plugin(
                 mlat, mlon, mCOG, sog_kts, &COGlat, &COGlon);
@@ -2404,7 +2409,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             // Wind   /
             // -->   /        Leeway
             //      /
-            //     /----------> CRS, STW (stw_corr)
+            //     /----------> CRS, STW (stw_corr or stw)
             //     \
             //      \        Current
             //       \ COG,SOG
@@ -2418,13 +2423,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             if (CourseThroughWater < 0) CourseThroughWater += 360;
             double CRSlat, CRSlon;
             //calculate endpoint of StW/KdW;
-            double stw_corr;
-            //correct only if not already done before via preference setting
-            if (g_bCorrectSTWwithLeeway == true && g_bUseHeelSensor && !std::isnan(mLeeway) && !std::isnan(mheel)) //in this case STW is already corrected !!!
-                stw_corr = stw_kts;
-            else
-                stw_corr = stw_kts / cos(mLeeway *M_PI / 180.0); //we have to correct StW for CRS as well.
-            PositionBearingDistanceMercator_Plugin(mlat, mlon, CourseThroughWater, stw_corr, &CRSlat, &CRSlon);
+            PositionBearingDistanceMercator_Plugin(mlat, mlon, CourseThroughWater, stw_kts, &CRSlat, &CRSlon);
 
             //calculate the Current vector with brg & speed from the 2 endpoints above
             double currdir = 0, currspd = 0;
@@ -3011,7 +3010,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	m_CorrectSTWwithLeeway = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Correct STW with Leeway"));
 	itemFlexGridSizer10->Add(m_CorrectSTWwithLeeway, 0, wxEXPAND, 5);
 	m_CorrectSTWwithLeeway->SetValue(g_bCorrectSTWwithLeeway);
-	m_CorrectSTWwithLeeway->SetToolTip(_("Apply a correction to your log speed throughout the plugin based on the calculated Leeway (via the heel sensor).\nOnly makes sense with a real heel sensor.\nMake sure your instruments do not already apply this correction !"));
+	m_CorrectSTWwithLeeway->SetToolTip(_("Apply a correction to your log speed throughout the plugin based on the calculated Leeway and Current.\nOnly makes sense with a real heel sensor.\nMake sure your instruments do not already apply this correction !"));
 	//--------------------
 	m_CorrectAWwithHeel = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Correct AWS/AWA with Heel"));
 	itemFlexGridSizer10->Add(m_CorrectAWwithHeel, 0, wxEXPAND, 5);
