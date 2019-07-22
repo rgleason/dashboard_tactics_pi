@@ -148,7 +148,7 @@ public:
     virtual bool SendSentenceToAllInstruments_GetCalculatedTrueWind(
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
-        unsigned long long &st_tws, double &value_tws, wxString &unit_tws,
+        unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
         unsigned long long &st_twd, double &value_twd, wxString &unit_twd
         ) final;
     virtual bool SendSentenceToAllInstruments_GetCalculatedLeeway(

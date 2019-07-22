@@ -286,7 +286,6 @@ void DashboardInstrument_Single::SetData(
                 else if (unit == _T("\u00B0rl")){ // wind arrow on starboard side
                   if (data < 0) data = -data;
                   m_data = wxString::Format(m_format, data) +
-                      //                      DEGREE_SIGN + windDirUniCode( data );
                       DEGREE_SIGN + L"\u2190";
                 }
                 else if (unit == _T("\u00B0r")){
@@ -296,7 +295,6 @@ void DashboardInstrument_Single::SetData(
                 }
                 else if (unit == _T("\u00B0lr")){ // wind arrow on port side
                     if (data < 0) data = -data;
-                    //                    m_data = windDirUniCode( data ) +
                     m_data = L"\u2192" +
                         wxString::Format(m_format, data) + DEGREE_SIGN;
                 }

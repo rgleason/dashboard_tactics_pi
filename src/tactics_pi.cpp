@@ -2043,7 +2043,7 @@ values up to date and send those values to instrument windows as well.
 bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     unsigned long long st, double value, wxString unit,
     unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
-    unsigned long long &st_tws, double &value_tws, wxString &unit_tws,
+    unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
     unsigned long long &st_twd, double &value_twd, wxString &unit_twd
     )
 {
@@ -2154,6 +2154,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     value_twa = mTWA;
     unit_twa = mAWAUnit;
     st_tws = OCPN_DBP_STC_TWS;
+    st_tws2 = OCPN_DBP_STC_TWS2;
     value_tws = mTWS;
     unit_tws = mAWSUnit;
     st_twd = OCPN_DBP_STC_TWD;

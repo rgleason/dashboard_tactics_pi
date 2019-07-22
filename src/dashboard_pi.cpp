@@ -818,16 +818,17 @@ void dashboard_pi::SendSentenceToAllInstruments(
             pSendSentenceToAllInstruments( st, value, unit );
         } // else send the sentence as it is
         // AWS corrected or not, it is now sent, move to TW calculations
-        unsigned long long st_twa, st_tws, st_twd;
+        unsigned long long st_twa, st_tws, st_tws2, st_twd;
         double value_twa, value_tws, value_twd;
         wxString unit_twa, unit_tws, unit_twd;
         if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
                 st, value, unit,
                 st_twa, value_twa, unit_twa,
-                st_tws, value_tws, unit_tws,
+                st_tws, st_tws2, value_tws, unit_tws,
                 st_twd, value_twd, unit_twd)) {
             pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
             pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
+            pSendSentenceToAllInstruments( st_tws2, value_tws, unit_tws );
             pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
             this->SetNMEASentence_Arm_TWD_Watchdog();
             this->SetNMEASentence_Arm_TWS_Watchdog();
@@ -3469,7 +3470,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             ( (DashboardInstrument_Dial *) instrument )->SetOptionExtraValue(
                 OCPN_DBP_STC_TWS, _T("T %.1f"), DIAL_POSITION_BOTTOMRIGHT );
             break;
-        case ID_DBP_D_TW: //True Wind angle +-180° on boat axis
+        case ID_DBP_D_TW: //True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_TrueWindAngle( this, wxID_ANY,
                                                                 getInstrumentCaption( id ), OCPN_DBP_STC_TWA );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("%.0f"),
@@ -3477,7 +3478,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             ( (DashboardInstrument_Dial *) instrument )->SetOptionExtraValue(
                 OCPN_DBP_STC_TWS, _T("%.1f"), DIAL_POSITION_INSIDE );
             break;
-        case ID_DBP_D_AWA_TWA: //App/True Wind angle +-180° on boat axis
+        case ID_DBP_D_AWA_TWA: //App/True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_AppTrueWindAngle(this, wxID_ANY,
                                                                   getInstrumentCaption(id), OCPN_DBP_STC_AWA | OCPN_DBP_STC_TWA);
             ((DashboardInstrument_Dial *)instrument)->SetOptionMainValue(_T("%.0f"),
@@ -3485,7 +3486,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             ((DashboardInstrument_Dial *)instrument)->SetOptionExtraValue(
                 OCPN_DBP_STC_TWS | OCPN_DBP_STC_AWS, _T("%.1f"), DIAL_POSITION_NONE);
             break;
-        case ID_DBP_D_TWD: //True Wind direction
+        case ID_DBP_D_TWD: //True Wind direction and speed
             instrument = new DashboardInstrument_WindCompass( this, wxID_ANY,
                                                               getInstrumentCaption( id ), OCPN_DBP_STC_TWD );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("%.0f"),
