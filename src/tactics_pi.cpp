@@ -836,9 +836,9 @@ Draw the OpenGL Layline overlay
 *********************************************************************/
 void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	if (m_bDisplayCurrentOnChart && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(m_CurrentDirection)) {
-		//draw the current on the chart here
-		/*
+    if (m_bDisplayCurrentOnChart && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(m_CurrentDirection)) {
+        //draw the current on the chart here
+        /*
          *           0
          *          /\
          *         /  \
@@ -848,31 +848,31 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
          *         |__|
          *        4    3
          */
-		wxPoint boat;
-		GetCanvasPixLL(vp, &boat, mlat, mlon);
+        wxPoint boat;
+        GetCanvasPixLL(vp, &boat, mlat, mlon);
 
-		double m_radius = 100;
-		wxRealPoint currpoints[7];
-		double currval = m_CurrentDirection;
-		double rotate = vp->rotation;
-		double currvalue = ((currval - 90.) * M_PI / 180) + rotate;
+        double m_radius = 160;
+        wxRealPoint currpoints[7];
+        double currval = m_CurrentDirection;
+        double rotate = vp->rotation;
+        double currvalue = ((currval - 90.) * M_PI / 180) + rotate;
 
-		currpoints[0].x = boat.x + (m_radius * .40 * cos(currvalue));
-		currpoints[0].y = boat.y + (m_radius * .40 * sin(currvalue));
-		currpoints[1].x = boat.x + (m_radius * .18 * cos(currvalue + 1.5));
-		currpoints[1].y = boat.y + (m_radius * .18 * sin(currvalue + 1.5));
-		currpoints[2].x = boat.x + (m_radius * .10 * cos(currvalue + 1.5));
-		currpoints[2].y = boat.y + (m_radius * .10 * sin(currvalue + 1.5));
+        currpoints[0].x = boat.x + (m_radius * .40 * cos(currvalue));
+        currpoints[0].y = boat.y + (m_radius * .40 * sin(currvalue));
+        currpoints[1].x = boat.x + (m_radius * .18 * cos(currvalue + 1.5));
+        currpoints[1].y = boat.y + (m_radius * .18 * sin(currvalue + 1.5));
+        currpoints[2].x = boat.x + (m_radius * .10 * cos(currvalue + 1.5));
+        currpoints[2].y = boat.y + (m_radius * .10 * sin(currvalue + 1.5));
 
-		currpoints[3].x = boat.x + (m_radius * .3 * cos(currvalue + 2.8));
-		currpoints[3].y = boat.y + (m_radius * .3 * sin(currvalue + 2.8));
-		currpoints[4].x = boat.x + (m_radius * .3 * cos(currvalue - 2.8));
-		currpoints[4].y = boat.y + (m_radius * .3 * sin(currvalue - 2.8));
+        currpoints[3].x = boat.x + (m_radius * .3 * cos(currvalue + 2.8));
+        currpoints[3].y = boat.y + (m_radius * .3 * sin(currvalue + 2.8));
+        currpoints[4].x = boat.x + (m_radius * .3 * cos(currvalue - 2.8));
+        currpoints[4].y = boat.y + (m_radius * .3 * sin(currvalue - 2.8));
 
-		currpoints[5].x = boat.x + (m_radius * .10 * cos(currvalue - 1.5));
-		currpoints[5].y = boat.y + (m_radius * .10 * sin(currvalue - 1.5));
-		currpoints[6].x = boat.x + (m_radius * .18 * cos(currvalue - 1.5));
-		currpoints[6].y = boat.y + (m_radius * .18 * sin(currvalue - 1.5));
+        currpoints[5].x = boat.x + (m_radius * .10 * cos(currvalue - 1.5));
+        currpoints[5].y = boat.y + (m_radius * .10 * sin(currvalue - 1.5));
+        currpoints[6].x = boat.x + (m_radius * .18 * cos(currvalue - 1.5));
+        currpoints[6].y = boat.y + (m_radius * .18 * sin(currvalue - 1.5));
         //below 0.2 knots the current generally gets inaccurate, as the error level gets too high.
         // as a hint, fade the current transparency below 0.25 knots...
         //        int curr_trans = 164;
@@ -882,22 +882,22 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         //          if (curr_trans < 50) curr_trans = 50;  //lower limit
         //        }
         //        GLubyte red(7), green(107), blue(183), alpha(curr_trans);
-        //        glColor4ub(7, 107, 183, curr_trans);                 	// red, green, blue,  alpha
+        //        glColor4ub(7, 107, 183, curr_trans);                  // red, green, blue,  alpha
 
-		GLubyte red(7), green(107), blue(183), alpha(164);
-		glColor4ub(7, 107, 183, 164); // red, green, blue,  alpha
+        GLubyte red(7), green(107), blue(183), alpha(164);
+        glColor4ub(7, 107, 183, 164); // red, green, blue,  alpha
         //        glLineWidth(2);
-        //		glBegin(GL_POLYGON | GL_LINES);
+        //      glBegin(GL_POLYGON | GL_LINES);
         glBegin(GL_POLYGON);
         glVertex2d(currpoints[0].x, currpoints[0].y);
-		glVertex2d(currpoints[1].x, currpoints[1].y);
-		glVertex2d(currpoints[2].x, currpoints[2].y);
-		glVertex2d(currpoints[3].x, currpoints[3].y);
-		glVertex2d(currpoints[4].x, currpoints[4].y);
-		glVertex2d(currpoints[5].x, currpoints[5].y);
-		glVertex2d(currpoints[6].x, currpoints[6].y);
-		glEnd();
-	}
+        glVertex2d(currpoints[1].x, currpoints[1].y);
+        glVertex2d(currpoints[2].x, currpoints[2].y);
+        glVertex2d(currpoints[3].x, currpoints[3].y);
+        glVertex2d(currpoints[4].x, currpoints[4].y);
+        glVertex2d(currpoints[5].x, currpoints[5].y);
+        glVertex2d(currpoints[6].x, currpoints[6].y);
+        glEnd();
+    }
 }
 
 /*********************************************************************
