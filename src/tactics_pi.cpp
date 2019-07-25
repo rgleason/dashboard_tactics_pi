@@ -804,6 +804,8 @@ Called by Plugin Manager on main system process cycle
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
 	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
+    if ( !pcontext->IsOK() )
+        return false;
 	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
 		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
 		glEnable(GL_LINE_SMOOTH);
@@ -851,7 +853,9 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         wxPoint boat;
         GetCanvasPixLL(vp, &boat, mlat, mlon);
 
-        double m_radius = 160;
+        double m_radius;
+        double zoomradius = 160.0 + vp->view_scale_ppm * 100.0;
+        (zoomradius > 400.0 ? m_radius = 400.0 : m_radius = zoomradius);
         wxRealPoint currpoints[7];
         double currval = m_CurrentDirection;
         double rotate = vp->rotation;
