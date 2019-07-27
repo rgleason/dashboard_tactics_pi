@@ -810,8 +810,10 @@ Called by Plugin Manager on main system process cycle
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
 	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
+#ifndef __linux__
     if ( !pcontext->IsOK() )
         return false;
+#endif // __linux__
 	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
 		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
 		glEnable(GL_LINE_SMOOTH);
