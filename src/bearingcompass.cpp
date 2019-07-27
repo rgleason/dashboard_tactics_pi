@@ -405,29 +405,32 @@ void TacticsInstrument_BearingCompass::DrawWindAngles(wxGCDC* dc)
 /***************************************************************************************
 Draw pointers for the optimum target VMG- and CMG Angle (if bearing is available)
 ****************************************************************************************/
-void TacticsInstrument_BearingCompass::DrawTargetxMGAngle(wxGCDC* dc){
-  if (!std::isnan(m_TWS)) {
-    // get Target VMG Angle from Polar
-    TargetxMG tvmg_up = BoatPolar->GetTargetVMGUpwind(m_TWS);
-    TargetxMG tvmg_dn = BoatPolar->GetTargetVMGDownwind(m_TWS);
-    TargetxMG TCMGMax;
-    TargetxMG TCMGMin;
+void TacticsInstrument_BearingCompass::DrawTargetxMGAngle(wxGCDC* dc)
+{
+    if ( !BoatPolar->isValid() )
+        return;
+    if (!std::isnan(m_TWS)) {
+        // get Target VMG Angle from Polar
+        TargetxMG tvmg_up = BoatPolar->GetTargetVMGUpwind(m_TWS);
+        TargetxMG tvmg_dn = BoatPolar->GetTargetVMGDownwind(m_TWS);
+        TargetxMG TCMGMax;
+        TargetxMG TCMGMin;
 
-    if (tvmg_up.TargetAngle > 0){
-      DrawTargetAngle(dc, m_curTack == _T("\u00B0lr") ? 360 - tvmg_up.TargetAngle : tvmg_up.TargetAngle, _T("BLUE3"), 2);
+        if (tvmg_up.TargetAngle > 0){
+            DrawTargetAngle(dc, m_curTack == _T("\u00B0lr") ? 360 - tvmg_up.TargetAngle : tvmg_up.TargetAngle, _T("BLUE3"), 2);
+        }
+        if (tvmg_dn.TargetAngle > 0) {
+            DrawTargetAngle(dc, m_curTack == _T("\u00B0lr") ? 360 - tvmg_dn.TargetAngle : tvmg_dn.TargetAngle, _T("BLUE3"), 2);
+        }
+        if (!std::isnan(m_Bearing)){
+            if (m_Bearing >= 0 && m_Bearing < 360 && !std::isnan(m_TWD)){
+                //       TargetxMG tcmg = BoatPolar->Calc_TargetCMG(m_TWS, m_TWD, m_Bearing);
+                BoatPolar->Calc_TargetCMG2(m_TWS, m_TWD, m_Bearing, &TCMGMax, &TCMGMin);
+                if (!std::isnan(TCMGMax.TargetAngle))      DrawTargetAngle(dc, 360 - TCMGMax.TargetAngle, _T("URED"), 2);
+                if (!std::isnan(TCMGMin.TargetAngle))      DrawTargetAngle(dc, 360 - TCMGMin.TargetAngle, _T("URED"), 1);
+            }
+        }
     }
-    if (tvmg_dn.TargetAngle > 0) {
-      DrawTargetAngle(dc, m_curTack == _T("\u00B0lr") ? 360 - tvmg_dn.TargetAngle : tvmg_dn.TargetAngle, _T("BLUE3"), 2);
-    }
-    if (!std::isnan(m_Bearing)){
-      if (m_Bearing >= 0 && m_Bearing < 360 && !std::isnan(m_TWD)){
-        //       TargetxMG tcmg = BoatPolar->Calc_TargetCMG(m_TWS, m_TWD, m_Bearing);
-        BoatPolar->Calc_TargetCMG2(m_TWS, m_TWD, m_Bearing, &TCMGMax, &TCMGMin);
-        if (!std::isnan(TCMGMax.TargetAngle))      DrawTargetAngle(dc, 360 - TCMGMax.TargetAngle, _T("URED"), 2);
-        if (!std::isnan(TCMGMin.TargetAngle))      DrawTargetAngle(dc, 360 - TCMGMin.TargetAngle, _T("URED"), 1);
-      }
-    }
-  }
 }
 /***************************************************************************************
 Draw pointers for the optimum target VMG- and CMG Angle (if bearing is available)
@@ -543,45 +546,6 @@ void TacticsInstrument_BearingCompass::DrawBearing(wxGCDC* dc)
 	dc->SetPen(*wxTRANSPARENT_PEN);
 
 }
-/***************************************************************************************
-****************************************************************************************/
-/*void TacticsInstrument_BearingCompass::DrawPolar(wxGCDC*dc)
-{
-  if (!std::isnan(m_TWS)) {
-    wxColour cl;
-    GetGlobalColor(_T("UBLCK"), &cl);
-    wxPen pen1;
-    pen1.SetStyle(wxPENSTYLE_SOLID);
-    pen1.SetColour(cl);
-    pen1.SetWidth(2);
-    dc->SetPen(pen1);
-    double polval[72];
-    double max = 0;
-    for (int i = 0; i < 72; i++){
-      polval[i] = BoatPolar->GetPolarSpeed(i * 5, m_TWS);
-      if (std::isnan(polval[i])) polval[i] = 0.0;
-      if (polval[i]>max) max = polval[i];
-    }
-    // double anglevalue = deg2rad(m_Bearing) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-    wxPoint currpoints[72];
-    double rad, anglevalue;
-    for (int i = 0; i < 72; i++){
-      //anglevalue = deg2rad(m_Bearing+i*5) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-      anglevalue = deg2rad(m_Hdt + i * 5) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-      rad = m_radius*0.69*polval[i] / max;
-      // wxLogMessage("polval[%d]=%.2f, rad=%.2f",i,polval[i],rad);
-
-      currpoints[i].x = m_cx + (rad * cos(anglevalue));
-      currpoints[i].y = m_cy + (rad * sin(anglevalue));
-
-    }
-    wxBrush currbrush;
-    currbrush.SetColour(wxColour(7, 107, 183, 0));
-    currbrush.SetStyle(wxBRUSHSTYLE_SOLID);
-    dc->SetBrush(currbrush);
-    dc->DrawPolygon(72, currpoints, 0, 0);
-  }
-}*/
 /***************************************************************************************
 ****************************************************************************************/
 void TacticsInstrument_BearingCompass::DrawCurrent(wxGCDC* dc)

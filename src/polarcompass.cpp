@@ -214,32 +214,37 @@ void TacticsInstrument_PolarCompass::Draw(wxGCDC* bdc)
 	DrawBackground(bdc);
     DrawForeground(bdc);
     if (!std::isnan(m_Bearing) && !std::isnan(m_ExtraValueDTW)){
-      //DrawData(bdc, m_Bearing, m_BearingUnit, _T("BRG:%.f"), DIAL_POSITION_TOPLEFT);
-      DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_TOPLEFT);
-      DrawData(bdc, 0, m_ToWpt, _T(""), DIAL_POSITION_TOPRIGHT);
+        //DrawData(bdc, m_Bearing, m_BearingUnit, _T("BRG:%.f"), DIAL_POSITION_TOPLEFT);
+        DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_TOPLEFT);
+        DrawData(bdc, 0, m_ToWpt, _T(""), DIAL_POSITION_TOPRIGHT);
     }
-  //wxLogMessage("-- ..PolarCompass-Draw() - m_TWA=%f m_TWS=%f", m_TWA, m_TWS);
+    //wxLogMessage("-- ..PolarCompass-Draw() - m_TWA=%f m_TWS=%f", m_TWA, m_TWS);
     if (!std::isnan(m_TWA) && !std::isnan(m_TWS) ){
-      m_PolSpd = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
-      if (!std::isnan(m_PolSpd) )
-         m_PolSpd_Percent = fromUsrSpeed_Plugin(m_StW, g_iDashSpeedUnit) / m_PolSpd * 100;
-      else
-         m_PolSpd = m_PolSpd_Percent = 0;
+        if ( !BoatPolar->isValid() ) {
+            m_PolSpd = NAN;
+        }
+        else {
+            m_PolSpd = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
+        }
+        if (!std::isnan(m_PolSpd) )
+            m_PolSpd_Percent = fromUsrSpeed_Plugin(m_StW, g_iDashSpeedUnit) / m_PolSpd * 100;
+        else
+            m_PolSpd = m_PolSpd_Percent = 0;
     }
     else{
-      m_PolSpd = m_PolSpd_Percent = 0;
+        m_PolSpd = m_PolSpd_Percent = 0;
     }
     DrawData(bdc, m_StW, m_StWUnit, _T("STW:%.1f"), DIAL_POSITION_INSIDE);
     DrawData(bdc, toUsrSpeed_Plugin(m_PolSpd, g_iDashSpeedUnit), m_StWUnit, _T("T-PS:%.1f"), DIAL_POSITION_BOTTOMLEFT);
     DrawMarkers(bdc);
     //if (!std::isnan(m_ExtraValueDTW)) DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_BOTTOMLEFT);
     //	if (m_CurrDir >= 0 && m_CurrDir < 360)
-//		DrawCurrent(bdc);
+    //		DrawCurrent(bdc);
 
 	DrawLaylines(bdc);
 	//DrawData(bdc, m_MainValue, m_MainValueUnit, _T("%.0f"), DIAL_POSITION_TOPINSIDE);
 
-//	 if (!std::isnan(m_predictedSog)) DrawData(bdc, m_predictedSog, _T("kn "), _T("prd.SOG: ~%.1f"), DIAL_POSITION_BOTTOMRIGHT);
+    //	 if (!std::isnan(m_predictedSog)) DrawData(bdc, m_predictedSog, _T("kn "), _T("prd.SOG: ~%.1f"), DIAL_POSITION_BOTTOMRIGHT);
     DrawData(bdc, m_PolSpd_Percent, _T("%"), _T("%.0f"), DIAL_POSITION_BOTTOMRIGHT);
 
 
@@ -383,30 +388,34 @@ void TacticsInstrument_PolarCompass::DrawWindAngles(wxGCDC* dc)
 /***************************************************************************************
 Draw pointers for the optimum target VMG- and CMG Angle (if bearing is available)
 ****************************************************************************************/
-void TacticsInstrument_PolarCompass::DrawTargetxMGAngle(wxGCDC* dc){
-  if (!std::isnan(m_TWS)) {
-    // get Target VMG Angle from Polar
-    TargetxMG tvmg_up = BoatPolar->GetTargetVMGUpwind(m_TWS);
-    TargetxMG tvmg_dn = BoatPolar->GetTargetVMGDownwind(m_TWS);
-    TargetxMG TCMGMax;
-    TargetxMG TCMGMin;
+void TacticsInstrument_PolarCompass::DrawTargetxMGAngle(wxGCDC* dc)
+{
+    if ( !BoatPolar->isValid() )
+        return;
+    
+    if (!std::isnan(m_TWS)) {
+        // get Target VMG Angle from Polar
+        TargetxMG tvmg_up = BoatPolar->GetTargetVMGUpwind(m_TWS);
+        TargetxMG tvmg_dn = BoatPolar->GetTargetVMGDownwind(m_TWS);
+        TargetxMG TCMGMax;
+        TargetxMG TCMGMin;
 
-    if (tvmg_up.TargetAngle > 0){
-      DrawTargetAngle(dc, tvmg_up.TargetAngle, _T("BLUE3"), 2);
-      DrawTargetAngle(dc, 360-tvmg_up.TargetAngle, _T("BLUE3"), 2);
+        if (tvmg_up.TargetAngle > 0){
+            DrawTargetAngle(dc, tvmg_up.TargetAngle, _T("BLUE3"), 2);
+            DrawTargetAngle(dc, 360-tvmg_up.TargetAngle, _T("BLUE3"), 2);
+        }
+        if (tvmg_dn.TargetAngle > 0) {
+            DrawTargetAngle(dc, tvmg_dn.TargetAngle, _T("BLUE3"), 2);
+            DrawTargetAngle(dc, 360-tvmg_dn.TargetAngle, _T("BLUE3"), 2);
+        }
+        if (!std::isnan(m_Bearing)){
+            if (m_Bearing >= 0 && m_Bearing < 360 && !std::isnan(m_TWD)){
+                BoatPolar->Calc_TargetCMG2(m_TWS, m_TWD, m_Bearing, &TCMGMax, &TCMGMin);
+                if (!std::isnan(TCMGMax.TargetAngle))      DrawTargetAngle(dc, TCMGMax.TargetAngle, _T("URED"), 2);
+                if (!std::isnan(TCMGMin.TargetAngle))      DrawTargetAngle(dc, TCMGMin.TargetAngle, _T("URED"), 1);
+            }
+        }
     }
-    if (tvmg_dn.TargetAngle > 0) {
-      DrawTargetAngle(dc, tvmg_dn.TargetAngle, _T("BLUE3"), 2);
-      DrawTargetAngle(dc, 360-tvmg_dn.TargetAngle, _T("BLUE3"), 2);
-    }
-    if (!std::isnan(m_Bearing)){
-      if (m_Bearing >= 0 && m_Bearing < 360 && !std::isnan(m_TWD)){
-        BoatPolar->Calc_TargetCMG2(m_TWS, m_TWD, m_Bearing, &TCMGMax, &TCMGMin);
-        if (!std::isnan(TCMGMax.TargetAngle))      DrawTargetAngle(dc, TCMGMax.TargetAngle, _T("URED"), 2);
-        if (!std::isnan(TCMGMin.TargetAngle))      DrawTargetAngle(dc, TCMGMin.TargetAngle, _T("URED"), 1);
-      }
-    }
-  }
 }
 /***************************************************************************************
 Draw pointers for the optimum target VMG- and CMG Angle (if bearing is available)
@@ -523,38 +532,41 @@ void TacticsInstrument_PolarCompass::DrawBearing(wxGCDC* dc)
 #define POLSTEPS 180 //we draw in 2 degree steps
 void TacticsInstrument_PolarCompass::DrawPolar(wxGCDC*dc)
 {
-  if (!std::isnan(m_TWS) && !std::isnan(m_TWD)) {
-    wxColour cl;
-    GetGlobalColor(_T("UBLCK"), &cl);
-    wxPen pen1;
-    pen1.SetStyle(wxPENSTYLE_SOLID);
-    pen1.SetColour(cl);
-    pen1.SetWidth(1);
-    dc->SetPen(pen1);
-    double polval[POLSTEPS];
-    double max = 0;
-    int i;
-    for (i = 0; i < POLSTEPS / 2; i++){ //0...179
-    //wxLogMessage("-- ..PolarCompass-DrawPolar() - i=%d m_TWS=%f", i, m_TWS);
-      polval[i] = BoatPolar->GetPolarSpeed(i*2 + 1, m_TWS); //polar data is 1...180 !!! i*2 : we draw in 2 degree steps
-      polval[POLSTEPS - 1 - i] = polval[i];
-      if (std::isnan(polval[i]))polval[i] = polval[POLSTEPS - 1 - i] = 0.0;
-      if (polval[i]>max) max = polval[i];
+    if ( !BoatPolar->isValid() )
+        return;
+    
+    if (!std::isnan(m_TWS) && !std::isnan(m_TWD)) {
+        wxColour cl;
+        GetGlobalColor(_T("UBLCK"), &cl);
+        wxPen pen1;
+        pen1.SetStyle(wxPENSTYLE_SOLID);
+        pen1.SetColour(cl);
+        pen1.SetWidth(1);
+        dc->SetPen(pen1);
+        double polval[POLSTEPS];
+        double max = 0;
+        int i;
+        for (i = 0; i < POLSTEPS / 2; i++){ //0...179
+            //wxLogMessage("-- ..PolarCompass-DrawPolar() - i=%d m_TWS=%f", i, m_TWS);
+            polval[i] = BoatPolar->GetPolarSpeed(i*2 + 1, m_TWS); //polar data is 1...180 !!! i*2 : we draw in 2 degree steps
+            polval[POLSTEPS - 1 - i] = polval[i];
+            if (std::isnan(polval[i]))polval[i] = polval[POLSTEPS - 1 - i] = 0.0;
+            if (polval[i]>max) max = polval[i];
+        }
+        wxPoint currpoints[POLSTEPS];
+        double rad, anglevalue;
+        for ( i = 0; i < POLSTEPS; i++){
+            anglevalue = deg2rad(m_TWD + i*2) + deg2rad(m_AngleStart - ANGLE_OFFSET);
+            rad = m_radius*0.69*polval[i] / max;
+            currpoints[i].x = m_cx + (rad * cos(anglevalue));
+            currpoints[i].y = m_cy + (rad * sin(anglevalue));
+        }
+        wxBrush currbrush;
+        currbrush.SetColour(wxColour(7, 107, 183, 0));
+        currbrush.SetStyle(wxBRUSHSTYLE_SOLID);
+        dc->SetBrush(currbrush);
+        dc->DrawPolygon(POLSTEPS, currpoints, 0, 0);
     }
-    wxPoint currpoints[POLSTEPS];
-    double rad, anglevalue;
-    for ( i = 0; i < POLSTEPS; i++){
-      anglevalue = deg2rad(m_TWD + i*2) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-      rad = m_radius*0.69*polval[i] / max;
-      currpoints[i].x = m_cx + (rad * cos(anglevalue));
-      currpoints[i].y = m_cy + (rad * sin(anglevalue));
-    }
-    wxBrush currbrush;
-    currbrush.SetColour(wxColour(7, 107, 183, 0));
-    currbrush.SetStyle(wxBRUSHSTYLE_SOLID);
-    dc->SetBrush(currbrush);
-    dc->DrawPolygon(POLSTEPS, currpoints, 0, 0);
-  }
 }
 
 /***************************************************************************************

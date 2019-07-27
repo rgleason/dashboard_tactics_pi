@@ -135,154 +135,197 @@ void TacticsInstrument_PerformanceSingle::SetDisplayType(int type){
 ************************************************************************************/
 void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double data, wxString unit)
 {
-  if (std::isnan(data))
-    return;
+    if (std::isnan(data))
+        return;
   
-  if (st == OCPN_DBP_STC_STW){
+    if (st == OCPN_DBP_STC_STW){
     
-    //convert to knots first
-    mSTW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
-    stwunit = unit;
-  }
-  else if (st == OCPN_DBP_STC_TWA){
-    mTWA = data;
-  }
-  else if (st == OCPN_DBP_STC_COG){
-    mCOG = data;
-  }
-  else if (st == OCPN_DBP_STC_SOG){
-    //convert to knots first
-    //mSOG = data;
-    mSOG = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
-  }
-  else if (st == OCPN_DBP_STC_LAT) {
-    m_lat = data;
-  }
-  else if (st == OCPN_DBP_STC_LON) {
-    m_lon = data;
-  }
-  else if (st == OCPN_DBP_STC_BRG){
-    mBRG = data;
-  }
-  else if (st == OCPN_DBP_STC_TWS){
-    //mTWS = data;
-    //convert to knots
-    mTWS = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
-  }
-  else if (st == OCPN_DBP_STC_HDT){
-    mHDT = data;
-  }
-  else if (st == OCPN_DBP_STC_TWD){
-    mTWD = data;
-  }
-  if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
-      m_pMark = NULL;
-  if (m_pMark && m_lat > 0 && m_lon > 0) {
-    double dist;
-    DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
-  }
-  if (!std::isnan(mSTW) && !std::isnan(mTWA) && !std::isnan(mTWS)){
+        //convert to knots first
+        mSTW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
+        stwunit = unit;
+    }
+    else if (st == OCPN_DBP_STC_TWA){
+        mTWA = data;
+    }
+    else if (st == OCPN_DBP_STC_COG){
+        mCOG = data;
+    }
+    else if (st == OCPN_DBP_STC_SOG){
+        //convert to knots first
+        //mSOG = data;
+        mSOG = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
+    }
+    else if (st == OCPN_DBP_STC_LAT) {
+        m_lat = data;
+    }
+    else if (st == OCPN_DBP_STC_LON) {
+        m_lon = data;
+    }
+    else if (st == OCPN_DBP_STC_BRG){
+        mBRG = data;
+    }
+    else if (st == OCPN_DBP_STC_TWS){
+        //mTWS = data;
+        //convert to knots
+        mTWS = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
+    }
+    else if (st == OCPN_DBP_STC_HDT){
+        mHDT = data;
+    }
+    else if (st == OCPN_DBP_STC_TWD){
+        mTWD = data;
+    }
+    if (!GetSingleWaypoint(g_sMarkGUID, m_pMark))
+        m_pMark = NULL;
+    if (m_pMark && m_lat > 0 && m_lon > 0) {
+        double dist;
+        DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
+    }
+    if (!std::isnan(mSTW) && !std::isnan(mTWA) && !std::isnan(mTWS)){
     
-    if (m_displaytype == POLARSPEED){
-      double targetspeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
-      //double avgtargetspeed = BoatPolar->GetAvgPolarSpeed(mTWA, mTWS);
+        if (m_displaytype == POLARSPEED){
+            if ( !BoatPolar->isValid() ) {
+                m_data = _T("no polar data");
+            }
+            else {
+                double targetspeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
+                //double avgtargetspeed = BoatPolar->GetAvgPolarSpeed(mTWA, mTWS);
       
-      if (std::isnan(targetspeed) || mSTW == 0)
-	m_data = _T("no polar data");
-      else {
-	double percent = mSTW / targetspeed * 100;
-	double user_targetSpeed = toUsrSpeed_Plugin(targetspeed, g_iDashSpeedUnit);
-	m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f ", user_targetSpeed) + stwunit;
-	//m_data = wxString::Format("%.2f / ", avgtargetspeed) + wxString::Format("%.2f", user_targetSpeed) + _T(" ") + stwunit;
-      }
-    }
-    else if (m_displaytype == POLARVMG){
-      double VMG = BoatPolar->Calc_VMG(mTWA,mSTW);
-      double user_VMG = toUsrSpeed_Plugin(VMG, g_iDashSpeedUnit);
+                if (std::isnan(targetspeed) || mSTW == 0) {
+                    m_data = _T("no polar targetspeed");
+                }
+                else {
+                    double percent = mSTW / targetspeed * 100;
+                    double user_targetSpeed = toUsrSpeed_Plugin(targetspeed, g_iDashSpeedUnit);
+                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f ", user_targetSpeed) + stwunit;
+                    //m_data = wxString::Format("%.2f / ", avgtargetspeed) + wxString::Format("%.2f", user_targetSpeed) + _T(" ") + stwunit;
+                }
+            }
+        }
+        else if (m_displaytype == POLARVMG){
+            if ( !BoatPolar->isValid() ) {
+                m_data = _T("no polar data");
+            }
+            else {
+                double VMG = BoatPolar->Calc_VMG(mTWA,mSTW);
+                double user_VMG = toUsrSpeed_Plugin(VMG, g_iDashSpeedUnit);
       
-      m_data = wxString::Format("%.2f", user_VMG) + _T(" ") + stwunit;
+                m_data = wxString::Format("%.2f", user_VMG) + _T(" ") + stwunit;
+            }
       
-    }
-    else if (m_displaytype == POLARTARGETVMG){
-      TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
-      if (targetVMG.TargetSpeed > 0) {
-	double VMG = BoatPolar->Calc_VMG(mTWA, mSTW);
-	double percent = fabs(VMG / targetVMG.TargetSpeed * 100.);
-	targetVMG.TargetSpeed = toUsrSpeed_Plugin(targetVMG.TargetSpeed, g_iDashSpeedUnit);
+        }
+        else if (m_displaytype == POLARTARGETVMG){
+            if ( !BoatPolar->isValid() ) {
+                m_data = _T("no polar data");
+            }
+            else {
+                TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
+                if (targetVMG.TargetSpeed > 0) {
+                    double VMG = BoatPolar->Calc_VMG(mTWA, mSTW);
+                    double percent = fabs(VMG / targetVMG.TargetSpeed * 100.);
+                    targetVMG.TargetSpeed = toUsrSpeed_Plugin(targetVMG.TargetSpeed, g_iDashSpeedUnit);
 	
-	m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f", targetVMG.TargetSpeed) + _T(" ") + stwunit;
-      }
-      else
-	m_data =  _T("--- % / --- ") + stwunit;
-      
+                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f", targetVMG.TargetSpeed) + _T(" ") + stwunit;
+                }
+                else
+                    m_data =  _T("--- % / --- ") + stwunit;
+            }
+        }
+        else if (m_displaytype == POLARTARGETVMGANGLE){
+            if ( !BoatPolar->isValid() ) {
+                m_data = _T("no polar data");
+            }
+            else {
+                TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
+                if (!std::isnan(targetVMG.TargetAngle))
+                    m_data = wxString::Format("%.0f", targetVMG.TargetAngle) + _T("\u00B0");
+                else
+                    m_data = _T("no polar data");
+            }
+        }
     }
-    else if (m_displaytype == POLARTARGETVMGANGLE){
-      TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
-      if (!std::isnan(targetVMG.TargetAngle))
-	m_data = wxString::Format("%.0f", targetVMG.TargetAngle) + _T("\u00B0");
-      else
-	m_data = _T("no polar data");
+    else {
+        m_data = _T("---");
     }
-  }
-  else
-    m_data = _T("---");
   
-  if (m_displaytype == POLARCMG){
-    if (!std::isnan(mSOG) && !std::isnan(mCOG) && mBRG>=0) {
-      mCMG = BoatPolar->Calc_CMG(mCOG, mSOG, mBRG);
-      double user_CMG = toUsrSpeed_Plugin(mCMG, g_iDashSpeedUnit);
-      m_data = wxString::Format("%.2f", user_CMG) + _T(" ") + stwunit;
+    if (m_displaytype == POLARCMG){
+        if ( !BoatPolar->isValid() ) {
+            m_data = _T("no polar data");
+        }
+        else {
+            if (!std::isnan(mSOG) && !std::isnan(mCOG) && mBRG>=0) {
+                mCMG = BoatPolar->Calc_CMG(mCOG, mSOG, mBRG);
+                double user_CMG = toUsrSpeed_Plugin(mCMG, g_iDashSpeedUnit);
+                m_data = wxString::Format("%.2f", user_CMG) + _T(" ") + stwunit;
+            }
+            else {
+                m_data = _T("no bearing");
+            }
+        }
     }
-    else
-      m_data = _T("no bearing");
-    
-  }
-  else if (m_displaytype == POLARTARGETCMG){
-    //TargetxMG targetCMG = BoatPolar->Calc_TargetCMG(mTWS, mTWD, mBRG);
-    TargetxMG TCMGMax, TCMGMin;
-    TCMGMax.TargetSpeed = NAN;
-    if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG>=0)
-      BoatPolar->Calc_TargetCMG2 (mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
-    //if (!std::isnan(targetCMG.TargetSpeed) && targetCMG.TargetSpeed > 0) {
-    if (!std::isnan(TCMGMax.TargetSpeed) && TCMGMax.TargetSpeed > 0 && !std::isnan(mHDT) && !std::isnan(mSTW)) {
-      double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
-      if (!std::isnan(cmg) )//&& cmg >=0)
-	{
-	  //double percent = fabs(cmg / targetCMG.TargetSpeed * 100.);
-	  double percent = cmg / TCMGMax.TargetSpeed * 100.;
-	  TCMGMax.TargetSpeed = toUsrSpeed_Plugin(TCMGMax.TargetSpeed, g_iDashSpeedUnit);
-	  m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f", TCMGMax.TargetSpeed) + _T(" ") + stwunit;
-	}
-      else
-	m_data = _T("--- % / --- ") + stwunit;
+    else if (m_displaytype == POLARTARGETCMG){
+        if ( !BoatPolar->isValid() ) {
+            m_data = _T("no polar data");
+        }
+        else {
+            //TargetxMG targetCMG = BoatPolar->Calc_TargetCMG(mTWS, mTWD, mBRG);
+            TargetxMG TCMGMax, TCMGMin;
+            TCMGMax.TargetSpeed = NAN;
+            if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG>=0)
+                BoatPolar->Calc_TargetCMG2 (mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
+            //if (!std::isnan(targetCMG.TargetSpeed) && targetCMG.TargetSpeed > 0) {
+            if (!std::isnan(TCMGMax.TargetSpeed) && TCMGMax.TargetSpeed > 0 && !std::isnan(mHDT) && !std::isnan(mSTW)) {
+                double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
+                if (!std::isnan(cmg) )//&& cmg >=0)
+                {
+                    //double percent = fabs(cmg / targetCMG.TargetSpeed * 100.);
+                    double percent = cmg / TCMGMax.TargetSpeed * 100.;
+                    TCMGMax.TargetSpeed = toUsrSpeed_Plugin(TCMGMax.TargetSpeed, g_iDashSpeedUnit);
+                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") +
+                        wxString::Format("%.2f", TCMGMax.TargetSpeed) + _T(" ") + stwunit;
+                }
+                else {
+                    m_data = _T("--- % / --- ") + stwunit;
+                }
+            }
+            else {
+                m_data = _T("--- % / --- ") + stwunit;
+            }
+        }
     }
-    else
-      m_data = _T("--- % / --- ") + stwunit;
-    
-  }
-  else if (m_displaytype == POLARTARGETCMGANGLE){
-    if (!std::isnan(mSTW) && mBRG >= 0 && !std::isnan(mHDT)) {
-      double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
-      TargetxMG TCMGMax, TCMGMin;
-      TCMGMax.TargetAngle = NAN;
-      if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG >= 0)
-	BoatPolar->Calc_TargetCMG2(mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
-      if (!std::isnan(TCMGMax.TargetAngle))
-	m_data = wxString::Format("%.0f", TCMGMax.TargetAngle) + _T("\u00B0");
-      else
-	m_data = _T("no polar data");
+    else if (m_displaytype == POLARTARGETCMGANGLE){
+        if ( !BoatPolar->isValid() ) {
+            m_data = _T("no polar data");
+        }
+        else {
+            if (!std::isnan(mSTW) && mBRG >= 0 && !std::isnan(mHDT)) {
+                double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
+                TargetxMG TCMGMax, TCMGMin;
+                TCMGMax.TargetAngle = NAN;
+                if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG >= 0) {
+                    BoatPolar->Calc_TargetCMG2(mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
+                }
+                if (!std::isnan(TCMGMax.TargetAngle)) {
+                    m_data = wxString::Format("%.0f", TCMGMax.TargetAngle) + _T("\u00B0");
+                }
+                else {
+                    m_data = _T("no polar data");
+                }
+            }
+            else {
+                m_data = _T("no data");
+            }
+        }
     }
-    else
-      m_data = _T("no data");
-  }
-  else if (m_displaytype == TWAMARK){
-    if (mBRG>=0 && !std::isnan(mTWD)) {
-      double markBrG = getDegRange(mBRG, mTWD);
-      m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
+    else if (m_displaytype == TWAMARK){
+        if (mBRG>=0 && !std::isnan(mTWD)) {
+            double markBrG = getDegRange(mBRG, mTWD);
+            m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
+        }
+        else {
+                m_data = _T("---");
+        }
     }
-    else
-      m_data = _T("---");
-  }
 }
 /***********************************************************************************
 
@@ -1219,51 +1262,57 @@ void TacticsInstrument_PolarPerformance::SetData(unsigned long long st, double d
       //convert to knots first
       m_STW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
 
-      if (!std::isnan(m_STW) && !std::isnan(m_TWA) && !std::isnan(m_TWS) && !(BoatPolar == NULL) ){
-        double m_PolarSpeed = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
+      
+      if (!std::isnan(m_STW) && !std::isnan(m_TWA) && !std::isnan(m_TWS) ) {
+          if ( !BoatPolar->isValid() ) {
+              m_PercentUnit = _T("no polar data");
+          }
+          else {
+              double m_PolarSpeed = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
 
-        if (std::isnan(m_PolarSpeed))
-          m_PercentUnit = _T("no polar data");
-        else if (m_PolarSpeed <= 0.0)
-          m_PercentUnit = _T("--");
-        else {
-          m_PolarSpeedPercent = m_STW / m_PolarSpeed * 100.0;
-          m_PercentUnit = _T("%");
-        }
-        m_STWUnit = unit;
-        m_IsRunning = true;
-        m_SampleCount = m_SampleCount < DATA_RECORD_COUNT ? m_SampleCount + 1 : DATA_RECORD_COUNT;
-        m_MaxPercent = 0.0;
-        m_MaxBoatSpd = 0.0;
-        m_MinBoatSpd = 0.0;
-        //data shifting
-        for (int idx = 1; idx < DATA_RECORD_COUNT; idx++) {
-          m_MaxPercent = wxMax(m_ArrayPercentSpdHistory[idx - 1], m_MaxPercent);
-          m_ArrayPercentSpdHistory[idx - 1] = m_ArrayPercentSpdHistory[idx];
-          m_ExpSmoothArrayPercentSpd[idx - 1] = m_ExpSmoothArrayPercentSpd[idx];
-          m_MaxBoatSpd = wxMax(m_ArrayBoatSpdHistory[idx - 1], m_MaxBoatSpd);
-          m_ArrayBoatSpdHistory[idx - 1] = m_ArrayBoatSpdHistory[idx];
-          m_ExpSmoothArrayBoatSpd[idx - 1] = m_ExpSmoothArrayBoatSpd[idx];
-          m_ArrayRecTime[idx - 1] = m_ArrayRecTime[idx];
-        }
-        m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 1] = m_PolarSpeedPercent;
-        m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 1] = m_STW;
-        if (m_SampleCount < 2) {
-          m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 2] = m_PolarSpeedPercent;
-          m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 2] = m_PolarSpeedPercent;
-          m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 2] = m_STW;
-          m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 2] = m_STW;
-        }
-        m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 1] = alpha*m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 2] + (1 - alpha)*m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 2];
-        m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1] = alpha*m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 2] + (1 - alpha)*m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 2];
-        m_ArrayRecTime[DATA_RECORD_COUNT - 1] = wxDateTime::Now().GetTm( );
-        //include the new/latest value in the max/min value test too
-        m_MaxPercent = wxMax(m_PolarSpeedPercent, m_MaxPercent);
-        m_MaxBoatSpd = wxMax(m_STW, m_MaxBoatSpd);
-        //get the overall max Wind Speed
-        //m_MaxSpdPercent = wxMax(m_PolarSpeedPercent, m_MaxSpdPercent);
-        //show smoothed average percentage instead of "overall max percentage" which is not really useful, especially if it uses the unsmoothed values ...
-        m_AvgSpdPercent = mExpSmAvgSpdPercent->GetSmoothVal(m_PolarSpeedPercent);
+              if (std::isnan(m_PolarSpeed))
+                  m_PercentUnit = _T("no polar speed data");
+              else if (m_PolarSpeed <= 0.0)
+                  m_PercentUnit = _T("--");
+              else {
+                  m_PolarSpeedPercent = m_STW / m_PolarSpeed * 100.0;
+                  m_PercentUnit = _T("%");
+              }
+              m_STWUnit = unit;
+              m_IsRunning = true;
+              m_SampleCount = m_SampleCount < DATA_RECORD_COUNT ? m_SampleCount + 1 : DATA_RECORD_COUNT;
+              m_MaxPercent = 0.0;
+              m_MaxBoatSpd = 0.0;
+              m_MinBoatSpd = 0.0;
+              //data shifting
+              for (int idx = 1; idx < DATA_RECORD_COUNT; idx++) {
+                  m_MaxPercent = wxMax(m_ArrayPercentSpdHistory[idx - 1], m_MaxPercent);
+                  m_ArrayPercentSpdHistory[idx - 1] = m_ArrayPercentSpdHistory[idx];
+                  m_ExpSmoothArrayPercentSpd[idx - 1] = m_ExpSmoothArrayPercentSpd[idx];
+                  m_MaxBoatSpd = wxMax(m_ArrayBoatSpdHistory[idx - 1], m_MaxBoatSpd);
+                  m_ArrayBoatSpdHistory[idx - 1] = m_ArrayBoatSpdHistory[idx];
+                  m_ExpSmoothArrayBoatSpd[idx - 1] = m_ExpSmoothArrayBoatSpd[idx];
+                  m_ArrayRecTime[idx - 1] = m_ArrayRecTime[idx];
+              }
+              m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 1] = m_PolarSpeedPercent;
+              m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 1] = m_STW;
+              if (m_SampleCount < 2) {
+                  m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 2] = m_PolarSpeedPercent;
+                  m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 2] = m_PolarSpeedPercent;
+                  m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 2] = m_STW;
+                  m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 2] = m_STW;
+              }
+              m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 1] = alpha*m_ArrayPercentSpdHistory[DATA_RECORD_COUNT - 2] + (1 - alpha)*m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT - 2];
+              m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1] = alpha*m_ArrayBoatSpdHistory[DATA_RECORD_COUNT - 2] + (1 - alpha)*m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 2];
+              m_ArrayRecTime[DATA_RECORD_COUNT - 1] = wxDateTime::Now().GetTm( );
+              //include the new/latest value in the max/min value test too
+              m_MaxPercent = wxMax(m_PolarSpeedPercent, m_MaxPercent);
+              m_MaxBoatSpd = wxMax(m_STW, m_MaxBoatSpd);
+              //get the overall max Wind Speed
+              //m_MaxSpdPercent = wxMax(m_PolarSpeedPercent, m_MaxSpdPercent);
+              //show smoothed average percentage instead of "overall max percentage" which is not really useful, especially if it uses the unsmoothed values ...
+              m_AvgSpdPercent = mExpSmAvgSpdPercent->GetSmoothVal(m_PolarSpeedPercent);
+          }
       }
     }
   }
