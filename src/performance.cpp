@@ -544,6 +544,41 @@ void Polar::loadPolar(wxString FilePath)
     return;
 }
 /***********************************************************************************
+Save the lookup table created from the input file
+Parameter
+(input) FilePath = path to output file;
+************************************************************************************/
+void Polar::saveLookupTable( wxString FilePath )
+{
+    if ( FilePath == _T("NULL") )
+        return;
+
+    wxFileOutputStream outstream( FilePath );
+    wxTextOutputStream out(outstream);
+
+    if ( m_bDataIsValid ) {
+        wxString str = _T("d/s");
+        for (int i = 0; i <= WINDSPEED; i++){
+			str = wxString::Format(_T("%s\t%02d"), str, i);
+		}
+		str = str + _T("\n");
+		out.WriteString(str);				// write line by line
+		for (int n = 0; n < WINDDIR; n++){
+			str = wxString::Format(_T("%d\t"), n);
+            for (int i = 0; i <= WINDSPEED; i++){
+				str = wxString::Format(_T("%s\t%.2f"), str, windsp[i].winddir[n]);
+			}
+			str = str + _T("\n");
+			out.WriteString(str);				// write line by line
+		}
+    }
+    else {
+        out.WriteString( _T("invalid data\n") );
+    }
+    outstream.Close();
+}
+
+/***********************************************************************************
 
 ************************************************************************************/
 void Polar::setValue(wxString s, int dir, int spd)
@@ -571,7 +606,9 @@ void Polar::reset()
 			windsp[0].isfix[n] = false;
 	}
 	for (int i = 1; i <= WINDSPEED; i++) {
-		for (int n = 0; n < WINDDIR; n++) {
+        windsp[i].winddir[0] = 0;
+        windsp[i].isfix[0] = false;
+		for (int n = 1; n < WINDDIR; n++) {
 			windsp[i].winddir[n] = NAN;
 			windsp[i].isfix[n] = false;
 		}
@@ -606,7 +643,8 @@ void Polar::completePolar()
 				if (i > max_index) max_index = i;
 				ret = true;
 			}
-			if (ret == true) CalculateLineAverages(n, min_index, max_index);
+			if (ret )
+                CalculateLineAverages(n, min_index, max_index);
 			i++;
 		}
 	}
@@ -625,7 +663,8 @@ void Polar::completePolar()
 				if (n > max_index) max_index = n;
 				ret = true;
 			}
-			if (ret == true) CalculateRowAverages(i, min_index, max_index);
+			if ( ret )
+                CalculateRowAverages(i, min_index, max_index);
 			n++;
 		}
 	}
@@ -635,7 +674,7 @@ void Polar::completePolar()
       tws[i].tvmg_dn = Calc_TargetVMG(120.0, (double)i);
     }
     //for (int j = 0; j <= WINDSPEED; j++){
-    //  wxLogMessage("TWS=%d, UP: TargetAngle=%.2f, TargetSpeed=%.2f, DOWN: TargetAngle=%.2f, TargetSpeed=%.2f", j, tws[j].tvmg_up.TargetAngle, tws[j].tvmg_up.TargetSpeed, tws[j].tvmg_dn.TargetAngle, tws[j].tvmg_dn.TargetSpeed);
+    //wxLogMessage("TWS=%d, UP: TargetAngle=%.2f, TargetSpeed=%.2f, DOWN: TargetAngle=%.2f, TargetSpeed=%.2f", j, tws[j].tvmg_up.TargetAngle, tws[j].tvmg_up.TargetSpeed, tws[j].tvmg_dn.TargetAngle, tws[j].tvmg_dn.TargetSpeed);
     //}
 }
 TargetxMG Polar::GetTargetVMGUpwind(double TWS)
@@ -724,7 +763,7 @@ double Polar::GetPolarSpeed(double twa, double tws)
   avspd2 = windsp[twsmin + 1].winddir[i_twa];
   // now do the horizontal averaging btw. the 2 surrounding polar tws values ...
   //if (std::isnan(avspd1) || std::isnan(avspd1))
-    return ((std::isnan(avspd1) || std::isnan(avspd1))?NAN: avspd1 + (avspd2 - avspd1)*fws);
+    return ((std::isnan(avspd1) || std::isnan(avspd2))?NAN: avspd1 + (avspd2 - avspd1)*fws);
 }
 /***********************************************************************************
 Get the polar speed with full averaging of the input data of both TWA and TWS.

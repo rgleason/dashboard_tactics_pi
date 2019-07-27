@@ -140,6 +140,7 @@ public:
 	void reset();
 	bool insert();
 	void loadPolar(wxString FilePath);        //fill the polar values from file in the lookup table
+    void saveLookupTable(wxString FilePath);  //save the outcome
 	void completePolar();    //complete the empty spots in the lookup table with simple average calculation
 	void CalculateLineAverages(int n, int min, int max);
 	void CalculateRowAverages(int i, int min, int max);

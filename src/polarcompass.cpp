@@ -552,6 +552,7 @@ void TacticsInstrument_PolarCompass::DrawPolar(wxGCDC*dc)
             polval[POLSTEPS - 1 - i] = polval[i];
             if (std::isnan(polval[i]))polval[i] = polval[POLSTEPS - 1 - i] = 0.0;
             if (polval[i]>max) max = polval[i];
+            wxLogMessage("-- ..PolarCompass-DrawPolar() - i=%d m_TWS=%f,polval[i] %f, max %f", i, m_TWS, polval[i], max);
         }
         wxPoint currpoints[POLSTEPS];
         double rad, anglevalue;

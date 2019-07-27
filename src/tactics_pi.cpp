@@ -50,6 +50,7 @@ Polar* BoatPolar;
 bool g_bDisplayLaylinesOnChart;
 bool g_bDisplayCurrentOnChart;
 wxString g_path_to_PolarFile;
+wxString g_path_to_PolarLookupOutputFile;
 PlugIn_Route *m_pRoute = NULL;
 PlugIn_Waypoint *m_pMark = NULL;
 wxString g_sMarkGUID = L"\u2191TacticsWP";
@@ -403,8 +404,10 @@ bool tactics_pi::TacticsLoadConfig()
        to have polar-file - it may be that the user is not
        interested in performance part. Yet. We can ask that later. */
     BoatPolar = new Polar(this);
-    if (g_path_to_PolarFile != _T("NULL")) {
-        BoatPolar->loadPolar(g_path_to_PolarFile);
+    if ( g_path_to_PolarFile != _T("NULL") ) {
+        BoatPolar->loadPolar( g_path_to_PolarFile );
+        if ( g_path_to_PolarLookupOutputFile != _T("NULL") )
+            BoatPolar->saveLookupTable( g_path_to_PolarLookupOutputFile );
     }
 
     return true;
@@ -495,6 +498,7 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
 void tactics_pi::LoadTacticsPluginPerformancePart ( wxFileConfig *pConf )
 {
     pConf->Read(_T("PolarFile"), &g_path_to_PolarFile, _T("NULL"));
+    pConf->Read(_T("PolarLookupTableOutputFile"), &g_path_to_PolarLookupOutputFile, _T("NULL"));
     pConf->Read(_T("BoatLeewayFactor"), &g_dLeewayFactor, 10);
     pConf->Read(_T("fixedLeeway"), &g_dfixedLeeway, 30);
     pConf->Read(_T("UseHeelSensor"), &g_bUseHeelSensor, true);
@@ -540,6 +544,8 @@ void tactics_pi::TacticsApplyConfig(void)
     if (!(BoatPolar == NULL)) {
         if (g_path_to_PolarFile != _T("NULL"))
             BoatPolar->loadPolar(g_path_to_PolarFile);
+        if ( g_path_to_PolarLookupOutputFile != _T("NULL") )
+            BoatPolar->saveLookupTable( g_path_to_PolarLookupOutputFile );
         else
             BoatPolar->loadPolar(_T("NULL"));
     }
