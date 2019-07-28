@@ -406,8 +406,12 @@ bool tactics_pi::TacticsLoadConfig()
     BoatPolar = new Polar(this);
     if ( g_path_to_PolarFile != _T("NULL") ) {
         BoatPolar->loadPolar( g_path_to_PolarFile );
-        if ( g_path_to_PolarLookupOutputFile != _T("NULL") )
+        if ( g_path_to_PolarLookupOutputFile != _T("NULL") ) {
             BoatPolar->saveLookupTable( g_path_to_PolarLookupOutputFile );
+        }
+    }
+    else {
+        BoatPolar->loadPolar(_T("NULL"));
     }
 
     return true;
@@ -542,12 +546,15 @@ void tactics_pi::TacticsApplyConfig(void)
 {
 
     if (!(BoatPolar == NULL)) {
-        if (g_path_to_PolarFile != _T("NULL"))
+        if (g_path_to_PolarFile != _T("NULL")) {
             BoatPolar->loadPolar(g_path_to_PolarFile);
-        if ( g_path_to_PolarLookupOutputFile != _T("NULL") )
-            BoatPolar->saveLookupTable( g_path_to_PolarLookupOutputFile );
-        else
+            if ( g_path_to_PolarLookupOutputFile != _T("NULL") ) {
+                BoatPolar->saveLookupTable( g_path_to_PolarLookupOutputFile );
+            }
+        }
+        else {
             BoatPolar->loadPolar(_T("NULL"));
+        }
     }
     m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
     m_bShowWindbarbOnChart = g_bShowWindbarbOnChart;
