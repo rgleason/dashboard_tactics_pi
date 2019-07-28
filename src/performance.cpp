@@ -559,18 +559,18 @@ void Polar::saveLookupTable( wxString FilePath )
     if ( m_bDataIsValid ) {
         wxString str = _T("d/s");
         for (int i = 0; i <= WINDSPEED; i++){
-			str = wxString::Format(_T("%s\t%02d"), str, i);
-		}
-		str = str + _T("\n");
-		out.WriteString(str);				// write line by line
-		for (int n = 0; n < WINDDIR; n++){
-			str = wxString::Format(_T("%d\t"), n);
+            str = wxString::Format(_T("%s\t%02d"), str, i);
+        }
+        str = str + _T("\n");
+        out.WriteString(str);               // write line by line
+        for (int n = 0; n < WINDDIR; n++){
+            str = wxString::Format(_T("%d"), n);
             for (int i = 0; i <= WINDSPEED; i++){
-				str = wxString::Format(_T("%s\t%.2f"), str, windsp[i].winddir[n]);
-			}
-			str = str + _T("\n");
-			out.WriteString(str);				// write line by line
-		}
+                str = wxString::Format(_T("%s\t%.2f"), str, windsp[i].winddir[n]);
+            }
+            str = str + _T("\n");
+            out.WriteString(str);               // write line by line
+        }
     }
     else {
         out.WriteString( _T("invalid data\n") );
@@ -587,7 +587,7 @@ void Polar::setValue(wxString s, int dir, int spd)
   double speed = wxAtof(s);
   
   //if (speed > 0.0 && speed <= WINDSPEED && dir >= 0 && dir <WINDDIR)
-  if (spd > 0 && spd <= WINDSPEED && dir >= 0 && dir <WINDDIR)
+  if ( (spd > 0) && (spd <= WINDSPEED) && (dir >= 0) && (dir <WINDDIR) )
     {
       windsp[spd].winddir[dir] = speed;
       windsp[spd].isfix[dir] = true;
@@ -601,24 +601,23 @@ Clear the polar lookup table with default values
 ************************************************************************************/
 void Polar::reset()
 {
-	for (int n = 0; n < WINDDIR; n++) {
-			windsp[0].winddir[n] = 0;
-			windsp[0].isfix[n] = false;
-	}
-	for (int i = 1; i <= WINDSPEED; i++) {
+    for (int n = 0; n < WINDDIR; n++) {
+        windsp[0].winddir[n] = 0;
+        windsp[0].isfix[n] = false;
+    }
+    for (int i = 1; i <= WINDSPEED; i++) {
         windsp[i].winddir[0] = 0;
         windsp[i].isfix[0] = false;
-		for (int n = 1; n < WINDDIR; n++) {
-			windsp[i].winddir[n] = NAN;
-			windsp[i].isfix[n] = false;
-		}
-	}
+        for (int n = 1; n < WINDDIR; n++) {
+            windsp[i].winddir[n] = NAN;
+            windsp[i].isfix[n] = false;
+        }
+    }
     for (int i = 0; i <= WINDSPEED; i++) {
-      tws[i].tvmg_up.TargetAngle = tws[i].tvmg_up.TargetSpeed = 0;
-      tws[i].tvmg_dn.TargetAngle = tws[i].tvmg_dn.TargetSpeed = 0;
+        tws[i].tvmg_up.TargetAngle = tws[i].tvmg_up.TargetSpeed = 0;
+        tws[i].tvmg_dn.TargetAngle = tws[i].tvmg_dn.TargetSpeed = 0;
     }
     m_bDataIsValid = false;
-
 }
 
 /***********************************************************************************
