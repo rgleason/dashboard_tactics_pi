@@ -51,8 +51,12 @@
 #endif // _TACTICSPI_H_
 #endif // _INCLUDE_TACTICS_PI_
 
+#ifdef _TACTICSPI_H_
+#include "version.h"
+#else
 #define     PLUGIN_VERSION_MAJOR    1
 #define     PLUGIN_VERSION_MINOR    5
+#endif // _TACTICSPI_H_
 
 #define     MY_API_VERSION_MAJOR    1
 #ifdef _TACTICSPI_H_

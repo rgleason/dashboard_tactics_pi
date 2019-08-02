@@ -76,6 +76,7 @@ bool g_bExpPerfData04;
 bool g_bExpPerfData05;
 bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
 wxString g_sCMGSynonym, g_sVMGSynonym;
+wxString g_sDataExportSeparator;
 
 int g_iDbgRes_Polar_Status;
 
@@ -493,6 +494,7 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
     m_bDisplayCurrentOnChart = g_bDisplayCurrentOnChart;
     pConf->Read(_T("CMGSynonym"), &g_sCMGSynonym, _T("CMG"));
     pConf->Read(_T("VMGSynonym"), &g_sVMGSynonym, _T("VMG"));
+    pConf->Read(_T("DataExportSeparator"), &g_sDataExportSeparator, _(";"));
     pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, false);
 }
 /*
@@ -590,6 +592,7 @@ void tactics_pi::SaveTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Write(_T("ShowCurrentOnChart"), g_bDisplayCurrentOnChart);
     pConf->Write(_T("CMGSynonym"), g_sCMGSynonym);
     pConf->Write(_T("VMGSynonym"), g_sVMGSynonym);
+    pConf->Write(_T("DataExportSeparator"), g_sDataExportSeparator);
     pConf->Write(_T("TacticsImportChecked"), g_bTacticsImportChecked);
 }
 /*

@@ -47,16 +47,20 @@
 #include "instrument.h"
 #include "dial.h"
 
+#ifdef _TACTICSPI_H_
+#include <wx/filename.h>
+#endif
 
 
 class DashboardInstrument_WindDirHistory: public DashboardInstrument
 {
 public:
     DashboardInstrument_WindDirHistory( wxWindow *parent, wxWindowID id, wxString title);
-    ~DashboardInstrument_WindDirHistory(void){}
 #ifdef _TACTICSPI_H_
+    ~DashboardInstrument_WindDirHistory(void);
     void SetData(unsigned long long st, double data, wxString unit);
 #else
+    ~DashboardInstrument_WindDirHistory(void){}
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
     wxSize GetSize( int orient, wxSize hint );
@@ -66,6 +70,11 @@ private:
     int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
     int m_isNULL;
     int m_WindDirShift;
+#ifdef _TACTICSPI_H_
+    wxFileConfig  *m_pconfig;
+    bool LoadConfig(void);
+    bool SaveConfig(void);
+#endif // _TACTICSPI_H_
 
 protected:
     double alpha;
@@ -104,6 +113,21 @@ protected:
     int m_currSec,m_lastSec,m_SpdCntperSec,m_DirCntperSec;
     double m_cntSpd,m_cntDir,m_avgSpd,m_avgDir;
 
+#ifdef _TACTICSPI_H_
+    wxString    m_logfile;        //for data export
+    wxFile      m_ostreamlogfile; //for data export
+    bool        m_isExporting;      //for data export
+    int         m_exportInterval; //for data export
+    wxButton    *m_LogButton;     //for data export
+    wxMenu     *m_pExportmenu;//for data export
+    wxMenuBar   *m_pExportmenuBar;//for data export
+    wxMenuItem* btn1Sec;
+    wxMenuItem* btn5Sec;
+    wxMenuItem* btn10Sec;
+    wxMenuItem* btn20Sec;
+    wxMenuItem* btn60Sec;
+#endif // _TACTICSPI_H_
+
     void Draw(wxGCDC* dc);
     void DrawBackground(wxGCDC* dc);
     void DrawForeground(wxGCDC* dc);
@@ -113,7 +137,10 @@ protected:
     wxString GetWindDirStr(wxString WindDir);
 #ifdef _TACTICSPI_H_
     void OnWindHistUpdTimer(wxTimerEvent & event);
+    void OnLogDataButtonPressed(wxCommandEvent& event);
+    void ExportData(void);
 #endif // _TACTICSPI_H_
+
 };
 
 

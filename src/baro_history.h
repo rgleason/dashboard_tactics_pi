@@ -46,6 +46,9 @@
 
 #include "instrument.h"
 #include "dial.h"
+#ifdef _TACTICSPI_H_
+#include <wx/filename.h>
+#endif // _TACTICSPI_H_
 
 
 
@@ -54,7 +57,11 @@ class DashboardInstrument_BaroHistory: public DashboardInstrument
 public:
     DashboardInstrument_BaroHistory( wxWindow *parent, wxWindowID id, wxString title);
 
+#ifdef _TACTICSPI_H_
+    ~DashboardInstrument_BaroHistory(void);
+#else
     ~DashboardInstrument_BaroHistory(void){}
+#endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit);
@@ -69,16 +76,23 @@ private:
     int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
     int m_isNULL;
     int m_WindDirShift;
+#ifdef _TACTICSPI_H_
+    wxFileConfig  *m_pconfig;
+    bool LoadConfig(void);
+    bool SaveConfig(void);
+#endif // _TACTICSPI_H_
 
 protected:
+#ifndef _TACTICSPI_H_
     double alpha;
     double m_ArrayBaroHistory[BARO_RECORD_COUNT];
+#endif // _TACTICSPI_H_
     double m_ArrayPressHistory[BARO_RECORD_COUNT];
+#ifndef _TACTICSPI_H_
     double m_ExpSmoothArrayPressure[BARO_RECORD_COUNT];
+#endif // _TACTICSPI_H_
 
     wxDateTime::Tm m_ArrayRecTime[BARO_RECORD_COUNT];
-
-
 
     double m_MaxPress;  //...in array
     double m_MinPress;  //...in array
@@ -90,6 +104,9 @@ protected:
 
     bool m_IsRunning;
     int m_SampleCount;
+#ifdef _TACTICSPI_H_
+    wxTimer m_BaroHistUpdTimer;
+#endif // _TACTICSPI_H_
 
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
@@ -98,14 +115,31 @@ protected:
     int m_LeftLegend, m_RightLegend;
     int m_currSec,m_lastSec,m_SpdCntperSec;
     double m_cntSpd,m_cntDir,m_avgSpd,m_avgDir;
+#ifdef _TACTICSPI_H_
+    wxString    m_logfile;        //for data export
+    wxFile      m_ostreamlogfile; //for data export
+    bool        m_isExporting;      //for data export
+    int         m_exportInterval; //for data export
+    wxButton    *m_LogButton;     //for data export
+    wxMenu      *m_pExportmenu;//for data export
+    wxMenuBar   *m_pExportmenuBar;//for data export
+    wxMenuItem* btn10Sec;
+    wxMenuItem* btn20Sec;
+    wxMenuItem* btn60Sec;
+#endif // _TACTICSPI_H_
 
     void Draw(wxGCDC* dc);
     void DrawBackground(wxGCDC* dc);
     void DrawForeground(wxGCDC* dc);
+#ifdef _TACTICSPI_H_
+    void DrawPressureScale(wxGCDC* dc);
+    void OnLogDataButtonPressed(wxCommandEvent& event);
+    void OnBaroHistUpdTimer(wxTimerEvent & event);
+    void ExportData(void);
+#else
     void SetMinMaxWindScale();
-
     void DrawWindSpeedScale(wxGCDC* dc);
-    //wxString GetWindDirStr(wxString WindDir);
+#endif // _TACTICSPI_H_
 };
 
 

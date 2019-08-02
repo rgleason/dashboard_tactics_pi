@@ -519,7 +519,9 @@ int dashboard_pi::Init( void )
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
+#ifdef _TACTICSPI_H_
     mStW_Watchdog = 2;
+#endif // _TACTICSPI_H_
 
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -679,11 +681,13 @@ void dashboard_pi::Notify()
         mVar_Watchdog = gps_watchdog_timeout_ticks;
     }
 
+#ifdef _TACTICSPI_H_
     mStW_Watchdog--;
     if( mStW_Watchdog <= 0 ) {
         SendSentenceToAllInstruments( OCPN_DBP_STC_STW, NAN, "" );
         mStW_Watchdog = gps_watchdog_timeout_ticks;
     }
+#endif // _TACTICSPI_H_
 
     mGPS_Watchdog--;
     if( mGPS_Watchdog <= 0 ) {
@@ -723,7 +727,12 @@ int dashboard_pi::GetPlugInVersionMajor()
 
 int dashboard_pi::GetPlugInVersionMinor()
 {
+#ifdef _TACTICSPI_H_
+    int version_patch = (PLUGIN_VERSION_MINOR * 1000) + PLUGIN_VERSION_PATCH;
+    return version_patch;
+#else
     return PLUGIN_VERSION_MINOR;
+#endif // _TACTICSPI_H_
 }
 
 wxBitmap *dashboard_pi::GetPlugInBitmap()
@@ -1492,7 +1501,9 @@ void dashboard_pi::SetNMEASentence( wxString &sentence )
                 if( m_NMEA0183.Vhw.Knots < 999. ) {
                     SendSentenceToAllInstruments( OCPN_DBP_STC_STW, toUsrSpeed_Plugin( m_NMEA0183.Vhw.Knots, g_iDashSpeedUnit ),
                                                   getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
+#ifdef _TACTICSPI_H_
                     mStW_Watchdog = gps_watchdog_timeout_ticks;
+#endif // _TACTICSPI_H_
                 }
 
                 if( !std::isnan(m_NMEA0183.Vhw.DegreesMagnetic) )
