@@ -82,8 +82,6 @@ int g_iDbgRes_Polar_Status;
 
 wxString tactics_pi::get_sCMGSynonym(void) {return g_sCMGSynonym;};
 wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
-
-
 //---------------------------------------------------------------------------------------------------------
 //
 //          Tactics Performance instruments and functions for Dashboard plug-in

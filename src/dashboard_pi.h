@@ -217,6 +217,11 @@ private:
 #ifndef _TACTICSPI_H_
     void ApplyConfig(void);
 #endif // _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
+    wxString GetCommonNameVersion(void);  
+    wxString GetNameVersion(void);  
+#endif // _TACTICSPI_H_
+ 
 
 #ifdef _TACTICSPI_H_
     void pSendSentenceToAllInstruments(
@@ -232,6 +237,7 @@ private:
     bool              m_bToggledStateVisible;
     int               m_iPlugInRequirements;
     wxWindow         *m_pluginFrame;
+    static const char *s_common_name;
 #endif // _TACTICSPI_H_
     wxFileConfig     *m_pconfig;
     wxAuiManager     *m_pauimgr;
@@ -274,7 +280,7 @@ class DashboardPreferencesDialog : public
 public:
     DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
-                                , wxString commonName, wxPoint pos 
+                                , wxString commonName, wxString nameVersion, wxPoint pos 
 #endif // _TACTICSPI_H_
         );
     ~DashboardPreferencesDialog() {}

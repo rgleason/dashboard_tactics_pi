@@ -76,6 +76,9 @@ static const long long lNaN = 0xfff8000000000000;
 #define NAN (*(double*)&lNaN)
 #endif
 
+#ifdef _TACTICSPI_H_
+const char *dashboard_pi::s_common_name = _("Dashboard_Tactics");
+#endif // _TACTICSPI_H_
 
 // the class factories, used to create and destroy instances of the PlugIn
 
@@ -727,12 +730,7 @@ int dashboard_pi::GetPlugInVersionMajor()
 
 int dashboard_pi::GetPlugInVersionMinor()
 {
-#ifdef _TACTICSPI_H_
-    int version_patch = (PLUGIN_VERSION_MINOR * 1000) + PLUGIN_VERSION_PATCH;
-    return version_patch;
-#else
     return PLUGIN_VERSION_MINOR;
-#endif // _TACTICSPI_H_
 }
 
 wxBitmap *dashboard_pi::GetPlugInBitmap()
@@ -744,14 +742,32 @@ wxBitmap *dashboard_pi::GetPlugInBitmap()
 #endif // _TACTICSPI_H_
 }
 
+#ifdef _TACTICSPI_H_
+wxString dashboard_pi::GetNameVersion()
+{
+    char name_version[32];
+    sprintf( name_version, "v%d.%d.%d",
+             PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_PATCH ); 
+    return name_version;
+}
+wxString dashboard_pi::GetCommonNameVersion()
+{
+    char common_name_version[64];
+    sprintf( common_name_version, "%s %s",
+             GetCommonName(), GetNameVersion() ); 
+    return common_name_version;
+}
+#endif // _TACTICSPI_H_
+
 wxString dashboard_pi::GetCommonName()
 {
 #ifdef _TACTICSPI_H_
-    return _("Dashboard_Tactics");
+    return s_common_name;
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
 }
+
 
 wxString dashboard_pi::GetShortDescription()
 {
@@ -1854,11 +1870,15 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 #ifdef _TACTICSPI_H_
     wxPoint pos = wxGetMousePosition();
     pos.y -= 500;
+    pos.x -= 100;
+    wxString derivtitle = GetCommonName() + " " + GetNameVersion();
 #endif // _TACTICSPI_H_
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow
 #ifdef _TACTICSPI_H_
-                                                                         , GetCommonName(), pos
+                                                                         , GetCommonName(),
+                                                                         GetNameVersion(),
+                                                                         pos
 #endif // _TACTICSPI_H_
      );
 
@@ -2466,8 +2486,8 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     wxWindow *parent, wxWindowID id,
     wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
-    , wxString commonName, wxPoint pos ) :
-    TacticsPreferencesDialog ( parent, id, commonName + _(" preferences"), pos )
+    , wxString commonName, wxString versionName, wxPoint pos ) :
+    TacticsPreferencesDialog ( parent, id, commonName + " " + versionName + _(" Preferences"), pos )
 #else
      ) :wxDialog( parent, id, _("Dashboard preferences"),
               wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE )
@@ -3519,7 +3539,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             break;
         case ID_DBP_I_MDA: //barometric pressure
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
+#ifdef _TACTICSPI_H_
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_MDA, _T("%5.1f") );
+#else
                                                          getInstrumentCaption( id ), OCPN_DBP_STC_MDA, _T("%5.3f") );
+#endif // _TACTICSPI_H_
             break;
         case ID_DBP_D_MDA: //barometric pressure
             instrument = new DashboardInstrument_Speedometer( this, wxID_ANY,
