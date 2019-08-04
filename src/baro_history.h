@@ -42,12 +42,17 @@
 #endif
 
 // Warn: div by 0 if count == 1
+#ifdef _TACTICSPI_H_
+#define BARO_RECORD_COUNT 3000 // w/ 5s. tick, 3000 points = 15,000 sec = 250 minutes = env. 4 hours
+#else
 #define BARO_RECORD_COUNT 3000
+#endif // _TACTICSPI_H_
 
 #include "instrument.h"
 #include "dial.h"
 #ifdef _TACTICSPI_H_
 #include <wx/filename.h>
+#define BARO_START_AVG_CNT 5 // 5 or higher
 #endif // _TACTICSPI_H_
 
 
@@ -73,7 +78,14 @@ public:
 
 private:
     int m_soloInPane ;
+#ifdef _TACTICSPI_H_
+    double m_LastReceivedPressure;
+    wxDateTime::Tm m_LastReceivedTime;
+    int m_PressRecCnt;
+    int m_PressStartVal[BARO_START_AVG_CNT];
+#else
     int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
+#endif // _TACTICSPI_H_
     int m_isNULL;
     int m_WindDirShift;
 #ifdef _TACTICSPI_H_

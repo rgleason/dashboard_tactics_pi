@@ -64,11 +64,16 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_Press = 0;
 #ifdef _TACTICSPI_H_
     m_TopLineHeight=35;
+    m_LastReceivedPressure = 0.0;
+    m_LastReceivedTime = wxDateTime::Now().GetTm();
+    m_PressRecCnt=0;
+    for ( int i = 0; i < BARO_START_AVG_CNT; i++ )
+        m_PressStartVal[i] = - 1;
 #else
     m_TopLineHeight=30;
-#endif // _TACTICSPI_H_
     m_SpdRecCnt=0;
     m_SpdStartVal=-1;
+#endif // _TACTICSPI_H_
     m_IsRunning=false;
     m_SampleCount=0;
     m_LeftLegend=3;
@@ -144,12 +149,21 @@ void DashboardInstrument_BaroHistory::SetData(
 {
     if (st == OCPN_DBP_STC_MDA) {
         m_Press = data;
+#ifdef _TACTICSPI_H_
+        if ( (m_PressRecCnt >= 0) && (m_PressRecCnt < BARO_START_AVG_CNT) ) {
+            m_PressStartVal[m_PressRecCnt] = m_Press;
+            m_PressRecCnt++;
+        } // then wait for having enough data for averaging
+        else {
+            m_LastReceivedTime = wxDateTime::Now().GetTm();
+        }
+    }
+#else
         if(m_SpdRecCnt++<=5) m_SpdStartVal+=data;
     }
     if ( m_SpdRecCnt == 5 ) {
         m_Press=  m_SpdStartVal/5;
     }
-#ifndef _TACTICSPI_H_
     //start working after we collected 5 records each, as start values for the smoothed curves
     if (m_SpdRecCnt > 5) {
         m_IsRunning=true;
@@ -188,43 +202,72 @@ void DashboardInstrument_BaroHistory::SetData(
 }
 
 #ifdef _TACTICSPI_H_
-// 1/sec should do for barometric pressure ...
+// once every 5 seconds should do for barometric pressure ...
 void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent & event)
 {
-    if (m_Press>0) {
-        //start working after we collected 5 records each, as start values for the smoothed curves
-        if (m_SpdRecCnt > 5) {
-            m_IsRunning = true;
-            m_SampleCount = m_SampleCount < BARO_RECORD_COUNT ? m_SampleCount + 1 : BARO_RECORD_COUNT;
-            m_MaxPress = 0;
-            ;
-            //data shifting
-            for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
-                if (BARO_RECORD_COUNT - m_SampleCount <= idx)
-                    m_MaxPress = wxMax(m_ArrayPressHistory[idx - 1], m_MaxPress);
-                m_MinPress = wxMin(m_ArrayPressHistory[idx - 1], m_MinPress);
-                m_ArrayPressHistory[idx - 1] = m_ArrayPressHistory[idx];
-                m_ArrayRecTime[idx - 1] = m_ArrayRecTime[idx];
-            }
-            m_ArrayPressHistory[BARO_RECORD_COUNT - 1] = m_Press;
-            if (m_SampleCount < 2) {
-                m_ArrayPressHistory[BARO_RECORD_COUNT - 2] = m_Press;
+    if ( m_BaroHistUpdTimer.GetInterval() == 1000 ) {
+        if ( wxDateTime::Now().GetSecond() % 10 != 0) {
+            return;
+        } // then, no sync possible in ExportData()
+        else {
+            m_BaroHistUpdTimer.Stop();
+            m_BaroHistUpdTimer.Start(5000, wxTIMER_CONTINUOUS);
+        } // else can make ExportData() to sync from now on slow down the tick to 1/2 of min.recording
+    }  // then we're still looking for divable by 10 time spot to start the actual 5s tick
 
-            }
-            m_ArrayRecTime[BARO_RECORD_COUNT - 1] = wxDateTime::Now().GetTm();
-            m_MaxPress = wxMax(m_Press, m_MaxPress);
+    //start working after we collected 5 records each, as start values for the smoothed curves
+    if ( m_PressRecCnt >= BARO_START_AVG_CNT) {
+        int lowest = MAXINT;
+        int highest = 0;
+        int sum = 0;
+        for ( int i = 0; i < BARO_START_AVG_CNT; i++ ) {
+            sum += m_PressStartVal[i];
+            if ( m_PressStartVal[i] < lowest )
+                lowest = m_PressStartVal[i];
+            if ( m_PressStartVal[i] > highest )
+                highest = m_PressStartVal[i];
+        } // make weighted averaging
+        m_LastReceivedPressure = (sum - lowest - highest) / ( BARO_START_AVG_CNT - 2);
+        m_LastReceivedTime = wxDateTime::Now().GetTm();
+        m_IsRunning = true;
+        m_PressRecCnt = -1; // make sure that we don't come back here here
+    } // then can start by averaging the start point
 
-            m_MinPress = wxMin(m_MinPress, m_Press);
-            if (wxMin(m_Press, m_MinPress) == -1) {
-                m_MinPress = wxMin(m_Press, 1200); // to make a OK inital value
-            }
-            //get the overall max min pressure
-            m_TotalMaxPress = wxMax(m_Press, m_TotalMaxPress);
-            m_TotalMinPress = wxMin(m_Press, m_TotalMinPress);
+    if ( !m_IsRunning )
+        return;
 
-            ExportData();
+    if (m_Press > 0.0 ) {
+
+        m_LastReceivedPressure = m_Press;
+        
+        m_SampleCount = m_SampleCount < BARO_RECORD_COUNT ? m_SampleCount + 1 : BARO_RECORD_COUNT;
+        m_MaxPress = 0;
+        //data shifting
+        for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
+            if (BARO_RECORD_COUNT - m_SampleCount <= idx)
+                m_MaxPress = wxMax(m_ArrayPressHistory[idx - 1], m_MaxPress);
+            m_MinPress = wxMin(m_ArrayPressHistory[idx - 1], m_MinPress);
+            m_ArrayPressHistory[idx - 1] = m_ArrayPressHistory[idx];
+            m_ArrayRecTime[idx - 1] = m_ArrayRecTime[idx];
         }
-    }
+        m_ArrayPressHistory[BARO_RECORD_COUNT - 1] = m_LastReceivedPressure;
+        if (m_SampleCount < 2) {
+            m_ArrayPressHistory[BARO_RECORD_COUNT - 2] = m_LastReceivedPressure;
+
+        }
+        m_ArrayRecTime[BARO_RECORD_COUNT - 1] = m_LastReceivedTime;
+        m_MaxPress = wxMax(m_LastReceivedPressure, m_MaxPress);
+
+        m_MinPress = wxMin(m_MinPress, m_LastReceivedPressure);
+        if (wxMin(m_LastReceivedPressure, m_MinPress) == -1) {
+            m_MinPress = wxMin(m_LastReceivedPressure, 1200); // to make a OK inital value
+        }
+        //get the overall max min pressure
+        m_TotalMaxPress = wxMax(m_LastReceivedPressure, m_TotalMaxPress);
+        m_TotalMinPress = wxMin(m_LastReceivedPressure, m_TotalMinPress);
+
+        ExportData();
+    } // then pressure > 0
 }
 #endif // _TACTICSPI_H_
 
@@ -291,7 +334,7 @@ void  DashboardInstrument_BaroHistory::DrawWindSpeedScale(wxGCDC* dc)
 
       label4.Printf(_T("%.0f hPa"), m_MaxPressScale /4 +(m_TotalMinPress-18)  );
 
-    //bottom legend for min wind
+    //bottom legend for min pressure
     label5.Printf(_T("%.0f hPa"), (m_TotalMinPress-18));
   }
   dc->GetTextExtent(label1, &m_LeftLegend, &height, 0, 0, g_pFontSmall);
@@ -374,7 +417,8 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     dc->SetFont(*g_pFontData);
     dc->SetTextForeground(col);
 #ifdef _TACTICSPI_H_
-    BaroPressure=wxString::Format(_T("hPa %4.1f  "), m_Press);
+    BaroPressure=wxString::Format(_T("hPa %4.1f  "),
+                                  (m_LastReceivedPressure>0.0?m_LastReceivedPressure:m_Press));
     dc->GetTextExtent(BaroPressure, &degw, &degh, 0, 0, g_pFontData);
     dc->DrawText(BaroPressure, m_LeftLegend+3, m_TopLineHeight-degh);
 #else
@@ -393,8 +437,9 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
         min=m_ArrayRecTime[i].min;
         hour=m_ArrayRecTime[i].hour;
     }
-    m_ratioW = double(m_DrawAreaRect.width) / (BARO_RECORD_COUNT-1);
 #ifdef _TACTICSPI_H_
+    // Avoid writing outside of drawing aread , available area = LeftLegend - 3 - draw_area_width - 5
+    m_ratioW = double(m_DrawAreaRect.width - m_LeftLegend - 3 - 5) / (BARO_RECORD_COUNT-1);
     // Single text var to facilitate correct translations:
     wxString s_Max = _("Max");
     wxString s_Since = _("since");
@@ -403,6 +448,7 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     dc->DrawText(wxString::Format(_T(" %s %.1f %s %02d:%02d  %s %.1f %s %.1f "), s_Max, m_MaxPress, s_Since, hour, min, s_OMax,
                                   m_TotalMaxPress, s_Min, m_TotalMinPress), m_LeftLegend + 3 + 2 + degw, m_TopLineHeight - degh + 2);
 #else
+    m_ratioW = double(m_DrawAreaRect.width) / (BARO_RECORD_COUNT-1);
     dc->DrawText(wxString::Format(_(" Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "),
                                   m_MaxPress, hour, min, m_TotalMaxPress, m_TotalMinPress), m_LeftLegend+3+2+degw,
                  m_TopLineHeight-degh+5);
@@ -432,17 +478,20 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     //---------------------------------------------------------------------------------
     // live pressure data
     //---------------------------------------------------------------------------------
-
-    for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
 #ifdef _TACTICSPI_H_
-        pointPressure[idx].y = m_TopLineHeight+m_DrawAreaRect.height - ((m_ArrayPressHistory[idx]-(double)m_TotalMinPress+18) * ratioH);
-        pointPressure[idx].x = idx * m_ratioW -3 ;//- 30 + m_LeftLegend;
-        if(BARO_RECORD_COUNT-m_SampleCount <= idx && pointPressure[idx].y > m_TopLineHeight && pointPressure_old.y > m_TopLineHeight &&
-           pointPressure[idx].y <=m_TopLineHeight+m_DrawAreaRect.height && pointPressure_old.y<=m_TopLineHeight+m_DrawAreaRect.height)
-            dc->DrawLine( pointPressure_old.x, pointPressure_old.y, pointPressure[idx].x,pointPressure[idx].y );
-        pointPressure_old.x=pointPressure[idx].x;
-        pointPressure_old.y=pointPressure[idx].y;
+    if ( m_IsRunning) {
+        for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
+            pointPressure[idx].y = m_TopLineHeight+m_DrawAreaRect.height - ((m_ArrayPressHistory[idx]-(double)m_TotalMinPress+18) * ratioH);
+            pointPressure[idx].x = m_LeftLegend + 3 + idx * m_ratioW;
+            if(BARO_RECORD_COUNT-m_SampleCount <= idx && pointPressure[idx].y > m_TopLineHeight && pointPressure_old.y > m_TopLineHeight &&
+               pointPressure[idx].y <=m_TopLineHeight+m_DrawAreaRect.height && pointPressure_old.y<=m_TopLineHeight+m_DrawAreaRect.height)
+                dc->DrawLine( pointPressure_old.x, pointPressure_old.y, pointPressure[idx].x,pointPressure[idx].y );
+            pointPressure_old.x=pointPressure[idx].x;
+            pointPressure_old.y=pointPressure[idx].y;
+        } // for number of point
+    } // then there is some data, no need to draw while we're collecting in the beginning slow data
 #else
+    for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
         pointsSpd[idx].y = m_TopLineHeight+m_DrawAreaRect.height - ((m_ArrayPressHistory[idx]-(double)m_TotalMinPress+18) * ratioH);
         pointsSpd[idx].x = idx * m_ratioW -3 ;//- 30 + m_LeftLegend;
         if(BARO_RECORD_COUNT-m_SampleCount <= idx && pointsSpd[idx].y > m_TopLineHeight && pointSpeed_old.y > m_TopLineHeight &&
@@ -450,8 +499,8 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
             dc->DrawLine( pointSpeed_old.x, pointSpeed_old.y, pointsSpd[idx].x,pointsSpd[idx].y );
         pointSpeed_old.x=pointsSpd[idx].x;
         pointSpeed_old.y=pointsSpd[idx].y;
-#endif // _TACTICSPI_H_
     }
+#endif // _TACTICSPI_H_
 
     //---------------------------------------------------------------------------------
 #ifdef _TACTICSPI_H_
@@ -569,9 +618,10 @@ void DashboardInstrument_BaroHistory::ExportData(void)
 {
     if (m_isExporting == true) {
         wxDateTime localTime(m_ArrayRecTime[BARO_RECORD_COUNT - 1]);
-        if (localTime.GetSecond() % m_exportInterval == 0) {
+        int sec = localTime.GetSecond();
+        if ( (sec % m_exportInterval == 0) ) {
             wxString str = wxString::Format(_T("%s%s%s%s%4.1f\n"), localTime.FormatDate(), g_sDataExportSeparator,
-                                            localTime.FormatTime(), g_sDataExportSeparator, m_Press);
+                                            localTime.FormatTime(), g_sDataExportSeparator, m_LastReceivedPressure);
             m_ostreamlogfile.Write(str);
         }
     }
