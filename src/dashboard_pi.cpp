@@ -1871,7 +1871,6 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
     wxPoint pos = wxGetMousePosition();
     pos.y -= 500;
     pos.x -= 100;
-    wxString derivtitle = GetCommonName() + " " + GetNameVersion();
 #endif // _TACTICSPI_H_
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow

@@ -217,7 +217,7 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent & event)
 
     //start working after we collected 5 records each, as start values for the smoothed curves
     if ( m_PressRecCnt >= BARO_START_AVG_CNT) {
-        int lowest = MAXINT;
+        int lowest = INT_MAX;
         int highest = 0;
         int sum = 0;
         for ( int i = 0; i < BARO_START_AVG_CNT; i++ ) {
