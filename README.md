@@ -1,5 +1,8 @@
 Dashboard/Tactics Plugin for OpenCPN
 ====================================
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings)
+
 dashboard_pi with tactics_pi performance enhancements integrated.
 This plugin forks and merges the two mentioned plugins.
 It does complie as dashboard_pi alone, for testing purposes.
@@ -33,9 +36,9 @@ What tactics enhancements can do :
   through water (STW) and app. Wind speed (AWS), with optional correction by heel-angle.
   Calculation is enabled via a preference setting and disables available true wind data
   from the bus throughout the tactics_pi plugin. 
-* Calculate the “leeway”, the boat drift based on heel. A common formula is used for that purpose.
+* Calculate the â€œleewayâ€, the boat drift based on heel. A common formula is used for that purpose.
 * Calculate the surface sea current and display it as single instruments (current speed/direction)
-  as part of the “Bearing compass” or as overlay on the chart (semi transparent). The routines take
+  as part of the â€œBearing compassâ€ or as overlay on the chart (semi transparent). The routines take
   boat heel and leeway into account.
   If you don't have a heel sensor, there is a simply workaround, see manual.
   Current display on the chart can be disabled by a preference setting.
@@ -50,18 +53,18 @@ What tactics enhancements can do :
   Just adopt your course and place your heading pointer on one of the markers, and you sail Target-VMG/CMG based on your polar ...
 * you can set a (one !) temporary tactics waypoint and display the laylines to the mark, based on a Target-TWA calculation,
   while taking your polar into account.
-* it has a “dial instruments” called “Bearing compass”. Boat true heading (HDT)  points “up”, it shows the boat laylines as well,
+* it has a â€œdial instrumentsâ€ called â€œBearing compassâ€. Boat true heading (HDT)  points â€œupâ€, it shows the boat laylines as well,
   the surface current, a pointer to the waypoint (either set manually as the temporary Tactics waypoint or read from a NMEA
   RMB sentence), needles for AWA and TWA and markers for the Target-VMG/CMG angles.
-* It has a “Polar compass” instrument, graphically displaying the actual polar ring and markers for Bearing to WP,
+* It has a â€œPolar compassâ€ instrument, graphically displaying the actual polar ring and markers for Bearing to WP,
   Target-VMG angles and Target-CMG angles.
-* It has an “Average Wind” instrument with an adjustable averaging time, which displays graphically the average wind
+* It has an â€œAverage Windâ€ instrument with an adjustable averaging time, which displays graphically the average wind
   and its deviations to port / starboard
 * It can create specific NMEA performance records with the purpose to export them to the displays of your instruments.
   You can now e.g. calculate the polar target speed in the plugin and send it to your instrument display outside in the cockpit.
   *** Currently only available for NKE, but may be enhanced in the future ***
 * There are various settings, which I grouped in a separate tab. To access the preferences screen, right mouse click
-  on the tactics_pi window, then select “Preferences ...”
+  on the tactics_pi window, then select â€œPreferences ...â€
 
 Prerequisites :
 ---------------
@@ -70,7 +73,7 @@ Prerequisites :
 * preferably True Heading from an electronic compass.
   --> if not available, magnetic heading will do, as long as you have magnetic variance available (either from the GPS RMC
   sentence or from the wmm_pi plugin)
-* Boat speed through water from a log / “paddlewheel” sensor
+* Boat speed through water from a log / â€œpaddlewheelâ€ sensor
 * Apparent wind angle and apparent wind speed
 * Heel sensor which supplies your boat heel angle to O as XDR sentence
   --> If not available, there's a workaround with manual input
