@@ -1914,14 +1914,14 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
     else {
         if ( mAWA >= 0.0 ) {
             if ( ( m_iDbgRes_TW_Calc_AWA != DBGRES_MVAL_AVAILABLE) ) {
-                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has a valid internal AWA value, now (%f).", mAWA);
+                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has now an internal AWA value, (%f).", mAWA);
                 m_iDbgRes_TW_Calc_AWA = DBGRES_MVAL_AVAILABLE;
             } // then debug print
         } // then valid data above zero
         else {
-            if ( ( m_iDbgRes_TW_Calc_AWA != DBGRES_MVAL_IS_ZERO) ) {
-                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has internal AWA value but it is 0.0.", mAWA);
-                m_iDbgRes_TW_Calc_AWA = DBGRES_MVAL_IS_ZERO;
+            if ( ( m_iDbgRes_TW_Calc_AWA != DBGRES_MVAL_IS_NEG) ) {
+                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has AWA value but it is negative (%f).", mAWA);
+                m_iDbgRes_TW_Calc_AWA = DBGRES_MVAL_IS_NEG;
             } // then debug print
             m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
             return false;
@@ -1944,9 +1944,9 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             } // then debug print
         } // then valid data above zero
         else {
-            if ( ( m_iDbgRes_TW_Calc_AWS != DBGRES_MVAL_IS_ZERO) ) {
-                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has internal AWS value but it is 0.0.", mAWS);
-                m_iDbgRes_TW_Calc_AWS = DBGRES_MVAL_IS_ZERO;
+            if ( ( m_iDbgRes_TW_Calc_AWS != DBGRES_MVAL_IS_NEG) ) {
+                wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has a negative internal AWS (%f).", mAWS);
+                m_iDbgRes_TW_Calc_AWS = DBGRES_MVAL_IS_NEG;
             } // then debug print
             m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
             return false;
@@ -2005,7 +2005,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             } // then valid data above zero
             else {
                 if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_IS_ZERO) ) {
-                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: SOG calc. requested, but SOG value is 0.0.", mSOG);
+                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: SOG calc.request. but value is 0 or negative (%f).", mSOG);
                     m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_IS_ZERO;
                 } // then debug print
                 m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
@@ -2033,7 +2033,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             } // then valid data above zero
             else {
                 if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_IS_ZERO) ) {
-                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: StW calc. requested, but StW value is 0.0.", mStW);
+                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: StW calc. request but value is 0 or neg. (%f)", mStW);
                     m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_IS_ZERO;
                 } // then debug print
                 m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
