@@ -253,7 +253,7 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
     if (m_Press > 0.0 ) {
 
         m_LastReceivedPressure = m_Press;
-        m_Press = 0,0; // avoid that, with slow talking devices, we keep coming here with obsolete data
+        m_Press = 0.0; // avoid that, with slow talking devices, we keep coming here with obsolete data
         
         m_SampleCount = m_SampleCount < BARO_RECORD_COUNT ? m_SampleCount + 1 : BARO_RECORD_COUNT;
         m_MaxPress = 0;
