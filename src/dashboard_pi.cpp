@@ -747,22 +747,22 @@ wxString dashboard_pi::GetNameVersion()
 {
     char name_version[32];
     sprintf( name_version, "v%d.%d.%d",
-             PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_PATCH ); 
-    return name_version;
+             PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_PATCH );
+    wxString retstr(name_version);
+    return retstr;
 }
 wxString dashboard_pi::GetCommonNameVersion()
 {
-    char common_name_version[64];
-    sprintf( common_name_version, "%s %s",
-             GetCommonName(), GetNameVersion() ); 
-    return common_name_version;
+    wxString retstr ( GetCommonName() + " " + GetNameVersion() );
+    return retstr;
 }
 #endif // _TACTICSPI_H_
 
 wxString dashboard_pi::GetCommonName()
 {
 #ifdef _TACTICSPI_H_
-    return s_common_name;
+    wxString retstr( s_common_name );
+    return retstr;
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
@@ -2372,7 +2372,7 @@ void dashboard_pi::ApplyConfig(
                         m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                         cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
                         m_pauimgr->Update();
-                    } // then a brand new window, registe it
+                    } // then a brand new window, register it
                     else {
                         m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                         m_pauimgr->Update();
@@ -2380,7 +2380,7 @@ void dashboard_pi::ApplyConfig(
                             newcont->m_pDashboardWindow->Close();
                             newcont->m_pDashboardWindow->Destroy();
                             newcont->m_pDashboardWindow = NULL;
-                        } // then just in case, garbage collection
+                        } // then, just in case, garbage collection
                     } // no need to do a replacement or to create a new window
                 } // else brand new pane or no action
             } // else new pane - an initial new one, or a new replacement of a floating pane
