@@ -2550,7 +2550,7 @@ wxJSONValue::IsSameAs( const wxJSONValue& other ) const
             }
             // for every key calls itself on the value found in
             // the other object. if 'key' does no exist, returns FALSE
-            for ( wxJSONInternalMap::const_iterator it = data->m_valMap.begin(); it != data->m_valMap.end(); it++ )  {
+            for ( wxJSONInternalMap::const_iterator it = data->m_valMap.begin(); it != data->m_valMap.end(); ++it )  {
                 wxString key = it->first;
                 wxLogTrace( compareTraceMask, _T("(%s) Comparing map object - key=%s"),
                                 __PRETTY_FUNCTION__, key.c_str() );
