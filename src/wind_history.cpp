@@ -154,8 +154,7 @@ DashboardInstrument_WindDirHistory::~DashboardInstrument_WindDirHistory(void) {
         m_ostreamlogfile.Close();
 }
 
-void DashboardInstrument_WindDirHistory::OnWindHistUpdTimer(
-    wxTimerEvent &event)
+void DashboardInstrument_WindDirHistory::OnWindHistUpdTimer(wxTimerEvent &event)
 {
     if (!std::isnan(m_TrueWindDir) && !std::isnan(m_TrueWindSpd)){
         m_WindDir = m_TrueWindDir;

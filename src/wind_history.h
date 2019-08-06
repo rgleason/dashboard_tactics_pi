@@ -59,7 +59,7 @@ public:
 #ifdef _TACTICSPI_H_
     ~DashboardInstrument_WindDirHistory(void);
     void SetData(unsigned long long st, double data, wxString unit);
-    void OnWindHistUpdTimer(wxTimerEvent & event);
+    void OnWindHistUpdTimer(wxTimerEvent &event);
 #else
     ~DashboardInstrument_WindDirHistory(void){}
     void SetData(int, double, wxString);
