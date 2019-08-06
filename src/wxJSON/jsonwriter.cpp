@@ -690,10 +690,12 @@ wxJSONWriter::WriteStringValue( wxOutputStream& os, const wxString& str )
     // test 7.3) although I do not know why
     if ( writeBuff == 0 )    {
         const char* err = "<wxJSONWriter::WriteStringValue(): error converting the string to a UTF8 buffer>";
-        os.Write( err, strlen( err ));
+        wxCharBuffer errstream = err;
+        os.Write( errstream.data(), errstream.length() );
         return 0;
     }
-    size_t len = strlen( writeBuff );
+    wxCharBuffer safelen = writeBuff;
+    size_t len = safelen.length();
     int lastChar = 0;
 
     // store the column at which the string starts
@@ -871,12 +873,12 @@ wxJSONWriter::WriteString( wxOutputStream& os, const wxString& str )
     // test 7.3) although I do not know why
     if ( writeBuff == 0 )    {
         const char* err = "<wxJSONWriter::WriteComment(): error converting the string to UTF-8>";
-        os.Write( err, strlen( err ));
+        wxCharBuffer errstream = err;
+        os.Write( errstream.data(), errstream.length() );
         return 0;
     }
-    size_t len = strlen( writeBuff );
-
-    os.Write( writeBuff, len );
+    wxCharBuffer safebuff = writeBuff;
+    os.Write( safebuff.data(), safebuff.length() );
     if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
         return -1;
     }
@@ -913,7 +915,6 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
 {
     int r = 0;
     char buffer[32];        // need to store 64-bits integers (max 20 digits)
-    size_t len;
 
     wxJSONRefData* data = value.GetRefData();
     wxASSERT( data );
@@ -932,7 +933,8 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
                                                 data->m_value.m_valInt64 );
         wxCharBuffer cb = s.ToUTF8();
         const char* cbData = cb.data();
-        len = strlen( cbData );
+        wxCharBuffer safebuff = cbData;
+        len = safebuff.length();
         wxASSERT( len < 32 );
         memcpy( buffer, cbData, len );
         buffer[len] = 0;
@@ -940,8 +942,8 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
 #else
     snprintf( buffer, 32, "%ld", data->m_value.m_valLong );
 #endif
-    len = strlen( buffer );
-    os.Write( buffer, len );
+    wxCharBuffer bufferout = buffer;
+    os.Write( bufferout.data(), bufferout.length() );
     if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
         r = -1;
     }
@@ -960,7 +962,7 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
 int
 wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
 {
-    int r = 0; size_t len;
+    int r = 0;
 
     // prepend a plus sign if the style specifies that unsigned integers
     // have to be recognized by the JSON reader
@@ -986,7 +988,8 @@ wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
                                                 data->m_value.m_valInt64 );
         wxCharBuffer cb = s.ToUTF8();
         const char* cbData = cb.data();
-        len = strlen( cbData );
+        wxCharBuffer safebuff = cbData;
+        len = safebuff.length();
         wxASSERT( len < 32 );
         memcpy( buffer, cbData, len );
         buffer[len] = 0;
@@ -994,8 +997,8 @@ wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
 #else
     snprintf( buffer, 32, "%lu", data->m_value.m_valULong );
 #endif
-    len = strlen( buffer );
-    os.Write( buffer, len );
+    wxCharBuffer bufferout = buffer;
+    os.Write( bufferout.data(), bufferout.length() );
     if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
         r = -1;
     }
@@ -1023,8 +1026,8 @@ wxJSONWriter::WriteDoubleValue( wxOutputStream& os, const wxJSONValue& value )
     wxJSONRefData* data = value.GetRefData();
     wxASSERT( data );
     snprintf( buffer, 32, m_fmt, data->m_value.m_valDouble );
-    size_t len = strlen( buffer );
-    os.Write( buffer, len );
+    wxCharBuffer bufferout = buffer;
+    os.Write( bufferout.data(), bufferout.length() );
     if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
         r = -1;
     }
@@ -1052,8 +1055,8 @@ wxJSONWriter::WriteBoolValue( wxOutputStream& os, const wxJSONValue& value )
         c = t;
     }
 
-    size_t len = strlen( c );
-    os.Write( c, len );
+    wxCharBuffer bufferout = c;
+    os.Write( bufferout.data(), bufferout.length() );
     if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
         r = -1;
     }
@@ -1154,7 +1157,8 @@ wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
 
         if ( asArray )  {
             snprintf( str, 14, "%d", c );
-            size_t len = strlen( str );
+            wxCharBuffer safelen = str;
+            size_t len = safelen.length();
             wxASSERT( len <= 3 );
             wxASSERT( len >= 1 );
             str[len] = ',';

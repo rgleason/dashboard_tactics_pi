@@ -327,8 +327,8 @@ wxJSONReader:: Parse( const wxString& doc, wxJSONValue* val )
 #endif
 
     // now construct the temporary memory input stream
-    size_t len = strlen( readBuff );
-    wxMemoryInputStream is( readBuff, len );
+    wxCharBuffer stream = readBuff;
+    wxMemoryInputStream is( stream.data(), stream.length() );
 
     int numErr = Parse( is, val );
 #if !defined( wxJSON_USE_UNICODE )
