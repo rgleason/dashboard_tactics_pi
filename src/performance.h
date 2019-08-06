@@ -38,6 +38,7 @@
 #include <map>
 
 #include "instrument.h"
+#include "plugin_ids.h"
 // #include "dial.h"
 
 WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
@@ -249,6 +250,7 @@ public:
     ~TacticsInstrument_PolarPerformance(void);
   void SetData(unsigned long long st, double data, wxString unit);
   wxSize GetSize(int orient, wxSize hint);
+  void OnPolarPerfUpdTimer(wxTimerEvent & event);
 
 private:
   int m_soloInPane;
@@ -257,6 +259,8 @@ private:
   wxFileConfig  *m_pconfig;
   bool LoadConfig(void);
   bool SaveConfig(void);
+
+  wxDECLARE_EVENT_TABLE();
 
 protected:
   double alpha;
@@ -267,7 +271,7 @@ protected:
   double m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT];
   wxDateTime::Tm m_ArrayRecTime[DATA_RECORD_COUNT];
 
-  wxTimer m_PolarPerfUpdTimer;
+  wxTimer *m_PolarPerfUpdTimer;
   double m_MaxBoatSpd;
   double m_MinBoatSpd;
   double m_BoatSpeedRange;
@@ -317,7 +321,6 @@ protected:
   void DrawForeground(wxGCDC* dc);
   void DrawBoatSpeedScale(wxGCDC* dc);
   void DrawPercentSpeedScale(wxGCDC* dc);
-  void OnPolarPerfUpdTimer(wxTimerEvent & event);
   void OnLogDataButtonPressed(wxCommandEvent& event);
   void ExportData(void);
 };

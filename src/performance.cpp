@@ -1236,11 +1236,14 @@ void DoubleExpSmooth::SetInitVal(double init)
 //************************************************************************************************************************
 // Polar Performance instrument
 //************************************************************************************************************************
+#define SETDRAWSOLOINPANE true
+wxBEGIN_EVENT_TABLE (TacticsInstrument_PolarPerformance, DashboardInstrument)
+   EVT_TIMER (myID_THREAD_POLARPERFORMANCE, OnPolarPerfUpdTimer)
+wxEND_EVENT_TABLE ()
 
 TacticsInstrument_PolarPerformance::TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title) :
-DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS)
+DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, SETDRAWSOLOINPANE)
 {
-  SetDrawSoloInPane(true);
   m_TWA = NAN;
   m_TWS = NAN;
   m_STW = NAN;
@@ -1276,8 +1279,8 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCP
   m_WindowRect = GetClientRect();
   m_DrawAreaRect = GetClientRect();
   m_DrawAreaRect.SetHeight(m_WindowRect.height - m_TopLineHeight - m_TitleHeight);
-  m_PolarPerfUpdTimer.Start(1000, wxTIMER_CONTINUOUS);
-  m_PolarPerfUpdTimer.Connect(wxEVT_TIMER, wxTimerEventHandler(TacticsInstrument_PolarPerformance::OnPolarPerfUpdTimer), NULL, this);
+  m_PolarPerfUpdTimer = new wxTimer ( this, myID_THREAD_POLARPERFORMANCE );
+  m_PolarPerfUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
   //data export
   m_isExporting = false;
@@ -1308,8 +1311,10 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCP
 }
 
 TacticsInstrument_PolarPerformance::~TacticsInstrument_PolarPerformance(void) {
-  if (m_isExporting)
-    m_ostreamlogfile.Close();
+    this->m_PolarPerfUpdTimer->Stop();
+    delete this->m_PolarPerfUpdTimer;
+    if (m_isExporting)
+        m_ostreamlogfile.Close();
 }
 
 

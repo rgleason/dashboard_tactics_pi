@@ -90,6 +90,7 @@ IF (TACTICS_INSTRUMENTS)
       src/tactics_pi.cpp
       src/performance.h
       src/performance.cpp
+      src/plugin_ids.h
       src/bearingcompass.h
       src/bearingcompass.cpp
       src/polarcompass.h

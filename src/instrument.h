@@ -121,7 +121,7 @@ class DashboardInstrument : public wxControl
 public:
     DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
 #ifdef _TACTICSPI_H_
-                        unsigned long long cap_flag
+                        unsigned long long cap_flag, bool drawSoloInPane = false
 #else
                         int cap_flag
 #endif // _TACTICSPI_H_

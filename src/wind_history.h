@@ -59,6 +59,7 @@ public:
 #ifdef _TACTICSPI_H_
     ~DashboardInstrument_WindDirHistory(void);
     void SetData(unsigned long long st, double data, wxString unit);
+    void OnWindHistUpdTimer(wxTimerEvent & event);
 #else
     ~DashboardInstrument_WindDirHistory(void){}
     void SetData(int, double, wxString);
@@ -72,8 +73,11 @@ private:
     int m_WindDirShift;
 #ifdef _TACTICSPI_H_
     wxFileConfig  *m_pconfig;
+    bool m_bWindSpeedUnitResetLogged;
     bool LoadConfig(void);
     bool SaveConfig(void);
+
+    wxDECLARE_EVENT_TABLE();
 #endif // _TACTICSPI_H_
 
 protected:
@@ -102,7 +106,7 @@ protected:
     int m_SampleCount;
     wxString m_WindSpeedUnit;
 #ifdef _TACTICSPI_H_
-    wxTimer m_WindHistUpdTimer;
+    wxTimer *m_WindHistUpdTimer;
 #endif // _TACTICSPI_H_
 
     wxRect m_WindowRect;
@@ -136,7 +140,6 @@ protected:
     void DrawWindSpeedScale(wxGCDC* dc);
     wxString GetWindDirStr(wxString WindDir);
 #ifdef _TACTICSPI_H_
-    void OnWindHistUpdTimer(wxTimerEvent & event);
     void OnLogDataButtonPressed(wxCommandEvent& event);
     void ExportData(void);
 #endif // _TACTICSPI_H_

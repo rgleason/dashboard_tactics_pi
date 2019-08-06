@@ -43,10 +43,15 @@
 
 #ifdef _TACTICSPI_H_
 #include <wx/fileconf.h>
+#include "plugin_ids.h"
 extern wxString g_sDataExportSeparator;
 #define ID_EXPORTRATE_10 11110
 #define ID_EXPORTRATE_20 11120
 #define ID_EXPORTRATE_60 11160
+#define SETDRAWSOLOINPANE true
+wxBEGIN_EVENT_TABLE (DashboardInstrument_BaroHistory, DashboardInstrument)
+   EVT_TIMER (myID_THREAD_BAROHISTORY, OnBaroHistUpdTimer)
+wxEND_EVENT_TABLE ()
 #endif // _TACTICSPI_H_
 
 //************************************************************************************************************************
@@ -54,8 +59,13 @@ extern wxString g_sDataExportSeparator;
 //************************************************************************************************************************
 
 DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *parent, wxWindowID id, wxString title) :
-      DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA)
+#ifdef _TACTICSPI_H_
+    DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA, SETDRAWSOLOINPANE)
+{
+#else
+    DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA)
 {     SetDrawSoloInPane(true);
+#endif // _TACTICSPI_H_
 
     m_MaxPress = 0;
     m_MinPress =(double)1200;
@@ -93,8 +103,8 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_DrawAreaRect=GetClientRect();
     m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
 #ifdef _TACTICSPI_H_
-    m_BaroHistUpdTimer.Start(1000, wxTIMER_CONTINUOUS);
-    m_BaroHistUpdTimer.Connect(wxEVT_TIMER, wxTimerEventHandler(DashboardInstrument_BaroHistory::OnBaroHistUpdTimer), NULL, this);
+    m_BaroHistUpdTimer = new wxTimer( this, myID_THREAD_BAROHISTORY );
+    m_BaroHistUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
     //data export
     m_isExporting = false;
@@ -122,6 +132,8 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
 }
 #ifdef _TACTICSPI_H_
 DashboardInstrument_BaroHistory::~DashboardInstrument_BaroHistory(void) {
+    this->m_BaroHistUpdTimer->Stop();
+    delete this->m_BaroHistUpdTimer;
     if (m_isExporting)
         m_ostreamlogfile.Close();
 }
@@ -202,18 +214,20 @@ void DashboardInstrument_BaroHistory::SetData(
 }
 
 #ifdef _TACTICSPI_H_
-// once every 5 seconds should do for barometric pressure ...
-void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent & event)
+// once every 5 seconds tick to collect pressure data received by SetData()
+void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
 {
-    if ( m_BaroHistUpdTimer.GetInterval() == 1000 ) {
+    if ( m_BaroHistUpdTimer->GetInterval() == 1000 ) {
+        
         if ( wxDateTime::Now().GetSecond() % 10 != 0) {
             return;
         } // then, no sync possible in ExportData()
         else {
-            m_BaroHistUpdTimer.Stop();
-            m_BaroHistUpdTimer.Start(5000, wxTIMER_CONTINUOUS);
+            m_BaroHistUpdTimer->Stop();
+            m_BaroHistUpdTimer->Start(5000, wxTIMER_CONTINUOUS);
         } // else can make ExportData() to sync from now on slow down the tick to 1/2 of min.recording
     }  // then we're still looking for divable by 10 time spot to start the actual 5s tick
+    wxDateTime localTimeNow = wxDateTime::Now().GetTm();
 
     //start working after we collected 5 records each, as start values for the smoothed curves
     if ( m_PressRecCnt >= BARO_START_AVG_CNT) {
@@ -239,6 +253,7 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent & event)
     if (m_Press > 0.0 ) {
 
         m_LastReceivedPressure = m_Press;
+        m_Press = 0,0; // avoid that, with slow talking devices, we keep coming here with obsolete data
         
         m_SampleCount = m_SampleCount < BARO_RECORD_COUNT ? m_SampleCount + 1 : BARO_RECORD_COUNT;
         m_MaxPress = 0;
@@ -266,7 +281,9 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent & event)
         m_TotalMaxPress = wxMax(m_LastReceivedPressure, m_TotalMaxPress);
         m_TotalMinPress = wxMin(m_LastReceivedPressure, m_TotalMinPress);
 
-        ExportData();
+        if ( localTimeNow.GetSecond() % m_exportInterval == 0 )
+            ExportData();
+
     } // then pressure > 0
 }
 #endif // _TACTICSPI_H_
@@ -438,8 +455,6 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
         hour=m_ArrayRecTime[i].hour;
     }
 #ifdef _TACTICSPI_H_
-    // Avoid writing outside of drawing aread , available area = LeftLegend - 3 - draw_area_width - 5
-    m_ratioW = double(m_DrawAreaRect.width - m_LeftLegend - 3 - 5) / (BARO_RECORD_COUNT-1);
     // Single text var to facilitate correct translations:
     wxString s_Max = _("Max");
     wxString s_Since = _("since");
@@ -454,21 +469,21 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
                  m_TopLineHeight-degh+5);
 #endif // _TACTICSPI_H_
     pen.SetStyle(wxPENSTYLE_SOLID);
-    pen.SetColour(wxColour(61,61,204,96)); //blue, transparent
-    pen.SetWidth(
 #ifdef _TACTICSPI_H_
-        2
+    pen.SetColour(wxColour(61,61,204,255)); //blue, transparent
 #else
-        1
-#endif // _TACTICS_PI_H
-        );
-    dc->SetPen( pen );
-    ratioH = (double)m_DrawAreaRect.height / (double)m_MaxPressScale ;
+    pen.SetColour(wxColour(61,61,204,96)); //blue, transparent
+#endif // _TACTICSPI_H_
+    pen.SetWidth(1);
 
+    ratioH = (double)m_DrawAreaRect.height / (double)m_MaxPressScale ;
 #ifdef _TACTICSPI_H_
+    m_DrawAreaRect.SetWidth(m_WindowRect.width - 6 - m_LeftLegend - m_RightLegend);
+    m_ratioW = double(m_DrawAreaRect.width) / (BARO_RECORD_COUNT-1);
+    
     wxPoint  pointPressure[BARO_RECORD_COUNT+2],pointPressure_old;
     pointPressure_old.x=m_LeftLegend+3;
-    pointPressure_old.y = m_TopLineHeight+m_DrawAreaRect.height - m_ArrayPressHistory[0] * ratioH;
+    pointPressure_old.y = m_TopLineHeight+m_DrawAreaRect.height - (m_ArrayPressHistory[0] - (double)m_TotalMinPress + 18) * ratioH;
 #else
     wxPoint  pointsSpd[BARO_RECORD_COUNT+2],pointSpeed_old;
     pointSpeed_old.x=m_LeftLegend+3;
@@ -572,7 +587,7 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
             m_ostreamlogfile.Write(str);
         }
         SaveConfig(); //save the new export-rate &filename to opencpn.ini
-        m_isExporting = true;
+        m_isExporting = true; // note: this allows the ExportData to write at the next DAQ tick
         m_LogButton->SetLabel(_("X"));
         m_LogButton->Refresh();
     }
@@ -614,16 +629,17 @@ bool DashboardInstrument_BaroHistory::SaveConfig(void)
     else
         return false;
 }
-void DashboardInstrument_BaroHistory::ExportData(void)
+void DashboardInstrument_BaroHistory::ExportData()
 {
-    if (m_isExporting == true) {
-        wxDateTime localTime(m_ArrayRecTime[BARO_RECORD_COUNT - 1]);
-        int sec = localTime.GetSecond();
-        if ( (sec % m_exportInterval == 0) ) {
-            wxString str = wxString::Format(_T("%s%s%s%s%4.1f\n"), localTime.FormatDate(), g_sDataExportSeparator,
-                                            localTime.FormatTime(), g_sDataExportSeparator, m_LastReceivedPressure);
-            m_ostreamlogfile.Write(str);
-        }
-    }
+    if ( !m_IsRunning || !m_isExporting )
+        return;
+    wxDateTime localTimeNow = wxDateTime::Now().GetTm();
+    wxDateTime daqTime(m_LastReceivedTime);
+    //    if ( localTimeNow.GetSecond() % m_exportInterval == 0 ) {
+        wxString str = wxString::Format(_T("%s%s%s%s%4.1f\n"), localTimeNow.FormatDate(), g_sDataExportSeparator,
+                                        localTimeNow.FormatTime(), g_sDataExportSeparator,
+                                        m_LastReceivedPressure);
+        m_ostreamlogfile.Write(str);
+        //    }
 }
 #endif // _TACTICSPI_H_

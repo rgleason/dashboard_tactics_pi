@@ -41,21 +41,16 @@
     #include <wx/wx.h>
 #endif
 
-// Warn: div by 0 if count == 1
+#include "instrument.h"
+#include "dial.h"
+
 #ifdef _TACTICSPI_H_
-#define BARO_RECORD_COUNT 3000 // w/ 5s. tick, 3000 points = 15,000 sec = 250 minutes = env. 4 hours
+#include <wx/filename.h>
+#define BARO_RECORD_COUNT 1500 // w/ 5s. tick, 1500 points = 7,500 sec = 125 minutes = env 2h
+#define BARO_START_AVG_CNT 5 // 5 or higher
 #else
 #define BARO_RECORD_COUNT 3000
 #endif // _TACTICSPI_H_
-
-#include "instrument.h"
-#include "dial.h"
-#ifdef _TACTICSPI_H_
-#include <wx/filename.h>
-#define BARO_START_AVG_CNT 5 // 5 or higher
-#endif // _TACTICSPI_H_
-
-
 
 class DashboardInstrument_BaroHistory: public DashboardInstrument
 {
@@ -70,6 +65,7 @@ public:
 
 #ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit);
+    void OnBaroHistUpdTimer(wxTimerEvent &event);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
@@ -85,13 +81,18 @@ private:
     int m_PressStartVal[BARO_START_AVG_CNT];
 #else
     int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
-#endif // _TACTICSPI_H_
     int m_isNULL;
     int m_WindDirShift;
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     wxFileConfig  *m_pconfig;
     bool LoadConfig(void);
     bool SaveConfig(void);
+    void ExportData(void);
+    wxTimer *m_BaroHistUpdTimer;
+#endif // _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
+    wxDECLARE_EVENT_TABLE();
 #endif // _TACTICSPI_H_
 
 protected:
@@ -116,17 +117,16 @@ protected:
 
     bool m_IsRunning;
     int m_SampleCount;
-#ifdef _TACTICSPI_H_
-    wxTimer m_BaroHistUpdTimer;
-#endif // _TACTICSPI_H_
 
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
     int m_DrawingWidth,m_TopLineHeight,m_DrawingHeight;
     int m_width,m_height;
     int m_LeftLegend, m_RightLegend;
+#ifndef _TACTICSPI_H_
     int m_currSec,m_lastSec,m_SpdCntperSec;
     double m_cntSpd,m_cntDir,m_avgSpd,m_avgDir;
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     wxString    m_logfile;        //for data export
     wxFile      m_ostreamlogfile; //for data export
@@ -146,8 +146,6 @@ protected:
 #ifdef _TACTICSPI_H_
     void DrawPressureScale(wxGCDC* dc);
     void OnLogDataButtonPressed(wxCommandEvent& event);
-    void OnBaroHistUpdTimer(wxTimerEvent & event);
-    void ExportData(void);
 #else
     void SetMinMaxWindScale();
     void DrawWindSpeedScale(wxGCDC* dc);

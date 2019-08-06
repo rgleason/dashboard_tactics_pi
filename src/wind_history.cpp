@@ -43,6 +43,7 @@
 
 #ifdef _TACTICSPI_H_
 #include <wx/fileconf.h>
+#include "plugin_ids.h"
 extern int g_iDashWindSpeedUnit;
 extern wxString g_sDataExportSeparator;
 #define ID_EXPORTRATE_1   11201
@@ -50,6 +51,10 @@ extern wxString g_sDataExportSeparator;
 #define ID_EXPORTRATE_10  11210
 #define ID_EXPORTRATE_20  11220
 #define ID_EXPORTRATE_60  11260
+#define SETDRAWSOLOINPANE true
+wxBEGIN_EVENT_TABLE (DashboardInstrument_WindDirHistory, DashboardInstrument)
+   EVT_TIMER (myID_THREAD_WINDHISTORY, OnWindHistUpdTimer)
+wxEND_EVENT_TABLE ()
 #endif // _TACTICSPI_H_
 
 //************************************************************************************************************************
@@ -57,8 +62,14 @@ extern wxString g_sDataExportSeparator;
 //************************************************************************************************************************
 
 DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow *parent, wxWindowID id, wxString title) :
+#ifdef _TACTICSPI_H_
+    DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD | OCPN_DBP_STC_TWS, SETDRAWSOLOINPANE)
+{
+#else
     DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD | OCPN_DBP_STC_TWS)
 {     SetDrawSoloInPane(true);
+#endif // _TACTICSPI_H_
+
     m_MaxWindDir = -1;
     m_WindDir = -1;
     m_WindDirRange=90;
@@ -67,6 +78,7 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
     m_TrueWindDir = NAN;
     m_TrueWindSpd = NAN;
     m_WindSpeedUnit = _T("--");
+    m_bWindSpeedUnitResetLogged = false;
 #else
     m_WindSpeedUnit = _("--");
 #endif // _TACTICSPI_H_
@@ -105,8 +117,8 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
     m_DrawAreaRect.SetHeight(
         m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
 #ifdef _TACTICSPI_H_
-    m_WindHistUpdTimer.Start(1000, wxTIMER_CONTINUOUS);
-    m_WindHistUpdTimer.Connect(wxEVT_TIMER, wxTimerEventHandler(DashboardInstrument_WindDirHistory::OnWindHistUpdTimer), NULL, this);
+    m_WindHistUpdTimer = new wxTimer( this, myID_THREAD_WINDHISTORY );
+    m_WindHistUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
     //data export
     m_isExporting = false;
     wxPoint pos;
@@ -136,6 +148,8 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
 
 #ifdef _TACTICSPI_H_
 DashboardInstrument_WindDirHistory::~DashboardInstrument_WindDirHistory(void) {
+    this->m_WindHistUpdTimer->Stop();
+    delete this->m_WindHistUpdTimer;
     if(m_isExporting)
         m_ostreamlogfile.Close();
 }
@@ -251,6 +265,14 @@ void DashboardInstrument_WindDirHistory::SetData(
 #endif // _TACTICSPI_H_
             // if unit changes, reset everything ...
             if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _("--")) {
+#ifdef _TACTICSPI_H_
+                if ( !m_bWindSpeedUnitResetLogged ) {
+                    wxLogMessage(
+                        "DashboardInstrument_WindDirHistory::SetData() - Reset! - WindSpeedUnit %s, was %s",
+                        unit, m_WindSpeedUnit );
+                    m_bWindSpeedUnitResetLogged = true; // stop whining
+                }
+#endif // _TACTICSPI_H_
                 m_MaxWindDir = -1;
                 m_WindDir = -1;
                 m_WindDirRange = 90;

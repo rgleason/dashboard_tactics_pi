@@ -43,7 +43,7 @@
 
 DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
 #ifdef _TACTICSPI_H_
-                        unsigned long long cap_flag
+                        unsigned long long cap_flag, bool drawSoloInPane
 #else
                         int cap_flag
 #endif // _TACTICSPI_H_
@@ -51,14 +51,18 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 {
 
 #ifdef _TACTICSPI_H_
-    m_title = title.wc_str();
+      m_title = title.wc_str();
 #else
       m_title = title;
 #endif // _TACTICSPI_H_
       m_cap_flag = cap_flag;
 
       SetBackgroundStyle( wxBG_STYLE_CUSTOM );
+#ifdef _TACTICSPI_H_
+      SetDrawSoloInPane( drawSoloInPane );
+#else
       SetDrawSoloInPane(false);
+#endif // _TACTICSPI_H_
       wxClientDC dc(this);
       int width;
       dc.GetTextExtent(m_title, &width, &m_TitleHeight, 0, 0, g_pFontTitle);
