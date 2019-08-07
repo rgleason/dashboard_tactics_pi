@@ -44,7 +44,7 @@ int HexValue( const wxString& hex_string )
 {
    int return_value = 0;
 
-   long scan_value = 0;
+   unsigned long scan_value = 0;
 
    wxCharBuffer abuf = hex_string.ToUTF8();
    if( !abuf.data() )                            // badly formed sentence?

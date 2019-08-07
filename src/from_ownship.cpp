@@ -56,6 +56,7 @@ DashboardInstrument_FromOwnship::DashboardInstrument_FromOwnship(
     m_cap_flag2 = cap_flag2;
     m_cap_flag3 = cap_flag3;
     m_cap_flag4 = cap_flag4;
+    m_DataHeight = 0;
     s_lat = 99999999;
     s_lon = 99999999;
 }

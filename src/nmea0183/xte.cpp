@@ -45,6 +45,7 @@ extern int              g_NMEAXTEPrecision;
 
 XTE::XTE()
 {
+   IsLoranCCycleLockOK = NMEA0183_BOOLEAN(false);
    Mnemonic = _T("XTE");
    Empty();
 }

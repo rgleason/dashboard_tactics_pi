@@ -43,6 +43,7 @@
 
 RESPONSE::RESPONSE()
 {
+   container_p = NULL;
    Talker.Empty();
    ErrorMessage.Empty();
 }

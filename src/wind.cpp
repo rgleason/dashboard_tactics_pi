@@ -131,6 +131,10 @@ DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWin
 	m_ExtraValueApp = NAN;
 	m_MainValueTrue = NAN;
 	m_ExtraValueTrue = NAN;
+    m_MainValueOption1 = DIAL_POSITION_NONE;
+    m_MainValueOption2 = DIAL_POSITION_NONE;
+    m_ExtraValueOption1 = DIAL_POSITION_NONE;
+    m_ExtraValueOption2 = DIAL_POSITION_NONE;
 #endif // _TACTICSPI_H_
 }
 

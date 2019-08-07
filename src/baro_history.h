@@ -123,10 +123,6 @@ protected:
     int m_DrawingWidth,m_TopLineHeight,m_DrawingHeight;
     int m_width,m_height;
     int m_LeftLegend, m_RightLegend;
-#ifndef _TACTICSPI_H_
-    int m_currSec,m_lastSec,m_SpdCntperSec;
-    double m_cntSpd,m_cntDir,m_avgSpd,m_avgDir;
-#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     wxString    m_logfile;        //for data export
     wxFile      m_ostreamlogfile; //for data export

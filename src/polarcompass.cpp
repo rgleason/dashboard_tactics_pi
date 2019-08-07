@@ -91,6 +91,7 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 	alpha_diffCogHdt = 0.1;
 	m_ExpSmoothDiffCogHdt = 0;
 	m_oldExpSmoothDiffCogHdt = 0;
+    m_LaylineDegRange = 0;
 	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = 0;
 }
 /***************************************************************************************

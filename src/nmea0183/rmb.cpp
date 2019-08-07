@@ -43,7 +43,10 @@
 
 RMB::RMB()
 {
-    Mnemonic = _T("RMB");
+#ifndef _TACTICSPI_H_
+   isVersion2dot3OrLater = false;
+#endif // _TACTICSPI_H_
+   Mnemonic = _T("RMB");
    Empty();
 }
 

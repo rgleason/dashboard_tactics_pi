@@ -72,6 +72,7 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
 
       m_MainValue = s_value;
       m_ExtraValue = 0;
+      m_ExtraValueCap = 0;
       m_MainValueFormat = _T("%d");
       m_MainValueUnit = _T("");
       m_MainValueOption = DIAL_POSITION_NONE;
