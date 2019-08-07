@@ -50,7 +50,7 @@ extern wxString g_sDataExportSeparator;
 #define ID_EXPORTRATE_60 11160
 #define SETDRAWSOLOINPANE true
 wxBEGIN_EVENT_TABLE (DashboardInstrument_BaroHistory, DashboardInstrument)
-   EVT_TIMER (myID_THREAD_BAROHISTORY, OnBaroHistUpdTimer)
+   EVT_TIMER (myID_THREAD_BAROHISTORY, DashboardInstrument_BaroHistory::OnBaroHistUpdTimer)
 wxEND_EVENT_TABLE ()
 #endif // _TACTICSPI_H_
 

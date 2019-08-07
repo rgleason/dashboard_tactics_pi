@@ -1243,7 +1243,7 @@ void DoubleExpSmooth::SetInitVal(double init)
 //************************************************************************************************************************
 #define SETDRAWSOLOINPANE true
 wxBEGIN_EVENT_TABLE (TacticsInstrument_PolarPerformance, DashboardInstrument)
-   EVT_TIMER (myID_THREAD_POLARPERFORMANCE, OnPolarPerfUpdTimer)
+   EVT_TIMER (myID_THREAD_POLARPERFORMANCE, TacticsInstrument_PolarPerformance::OnPolarPerfUpdTimer)
 wxEND_EVENT_TABLE ()
 
 TacticsInstrument_PolarPerformance::TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title) :

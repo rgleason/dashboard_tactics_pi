@@ -53,7 +53,7 @@ extern wxString g_sDataExportSeparator;
 #define ID_EXPORTRATE_60  11260
 #define SETDRAWSOLOINPANE true
 wxBEGIN_EVENT_TABLE (DashboardInstrument_WindDirHistory, DashboardInstrument)
-   EVT_TIMER (myID_THREAD_WINDHISTORY, OnWindHistUpdTimer)
+EVT_TIMER (myID_THREAD_WINDHISTORY, DashboardInstrument_WindDirHistory::OnWindHistUpdTimer)
 wxEND_EVENT_TABLE ()
 #endif // _TACTICSPI_H_
 
