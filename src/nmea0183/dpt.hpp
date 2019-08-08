@@ -68,7 +68,7 @@ class DPT : public RESPONSE
       ** Operators
       */
 
-      virtual const DPT& operator = ( const DPT& source );
+      virtual const DPT& operator = ( const DPT &source );
 };
 
 #endif // DPT_CLASS_HEADER

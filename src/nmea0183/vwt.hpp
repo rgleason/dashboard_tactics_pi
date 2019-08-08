@@ -71,7 +71,7 @@ class VWT : public RESPONSE
       ** Operators
       */
 
-      virtual const VWT& operator = ( const VWT& source );
+      virtual const VWT& operator = ( const VWT &source );
 };
 
 #endif // VWT_CLASS_HEADER

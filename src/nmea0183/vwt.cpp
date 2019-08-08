@@ -125,7 +125,7 @@ bool VWT::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const VWT& VWT::operator = ( const VWT& source )
+const VWT& VWT::operator = ( const VWT &source )
 {
 //   ASSERT_VALID( this );
  

@@ -68,7 +68,7 @@ class MDA : public RESPONSE
       ** Operators
       */
 
-      virtual const MDA& operator = ( const MDA& source );
+      virtual const MDA& operator = ( const MDA &source );
 };
 
 #endif // MDA_CLASS_HEADER

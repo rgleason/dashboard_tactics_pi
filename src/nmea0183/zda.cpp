@@ -125,7 +125,7 @@ bool ZDA::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const ZDA& ZDA::operator = ( const ZDA& source )
+const ZDA& ZDA::operator = ( const ZDA &source )
 {
 //   ASSERT_VALID( this );
 

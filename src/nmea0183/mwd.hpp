@@ -70,7 +70,7 @@ class MWD : public RESPONSE
       ** Operators
       */
 
-      virtual const MWD& operator = ( const MWD& source );
+      virtual const MWD& operator = ( const MWD &source );
 };
 
 #endif // MWD_CLASS_HEADER

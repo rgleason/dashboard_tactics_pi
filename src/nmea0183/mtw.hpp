@@ -68,7 +68,7 @@ class MTW : public RESPONSE
       ** Operators
       */
 
-      virtual const MTW& operator = ( const MTW& source );
+      virtual const MTW& operator = ( const MTW &source );
 };
 
 #endif // MTW_CLASS_HEADER

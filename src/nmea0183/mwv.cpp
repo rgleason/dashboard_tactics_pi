@@ -124,7 +124,7 @@ bool MWV::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const MWV& MWV::operator = ( const MWV& source )
+const MWV& MWV::operator = ( const MWV &source )
 {
 //   ASSERT_VALID( this );
  

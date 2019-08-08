@@ -163,7 +163,7 @@ bool GSV::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const GSV& GSV::operator = ( const GSV& source )
+const GSV& GSV::operator = ( const GSV &source )
 {
    NumberOfMessages = source.NumberOfMessages;
    MessageNumber = source.MessageNumber;

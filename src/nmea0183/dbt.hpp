@@ -69,7 +69,7 @@ class DBT : public RESPONSE
       ** Operators
       */
 
-      const DBT& operator = ( const DBT& source );
+      const DBT& operator = ( const DBT &source );
 };
 
 #endif // DBT_CLASS_HEADER

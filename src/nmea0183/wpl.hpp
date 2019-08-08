@@ -68,7 +68,7 @@ class WPL : public RESPONSE
       ** Operators
       */
 
-      virtual const WPL& operator = ( const WPL& source );
+      virtual const WPL& operator = ( const WPL &source );
 };
 
 #endif // WPL_CLASS_HEADER

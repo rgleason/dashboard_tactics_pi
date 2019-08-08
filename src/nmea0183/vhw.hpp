@@ -70,7 +70,7 @@ class VHW : public RESPONSE
       ** Operators
       */
 
-      virtual const VHW& operator = ( const VHW& source );
+      virtual const VHW& operator = ( const VHW &source );
 };
 
 #endif // VHW_CLASS_HEADER

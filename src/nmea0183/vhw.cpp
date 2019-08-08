@@ -128,7 +128,7 @@ bool VHW::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const VHW& VHW::operator = ( const VHW& source )
+const VHW& VHW::operator = ( const VHW &source )
 {
 //   ASSERT_VALID( this );
 

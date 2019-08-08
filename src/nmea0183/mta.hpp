@@ -68,7 +68,7 @@ class MTA : public RESPONSE
       ** Operators
       */
 
-      virtual const MTA& operator = ( const MTA& source );
+      virtual const MTA& operator = ( const MTA &source );
 };
 
 #endif // MTA_CLASS_HEADER

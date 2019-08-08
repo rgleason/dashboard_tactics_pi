@@ -122,7 +122,7 @@ bool DBT::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const DBT& DBT::operator = ( const DBT& source )
+const DBT& DBT::operator = ( const DBT &source )
 {
    //ASSERT_VALID( this );
 

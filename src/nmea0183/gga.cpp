@@ -157,7 +157,7 @@ bool GGA::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const GGA& GGA::operator = ( const GGA& source )
+const GGA& GGA::operator = ( const GGA &source )
 {
 //   ASSERT_VALID( this );
 

@@ -129,7 +129,7 @@ bool XDR::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const XDR& XDR::operator = ( const XDR& source )
+const XDR& XDR::operator = ( const XDR &source )
 {
 //   ASSERT_VALID( this );
 

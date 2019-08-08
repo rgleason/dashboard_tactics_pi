@@ -439,7 +439,7 @@ SENTENCE::operator wxString() const
    return( Sentence );
 }
 
-const SENTENCE& SENTENCE::operator = ( const SENTENCE& source )
+const SENTENCE& SENTENCE::operator = ( const SENTENCE &source )
 {
 //   ASSERT_VALID( this );
 
@@ -448,7 +448,7 @@ const SENTENCE& SENTENCE::operator = ( const SENTENCE& source )
    return( *this );
 }
 
-const SENTENCE& SENTENCE::operator = ( const wxString& source )
+const SENTENCE& SENTENCE::operator = ( const wxString &source )
 {
 //   ASSERT_VALID( this );
 
@@ -457,7 +457,7 @@ const SENTENCE& SENTENCE::operator = ( const wxString& source )
    return( *this );
 }
 
-const SENTENCE& SENTENCE::operator += ( const wxString& source )
+const SENTENCE& SENTENCE::operator += ( const wxString &source )
 {
 //   ASSERT_VALID( this );
 
@@ -683,7 +683,7 @@ const SENTENCE& SENTENCE::operator += ( NMEA0183_BOOLEAN boolean )
    return( *this );
 }
 
-const SENTENCE& SENTENCE::operator += ( LATLONG& source )
+const SENTENCE& SENTENCE::operator += ( LATLONG &source )
 {
 //   ASSERT_VALID( this );
 

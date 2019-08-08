@@ -83,7 +83,7 @@ class XDR : public RESPONSE
       ** Operators
       */
 
-      virtual const XDR& operator = ( const XDR& source );
+      virtual const XDR& operator = ( const XDR &source );
 };
 
 #endif // XDR_CLASS_HEADER

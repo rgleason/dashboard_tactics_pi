@@ -129,7 +129,7 @@ bool DPT::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const DPT& DPT::operator = ( const DPT& source )
+const DPT& DPT::operator = ( const DPT &source )
 {
 //   ASSERT_VALID( this );
 

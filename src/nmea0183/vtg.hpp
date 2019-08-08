@@ -70,7 +70,7 @@ class VTG : public RESPONSE
       ** Operators
       */
 
-      virtual const VTG& operator = ( const VTG& source );
+      virtual const VTG& operator = ( const VTG &source );
 };
 
 #endif // VTG_CLASS_HEADER

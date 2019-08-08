@@ -71,7 +71,7 @@ class RSA : public RESPONSE
       ** Operators
       */
 
-      virtual const RSA& operator = ( const RSA& source );
+      virtual const RSA& operator = ( const RSA &source );
 };
 
 #endif // RSA_CLASS_HEADER

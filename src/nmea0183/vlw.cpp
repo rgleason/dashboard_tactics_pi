@@ -109,7 +109,7 @@ bool VLW::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const VLW& VLW::operator = ( const VLW& source )
+const VLW& VLW::operator = ( const VLW &source )
 {
    TotalMileage = source.TotalMileage;
    TripMileage  = source.TripMileage;

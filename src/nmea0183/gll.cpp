@@ -182,7 +182,7 @@ bool GLL::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const GLL& GLL::operator = ( const GLL& source )
+const GLL& GLL::operator = ( const GLL &source )
 {
 //   ASSERT_VALID( this );
 

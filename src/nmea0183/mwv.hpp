@@ -71,7 +71,7 @@ class MWV : public RESPONSE
       ** Operators
       */
 
-      virtual const MWV& operator = ( const MWV& source );
+      virtual const MWV& operator = ( const MWV &source );
 };
 
 #endif // MWV_CLASS_HEADER

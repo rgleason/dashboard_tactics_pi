@@ -109,7 +109,7 @@ bool WPL::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const WPL& WPL::operator = ( const WPL& source )
+const WPL& WPL::operator = ( const WPL &source )
 {
 
    Position = source.Position;

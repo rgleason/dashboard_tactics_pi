@@ -133,7 +133,7 @@ void LONGITUDE::Write( SENTENCE& sentence )
    }
 }
 
-const LONGITUDE& LONGITUDE::operator = ( const LONGITUDE& source )
+const LONGITUDE& LONGITUDE::operator = ( const LONGITUDE &source )
 {
 
    Longitude = source.Longitude;

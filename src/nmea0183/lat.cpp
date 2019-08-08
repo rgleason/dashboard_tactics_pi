@@ -133,7 +133,7 @@ void LATITUDE::Write( SENTENCE& sentence )
    }
 }
 
-const LATITUDE& LATITUDE::operator = ( const LATITUDE& source )
+const LATITUDE& LATITUDE::operator = ( const LATITUDE &source )
 {
 
    Latitude = source.Latitude;

@@ -225,7 +225,7 @@ bool RMB::Write( SENTENCE& sentence )
     return( TRUE );
 }
 
-const RMB& RMB::operator = ( const RMB& source )
+const RMB& RMB::operator = ( const RMB &source )
 {
 
     IsDataValid                     = source.IsDataValid;

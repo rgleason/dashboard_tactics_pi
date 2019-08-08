@@ -162,7 +162,7 @@ bool VTG::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const VTG& VTG::operator = ( const VTG& source )
+const VTG& VTG::operator = ( const VTG &source )
 {
 //   ASSERT_VALID( this );
 

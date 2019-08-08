@@ -267,8 +267,8 @@ class NMEA0183
       bool Parse( void );
       bool PreParse( void );
 
-      NMEA0183& operator << ( wxString& source );
-      NMEA0183& operator >> ( wxString& destination );
+      NMEA0183& operator << ( wxString &source );
+      NMEA0183& operator >> ( wxString &destination );
 };
 
 #endif // NMEA_0183_CLASS_HEADER

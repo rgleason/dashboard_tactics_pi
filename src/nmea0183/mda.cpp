@@ -124,7 +124,7 @@ bool MDA::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const MDA& MDA::operator = ( const MDA& source )
+const MDA& MDA::operator = ( const MDA &source )
 {
 //   ASSERT_VALID( this );
 

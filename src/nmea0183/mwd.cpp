@@ -120,7 +120,7 @@ bool MWD::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const MWD& MWD::operator = ( const MWD& source )
+const MWD& MWD::operator = ( const MWD &source )
 {
 //   ASSERT_VALID( this );
  

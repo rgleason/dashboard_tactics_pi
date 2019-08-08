@@ -75,7 +75,7 @@ class GGA : public RESPONSE
       ** Operators
       */
 
-      virtual const GGA& operator = ( const GGA& source );
+      virtual const GGA& operator = ( const GGA &source );
 };
 
 #endif // GGA_CLASS_HEADER

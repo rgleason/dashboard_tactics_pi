@@ -168,7 +168,7 @@ bool RMC::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const RMC& RMC::operator = ( const RMC& source )
+const RMC& RMC::operator = ( const RMC &source )
 {
 //   ASSERT_VALID( this );
 

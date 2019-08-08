@@ -73,7 +73,7 @@ class RMC : public RESPONSE
       ** Operators
       */
 
-      virtual const RMC& operator = ( const RMC& source );
+      virtual const RMC& operator = ( const RMC &source );
 };
 
 #endif // RMC_CLASS_HEADER

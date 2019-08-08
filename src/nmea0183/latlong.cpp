@@ -81,7 +81,7 @@ void LATLONG::Write( SENTENCE& sentence )
    Longitude.Write( sentence );
 }
 
-const LATLONG& LATLONG::operator = ( const LATLONG& source )
+const LATLONG& LATLONG::operator = ( const LATLONG &source )
 {
 
    Latitude  = source.Latitude;

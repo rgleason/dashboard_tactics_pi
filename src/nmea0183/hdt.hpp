@@ -57,7 +57,7 @@ class HDT : public RESPONSE
       ** Operators
       */
 
-      virtual const HDT& operator = ( const HDT& source );
+      virtual const HDT& operator = ( const HDT &source );
 };
 
 #endif // HDT_CLASS_HEADER

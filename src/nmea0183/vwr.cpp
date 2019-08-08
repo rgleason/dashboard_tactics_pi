@@ -125,7 +125,7 @@ bool VWR::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const VWR& VWR::operator = ( const VWR& source )
+const VWR& VWR::operator = ( const VWR &source )
 {
 //   ASSERT_VALID( this );
  

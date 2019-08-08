@@ -112,7 +112,7 @@ bool MTW::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const MTW& MTW::operator = ( const MTW& source )
+const MTW& MTW::operator = ( const MTW &source )
 {
 //   ASSERT_VALID( this );
 

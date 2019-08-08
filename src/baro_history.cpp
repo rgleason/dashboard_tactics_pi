@@ -540,8 +540,8 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
             wxDateTime localTime( m_ArrayRecTime[idx] );
             min      = localTime.GetMinute( );
             hour     = localTime.GetHour( );
-            int sec  = localTime.GetSecond( );
 #ifndef _TACTICSPI_H_
+            int sec  = localTime.GetSecond( );
             if ( (hour*100+min) != done && (min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
 #else
             if ( (hour*100+min) != done && (min % 15 == 0 ) ) {

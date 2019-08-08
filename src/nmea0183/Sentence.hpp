@@ -82,9 +82,9 @@ class SENTENCE
       */
 
       operator wxString() const; 
-      virtual const SENTENCE& operator  = ( const SENTENCE& source );
-      virtual const SENTENCE& operator  = ( const wxString& source );
-      virtual const SENTENCE& operator += ( const wxString& source );
+      virtual const SENTENCE& operator  = ( const SENTENCE &source );
+      virtual const SENTENCE& operator  = ( const wxString &source );
+      virtual const SENTENCE& operator += ( const wxString &source );
       virtual const SENTENCE& operator += ( double value );
       virtual const SENTENCE& operator += ( NORTHSOUTH northing );
       virtual const SENTENCE& operator += ( COMMUNICATIONS_MODE mode );
@@ -92,7 +92,7 @@ class SENTENCE
       virtual const SENTENCE& operator += ( EASTWEST easting );
       virtual const SENTENCE& operator += ( TRANSDUCER_TYPE transducer );
       virtual const SENTENCE& operator += ( NMEA0183_BOOLEAN boolean );
-      virtual const SENTENCE& operator += ( LATLONG& source );
+      virtual const SENTENCE& operator += ( LATLONG &source );
 };
  
 #endif // SENTENCE_CLASS_HEADER

@@ -67,7 +67,7 @@ class HDM : public RESPONSE
       ** Operators
       */
 
-      virtual const HDM& operator = ( const HDM& source );
+      virtual const HDM& operator = ( const HDM &source );
 };
 
 #endif // HDM_CLASS_HEADER

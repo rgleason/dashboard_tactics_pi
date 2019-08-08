@@ -71,7 +71,7 @@ class HDG : public RESPONSE
       ** Operators
       */
 
-      virtual const HDG& operator = ( const HDG& source );
+      virtual const HDG& operator = ( const HDG &source );
 };
 
 #endif // HDG_CLASS_HEADER

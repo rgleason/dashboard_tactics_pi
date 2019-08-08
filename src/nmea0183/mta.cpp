@@ -111,7 +111,7 @@ bool MTA::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const MTA& MTA::operator = ( const MTA& source )
+const MTA& MTA::operator = ( const MTA &source )
 {
 //   ASSERT_VALID( this );
 

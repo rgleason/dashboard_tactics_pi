@@ -68,7 +68,7 @@ class VLW : public RESPONSE
       ** Operators
       */
 
-      virtual const VLW& operator = ( const VLW& source );
+      virtual const VLW& operator = ( const VLW &source );
 };
 
 #endif // VLW_CLASS_HEADER

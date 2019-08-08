@@ -72,7 +72,7 @@ class ZDA : public RESPONSE
       ** Operators
       */
 
-      virtual const ZDA& operator = ( const ZDA& source );
+      virtual const ZDA& operator = ( const ZDA &source );
 };
 
 #endif // ZDA_CLASS_HEADER

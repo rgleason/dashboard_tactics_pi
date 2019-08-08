@@ -359,7 +359,7 @@ bool NMEA0183::Parse( void )
    return( return_value );
 }
 
-NMEA0183& NMEA0183::operator << ( wxString & source )
+NMEA0183& NMEA0183::operator << ( wxString &source )
 {
 //   ASSERT_VALID( this );
 
@@ -368,7 +368,7 @@ NMEA0183& NMEA0183::operator << ( wxString & source )
    return( *this );
 }
 
-NMEA0183& NMEA0183::operator >> ( wxString& destination )
+NMEA0183& NMEA0183::operator >> ( wxString &destination )
 {
 //   ASSERT_VALID( this );
 

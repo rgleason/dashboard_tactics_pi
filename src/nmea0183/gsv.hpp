@@ -73,7 +73,7 @@ class GSV : public RESPONSE
       ** Operators
       */
 
-      virtual const GSV& operator = ( const GSV& source );
+      virtual const GSV& operator = ( const GSV &source );
 };
 
 #endif // GSV_CLASS_HEADER

@@ -117,7 +117,7 @@ bool HDG::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const HDG& HDG::operator = ( const HDG& source )
+const HDG& HDG::operator = ( const HDG &source )
 {
    MagneticSensorHeadingDegrees = source.MagneticSensorHeadingDegrees;
    MagneticDeviationDegrees     = source.MagneticDeviationDegrees;

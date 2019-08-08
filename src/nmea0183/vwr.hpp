@@ -71,7 +71,7 @@ class VWR : public RESPONSE
       ** Operators
       */
 
-      virtual const VWR& operator = ( const VWR& source );
+      virtual const VWR& operator = ( const VWR &source );
 };
 
 #endif // VWR_CLASS_HEADER

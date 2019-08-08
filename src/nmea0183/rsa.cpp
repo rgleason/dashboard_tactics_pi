@@ -121,7 +121,7 @@ bool RSA::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const RSA& RSA::operator = ( const RSA& source )
+const RSA& RSA::operator = ( const RSA &source )
 {
 //   ASSERT_VALID( this );
 

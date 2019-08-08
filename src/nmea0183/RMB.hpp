@@ -80,7 +80,7 @@ class RMB : public RESPONSE
       ** Operators
       */
 
-      virtual const RMB& operator = ( const RMB& source );
+      virtual const RMB& operator = ( const RMB &source );
 };
 
 #endif // RMB_CLASS_HEADER
