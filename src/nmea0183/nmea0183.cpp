@@ -317,17 +317,15 @@ bool NMEA0183::Parse( void )
 
        wxMRLNode *node = response_table.GetFirst();
 
-       int comparison  = 0;
-
         while(node)
         {
            RESPONSE *resp = node->GetData();
 
-            comparison = mnemonic.Cmp( resp->Mnemonic );
+            int comparison = mnemonic.Cmp( resp->Mnemonic );
 
             if ( comparison == 0 )
             {
-                        response_p = (RESPONSE *) resp;
+                        response_p = resp;
                         return_value = response_p->Parse( sentence );
 
                         /*

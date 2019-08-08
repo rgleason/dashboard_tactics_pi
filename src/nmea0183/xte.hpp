@@ -71,7 +71,7 @@ class XTE : public RESPONSE
       ** Operators
       */
 
-      virtual const XTE& operator = ( const XTE& source );
+      virtual const XTE& operator = ( const XTE &source );
 };
 
 #endif // XTE_CLASS_HEADER

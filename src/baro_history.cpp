@@ -417,7 +417,7 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     wxColour col;
     double ratioH;
     int degw,degh;
-    int width,height,sec,min,hour;
+    int width,height,min,hour;
 #ifdef _TACTICSPI_H_
     wxString BaroPressure;
 #else
@@ -446,8 +446,8 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     dc->SetFont(*g_pFontLabel);
     //determine the time range of the available data (=oldest data value)
     int i=0;
-    while(m_ArrayRecTime[i].year == 999 && i<BARO_RECORD_COUNT-1) i++;
-    if (i == BARO_RECORD_COUNT -1) {  min=0;
+    while( (i < (BARO_RECORD_COUNT - 1)) && (m_ArrayRecTime[i].year == 999) ) i++;
+    if ( i == (BARO_RECORD_COUNT - 1) ) {  min=0;
         hour=0;
     }
     else {
@@ -538,9 +538,9 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         if (m_ArrayRecTime[idx].year != 999) {
             wxDateTime localTime( m_ArrayRecTime[idx] );
-            min=localTime.GetMinute( );
-            hour=localTime.GetHour( );
-            sec=localTime.GetSecond( );
+            min      = localTime.GetMinute( );
+            hour     = localTime.GetHour( );
+            int sec  = localTime.GetSecond( );
 #ifndef _TACTICSPI_H_
             if ( (hour*100+min) != done && (min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
 #else
@@ -617,7 +617,7 @@ bool DashboardInstrument_BaroHistory::LoadConfig(void)
 ****************************************************************************************/
 bool DashboardInstrument_BaroHistory::SaveConfig(void)
 {
-    wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+    wxFileConfig *pConf = m_pconfig;
 
     if (pConf)
     {

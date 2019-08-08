@@ -73,7 +73,7 @@ class LATITUDE
       ** Operators
       */
 
-      virtual const LATITUDE& LATITUDE::operator = ( const LATITUDE& source );
+      virtual const LATITUDE& operator = ( const LATITUDE& source );
 };
 
 class LONGITUDE
@@ -106,7 +106,7 @@ class LONGITUDE
       ** Operators
       */
 
-      virtual const LONGITUDE& LONGITUDE::operator = ( const LONGITUDE& source );
+      virtual const LONGITUDE& operator = ( const LONGITUDE& source );
 };
 
 class LATLONG
@@ -136,7 +136,7 @@ class LATLONG
       ** Operators
       */
 
-      virtual const LATLONG& LATLONG::operator = ( const LATLONG& source );
+      virtual const LATLONG& operator = ( const LATLONG& source );
 };
 
 #endif // LATLONG_CLASS_HEADER

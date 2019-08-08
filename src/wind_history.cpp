@@ -800,8 +800,8 @@ void DashboardInstrument_WindDirHistory::DrawForeground(wxGCDC* dc)
   dc->SetFont(*g_pFontLabel);
   //determine the time range of the available data (=oldest data value)
   int i=0;
-  while(m_ArrayRecTime[i].year == 999 && i<WIND_RECORD_COUNT-1) i++;
-  if (i == WIND_RECORD_COUNT -1) {
+  while( (i < (WIND_RECORD_COUNT - 1)) && (m_ArrayRecTime[i].year == 999) ) i++;
+  if (i == (WIND_RECORD_COUNT - 1)) {
     min=0;
     hour=0;
   }
@@ -944,7 +944,7 @@ bool DashboardInstrument_WindDirHistory::LoadConfig(void)
 ****************************************************************************************/
 bool DashboardInstrument_WindDirHistory::SaveConfig(void)
 {
-  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+  wxFileConfig *pConf = m_pconfig;
 
   if (pConf)
   {

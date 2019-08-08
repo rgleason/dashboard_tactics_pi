@@ -141,7 +141,7 @@ bool XTE::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const XTE& XTE::operator = ( const XTE& source )
+const XTE& XTE::operator = ( const XTE &source )
 {
 //   ASSERT_VALID( this );
 

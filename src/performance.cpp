@@ -353,16 +353,16 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	wxString s = wxFileName::GetPathSeparator();
 
 	wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
-#ifdef __WXMSW__
-	wxString stdPath = std_path.GetConfigDir();
-#endif
-#ifdef __WXGTK__
-	wxString stdPath = std_path.GetUserDataDir();
-#endif
 #ifdef __WXOSX__
 	wxString stdPath = std_path.GetUserConfigDir();   // should be ~/Library/Preferences
 	stdPath += s + _T("opencpn");
-#endif
+#else
+#  ifdef __WXMSW__
+	wxString stdPath = std_path.GetConfigDir();
+#  else // default to __WXGTK__
+	wxString stdPath = std_path.GetUserDataDir();
+#  endif // __WXMSW__
+#endif // __WXOSX__
 
 	wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
 	logbookDataPath = basePath;
@@ -383,18 +383,18 @@ Polar::Polar(tactics_pi* parent)
   wxString s = wxFileName::GetPathSeparator();
 
   wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
-#ifdef __WXMSW__
-  wxString stdPath = std_path.GetConfigDir();
-#endif
-#ifdef __WXGTK__
-  wxString stdPath = std_path.GetUserDataDir();
-#endif
 #ifdef __WXOSX__
-  wxString stdPath = std_path.GetUserConfigDir();   // should be ~/Library/Preferences
-  stdPath += s + _T("opencpn");
-#endif
+	wxString stdPath = std_path.GetUserConfigDir();   // should be ~/Library/Preferences
+	stdPath += s + _T("opencpn");
+#else
+#  ifdef __WXMSW__
+	wxString stdPath = std_path.GetConfigDir();
+#  else // default to __WXGTK__
+	wxString stdPath = std_path.GetUserDataDir();
+#  endif // __WXMSW__
+#endif // __WXOSX__
 
-  wxString basePath = stdPath + s + _T("plugins") + s + _T("tactics_pi") + s + _T("data") + s;
+  wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
   logbookDataPath = basePath;
 
   reset();
@@ -728,12 +728,11 @@ void Polar::CalculateRowAverages(int i, int min, int max)
 {
 	int j;
 	int cur_min;
-	int count;
 	j = min;
 	cur_min = min;
 	while (j <= max) {
 		j++;
-		count = 0;
+		int count = 0;
 		while (j <= max && std::isnan(windsp[i].winddir[j])) // find next cell which is NOT empty
 		{
 			j++;
@@ -1450,7 +1449,6 @@ void  TacticsInstrument_PolarPerformance::DrawBoatSpeedScale(wxGCDC* dc)
   wxColour cl;
   wxPen pen;
   int width, height;
-  double BoatSpdScale;
   int tmpval = (int)(m_MaxBoatSpd + 2) % 2;
   m_MaxBoatSpdScale = (int)(m_MaxBoatSpd + 2 - tmpval);
 
@@ -1473,7 +1471,7 @@ void  TacticsInstrument_PolarPerformance::DrawBoatSpeedScale(wxGCDC* dc)
     label[0].Printf(_T("%.0f %s"), toUsrSpeed_Plugin(m_MinBoatSpd, g_iDashSpeedUnit), m_STWUnit.c_str());
     for (int i = 1; i < num_of_scales; i++){
       // legend every 20 %
-      BoatSpdScale = m_MaxBoatSpdScale * i * 1. / (num_of_scales - 1);
+      double BoatSpdScale = m_MaxBoatSpdScale * i * 1. / (num_of_scales - 1);
       label[i].Printf(_T("%.1f %s"), toUsrSpeed_Plugin(BoatSpdScale, g_iDashSpeedUnit), m_STWUnit.c_str());
     }
   }
@@ -1837,8 +1835,8 @@ void TacticsInstrument_PolarPerformance::DrawForeground(wxGCDC* dc)
   dc->SetFont(*g_pFontLabel);
   //determine the time range of the available data (=oldest data value)
   int i = 0;
-  while (m_ArrayRecTime[i].year == 999 && i<DATA_RECORD_COUNT - 1) i++;
-  if (i == DATA_RECORD_COUNT - 1) {
+  while ( (i < (DATA_RECORD_COUNT - 1)) && (m_ArrayRecTime[i].year == 999) ) i++;
+  if ( i == (DATA_RECORD_COUNT - 1) ) {
     min = 0;
     hour = 0;
   }
@@ -1997,7 +1995,7 @@ bool TacticsInstrument_PolarPerformance::LoadConfig(void)
 ****************************************************************************************/
 bool TacticsInstrument_PolarPerformance::SaveConfig(void)
 {
-  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+  wxFileConfig *pConf = m_pconfig;
 
   if (pConf)
   {
