@@ -169,13 +169,12 @@ void TacticsInstrument_AvgWindDir::CalcAvgWindDir(double CurWindDir)
  //m_AvgDegRange ermitteln
  m_DegRangePort = 360;
  m_DegRangeStb = -360;
- double val,smval,smWDir;
  for (i = 0; i < samples && !std::isnan(m_WindDirArray[i]); i++){
-  val= getSignedDegRange(m_AvgWindDir, m_WindDirArray[i]);
+  double val= getSignedDegRange(m_AvgWindDir, m_WindDirArray[i]);
   m_signedWindDirArray[i] = val;
-  smWDir = (90. - (atan2(m_ExpsinSmoothArrayWindDir[i], m_ExpcosSmoothArrayWindDir[i])*180. / M_PI) + 360.);
+  double smWDir = (90. - (atan2(m_ExpsinSmoothArrayWindDir[i], m_ExpcosSmoothArrayWindDir[i])*180. / M_PI) + 360.);
   while (smWDir >= 360) smWDir -= 360;
-  smval = getSignedDegRange(m_AvgWindDir, smWDir);
+  double smval = getSignedDegRange(m_AvgWindDir, smWDir);
   m_ExpSmoothSignedWindDirArray[i] = smval;
   if (val < m_DegRangePort) m_DegRangePort=val;
   if (val > m_DegRangeStb) m_DegRangeStb=val;
@@ -271,7 +270,6 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
 {
   wxColour col;
   int degw, degh;
-  double dir;
   wxString avgWindAngle, minAngle, maxAngle;
   wxPen pen;
   wxString label;
@@ -285,7 +283,7 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
   if (!m_IsRunning || std::isnan(m_WindDir))
     avgWindAngle = _T("---");
   else {
-    dir = wxRound(m_AvgWindDir);
+    double dir = wxRound(m_AvgWindDir);
     while (dir > 360) dir -= 360;
     while (dir <0) dir += 360;
     avgWindAngle = wxString::Format(_T("%3.0f"), dir) + DEGREE_SIGN;
