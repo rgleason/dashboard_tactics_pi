@@ -70,7 +70,7 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindo
 {
 	m_format = format;
 	m_data = _T("---");
-    this->m_DataHeight = 0;
+    m_data_height = 0;
 	m_pconfig = GetOCPNConfigObject();
 	mTWS = NAN;
 	mHDT = NAN;
@@ -90,13 +90,13 @@ wxSize TacticsInstrument_PerformanceSingle::GetSize(int orient, wxSize hint)
 	wxClientDC dc(this);
 	int w;
 	dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-	dc.GetTextExtent(_T("000"), &w, &m_DataHeight, 0, 0, g_pFontData);
+	dc.GetTextExtent(_T("000"), &w, &m_data_height, 0, 0, g_pFontData);
 
 	if (orient == wxHORIZONTAL) {
-		return wxSize(DefaultWidth, wxMax(hint.y, m_TitleHeight + m_DataHeight));
+		return wxSize(DefaultWidth, wxMax(hint.y, m_TitleHeight + m_data_height));
 	}
 	else {
-		return wxSize(wxMax(hint.x, DefaultWidth), m_TitleHeight + m_DataHeight);
+		return wxSize(wxMax(hint.x, DefaultWidth), m_TitleHeight + m_data_height);
 	}
 }
 /***********************************************************************************
@@ -106,7 +106,7 @@ void TacticsInstrument_PerformanceSingle::Draw(wxGCDC* dc)
 {
 	wxColour cl;
 #ifdef __WXMSW__
-	wxBitmap tbm(dc->GetSize().x, m_DataHeight, -1);
+	wxBitmap tbm(dc->GetSize().x, m_data_height, -1);
 	wxMemoryDC tdc(tbm);
 	wxColour c2;
 	GetGlobalColor(_T("DASHB"), &c2);
@@ -345,7 +345,7 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	windSpeed = -1;
 	windAngle = -1;
 	windReference = wxEmptyString;
-    this->dist = 0.0;
+    dist = 0.0;
     m_bDataIsValid = false;
 
 	timeout = 5;
@@ -375,7 +375,7 @@ Polar::Polar(tactics_pi* parent)
   mode = 0;
   windSpeed = -1;
   windAngle = -1;
-  this->dist = 0.0;
+  dist = 0.0;
   windReference = wxEmptyString;
   m_bDataIsValid = false;
 

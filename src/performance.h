@@ -86,7 +86,7 @@ public:
 protected:
 	wxString          m_data;
 	wxString          m_format;
-	int               m_DataHeight;
+	int               m_data_height;
 	
 	void Draw(wxGCDC* dc);
 private :
