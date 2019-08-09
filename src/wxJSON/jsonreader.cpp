@@ -502,11 +502,10 @@ wxJSONReader::ReadChar( wxInputStream& is )
 
     // the function also converts CR in LF. only LF is returned
     // in the case of CR+LF
-    int nextChar;
 
     if ( ch == '\r' )  {
         m_colNo = 1;
-        nextChar = PeekChar( is );
+        int nextChar = PeekChar( is );
         if ( nextChar == -1 )  {
             return -1;
         }
@@ -536,12 +535,10 @@ wxJSONReader::ReadChar( wxInputStream& is )
 int
 wxJSONReader::PeekChar( wxInputStream& is )
 {
-    int ch = -1; unsigned char c;
-    if ( !is.Eof())    {
-        c = is.Peek();
-        ch = c;
-    }
-    return ch;
+    if ( !is.Eof() )
+        return is.Peek();
+    else
+        return -1;
 }
 
 
@@ -1038,7 +1035,7 @@ wxJSONReader::SkipComment( wxInputStream& is )
             if ( ch == '*' )    {
                 ch = PeekChar( is );
                 if ( ch == '/' )    {
-                    ch = ReadChar( is );  // read the '/' char
+                    (void) ReadChar( is );  // read the '/' char
                     ch = ReadChar( is );  // read the next char that will be returned
                     utf8Buff.AppendData( "*/", 2 );
                     break;
@@ -1499,7 +1496,6 @@ wxJSONReader::ReadValue( wxInputStream& is, int ch, wxJSONValue& val )
     // the value is not syntactically correct
     AddError( _T( "Literal \'%s\' is incorrect (did you forget quotes?)"), s );
     return nextCh;
-  return nextCh;
 }
 
 
@@ -1525,9 +1521,8 @@ wxJSONReader::ReadValue( wxInputStream& is, int ch, wxJSONValue& val )
 int
 wxJSONReader::ReadUES( wxInputStream& is, char* uesBuffer )
 {
-    int ch;
     for ( int i = 0; i < 4; i++ )  {
-        ch = ReadChar( is );
+        int ch = ReadChar( is );
         if ( ch < 0 )  {
             return ch;
         }
@@ -1851,12 +1846,6 @@ wxJSONReader::ConvertCharByChar( wxString& s, const wxMemoryBuffer& utf8Buffer )
  @param val the JSON value that will hold the memory buffer value
  @return the last char read or -1 in case of EOF
 */
-
-union byte_union
-{
-    unsigned char cu[2];
-    short int bu;
-};
 
 int
 wxJSONReader::ReadMemoryBuff( wxInputStream& is, wxJSONValue& val )
