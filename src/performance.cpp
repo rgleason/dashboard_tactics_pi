@@ -70,7 +70,7 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindo
 {
 	m_format = format;
 	m_data = _T("---");
-    m_DataHeight = 0;
+    this->m_DataHeight = 0;
 	m_pconfig = GetOCPNConfigObject();
 	mTWS = NAN;
 	mHDT = NAN;
@@ -345,7 +345,7 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	windSpeed = -1;
 	windAngle = -1;
 	windReference = wxEmptyString;
-    dist = 0.0;
+    this->dist = 0.0;
     m_bDataIsValid = false;
 
 	timeout = 5;
@@ -375,7 +375,7 @@ Polar::Polar(tactics_pi* parent)
   mode = 0;
   windSpeed = -1;
   windAngle = -1;
-  dist = 0.0;
+  this->dist = 0.0;
   windReference = wxEmptyString;
   m_bDataIsValid = false;
 
