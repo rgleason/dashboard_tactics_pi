@@ -361,16 +361,12 @@ bool NMEA0183::Parse( void )
 
 NMEA0183& NMEA0183::operator << ( wxString &source )
 {
-  if ( this != &source ) {
-    sentence = source;
-  }
+  sentence = source;
   return *this;
 }
 
 NMEA0183& NMEA0183::operator >> ( wxString &destination )
 {
-  if ( this != &destination ) {
-    destination = sentence;
-  }
+  destination = sentence;
   return *this;
 }

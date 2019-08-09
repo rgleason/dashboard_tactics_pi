@@ -617,67 +617,57 @@ const SENTENCE& SENTENCE::operator += ( TRANSDUCER_TYPE transducer )
 
 const SENTENCE& SENTENCE::operator += ( NORTHSOUTH northing )
 {
-  if ( this != &northing ) {
-    Sentence += _T(",");
-    if ( northing == North )
-    {
-      Sentence += _T("N");
-    }
-    else if ( northing == South )
-    {
-      Sentence += _T("S");
-    }
+  Sentence += _T(",");
+  if ( northing == North )
+  {
+    Sentence += _T("N");
+  }
+  else if ( northing == South )
+  {
+    Sentence += _T("S");
   }
   return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( int value )
 {
-  if ( this != &value ) {
-    wxString temp_string;
-    temp_string.Printf(_T("%d"), value );
-    Sentence += _T(",");
-    Sentence += temp_string;
-  }
+  wxString temp_string;
+  temp_string.Printf(_T("%d"), value );
+  Sentence += _T(",");
+  Sentence += temp_string;
   return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( EASTWEST easting )
 {
-  if ( this != &easting ) {
-    Sentence += _T(",");
-    if ( easting == East )
-    {
-      Sentence += _T("E");
-    }
-    else if ( easting == West )
-    {
-      Sentence += _T("W");
-    }
+  Sentence += _T(",");
+  if ( easting == East )
+  {
+    Sentence += _T("E");
+  }
+  else if ( easting == West )
+  {
+    Sentence += _T("W");
   }
   return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( NMEA0183_BOOLEAN boolean )
 {
-  if ( this != &boolean ) {
-    Sentence += _T(",");
-    if ( boolean == NTrue )
-    {
-      Sentence += _T("A");
-    }
-    else if ( boolean == NFalse )
-    {
-      Sentence += _T("V");
-    }
+  Sentence += _T(",");
+  if ( boolean == NTrue )
+  {
+    Sentence += _T("A");
+  }
+  else if ( boolean == NFalse )
+  {
+    Sentence += _T("V");
   }
   return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( LATLONG &source )
 {
-  if ( this != &source ) {
-    source.Write( *this );
-  }
+  source.Write( *this );
   return *this;
 }
