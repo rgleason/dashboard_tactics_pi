@@ -182,7 +182,7 @@ bool GLL::Write( SENTENCE& sentence )
    return( TRUE );
 }
 
-const GLL &operator = ( const GLL &source )
+const GLL& GLL::operator = ( const GLL &source )
 {
   if ( this != &source ) {
     Position    = source.Position;
