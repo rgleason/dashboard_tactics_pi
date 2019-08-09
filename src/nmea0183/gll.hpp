@@ -70,7 +70,7 @@ class GLL : public RESPONSE
       ** Operators
       */
 
-      const GLL &operator = ( const GLL &source );
+      // virtual const GLL &operator = ( const GLL &source );
 };
 
 #endif // GLL_CLASS_HEADER
