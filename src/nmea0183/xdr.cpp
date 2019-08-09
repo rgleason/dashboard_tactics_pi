@@ -34,7 +34,7 @@
 //IMPLEMENT_DYNAMIC( XDR, RESPONSE )
 
 XDR::XDR()
-{  
+{
    Mnemonic = _T("XDR");
    Empty();
 }
@@ -68,9 +68,9 @@ bool XDR::Parse( const SENTENCE& sentence )
    **        | |   | |            |
    ** $--XDR,a,x.x,a,c--c, ..... *hh<CR><LF>
    **
-   ** Field Number: 
+   ** Field Number:
    **  1) Transducer Type
-   **  2) Measurement Data 
+   **  2) Measurement Data
    **  3) Unit of Measurement, Celcius
    **  4) Name of transducer
    **  ...
@@ -112,7 +112,7 @@ bool XDR::Write( SENTENCE& sentence )
    /*
    ** Let the parent do its thing
    */
-   
+
    RESPONSE::Write( sentence );
 
    sentence += TransducerCnt;
@@ -131,16 +131,14 @@ bool XDR::Write( SENTENCE& sentence )
 
 const XDR& XDR::operator = ( const XDR &source )
 {
-//   ASSERT_VALID( this );
-
-  TransducerCnt       = source.TransducerCnt;
-   for (int idx = 0; idx < TransducerCnt; idx++) {
-         TransducerInfo[idx].TransducerType = source.TransducerInfo[idx].TransducerType;
-         TransducerInfo[idx].MeasurementData = source.TransducerInfo[idx].MeasurementData;
-         TransducerInfo[idx].UnitOfMeasurement = source.TransducerInfo[idx].UnitOfMeasurement;
-         TransducerInfo[idx].TransducerName = source.TransducerInfo[idx].TransducerName;
-   }
-
-  
-  return( *this );
+  if ( this != &source ) {
+    TransducerCnt = source.TransducerCnt;
+    for (int idx = 0; idx < TransducerCnt; idx++) {
+      TransducerInfo[idx].TransducerType    = source.TransducerInfo[idx].TransducerType;
+      TransducerInfo[idx].MeasurementData   = source.TransducerInfo[idx].MeasurementData;
+      TransducerInfo[idx].UnitOfMeasurement = source.TransducerInfo[idx].UnitOfMeasurement;
+      TransducerInfo[idx].TransducerName    = source.TransducerInfo[idx].TransducerName;
+    }
+  }
+  return *this;
 }

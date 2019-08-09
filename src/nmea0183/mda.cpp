@@ -126,10 +126,9 @@ bool MDA::Write( SENTENCE& sentence )
 
 const MDA& MDA::operator = ( const MDA &source )
 {
-//   ASSERT_VALID( this );
-
-   Pressure       = source.Pressure;
-   UnitOfMeasurement = source.UnitOfMeasurement;
-
-   return( *this );
+  if ( this != &source ) {
+    Pressure       = source.Pressure;
+    UnitOfMeasurement = source.UnitOfMeasurement;
+  }
+  return *this;
 }

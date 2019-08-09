@@ -152,7 +152,7 @@ double SENTENCE::Double( int field_number ) const
     wxCharBuffer abuf = Field( field_number).ToUTF8();
     if( !abuf.data() || abuf.length() == 0 )
         return (999.);
- 
+
     return( ::atof( abuf.data() ));
 }
 
@@ -268,7 +268,7 @@ int SENTENCE::Integer( int field_number ) const
     wxCharBuffer abuf = Field( field_number).ToUTF8();
     if( !abuf.data() )                            // badly formed sentence?
         return 0;
-    
+
     return( ::atoi( abuf.data() ));
 }
 
@@ -617,77 +617,67 @@ const SENTENCE& SENTENCE::operator += ( TRANSDUCER_TYPE transducer )
 
 const SENTENCE& SENTENCE::operator += ( NORTHSOUTH northing )
 {
-//   ASSERT_VALID( this );
-
+  if ( this != &northing ) {
     Sentence += _T(",");
-
-   if ( northing == North )
-   {
-       Sentence += _T("N");
-   }
-   else if ( northing == South )
-   {
-       Sentence += _T("S");
-   }
-
-   return( *this );
+    if ( northing == North )
+    {
+      Sentence += _T("N");
+    }
+    else if ( northing == South )
+    {
+      Sentence += _T("S");
+    }
+  }
+  return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( int value )
 {
-//   ASSERT_VALID( this );
-
-   wxString temp_string;
-
-   temp_string.Printf(_T("%d"), value );
-
-   Sentence += _T(",");
-   Sentence += temp_string;
-
-   return( *this );
+  if ( this != &value ) {
+    wxString temp_string;
+    temp_string.Printf(_T("%d"), value );
+    Sentence += _T(",");
+    Sentence += temp_string;
+  }
+  return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( EASTWEST easting )
 {
-//   ASSERT_VALID( this );
-
+  if ( this != &easting ) {
     Sentence += _T(",");
-
-   if ( easting == East )
-   {
-       Sentence += _T("E");
-   }
-   else if ( easting == West )
-   {
-       Sentence += _T("W");
-   }
-
-   return( *this );
+    if ( easting == East )
+    {
+      Sentence += _T("E");
+    }
+    else if ( easting == West )
+    {
+      Sentence += _T("W");
+    }
+  }
+  return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( NMEA0183_BOOLEAN boolean )
 {
-//   ASSERT_VALID( this );
-
+  if ( this != &boolean ) {
     Sentence += _T(",");
-
-   if ( boolean == NTrue )
-   {
-       Sentence += _T("A");
-   }
-   else if ( boolean == NFalse )
-   {
-       Sentence += _T("V");
-   }
-
-   return( *this );
+    if ( boolean == NTrue )
+    {
+      Sentence += _T("A");
+    }
+    else if ( boolean == NFalse )
+    {
+      Sentence += _T("V");
+    }
+  }
+  return *this;
 }
 
 const SENTENCE& SENTENCE::operator += ( LATLONG &source )
 {
-//   ASSERT_VALID( this );
-
-   source.Write( *this );
-
-   return( *this );
+  if ( this != &source ) {
+    source.Write( *this );
+  }
+  return *this;
 }

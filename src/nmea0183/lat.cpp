@@ -135,9 +135,9 @@ void LATITUDE::Write( SENTENCE& sentence )
 
 const LATITUDE& LATITUDE::operator = ( const LATITUDE &source )
 {
-
-   Latitude = source.Latitude;
-   Northing = source.Northing;
-
-   return( *this );
+  if ( this != &source ) {
+    Latitude = source.Latitude;
+    Northing = source.Northing;
+  }
+  return *this;
 }

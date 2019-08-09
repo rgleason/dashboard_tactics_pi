@@ -69,10 +69,10 @@ bool MTW::Parse( const SENTENCE& sentence )
    ** MTW - Water Temperature
    **
    **        1   2 3
-   **        |   | | 
+   **        |   | |
    ** $--MTW,x.x,C*hh<CR><LF>
    **
-   ** Field Number: 
+   ** Field Number:
    **  1) Degrees
    **  2) Unit of Measurement, Celcius
    **  3) Checksum
@@ -86,7 +86,7 @@ bool MTW::Parse( const SENTENCE& sentence )
    {
       SetErrorMessage( _T("Invalid Checksum") );
       return( FALSE );
-   } 
+   }
 
    Temperature       = sentence.Double( 1 );
    UnitOfMeasurement = sentence.Field( 2 );
@@ -101,7 +101,7 @@ bool MTW::Write( SENTENCE& sentence )
    /*
    ** Let the parent do its thing
    */
-   
+
    RESPONSE::Write( sentence );
 
    sentence += Temperature;
@@ -114,10 +114,9 @@ bool MTW::Write( SENTENCE& sentence )
 
 const MTW& MTW::operator = ( const MTW &source )
 {
-//   ASSERT_VALID( this );
-
-   Temperature       = source.Temperature;
-   UnitOfMeasurement = source.UnitOfMeasurement;
-
-   return( *this );
+  if ( this != &source ) {
+    Temperature       = source.Temperature;
+    UnitOfMeasurement = source.UnitOfMeasurement;
+  }
+  return *this;
 }

@@ -227,7 +227,7 @@ bool RMB::Write( SENTENCE& sentence )
 
 const RMB& RMB::operator = ( const RMB &source )
 {
-
+  if ( this != &source ) {
     IsDataValid                     = source.IsDataValid;
     CrossTrackError                 = source.CrossTrackError;
     DirectionToSteer                = source.DirectionToSteer;
@@ -242,6 +242,6 @@ const RMB& RMB::operator = ( const RMB &source )
     if ( isVersion2dot3OrLater )
         FAA_ModeIndicator = source.FAA_ModeIndicator;
 #endif // _TACTICSPI_H_
-
-    return( *this );
+  }
+  return *this;
 }

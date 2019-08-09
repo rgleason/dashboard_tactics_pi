@@ -91,7 +91,7 @@ bool ZDA::Parse( const SENTENCE& sentence )
    {
       SetErrorMessage( _T("Invalid Checksum") );
       return( FALSE );
-   } 
+   }
 
    UTCTime               = sentence.Field( 1 );
    Day                   = sentence.Integer( 2 );
@@ -110,7 +110,7 @@ bool ZDA::Write( SENTENCE& sentence )
    /*
    ** Let the parent do its thing
    */
-   
+
    RESPONSE::Write( sentence );
 
    sentence += UTCTime;
@@ -127,14 +127,13 @@ bool ZDA::Write( SENTENCE& sentence )
 
 const ZDA& ZDA::operator = ( const ZDA &source )
 {
-//   ASSERT_VALID( this );
-
-   UTCTime               = source.UTCTime;
-   Day                   = source.Day;
-   Month                 = source.Month;
-   Year                  = source.Year;
-   LocalHourDeviation    = source.LocalHourDeviation;
-   LocalMinutesDeviation = source.LocalMinutesDeviation;
-
-   return( *this );
+  if ( this != &source ) {
+    UTCTime               = source.UTCTime;
+    Day                   = source.Day;
+    Month                 = source.Month;
+    Year                  = source.Year;
+    LocalHourDeviation    = source.LocalHourDeviation;
+    LocalMinutesDeviation = source.LocalMinutesDeviation;
+  }
+  return *this;
 }

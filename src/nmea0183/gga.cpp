@@ -159,17 +159,16 @@ bool GGA::Write( SENTENCE& sentence )
 
 const GGA& GGA::operator = ( const GGA &source )
 {
-//   ASSERT_VALID( this );
-
-   UTCTime                         = source.UTCTime;
-   Position                        = source.Position;
-   GPSQuality                      = source.GPSQuality;
-   NumberOfSatellitesInUse         = source.NumberOfSatellitesInUse;
-   HorizontalDilutionOfPrecision   = source.HorizontalDilutionOfPrecision;
-   AntennaAltitudeMeters           = source.AntennaAltitudeMeters;
-   GeoidalSeparationMeters         = source.GeoidalSeparationMeters;
-   AgeOfDifferentialGPSDataSeconds = source.AgeOfDifferentialGPSDataSeconds;
-   DifferentialReferenceStationID  = source.DifferentialReferenceStationID;
-
-   return( *this );
+  if ( this != &source ) {
+    UTCTime                         = source.UTCTime;
+    Position                        = source.Position;
+    GPSQuality                      = source.GPSQuality;
+    NumberOfSatellitesInUse         = source.NumberOfSatellitesInUse;
+    HorizontalDilutionOfPrecision   = source.HorizontalDilutionOfPrecision;
+    AntennaAltitudeMeters           = source.AntennaAltitudeMeters;
+    GeoidalSeparationMeters         = source.GeoidalSeparationMeters;
+    AgeOfDifferentialGPSDataSeconds = source.AgeOfDifferentialGPSDataSeconds;
+    DifferentialReferenceStationID  = source.DifferentialReferenceStationID;
+  }
+  return( *this );
 }

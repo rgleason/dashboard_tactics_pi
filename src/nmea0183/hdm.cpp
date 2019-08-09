@@ -107,7 +107,8 @@ bool HDM::Write( SENTENCE& sentence )
 
 const HDM& HDM::operator = ( const HDM &source )
 {
-      DegreesMagnetic = source.DegreesMagnetic;
-
-   return( *this );
+  if ( this != &source ) {
+    DegreesMagnetic = source.DegreesMagnetic;
+  }
+  return *this;
 }

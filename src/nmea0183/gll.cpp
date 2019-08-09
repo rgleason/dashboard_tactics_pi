@@ -189,5 +189,5 @@ const GLL &operator = ( const GLL &source )
     UTCTime     = source.UTCTime;
     IsDataValid = source.IsDataValid;
   }
-   return *this;
+  return *this;
 }

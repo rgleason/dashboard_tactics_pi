@@ -94,7 +94,7 @@ bool VWR::Parse( const SENTENCE& sentence )
    {
       SetErrorMessage( _T("Invalid Checksum") );
       return( FALSE );
-   } 
+   }
 
    WindDirectionMagnitude = sentence.Double( 1 );
    DirectionOfWind = sentence.LeftOrRight( 2 );
@@ -112,7 +112,7 @@ bool VWR::Write( SENTENCE& sentence )
    /*
    ** Let the parent do its thing
    */
-   
+
    RESPONSE::Write( sentence );
 
    sentence += WindDirectionMagnitude;
@@ -127,13 +127,12 @@ bool VWR::Write( SENTENCE& sentence )
 
 const VWR& VWR::operator = ( const VWR &source )
 {
-//   ASSERT_VALID( this );
- 
-   WindDirectionMagnitude   = source.WindDirectionMagnitude;
-   DirectionOfWind			= source.DirectionOfWind;
-   WindSpeedKnots			= source.WindSpeedKnots;
-   WindSpeedms				= source.WindSpeedms;
-   WindSpeedKmh				= source.WindSpeedKmh;
-
-   return( *this );
+  if ( this != &source ) {
+    WindDirectionMagnitude = source.WindDirectionMagnitude;
+    DirectionOfWind        = source.DirectionOfWind;
+    WindSpeedKnots         = source.WindSpeedKnots;
+    WindSpeedms            = source.WindSpeedms;
+    WindSpeedKmh           = source.WindSpeedKmh;
+  }
+  return *this;
 }

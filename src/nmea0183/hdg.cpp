@@ -119,11 +119,12 @@ bool HDG::Write( SENTENCE& sentence )
 
 const HDG& HDG::operator = ( const HDG &source )
 {
-   MagneticSensorHeadingDegrees = source.MagneticSensorHeadingDegrees;
-   MagneticDeviationDegrees     = source.MagneticDeviationDegrees;
-   MagneticDeviationDirection   = source.MagneticDeviationDirection;
-   MagneticVariationDegrees     = source.MagneticVariationDegrees;
-   MagneticVariationDirection   = source.MagneticVariationDirection;
-
-   return( *this );
+  if ( this != &source ) {
+    MagneticSensorHeadingDegrees = source.MagneticSensorHeadingDegrees;
+    MagneticDeviationDegrees     = source.MagneticDeviationDegrees;
+    MagneticDeviationDirection   = source.MagneticDeviationDirection;
+    MagneticVariationDegrees     = source.MagneticVariationDegrees;
+    MagneticVariationDirection   = source.MagneticVariationDirection;
+  }
+  return *this;
 }

@@ -107,7 +107,8 @@ bool HDT::Write( SENTENCE& sentence )
 
 const HDT& HDT::operator = ( const HDT &source )
 {
-   DegreesTrue = source.DegreesTrue;
-
-   return( *this );
+  if ( this != &source ) {
+    DegreesTrue = source.DegreesTrue;
+  }
+  return *this;
 }

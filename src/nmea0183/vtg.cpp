@@ -164,12 +164,11 @@ bool VTG::Write( SENTENCE& sentence )
 
 const VTG& VTG::operator = ( const VTG &source )
 {
-//   ASSERT_VALID( this );
-
-   TrackDegreesTrue       = source.TrackDegreesTrue;
-   TrackDegreesMagnetic   = source.TrackDegreesMagnetic;
-   SpeedKnots             = source.SpeedKnots;
-   SpeedKilometersPerHour = source.SpeedKilometersPerHour;
-
-   return( *this );
+  if ( this != &source ) {
+    TrackDegreesTrue       = source.TrackDegreesTrue;
+    TrackDegreesMagnetic   = source.TrackDegreesMagnetic;
+    SpeedKnots             = source.SpeedKnots;
+    SpeedKilometersPerHour = source.SpeedKilometersPerHour;
+  }
+  return *this;
 }

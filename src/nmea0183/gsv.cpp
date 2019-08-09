@@ -165,17 +165,18 @@ bool GSV::Write( SENTENCE& sentence )
 
 const GSV& GSV::operator = ( const GSV &source )
 {
-   NumberOfMessages = source.NumberOfMessages;
-   MessageNumber = source.MessageNumber;
-   SatsInView = source.SatsInView;
+  if ( this != &source ) {
+    NumberOfMessages = source.NumberOfMessages;
+    MessageNumber = source.MessageNumber;
+    SatsInView = source.SatsInView;
 
-   for (int idx = 0; idx < 4; idx++)
-   {
+    for (int idx = 0; idx < 4; idx++)
+    {
          SatInfo[idx].SatNumber = source.SatInfo[idx].SatNumber;
          SatInfo[idx].ElevationDegrees = source.SatInfo[idx].ElevationDegrees;
          SatInfo[idx].AzimuthDegreesTrue = source.SatInfo[idx].AzimuthDegreesTrue;
          SatInfo[idx].SignalToNoiseRatio = source.SatInfo[idx].SignalToNoiseRatio;
-   }
-
-   return( *this );
+    }
+  }
+  return *this;
 }

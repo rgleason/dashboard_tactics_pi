@@ -111,9 +111,9 @@ bool WPL::Write( SENTENCE& sentence )
 
 const WPL& WPL::operator = ( const WPL &source )
 {
-
-   Position = source.Position;
-   To       = source.To;
-
-   return( *this );
+  if ( this != &source ) {
+    Position = source.Position;
+    To       = source.To;
+  }
+  return *this;
 }

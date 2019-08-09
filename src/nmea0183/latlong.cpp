@@ -83,9 +83,9 @@ void LATLONG::Write( SENTENCE& sentence )
 
 const LATLONG& LATLONG::operator = ( const LATLONG &source )
 {
-
-   Latitude  = source.Latitude;
-   Longitude = source.Longitude;
-
-   return( *this );
+  if ( this != &source ) {
+    Latitude  = source.Latitude;
+    Longitude = source.Longitude;
+  }
+  return *this;
 }

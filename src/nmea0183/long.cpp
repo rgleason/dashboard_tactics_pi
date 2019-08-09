@@ -135,9 +135,9 @@ void LONGITUDE::Write( SENTENCE& sentence )
 
 const LONGITUDE& LONGITUDE::operator = ( const LONGITUDE &source )
 {
-
-   Longitude = source.Longitude;
-   Easting   = source.Easting;
-
-   return( *this );
+  if ( this != &source ) {
+    Longitude = source.Longitude;
+    Easting   = source.Easting;
+  }
+  return *this;
 }
