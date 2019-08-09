@@ -181,3 +181,13 @@ bool GLL::Write( SENTENCE& sentence )
 
    return( TRUE );
 }
+
+const GLL &operator = ( const GLL &source )
+{
+  if ( this != &source ) {
+    Position    = source.Position;
+    UTCTime     = source.UTCTime;
+    IsDataValid = source.IsDataValid;
+  }
+   return *this;
+}
