@@ -70,7 +70,15 @@ class GLL : public RESPONSE
       ** Operators
       */
 
-      // virtual const GLL &operator = ( const GLL &source );
+      virtual const GLL &operator = ( const GLL &source )
+      {
+        if ( this != &source ) {
+          Position    = source.Position;
+          UTCTime     = source.UTCTime;
+          IsDataValid = source.IsDataValid;
+        }
+         return( *this );
+      }
 };
 
 #endif // GLL_CLASS_HEADER

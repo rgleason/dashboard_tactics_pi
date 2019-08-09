@@ -181,16 +181,3 @@ bool GLL::Write( SENTENCE& sentence )
 
    return( TRUE );
 }
-
-virtual const GLL &GLL::operator = ( const GLL &source )
-{
-//   ASSERT_VALID( this );
-
-  if ( this != &source ) {
-    Position    = source.Position;
-    UTCTime     = source.UTCTime;
-    IsDataValid = source.IsDataValid;
-  }
-
-   return( *this );
-}
