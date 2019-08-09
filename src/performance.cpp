@@ -307,7 +307,6 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
         }
         else {
             if (!std::isnan(mSTW) && mBRG >= 0 && !std::isnan(mHDT)) {
-                double cmg = BoatPolar->Calc_CMG(mHDT, mSTW, mBRG);
                 TargetxMG TCMGMax, TCMGMin;
                 TCMGMax.TargetAngle = NAN;
                 if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG >= 0) {
@@ -346,7 +345,7 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	windSpeed = -1;
 	windAngle = -1;
 	windReference = wxEmptyString;
-    dist = 0;
+    dist = 0.0;
     m_bDataIsValid = false;
 
 	timeout = 5;
@@ -376,6 +375,7 @@ Polar::Polar(tactics_pi* parent)
   mode = 0;
   windSpeed = -1;
   windAngle = -1;
+  dist = 0.0;
   windReference = wxEmptyString;
   m_bDataIsValid = false;
 
@@ -701,12 +701,11 @@ void Polar::CalculateLineAverages(int n, int min, int max)
 {
 	int j;
 	int cur_min;
-	int count;
 	j = min;
 	cur_min = min;
 	while (j <= max) {
 		j++;
-		count = 0;
+		int count = 0;
 		while (j <= max && std::isnan(windsp[j].winddir[n])) // find next cell which is NOT empty
 		{
 			j++;
@@ -887,24 +886,19 @@ TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 	TCMG.TargetAngle = -999;
 	TCMG.TargetSpeed = -999;
 	double cmg = 0;
-
 	int i_tws = wxRound(TWS);
     double range = getSignedDegRange(TWD, BRG);
-    double absrange = range < 0 ? -range : range;
-    double diffAngle = 0;
     int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
 	int k = 0;
-    int curAngle = 0;
     int start = 0;
-    int polang;
     int iIargetAngle = -999;
     start = vPolarAngle - 90; 
     if (start < 0) start += 360;  // oder 180 ?
     for (k = 0; k <= 180; k++){
-      curAngle = k + start;
+      int curAngle = k + start;
       if (curAngle > 359) curAngle -= 360;
-      polang = curAngle;
-      diffAngle = curAngle - range;
+      int polang = curAngle;
+      double diffAngle = curAngle - range;
       if (diffAngle > 359) diffAngle -= 360;
       if (diffAngle < -359) diffAngle += 360;
       if (!std::isnan(windsp[i_tws].winddir[polang])){
@@ -1980,7 +1974,7 @@ void TacticsInstrument_PolarPerformance::OnLogDataButtonPressed(wxCommandEvent& 
 ****************************************************************************************/
 bool TacticsInstrument_PolarPerformance::LoadConfig(void)
 {
-  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+  wxFileConfig *pConf = m_pconfig;
 
   if (pConf) {
     pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/PolarPerformance"));
