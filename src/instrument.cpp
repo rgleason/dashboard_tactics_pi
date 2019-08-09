@@ -56,7 +56,7 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
       m_title = title;
 #endif // _TACTICSPI_H_
       m_cap_flag = cap_flag;
-
+      instrumentTypeId = 0;
       SetBackgroundStyle( wxBG_STYLE_CUSTOM );
 #ifdef _TACTICSPI_H_
       SetDrawSoloInPane( drawSoloInPane );
