@@ -47,8 +47,8 @@ class XDR : public RESPONSE
 {
     typedef struct
     {
-        wxString  TransducerType;
         double    MeasurementData;
+        wxString  TransducerType;
         wxString  UnitOfMeasurement;
         wxString TransducerName;
     } TRANSDUCER_INFO;
