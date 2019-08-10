@@ -65,34 +65,46 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 
 	m_pconfig = GetOCPNConfigObject();
 
-	LoadConfig();
 	m_Bearing = NAN;
-    m_lat = NAN;
-    m_lon = NAN;
+	m_ExtraValueDTW = NAN;
 	m_CurrDir = NAN;
 	m_CurrSpeed = NAN;
-	m_ExtraValueDTW = NAN;
-	m_Leeway = 0;
-	m_AngleStart = 0;
-    m_ExpSmoothDegRange = 0; 
-    mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
-	m_Cog = -999;
-	m_Hdt = -999;
-	m_diffCogHdt = 0;
-	m_predictedSog = NAN;
+	m_AngleStart = 0.0;
+    m_currAngleStart = NAN;
 	m_TWA = NAN;
+	m_TWD = NAN;
 	m_AWA = -999;
 	m_TWS = NAN;
-	m_TWD = NAN;
-	m_StW = 0.0;
+	m_Hdt = -999;
+	m_Leeway = 0;
 	m_PolSpd = NAN;
-    m_ToWpt = _T("---");
 	m_PolSpd_Percent = NAN;
-	alpha_diffCogHdt = 0.1;
-	m_ExpSmoothDiffCogHdt = 0;
-	m_oldExpSmoothDiffCogHdt = 0;
-    m_LaylineDegRange = 0;
-	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = 0;
+	m_diffCogHdt = 0.0;
+    m_lat = NAN;
+    m_lon = NAN;
+	m_StW = 0.0;
+	m_predictedSog = NAN;
+    m_BearingUnit = wxEmptyString;
+    m_ExtraValueDTWUnit = wxEmptyString;
+    m_ToWpt = _T("---");
+    m_CurrDirUnit = wxEmptyString;
+    m_CurrSpeedUnit = wxEmptyString;
+    m_StWUnit = wxEmptyString;
+    m_curTack = wxEmptyString;
+    m_targetTack = wxEmptyString;
+    m_LeewayUnit = wxEmptyString;
+    m_ExpSmoothDegRange = 0.0; 
+    alpha_diffCogHdt = 0.1;
+    m_LaylineDegRange = 0.0;
+    for (int i = 0; i < COGRANGE; i++)
+        m_COGRange[i] = 0.0;
+    m_Cog = -999.9;
+    m_ExpSmoothDiffCogHdt = 0.0;
+    m_oldExpSmoothDiffCogHdt = 0.0;
+    mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
+
+	LoadConfig();
+
 }
 /***************************************************************************************
 ****************************************************************************************/
@@ -555,10 +567,9 @@ void TacticsInstrument_PolarCompass::DrawPolar(wxGCDC*dc)
             if (polval[i]>max) max = polval[i];
         }
         wxPoint currpoints[POLSTEPS];
-        double rad, anglevalue;
         for ( i = 0; i < POLSTEPS; i++){
-            anglevalue = deg2rad(m_TWD + i*2) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-            rad = m_radius*0.69*polval[i] / max;
+            double anglevalue = deg2rad(m_TWD + i*2) + deg2rad(m_AngleStart - ANGLE_OFFSET);
+            double rad = m_radius*0.69*polval[i] / max;
             currpoints[i].x = m_cx + (rad * cos(anglevalue));
             currpoints[i].y = m_cy + (rad * sin(anglevalue));
         }
