@@ -74,7 +74,7 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 	m_TWD = NAN;
 	m_AWA = -999;
 	m_TWS = NAN;
-	m_Hdt = -999;
+	m_Hdt = -999.9;
 	m_Leeway = 0;
 	m_PolSpd = NAN;
 	m_PolSpd_Percent = NAN;

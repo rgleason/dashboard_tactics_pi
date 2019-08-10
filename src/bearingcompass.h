@@ -65,17 +65,37 @@ public:
 
     void SetData(unsigned long long, double, wxString);
     bool SaveConfig(void);
-    double m_Bearing,  m_ExtraValueDTW, m_CurrDir, m_CurrSpeed, m_currAngleStart, m_TWA, m_TWD, m_AWA,m_TWS, m_Hdt, m_Leeway;
-    //double m_RMBlat, m_RMBlon;
+    double m_Bearing;
+    double m_ExtraValueDTW;
+    double m_CurrDir;
+    double m_CurrSpeed;
+    double m_currAngleStart;
+    double m_TWA;
+    double m_TWD;
+    double m_AWA;
+    double m_TWS;
+    double m_Hdt;
+    double m_Leeway;
     double m_diffCogHdt;
-    double m_lat, m_lon,m_StW,m_predictedSog;
-    //double m_AngleStart;
-    wxString m_BearingUnit, m_ExtraValueDTWUnit,  m_ToWpt, m_CurrDirUnit, m_CurrSpeedUnit, m_curTack, m_targetTack, m_LeewayUnit;
-    //double m_ExpSmoothDegRange, m_oldExpSmoothDegRange, m_alphaDeltaCog, alpha_diffCogHdt ;
-    double m_ExpSmoothDegRange, alpha_diffCogHdt;
-    //double m_LaylineDegRange, m_minLaylineDegRange, m_maxLaylineDegRange, m_COGRange[COGRANGE], m_Cog;
-    double m_LaylineDegRange, m_COGRange[COGRANGE], m_Cog;
-    double	m_ExpSmoothDiffCogHdt, m_oldExpSmoothDiffCogHdt;
+    double m_lat;
+    double m_lon;
+    double m_StW;
+    double m_predictedSog;
+    wxString m_BearingUnit;
+    wxString m_ExtraValueDTWUnit;
+    wxString m_ToWpt;
+    wxString m_CurrDirUnit;
+    wxString m_CurrSpeedUnit;
+    wxString m_curTack;
+    wxString m_targetTack;
+    wxString m_LeewayUnit;
+    double m_ExpSmoothDegRange;
+    double alpha_diffCogHdt;
+    double m_LaylineDegRange;
+    double m_COGRange[COGRANGE];
+    double m_Cog;
+    double m_ExpSmoothDiffCogHdt;
+    double m_oldExpSmoothDiffCogHdt;
     ExpSmooth  *mExpSmDegRange;
 
 private:

@@ -75,6 +75,7 @@ protected:
     double             c_lon;
     double             s_lat;
     double             s_lon;
+    int                m_DataHeight;
 #ifdef _TACTICSPI_H_
     unsigned long long m_cap_flag1;
     unsigned long long m_cap_flag2;
@@ -86,7 +87,6 @@ protected:
     int                m_cap_flag3;
     int                m_cap_flag4;
 #endif // _TACTICSPI_H_
-    int                m_DataHeight;
 
     void Draw(wxGCDC* dc);
 };

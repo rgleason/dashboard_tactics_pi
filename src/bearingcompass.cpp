@@ -66,33 +66,42 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 
 	m_pconfig = GetOCPNConfigObject();
 
-	LoadConfig();
 	m_Bearing = NAN;
-    m_lat = NAN;
-    m_lon = NAN;
+	m_ExtraValueDTW = NAN;
 	m_CurrDir = NAN;
 	m_CurrSpeed = NAN;
-	m_ExtraValueDTW = NAN;
-    m_MainValue = NAN;
-	m_Leeway = 0;
-	m_AngleStart = 0;
-    m_ExpSmoothDegRange = 0;
-    mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
-	m_Cog = -999;
-	m_Hdt = -999;
-	m_diffCogHdt = 0;
-	m_predictedSog = NAN;
+    m_currAngleStart = NAN;
 	m_TWA = NAN;
+	m_TWD = NAN;
 	m_AWA = -999;
 	m_TWS = NAN;
-    m_TWD = NAN;
+	m_Hdt = -999.9;
+	m_Leeway = 0;
+	m_diffCogHdt = 0;
+    m_lat = NAN;
+    m_lon = NAN;
     m_StW = 0.0;
+	m_predictedSog = NAN;
+    m_BearingUnit = wxEmptyString;
+    m_ExtraValueDTWUnit = wxEmptyString;
     m_ToWpt = _T("---");
-	alpha_diffCogHdt = 0.1;
-	m_ExpSmoothDiffCogHdt = 0;
-	m_oldExpSmoothDiffCogHdt = 0;
-    m_LaylineDegRange = 0;
-	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = 0;
+    m_CurrDirUnit = wxEmptyString;
+    m_CurrSpeedUnit = wxEmptyString;
+    m_curTack = wxEmptyString;
+    m_targetTack = wxEmptyString;
+    m_LeewayUnit = wxEmptyString;
+    m_ExpSmoothDegRange = 0.0;
+    alpha_diffCogHdt = 0.1;
+    m_LaylineDegRange = 0.0;
+    for (int i = 0; i < COGRANGE; i++)
+        m_COGRange[i] = 0;
+	m_Cog = -999.9;
+	m_ExpSmoothDiffCogHdt = 0.0;
+	m_oldExpSmoothDiffCogHdt = 0.0;
+    mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
+
+	LoadConfig();
+
 }
 /***************************************************************************************
 ****************************************************************************************/
