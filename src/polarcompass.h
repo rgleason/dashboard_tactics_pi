@@ -68,7 +68,6 @@ public:
     double m_ExtraValueDTW;
     double m_CurrDir;
     double m_CurrSpeed;
-    double m_AngleStart;
     double m_currAngleStart;
     double m_TWA;
     double m_TWD;

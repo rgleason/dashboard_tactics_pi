@@ -1501,8 +1501,7 @@ wxJSONValue::GetMemberNames() const
 
     wxArrayString arr;
     if ( data->m_type == wxJSONTYPE_OBJECT )   {
-        wxJSONInternalMap::iterator it;
-        for ( it = data->m_valMap.begin(); it != data->m_valMap.end(); it++ )  {
+        for ( wxJSONInternalMap::iterator it = data->m_valMap.begin(); it != data->m_valMap.end(); ++it )  {
             arr.Add( it->first );
         }
     }
@@ -3263,12 +3262,12 @@ wxJSONValue::ArrayToMemoryBuff( const wxJSONValue& value )
     if ( value.IsArray() )  {
         int len = value.Size();
         for ( int i = 0; i < len; i++ )  {
-            short int byte; unsigned char c;
+            short int byte;
             // we do not use opertaor [] because it is not const
             // bool r = value[i].AsShort( byte );
             bool r = value.ItemAt(i).AsShort( byte );
             if ( r && ( byte >= 0 && byte <= 255 ) )  {
-                c = (unsigned char) byte;
+                unsigned char c = (unsigned char) byte;
                 buff.AppendByte( c );
             }
         }

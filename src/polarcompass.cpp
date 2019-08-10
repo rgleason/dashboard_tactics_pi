@@ -69,7 +69,6 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 	m_ExtraValueDTW = NAN;
 	m_CurrDir = NAN;
 	m_CurrSpeed = NAN;
-	m_AngleStart = 0.0;
     m_currAngleStart = NAN;
 	m_TWA = NAN;
 	m_TWD = NAN;
