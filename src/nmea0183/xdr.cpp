@@ -38,8 +38,8 @@ XDR::XDR()
    Mnemonic = _T("XDR");
    TransducerCnt=0;
    TransducerInfo[0].TransducerType = wxEmptyString;
-   TransducerInfo[0].MeasurementData = 0.0;
-   TransducerInfo[0].UnitOfMeasurement = wxEmptyString;
+   TransducerInfo[0].TransducerData = 0.0;
+   TransducerInfo[0].TransducerUnit = wxEmptyString;
    TransducerInfo[0].TransducerName = wxEmptyString;
    Empty();
 }
@@ -56,8 +56,8 @@ void XDR::Empty( void )
      TransducerCnt=0;
      for (int idx = 0; idx < MaxTransducerCnt; idx++) {
          TransducerInfo[idx].TransducerType = wxEmptyString;
-         TransducerInfo[idx].MeasurementData = 0.0;
-         TransducerInfo[idx].UnitOfMeasurement = wxEmptyString;
+         TransducerInfo[idx].TransducerData = 0.0;
+         TransducerInfo[idx].TransducerUnit = wxEmptyString;
          TransducerInfo[idx].TransducerName = wxEmptyString;
      }
 }
@@ -102,8 +102,8 @@ bool XDR::Parse( const SENTENCE& sentence )
     for (int idx = 0; idx < TransducerCnt; idx++)
    {
          TransducerInfo[idx].TransducerType = sentence.Field( idx*4+1 );
-         TransducerInfo[idx].MeasurementData = sentence.Double( idx*4+2 );
-         TransducerInfo[idx].UnitOfMeasurement = sentence.Field( idx*4+3 );
+         TransducerInfo[idx].TransducerData = sentence.Double( idx*4+2 );
+         TransducerInfo[idx].TransducerUnit = sentence.Field( idx*4+3 );
          TransducerInfo[idx].TransducerName = sentence.Field( idx*4+4 );
    }
 
@@ -123,8 +123,8 @@ bool XDR::Write( SENTENCE& sentence )
    sentence += TransducerCnt;
    for (int idx = 0; idx < TransducerCnt; idx++) {
          sentence += TransducerInfo[idx].TransducerType;
-         sentence += TransducerInfo[idx].MeasurementData;
-         sentence += TransducerInfo[idx].UnitOfMeasurement;
+         sentence += TransducerInfo[idx].TransducerData;
+         sentence += TransducerInfo[idx].TransducerUnit;
          sentence += TransducerInfo[idx].TransducerName;
          //sentence.Finish();
    }
@@ -139,10 +139,10 @@ const XDR& XDR::operator = ( const XDR &source )
   if ( this != &source ) {
     TransducerCnt = source.TransducerCnt;
     for (int idx = 0; idx < TransducerCnt; idx++) {
-      TransducerInfo[idx].TransducerType    = source.TransducerInfo[idx].TransducerType;
-      TransducerInfo[idx].MeasurementData   = source.TransducerInfo[idx].MeasurementData;
-      TransducerInfo[idx].UnitOfMeasurement = source.TransducerInfo[idx].UnitOfMeasurement;
-      TransducerInfo[idx].TransducerName    = source.TransducerInfo[idx].TransducerName;
+      TransducerInfo[idx].TransducerType = source.TransducerInfo[idx].TransducerType;
+      TransducerInfo[idx].TransducerData = source.TransducerInfo[idx].TransducerData;
+      TransducerInfo[idx].TransducerUnit = source.TransducerInfo[idx].TransducerUnit;
+      TransducerInfo[idx].TransducerName = source.TransducerInfo[idx].TransducerName;
     }
   }
   return *this;

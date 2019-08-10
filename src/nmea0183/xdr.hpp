@@ -61,9 +61,9 @@ class XDR : public RESPONSE
     struct
     {
         wxString  TransducerType;
-        double    MeasurementData;
-        wxString  UnitOfMeasurement;
-        wxString TransducerName;
+        double    TransducerData;
+        wxString  TransducerUnit;
+        wxString  TransducerName;
     } TransducerInfo[MaxTransducerCnt];
     
 
