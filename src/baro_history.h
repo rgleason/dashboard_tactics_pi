@@ -73,16 +73,13 @@ public:
 
 
 private:
-    int m_soloInPane ;
 #ifdef _TACTICSPI_H_
     double m_LastReceivedPressure;
     wxDateTime::Tm m_LastReceivedTime;
     int m_PressRecCnt;
     int m_PressStartVal[BARO_START_AVG_CNT];
 #else
-    int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
-    int m_isNULL;
-    int m_WindDirShift;
+    int m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
 #endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     wxFileConfig  *m_pconfig;
@@ -98,13 +95,11 @@ private:
 protected:
 #ifndef _TACTICSPI_H_
     double alpha;
-    double m_ArrayBaroHistory[BARO_RECORD_COUNT];
 #endif // _TACTICSPI_H_
     double m_ArrayPressHistory[BARO_RECORD_COUNT];
 #ifndef _TACTICSPI_H_
     double m_ExpSmoothArrayPressure[BARO_RECORD_COUNT];
 #endif // _TACTICSPI_H_
-
     wxDateTime::Tm m_ArrayRecTime[BARO_RECORD_COUNT];
 
     double m_MaxPress;  //...in array
@@ -112,6 +107,7 @@ protected:
     double m_TotalMaxPress; // since O is started
     double m_TotalMinPress;
     double m_Press;
+    double m_PressScale;
     double m_MaxPressScale;
     double m_ratioW;
 
@@ -120,20 +116,20 @@ protected:
 
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
-    int m_DrawingWidth,m_TopLineHeight,m_DrawingHeight;
-    int m_width,m_height;
-    int m_LeftLegend, m_RightLegend;
+    int m_TopLineHeight;
+    int m_LeftLegend;
+    int m_RightLegend;
 #ifdef _TACTICSPI_H_
     wxString    m_logfile;        //for data export
-    wxFile      m_ostreamlogfile; //for data export
+    wxFile     *m_ostreamlogfile; //for data export
     bool        m_isExporting;      //for data export
     int         m_exportInterval; //for data export
-    wxButton    *m_LogButton;     //for data export
-    wxMenu      *m_pExportmenu;//for data export
-    wxMenuBar   *m_pExportmenuBar;//for data export
-    wxMenuItem* btn10Sec;
-    wxMenuItem* btn20Sec;
-    wxMenuItem* btn60Sec;
+    wxButton   *m_LogButton;     //for data export
+    wxMenu     *m_pExportmenu;//for data export
+    wxMenuBar  *m_pExportmenuBar;//for data export
+    wxMenuItem *btn10Sec;
+    wxMenuItem *btn20Sec;
+    wxMenuItem *btn60Sec;
 #endif // _TACTICSPI_H_
 
     void Draw(wxGCDC* dc);

@@ -67,27 +67,26 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
 {     SetDrawSoloInPane(true);
 #endif // _TACTICSPI_H_
 
-    m_MaxPress = 0;
-    m_MinPress =(double)1200;
-    m_TotalMaxPress = 0;
-    m_TotalMinPress=1200;
-    m_Press = 0;
 #ifdef _TACTICSPI_H_
-    m_TopLineHeight=35;
     m_LastReceivedPressure = 0.0;
     m_LastReceivedTime = wxDateTime::Now().GetTm();
     m_PressRecCnt=0;
     for ( int i = 0; i < BARO_START_AVG_CNT; i++ )
         m_PressStartVal[i] = - 1;
 #else
-    m_TopLineHeight=30;
-    m_SpdRecCnt=0;
+    m_SpdRecCnt = m_DirRecCnt = m_DirStartVal = 0;
     m_SpdStartVal=-1;
 #endif // _TACTICSPI_H_
-    m_IsRunning=false;
-    m_SampleCount=0;
-    m_LeftLegend=3;
-    m_RightLegend=3;
+
+#ifdef _TACTICSPI_H_
+    m_pconfig = GetOCPNConfigObject();
+    m_BaroHistUpdTimer = new wxTimer( this, myID_THREAD_BAROHISTORY );
+#endif // _TACTICSPI_H_
+
+#ifndef _TACTICSPI_H_
+    alpha=0.01;  //smoothing constant
+#endif // _TACTICSPI_H_
+
     for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         m_ArrayPressHistory[idx] = -1;
 #ifndef _TACTICSPI_H_
@@ -96,24 +95,47 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
         m_ArrayRecTime[idx]=wxDateTime::Now().GetTm();
         m_ArrayRecTime[idx].year=999;
     }
-#ifndef _TACTICSPI_H_
-    alpha=0.01;  //smoothing constant
-#endif // _TACTICSPI_H_
+
+    m_MaxPress = 0.0;
+    m_MinPress = 1200.0;
+    m_TotalMaxPress = 0.0;
+    m_TotalMinPress= 1200.0;
+    m_Press = 0.0;
+    m_PressScale = NAN;
+    m_ratioW = NAN;
+
+    m_IsRunning = false;
+    m_SampleCount = 0;
+    
     m_WindowRect=GetClientRect();
     m_DrawAreaRect=GetClientRect();
     m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
 #ifdef _TACTICSPI_H_
-    m_BaroHistUpdTimer = new wxTimer( this, myID_THREAD_BAROHISTORY );
+    m_TopLineHeight = 35;
+#else
+    m_TopLineHeight = 30;
+#endif // _TACTICSPI_H_
+    m_LeftLegend = 3;
+    m_RightLegend = 3;
+
+#ifdef _TACTICSPI_H_
+    m_logfile = wxEmptyString;
+    m_ostreamlogfile = new wxFile();
+    m_exportInterval = 0;
+#endif // _TACTICSPI_H_
+
+#ifdef _TACTICSPI_H_
     m_BaroHistUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
     //data export
     m_isExporting = false;
     wxPoint pos;
     pos.x = pos.y = 0;
-    m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize, wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
+    m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize,
+                               wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
     m_LogButton->SetToolTip(_("'>' starts data export and creates a new or appends to an existing file,\n'X' stops data export"));
-    m_LogButton->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed), NULL, this);
-    m_pconfig = GetOCPNConfigObject();
+    m_LogButton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+                         wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed), NULL, this);
     if (LoadConfig() == false) {
         m_exportInterval = 10;
         SaveConfig();
@@ -121,9 +143,9 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_pExportmenu = new wxMenu();
     // this is a dummy menu required by Windows as parent to item created
     //wxMenuItem *pmi = new wxMenuItem(m_pExportmenu, -1, _T("Data Export"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Exportrate 10 Seconds"));
-    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Exportrate 20 Seconds"));
-    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Exportrate 60 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Export rate 10 Seconds"));
+    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
+    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
     
     if (m_exportInterval == 10) btn10Sec->Check(true);
     if (m_exportInterval == 20) btn20Sec->Check(true);
@@ -135,7 +157,8 @@ DashboardInstrument_BaroHistory::~DashboardInstrument_BaroHistory(void) {
     this->m_BaroHistUpdTimer->Stop();
     delete this->m_BaroHistUpdTimer;
     if (m_isExporting)
-        m_ostreamlogfile.Close();
+        m_ostreamlogfile->Close();
+    delete this->m_ostreamlogfile;
 }
 #endif // _TACTICSPI_H_
 
@@ -580,11 +603,11 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
         }
         m_logfile.Clear();
         m_logfile = fdlg.GetPath();
-        bool exists = m_ostreamlogfile.Exists(m_logfile);
-        m_ostreamlogfile.Open(m_logfile, wxFile::write_append);
+        bool exists = m_ostreamlogfile->Exists(m_logfile);
+        m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
         if (!exists) {
             wxString str = wxString::Format(_T("%s%s%s%s%s\n"), "Date", g_sDataExportSeparator, "Time", g_sDataExportSeparator, "Pressure");
-            m_ostreamlogfile.Write(str);
+            m_ostreamlogfile->Write(str);
         }
         SaveConfig(); //save the new export-rate &filename to opencpn.ini
         m_isExporting = true; // note: this allows the ExportData to write at the next DAQ tick
@@ -593,7 +616,7 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
     }
     else if (m_isExporting == true) {
         m_isExporting = false;
-        m_ostreamlogfile.Close();
+        m_ostreamlogfile->Close();
         m_LogButton->SetLabel(_(">"));
         m_LogButton->Refresh();
     }
@@ -639,7 +662,7 @@ void DashboardInstrument_BaroHistory::ExportData()
         wxString str = wxString::Format(_T("%s%s%s%s%4.1f\n"), localTimeNow.FormatDate(), g_sDataExportSeparator,
                                         localTimeNow.FormatTime(), g_sDataExportSeparator,
                                         m_LastReceivedPressure);
-        m_ostreamlogfile.Write(str);
+        m_ostreamlogfile->Write(str);
         //    }
 }
 #endif // _TACTICSPI_H_
