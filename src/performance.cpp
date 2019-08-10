@@ -68,19 +68,23 @@ extern wxString g_sDataExportSeparator;
 TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
-	m_format = format;
-	m_data = _T("---");
-    m_data_height = 0;
-	m_pconfig = GetOCPNConfigObject();
-	mTWS = NAN;
-	mHDT = NAN;
-	mTWA = NAN;
-	mSTW = NAN;
-	mSOG = NAN;
-	mCOG = NAN;
-	mBRG = -1;
+    mTWS = NAN;
+    mTWA = NAN;
+    mSTW = NAN;
+    mCMG = NAN;
+    mSOG = NAN;
+    mCOG = NAN;
+    mBRG = -1;
+    mHDT = NAN;
     mTWD = NAN;
-	stwunit = _T("");
+    m_lat = NAN;
+    m_lon = NAN;
+    stwunit = _T("");
+    m_displaytype = 0;
+    m_data = _T("---");
+    m_format = format;
+    m_DataHeight = 0;
+    m_pconfig = GetOCPNConfigObject();
 }
 /***********************************************************************************
 
@@ -90,13 +94,13 @@ wxSize TacticsInstrument_PerformanceSingle::GetSize(int orient, wxSize hint)
 	wxClientDC dc(this);
 	int w;
 	dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-	dc.GetTextExtent(_T("000"), &w, &m_data_height, 0, 0, g_pFontData);
+	dc.GetTextExtent(_T("000"), &w, &m_DataHeight, 0, 0, g_pFontData);
 
 	if (orient == wxHORIZONTAL) {
-		return wxSize(DefaultWidth, wxMax(hint.y, m_TitleHeight + m_data_height));
+		return wxSize(DefaultWidth, wxMax(hint.y, m_TitleHeight + m_DataHeight));
 	}
 	else {
-		return wxSize(wxMax(hint.x, DefaultWidth), m_TitleHeight + m_data_height);
+		return wxSize(wxMax(hint.x, DefaultWidth), m_TitleHeight + m_DataHeight);
 	}
 }
 /***********************************************************************************
@@ -106,7 +110,7 @@ void TacticsInstrument_PerformanceSingle::Draw(wxGCDC* dc)
 {
 	wxColour cl;
 #ifdef __WXMSW__
-	wxBitmap tbm(dc->GetSize().x, m_data_height, -1);
+	wxBitmap tbm(dc->GetSize().x, m_DataHeight, -1);
 	wxMemoryDC tdc(tbm);
 	wxColour c2;
 	GetGlobalColor(_T("DASHB"), &c2);
@@ -339,19 +343,16 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
 ************************************************************************************/
 Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 {
+    m_pconfig = GetOCPNConfigObject();
+    windsp[0].winddir[0] = 0;
+    windsp[0].isfix[0] = false; // see below reset()
+    tws[0].tvmg_up.TargetAngle = tws[0].tvmg_up.TargetSpeed = 0;
+    tws[0].tvmg_dn.TargetAngle = tws[0].tvmg_dn.TargetSpeed = 0;
+    reset();
+    mode = 0;
 
-	m_pconfig = GetOCPNConfigObject();
-	mode = 0;
-	windSpeed = -1;
-	windAngle = -1;
-	windReference = wxEmptyString;
-    dist = 0.0;
-    m_bDataIsValid = false;
-
-	timeout = 5;
-	wxString s = wxFileName::GetPathSeparator();
-
-	wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
+    wxString s = wxFileName::GetPathSeparator();
+    wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
 #ifdef __WXOSX__
 	wxString stdPath = std_path.GetUserConfigDir();   // should be ~/Library/Preferences
 	stdPath += s + _T("opencpn");
@@ -362,27 +363,24 @@ Polar::Polar(TacticsInstrument_PerformanceSingle* parent)
 	wxString stdPath = std_path.GetUserDataDir();
 #  endif // __WXMSW__
 #endif // __WXOSX__
+    wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
+    logbookDataPath = basePath;
 
-	wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
-	logbookDataPath = basePath;
-
-	reset();
+    dist = 0.0;
+    m_bDataIsValid = false;
 }
 Polar::Polar(tactics_pi* parent)
 {
+    m_pconfig = GetOCPNConfigObject();
+    windsp[0].winddir[0] = 0;
+    windsp[0].isfix[0] = false; // see below reset()
+    tws[0].tvmg_up.TargetAngle = tws[0].tvmg_up.TargetSpeed = 0;
+    tws[0].tvmg_dn.TargetAngle = tws[0].tvmg_dn.TargetSpeed = 0;
+    reset();
+    mode = 0;
 
-  m_pconfig = GetOCPNConfigObject();
-  mode = 0;
-  windSpeed = -1;
-  windAngle = -1;
-  dist = 0.0;
-  windReference = wxEmptyString;
-  m_bDataIsValid = false;
-
-  timeout = 5;
-  wxString s = wxFileName::GetPathSeparator();
-
-  wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
+    wxString s = wxFileName::GetPathSeparator();
+    wxStandardPathsBase& std_path = wxStandardPathsBase::Get();
 #ifdef __WXOSX__
 	wxString stdPath = std_path.GetUserConfigDir();   // should be ~/Library/Preferences
 	stdPath += s + _T("opencpn");
@@ -393,11 +391,11 @@ Polar::Polar(tactics_pi* parent)
 	wxString stdPath = std_path.GetUserDataDir();
 #  endif // __WXMSW__
 #endif // __WXOSX__
+    wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
+    logbookDataPath = basePath;
 
-  wxString basePath = stdPath + s + _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s;
-  logbookDataPath = basePath;
-
-  reset();
+    dist = 0.0;
+    m_bDataIsValid = false;
 }
 /***********************************************************************************
 Destructor
@@ -1035,80 +1033,6 @@ void Polar::Calc_TargetCMG2(double TWS, double TWD, double BRG, TargetxMG *TCMGM
     wxLogMessage("-->TCMGMin.TargetSpeed =%f, TCMGMin.TargetAngle =%f", TCMGMin->TargetSpeed, TCMGMin->TargetAngle);
     */
 }
-/*
-test, doesn't work ...
-/*
-TargetxMG Polar::Calc_TargetCMG2(double TWS, double TWD, double BRG, TargetxMG *cmg2)
-{
-  TargetxMG TCMG, *TCMG2;
-  TCMG.TargetAngle = -999;
-  TCMG.TargetSpeed = -999;
-  TCMG2->TargetAngle = -999;
-  TCMG2->TargetSpeed = -999;
-  double cmg = 0;
-
-  int i_tws = wxRound(TWS);
-  //double range = 
-    int  diffAngle = wxRound(getSignedDegRange(TWD, BRG));
-//  int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
-  int i = 0;
-  int polarAngle;
-  // first half of the polar
-  for (i = 1; i <= 180; i++){
-     polarAngle=i+diffAngle;
-     wxLogMessage("polarAngle (i+diffAngle) = %d + %d = %d", i, diffAngle,polarAngle);
-//     if (!std::isnan(windsp[i_tws].winddir[polarAngle])){
-//       cmg = windsp[i_tws].winddir[polarAngle] * cos((polarAngle-BRG)*M_PI / 180.);
-       if (!std::isnan(windsp[i_tws].winddir[i])){
-         cmg = windsp[i_tws].winddir[i] * cos((polarAngle - BRG)*M_PI / 180.);
-         //          wxLogMessage("k=%d, curAngle=%d, polarspeed=%f, curAngle-range=%f, cmg=%f", k, curAngle, windsp[i_tws].winddir[polang], diffAngle, cmg);
-      if (cmg > TCMG.TargetSpeed) {
-        TCMG.TargetSpeed = cmg;
-        TCMG.TargetAngle = polarAngle;
-      }
-    }
-  }
-  //}
-  if (TCMG.TargetSpeed == -999){
-    TCMG.TargetSpeed = NAN;
-    TCMG.TargetAngle = NAN;
-  }
-  //second half of the polar
-  cmg = 0;
-  for (i = 181; i <= 359; i++){
-    polarAngle = i + diffAngle;
-    if (!std::isnan(windsp[i_tws].winddir[polarAngle])){
-      cmg = windsp[i_tws].winddir[polarAngle] * cos((polarAngle - BRG)*M_PI / 180.);
-      if (cmg > TCMG2->TargetSpeed) {
-        TCMG2->TargetSpeed = cmg;
-        TCMG2->TargetAngle = polarAngle;
-      }
-    }
-  }
-  //}
-  if (TCMG2->TargetSpeed == -999){
-    TCMG2->TargetSpeed = NAN;
-    TCMG2->TargetAngle = NAN;
-  }
-  //          wxLogMessage("k=%d, curAngle=%d, polarspeed=%f, curAngle-range=%f, cmg=%f", k, curAngle, windsp[i_tws].winddir[polang], diffAngle, cmg);
-
-  if (TCMG.TargetSpeed > TCMG2->TargetSpeed) {
-    cmg2 = TCMG2;
-    return (TCMG);
-  }
-  else {
-    cmg2 = &TCMG;
-    return (*TCMG2);
-  }
-}*/
-/***********************************************************************************
-
-************************************************************************************/
-void Polar::showDlg()
-{
-	dlg->ShowModal();
-}
-
 
 /***********************************************************************************
 simple class for exonential smoothing

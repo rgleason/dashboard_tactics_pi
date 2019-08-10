@@ -79,14 +79,21 @@ public:
 	double mTWS;
 	double mTWA;
 	double mSTW;
-	double mCMG,mSOG,mCOG,mBRG,mHDT,mTWD,m_lat,m_lon;
+	double mCMG;
+    double mSOG;
+    double mCOG;
+    double mBRG;
+    double mHDT;
+    double mTWD;
+    double m_lat;
+    double m_lon;
 	wxString stwunit;
 	int m_displaytype;
 
 protected:
 	wxString          m_data;
 	wxString          m_format;
-	int               m_data_height;
+	int               m_DataHeight;
 	
 	void Draw(wxGCDC* dc);
 private :
@@ -118,25 +125,8 @@ public:
       TargetxMG tvmg_dn; //downwind
     }tws[WINDSPEED + 1];
 
-	wxDC*			dc;
-
-	wxArrayString	sails;
-	bool			filterSails;
-	double			knots;
-	int				degrees;
-
 	int				mode;
-	double			sog;
-	double			windAngle;
-	double			windSpeed;
-	wxString		windReference;
-	double			gpsSpeed;
-	double			speedoSpeed;
-	int				timeout;
-	bool			nmea;
 
-
-	void showDlg();
 	void setValue(wxString s, int row, int col);
 	void reset();
 	void loadPolar(wxString FilePath);        //fill the polar values from file in the lookup table
@@ -156,10 +146,8 @@ public:
     bool isValid(void) { return m_bDataIsValid; };
 
 private:
-	wxDialog*	dlg;
 
     wxString          logbookDataPath;
-    wxSize            center;
     double            dist;
     bool              m_bDataIsValid;
 
