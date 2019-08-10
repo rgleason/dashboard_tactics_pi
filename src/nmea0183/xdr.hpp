@@ -45,10 +45,16 @@
 
 class XDR : public RESPONSE
 {
-    
-    //   DECLARE_DYNAMIC( XDR )
+        //   DECLARE_DYNAMIC( XDR )
 
-   public:
+public:
+    class TRANSDUCERINFO {
+    public:
+        wxString  Type;
+        double    Data;
+        wxString  Unit;
+        wxString  Name;
+    };  
 
     XDR();
     ~XDR();
@@ -58,19 +64,12 @@ class XDR : public RESPONSE
     */
 
     int TransducerCnt;
-    struct
-    {
-        wxString  TransducerType;
-        double    TransducerData;
-        wxString  TransducerUnit;
-        wxString  TransducerName;
-    } TransducerInfo[MaxTransducerCnt];
+    TRANSDUCERINFO TransducerInfo[MaxTransducerCnt];
+
+    /*
+    ** Methods
+    */
     
-
-      /*
-      ** Methods
-      */
-
     virtual void Empty( void );
     virtual bool Parse( const SENTENCE& sentence );
     virtual bool Write( SENTENCE& sentence );
