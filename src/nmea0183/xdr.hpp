@@ -45,13 +45,6 @@
 
 class XDR : public RESPONSE
 {
-    typedef struct
-    {
-        double    MeasurementData;
-        wxString  TransducerType;
-        wxString  UnitOfMeasurement;
-        wxString TransducerName;
-    } TRANSDUCER_INFO;
     
 //   DECLARE_DYNAMIC( XDR )
 
@@ -65,7 +58,14 @@ class XDR : public RESPONSE
       */
 
       int TransducerCnt;
-      TRANSDUCER_INFO TransducerInfo[MaxTransducerCnt];
+    //      TRANSDUCER_INFO TransducerInfo[MaxTransducerCnt];
+    struct
+    {
+        wxString  TransducerType;
+        double    MeasurementData;
+        wxString  UnitOfMeasurement;
+        wxString TransducerName;
+    } TransducerInfo[MaxTransducerCnt];
 
 
       /*
