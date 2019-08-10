@@ -128,15 +128,19 @@ public:
 private:
 
 protected:
-    int m_cx, m_cy, m_radius;
-    int m_AngleStart, m_AngleRange;
+    int m_cx;
+    int m_cy;
+    int m_radius;
+    int m_AngleStart;
+    int m_AngleRange;
     double m_MainValue;
 #ifdef _TACTICSPI_H_
     unsigned long long m_MainValueCap;
 #else
     int m_MainValueCap;
 #endif // _TACTICSPI_H_
-    double m_MainValueMin, m_MainValueMax;
+    double m_MainValueMin;
+    double m_MainValueMax;
     wxString m_MainValueFormat;
     wxString m_MainValueUnit;
     DialPositionOption m_MainValueOption;
@@ -151,7 +155,8 @@ protected:
     DialPositionOption m_ExtraValueOption;
     DialMarkerOption m_MarkerOption;
     int m_MarkerOffset;
-    double m_MarkerStep, m_LabelStep;
+    double m_MarkerStep;
+    double m_LabelStep;
     DialLabelOption m_LabelOption;
     wxArrayString m_LabelArray;
 

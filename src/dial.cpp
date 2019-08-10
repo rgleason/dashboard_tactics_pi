@@ -64,26 +64,29 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
 #endif // _TACTICSPI_H_
     int s_angle, int r_angle, int s_value, int e_value) : DashboardInstrument(parent, id, title, cap_flag)
 {
-      m_AngleStart = s_angle;
-      m_AngleRange = r_angle;
-      m_MainValueMin = s_value;
-      m_MainValueMax = e_value;
-      m_MainValueCap = cap_flag;
-
-      m_MainValue = s_value;
-      m_ExtraValue = 0;
-      m_ExtraValueCap = 0;
-      m_MainValueFormat = _T("%d");
-      m_MainValueUnit = _T("");
-      m_MainValueOption = DIAL_POSITION_NONE;
-      m_ExtraValueFormat = _T("%d");
-      m_ExtraValueUnit = _T("");
-      m_ExtraValueOption = DIAL_POSITION_NONE;
-      m_MarkerOption = DIAL_MARKER_SIMPLE;
-      m_MarkerStep = 1;
-      m_LabelStep = 1;
-      m_MarkerOffset = 1;
-      m_LabelOption = DIAL_LABEL_HORIZONTAL;
+    m_cx = 0;
+    m_cy = 0;
+    m_radius = 0;
+    m_AngleStart = s_angle;
+    m_AngleRange = r_angle;
+    m_MainValue = static_cast<double>(s_value);
+    m_MainValueCap = cap_flag;
+    m_MainValueMin = m_MainValue;
+    m_MainValueMax = static_cast<double>(e_value);
+    m_MainValueFormat = _T("%d");
+    m_MainValueUnit = _T("");
+    m_MainValueOption = DIAL_POSITION_NONE;
+    m_ExtraValue = 0.0;
+    m_ExtraValueCap = 0;
+    m_ExtraValueFormat = _T("%d");
+    m_ExtraValueUnit = _T("");
+    m_ExtraValueOption = DIAL_POSITION_NONE;
+    m_MarkerOption = DIAL_MARKER_SIMPLE;
+    m_MarkerOffset = 1;
+    m_MarkerStep = 1.0;
+    m_LabelStep = 1.0;
+    m_LabelOption = DIAL_LABEL_HORIZONTAL;
+    m_LabelArray = wxArrayString();
 }
 
 wxSize DashboardInstrument_Dial::GetSize( int orient, wxSize hint )
