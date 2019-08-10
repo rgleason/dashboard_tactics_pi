@@ -67,10 +67,10 @@ public:
     wxSize GetSize( int orient, wxSize hint );
 
 private:
-    int m_soloInPane ;
-    int    m_SpdRecCnt, m_DirRecCnt, m_SpdStartVal,m_DirStartVal;
-    int m_isNULL;
-    int m_WindDirShift;
+    int m_SpdRecCnt;
+    int m_DirRecCnt;
+    int m_SpdStartVal;
+    int m_DirStartVal;
 #ifdef _TACTICSPI_H_
     wxFileConfig  *m_pconfig;
     bool m_bWindSpeedUnitResetLogged;
@@ -108,30 +108,25 @@ protected:
 #ifdef _TACTICSPI_H_
     wxTimer *m_WindHistUpdTimer;
 #endif // _TACTICSPI_H_
-
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
-    int m_DrawingWidth,m_TopLineHeight,m_DrawingHeight;
-    int m_width,m_height;
-    int m_LeftLegend, m_RightLegend;
-#ifndef _TACTICSPI_H_
-    int m_currSec,m_lastSec,m_SpdCntperSec,m_DirCntperSec;
-    double m_cntSpd,m_cntDir,m_avgSpd,m_avgDir;
-#endif // _TACTICSPI_H_
-
+    int m_TopLineHeight;
+    int m_width;
+    int m_height;
+    int m_LeftLegend;
+    int m_RightLegend;
 #ifdef _TACTICSPI_H_
     wxString    m_logfile;        //for data export
-    wxFile      m_ostreamlogfile; //for data export
+    wxFile     *m_ostreamlogfile; //for data export
     bool        m_isExporting;      //for data export
     int         m_exportInterval; //for data export
-    wxButton    *m_LogButton;     //for data export
+    wxButton   *m_LogButton;     //for data export
     wxMenu     *m_pExportmenu;//for data export
-    wxMenuBar   *m_pExportmenuBar;//for data export
-    wxMenuItem* btn1Sec;
-    wxMenuItem* btn5Sec;
-    wxMenuItem* btn10Sec;
-    wxMenuItem* btn20Sec;
-    wxMenuItem* btn60Sec;
+    wxMenuItem *btn1Sec;
+    wxMenuItem *btn5Sec;
+    wxMenuItem *btn10Sec;
+    wxMenuItem *btn20Sec;
+    wxMenuItem *btn60Sec;
 #endif // _TACTICSPI_H_
 
     void Draw(wxGCDC* dc);
