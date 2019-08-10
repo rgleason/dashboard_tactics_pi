@@ -166,7 +166,7 @@ void NMEA0183::set_container_pointers( void )
 
    while( index < number_of_entries_in_table )
    {
-      this_response = (RESPONSE *) response_table[ index ];
+       this_response = static_cast<RESPONSE*>(response_table[ index ]);
 
       this_response->SetContainer( this );
 

@@ -124,18 +124,18 @@ DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWin
 	// Labels are set static because we've no logic to display them this way
 	wxString labels[] = { _T(""), _T("30"), _T("60"), _T("90"), _T("120"), _T("150"), _T(""), _T("150"), _T("120"), _T("90"), _T("60"), _T("30") };
 	SetOptionLabel(30, DIAL_LABEL_HORIZONTAL, wxArrayString(12, labels));
+	m_MainValueApp = NAN;
+	m_MainValueTrue = NAN;
+	m_ExtraValueApp = NAN;
+	m_ExtraValueTrue = NAN;
 #ifdef _TACTICSPI_H_
 	m_TWD = NAN;
 	m_TWDUnit = _T("");
-	m_MainValueApp = NAN;
-	m_ExtraValueApp = NAN;
-	m_MainValueTrue = NAN;
-	m_ExtraValueTrue = NAN;
+#endif // _TACTICSPI_H_
     m_MainValueOption1 = DIAL_POSITION_NONE;
     m_MainValueOption2 = DIAL_POSITION_NONE;
     m_ExtraValueOption1 = DIAL_POSITION_NONE;
     m_ExtraValueOption2 = DIAL_POSITION_NONE;
-#endif // _TACTICSPI_H_
 }
 
 void DashboardInstrument_AppTrueWindAngle::DrawBackground(wxGCDC* dc)

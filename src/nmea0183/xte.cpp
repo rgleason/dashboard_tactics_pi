@@ -45,8 +45,10 @@ extern int              g_NMEAXTEPrecision;
 
 XTE::XTE()
 {
+   IsLoranBlinkOK = NMEA0183_BOOLEAN(false);
    IsLoranCCycleLockOK = NMEA0183_BOOLEAN(false);
    Mnemonic = _T("XTE");
+   CrossTrackUnits = wxEmptyString;
    Empty();
 }
 

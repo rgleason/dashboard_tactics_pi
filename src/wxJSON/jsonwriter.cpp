@@ -625,9 +625,8 @@ wxJSONWriter::WriteIndent( wxOutputStream& os )
 int
 wxJSONWriter::WriteIndent( wxOutputStream& os, int num )
 {
-    int lastChar = 0;
     if ( !(m_style & wxJSONWRITER_STYLED) || (m_style & wxJSONWRITER_NO_INDENTATION))  {
-        return lastChar;
+        return 0;
     }
 
     int numChars = m_indent + ( m_step * num );

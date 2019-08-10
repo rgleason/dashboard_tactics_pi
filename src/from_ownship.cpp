@@ -52,13 +52,16 @@ DashboardInstrument_FromOwnship::DashboardInstrument_FromOwnship(
 {
     m_data1 =_T("---");
     m_data2 =_T("---");
+    c_lat = NAN;
+    c_lon = NAN;
+    s_lat = 99999999.9;
+    s_lon = 99999999.9;
+    m_DataHeight = 0;
+
     m_cap_flag1 = cap_flag1;
     m_cap_flag2 = cap_flag2;
     m_cap_flag3 = cap_flag3;
     m_cap_flag4 = cap_flag4;
-    m_DataHeight = 0;
-    s_lat = 99999999;
-    s_lon = 99999999;
 }
 
 void DashboardInstrument_FromOwnship::Draw(wxGCDC* dc)

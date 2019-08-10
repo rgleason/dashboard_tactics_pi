@@ -239,8 +239,8 @@ const RMB& RMB::operator = ( const RMB &source )
     DestinationClosingVelocityKnots = source.DestinationClosingVelocityKnots;
     IsArrivalCircleEntered          = source.IsArrivalCircleEntered;
 #ifdef _TACTICSPI_H_
-    if ( isVersion2dot3OrLater )
-        FAA_ModeIndicator = source.FAA_ModeIndicator;
+    FAA_ModeIndicator               = source.FAA_ModeIndicator;
+    isVersion2dot3OrLater           = source.isVersion2dot3OrLater;
 #endif // _TACTICSPI_H_
   }
   return *this;

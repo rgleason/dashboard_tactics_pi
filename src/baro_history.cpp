@@ -625,7 +625,7 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
 ****************************************************************************************/
 bool DashboardInstrument_BaroHistory::LoadConfig(void)
 {
-    wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+    wxFileConfig *pConf = m_pconfig;
 
     if (pConf) {
         pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/BaroHistory"));

@@ -40,22 +40,19 @@
 ** You can use it any way you like.
 */
 
-#if ! defined( TRANSDUCER_INFO_HEADER )
-#define TRANSDUCER_INFO_HEADER
-
-typedef struct
-{
-      wxString  TransducerType;
-      double    MeasurementData;
-      wxString  UnitOfMeasurement;
-      wxString TransducerName;
- } TRANSDUCER_INFO;
-#endif
 
 #define MaxTransducerCnt 10 //max number of transducer quadrupels per NMEA line
 
 class XDR : public RESPONSE
 {
+    typedef struct
+    {
+        wxString  TransducerType;
+        double    MeasurementData;
+        wxString  UnitOfMeasurement;
+        wxString TransducerName;
+    } TRANSDUCER_INFO;
+    
 //   DECLARE_DYNAMIC( XDR )
 
    public:

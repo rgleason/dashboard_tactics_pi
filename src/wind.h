@@ -134,14 +134,22 @@ public:
 private:
 
 protected:
-	double m_MainValueApp, m_MainValueTrue;
-	double m_ExtraValueApp, m_ExtraValueTrue;
+	double m_MainValueApp;
+    double m_MainValueTrue;
+	double m_ExtraValueApp;
+    double m_ExtraValueTrue;
 #ifdef _TACTICSPI_H_
     double m_TWD;
     wxString m_TWDUnit;
 #endif // #endif // _TACTICSPI_H_
-	wxString m_ExtraValueAppUnit, m_ExtraValueTrueUnit, m_MainValueAppUnit, m_MainValueTrueUnit;
-	DialPositionOption m_MainValueOption1, m_MainValueOption2, m_ExtraValueOption1, m_ExtraValueOption2;
+	wxString m_ExtraValueAppUnit;
+    wxString m_ExtraValueTrueUnit;
+    wxString m_MainValueAppUnit;
+    wxString m_MainValueTrueUnit;
+	DialPositionOption m_MainValueOption1;
+    DialPositionOption m_MainValueOption2;
+    DialPositionOption m_ExtraValueOption1;
+    DialPositionOption m_ExtraValueOption2;
 	void DrawBackground(wxGCDC* dc);
 	virtual void Draw(wxGCDC* dc);
 	virtual void DrawForeground(wxGCDC* dc);
