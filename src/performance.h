@@ -234,70 +234,70 @@ private:
 class TacticsInstrument_PolarPerformance : public DashboardInstrument
 {
 public:
-  TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title);
+    TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title);
     ~TacticsInstrument_PolarPerformance(void);
-  void SetData(unsigned long long st, double data, wxString unit);
-  wxSize GetSize(int orient, wxSize hint);
-  void OnPolarPerfUpdTimer(wxTimerEvent & event);
-
+    void SetData(unsigned long long st, double data, wxString unit);
+    wxSize GetSize(int orient, wxSize hint);
+    void OnPolarPerfUpdTimer(wxTimerEvent & event);
+    
 private:
-  int m_soloInPane;
-  int    m_SpdRecCnt, m_SpdStartVal, m_DirStartVal;
-  int m_isNULL;
-  wxFileConfig  *m_pconfig;
-  bool LoadConfig(void);
-  bool SaveConfig(void);
+    wxFileConfig  *m_pconfig;
+    bool LoadConfig(void);
+    bool SaveConfig(void);
 
-  wxDECLARE_EVENT_TABLE();
+    wxDECLARE_EVENT_TABLE();
 
 protected:
-  double alpha;
-  double m_ArrayPercentSpdHistory[DATA_RECORD_COUNT];
-  double m_ArrayBoatSpdHistory[DATA_RECORD_COUNT];
-  double m_ArrayTWAHistory[DATA_RECORD_COUNT];
-  double m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT];
-  double m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT];
-  wxDateTime::Tm m_ArrayRecTime[DATA_RECORD_COUNT];
+    double alpha;
+    double m_ArrayPercentSpdHistory[DATA_RECORD_COUNT];
+    double m_ArrayBoatSpdHistory[DATA_RECORD_COUNT];
+    double m_ArrayTWAHistory[DATA_RECORD_COUNT];
+    double m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT];
+    double m_ExpSmoothArrayPercentSpd[DATA_RECORD_COUNT];
+    wxDateTime::Tm m_ArrayRecTime[DATA_RECORD_COUNT];
+    
+    wxTimer *m_PolarPerfUpdTimer;
+    double m_MaxBoatSpd;
+    double m_MinBoatSpd;
+    double m_MaxPercent;  //...in array
+    double m_AvgSpdPercent;
+    DoubleExpSmooth  *mExpSmAvgSpdPercent;
+    double m_AvgTWA;         //for data export
+    DoubleExpSmooth  *mExpSmAvgTWA;//for data export
+    double m_AvgTWS;         //for data export >100% 
+    DoubleExpSmooth  *mExpSmAvgTWS;//for data export >100%
+    
+    double m_TWA;
+    double m_TWS;
+    double m_STW;
+    double m_PolarSpeedPercent;
+    double m_PolarSpeed;
+    double m_MaxPercentScale;
+    double m_MaxBoatSpdScale;
+    int num_of_scales;
+    double m_ratioW;
+    bool m_IsRunning;
+    int m_SampleCount;
+    wxString m_STWUnit;
+    wxString m_PercentUnit;
 
-  wxTimer *m_PolarPerfUpdTimer;
-  double m_MaxBoatSpd;
-  double m_MinBoatSpd;
-  double m_BoatSpeedRange;
-  double m_MaxPercent;  //...in array
-  double m_AvgSpdPercent;
-  DoubleExpSmooth  *mExpSmAvgSpdPercent;
-  double m_AvgTWA;         //for data export
-  DoubleExpSmooth  *mExpSmAvgTWA;//for data export
-  double m_AvgTWS;         //for data export >100% 
-  DoubleExpSmooth  *mExpSmAvgTWS;//for data export >100%
+    wxRect m_WindowRect;
+    wxRect m_DrawAreaRect; //the coordinates of the real darwing area
+    int m_TopLineHeight;
+    int m_LeftLegend;
+    int m_RightLegend;
 
-  double m_TWA, m_TWS, m_STW, m_PolarSpeedPercent, m_PolarSpeed;
-  double m_MaxPercentScale, m_MaxBoatSpdScale;
-  int num_of_scales;
-  double m_ratioW;
-  //double m_oldDirVal;
-  bool m_IsRunning;
-  int m_SampleCount;
-  wxString m_STWUnit, m_PercentUnit;
-
-  wxRect m_WindowRect;
-  wxRect m_DrawAreaRect; //the coordinates of the real darwing area
-  int m_DrawingWidth, m_TopLineHeight, m_DrawingHeight;
-  int m_width, m_height;
-  int m_LeftLegend, m_RightLegend;
-  int m_currSec, m_lastSec, m_SpdCntperSec, m_DirCntperSec;
-  double m_cntSpd, m_cntDir, m_avgSpd, m_avgDir;
-  wxString    m_logfile;        //for data export
-  wxFile      m_ostreamlogfile; //for data export
-  bool        m_isExporting;      //for data export
-  int         m_exportInterval; //for data export
-  wxButton    *m_LogButton;     //for data export
-  wxMenu     *m_pExportmenu;//for data export
-  wxMenuItem* btn1Sec;//for data export
-  wxMenuItem* btn5Sec;//for data export
-  wxMenuItem* btn10Sec;//for data export
-  wxMenuItem* btn20Sec;//for data export
-  wxMenuItem* btn60Sec;//for data export
+    wxString    m_logfile;        //for data export
+    wxFile     *m_ostreamlogfile; //for data export
+    bool        m_isExporting;      //for data export
+    int         m_exportInterval; //for data export
+    wxButton   *m_LogButton;     //for data export
+    wxMenu     *m_pExportmenu;//for data export
+    wxMenuItem *btn1Sec;//for data export
+    wxMenuItem *btn5Sec;//for data export
+    wxMenuItem *btn10Sec;//for data export
+    wxMenuItem *btn20Sec;//for data export
+    wxMenuItem *btn60Sec;//for data export
   struct pol
   {
     double   tmpwinddir[WINDDIR + 1];

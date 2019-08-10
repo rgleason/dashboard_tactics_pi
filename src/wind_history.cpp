@@ -140,11 +140,11 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
         SaveConfig();
     }
     m_pExportmenu = new wxMenu();
-    btn1Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_1, _("Exportrate 1 Second"));
-    btn5Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_5, _("Exportrate 5 Seconds"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Exportrate 10 Seconds"));
-    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Exportrate 20 Seconds"));
-    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Exportrate 60 Seconds"));
+    btn1Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_1, _("Export rate 1 Second"));
+    btn5Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_5, _("Export rate 5 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Expor trate 10 Seconds"));
+    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
+    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
     
     if (m_exportInterval == 1) btn1Sec->Check(true);
     if (m_exportInterval == 5) btn5Sec->Check(true);
@@ -160,6 +160,7 @@ DashboardInstrument_WindDirHistory::~DashboardInstrument_WindDirHistory(void) {
     delete this->m_WindHistUpdTimer;
     if(m_isExporting)
         m_ostreamlogfile->Close();
+    delete this->m_ostreamlogfile;
 }
 
 void DashboardInstrument_WindDirHistory::OnWindHistUpdTimer(wxTimerEvent &event)
@@ -934,7 +935,7 @@ void DashboardInstrument_WindDirHistory::OnLogDataButtonPressed(wxCommandEvent& 
 ****************************************************************************************/
 bool DashboardInstrument_WindDirHistory::LoadConfig(void)
 {
-  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+  wxFileConfig *pConf = m_pconfig;
 
   if (pConf) {
     pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Windhistory"));
