@@ -36,6 +36,11 @@
 XDR::XDR()
 {
    Mnemonic = _T("XDR");
+   TransducerCnt=0;
+   TransducerInfo[0].TransducerType = wxEmptyString;
+   TransducerInfo[0].MeasurementData = 0.0;
+   TransducerInfo[0].UnitOfMeasurement = wxEmptyString;
+   TransducerInfo[0].TransducerName = wxEmptyString;
    Empty();
 }
 
@@ -50,10 +55,10 @@ void XDR::Empty( void )
 //   ASSERT_VALID( this );
      TransducerCnt=0;
      for (int idx = 0; idx < MaxTransducerCnt; idx++) {
-         TransducerInfo[idx].TransducerType.Empty();
+         TransducerInfo[idx].TransducerType = wxEmptyString;
          TransducerInfo[idx].MeasurementData = 0.0;
-         TransducerInfo[idx].UnitOfMeasurement.Empty();
-         TransducerInfo[idx].TransducerName.Empty();
+         TransducerInfo[idx].UnitOfMeasurement = wxEmptyString;
+         TransducerInfo[idx].TransducerName = wxEmptyString;
      }
 }
 

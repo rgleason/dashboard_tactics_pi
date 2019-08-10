@@ -102,6 +102,7 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_TotalMinPress= 1200.0;
     m_Press = 0.0;
     m_PressScale = NAN;
+    m_MaxPressScale = NAN;
     m_ratioW = NAN;
 
     m_IsRunning = false;
