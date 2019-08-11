@@ -52,7 +52,7 @@ of the algorithms.
 * Apparent wind angle and apparent wind speed
 * Heel sensor which supplies your boat heel angle to O as XDR sentence
   --> If not available, there's a workaround with manual input
-* \>\>\>\> You need a *polar file of your boat* to use all polar based performance calculations <<<<
+* \>\>\>\> You need a **polar file of your boat** to use any polar based performance calculation <<<<
 * Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible.
   Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
 
