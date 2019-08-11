@@ -12,7 +12,7 @@ Tactics functions provide information to help you sail better - ranging from tru
 
 ## Installation
 
-You can start without a polar file and just use the basic functions to start with. Go to [dashboard_tactics_pi Releases pages](releases) and grab an installation file which matches your platform - OpenCPN v5 on Windows, Linux or Mac is supported.
+You can start without a polar file and just use the basic functions to start with. Go to [dashboard_tactics_pi Releases pages](https://github.com/canne/dashboard_tactics_pi/releases) and grab an installation file which matches your platform - OpenCPN v5 on Windows, Linux or Mac is supported.
 
 ## Configuration
 
