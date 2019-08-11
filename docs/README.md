@@ -3,7 +3,7 @@
 ## Tactics active performance functions
 
 [Attached Tactics User's Guide](tactics_pi.pdf) is highly recommended reading, written by the original author
-of the algorithms.
+of the algorithms. Below some key features.
 
 
 ### Tactics functions and instruments
