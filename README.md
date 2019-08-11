@@ -1,103 +1,45 @@
-Dashboard/Tactics Plugin for OpenCPN
-====================================
+# Dashboard/Tactics Plugin for OpenCPN
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings)
 
-dashboard_pi with tactics_pi performance enhancements integrated.
-This plugin forks and merges the two mentioned plugins.
-It does complie as dashboard_pi alone, for testing purposes.
+dashboard_pi with integrated tactics_pi performance enhancements.
 
-It works like Dashboard for you but if you are interested in
-your boat's performance and have a polar file for it (or you
-can grab one from weather_routing_pi plugin), a new world of
-algorithm driven instrumens and helper functions will open to you!
+## Introduction
 
-Also you have some couple of extras in Dashboard like the true
-wind calculation (by Tactics) and temperatures in C or F + some
-improvements behind the scenes which have not necessarily found
-yet their way to the built-in Dashboard.
+If you are using both built-in Dashboard and the Tactics, you may want to have but one plug-in instead of two to have all available instruments available in one place.
 
-Algthough not mandatory, it is recommended to disable the built-in
-Dashboard (we use the same parameters), standalone Tactics plugin
-and WMM_pi plugin (unless you do not get the magnetic variation
+Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about [Tactics and performance functions documentation](docs/README.md).
+
+## Installation
+
+You can start without a polar file and just use the basic functions to start with. Go to [dashboard_tactics_pi Releases pages](releases) and grab an installation file which matches your platform - OpenCPN v5 on Windows, Linux or Mac is supported.
+
+## Configuration
+
+Although not mandatory, it is recommended to disable the built-in
+Dashboard (we use the same parameters), standalone Tactics plug-in
+and WMM_pi plug-in (unless you do not get the magnetic variation
 from your instruments).
+
+If you are a user of tactics_pi, its settings are imported - the originals are not modifed - at first startup of this plug-in.
     
-Watching the numbers jumping on Tactics performance instruments
-maybe fun but to unleash their full power you should understand
-the theory behind them. Attached tactics_pi.odt or tactics_pi.pdf
-are highly recommended reading, written by the original author
-of those algorithms.
 
-In short (taken from the manual):
-
-What tactics enhancements can do :
-----------------------------------
-* Calculate true wind data : TWA, TWD, TWS from true heading (HDT), speed
-  through water (STW) and app. Wind speed (AWS), with optional correction by heel-angle.
-  Calculation is enabled via a preference setting and disables available true wind data
-  from the bus throughout the tactics_pi plugin. 
-* Calculate the “leeway”, the boat drift based on heel. A common formula is used for that purpose.
-* Calculate the surface sea current and display it as single instruments (current speed/direction)
-  as part of the “Bearing compass” or as overlay on the chart (semi transparent). The routines take
-  boat heel and leeway into account.
-  If you don't have a heel sensor, there is a simply workaround, see manual.
-  Current display on the chart can be disabled by a preference setting.
-* Calculate and display the boat laylines for the current tack, and the same TWA on the other tack.
-  Sea current is taken into account, if available ! Boat laylines may be toggled on/off. 
-  Adjustable length and max. width (triangle, with one corner at the boat) of boat laylines.
-  The layline width reflects the boat's yawing (COG changes over time).
-* You can load a polar file and calculate/display performance data, like actual VMG (velocity made good up-/downwind),
-  Target-VMG, Target-TWA  (the opt. TWA up-/downwind) angle and speed, CMG (course made good towards a waypoint), Target-CMG
-  (opt. CMG) angle and speed, polar speed (the speed you should be able to sail at current TWA/TWS based on your polar),...
-* It can display the actual polar as overlay on the chart, including markers for Target-VMG/CMG angles.
-  Just adopt your course and place your heading pointer on one of the markers, and you sail Target-VMG/CMG based on your polar ...
-* you can set a (one !) temporary tactics waypoint and display the laylines to the mark, based on a Target-TWA calculation,
-  while taking your polar into account.
-* it has a “dial instruments” called “Bearing compass”. Boat true heading (HDT)  points “up”, it shows the boat laylines as well,
-  the surface current, a pointer to the waypoint (either set manually as the temporary Tactics waypoint or read from a NMEA
-  RMB sentence), needles for AWA and TWA and markers for the Target-VMG/CMG angles.
-* It has a “Polar compass” instrument, graphically displaying the actual polar ring and markers for Bearing to WP,
-  Target-VMG angles and Target-CMG angles.
-* It has an “Average Wind” instrument with an adjustable averaging time, which displays graphically the average wind
-  and its deviations to port / starboard
-* It can create specific NMEA performance records with the purpose to export them to the displays of your instruments.
-  You can now e.g. calculate the polar target speed in the plugin and send it to your instrument display outside in the cockpit.
-  *** Currently only available for NKE, but may be enhanced in the future ***
-* There are various settings, which I grouped in a separate tab. To access the preferences screen, right mouse click
-  on the tactics_pi window, then select “Preferences ...”
-
-Prerequisites :
----------------
-* You will need to activate OpenGL, if you want to use the chart based functions.
-* SOG, COG from the GPS
-* preferably True Heading from an electronic compass.
-  --> if not available, magnetic heading will do, as long as you have magnetic variance available (either from the GPS RMC
-  sentence or from the wmm_pi plugin)
-* Boat speed through water from a log / “paddlewheel” sensor
-* Apparent wind angle and apparent wind speed
-* Heel sensor which supplies your boat heel angle to O as XDR sentence
-  --> If not available, there's a workaround with manual input
-* >>>> You need a polar file of your boat to use all polar based performance calculations  <<<<
-* Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible.
-  Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
-
-Compiling
-=========
+## Compiling
 
 * git clone git://github.com/canne/dashboard_tactics_pi.git
 
 Under windows, you must find the file "opencpn.lib" (Visual Studio) which is built in the build directory after compiling opencpn. 
 This file must be copied to the plugins build directory.
 
-Windows build :
----------------
+### Windows build :
+
 * cd ..
 * cd build
 * cmake  -T v120_xp ..
 * cmake --build . --target package --config release
 
-Unix style build :
-------------------
+### Unix style build :
+
 * cd ..
 * cd build
 * cmake ..
@@ -106,6 +48,6 @@ Unix style build :
 * sudo make install
 
 
-License
-=======
-The plugin code is licensed under the terms of the GPL v3 or, at your will, later.
+### License
+
+The code is licensed under the terms of the GPL v3.
