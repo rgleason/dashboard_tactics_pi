@@ -116,8 +116,9 @@ enum eInstruments {
 #ifdef _TACTICSPI_H_
     /* The below lines are allows the base dashboard code defining more instruments:
        If there will be new instruments (now after ID_DBP_I_SUNLCL), remove the same
-       number of these buffer enumeration values. This way, if there is opencpn.ini file
-       with the Tactics instruments, they will not point to a wrong Tactics instrument!
+       number of these "buffer" (between the Dashboard and Tactics)  enumeration values.
+       This way, if there is opencpn.ini file with the Tactics instruments, they will not
+       point to a wrong Tactics instrument!
     */
     ID_DBP_R_AAAA, ID_DBP_R_AAAB, ID_DBP_R_AAAC, ID_DBP_R_AAAD, ID_DBP_R_AAAE, ID_DBP_R_AAAF,
     ID_DBP_R_AABA, ID_DBP_R_AABB, ID_DBP_R_AABC, ID_DBP_R_AABD, ID_DBP_R_AABE, ID_DBP_R_AABF,
@@ -127,7 +128,7 @@ enum eInstruments {
     ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_TWAMARK, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD,
     ID_DBP_D_BRG, ID_DBP_I_POLSPD, ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE,
     ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG, ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND,
-    ID_DBP_D_POLCOMP, ID_DPB_PERF_LAST,
+    ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
@@ -298,6 +299,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191Average Wind");
 	case ID_DBP_D_POLCOMP:
 		return _(L"\u2191Polar Compass");
+    case ID_DBP_V_IFLX:
+		return _(L"\u2191InfluxDB Out");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -353,6 +356,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLCMG:
 	case ID_DBP_I_POLTCMG:
 	case ID_DBP_I_POLTCMGANGLE:
+    case ID_DBP_V_IFLX:
 #endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
@@ -2353,6 +2357,7 @@ void dashboard_pi::ApplyConfig(
                                 sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
                 } // then it was necessary to add new pane for init or replacement resizing
                 if ( addpane && !init ) {
+                    newcont->m_bPersVisible = cont->m_bIsVisible;
                     if ( cont->m_pDashboardWindow ) {
                         m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                         cont->m_pDashboardWindow->Close();
@@ -2369,6 +2374,7 @@ void dashboard_pi::ApplyConfig(
                     if ( init ) {
                         m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
                         newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
+                        newcont->m_bPersVisible = newcont->m_bIsVisible;
                         m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                         cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
                         m_pauimgr->Update();
@@ -3410,7 +3416,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     Refresh();
 #endif // _TACTICSPI_H_
 
-
+    
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
         DashboardInstrument *instrument = NULL;
@@ -3783,6 +3789,48 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_LON, _T("%.2f"));
             ((TacticsInstrument_PerformanceSingle *)
              instrument)->SetDisplayType(POLARTARGETCMGANGLE);
+            break;
+        case ID_DBP_V_IFLX:
+            instrument = new TacticsInstrument_StreamoutSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id),
+                OCPN_DBP_STC_LAT        |
+                OCPN_DBP_STC_LON        |
+                OCPN_DBP_STC_SOG        |
+                OCPN_DBP_STC_COG        |
+                OCPN_DBP_STC_STW        |
+                OCPN_DBP_STC_HDM        |
+                OCPN_DBP_STC_HDT        |
+                OCPN_DBP_STC_HMV        |
+                OCPN_DBP_STC_BRG        |
+                OCPN_DBP_STC_AWA        |
+                OCPN_DBP_STC_AWS        |
+                OCPN_DBP_STC_TWA        |
+                OCPN_DBP_STC_TWS        |
+                OCPN_DBP_STC_DPT        |
+                OCPN_DBP_STC_TMP        |
+                OCPN_DBP_STC_VMG        |
+                OCPN_DBP_STC_RSA        |
+                OCPN_DBP_STC_PLA        |
+                OCPN_DBP_STC_PLO        |
+                OCPN_DBP_STC_MON        |
+                OCPN_DBP_STC_ATMP       |
+                OCPN_DBP_STC_TWD        |
+                OCPN_DBP_STC_TWS2       |
+                OCPN_DBP_STC_VLW1       |
+                OCPN_DBP_STC_VLW2       |
+                OCPN_DBP_STC_MDA        |
+                OCPN_DBP_STC_MCOG       |
+                OCPN_DBP_STC_PITCH      |
+                OCPN_DBP_STC_HEEL       |
+                OCPN_DBP_STC_LEEWAY     |
+                OCPN_DBP_STC_CURRDIR    |
+                OCPN_DBP_STC_CURRSPD    |
+                OCPN_DBP_STC_DTW        |
+                OCPN_DBP_STC_BC         |
+                OCPN_DBP_STC_TWAMARK    |
+                OCPN_DBP_STC_POLPERF,
+                _T("%s") );
             break;
         case ID_DBP_D_POLPERF:
             instrument = new TacticsInstrument_PolarPerformance(

@@ -50,6 +50,7 @@
 #include "bearingcompass.h"
 #include "avg_wind.h"
 #include "polarcompass.h"
+#include "streamout.h"
 
 class Polar;
 
