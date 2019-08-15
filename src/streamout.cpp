@@ -375,7 +375,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
     wxString confPath = m_confdir + m_configFileName;
     if ( !wxFileExists( confPath ) ) {
         wxString tmplPath  = *GetpSharedDataLocation();
-        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("streamout_template.json");
+        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamout_template.json");
         if ( !wxFileExists( tmplPath ) ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - missing template %s", tmplPath);
             return false;

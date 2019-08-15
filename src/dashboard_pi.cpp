@@ -148,7 +148,7 @@ bool IsObsolete( int id ) {
     switch( id ) {
     case ID_DBP_D_AWA:
 #ifdef _TACTICSPI_H_
-        /* Please see above, placeholders for evenual new dashboard_pi insteuments shall go
+        /* Please see above, placeholders for eventual new dashboard_pi insteuments shall go
            before tactics_pi instruments: the eInstruments enumeration and this
            "obsolence" list, a placeholder between the two instrument lists must match. */
     case ID_DBP_R_AAAA:
@@ -3124,7 +3124,8 @@ int wxCALLBACK InstrumentListSortCallback (wxIntPtr item1, wxIntPtr item2, wxInt
         } // first instrument is Dashboard and second is Tactics, keep that way
     } // else check the other way around
     // Both are the same, either Tactics or Dashboard, let the alphabeting order prevail
-    return 0;
+    const wxString capt1 = getInstrumentCaption (item1);
+    return capt1.CmpNoCase ( getInstrumentCaption (item2) );
 }
 #endif // _TACTICSPI_H
 
