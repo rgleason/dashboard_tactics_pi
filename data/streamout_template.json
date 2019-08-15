@@ -14,14 +14,14 @@
         "bucket"    : "bucket=nmea&",
         "precision" : "precision=ms",
         "token"     : "tLux1iynw2uoUqeFd3xTsZ2BRRONWNHxPMZWDBFP5h--EtkEHw66PG-OZxBZqhB6JlNEBKMCQP7VT9d3PIh4LQ=="
-    }
+    },
 
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s], 0=never retry
-        "timestamp"       : "utc",       // "utc", "local" or "db" (server's time)
+        "timestamps"      : "utc",       // "utc", "local" or "db" (server's time)
         "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose
-    }
+    },
 
     /*
       Sentence mapping into a respective DB schema and data throttling settings for each sentence.
