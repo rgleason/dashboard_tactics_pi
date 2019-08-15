@@ -486,7 +486,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 {
 #ifdef _TACTICSPI_H_
     m_nofStreamOut = 0;
-    std::unique_lock<std::mutex> init_m_mtxNofStreamOut( m_mtxNofStreamOut, std::defer_lock ) noexcept;
+    std::unique_lock<std::mutex> init_m_mtxNofStreamOut( m_mtxNofStreamOut, std::defer_lock );
     m_echoStreamerShow = wxEmptyString;
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
