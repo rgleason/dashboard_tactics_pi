@@ -1,9 +1,9 @@
 /**************************************************************************
-* $Id: performance.cpp, v1.0 2016/06/07 tom_BigSpeedy Exp $
+* $Id: streamout.cpp, v1.0 2019/08/08 DarthVader Exp $
 *
 * Project:  OpenCPN
 * Purpose:  tactics Plugin
-* Author:   Thomas Rauch
+* Author:   Petri Makijarvi
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register                               *
 *                                                                         *
@@ -82,8 +82,14 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_confdir = confdir;
     m_pconfig = GetOCPNConfigObject();
     m_configFileName = wxEmptyString;
+    m_verbosity = 0;
 
-    m_serverurl = wxEmptyString;
+    wxString emptyStr = wxEmptyString;
+    emptyStr = emptyStr.wc_str();
+    m_apiURL = emptyStr;
+    m_apiHdr = emptyStr;
+    m_connectionRetry = 0;
+    m_timestamps = emptyStr;
 
     m_configured = LoadConfig();
 }
@@ -392,8 +398,26 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         }
         return false;
     }
-    m_serverurl = root["influxdb"]["serverurl"].AsString();
-    
+    m_apiURL += root["influxdb"]["serverurl"].AsString();
+    m_apiURL += root["influxdb"]["api"].AsString();
+    m_apiURL += root["influxdb"]["org"].AsString();
+    m_apiURL += root["influxdb"]["bucket"].AsString();
+    m_apiURL += root["influxdb"]["precision"].AsString();
+
+    m_apiHdr += root["influxdb"]["tokenprfx"].AsString();
+    m_apiHdr += root["influxdb"]["token"].AsString();
+
+    m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
+    m_timestamps += root["streamer"]["timestamps"].AsString();
+    m_verbosity = root["streamer"]["verbosity"].AsInt();
+
+    if ( m_verbosity > 1 ) {
+        wxLogMessage( "dashboard_tactics_pi: InfluxDB API URL = \"%s\"", m_apiURL );
+        wxLogMessage( "dashboard_tactics_pi: InfluxDB API Hdr = \"%s\"", m_apiHdr );
+        wxLogMessage( "dashboard_tactics_pi: InfluxDB connection retries every %d seconds", m_connectionRetry );
+        wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps = %s", m_timestamps );
+    }
+
     return true;
 }
 /***********************************************************************************

@@ -3,7 +3,7 @@
 *
 * Project:  OpenCPN
 * Purpose:  dashboard_tactics_pi plug-in streaming out
-* Author:   Petri Mäkijärvi
+* Author:   Petri Makijarvi
 *       (Inspired by original work from Jean-Eudes Onfray)
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register                               *
@@ -77,7 +77,11 @@ protected:
     bool              m_configured;
 
     // From configuration file
-    wxString          m_serverurl;
+    wxString          m_apiURL;
+    wxString          m_apiHdr;
+    int               m_connectionRetry;
+    wxString          m_timestamps;
+    int               m_verbosity;
 
     bool LoadConfig(void);
     void SaveConfig(void);
