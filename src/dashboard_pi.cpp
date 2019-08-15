@@ -2899,6 +2899,7 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
     if( curSel != -1 ) {
         DashboardWindowContainer *cont = m_Config.Item( curSel );
         cont->m_bIsVisible = m_pCheckBoxIsVisible->IsChecked();
+        cont->m_PersVisible = m_bIsVisible;
         cont->m_sCaption = m_pTextCtrlCaption->GetValue();
         cont->m_sOrientation =
             m_pChoiceOrientation->GetSelection() ==
@@ -2999,6 +3000,7 @@ void DashboardPreferencesDialog::OnDashboardAdd( wxCommandEvent& event )
 #endif // _TACTICSPI_H_
                                                                   _T("V"), ar );
     dwc->m_bIsVisible = true;
+    dwc->m_bPersVisible = true;
     m_Config.Add( dwc );
 }
 
