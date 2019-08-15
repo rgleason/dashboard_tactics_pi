@@ -387,52 +387,47 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         }
     }
 
-    ////DEBUG
-    wxLogMessage ("dashboard_tactics_pi: About to parse: %s", confPath );
-
-    wxFileInputStream jsonStream( confPath );
-    wxJSONValue  root;
-    wxJSONReader reader;
-    int numErrors = reader.Parse( jsonStream, &root );
-
-    ////DEBUG
-    wxLogMessage ("dashboard_tactics_pi: reader.Parse: %s", confPath );
+    try {
+        wxFileInputStream jsonStream( confPath );
+        wxJSONValue  root;
+        wxJSONReader reader;
+        int numErrors = reader.Parse( jsonStream, &root );
 
 
 
-    if ( numErrors > 0 )  {
-        const wxArrayString& errors = reader.GetErrors();
-        wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
-        for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
-            wxLogMessage ("dashboard_tactics_pi: ERROR - parsing errors in the configuration file: %s", errors.Item(i) );
+        if ( numErrors > 0 )  {
+            const wxArrayString& errors = reader.GetErrors();
+            wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+            for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+                wxLogMessage ("dashboard_tactics_pi: ERROR - parsing errors in the configuration file: %s", errors.Item(i) );
+            }
+            return false;
         }
-        return false;
+
+        m_apiURL += root["influxdb"]["serverurl"].AsString();
+        m_apiURL += root["influxdb"]["api"].AsString();
+        m_apiURL += root["influxdb"]["org"].AsString();
+        m_apiURL += root["influxdb"]["bucket"].AsString();
+        m_apiURL += root["influxdb"]["precision"].AsString();
+
+        m_apiHdr += root["influxdb"]["tokenprfx"].AsString();
+        m_apiHdr += root["influxdb"]["token"].AsString();
+
+        m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
+        m_timestamps += root["streamer"]["timestamps"].AsString();
+        m_verbosity = root["streamer"]["verbosity"].AsInt();
+
+        if ( m_verbosity > 1 ) {
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API URL = \"%s\"", m_apiURL );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API Hdr = \"%s\"", m_apiHdr );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB connection retries every %d seconds", m_connectionRetry );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps = %s", m_timestamps );
+        }
     }
-    ////DEBUG
-    wxLogMessage ("dashboard_tactics_pi: About to read 'influxdb'");
-
-    m_apiURL += root["influxdb"]["serverurl"].AsString();
-    m_apiURL += root["influxdb"]["api"].AsString();
-    m_apiURL += root["influxdb"]["org"].AsString();
-    m_apiURL += root["influxdb"]["bucket"].AsString();
-    m_apiURL += root["influxdb"]["precision"].AsString();
-
-    m_apiHdr += root["influxdb"]["tokenprfx"].AsString();
-    m_apiHdr += root["influxdb"]["token"].AsString();
-
-    ////DEBUG
-    wxLogMessage ("dashboard_tactics_pi: About to read 'streamer'");
-
-    m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
-    m_timestamps += root["streamer"]["timestamps"].AsString();
-    m_verbosity = root["streamer"]["verbosity"].AsInt();
-
-    if ( m_verbosity > 1 ) {
-        wxLogMessage( "dashboard_tactics_pi: InfluxDB API URL = \"%s\"", m_apiURL );
-        wxLogMessage( "dashboard_tactics_pi: InfluxDB API Hdr = \"%s\"", m_apiHdr );
-        wxLogMessage( "dashboard_tactics_pi: InfluxDB connection retries every %d seconds", m_connectionRetry );
-        wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps = %s", m_timestamps );
-    }
+    catch (int x) {
+        wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception (%d)", confPath );
+        wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+    } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
 
     return true;
 }
