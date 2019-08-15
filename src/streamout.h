@@ -36,6 +36,7 @@
 // #include <wx/grid.h>
 // #include <wx/filename.h>
 // #include <map>
+#include <wx/thread.h>
 
 #include "instrument.h"
 // #include "plugin_ids.h"
@@ -94,7 +95,7 @@ protected:
             sField2 = source.sField2;
             sField3 = source.sField3;
         };
-        const sentenceSchema& sentenceSchema::operator = (const sentenceSchema &source) {
+        const sentenceSchema& operator = (const sentenceSchema &source) {
             if ( this != &source) {
                 cap = source.cap;
                 bStore = source.bStore;
