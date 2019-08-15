@@ -393,8 +393,6 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         wxJSONReader reader;
         int numErrors = reader.Parse( jsonStream, &root );
 
-
-
         if ( numErrors > 0 )  {
             const wxArrayString& errors = reader.GetErrors();
             wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
@@ -404,17 +402,28 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             return false;
         }
 
+        if ( !root.HasMember("influxdb") ) throw 100;
+        if ( !root["influxdb"].HasMember("serverurl") ) throw 101;
         m_apiURL += root["influxdb"]["serverurl"].AsString();
+        if ( !root["influxdb"].HasMember("api") ) throw 102;
         m_apiURL += root["influxdb"]["api"].AsString();
+        if ( !root["influxdb"].HasMember("org") ) throw 103;
         m_apiURL += root["influxdb"]["org"].AsString();
+        if ( !root["influxdb"].HasMember("bucket") ) throw 104;
         m_apiURL += root["influxdb"]["bucket"].AsString();
+        if ( !root["influxdb"].HasMember("precision") ) throw 105;
         m_apiURL += root["influxdb"]["precision"].AsString();
-
+        if ( !root["influxdb"].HasMember("tokenprfx") ) throw 106;
         m_apiHdr += root["influxdb"]["tokenprfx"].AsString();
+        if ( !root["influxdb"].HasMember("token") ) throw 107;
         m_apiHdr += root["influxdb"]["token"].AsString();
 
+        if ( !root.HasMember("streamer") ) throw 200;
+        if ( !root["streamer"].HasMember("connectionretry") ) throw 201;
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
+        if ( !root["streamer"].HasMember("timestamps") ) throw 202;
         m_timestamps += root["streamer"]["timestamps"].AsString();
+        if ( !root["streamer"].HasMember("verbosity") ) throw 203;
         m_verbosity = root["streamer"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
@@ -425,7 +434,17 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         }
     }
     catch (int x) {
-        wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception (%d)", confPath );
+        wxString expErr = wxEmptyString;
+        if ( (x >= 100) && (x < 200) ) {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'influxdb'",
+                          confPath, (x - 100) );
+        }
+        else if ( (x >= 200) && (x < 300) ) {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'streamer'",
+                          confPath, (x - 200) );
+        }
+        else if ( (x >= 300) && (x < 400) ) {
+        }
         wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
     } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
 

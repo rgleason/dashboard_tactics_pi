@@ -13,6 +13,7 @@
         "org"       : "org=ocarina&",
         "bucket"    : "bucket=nmea&",
         "precision" : "precision=ms",
+        "tokenprfx" : "Authorization: Token ",
         "token"     : "tLux1iynw2uoUqeFd3xTsZ2BRRONWNHxPMZWDBFP5h--EtkEHw66PG-OZxBZqhB6JlNEBKMCQP7VT9d3PIh4LQ=="
     },
 
