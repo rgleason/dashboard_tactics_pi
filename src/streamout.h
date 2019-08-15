@@ -38,8 +38,6 @@
 // #include <map>
 
 #include "instrument.h"
-#include "clock.h"
-#include "gps.h"
 // #include "plugin_ids.h"
 
 
@@ -55,21 +53,33 @@
 class TacticsInstrument_StreamoutSingle : public DashboardInstrument
 {
 public:
-	TacticsInstrument_StreamoutSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format);
-	~TacticsInstrument_StreamoutSingle(){}
+	TacticsInstrument_StreamoutSingle(
+        wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
+        int thisObjectNo, wxString &echoShow, wxString confdir);
+	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
 	void SetData(unsigned long long st, double data, wxString unit);
 
 protected:
+    int               m_thisObjectNo;
+    wxString         *m_echoShow;
     wxString          m_data;
     wxString          m_format;
     int               m_DataHeight;
+    wxString          m_confdir;
+    wxString          m_configFileName;
+    wxFileConfig     *m_pconfig;
+    bool              m_configured;
 
-	void Draw(wxGCDC* dc);
+    // From configuration file
+    wxString          m_serverurl;
+
+    bool LoadConfig(void);
+    void SaveConfig(void);
+    void Draw(wxGCDC* dc);
     
 private :
-	wxFileConfig     *m_pconfig;
 
 };
 

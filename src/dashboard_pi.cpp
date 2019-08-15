@@ -795,6 +795,27 @@ Provides navigation instrument display from NMEA source.");
 }
 
 #ifdef _TACTICSPI_H_
+wxString dashboard_pi::GetStandardPath()
+{
+    wxString s = wxFileName::GetPathSeparator();
+    wxString stdPath  = *GetpPrivateApplicationDataLocation();
+
+    stdPath += _T("plugins");
+    if (!wxDirExists(stdPath))
+      wxMkdir(stdPath);
+
+    stdPath += s + _T("dashoard_tactics_pi");
+
+    if (!wxDirExists(stdPath))
+      wxMkdir(stdPath);
+
+    stdPath += s;
+    return stdPath;
+}
+#endif // _TACTICSPI_H_
+
+
+#ifdef _TACTICSPI_H_
 /* Porting note: this section is the cornerstone of the Tactics porting effort.
    The below private method is about the original dashboard's simple and real
    method: it merely passes to dashboard instruments the NMEA sentences. Now,
@@ -3171,6 +3192,11 @@ DashboardWindow::DashboardWindow(
 {
     m_pauimgr = auimgr;
     m_plugin = plugin;
+#ifdef _TACTICSPI_H_
+    m_echoStreamerShow = wxEmptyString;
+    m_nofStreamOut = 0;
+#endif // _TACTICSPI_H_
+
     m_Container = mycont;
 
     //wx2.9      itemBoxSizer = new wxWrapSizer( orient );
@@ -3791,6 +3817,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
              instrument)->SetDisplayType(POLARTARGETCMGANGLE);
             break;
         case ID_DBP_V_IFLX:
+            m_nofStreamOut++;
             instrument = new TacticsInstrument_StreamoutSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id),
@@ -3811,6 +3838,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_TMP        |
                 OCPN_DBP_STC_VMG        |
                 OCPN_DBP_STC_RSA        |
+                OCPN_DBP_STC_SAT        |
                 OCPN_DBP_STC_PLA        |
                 OCPN_DBP_STC_PLO        |
                 OCPN_DBP_STC_MON        |
@@ -3830,7 +3858,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_BC         |
                 OCPN_DBP_STC_TWAMARK    |
                 OCPN_DBP_STC_POLPERF,
-                _T("%s") );
+                _T("%s"),
+                m_nofStreamOut,
+                m_echoStreamerShow,
+                m_plugin->GetStandardPath() );
             break;
         case ID_DBP_D_POLPERF:
             instrument = new TacticsInstrument_PolarPerformance(

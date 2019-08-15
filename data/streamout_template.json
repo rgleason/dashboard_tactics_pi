@@ -1,0 +1,55 @@
+{
+    /*
+      This is the database schema for the time series based Influx DB
+      and the configuration options for the data streaming from dashboard_tactics_pi instruments.
+      The user editable streamout.json is in the OpenCPN's data directory for dashboard_tactics_pi plug-in.
+      The template streamout_template.json is in in the OpenCPN program's plugin directory for dashboard_tactics_pi.
+    */
+
+    // Definition of the database connection API
+    "influxdb" : {
+        "serverurl" : "http://localhost:9999/",
+        "api"       : "api/v2/write?",
+        "org"       : "org=ocarina&",
+        "bucket"    : "bucket=nmea&",
+        "precision" : "precision=ms",
+        "token"     : "tLux1iynw2uoUqeFd3xTsZ2BRRONWNHxPMZWDBFP5h--EtkEHw66PG-OZxBZqhB6JlNEBKMCQP7VT9d3PIh4LQ=="
+    }
+
+    // Data streamer configuration
+    "streamer" : {
+        "connectionretry" : 5,           // [s], 0=never retry
+        "timestamp"       : "utc",       // "utc", "local" or "db" (server's time)
+        "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose
+    }
+
+    /*
+      Sentence mapping into a respective DB schema and data throttling settings for each sentence.
+
+      The mapping to dashoard_tactics_pi sentences is according to ../instruments.h: do not change.
+
+      The template DB schema is according to Signal K schema, see
+      https://github.com/SignalK/specification/blob/master/schemas/
+
+      To optimize query performance with filters, measurement's sub-properties before the value field
+      are presented as tags to InfluxDB. User can change the measurement class, tags and even measurement
+      fields to his or her liking, of course.
+    */
+    "dbschema" : [
+        {
+            "sentence"   : "OCPN_DBP_STC_SAT",
+            "mask"       : 17,
+            "store"      : true,
+            "interval"   : 10,
+            "measurement" : "navigation",
+            "prop1"       : "gnss",
+            "prop2"       : "",
+            "prop3"       : "",
+            "field1"      : "satellites",
+            "field2"      : "",
+            "field3"      : ""
+        },
+    ]
+
+}
+        

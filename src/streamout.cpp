@@ -31,18 +31,20 @@
 // #include <wx/filefn.h>
 // #include <wx/textfile.h>
 // #include <wx/tokenzr.h>
-// #include <wx/wfstream.h> 
+#include <wx/wfstream.h> 
 // #include <wx/txtstrm.h> 
 // #include <wx/math.h>
 // #include <wx/stdpaths.h>
 // #include <wx/progdlg.h>
 // #include <wx/gdicmn.h>
-// #include <wx/fileconf.h>
+#include <wx/fileconf.h>
 // #include "nmea0183/nmea0183.h"
 
 #include "streamout.h"
 // #include <map>
 // #include <cmath>
+#include "ocpn_plugin.h"
+#include "wx/jsonreader.h"
 
 extern wxString g_path_to_PolarFile;
 extern int g_iDashWindSpeedUnit;
@@ -54,12 +56,36 @@ extern int g_iSpeedFormat;
 //    TacticsInstrument_StreamoutSingle
 //
 //----------------------------------------------------------------
-TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format)
+TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
+    wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
+    int thisObjectNo, wxString &echoShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
-    m_data = _T("---");
+    m_thisObjectNo = thisObjectNo;
+    m_echoShow = &echoShow;
+    if ( m_thisObjectNo > 1) {
+        m_data = echoShow;
+    }
+    else {
+        m_data = _T("---");
+        echoShow = m_data;
+    }
     m_format = format;
     m_DataHeight = 0;
+    m_confdir = confdir;
+    m_pconfig = GetOCPNConfigObject();
+    m_configFileName = wxEmptyString;
+
+    m_serverurl = wxEmptyString;
+
+    m_configured = LoadConfig();
+}
+/***********************************************************************************
+
+************************************************************************************/
+TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
+{
+    SaveConfig();
 }
 /***********************************************************************************
 
@@ -118,6 +144,12 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 {
     if (std::isnan(data))
         return;
+
+    if ( m_thisObjectNo > 1 ) {
+        m_data = *m_echoShow;
+        return;
+    }
+
     /*
     
     if (st == OCPN_DBP_STC_STW){
@@ -308,4 +340,68 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         }
     }
     */
+ 
+}
+/***********************************************************************************
+
+************************************************************************************/
+bool TacticsInstrument_StreamoutSingle::LoadConfig()
+{
+    if ( m_thisObjectNo > 1 )
+        return true;
+    
+    wxFileConfig *pConf = m_pconfig;
+    
+    if (!pConf)
+        return false;
+    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Streamout/"));
+    pConf->Read(_T("ConfigFile"), &m_configFileName, "streamout.json");
+    wxString s = wxFileName::GetPathSeparator();
+    wxString confPath = m_confdir + m_configFileName;
+    if ( !wxFileExists( confPath ) ) {
+        wxString tmplPath  = *GetpSharedDataLocation();
+        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("streamout_template.json");
+        if ( !wxFileExists( tmplPath ) ) {
+            wxLogMessage ("dashboard_tactics_pi: ERROR - missing template %s", tmplPath);
+            return false;
+        }
+        bool ret = wxCopyFile ( tmplPath, confPath ); 
+        if ( !ret ) {
+            wxLogMessage ("dashboard_tactics_pi: ERROR - cannot copy template %s to %s", tmplPath, confPath);
+            return false;
+        }
+    }
+    wxFileInputStream jsonStream( confPath );
+    wxJSONValue  root;
+    wxJSONReader reader;
+    int numErrors = reader.Parse( jsonStream, &root );
+    if ( numErrors > 0 )  {
+        const wxArrayString& errors = reader.GetErrors();
+        wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+        for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+            wxLogMessage ("dashboard_tactics_pi: ERROR - parsing errors in the configuration file: %s", errors.Item(i) );
+        }
+        return false;
+    }
+    m_serverurl = root["influxdb"]["serverurl"].AsString();
+    
+    return true;
+}
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamoutSingle::SaveConfig()
+{
+    if ( m_thisObjectNo > 1 )
+        return;
+    
+    wxFileConfig *pConf = m_pconfig;
+    
+    if (!pConf)
+        return;
+
+    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Streamout/"));
+    pConf->Write(_T("ConfigFile"),m_configFileName);
+
+    return;
 }

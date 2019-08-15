@@ -182,6 +182,7 @@ public:
     wxString GetLongDescription();
 
 #ifdef _TACTICSPI_H_
+    wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
     void SendSentenceToAllInstruments(
@@ -402,10 +403,16 @@ public:
     /*TODO: OnKeyPress pass event to main window or disable focus*/
 
     DashboardWindowContainer* m_Container;
+#ifdef _TACTICSPI_H_
+    wxString                  m_echoStreamerShow;
+#endif // _TACTICSPI_H_
 
 private:
     wxAuiManager         *m_pauimgr;
     dashboard_pi*         m_plugin;
+#ifdef _TACTICSPI_H_
+    int                   m_nofStreamOut;
+#endif // _TACTICSPI_H_
 
     //wx2.9      wxWrapSizer*          itemBoxSizer;
     wxBoxSizer*          itemBoxSizer;
