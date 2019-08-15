@@ -94,27 +94,7 @@ tactics_pi::tactics_pi( void )
     m_hostplugin_pconfig = NULL;
     b_tactics_dc_message_shown = false;
 
-}
-
-tactics_pi::~tactics_pi( void )
-{
-    return;
-}
-
-int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
-{
-    m_hostplugin = hostplugin;
-    m_hostplugin_pconfig = pConf;
-    m_hostplugin_config_path = pConf->GetPath();
-    m_this_config_path = m_hostplugin_config_path + _T("/Tactics");
-
-    SetNMEASentence_Arm_BRG_Watchdog();
-    SetNMEASentence_Arm_TWD_Watchdog();
-    SetNMEASentence_Arm_TWS_Watchdog();
-    SetNMEASentence_Arm_AWS_Watchdog();
-    SetNMEASentence_Arm_VMG_Watchdog();
-
-    // please keep the below in same order than in class definition, please.
+    // please keep the below in same order than in class definition to ease the maintenance
     mHdt = NAN;
     mStW = NAN;
     mStWnocorr = NAN;
@@ -200,6 +180,25 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     tackpoints[1] = vpoints[0];
     tackpoints[2] = vpoints[0];
     m_CurrentDirection = NAN;
+}
+
+tactics_pi::~tactics_pi( void )
+{
+    return;
+}
+
+int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
+{
+    m_hostplugin = hostplugin;
+    m_hostplugin_pconfig = pConf;
+    m_hostplugin_config_path = pConf->GetPath();
+    m_this_config_path = m_hostplugin_config_path + _T("/Tactics");
+
+    SetNMEASentence_Arm_BRG_Watchdog();
+    SetNMEASentence_Arm_TWD_Watchdog();
+    SetNMEASentence_Arm_TWS_Watchdog();
+    SetNMEASentence_Arm_AWS_Watchdog();
+    SetNMEASentence_Arm_VMG_Watchdog();
 
     mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
     mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);

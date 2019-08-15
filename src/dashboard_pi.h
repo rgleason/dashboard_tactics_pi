@@ -212,6 +212,10 @@ public:
     void ApplyConfig( bool init=false );
 #endif // _TACTICSPI_H_
 
+#ifdef _TACTICSPI_H_
+    int                m_nofStreamOut;
+    wxString           m_echoStreamerShow;
+#endif // _TACTICSPI_H_
     
 private:
     bool LoadConfig(void);
@@ -235,21 +239,29 @@ private:
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
 #ifdef _TACTICSPI_H_
-    bool              m_bToggledStateVisible;
-    int               m_iPlugInRequirements;
-    wxWindow         *m_pluginFrame;
-    static const char *s_common_name;
+    bool                m_bToggledStateVisible;
+    int                 m_iPlugInRequirements;
+    wxWindow           *m_pluginFrame;
+    static const char  *s_common_name;
 #endif // _TACTICSPI_H_
-    wxFileConfig     *m_pconfig;
-    wxAuiManager     *m_pauimgr;
-    int              m_toolbar_item_id;
+    wxFileConfig        *m_pconfig;
+    wxAuiManager        *m_pauimgr;
+    int                  m_toolbar_item_id;
 
     wxArrayOfDashboard   m_ArrayOfDashboardWindow;
     int                  m_show_id;
     int                  m_hide_id;
 
     NMEA0183             m_NMEA0183;                 // Used to parse NMEA Sentences
-    short                mPriPosition, mPriCOGSOG, mPriHeadingM, mPriHeadingT, mPriVar, mPriDateTime, mPriAWA, mPriTWA, mPriDepth;
+    short                mPriPosition;
+    short                mPriCOGSOG;
+    short                mPriHeadingM;
+    short                mPriHeadingT;
+    short                mPriVar;
+    short                mPriDateTime;
+    short                mPriAWA;
+    short                mPriTWA;
+    short                mPriDepth;
     double               mVar;
     // FFU
     double               mSatsInView;
@@ -403,16 +415,10 @@ public:
     /*TODO: OnKeyPress pass event to main window or disable focus*/
 
     DashboardWindowContainer* m_Container;
-#ifdef _TACTICSPI_H_
-    wxString                  m_echoStreamerShow;
-#endif // _TACTICSPI_H_
 
 private:
     wxAuiManager         *m_pauimgr;
     dashboard_pi*         m_plugin;
-#ifdef _TACTICSPI_H_
-    int                   m_nofStreamOut;
-#endif // _TACTICSPI_H_
 
     //wx2.9      wxWrapSizer*          itemBoxSizer;
     wxBoxSizer*          itemBoxSizer;

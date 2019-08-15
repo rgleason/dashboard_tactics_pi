@@ -484,6 +484,34 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
      wxTimer( this ), opencpn_plugin_16( ppimgr )
 #endif // _TACTICSPI_H_
 {
+#ifdef _TACTICSPI_H_
+    m_nofStreamOut = 0;
+    m_echoStreamerShow = wxEmptyString;
+    m_bToggledStateVisible = false;
+    m_iPlugInRequirements = 0;
+    m_pluginFrame = NULL;
+#endif // _TACTICSPI_H_
+    mPriPosition = 99;
+    mPriCOGSOG = 99;
+    mPriHeadingT = 99; // True heading
+    mPriHeadingM = 99; // Magnetic heading
+    mPriVar = 99;
+    mPriDateTime = 99;
+    mPriAWA = 99; // Relative wind
+    mPriTWA = 99; // True wind
+    mPriDepth = 99;
+    mVar = NAN;
+    mSatsInView = 0.0;
+    mHdm = 0.0;
+    mUTCDateTime.Set( (time_t) -1 );
+    m_config_version = -1;
+    mHDx_Watchdog = 2;
+    mHDT_Watchdog = 2;
+    mGPS_Watchdog = 2;
+    mVar_Watchdog = 2;
+#ifdef _TACTICSPI_H_
+    mStW_Watchdog = 2;
+#endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
 }
@@ -509,25 +537,6 @@ int dashboard_pi::Init( void )
     AddLocaleCatalog( _T("opencpn-dashboard-tactics_pi") );
 #else
     AddLocaleCatalog( _T("opencpn-dashboard_pi") );
-#endif // _TACTICSPI_H_
-
-    mVar = NAN;
-    mPriPosition = 99;
-    mPriCOGSOG = 99;
-    mPriHeadingT = 99; // True heading
-    mPriHeadingM = 99; // Magnetic heading
-    mPriVar = 99;
-    mPriDateTime = 99;
-    mPriAWA = 99; // Relative wind
-    mPriTWA = 99; // True wind
-    mPriDepth = 99;
-    m_config_version = -1;
-    mHDx_Watchdog = 2;
-    mHDT_Watchdog = 2;
-    mGPS_Watchdog = 2;
-    mVar_Watchdog = 2;
-#ifdef _TACTICSPI_H_
-    mStW_Watchdog = 2;
 #endif // _TACTICSPI_H_
 
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
@@ -2899,7 +2908,7 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
     if( curSel != -1 ) {
         DashboardWindowContainer *cont = m_Config.Item( curSel );
         cont->m_bIsVisible = m_pCheckBoxIsVisible->IsChecked();
-        cont->m_PersVisible = m_bIsVisible;
+        cont->m_bPersVisible = cont->m_bIsVisible;
         cont->m_sCaption = m_pTextCtrlCaption->GetValue();
         cont->m_sOrientation =
             m_pChoiceOrientation->GetSelection() ==
@@ -3194,11 +3203,6 @@ DashboardWindow::DashboardWindow(
 {
     m_pauimgr = auimgr;
     m_plugin = plugin;
-#ifdef _TACTICSPI_H_
-    m_echoStreamerShow = wxEmptyString;
-    m_nofStreamOut = 0;
-#endif // _TACTICSPI_H_
-
     m_Container = mycont;
 
     //wx2.9      itemBoxSizer = new wxWrapSizer( orient );
@@ -3819,7 +3823,6 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
              instrument)->SetDisplayType(POLARTARGETCMGANGLE);
             break;
         case ID_DBP_V_IFLX:
-            m_nofStreamOut++;
             instrument = new TacticsInstrument_StreamoutSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id),
@@ -3861,8 +3864,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_TWAMARK    |
                 OCPN_DBP_STC_POLPERF,
                 _T("%s"),
-                m_nofStreamOut,
-                m_echoStreamerShow,
+                m_plugin->m_nofStreamOut,
+                m_plugin->m_echoStreamerShow,
                 m_plugin->GetStandardPath() );
             break;
         case ID_DBP_D_POLPERF:

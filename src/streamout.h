@@ -55,15 +55,15 @@ class TacticsInstrument_StreamoutSingle : public DashboardInstrument
 public:
 	TacticsInstrument_StreamoutSingle(
         wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
-        int thisObjectNo, wxString &echoShow, wxString confdir);
+        int &nofStreamOut, wxString &echoStreamerShow, wxString confdir);
 	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
 	void SetData(unsigned long long st, double data, wxString unit);
 
 protected:
-    int               m_thisObjectNo;
-    wxString         *m_echoShow;
+    int              *m_nofStreamOut;
+    wxString         *m_echoStreamerShow;
     wxString          m_data;
     wxString          m_format;
     int               m_DataHeight;

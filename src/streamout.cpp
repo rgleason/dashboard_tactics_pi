@@ -58,17 +58,17 @@ extern int g_iSpeedFormat;
 //----------------------------------------------------------------
 TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
-    int thisObjectNo, wxString &echoShow, wxString confdir)
+    int &nofStreamOut, wxString &echoStreamerShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
-    m_thisObjectNo = thisObjectNo;
-    m_echoShow = &echoShow;
-    if ( m_thisObjectNo > 1) {
-        m_data = echoShow;
+    m_nofStreamOut = &nofStreamOut;
+    m_echoStreamerShow = &echoStreamerShow;
+    if ( *m_nofStreamOut > 1) {
+        m_data = echoStreamerShow;
     }
     else {
         m_data = _T("---");
-        echoShow = m_data;
+        echoStreamerShow = m_data;
     }
     m_format = format;
     m_DataHeight = 0;
@@ -145,8 +145,8 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     if (std::isnan(data))
         return;
 
-    if ( m_thisObjectNo > 1 ) {
-        m_data = *m_echoShow;
+    if ( *m_nofStreamOut > 1 ) {
+        m_data = *m_echoStreamerShow;
         return;
     }
 
@@ -347,7 +347,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 ************************************************************************************/
 bool TacticsInstrument_StreamoutSingle::LoadConfig()
 {
-    if ( m_thisObjectNo > 1 )
+    if ( *m_nofStreamOut > 1 )
         return true;
     
     wxFileConfig *pConf = m_pconfig;
@@ -392,7 +392,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::SaveConfig()
 {
-    if ( m_thisObjectNo > 1 )
+    if ( *m_nofStreamOut > 1 )
         return;
     
     wxFileConfig *pConf = m_pconfig;
