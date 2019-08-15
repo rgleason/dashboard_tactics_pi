@@ -214,6 +214,7 @@ public:
 
 #ifdef _TACTICSPI_H_
     int                m_nofStreamOut;
+    std::mutex         m_mtxNofStreamOut;
     wxString           m_echoStreamerShow;
 #endif // _TACTICSPI_H_
     

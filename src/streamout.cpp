@@ -26,6 +26,8 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+using namespace std;
+#include <mutex>
 
 // #include <wx/dir.h>
 // #include <wx/filefn.h>
@@ -58,18 +60,23 @@ extern int g_iSpeedFormat;
 //----------------------------------------------------------------
 TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
-    int &nofStreamOut, wxString &echoStreamerShow, wxString confdir)
+    std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
+    std::unique_lock<std::mutex> lck_mtxNofStreamOut( mtxNofStreamOut);
+    nofStreamOut++;
+    m_mtxNofStreamOut = &mtxNofStreamOut;
     m_nofStreamOut = &nofStreamOut;
     m_echoStreamerShow = &echoStreamerShow;
-    if ( *m_nofStreamOut > 1) {
+    m_state = SSSM_STATE_UNKNOWN;
+    if ( nofStreamOut > 1) {
+        m_state = SSSM_STATE_DISPLAYRELAY;
         m_data = echoStreamerShow;
+        return;
     }
-    else {
-        m_data = _T("---");
-        echoStreamerShow = m_data;
-    }
+    m_state = SSSM_STATE_INIT;
+    m_data = _T("---");
+    echoStreamerShow = m_data;
     m_format = format;
     m_DataHeight = 0;
     m_confdir = confdir;
@@ -85,7 +92,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 ************************************************************************************/
 TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
 {
+    std::unique_lock<std::mutex> lck_mtxNofStreamOut( *m_mtxNofStreamOut);
     SaveConfig();
+    *m_nofStreamOut--;
 }
 /***********************************************************************************
 
@@ -145,7 +154,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     if (std::isnan(data))
         return;
 
-    if ( *m_nofStreamOut > 1 ) {
+    if ( m_state == SSSM_STATE_DISPLAYRELAY ) {
         m_data = *m_echoStreamerShow;
         return;
     }

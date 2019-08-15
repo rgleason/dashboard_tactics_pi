@@ -180,25 +180,6 @@ tactics_pi::tactics_pi( void )
     tackpoints[1] = vpoints[0];
     tackpoints[2] = vpoints[0];
     m_CurrentDirection = NAN;
-}
-
-tactics_pi::~tactics_pi( void )
-{
-    return;
-}
-
-int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
-{
-    m_hostplugin = hostplugin;
-    m_hostplugin_pconfig = pConf;
-    m_hostplugin_config_path = pConf->GetPath();
-    m_this_config_path = m_hostplugin_config_path + _T("/Tactics");
-
-    SetNMEASentence_Arm_BRG_Watchdog();
-    SetNMEASentence_Arm_TWD_Watchdog();
-    SetNMEASentence_Arm_TWS_Watchdog();
-    SetNMEASentence_Arm_AWS_Watchdog();
-    SetNMEASentence_Arm_VMG_Watchdog();
 
     mSinCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
     mCosCurrDir = new DoubleExpSmooth(g_dalpha_currdir);
@@ -240,6 +221,25 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_UNKNOWN;
     m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_UNKNOWN;
     g_iDbgRes_Polar_Status = DBGRES_POLAR_UNKNOWN;
+}
+
+tactics_pi::~tactics_pi( void )
+{
+    return;
+}
+
+int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
+{
+    m_hostplugin = hostplugin;
+    m_hostplugin_pconfig = pConf;
+    m_hostplugin_config_path = pConf->GetPath();
+    m_this_config_path = m_hostplugin_config_path + _T("/Tactics");
+
+    SetNMEASentence_Arm_BRG_Watchdog();
+    SetNMEASentence_Arm_TWD_Watchdog();
+    SetNMEASentence_Arm_TWS_Watchdog();
+    SetNMEASentence_Arm_AWS_Watchdog();
+    SetNMEASentence_Arm_VMG_Watchdog();
 
     (void) DeleteSingleWaypoint (g_sMarkGUID);
 

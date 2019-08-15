@@ -40,6 +40,8 @@
 #include "instrument.h"
 // #include "plugin_ids.h"
 
+enum StreamoutSingleStateMachine {
+    SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT };
 
 //+------------------------------------------------------------------------------
 //|
@@ -55,13 +57,15 @@ class TacticsInstrument_StreamoutSingle : public DashboardInstrument
 public:
 	TacticsInstrument_StreamoutSingle(
         wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
-        int &nofStreamOut, wxString &echoStreamerShow, wxString confdir);
+        std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir);
 	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
 	void SetData(unsigned long long st, double data, wxString unit);
 
 protected:
+    int               m_state;
+    std::mutex       *m_mtxNofStreamOut;
     int              *m_nofStreamOut;
     wxString         *m_echoStreamerShow;
     wxString          m_data;
