@@ -92,6 +92,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_timestamps = emptyStr;
 
     m_configured = LoadConfig();
+
+    if ( m_configured )
+        m_state = SSSM_STATE_CONFIGURED;
 }
 /***********************************************************************************
 
@@ -432,6 +435,56 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             wxLogMessage( "dashboard_tactics_pi: InfluxDB connection retries every %d seconds", m_connectionRetry );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps = %s", m_timestamps );
         }
+
+        if ( !root.HasMember("dbschema") ) throw 300;
+        wxJSONValue dbSchemas = root["dbschema"];
+        if ( !dbSchemas.IsArray() ) {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is not an array.");
+            throw 300;
+        }
+        int asize = dbSchemas.Size();
+        if ( asize == 0 ) {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is an array but it is empty.");
+            throw 300;
+        }
+        for ( int i = 0; i < asize; i++ ) {
+
+            if ( !dbSchemas[i].HasMember("mask") ) throw ( 10000 + (i * 100) + 2 );
+            int mask = dbSchemas[i]["mask"].AsInt();
+            schema.cap = 1ULL << mask;
+            
+            if ( !dbSchemas[i].HasMember("store") ) throw ( 10000 + (i * 100) + 3 );
+            schema.bStore = dbSchemas[i]["store"].AsBool();
+
+            schema.lastTimeStamp = 0LL;
+
+            if ( !dbSchemas[i].HasMember("interval") ) throw ( 10000 + (i * 100) + 4 );
+            schema.iInterval = dbSchemas[i]["interval"].AsInt();
+
+            if ( !dbSchemas[i].HasMember("measurement") ) throw ( 10000 + (i * 100) + 5 );
+            schema.sMeasurement = dbSchemas[i]["measurement"].AsString();
+
+            if ( !dbSchemas[i].HasMember("prop1") ) throw ( 10000 + (i * 100) + 6 );
+            schema.sProp1 = dbSchemas[i]["prop1"].AsString();
+
+            if ( !dbSchemas[i].HasMember("prop2") ) throw ( 10000 + (i * 100) + 7 );
+            schema.sProp2 = dbSchemas[i]["prop2"].AsString();
+
+            if ( !dbSchemas[i].HasMember("prop3") ) throw ( 10000 + (i * 100) + 8 );
+            schema.sProp3 = dbSchemas[i]["prop3"].AsString();
+
+            if ( !dbSchemas[i].HasMember("field1") ) throw ( 10000 + (i * 100) + 9 );
+            schema.sField1 = dbSchemas[i]["field1"].AsString();
+
+            if ( !dbSchemas[i].HasMember("field2") ) throw ( 10000 + (i * 100) + 10 );
+            schema.sField2 = dbSchemas[i]["field2"].AsString();
+
+            if ( !dbSchemas[i].HasMember("field3") ) throw ( 10000 + (i * 100) + 11 );
+            schema.sField3 = dbSchemas[i]["field3"].AsString();
+
+            vSchema.push_back ( schema );
+            
+        } // while array has sentence schemas defined
     }
     catch (int x) {
         wxString expErr = wxEmptyString;
@@ -444,8 +497,17 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
                           confPath, (x - 200) );
         }
         else if ( (x >= 300) && (x < 400) ) {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'dbschema'",
+                          confPath, (x - 300) );
+        }
+        else {
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing item in 'dbschema' array %d (10000=ignore, 100's=sentence number, 1's=index in sentence)",
+                          confPath, x );
         }
         wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+
+        return false;
+        
     } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
 
     return true;

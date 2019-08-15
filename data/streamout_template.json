@@ -20,7 +20,7 @@
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s], 0=never retry
-        "timestamps"      : "utc",       // "utc", "local" or "db" (server's time)
+        "timestamps"      : "local",     // "local" or "db" (no timestamp, use server's time)
         "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose
     },
 

@@ -41,7 +41,7 @@
 // #include "plugin_ids.h"
 
 enum StreamoutSingleStateMachine {
-    SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT };
+    SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT, SSSM_STATE_CONFIGURED };
 
 //+------------------------------------------------------------------------------
 //|
@@ -64,6 +64,65 @@ public:
 	void SetData(unsigned long long st, double data, wxString unit);
 
 protected:
+
+    class sentenceSchema
+    {
+    public:
+        sentenceSchema(void) {
+            cap = 0ULL;
+            bStore = false;
+            iInterval = 0;
+            lastTimeStamp = 0L;
+            sMeasurement = wxEmptyString;
+            sProp1 = wxEmptyString;
+            sProp2 = wxEmptyString;
+            sProp3 = wxEmptyString;
+            sField1 = wxEmptyString;
+            sField2 = wxEmptyString;
+            sField3 = wxEmptyString;
+        };
+        sentenceSchema( const sentenceSchema& source) {
+            cap = source.cap;
+            bStore = source.bStore;
+            iInterval = source.iInterval;
+            lastTimeStamp = source.lastTimeStamp;
+            sMeasurement = source.sMeasurement;
+            sProp1 = source.sProp1;
+            sProp2 = source.sProp2;
+            sProp3 = source.sProp3;
+            sField1 = source.sField1;
+            sField2 = source.sField2;
+            sField3 = source.sField3;
+        };
+        const sentenceSchema& sentenceSchema::operator = (const sentenceSchema &source) {
+            if ( this != &source) {
+                cap = source.cap;
+                bStore = source.bStore;
+                iInterval = source.iInterval;
+                lastTimeStamp = source.lastTimeStamp;
+                sMeasurement = source.sMeasurement;
+                sProp1 = source.sProp1;
+                sProp2 = source.sProp2;
+                sProp3 = source.sProp3;
+                sField1 = source.sField1;
+                sField2 = source.sField2;
+                sField3 = source.sField3;
+            }
+            return *this;
+        };
+        unsigned long long cap;
+        bool bStore;
+        int iInterval;
+        long long lastTimeStamp;
+        wxString sMeasurement;
+        wxString sProp1;
+        wxString sProp2;
+        wxString sProp3;
+        wxString sField1;
+        wxString sField2;
+        wxString sField3;
+    }; // This class presents the elements of the configuration file
+    
     int               m_state;
     std::mutex       *m_mtxNofStreamOut;
     int              *m_nofStreamOut;
@@ -75,6 +134,9 @@ protected:
     wxString          m_configFileName;
     wxFileConfig     *m_pconfig;
     bool              m_configured;
+
+    sentenceSchema    schema;
+    std::vector<sentenceSchema> vSchema;
 
     // From configuration file
     wxString          m_apiURL;
