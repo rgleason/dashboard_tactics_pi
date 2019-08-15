@@ -32,17 +32,18 @@
 #include "wx/wx.h"
 #endif //precompiled headers
 
-// #include <wx/dynarray.h>
-// #include <wx/grid.h>
-// #include <wx/filename.h>
-// #include <map>
+#include <wx/socket.h>
 #include <wx/thread.h>
 
 #include "instrument.h"
-// #include "plugin_ids.h"
 
 enum StreamoutSingleStateMachine {
-    SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT, SSSM_STATE_CONFIGURED };
+    SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT, SSSM_STATE_CONFIGURED,
+    SSSM_STATE_READY, SSSM_STATE_FAIL };
+
+enum dbgThreadRun {
+    DBGRES_THR_RUN_UNKNOWN, DBGRES_THR_RUN_ERROR, DBGRES_THR_RUN_OK };
+
 
 //+------------------------------------------------------------------------------
 //|
@@ -53,7 +54,7 @@ enum StreamoutSingleStateMachine {
 //|    This class creates a single data streamout instrument
 //|
 //+------------------------------------------------------------------------------
-class TacticsInstrument_StreamoutSingle : public DashboardInstrument
+class TacticsInstrument_StreamoutSingle : public DashboardInstrument, public wxThreadHelper
 {
 public:
 	TacticsInstrument_StreamoutSingle(
@@ -70,7 +71,7 @@ protected:
     {
     public:
         sentenceSchema(void) {
-            cap = 0ULL;
+            st = 0ULL;
             bStore = false;
             iInterval = 0;
             lastTimeStamp = 0L;
@@ -83,7 +84,7 @@ protected:
             sField3 = wxEmptyString;
         };
         sentenceSchema( const sentenceSchema& source) {
-            cap = source.cap;
+            st = source.st;
             bStore = source.bStore;
             iInterval = source.iInterval;
             lastTimeStamp = source.lastTimeStamp;
@@ -97,7 +98,7 @@ protected:
         };
         const sentenceSchema& operator = (const sentenceSchema &source) {
             if ( this != &source) {
-                cap = source.cap;
+                st = source.st;
                 bStore = source.bStore;
                 iInterval = source.iInterval;
                 lastTimeStamp = source.lastTimeStamp;
@@ -111,7 +112,7 @@ protected:
             }
             return *this;
         };
-        unsigned long long cap;
+        unsigned long long st;
         bool bStore;
         int iInterval;
         long long lastTimeStamp;
@@ -139,18 +140,31 @@ protected:
     sentenceSchema    schema;
     std::vector<sentenceSchema> vSchema;
 
+    wxSocketClient   *socket;
+    std::mutex        m_mtxSocket;
+    int               m_dgbThreadRun;
+    float             m_outData1;
+    wxString          m_outUnit1;
+
     // From configuration file
+    wxString          m_apiServer;
     wxString          m_apiURL;
-    wxString          m_apiHdr;
+    wxString          m_apiAut;
     int               m_connectionRetry;
     wxString          m_timestamps;
     int               m_verbosity;
 
+    bool GetSchema(unsigned long long st, sentenceSchema& schema);
     bool LoadConfig(void);
     void SaveConfig(void);
     void Draw(wxGCDC* dc);
+    void OnClose(wxCloseEvent& evt);
+    wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry(void);
+    void OnThreadUpdate(wxThreadEvent& evt);
     
 private :
+
+    wxDECLARE_EVENT_TABLE();
 
 };
 

@@ -33,10 +33,11 @@ enum pluginids {
     myID_wxRESERVED = wxID_HIGHEST,
     myID_EDIT_FIRST,
     myID_FIRST_UNIQUE_ID = myID_EDIT_FIRST + 12500, // arbitrary number
-    // timer event as threaded execution
+    // threads or timer events as threaded execution
     myID_THREAD_WINDHISTORY,
     myID_THREAD_POLARPERFORMANCE,
     myID_THREAD_BAROHISTORY,
+    myID_THREAD_IFLXAPI,
     // end of tacticsEvents
     myID_EDIT_LAST
 };
