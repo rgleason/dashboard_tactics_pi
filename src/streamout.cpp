@@ -429,7 +429,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
         if ( !root["streamer"].HasMember("timestamps") ) throw 202;
         m_timestamps += root["streamer"]["timestamps"].AsString();
-        if ( m_timestamps.CmpNoCase( _T("db") == 0 ) )
+        if ( m_timestamps.IsSameAs( _T("db"), false ) )
             m_stamp = false;
         if ( !root["streamer"].HasMember("verbosity") ) throw 203;
         m_verbosity = root["streamer"]["verbosity"].AsInt();
