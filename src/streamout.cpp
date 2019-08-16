@@ -351,7 +351,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         //         wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API write returns %d chars: %s",
         //                      socket->LastCount(), buf);
 
-        }
+        // }
 
     } // while destroy
     
