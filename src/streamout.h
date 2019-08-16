@@ -48,7 +48,7 @@ enum StreamoutSingleStateMachine {
 
 enum SocketThreadStateMachine {
     STSM_STATE_UNKNOWN, STSM_STATE_INIT, STSM_STATE_ERROR, STSM_STATE_CONNECTING,
-    STSM_STATE_READY, STSM_STATE_SENDING, STSM_STATE_WAITING };
+    STSM_STATE_READY };
 
 
 //+------------------------------------------------------------------------------
@@ -204,6 +204,8 @@ protected:
         wxString field_value3;
         wxString timestamp;
     }; // This class presents the line propotocol elements in the data FIFO queue 
+
+    TacticsInstrument_StreamoutSingle *m_frame;
     
     int               m_state;
     std::mutex       *m_mtxNofStreamOut;
@@ -218,9 +220,10 @@ protected:
     bool              m_configured;
 
     std::vector<sentenceSchema> vSchema;
-
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;
+    int               m_stateComm;
+    wxString          m_threadMsg;
 
     // From configuration file
     wxString          m_server;

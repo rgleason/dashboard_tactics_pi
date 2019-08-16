@@ -18,7 +18,7 @@
 
     // Data streamer configuration
     "streamer" : {
-        "connectionretry" : 5,           // [s], 0=never retry (no reconnection)
+        "connectionretry" : 5,           // [s] (min. value = 1s to reduce CPU load)
         "timestamps"      : "local",     // "local" or "db" time [select "precision"]
         "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose logs
     },

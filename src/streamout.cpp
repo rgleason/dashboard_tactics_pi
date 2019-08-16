@@ -42,7 +42,7 @@ extern int g_iSpeedFormat;
 
 wxBEGIN_EVENT_TABLE (TacticsInstrument_StreamoutSingle, DashboardInstrument)
    EVT_THREAD (myID_THREAD_IFLXAPI, TacticsInstrument_StreamoutSingle::OnThreadUpdate)
-   EVT_CLOSE(TacticsInstrument_StreamoutSingle::OnClose)
+   EVT_CLOSE (TacticsInstrument_StreamoutSingle::OnClose)
 wxEND_EVENT_TABLE ()
 
 // ----------------------------------------------------------------
@@ -55,6 +55,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
+    m_frame = this;
     std::unique_lock<std::mutex> lck_mtxNofStreamOut( mtxNofStreamOut);
     nofStreamOut++;
     m_mtxNofStreamOut = &mtxNofStreamOut;
@@ -94,8 +95,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         return;
     m_state = SSSM_STATE_CONFIGURED;
 
-    std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine,
-                                                         std::defer_lock );
+    std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
+    m_stateComm = STSM_STATE_UNKNOWN;
+    m_threadMsg = emptyStr;
     if ( CreateThread( wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR ) {
         wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
         m_state = SSSM_STATE_FAIL;
@@ -117,8 +119,10 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
 {
     std::unique_lock<std::mutex> lck_mtxNofStreamOut( *m_mtxNofStreamOut);
-    SaveConfig();
     *m_nofStreamOut--;
+    if ( m_state == SSSM_STATE_DISPLAYRELAY )
+        return;
+    SaveConfig();
 }
 /***********************************************************************************
 
@@ -241,7 +245,14 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 {
-    return;    
+    if ( m_state == SSSM_STATE_DISPLAYRELAY )
+        return;
+    if ( m_verbosity > 1)
+        wxLogMessage ("dashboard_tactics_pi: DEBUG : received CloseEvent, waiting on comm. thread.");
+    if (GetThread() &&
+        GetThread()->IsRunning())
+        GetThread()->Wait();
+    Destroy();
 }
 /***********************************************************************************
 /***********************************************************************************
@@ -249,11 +260,86 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 ************************************************************************************/
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
-    //    wxSocketClient   *socket;
-    //    socket = new wxSocketClient();
+    m_stateComm = STSM_STATE_INIT;
 
+    wxSocketClient *socket  = new wxSocketClient();
+    socket->SetTimeout( 3 );
+    wxIPV4address  *address = new wxIPV4address();
+    wxUniChar separator = 0x3a;
+    address->Hostname(m_server.BeforeFirst(separator));
+    address->Service(m_server.AfterFirst(separator));
+    wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
+    m_threadMsg = wxString::Format("dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
+                                   m_server.BeforeFirst(separator), m_server.AfterFirst(separator));
+    event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+
+    std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
+
+    m_stateComm = STSM_STATE_CONNECTING;
 
     while ( !GetThread()->TestDestroy() ) {
+
+        if ( (m_stateComm == STSM_STATE_CONNECTING) || (m_stateComm == STSM_STATE_ERROR) ) {
+            wxString connectionErr = wxEmptyString;
+            int waitMilliSeconds = 0;
+            while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                wxMilliSleep( 100 );
+                waitMilliSeconds += 100;
+            } // while giving out the CPU time
+            if ( !socket->Connect( *address, false ) ) {
+                if ( !socket->WaitOnConnect() ) {
+                    connectionErr += _T(" (timeout)");
+                }
+                else {
+                    if ( !socket->IsConnected() ) {
+                        connectionErr += _T(" (refused by peer)");
+                    }
+                }
+            }
+            if ( connectionErr.IsEmpty() ) {
+                m_stateComm = STSM_STATE_READY;
+                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
+                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+            }
+            else {
+                m_stateComm = STSM_STATE_ERROR;
+                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
+                m_threadMsg += connectionErr;
+                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+            }
+
+            if ( m_stateComm == STSM_STATE_ERROR ) {
+                int waitMilliSeconds = 0;
+                while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                    wxMilliSleep( 100 );
+                    waitMilliSeconds += 100;
+                } // while giving out the CPU time
+                if ( !GetThread()->TestDestroy() )
+                    m_stateComm = STSM_STATE_CONNECTING; 
+            } // then error state wait until attempting again
+        } // then need to attempt to connect()
+
+        if ( m_stateComm == STSM_STATE_READY ) {
+            mtxQLine.lock();
+            if (qLine.empty()) {
+                mtxQLine.unlock();
+                wxMilliSleep( 100 );
+            } // no data to be sent
+            else {
+                lineProtocol lineOut = qLine.front();
+                qLine.pop();
+                mtxQLine.unlock();
+
+                //////// build msg and sent it out
+
+                /////// read the answer
+
+                ////// inform hosting instrument about answer
+                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : return answer from DB server :\ns");
+                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+            }
+        } // then ready state
+            
 
         // wxString header = wxEmptyString;
         // header = header.wc_str();
@@ -293,18 +379,6 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         //     wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API data   : %s", data);
         // }
 
-        // wxIPV4address * address = new wxIPV4address();
-        // wxUniChar separator = 0x3a;
-        // address->Hostname(m_apiServer.BeforeFirst(separator));
-        // address->Service(m_apiServer.AfterFirst(separator));
-
-        // if ( !socket->Connect(*address) ) {
-        //     if ( m_verbosity > 0)
-        //         wxLogMessage("dashboard_tactics_pi: ERROR : InfluxDB not connected : %s", m_apiServer);
-        // }
-        // else {
-        //     if ( m_verbosity > 1)
-        //         wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API socket connection : %s", m_apiServer);
 
         //     socket->Write(header.c_str(),header.Len());
         //     socket->Write(data.c_str(),data.Len());
@@ -324,6 +398,9 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         // }
 
     } // while destroy
+
+    delete socket;
+    delete address;
     
     return (wxThread::ExitCode)0;
     
@@ -333,7 +410,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
-    return;   
+    if ( m_verbosity > 1)
+        wxLogMessage ("%s", m_threadMsg);
 }
 /***********************************************************************************
 
@@ -397,6 +475,8 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         if ( !root.HasMember("streamer") ) throw 200;
         if ( !root["streamer"].HasMember("connectionretry") ) throw 201;
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
+        if ( m_connectionRetry <=0)
+            m_connectionRetry = 1; // if zero will create CPU load in the thread
         if ( !root["streamer"].HasMember("timestamps") ) throw 202;
         m_timestamps += root["streamer"]["timestamps"].AsString();
         if ( m_timestamps.IsSameAs( _T("db"), false ) )
