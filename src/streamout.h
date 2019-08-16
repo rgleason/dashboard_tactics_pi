@@ -129,6 +129,76 @@ protected:
         wxString sField3;
     }; // This class presents the elements of the configuration file
     
+    class lineProtocol
+    {
+    public:
+        sentenceSchema(void) {
+            measurement = wxEmptyString;
+            tag_key1 = wxEmptyString;
+            tag_value1 = wxEmptyString;
+            tag_key2 = wxEmptyString;
+            tag_value2 = wxEmptyString;
+            tag_key3 = wxEmptyString;
+            tag_value3 = wxEmptyString;
+            field_key1 = wxEmptyString;
+            field_value1 = wxEmptyString;
+            field_key2 = wxEmptyString;
+            field_value2 = wxEmptyString;
+            field_key3 = wxEmptyString;
+            field_value3 = wxEmptyString;
+            timestamp = wxEmptyString;
+        };
+        sentenceSchema( const sentenceSchema& source) {
+            measurement = source.measurement;
+            tag_key1 = source.tag_key1;
+            tag_value1 = source.tag_value1;
+            tag_key2 = source.tag_key2;
+            tag_value2 = source.tag_value2;
+            tag_key3 = source.tag_key3;
+            tag_value3 = source.tag_value3;
+            field_key1 = source.field_key1;
+            field_value1 = source.field_value1;
+            field_key2 = source.field_key2;
+            field_value2 = source.field_value2;
+            field_key3 = source.field_key3;
+            field_value3 = source.field_value3;
+            timestamp = source.timestamp;
+        };
+        const sentenceSchema& operator = (const sentenceSchema &source) {
+            if ( this != &source) {
+                measurement = source.measurement;
+                tag_key1 = source.tag_key1;
+                tag_value1 = source.tag_value1;
+                tag_key2 = source.tag_key2;
+                tag_value2 = source.tag_value2;
+                tag_key3 = source.tag_key3;
+                tag_value3 = source.tag_value3;
+                field_key1 = source.field_key1;
+                field_value1 = source.field_value1;
+                field_key2 = source.field_key2;
+                field_value2 = source.field_value2;
+                field_key3 = source.field_key3;
+                field_value3 = source.field_value3;
+                timestamp = source.timestamp;
+            }
+            return *this;
+        };
+        wxString measurement;
+        wxString tag_key1;
+        wxString tag_value1;
+        wxString tag_key2;
+        wxString tag_value2;
+        wxString tag_key3;
+        wxString tag_value3;
+        wxString field_key1;
+        wxString field_value1;
+        wxString field_key2;
+        wxString field_value2;
+        wxString field_key3;
+        wxString field_value3;
+        wxString timestamp;
+    }; // This class presents the line propotocol elements in the data FIFO queue 
+    
     int               m_state;
     std::mutex       *m_mtxNofStreamOut;
     int              *m_nofStreamOut;
