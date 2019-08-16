@@ -236,7 +236,8 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         line.timestamp = wxString::Format( "%lld", msNow );
 
     std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
-    qLine.push( line );
+    if ( m_stateComm == STSM_STATE_READY )
+        qLine.push( line );
     
 
 }
@@ -269,9 +270,37 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     address->Hostname(m_server.BeforeFirst(separator));
     address->Service(m_server.AfterFirst(separator));
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
+    //    event.SetInt( myID_THREAD_IFLXAPI ); 
     m_threadMsg = wxString::Format("dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
                                    m_server.BeforeFirst(separator), m_server.AfterFirst(separator));
-    event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+    wxQueueEvent( m_frame, event.Clone() );
+
+    wxString header = wxEmptyString;
+
+    header += "POST ";
+    header += "/api/";
+    header += m_api;
+    header += "/write?org=";
+    header += m_org;
+    header += _T("&bucket=");
+    header += "m_bucket";
+    header += _T("&precision=");
+    header += m_precision;
+    header += " HTTP/1.1\n";
+
+    header += L"Host: ";
+    header += m_server;
+    header += L"\n";
+	
+    header += "User-Agent: OpenCPN/5.0\n";
+    header += "Accept: application/json\n";
+
+    header += "Authorization: Token ";
+    header += m_token;
+
+    header += "Content-Length: ";
+
+    wxString sContentType = "Content-Type: text/plain; charset=utf-8";
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
 
@@ -299,13 +328,13 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             if ( connectionErr.IsEmpty() ) {
                 m_stateComm = STSM_STATE_READY;
                 m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
-                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+                wxQueueEvent( m_frame, event.Clone() );
             }
             else {
                 m_stateComm = STSM_STATE_ERROR;
                 m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
                 m_threadMsg += connectionErr;
-                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+                wxQueueEvent( m_frame, event.Clone() );
             }
 
             if ( m_stateComm == STSM_STATE_ERROR ) {
@@ -330,75 +359,116 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 qLine.pop();
                 mtxQLine.unlock();
 
-                //////// build msg and sent it out
-
-                /////// read the answer
-
-                ////// inform hosting instrument about answer
-                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : return answer from DB server :\ns");
-                event.SetInt( 50 ); wxQueueEvent( m_frame, event.Clone() );
+                wxString sData = wxEmptyString;
+                sData += lineOut.measurement;
+                if ( !lineOut.tag_key1.IsEmpty() ) {
+                    sData += ",";
+                    sData += lineOut.tag_key1;
+                    sData += "=";
+                    sData += lineOut.tag_value1;
+                    if ( !lineOut.tag_key2.IsEmpty() ) {
+                        sData += ",";
+                        sData += lineOut.tag_key2;
+                        sData += "=";
+                        sData += lineOut.tag_value2;
+                        if ( !lineOut.tag_key3.IsEmpty() ) {
+                            sData += ",";
+                            sData += lineOut.tag_key3;
+                            sData += "=";
+                            sData += lineOut.tag_value3;
+                        }
+                    }
+                }
+                sData += " ";
+                sData += lineOut.field_key1;
+                sData += "=\"";
+                sData += lineOut.field_value1;
+                sData += "\"";
+                if ( !lineOut.field_key2.IsEmpty() ) {
+                    sData += ",";
+                    sData += lineOut.field_key2;
+                    sData += "=\"";
+                    sData += lineOut.field_value2;
+                    sData += "\"";
+                    if ( !lineOut.field_key3.IsEmpty() ) {
+                        sData += ",";
+                        sData += lineOut.field_key3;
+                        sData += "=\"";
+                        sData += lineOut.field_value3;
+                        sData += "\"";
+                    }
+                }
+                if ( !lineOut.timestamp.IsEmpty() ) {
+                    sData += " ";
+                    sData += lineOut.timestamp;
+                }
+                
+                wxString sHdrOut = header;
+                sHdrOut += wxString::Format("%d", sData.Len() );
+                sHdrOut += "\n";
+                
+                sHdrOut += sContentType;
+                sHdrOut += "\n";
+                
+                socket->Write( sHdrOut.c_str(), sHdrOut.Len() );
+                if ( !socket->Error() ) {
+                    socket->Write( sData.c_str(), sData.Len() );
+                    if ( !socket->Error() ) {
+                        wxString buf;
+                        buf.Alloc(1000);
+                        void *vptr;
+                        vptr = buf.char_str();
+                        socket->Read( vptr, 1000 );
+                        if ( !socket->Error() ) {
+                            buf.Shrink();
+                            unsigned int readCount = socket->LastReadCount();
+                            if ( readCount > 0 ) {
+                                buf = buf.SubString( 0, socket->LastReadCount() - 1 );
+                                if ( m_verbosity > 1) {
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: DB Streamer : return answer from DB server :\n%s", buf);
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                }
+                            }
+                            else {
+                                if ( m_verbosity > 1) {
+                                    m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : return answer from DB server : NULL.");
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                }
+                            }
+                        }
+                        else {
+                            m_stateComm = STSM_STATE_ERROR;
+                            socket->Close();
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Read() error for answer.");
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
+                        }
+                    }
+                    else {
+                        m_stateComm = STSM_STATE_ERROR;
+                        socket->Close();
+                        if ( m_verbosity > 1) {
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket data Write() error.");
+                            wxQueueEvent( m_frame, event.Clone() );
+                        }
+                    }
+                }
+                else {
+                    m_stateComm = STSM_STATE_ERROR;
+                    socket->Close();
+                    if ( m_verbosity > 1) {
+                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket header Write() error.");
+                        wxQueueEvent( m_frame, event.Clone() );
+                    }
+                }
             }
         } // then ready state
-            
-
-        // wxString header = wxEmptyString;
-        // header = header.wc_str();
-        // wxString data = header;
-
-        // data += schema.sMeasurement;
-        // data += L",propr1=";
-        // data += schema.sProp1;
-        // data += L" ";
-        // data += schema.sField1;
-        // data += L"=";
-        // data += wxString::Format("%d", static_cast<int>(m_outData1) );
-
-        // header += "POST ";
-        // header += m_apiURL;
-        // header += L" HTTP/1.1\n";
-
-        // header += L"Host: ";
-        // header += m_apiServer;
-        // header += L"\n";
-	
-        // header += "User-Agent: OpenCPN/5.0\n";
-        // header += "Accept: */*\n";
-
-        // header += m_apiAut;
-        // header += "\n";
-
-        // header += "Content-Length: ";
-        // header += wxString::Format("%d", data.Len());
-        // header += "\n";
-
-        // header += "Content-Type: application/x-www-form-urlencoded\n";
-        // header += "\n";
-
-        // if ( m_verbosity > 1) {
-        //     wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API header : %s", header);
-        //     wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API data   : %s", data);
-        // }
-
-
-        //     socket->Write(header.c_str(),header.Len());
-        //     socket->Write(data.c_str(),data.Len());
-        //     //Get Response
-        //     wxString buf;
-        //     buf.Alloc(1000);
-        //     void *vptr;
-        //     vptr = &buf.char_str();
-        //     socket->Read( vptr, 1000);
-        //     buf.Shrink();
-        //     //Trim response to what was read from stream
-        //     buf = buf.SubString( 0, socket->LastCount() - 1 );
-        //     if ( m_verbosity > 1)
-        //         wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API write returns %d chars: %s",
-        //                      socket->LastCount(), buf);
-
-        // }
 
     } // while destroy
-
+        
+    socket->Close();
     delete socket;
     delete address;
     
