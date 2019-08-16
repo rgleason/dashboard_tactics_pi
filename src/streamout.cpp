@@ -215,7 +215,8 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         return;
 
     sentenceSchema schema;
-    if ( !GetSchema( st, wxllNowMs.GetValue(), schema ) )
+    long long msNow = wxllNowMs.GetValue();
+    if ( !GetSchema( st, msNow, schema ) )
         return;
     
     lineProtocol line;
@@ -426,6 +427,8 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             throw 300;
         }
         for ( int i = 0; i < asize; i++ ) {
+
+            sentenceSchema schema;
 
             if ( !dbSchemas[i].HasMember("sentence") ) throw ( 10000 + (i * 100) + 1 );
             schema.stc = dbSchemas[i]["sentence"].AsString();
