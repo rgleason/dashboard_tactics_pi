@@ -8,33 +8,40 @@
 
     // Definition of the database connection API
     "influxdb" : {
-        "serverurl" : "http://localhost:9999/",
-        "api"       : "api/v2/write?",
-        "org"       : "org=ocarina&",
-        "bucket"    : "bucket=nmea&",
-        "precision" : "precision=ms",
-        "tokenprfx" : "Authorization: Token ",
+        "server"    : "localhost:9999", // shall contain port number
+        "api"       : "v2",             // currently only v2 is supported
+        "org"       : "ocarina",
+        "bucket"    : "nmea",
+        "precision" : "ms",             // ns, us, ms, s
         "token"     : "tLux1iynw2uoUqeFd3xTsZ2BRRONWNHxPMZWDBFP5h--EtkEHw66PG-OZxBZqhB6JlNEBKMCQP7VT9d3PIh4LQ=="
     },
 
     // Data streamer configuration
     "streamer" : {
-        "connectionretry" : 5,           // [s], 0=never retry
-        "timestamps"      : "local",     // "local" or "db" (no timestamp, use server's time)
-        "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose
+        "connectionretry" : 5,           // [s], 0=never retry (no reconnection)
+        "timestamps"      : "local",     // "local" or "db" time
+        "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose logs
     },
 
     /*
-      Sentence mapping into a respective DB schema and data throttling settings for each sentence.
+      Sentence mapping into a respective DB schema.
+      Sentence data throttling settings.
 
-      The mapping to dashoard_tactics_pi sentences is according to ../instruments.h: do not change.
+      The mapping of dashoard_tactics_pi sentences is according to
+      ../instruments.h : normally, do not change "sentence" and "mask" values.
 
       The template DB schema is according to Signal K schema, see
       https://github.com/SignalK/specification/blob/master/schemas/
 
-      To optimize query performance with filters, measurement's sub-properties before the value field
-      are presented as tags to InfluxDB. User can change the measurement class, tags and even measurement
+      To optimize query performance with filters, measurement's sub-propertie, which
+      appears before the data value field are presented as tags in InfluxDB API.
+      User can change the measurement class, tags and even measurement
       fields to his or her liking, of course.
+
+      The primary implementation is done with a single data instrument,
+      therefore the other data fields are, in general, empty in the schema. They
+      shall not be removed but left empty - the same schema can be used in
+      multidata instruments.
     */
     "dbschema" : [
         {

@@ -88,15 +88,19 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_confdir = confdir;
     m_pconfig = GetOCPNConfigObject();
     m_configFileName = wxEmptyString;
-    m_verbosity = 0;
 
     wxString emptyStr = wxEmptyString;
     emptyStr = emptyStr.wc_str();
-    m_apiServer = emptyStr;
-    m_apiURL = emptyStr;
-    m_apiAut = emptyStr;
+    m_server = emptyStr;
+    m_api = emptyStr;
+    m_org = emptyStr;
+    m_bucket = emptyStr;
+    m_precision = emptyStr;
+    m_token = emptyStr;
     m_connectionRetry = 0;
     m_timestamps = emptyStr;
+    m_stamp = true;
+    m_verbosity = 0;
 
     m_configured = LoadConfig();
 
@@ -281,77 +285,71 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
     while ( !GetThread()->TestDestroy() ) {
 
-        // wxString data = "home=Cosby&favorite+flavor=flies";
-        // wxString host = "www.somehost.com";
-        // wxString path = "/path/file.cgi";//can be php or any other file
+        // wxString header = wxEmptyString;
+        // header = header.wc_str();
+        // wxString data = header;
+
+        // data += schema.sMeasurement;
+        // data += L",propr1=";
+        // data += schema.sProp1;
+        // data += L" ";
+        // data += schema.sField1;
+        // data += L"=";
+        // data += wxString::Format("%d", static_cast<int>(m_outData1) );
+
+        // header += "POST ";
+        // header += m_apiURL;
+        // header += L" HTTP/1.1\n";
+
+        // header += L"Host: ";
+        // header += m_apiServer;
+        // header += L"\n";
 	
+        // header += "User-Agent: OpenCPN/5.0\n";
+        // header += "Accept: */*\n";
 
-        //Set up header
-        wxString header = wxEmptyString;
-        header = header.wc_str();
-        wxString data = header;
+        // header += m_apiAut;
+        // header += "\n";
 
-        data += schema.sMeasurement;
-        data += L",propr1=";
-        data += schema.sProp1;
-        data += L" ";
-        data += schema.sField1;
-        data += L"=";
-        data += wxString::Format("%d", static_cast<int>(m_outData1) );
+        // header += "Content-Length: ";
+        // header += wxString::Format("%d", data.Len());
+        // header += "\n";
 
-        header += "POST ";
-        header += m_apiURL;
-        header += L" HTTP/1.1\n";
+        // header += "Content-Type: application/x-www-form-urlencoded\n";
+        // header += "\n";
 
-        header += L"Host: ";
-        header += m_apiServer;
-        header += L"\n";
-	
-        header += "User-Agent: OpenCPN/5.0\n";
-        header += "Accept: */*\n";
+        // if ( m_verbosity > 1) {
+        //     wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API header : %s", header);
+        //     wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API data   : %s", data);
+        // }
 
-        header += m_apiAut;
-        header += "\n";
+        // wxIPV4address * address = new wxIPV4address();
+        // wxUniChar separator = 0x3a;
+        // address->Hostname(m_apiServer.BeforeFirst(separator));
+        // address->Service(m_apiServer.AfterFirst(separator));
 
-        header += "Content-Length: ";
-        header += wxString::Format("%d", data.Len());
-        header += "\n";
+        // if ( !socket->Connect(*address) ) {
+        //     if ( m_verbosity > 0)
+        //         wxLogMessage("dashboard_tactics_pi: ERROR : InfluxDB not connected : %s", m_apiServer);
+        // }
+        // else {
+        //     if ( m_verbosity > 1)
+        //         wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API socket connection : %s", m_apiServer);
 
-        header += "Content-Type: application/x-www-form-urlencoded\n";
-        header += "\n";
-
-        if ( m_verbosity > 1) {
-            wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API header : %s", header);
-            wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API data   : %s", data);
-        }
-
-        wxIPV4address * address = new wxIPV4address();
-        wxUniChar separator = 0x3a;
-        address->Hostname(m_apiServer.BeforeFirst(separator));
-        address->Service(m_apiServer.AfterFirst(separator));
-
-        if ( !socket->Connect(*address) ) {
-            if ( m_verbosity > 0)
-                wxLogMessage("dashboard_tactics_pi: ERROR : InfluxDB not connected : %s", m_apiServer);
-        }
-        else {
-            if ( m_verbosity > 1)
-                wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API socket connection : %s", m_apiServer);
-
-            socket->Write(header.c_str(),header.Len());
-            socket->Write(data.c_str(),data.Len());
-            //Get Response
-            wxString buf;
-            buf.Alloc(1000);
-            void *vptr;
-            vptr = &buf.char_str();
-            socket->Read( vptr, 1000);
-            buf.Shrink();
-            //Trim response to what was read from stream
-            buf = buf.SubString( 0, socket->LastCount() - 1 );
-            if ( m_verbosity > 1)
-                wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API write returns %d chars: %s",
-                             socket->LastCount(), buf);
+        //     socket->Write(header.c_str(),header.Len());
+        //     socket->Write(data.c_str(),data.Len());
+        //     //Get Response
+        //     wxString buf;
+        //     buf.Alloc(1000);
+        //     void *vptr;
+        //     vptr = &buf.char_str();
+        //     socket->Read( vptr, 1000);
+        //     buf.Shrink();
+        //     //Trim response to what was read from stream
+        //     buf = buf.SubString( 0, socket->LastCount() - 1 );
+        //     if ( m_verbosity > 1)
+        //         wxLogMessage("dashboard_tactics_pi: VERBOSE config : InfluxDB API write returns %d chars: %s",
+        //                      socket->LastCount(), buf);
 
         }
 
@@ -414,36 +412,37 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
 
         if ( !root.HasMember("influxdb") ) throw 100;
         if ( !root["influxdb"].HasMember("server") ) throw 101;
-        m_apiServer += root["influxdb"]["server"].AsString();
+        m_server += root["influxdb"]["server"].AsString();
         if ( !root["influxdb"].HasMember("api") ) throw 102;
-        m_apiURL += root["influxdb"]["api"].AsString();
-        m_apiURL += L"?";
+        m_api += root["influxdb"]["api"].AsString();
         if ( !root["influxdb"].HasMember("org") ) throw 103;
-        m_apiURL += root["influxdb"]["org"].AsString();
-        m_apiURL += L"&";
+        m_org += root["influxdb"]["org"].AsString();
         if ( !root["influxdb"].HasMember("bucket") ) throw 104;
-        m_apiURL += root["influxdb"]["bucket"].AsString();
-        m_apiURL += L"&";
+        m_bucket += root["influxdb"]["bucket"].AsString();
         if ( !root["influxdb"].HasMember("precision") ) throw 105;
-        m_apiURL += root["influxdb"]["precision"].AsString();
-        if ( !root["influxdb"].HasMember("tokenprfx") ) throw 106;
-        m_apiAut += root["influxdb"]["tokenprfx"].AsString();
-        if ( !root["influxdb"].HasMember("token") ) throw 107;
-        m_apiAut += root["influxdb"]["token"].AsString();
+        m_precision += root["influxdb"]["precision"].AsString();
+        if ( !root["influxdb"].HasMember("token") ) throw 106;
+        m_token += root["influxdb"]["token"].AsString();
 
         if ( !root.HasMember("streamer") ) throw 200;
         if ( !root["streamer"].HasMember("connectionretry") ) throw 201;
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
         if ( !root["streamer"].HasMember("timestamps") ) throw 202;
         m_timestamps += root["streamer"]["timestamps"].AsString();
+        if ( m_timestamps.CmpNoCase( _T("db") == 0 ) )
+            m_stamp = false;
         if ( !root["streamer"].HasMember("verbosity") ) throw 203;
         m_verbosity = root["streamer"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API URL = \"%s\"", m_apiURL );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API Hdr = \"%s\"", m_apiAut );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB connection retries every %d seconds", m_connectionRetry );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps = %s", m_timestamps );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"", m_server );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API version  = \"%s\"", m_api );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB organization = \"%s\"", m_org );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB bucket       = \"%s\"", m_bucket );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB precision    = \"%s\"", m_precision );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB token        =\n\"%s\"", m_token );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB conn.retry   = %d s.", m_connectionRetry );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps   = \"%s\"", m_timestamps );
         }
 
         if ( !root.HasMember("dbschema") ) throw 300;

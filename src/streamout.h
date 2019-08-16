@@ -71,6 +71,7 @@ protected:
     {
     public:
         sentenceSchema(void) {
+            stc = wxEmptyString;
             st = 0ULL;
             bStore = false;
             iInterval = 0;
@@ -84,6 +85,7 @@ protected:
             sField3 = wxEmptyString;
         };
         sentenceSchema( const sentenceSchema& source) {
+            stc = source.stc;
             st = source.st;
             bStore = source.bStore;
             iInterval = source.iInterval;
@@ -98,6 +100,7 @@ protected:
         };
         const sentenceSchema& operator = (const sentenceSchema &source) {
             if ( this != &source) {
+                stc = source.stc;
                 st = source.st;
                 bStore = source.bStore;
                 iInterval = source.iInterval;
@@ -112,6 +115,7 @@ protected:
             }
             return *this;
         };
+        wxString stc;
         unsigned long long st;
         bool bStore;
         int iInterval;
@@ -147,11 +151,15 @@ protected:
     wxString          m_outUnit1;
 
     // From configuration file
-    wxString          m_apiServer;
-    wxString          m_apiURL;
-    wxString          m_apiAut;
+    wxString          m_server;
+    wxString          m_api;
+    wxString          m_org;
+    wxString          m_bucket;
+    wxString          m_precision;
+    wxString          m_token;
     int               m_connectionRetry;
     wxString          m_timestamps;
+    bool              m_stamp;
     int               m_verbosity;
 
     bool GetSchema(unsigned long long st, sentenceSchema& schema);
