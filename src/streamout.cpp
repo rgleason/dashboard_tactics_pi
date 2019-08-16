@@ -94,7 +94,6 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         return;
     m_state = SSSM_STATE_CONFIGURED;
 
-    socket = new wxSocketClient();
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine,
                                                          std::defer_lock );
     if ( CreateThread( wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR ) {
@@ -188,7 +187,7 @@ bool TacticsInstrument_StreamoutSingle::GetSchema(
             if ( schema.iInterval < 0 )
                 return false;
             long long timeLapse = (msNow - schema.lastTimeStamp) / 1000;
-            if ( static_cast<long long>vSchema[i].iInterval <= timeLapse ) {
+            if ( static_cast<long long>(vSchema[i].iInterval) <= timeLapse ) {
                 schema.lastTimeStamp = msNow;
                 vSchema[i].lastTimeStamp = msNow;
                 return true;
@@ -202,7 +201,7 @@ bool TacticsInstrument_StreamoutSingle::GetSchema(
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
 {
-    long long msNow = static_cast<long long>(wxGetUTCTimeMillis());
+    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
 
     if ( m_state == SSSM_STATE_DISPLAYRELAY ) {
         m_data = *m_echoStreamerShow;
@@ -216,7 +215,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         return;
 
     sentenceSchema schema;
-    if ( !GetSchema( st, msNow, schema ) )
+    if ( !GetSchema( st, wxllNowMs.GetValue(), schema ) )
         return;
     
     lineProtocol line;
@@ -250,6 +249,8 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
     //    wxSocketClient   *socket;
+    //    socket = new wxSocketClient();
+
 
     while ( !GetThread()->TestDestroy() ) {
 
