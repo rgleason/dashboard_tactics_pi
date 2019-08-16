@@ -28,6 +28,7 @@
 #endif
 using namespace std;
 #include <mutex>
+#include <queue>
 
 // #include <wx/dir.h>
 // #include <wx/filefn.h>
@@ -109,16 +110,20 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_state = SSSM_STATE_CONFIGURED;
 
     socket = new wxSocketClient();
-    std::unique_lock<std::mutex> init_m_mtxSocket( m_mtxSocket, std::defer_lock );
+    std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine,
+                                                         std::defer_lock );
     if ( CreateThread( wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR ) {
-        wxLogMessage ("dashboard_tactics_pi: DB Streamer failed : could not create communication thread.");
+        wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
         m_state = SSSM_STATE_FAIL;
         return;
     } // will not talk
-    m_dgbThreadRun = DBGRES_THR_RUN_UNKNOWN;
-    m_outData1 = 0.0;
-    m_outUnit1 = wxEmptyString;
-    
+    if ( GetThread()->Run() != wxTHREAD_NO_ERROR ) {
+        wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer: cannot run communication thread.");
+        m_state = SSSM_STATE_FAIL;
+        return;
+    }
+
+    m_data = _T("---");
     m_state = SSSM_STATE_READY;
     
 }
@@ -184,91 +189,67 @@ void TacticsInstrument_StreamoutSingle::Draw(wxGCDC* dc)
 /***********************************************************************************
 
 ************************************************************************************/
-bool TacticsInstrument_StreamoutSingle::GetSchema(unsigned long long st, sentenceSchema &schema)
+bool TacticsInstrument_StreamoutSingle::GetSchema(
+    unsigned long long st, long long msNow, sentenceSchema &schema)
 {
-    bool retval = false;
     for ( unsigned int i = 0; i < vSchema.size(); i++ ) {
         if ( vSchema[i].st == st ) {
             schema = vSchema[i];
-            retval = true;
-            break;
+            if ( schema.iInterval == 0 ) {
+                schema.lastTimeStamp = msNow;
+                vSchema[i].lastTimeStamp = msNow;
+                return true;
+            }
+            if ( schema.iInterval < 0 )
+                return false;
+            long long timeLapse = (msNow - schema.lastTimeStamp) / 1000;
+            if ( static_cast<long long>vSchema[i].iInterval <= timeLapse ) {
+                schema.lastTimeStamp = msNow;
+                vSchema[i].lastTimeStamp = msNow;
+                return true;
+            }
         } 
     }
-    return retval;
+    return false;
 }
 /***********************************************************************************
 
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
 {
-    if (std::isnan(data))
-        return;
+    long long msNow = wxGetUTCTimeMillis();
 
     if ( m_state == SSSM_STATE_DISPLAYRELAY ) {
         m_data = *m_echoStreamerShow;
         return;
     }
     
-    if ( (m_state == SSSM_STATE_READY) && m_configured ) {
-        if ( !GetSchema( st, schema ) )
-            return;
-        m_outData1 = data;
-        m_outUnit1 = unit;
-        if ( GetThread()->Run() != wxTHREAD_NO_ERROR ) {
-            if ( m_dgbThreadRun != DBGRES_THR_RUN_ERROR ) {
-                m_dgbThreadRun = DBGRES_THR_RUN_ERROR;
-                if ( m_verbosity != 0 )
-                    wxLogMessage ("dashboard_tactics_pi: Error : Influx DB Streamer: Cannot start socket thread");
-            }
-        }
-        else {
-            m_dgbThreadRun = DBGRES_THR_RUN_OK;
-            if ( m_verbosity > 1 )
-                wxLogMessage ("dashboard_tactics_pi: OK: Influx DB Streamer: Socket thread is started");
-        }
-    } // Ok to transmit
+    if (std::isnan(data))
+        return;
 
-    /*
+    if ( !( (m_state == SSSM_STATE_READY) && m_configured ) )
+        return;
+
+    sentenceSchema schema;
+    if ( !GetSchema( st, msNow, schema ) )
+        return;
     
-    if (st == OCPN_DBP_STC_STW){
+    lineProtocol line;
     
-        //convert to knots first
-        mSTW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
-        stwunit = unit;
+    line.measurement = schema.sMeasurement;
+    if ( !schema.sProp1.IsEmpty() ) {
+        line.tag_key1 = _T("prop1");
+        line.tag_value1 = schema.sProp1;
     }
-    else if (st == OCPN_DBP_STC_TWA){
-        mTWA = data;
-    }
-    else if (st == OCPN_DBP_STC_COG){
-        mCOG = data;
-    }
-    else if (st == OCPN_DBP_STC_SOG){
-        //convert to knots first
-        //mSOG = data;
-        mSOG = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
-    }
-    else if (st == OCPN_DBP_STC_LAT) {
-        m_lat = data;
-    }
-    else if (st == OCPN_DBP_STC_LON) {
-        m_lon = data;
-    }
-    else if (st == OCPN_DBP_STC_BRG){
-        mBRG = data;
-    }
-    else if (st == OCPN_DBP_STC_TWS){
-        //mTWS = data;
-        //convert to knots
-        mTWS = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
-    }
-    else if (st == OCPN_DBP_STC_HDT){
-        mHDT = data;
-    }
-    else if (st == OCPN_DBP_STC_TWD){
-        mTWD = data;
-    }
-    */
- 
+    line.field_key1 = schema.sField1;
+    line.field_value1 = wxString::Format( "%f", data );
+    if ( m_stamp )
+        line.timestamp = wxString::Format( "%lld", msNow );
+
+    std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
+    qLine.push( line );
+    
+
 }
 /***********************************************************************************
 
@@ -283,6 +264,8 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 ************************************************************************************/
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
+    //    wxSocketClient   *socket;
+
     while ( !GetThread()->TestDestroy() ) {
 
         // wxString header = wxEmptyString;
@@ -457,6 +440,9 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             throw 300;
         }
         for ( int i = 0; i < asize; i++ ) {
+
+            if ( !dbSchemas[i].HasMember("sentence") ) throw ( 10000 + (i * 100) + 1 );
+            schema.stc = dbSchemas[i]["sentence"].AsString();
 
             if ( !dbSchemas[i].HasMember("mask") ) throw ( 10000 + (i * 100) + 2 );
             int mask = dbSchemas[i]["mask"].AsInt();

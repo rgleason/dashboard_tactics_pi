@@ -41,8 +41,9 @@ enum StreamoutSingleStateMachine {
     SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT, SSSM_STATE_CONFIGURED,
     SSSM_STATE_READY, SSSM_STATE_FAIL };
 
-enum dbgThreadRun {
-    DBGRES_THR_RUN_UNKNOWN, DBGRES_THR_RUN_ERROR, DBGRES_THR_RUN_OK };
+enum SocketThreadStateMachine {
+    STSM_STATE_UNKNOWN, STSM_STATE_INIT, STSM_STATE_ERROR, STSM_STATE_CONNECTING,
+    STSM_STATE_READY, STSM_STATE_SENDING, STSM_STATE_WAITING };
 
 
 //+------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ protected:
             st = 0ULL;
             bStore = false;
             iInterval = 0;
-            lastTimeStamp = 0L;
+            lastTimeStamp = 0LL;
             sMeasurement = wxEmptyString;
             sProp1 = wxEmptyString;
             sProp2 = wxEmptyString;
@@ -132,7 +133,7 @@ protected:
     class lineProtocol
     {
     public:
-        sentenceSchema(void) {
+        lineProtocol(void) {
             measurement = wxEmptyString;
             tag_key1 = wxEmptyString;
             tag_value1 = wxEmptyString;
@@ -148,7 +149,7 @@ protected:
             field_value3 = wxEmptyString;
             timestamp = wxEmptyString;
         };
-        sentenceSchema( const sentenceSchema& source) {
+        lineProtocol( const lineProtocol& source) {
             measurement = source.measurement;
             tag_key1 = source.tag_key1;
             tag_value1 = source.tag_value1;
@@ -164,7 +165,7 @@ protected:
             field_value3 = source.field_value3;
             timestamp = source.timestamp;
         };
-        const sentenceSchema& operator = (const sentenceSchema &source) {
+        const lineProtocol& operator = (const lineProtocol &source) {
             if ( this != &source) {
                 measurement = source.measurement;
                 tag_key1 = source.tag_key1;
@@ -211,14 +212,10 @@ protected:
     wxFileConfig     *m_pconfig;
     bool              m_configured;
 
-    sentenceSchema    schema;
     std::vector<sentenceSchema> vSchema;
 
-    wxSocketClient   *socket;
-    std::mutex        m_mtxSocket;
-    int               m_dgbThreadRun;
-    float             m_outData1;
-    wxString          m_outUnit1;
+    std::queue<lineProtocol> qLine;
+    std::mutex        m_mtxQLine;
 
     // From configuration file
     wxString          m_server;
@@ -232,7 +229,7 @@ protected:
     bool              m_stamp;
     int               m_verbosity;
 
-    bool GetSchema(unsigned long long st, sentenceSchema& schema);
+    bool GetSchema(unsigned long long st, long long msNow, sentenceSchema& schema);
     bool LoadConfig(void);
     void SaveConfig(void);
     void Draw(wxGCDC* dc);
