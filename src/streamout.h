@@ -27,6 +27,11 @@
 
 #ifndef __STREAMOUT_H__
 #define __STREAMOUT_H__
+using namespace std;
+#include <mutex>
+#include <vector>
+#include <queue>
+
 
 #ifndef  WX_PRECOMP
 #include "wx/wx.h"

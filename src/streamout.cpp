@@ -26,26 +26,11 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
-using namespace std;
-#include <mutex>
-#include <queue>
-
-// #include <wx/dir.h>
-// #include <wx/filefn.h>
-// #include <wx/textfile.h>
-// #include <wx/tokenzr.h>
 #include <wx/wfstream.h> 
-// #include <wx/txtstrm.h> 
-// #include <wx/math.h>
-// #include <wx/stdpaths.h>
-// #include <wx/progdlg.h>
-// #include <wx/gdicmn.h>
 #include <wx/fileconf.h>
-// #include "nmea0183/nmea0183.h"
+
 
 #include "streamout.h"
-// #include <map>
-// #include <cmath>
 #include "ocpn_plugin.h"
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
@@ -217,7 +202,7 @@ bool TacticsInstrument_StreamoutSingle::GetSchema(
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
 {
-    long long msNow = wxGetUTCTimeMillis();
+    long long msNow = static_cast<long long>(wxGetUTCTimeMillis());
 
     if ( m_state == SSSM_STATE_DISPLAYRELAY ) {
         m_data = *m_echoStreamerShow;
