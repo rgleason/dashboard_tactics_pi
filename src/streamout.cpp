@@ -323,21 +323,22 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += m_api;
     header += "/write?org=";
     header += m_org;
-    header += _T("&bucket=");
+    header += "&bucket=";
     header += "m_bucket";
-    header += _T("&precision=");
+    header += "&precision=";
     header += m_precision;
     header += " HTTP/1.1\n";
 
-    header += L"Host: ";
+    header += "Host: ";
     header += m_server;
-    header += L"\n";
-	
+    header += "\n";	
+
     header += "User-Agent: OpenCPN/5.0\n";
     header += "Accept: application/json\n";
 
     header += "Authorization: Token ";
     header += m_token;
+    header += "\n";
 
     header += "Content-Length: ";
 
