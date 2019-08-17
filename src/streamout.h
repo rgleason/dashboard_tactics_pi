@@ -50,11 +50,11 @@ enum SocketThreadStateMachine {
     STSM_STATE_UNKNOWN, STSM_STATE_INIT, STSM_STATE_ERROR, STSM_STATE_CONNECTING,
     STSM_STATE_READY };
 
-#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   100
-#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 50
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   100ULL
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 50ULL
 
 enum stateFifoOverFlow {
-    DBGRES_FIFO_OFW_UNKNOWN, DBGRES_FIFO_OFW_NOT_BLOCKING, DBGRES_FIFO_OFW_BLOCKING };
+    STSM_FIFO_OFW_UNKNOWN, STSM_FIFO_OFW_NOT_BLOCKING, STSM_FIFO_OFW_BLOCKING };
 
 
 //+------------------------------------------------------------------------------
@@ -228,6 +228,7 @@ protected:
     std::vector<sentenceSchema> vSchema;
     unsigned long long m_pushedInFifo;
     unsigned long long m_writtenToSocket;
+    int                m_stateFifoOverFlow;
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;
     int               m_stateComm;
