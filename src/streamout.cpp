@@ -97,6 +97,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 
     m_pushedInFifo    = 0ULL;
     m_writtenToSocket = 0ULL;
+    m_stateFifoOverFlow = STSM_FIFO_OFW_UNKNOWN;
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = STSM_STATE_UNKNOWN;
     m_threadMsg = emptyStr;
@@ -241,10 +242,31 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 
     std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
     if ( m_stateComm == STSM_STATE_READY ) {
-        qLine.push( line );
-        m_pushedInFifo++;
-    }
-    
+        if ( m_stateFifoOverFlow == STSM_FIFO_OFW_NOT_BLOCKING ) {
+            if ( (m_pushedInFifo - m_writtenToSocket) <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING ) {
+                qLine.push( line );
+                m_pushedInFifo++;
+            } // then FIFO is not filling up
+            else {
+                m_stateFifoOverFlow = STSM_FIFO_OFW_BLOCKING;
+                if ( m_verbosity > 1)
+                    wxLogMessage(
+                        "dashboard_tactics_pi: SetData() : FIFO overflow (>=%d),\npushed: %dull, written: %dull",
+                        STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, m_pushedInFifo, m_writtenToSocket);
+            } // else comm.thread is dead, connection lost or there is too much data for the server
+        } // then we presume that data is continuously going out the same rate we push
+        else {
+            if ( (m_pushedInFifo - m_writtenToSocket) <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING ) {
+                m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
+                if ( m_verbosity > 1)
+                    wxLogMessage(
+                        "dashboard_tactics_pi: SetData() : FIFO back under the threshold (<=%d),\npushed: %dull, written: %dull",
+                        STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, m_pushedInFifo, m_writtenToSocket);
+                qLine.push( line );
+                m_pushedInFifo++;
+            } // then FIFO is emptying and has gone under the threshold
+        } // else there has been a FIFO overflow, let's check if we've passed under the threshold
+    } // then the communication thread is alive and has connection with the server
 
 }
 /***********************************************************************************
@@ -267,13 +289,14 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 ************************************************************************************/
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
-#define giveUp100ms(__MS_100__) int waitMilliSeconds = 0; \
-    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * __MS_100__)) ) { \
+#define giveUpConnectionRetry100ms(__MS_100__) int waitMilliSeconds = 0; \
+    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * __MS_100__ * 100)) ) { \
     wxMilliSleep( 100 ); \
     waitMilliSeconds += 100; \
 }
 
     m_stateComm = STSM_STATE_INIT;
+    m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
 
     wxSocketClient *socket  = new wxSocketClient();
     socket->SetTimeout( 3 );
@@ -322,7 +345,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
         if ( (m_stateComm == STSM_STATE_CONNECTING) || (m_stateComm == STSM_STATE_ERROR) ) {
             wxString connectionErr = wxEmptyString;
-            giveUp100ms(500);
+            giveUpConnectionRetry100ms(5);
             if ( !GetThread()->TestDestroy() ) {
                 if ( !socket->Connect( *address, false ) ) {
                     if ( !socket->WaitOnConnect() ) {
@@ -334,32 +357,26 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         }
                     }
                 }
-                if ( connectionErr.IsEmpty() ) {
-                    m_stateComm = STSM_STATE_READY;
-                    if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
-                        wxQueueEvent( m_frame, event.Clone() );
+                if ( !GetThread()->TestDestroy() ) {
+                    if ( connectionErr.IsEmpty() ) {
+                        m_stateComm = STSM_STATE_READY;
+                        if ( m_verbosity > 1) {
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
+                            wxQueueEvent( m_frame, event.Clone() );
+                        }
                     }
-                }
-                else {
-                    m_stateComm = STSM_STATE_ERROR;
-                    if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
-                        m_threadMsg += connectionErr;
-                        wxQueueEvent( m_frame, event.Clone() );
-                    }
-                }
-
-                if ( m_stateComm == STSM_STATE_ERROR ) {
-                    int waitMilliSeconds = 0;
-                    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                        wxMilliSleep( 100 );
-                        waitMilliSeconds += 100;
-                    } // while giving out the CPU time
-                    if ( !GetThread()->TestDestroy() )
+                    else {
+                        m_stateComm = STSM_STATE_ERROR;
+                        if ( m_verbosity > 1) {
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
+                            m_threadMsg += connectionErr;
+                            wxQueueEvent( m_frame, event.Clone() );
+                        }
+                        giveUpConnectionRetry100ms(5);
                         m_stateComm = STSM_STATE_CONNECTING; 
-                } // then error state wait until attempting again
-            } // then thread needs to terminate
+                    } // else error state wait until attempting again
+                } // then thread does not need to terminate
+            } // then thread does not need to terminate
         } // then need to attempt to connect()
 
         if ( m_stateComm == STSM_STATE_READY ) {
@@ -428,6 +445,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 if ( !socket->Error() ) {
                     socket->Write( sData.c_str(), sData.Len() );
                     if ( !socket->Error() ) {
+                        m_writtenToSocket++;
+                        m_data = wxString::Format("%dull", m_writtenToSocket);
                         wxString buf;
                         buf.Alloc(1000);
                         void *vptr;
@@ -458,6 +477,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                                 m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Read() error for answer.");
                                 wxQueueEvent( m_frame, event.Clone() );
                             }
+                            giveUpConnectionRetry100ms(5);
                         }
                     }
                     else {
@@ -467,6 +487,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                             m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket data Write() error.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
+                        giveUpConnectionRetry100ms(5);
                     }
                 }
                 else {
@@ -476,6 +497,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket header Write() error.");
                         wxQueueEvent( m_frame, event.Clone() );
                     }
+                    giveUpConnectionRetry100ms(5);
                 }
             }
         } // then ready state

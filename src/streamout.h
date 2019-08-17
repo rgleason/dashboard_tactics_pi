@@ -50,6 +50,12 @@ enum SocketThreadStateMachine {
     STSM_STATE_UNKNOWN, STSM_STATE_INIT, STSM_STATE_ERROR, STSM_STATE_CONNECTING,
     STSM_STATE_READY };
 
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   100
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 50
+
+enum stateFifoOverFlow {
+    DBGRES_FIFO_OFW_UNKNOWN, DBGRES_FIFO_OFW_NOT_BLOCKING, DBGRES_FIFO_OFW_BLOCKING };
+
 
 //+------------------------------------------------------------------------------
 //|
