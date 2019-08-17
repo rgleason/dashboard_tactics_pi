@@ -62,13 +62,18 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_nofStreamOut = &nofStreamOut;
     m_echoStreamerShow = &echoStreamerShow;
     m_state = SSSM_STATE_UNKNOWN;
+
+    wxString emptyStr = wxEmptyString;
+    emptyStr = emptyStr.wc_str();
+
+    m_data  = emptyStr;
     if ( nofStreamOut > 1) {
         m_state = SSSM_STATE_DISPLAYRELAY;
         m_data = echoStreamerShow;
         return;
     }
     m_state = SSSM_STATE_INIT;
-    m_data = _T("---");
+    m_data += L"\u2013\u2013\u2013";
     echoStreamerShow = m_data;
     m_format = format;
     m_DataHeight = 0;
@@ -76,8 +81,6 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_pconfig = GetOCPNConfigObject();
     m_configFileName = wxEmptyString;
 
-    wxString emptyStr = wxEmptyString;
-    emptyStr = emptyStr.wc_str();
     m_server = emptyStr;
     m_api = emptyStr;
     m_org = emptyStr;
@@ -113,10 +116,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         m_state = SSSM_STATE_FAIL;
         return;
     }
-
-    m_data = _T("---");
     m_state = SSSM_STATE_READY;
-    
 }
 /***********************************************************************************
 
@@ -305,13 +305,19 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     address->Hostname(m_server.BeforeFirst(separator));
     address->Service(m_server.AfterFirst(separator));
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
-    //    event.SetInt( myID_THREAD_IFLXAPI ); 
-    m_threadMsg = wxString::Format("dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
-                                   m_server.BeforeFirst(separator), m_server.AfterFirst(separator));
-    wxQueueEvent( m_frame, event.Clone() );
+    if ( m_verbosity > 1) {
+        m_threadMsg = wxString::Format("dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
+                                       m_server.BeforeFirst(separator), m_server.AfterFirst(separator));
+        wxQueueEvent( m_frame, event.Clone() );
+    }
+
+    wxString sCnxPrg[3];
+    sCnxPrg[0] = L"\u2192\u2013\u2013";
+    sCnxPrg[1] = L"\u2013\u2192\u2013";
+    sCnxPrg[2] = L"\u2013\u2013\u2192";
+    int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
-
     header += "POST ";
     header += "/api/";
     header += m_api;
@@ -347,6 +353,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             wxString connectionErr = wxEmptyString;
             giveUpConnectionRetry100ms(5);
             if ( !GetThread()->TestDestroy() ) {
+                ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
+                m_data = sCnxPrg[iCnxPrg];
                 if ( !socket->Connect( *address, false ) ) {
                     if ( !socket->WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
@@ -446,7 +454,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     socket->Write( sData.c_str(), sData.Len() );
                     if ( !socket->Error() ) {
                         m_writtenToSocket++;
-                        m_data = wxString::Format("%dull", m_writtenToSocket);
+                        wxString sWrittenToSocket = wxString::Format("%dull", m_writtenToSocket);
+                        m_data = sWrittenToSocket.wc_str();
                         wxString buf;
                         buf.Alloc(1000);
                         void *vptr;
