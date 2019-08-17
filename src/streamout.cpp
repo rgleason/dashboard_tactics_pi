@@ -29,7 +29,6 @@
 #include <wx/wfstream.h> 
 #include <wx/fileconf.h>
 
-
 #include "streamout.h"
 #include "ocpn_plugin.h"
 #include "wx/jsonreader.h"
@@ -298,8 +297,9 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
 
+    wxSocketBase::Initialize();
     wxSocketClient *socket  = new wxSocketClient();
-    socket->SetTimeout( 3 );
+    socket->SetTimeout( 5 );
     wxIPV4address  *address = new wxIPV4address();
     wxUniChar separator = 0x3a;
     address->Hostname(m_server.BeforeFirst(separator));
@@ -324,7 +324,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += "/write?org=";
     header += m_org;
     header += "&bucket=";
-    header += "m_bucket";
+    header += m_bucket;
     header += "&precision=";
     header += m_precision;
     header += " HTTP/1.1\n";
@@ -334,15 +334,14 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += "\n";	
 
     header += "User-Agent: OpenCPN/5.0\n";
-    header += "Accept: application/json\n";
+    header += "Accept: */*\n";
 
     header += "Authorization: Token ";
     header += m_token;
     header += "\n";
-
-    header += "Content-Length: ";
-
-    wxString sContentType = "Content-Type: text/plain; charset=utf-8";
+    header += "Content-Type: application/x-www-form-urlencoded";
+    header += "\n";
+    header += "Content-Length: "; // from this starts the dynamic part
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
 
@@ -445,46 +444,77 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 
                 wxString sHdrOut = header;
                 sHdrOut += wxString::Format("%d", sData.Len() );
-                sHdrOut += "\n";
-                
-                sHdrOut += sContentType;
-                sHdrOut += "\n";
+                sHdrOut += "\n\n";
+
+                if ( m_verbosity > 2) {
+                    wxLogMessage("dashboard_tactics_pi: header: \n%s", sHdrOut);
+                    wxLogMessage("dashboard_tactics_pi: data: \n%s", sData);
+                } // slows down considerably, for debugging only
                 
                 socket->Write( sHdrOut.c_str(), sHdrOut.Len() );
                 if ( !socket->Error() ) {
                     socket->Write( sData.c_str(), sData.Len() );
                     if ( !socket->Error() ) {
                         m_writtenToSocket++;
-                        wxString sWrittenToSocket = wxString::Format("%dull", m_writtenToSocket);
+                        wxString sWrittenToSocket = wxString::Format("%llu", m_writtenToSocket);
                         m_data = sWrittenToSocket.wc_str();
-                        wxString buf;
-                        buf.Alloc(1000);
-                        void *vptr;
-                        vptr = buf.char_str();
-                        socket->Read( vptr, 1000 );
-                        if ( !socket->Error() ) {
-                            buf.Shrink();
-                            unsigned int readCount = socket->LastReadCount();
-                            if ( readCount > 0 ) {
-                                buf = buf.SubString( 0, socket->LastReadCount() - 1 );
-                                if ( m_verbosity > 1) {
-                                    m_threadMsg = wxString::Format(
-                                        "dashboard_tactics_pi: DB Streamer : return answer from DB server :\n%s", buf);
-                                    wxQueueEvent( m_frame, event.Clone() );
+                        *m_echoStreamerShow = m_data;
+                        int waitMilliSeconds = 0;
+                        bool readAvailable = false;
+                        while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                            readAvailable = socket->WaitForRead( 0, 100 );
+                            waitMilliSeconds += 100;
+                        }
+                        if ( GetThread()->TestDestroy() )
+                            break;
+                        if ( readAvailable ) {
+                            wxCharBuffer buf(1000);
+                            socket->Read( buf.data(), 1000 );
+                            bool bufError = socket->Error();
+                            int bufReadCount = socket->LastReadCount();
+                            unsigned int lostReadCount = UINT_MAX;
+                            int lostLoop1000s = 0;
+                            while ( lostReadCount > 0 ) {
+                                wxCharBuffer lostbuf(1000);
+                                socket->Read( lostbuf.data(), 1000 );
+                                lostReadCount = socket->LastReadCount();
+                                lostbuf.reset();
+                                lostLoop1000s += lostReadCount;
+                            }
+                            if ( !bufError ) {
+                                if ( bufReadCount > 0 ) {
+                                    if ( m_verbosity > 2) {
+                                        m_threadMsg = wxString::Format(
+                                            "dashboard_tactics_pi: DB Streamer : %d chars from DB server (+%d lost) :\n%c",
+                                            buf.length(), lostLoop1000s, buf.data());
+                                        wxQueueEvent( m_frame, event.Clone() );
+                                    }
+                                    buf.reset();
+                                }
+                                else {
+                                    if ( m_verbosity > 1) {
+                                        m_threadMsg = wxString::Format(
+                                            "dashboard_tactics_pi: DB Streamer : ZERO chars from DB server (+%d lost).",
+                                            buf.length(), lostLoop1000s );
+                                        wxQueueEvent( m_frame, event.Clone() );
+                                    }
                                 }
                             }
                             else {
+                                m_stateComm = STSM_STATE_ERROR;
+                                socket->Close();
                                 if ( m_verbosity > 1) {
-                                    m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : return answer from DB server : NULL.");
+                                    m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Read() error for answer.");
                                     wxQueueEvent( m_frame, event.Clone() );
                                 }
+                                giveUpConnectionRetry100ms(5);
                             }
                         }
                         else {
                             m_stateComm = STSM_STATE_ERROR;
                             socket->Close();
                             if ( m_verbosity > 1) {
-                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Read() error for answer.");
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket data Write() error.");
                                 wxQueueEvent( m_frame, event.Clone() );
                             }
                             giveUpConnectionRetry100ms(5);
@@ -494,20 +524,11 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         m_stateComm = STSM_STATE_ERROR;
                         socket->Close();
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket data Write() error.");
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket header Write() error.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         giveUpConnectionRetry100ms(5);
                     }
-                }
-                else {
-                    m_stateComm = STSM_STATE_ERROR;
-                    socket->Close();
-                    if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket header Write() error.");
-                        wxQueueEvent( m_frame, event.Clone() );
-                    }
-                    giveUpConnectionRetry100ms(5);
                 }
             }
         } // then ready state
