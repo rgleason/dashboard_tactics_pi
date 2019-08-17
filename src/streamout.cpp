@@ -95,16 +95,20 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         return;
     m_state = SSSM_STATE_CONFIGURED;
 
+    m_pushedInFifo    = 0ULL;
+    m_writtenToSocket = 0ULL;
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = STSM_STATE_UNKNOWN;
     m_threadMsg = emptyStr;
     if ( CreateThread( wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR ) {
-        wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
+        if ( m_verbosity > 0)
+            wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
         m_state = SSSM_STATE_FAIL;
         return;
     } // will not talk
     if ( GetThread()->Run() != wxTHREAD_NO_ERROR ) {
-        wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer: cannot run communication thread.");
+        if ( m_verbosity > 0)
+            wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer: cannot run communication thread.");
         m_state = SSSM_STATE_FAIL;
         return;
     }
@@ -236,8 +240,10 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         line.timestamp = wxString::Format( "%lld", msNow );
 
     std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
-    if ( m_stateComm == STSM_STATE_READY )
+    if ( m_stateComm == STSM_STATE_READY ) {
         qLine.push( line );
+        m_pushedInFifo++;
+    }
     
 
 }
@@ -249,7 +255,7 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
     if ( m_state == SSSM_STATE_DISPLAYRELAY )
         return;
     if ( m_verbosity > 1)
-        wxLogMessage ("dashboard_tactics_pi: DEBUG : received CloseEvent, waiting on comm. thread.");
+        wxLogMessage ("dashboard_tactics_pi: OnClose() : received CloseEvent, waiting on comm. thread.");
     if (GetThread() &&
         GetThread()->IsRunning())
         GetThread()->Wait();
@@ -261,6 +267,12 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 ************************************************************************************/
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
+#define giveUp100ms(__MS_100__) int waitMilliSeconds = 0; \
+    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * __MS_100__)) ) { \
+    wxMilliSleep( 100 ); \
+    waitMilliSeconds += 100; \
+}
+
     m_stateComm = STSM_STATE_INIT;
 
     wxSocketClient *socket  = new wxSocketClient();
@@ -310,42 +322,44 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
         if ( (m_stateComm == STSM_STATE_CONNECTING) || (m_stateComm == STSM_STATE_ERROR) ) {
             wxString connectionErr = wxEmptyString;
-            int waitMilliSeconds = 0;
-            while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                wxMilliSleep( 100 );
-                waitMilliSeconds += 100;
-            } // while giving out the CPU time
-            if ( !socket->Connect( *address, false ) ) {
-                if ( !socket->WaitOnConnect() ) {
-                    connectionErr += _T(" (timeout)");
-                }
-                else {
-                    if ( !socket->IsConnected() ) {
-                        connectionErr += _T(" (refused by peer)");
+            giveUp100ms(500);
+            if ( !GetThread()->TestDestroy() ) {
+                if ( !socket->Connect( *address, false ) ) {
+                    if ( !socket->WaitOnConnect() ) {
+                        connectionErr += _T(" (timeout)");
+                    }
+                    else {
+                        if ( !socket->IsConnected() ) {
+                            connectionErr += _T(" (refused by peer)");
+                        }
                     }
                 }
-            }
-            if ( connectionErr.IsEmpty() ) {
-                m_stateComm = STSM_STATE_READY;
-                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
-                wxQueueEvent( m_frame, event.Clone() );
-            }
-            else {
-                m_stateComm = STSM_STATE_ERROR;
-                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
-                m_threadMsg += connectionErr;
-                wxQueueEvent( m_frame, event.Clone() );
-            }
+                if ( connectionErr.IsEmpty() ) {
+                    m_stateComm = STSM_STATE_READY;
+                    if ( m_verbosity > 1) {
+                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
+                        wxQueueEvent( m_frame, event.Clone() );
+                    }
+                }
+                else {
+                    m_stateComm = STSM_STATE_ERROR;
+                    if ( m_verbosity > 1) {
+                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
+                        m_threadMsg += connectionErr;
+                        wxQueueEvent( m_frame, event.Clone() );
+                    }
+                }
 
-            if ( m_stateComm == STSM_STATE_ERROR ) {
-                int waitMilliSeconds = 0;
-                while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                    wxMilliSleep( 100 );
-                    waitMilliSeconds += 100;
-                } // while giving out the CPU time
-                if ( !GetThread()->TestDestroy() )
-                    m_stateComm = STSM_STATE_CONNECTING; 
-            } // then error state wait until attempting again
+                if ( m_stateComm == STSM_STATE_ERROR ) {
+                    int waitMilliSeconds = 0;
+                    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                        wxMilliSleep( 100 );
+                        waitMilliSeconds += 100;
+                    } // while giving out the CPU time
+                    if ( !GetThread()->TestDestroy() )
+                        m_stateComm = STSM_STATE_CONNECTING; 
+                } // then error state wait until attempting again
+            } // then thread needs to terminate
         } // then need to attempt to connect()
 
         if ( m_stateComm == STSM_STATE_READY ) {
@@ -480,8 +494,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 ************************************************************************************/
 void TacticsInstrument_StreamoutSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
-    if ( m_verbosity > 1)
-        wxLogMessage ("%s", m_threadMsg);
+    wxLogMessage ("%s", m_threadMsg);
 }
 /***********************************************************************************
 
@@ -546,7 +559,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         if ( !root["streamer"].HasMember("connectionretry") ) throw 201;
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
         if ( m_connectionRetry <=0)
-            m_connectionRetry = 1; // if zero will create CPU load in the thread
+            m_connectionRetry = 1; // cannot be <=0 ; used to throttle the thread
         if ( !root["streamer"].HasMember("timestamps") ) throw 202;
         m_timestamps += root["streamer"]["timestamps"].AsString();
         if ( m_timestamps.IsSameAs( _T("db"), false ) )

@@ -220,6 +220,8 @@ protected:
     bool              m_configured;
 
     std::vector<sentenceSchema> vSchema;
+    unsigned long long m_pushedInFifo;
+    unsigned long long m_writtenToSocket;
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;
     int               m_stateComm;
