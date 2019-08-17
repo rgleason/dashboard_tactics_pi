@@ -251,7 +251,7 @@ protected:
     void SaveConfig(void);
     void Draw(wxGCDC* dc);
     void OnClose(wxCloseEvent& evt);
-    wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry(void);
+    wxThread::ExitCode Entry(void);
     void OnThreadUpdate(wxThreadEvent& evt);
     
 private :
