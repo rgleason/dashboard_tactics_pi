@@ -69,9 +69,13 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 
     m_data  = emptyStr;
     if ( nofStreamOut > 1) {
-        m_state = SSSM_STATE_DISPLAYRELAY;
-        m_data = echoStreamerShow;
-        return;
+        wxString checkHalt = echoStreamerShow.wc_str();
+        wxString isHalt = L"\u2013 HALT \u2013";
+        if ( !checkHalt.IsSameAs( isHalt ) ) {
+            m_state = SSSM_STATE_DISPLAYRELAY;
+            m_data = echoStreamerShow;
+            return;
+        } // check against case that there is halted slave displays and this is a restart
     }
     m_state = SSSM_STATE_INIT;
     m_data += L"\u2013 \u2013 \u2013";
@@ -104,8 +108,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_stateFifoOverFlow = STSM_FIFO_OFW_UNKNOWN;
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = STSM_STATE_UNKNOWN;
+    m_cmdThreadStop = false;
     m_threadMsg = emptyStr;
-    if ( CreateThread( wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR ) {
+    if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
             wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
         m_state = SSSM_STATE_FAIL;
@@ -125,10 +130,18 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
 {
     std::unique_lock<std::mutex> lck_mtxNofStreamOut( *m_mtxNofStreamOut);
-    *m_nofStreamOut--;
+    (*m_nofStreamOut)--;
     if ( m_state == SSSM_STATE_DISPLAYRELAY )
         return;
+    m_data = L"\u2013 HALT \u2013";
+    *m_echoStreamerShow = m_data;
     SaveConfig();
+    if ( GetThread() ) {
+        if ( GetThread()->IsRunning() ) {
+            m_cmdThreadStop = true;
+            GetThread()->Wait();
+        }
+    }
 }
 /***********************************************************************************
 
@@ -189,13 +202,13 @@ bool TacticsInstrument_StreamoutSingle::GetSchema(
     for ( unsigned int i = 0; i < vSchema.size(); i++ ) {
         if ( vSchema[i].st == st ) {
             schema = vSchema[i];
+            if ( !schema.bStore )
+                return false;
             if ( schema.iInterval == 0 ) {
                 schema.lastTimeStamp = msNow;
                 vSchema[i].lastTimeStamp = msNow;
                 return true;
             }
-            if ( schema.iInterval < 0 )
-                return false;
             long long timeLapse = (msNow - schema.lastTimeStamp) / 1000;
             if ( static_cast<long long>(vSchema[i].iInterval) <= timeLapse ) {
                 schema.lastTimeStamp = msNow;
@@ -223,7 +236,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 
     if ( !( (m_state == SSSM_STATE_READY) && m_configured ) )
         return;
-
+    
     sentenceSchema schema;
     long long msNow = wxllNowMs.GetValue();
     if ( !GetSchema( st, msNow, schema ) )
@@ -279,9 +292,12 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
         return;
     if ( m_verbosity > 1)
         wxLogMessage ("dashboard_tactics_pi: OnClose() : received CloseEvent, waiting on comm. thread.");
-    if (GetThread() &&
-        GetThread()->IsRunning())
-        GetThread()->Wait();
+    if ( GetThread() ) {
+        if ( GetThread()->IsRunning() ) {
+            m_cmdThreadStop = true;
+            GetThread()->Wait();
+        }
+    }
     Destroy();
 }
 /***********************************************************************************
@@ -295,6 +311,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     wxMilliSleep( 100 ); \
     waitMilliSeconds += 100; \
 }
+#define __NOT_STOP_THREAD__ (!GetThread()->TestDestroy() && !m_cmdThreadStop)
+#define __STOP_THREAD__ (GetThread()->TestDestroy() || m_cmdThreadStop)
 
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
@@ -351,12 +369,12 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
     m_stateComm = STSM_STATE_CONNECTING;
 
-    while ( !GetThread()->TestDestroy() ) {
+    while (__NOT_STOP_THREAD__) {
 
         if ( (m_stateComm == STSM_STATE_CONNECTING) || (m_stateComm == STSM_STATE_ERROR) ) {
             wxString connectionErr = wxEmptyString;
             giveUpConnectionRetry100ms(5);
-            if ( !GetThread()->TestDestroy() ) {
+            if ( __NOT_STOP_THREAD__ ) {
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerShow = m_data;
@@ -370,7 +388,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         }
                     }
                 }
-                if ( !GetThread()->TestDestroy() ) {
+                if ( __NOT_STOP_THREAD__) {
                     if ( connectionErr.IsEmpty() ) {
                         m_stateComm = STSM_STATE_READY;
                         if ( m_verbosity > 1) {
@@ -469,16 +487,16 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
                     int waitMilliSeconds = 0;
                     bool readAvailable = false;
-                    while ( (!GetThread()->TestDestroy()) && !readAvailable &&
+                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
                             (waitMilliSeconds < (m_connectionRetry * 500)) ) {
                         char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        ( socket->Peek(&c,1).LastCount()==0 ? (void)0 : readAvailable = true );
                         if ( !readAvailable) {
                             wxMilliSleep( 20 );
                             waitMilliSeconds += 20;
                         }
                     }
-                    if ( GetThread()->TestDestroy() )
+                    if (__STOP_THREAD__)
                         break;
                     if ( readAvailable ) {
                         wxCharBuffer buf(100);
@@ -526,10 +544,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             } // else data available to be sent
         } // then ready state
 
-    } // while destroy
+    } // while not to be stopped / destroyed
         
-    socket->Close();
-    delete socket;
+    socket->Destroy();
+    wxSocketBase::Shutdown();
     delete address;
     
     return (wxThread::ExitCode)0;
@@ -563,11 +581,15 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamout_template.json");
         if ( !wxFileExists( tmplPath ) ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - missing template %s", tmplPath);
+            m_data = L"\u2013 No template. \u2013";
+            *m_echoStreamerShow = m_data;
             return false;
         }
         bool ret = wxCopyFile ( tmplPath, confPath ); 
         if ( !ret ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - cannot copy template %s to %s", tmplPath, confPath);
+            m_data = L"\u2013 ConfigFile? \u2013";
+            *m_echoStreamerShow = m_data;
             return false;
         }
     }
@@ -653,7 +675,10 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             schema.lastTimeStamp = 0LL;
 
             if ( !dbSchemas[i].HasMember("interval") ) throw ( 10000 + (i * 100) + 4 );
-            schema.iInterval = dbSchemas[i]["interval"].AsInt();
+            int iInterval = dbSchemas[i]["interval"].AsInt();
+            if ( iInterval < 0 )
+                iInterval = 0;
+            schema.iInterval = iInterval;
 
             if ( !dbSchemas[i].HasMember("measurement") ) throw ( 10000 + (i * 100) + 5 );
             schema.sMeasurement = dbSchemas[i]["measurement"].AsString();

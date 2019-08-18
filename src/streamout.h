@@ -55,7 +55,6 @@ enum SocketThreadStateMachine {
 enum stateFifoOverFlow {
     STSM_FIFO_OFW_UNKNOWN, STSM_FIFO_OFW_NOT_BLOCKING, STSM_FIFO_OFW_BLOCKING };
 
-
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -96,33 +95,16 @@ protected:
             sField3 = wxEmptyString;
         };
         sentenceSchema( const sentenceSchema& source) {
-            stc = source.stc;
-            st = source.st;
-            bStore = source.bStore;
-            iInterval = source.iInterval;
-            lastTimeStamp = source.lastTimeStamp;
-            sMeasurement = source.sMeasurement;
-            sProp1 = source.sProp1;
-            sProp2 = source.sProp2;
-            sProp3 = source.sProp3;
-            sField1 = source.sField1;
-            sField2 = source.sField2;
-            sField3 = source.sField3;
+#define sentenceSchemaCopy(__SS_SOURCE__)  stc = __SS_SOURCE__.stc; st = __SS_SOURCE__.st; bStore = __SS_SOURCE__.bStore; \
+            iInterval = __SS_SOURCE__.iInterval; lastTimeStamp = __SS_SOURCE__.lastTimeStamp; \
+            sMeasurement = __SS_SOURCE__.sMeasurement; sProp1 = __SS_SOURCE__.sProp1; sProp2 = __SS_SOURCE__.sProp2; \
+            sProp3 = __SS_SOURCE__.sProp3; sField1 = __SS_SOURCE__.sField1; sField2 = __SS_SOURCE__.sField2; \
+            sField3 = __SS_SOURCE__.sField3
+            sentenceSchemaCopy(source);
         };
         const sentenceSchema& operator = (const sentenceSchema &source) {
             if ( this != &source) {
-                stc = source.stc;
-                st = source.st;
-                bStore = source.bStore;
-                iInterval = source.iInterval;
-                lastTimeStamp = source.lastTimeStamp;
-                sMeasurement = source.sMeasurement;
-                sProp1 = source.sProp1;
-                sProp2 = source.sProp2;
-                sProp3 = source.sProp3;
-                sField1 = source.sField1;
-                sField2 = source.sField2;
-                sField3 = source.sField3;
+                sentenceSchemaCopy(source);
             }
             return *this;
         };
@@ -160,37 +142,17 @@ protected:
             timestamp = wxEmptyString;
         };
         lineProtocol( const lineProtocol& source) {
-            measurement = source.measurement;
-            tag_key1 = source.tag_key1;
-            tag_value1 = source.tag_value1;
-            tag_key2 = source.tag_key2;
-            tag_value2 = source.tag_value2;
-            tag_key3 = source.tag_key3;
-            tag_value3 = source.tag_value3;
-            field_key1 = source.field_key1;
-            field_value1 = source.field_value1;
-            field_key2 = source.field_key2;
-            field_value2 = source.field_value2;
-            field_key3 = source.field_key3;
-            field_value3 = source.field_value3;
-            timestamp = source.timestamp;
+#define lineProtocolCopy(__LP_SOURCE__) measurement = __LP_SOURCE__.measurement; tag_key1 = __LP_SOURCE__.tag_key1; \
+            tag_value1 = __LP_SOURCE__.tag_value1; tag_key2 = __LP_SOURCE__.tag_key2; tag_value2 = __LP_SOURCE__.tag_value2; \
+            tag_key3 = __LP_SOURCE__.tag_key3; tag_value3 = __LP_SOURCE__.tag_value3; field_key1 = __LP_SOURCE__.field_key1; \
+            field_value1 = __LP_SOURCE__.field_value1; field_key2 = __LP_SOURCE__.field_key2; \
+            field_value2 = __LP_SOURCE__.field_value2; field_key3 = __LP_SOURCE__.field_key3; \
+            field_value3 = __LP_SOURCE__.field_value3;timestamp = __LP_SOURCE__.timestamp
+            lineProtocolCopy(source);
         };
         const lineProtocol& operator = (const lineProtocol &source) {
             if ( this != &source) {
-                measurement = source.measurement;
-                tag_key1 = source.tag_key1;
-                tag_value1 = source.tag_value1;
-                tag_key2 = source.tag_key2;
-                tag_value2 = source.tag_value2;
-                tag_key3 = source.tag_key3;
-                tag_value3 = source.tag_value3;
-                field_key1 = source.field_key1;
-                field_value1 = source.field_value1;
-                field_key2 = source.field_key2;
-                field_value2 = source.field_value2;
-                field_key3 = source.field_key3;
-                field_value3 = source.field_value3;
-                timestamp = source.timestamp;
+                lineProtocolCopy(source);
             }
             return *this;
         };
@@ -231,6 +193,7 @@ protected:
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;
     int               m_stateComm;
+    bool              m_cmdThreadStop;
     wxString          m_threadMsg;
 
     // From configuration file
