@@ -37,7 +37,6 @@ using namespace std;
 #include "wx/wx.h"
 #endif //precompiled headers
 
-#include <wx/socket.h>
 #include <wx/thread.h>
 
 #include "instrument.h"

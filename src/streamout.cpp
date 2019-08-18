@@ -23,11 +23,13 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ***************************************************************************
 */
+#include <limits.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 #include <wx/wfstream.h> 
 #include <wx/fileconf.h>
+#include <wx/socket.h>
 
 #include "streamout.h"
 #include "ocpn_plugin.h"
@@ -72,7 +74,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         return;
     }
     m_state = SSSM_STATE_INIT;
-    m_data += L"\u2013\u2013\u2013";
+    m_data += L"\u2013 \u2013 \u2013";
     echoStreamerShow = m_data;
     m_format = format;
     m_DataHeight = 0;
@@ -312,9 +314,9 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     }
 
     wxString sCnxPrg[3];
-    sCnxPrg[0] = L"\u2192\u2013\u2013";
-    sCnxPrg[1] = L"\u2013\u2192\u2013";
-    sCnxPrg[2] = L"\u2013\u2013\u2192";
+    sCnxPrg[0] = L"\u2192 \u2013 \u2013";
+    sCnxPrg[1] = L"\u2013 \u2192 \u2013";
+    sCnxPrg[2] = L"\u2013 \u2013 \u2192";
     int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
@@ -327,20 +329,22 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += m_bucket;
     header += "&precision=";
     header += m_precision;
-    header += " HTTP/1.1\n";
+    header += " HTTP/1.1\r\n";
 
     header += "Host: ";
     header += m_server;
-    header += "\n";	
+    header += "\r\n";	
 
-    header += "User-Agent: OpenCPN/5.0\n";
-    header += "Accept: */*\n";
+    header += "User-Agent: OpenCPN/5.0\r\n";
+    header += "Accept: */*\r\n";
 
     header += "Authorization: Token ";
     header += m_token;
-    header += "\n";
+    header += "\r\n";
     header += "Content-Type: application/x-www-form-urlencoded";
-    header += "\n";
+    header += "\r\n";
+    header += "Connection: keep-alive";
+    header += "\r\n";
     header += "Content-Length: "; // from this starts the dynamic part
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
@@ -355,6 +359,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             if ( !GetThread()->TestDestroy() ) {
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
+                *m_echoStreamerShow = m_data;
                 if ( !socket->Connect( *address, false ) ) {
                     if ( !socket->WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
@@ -444,93 +449,81 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 
                 wxString sHdrOut = header;
                 sHdrOut += wxString::Format("%d", sData.Len() );
-                sHdrOut += "\n\n";
+                sHdrOut += "\r\n";
+                sHdrOut += "\r\n";
+                sHdrOut += sData;
 
-                if ( m_verbosity > 2) {
-                    wxLogMessage("dashboard_tactics_pi: header: \n%s", sHdrOut);
-                    wxLogMessage("dashboard_tactics_pi: data: \n%s", sData);
+                if ( m_verbosity > 3) {
+                    wxLogMessage("dashboard_tactics_pi: sHdrOut: \n%s", sHdrOut);
                 } // slows down considerably, for debugging only
+
+                wxScopedCharBuffer scb = sHdrOut.mb_str();
+                size_t len = scb.length();
                 
-                socket->Write( sHdrOut.c_str(), sHdrOut.Len() );
+                socket->Write( scb.data(), len );
                 if ( !socket->Error() ) {
-                    socket->Write( sData.c_str(), sData.Len() );
-                    if ( !socket->Error() ) {
-                        m_writtenToSocket++;
-                        wxString sWrittenToSocket = wxString::Format("%llu", m_writtenToSocket);
-                        m_data = sWrittenToSocket.wc_str();
-                        *m_echoStreamerShow = m_data;
-                        int waitMilliSeconds = 0;
-                        bool readAvailable = false;
-                        while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                            readAvailable = socket->WaitForRead( 0, 100 );
-                            waitMilliSeconds += 100;
-                        }
-                        if ( GetThread()->TestDestroy() )
-                            break;
-                        if ( readAvailable ) {
-                            wxCharBuffer buf(1000);
-                            socket->Read( buf.data(), 1000 );
-                            bool bufError = socket->Error();
-                            int bufReadCount = socket->LastReadCount();
-                            unsigned int lostReadCount = UINT_MAX;
-                            int lostLoop1000s = 0;
-                            while ( lostReadCount > 0 ) {
-                                wxCharBuffer lostbuf(1000);
-                                socket->Read( lostbuf.data(), 1000 );
-                                lostReadCount = socket->LastReadCount();
-                                lostbuf.reset();
-                                lostLoop1000s += lostReadCount;
-                            }
-                            if ( !bufError ) {
-                                if ( bufReadCount > 0 ) {
-                                    if ( m_verbosity > 2) {
-                                        m_threadMsg = wxString::Format(
-                                            "dashboard_tactics_pi: DB Streamer : %d chars from DB server (+%d lost) :\n%c",
-                                            buf.length(), lostLoop1000s, buf.data());
-                                        wxQueueEvent( m_frame, event.Clone() );
-                                    }
-                                    buf.reset();
-                                }
-                                else {
-                                    if ( m_verbosity > 1) {
-                                        m_threadMsg = wxString::Format(
-                                            "dashboard_tactics_pi: DB Streamer : ZERO chars from DB server (+%d lost).",
-                                            buf.length(), lostLoop1000s );
-                                        wxQueueEvent( m_frame, event.Clone() );
-                                    }
-                                }
-                            }
-                            else {
-                                m_stateComm = STSM_STATE_ERROR;
-                                socket->Close();
-                                if ( m_verbosity > 1) {
-                                    m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Read() error for answer.");
-                                    wxQueueEvent( m_frame, event.Clone() );
-                                }
-                                giveUpConnectionRetry100ms(5);
-                            }
-                        }
-                        else {
-                            m_stateComm = STSM_STATE_ERROR;
-                            socket->Close();
-                            if ( m_verbosity > 1) {
-                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket data Write() error.");
-                                wxQueueEvent( m_frame, event.Clone() );
-                            }
-                            giveUpConnectionRetry100ms(5);
+                    m_writtenToSocket++;
+                    wxString sWrittenToSocket = wxString::Format("%llu", m_writtenToSocket);
+                    m_data = sWrittenToSocket.wc_str();
+                    *m_echoStreamerShow = m_data;
+
+                    int waitMilliSeconds = 0;
+                    bool readAvailable = false;
+                    while ( (!GetThread()->TestDestroy()) && !readAvailable &&
+                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                        char c;
+                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        if ( !readAvailable) {
+                            wxMilliSleep( 20 );
+                            waitMilliSeconds += 20;
                         }
                     }
+                    if ( GetThread()->TestDestroy() )
+                        break;
+                    if ( readAvailable ) {
+                        wxCharBuffer buf(100);
+                        socket->Read( buf.data(), 100 );
+                        wxString sBuf = buf;
+                        bool sBufError = true;
+                        if ( sBuf.Contains("HTTP/1.1 204") )
+                            sBufError = false;
+                        unsigned int lostReadCount = UINT_MAX;
+                        int lostLoop100s = 0;
+                        while ( lostReadCount > 0 ) {
+                            wxCharBuffer lostbuf(100);
+                            socket->Read( lostbuf.data(), 100 );
+                            lostReadCount = socket->LastReadCount();
+                            lostLoop100s += lostReadCount;
+                        }
+                        if ( sBufError ) {
+                            if ( m_verbosity > 2) {
+                                m_threadMsg = wxString::Format(
+                                    "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
+                                        sBuf, sData);
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
+                        } // then error from the DB write API
+                    } // then read buffer of the socket contains some data
                     else {
                         m_stateComm = STSM_STATE_ERROR;
                         socket->Close();
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket header Write() error.");
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         giveUpConnectionRetry100ms(5);
+                    } // else no data in the socket buffer
+                } // then no error in the socket write
+                else {
+                    m_stateComm = STSM_STATE_ERROR;
+                    socket->Close();
+                    if ( m_verbosity > 1) {
+                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
+                        wxQueueEvent( m_frame, event.Clone() );
                     }
-                }
-            }
+                    giveUpConnectionRetry100ms(5);
+                } // else error in the socket Write()
+            } // else data available to be sent
         } // then ready state
 
     } // while destroy
@@ -621,14 +614,15 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         m_verbosity = root["streamer"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"", m_server );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API version  = \"%s\"", m_api );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB organization = \"%s\"", m_org );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB bucket       = \"%s\"", m_bucket );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB precision    = \"%s\"", m_precision );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"",  m_server );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API version  = \"%s\"",  m_api );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB organization = \"%s\"",  m_org );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB bucket       = \"%s\"",  m_bucket );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB precision    = \"%s\"",  m_precision );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB token        =\n\"%s\"", m_token );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB conn.retry   = %d s.", m_connectionRetry );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps   = \"%s\"", m_timestamps );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB conn.retry   = %d s.",   m_connectionRetry );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps   = \"%s\"",  m_timestamps );
+            wxLogMessage( "dashboard_tactics_pi: Streamer verbosity    = %d",      m_verbosity );
         }
 
         if ( !root.HasMember("dbschema") ) throw 300;

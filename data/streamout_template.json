@@ -13,14 +13,14 @@
         "org"       : "ocarina",
         "bucket"    : "nmea",
         "precision" : "ms",             // Only if using "db" time: ns, us, ms, s?
-        "token"     : "tLux1iynw2uoUqeFd3xTsZ2BRRONWNHxPMZWDBFP5h--EtkEHw66PG-OZxBZqhB6JlNEBKMCQP7VT9d3PIh4LQ=="
+        "token"     : "ToLdk3DNs3PqbKNS2hdZMureuGpk4IR1xSvo__VOYPNmPEnaM9bFc8SRmuZ5BkyKYcNEewiE0eu4lE0OUWRt8w=="
     },
 
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s] (min. value = 1s to reduce CPU load)
         "timestamps"      : "local",     // "local" or "db" time [select "precision"]
-        "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose, 3=debug
+        "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose, >=3=debug
     },
 
     /*
