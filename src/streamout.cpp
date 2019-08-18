@@ -472,8 +472,9 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 sHdrOut += sData;
 
                 if ( m_verbosity > 3) {
-                    wxLogMessage("dashboard_tactics_pi: sHdrOut: \n%s", sHdrOut);
-                } // slows down considerably, for debugging only
+                    m_threadMsg = wxString::Format("dashboard_tactics_pi: sData: %s", sData);
+                    wxQueueEvent( m_frame, event.Clone() );
+                } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 
                 wxScopedCharBuffer scb = sHdrOut.mb_str();
                 size_t len = scb.length();
