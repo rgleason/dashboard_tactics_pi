@@ -103,8 +103,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         return;
     m_state = SSSM_STATE_CONFIGURED;
 
-    m_pushedInFifo    = 0ULL;
-    m_writtenToSocket = 0ULL;
+    m_pushedInFifo    = 0LL;
+    m_poppedFromFifo  = 0LL;
+    m_writtenToSocket = 0LL;
     m_stateFifoOverFlow = STSM_FIFO_OFW_UNKNOWN;
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = STSM_STATE_UNKNOWN;
@@ -222,6 +223,15 @@ bool TacticsInstrument_StreamoutSingle::GetSchema(
 /***********************************************************************************
 
 ************************************************************************************/
+void TacticsInstrument_StreamoutSingle::sLL(long long cnt, wxString &retString)
+{
+    wxLongLong wxLL = cnt;
+    wxString sBuffer = wxLL.ToString();
+    retString = sBuffer.wc_str();
+}
+/***********************************************************************************
+
+************************************************************************************/
 void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
 {
     wxLongLong wxllNowMs = wxGetUTCTimeMillis();
@@ -256,28 +266,39 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
 
     std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
     if ( m_stateComm == STSM_STATE_READY ) {
+        long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
         if ( m_stateFifoOverFlow == STSM_FIFO_OFW_NOT_BLOCKING ) {
-            if ( (m_pushedInFifo - m_writtenToSocket) <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING ) {
+            if ( pushDelta <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING ) {
                 qLine.push( line );
-                m_pushedInFifo++;
+                m_pushedInFifo = m_pushedInFifo + 1LL;
             } // then FIFO is not filling up
             else {
                 m_stateFifoOverFlow = STSM_FIFO_OFW_BLOCKING;
-                if ( m_verbosity > 1)
+                if ( m_verbosity > 0) {
+                    wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
+                    wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
+                    wxString sBlockingLimit; sLL( STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
+                    wxString sPushDelta; sLL( pushDelta, sPushDelta );
                     wxLogMessage(
-                        "dashboard_tactics_pi: SetData() : FIFO overflow (>=%d),\npushed: %dull, written: %dull",
-                        STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, m_pushedInFifo, m_writtenToSocket);
-            } // else comm.thread is dead, connection lost or there is too much data for the server
-        } // then we presume that data is continuously going out the same rate we push
+                        "dashboard_tactics_pi: SetData() : FIFO overflow (%s >= %s (limit)),\npushed: %s, popped: %s",
+                        sPushDelta, sBlockingLimit, sPushedInFifo, sPoppedFromFifo);
+                }
+            } // else comm.thread is dead, connection lost or there is too much data for the connection
+        } // then we presume that data is continuously going out the same rate we push (it is no true)
         else {
-            if ( (m_pushedInFifo - m_writtenToSocket) <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING ) {
+            if ( pushDelta <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING ) {
                 m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
-                if ( m_verbosity > 1)
+                if ( m_verbosity > 0) {
+                    wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
+                    wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
+                    wxString sPushDelta; sLL( pushDelta, sPushDelta );
+                    wxString sUnblockingLimit; sLL( STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
                     wxLogMessage(
-                        "dashboard_tactics_pi: SetData() : FIFO back under the threshold (<=%d),\npushed: %dull, written: %dull",
-                        STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, m_pushedInFifo, m_writtenToSocket);
+                        "dashboard_tactics_pi: SetData() : FIFO back writable (%s <= %s (limit)),\npushed: %s, popped: %s",
+                        sPushDelta, sUnblockingLimit, sPushedInFifo, sPoppedFromFifo);
+                }
                 qLine.push( line );
-                m_pushedInFifo++;
+                m_pushedInFifo = m_pushedInFifo + 1LL;
             } // then FIFO is emptying and has gone under the threshold
         } // else there has been a FIFO overflow, let's check if we've passed under the threshold
     } // then the communication thread is alive and has connection with the server
@@ -419,6 +440,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             else {
                 lineProtocol lineOut = qLine.front();
                 qLine.pop();
+                m_poppedFromFifo = m_poppedFromFifo + 1LL;
                 mtxQLine.unlock();
 
                 wxString sData = wxEmptyString;
@@ -443,21 +465,20 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 }
                 sData += " ";
                 sData += lineOut.field_key1;
-                sData += "=\"";
-                sData += lineOut.field_value1;
-                sData += "\"";
+                sData += "=";
+                sData += lineOut.field_value1; // all data is expected to be float
                 if ( !lineOut.field_key2.IsEmpty() ) {
                     sData += ",";
                     sData += lineOut.field_key2;
-                    sData += "=\"";
+                    sData += "=";             // if later on we save units as strings : += "\"";
                     sData += lineOut.field_value2;
-                    sData += "\"";
+                    // if later on we save units as string:      sData += "\"";
                     if ( !lineOut.field_key3.IsEmpty() ) {
                         sData += ",";
                         sData += lineOut.field_key3;
-                        sData += "=\"";
+                        sData += "=";         // see above the comment about strings
                         sData += lineOut.field_value3;
-                        sData += "\"";
+                        // see above the comment about stings:   sData += "\"";
                     }
                 }
                 if ( !lineOut.timestamp.IsEmpty() ) {
@@ -481,9 +502,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 
                 socket->Write( scb.data(), len );
                 if ( !socket->Error() ) {
-                    m_writtenToSocket++;
-                    wxString sWrittenToSocket = wxString::Format("%llu", m_writtenToSocket);
-                    m_data = sWrittenToSocket.wc_str();
+                    m_writtenToSocket = m_writtenToSocket + 1LL;
+                    wxString sWrittenToSocket;
+                    sLL (  m_writtenToSocket, sWrittenToSocket );
+                    m_data = sWrittenToSocket;
                     *m_echoStreamerShow = m_data;
 
                     int waitMilliSeconds = 0;

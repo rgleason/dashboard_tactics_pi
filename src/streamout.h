@@ -49,8 +49,8 @@ enum SocketThreadStateMachine {
     STSM_STATE_UNKNOWN, STSM_STATE_INIT, STSM_STATE_ERROR, STSM_STATE_CONNECTING,
     STSM_STATE_READY };
 
-#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   100ULL
-#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 50ULL
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   20000LL // roughly 1GB of memory
+#define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 19800LL
 
 enum stateFifoOverFlow {
     STSM_FIFO_OFW_UNKNOWN, STSM_FIFO_OFW_NOT_BLOCKING, STSM_FIFO_OFW_BLOCKING };
@@ -187,9 +187,10 @@ protected:
     bool              m_configured;
 
     std::vector<sentenceSchema> vSchema;
-    unsigned long long m_pushedInFifo;
-    unsigned long long m_writtenToSocket;
-    int                m_stateFifoOverFlow;
+    long long         m_pushedInFifo;
+    long long         m_poppedFromFifo;
+    long long         m_writtenToSocket;
+    int               m_stateFifoOverFlow;
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;
     int               m_stateComm;
@@ -209,6 +210,7 @@ protected:
     int               m_verbosity;
 
     bool GetSchema(unsigned long long st, long long msNow, sentenceSchema& schema);
+    void sLL(long long cnt, wxString& retString);
     bool LoadConfig(void);
     void SaveConfig(void);
     void Draw(wxGCDC* dc);
