@@ -198,13 +198,15 @@ protected:
     wxString          m_threadMsg;
 
     // From configuration file
-    wxString          m_server;
+    wxString          m_target;
+    wxString          m_targetAsFilePath;
     wxString          m_api;
     wxString          m_org;
     wxString          m_bucket;
     wxString          m_precision;
     wxString          m_token;
     int               m_connectionRetry;
+    int               m_linesPerWrite;
     wxString          m_timestamps;
     bool              m_stamp;
     int               m_verbosity;

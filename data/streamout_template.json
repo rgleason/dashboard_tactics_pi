@@ -6,20 +6,28 @@
       The template streamout_template.json is in in the OpenCPN program's plugin directory for dashboard_tactics_pi.
     */
 
-    // Definition of the database connection API
+    /*
+      Definition of the data writing method, either HTTP Influx DB API, or file based.
+      If a lot of data is selected below to be stored, with high sampling rate (like unlimited)
+      the HTTP socket interface may get saturated. In this case, the file system is
+      faster: Influx DB line protocol sentences are written in a file. This file can be
+      streamed at its own pace to Influx DB either by scraper or pushed by Telegraf, like its
+      Tail Input Plugin.
+    */
     "influxdb" : {
-        "server"    : "localhost:9999", // shall contain port number
+        "target"    : "localhost:9999", // either <host>:<port or <filename>
         "api"       : "v2",             // currently only v2 is supported
-        "org"       : "ocarina",
-        "bucket"    : "nmea",
-        "precision" : "ms",             // Only if using "db" time: ns, us, ms, s?
+        "org"       : "myorg",          // Influx DB organization name (only HTTP)
+        "bucket"    : "mybucket",       // Influx DB bucket to write to (only HTTP)
+        "precision" : "ms",             // ns, us, ms, s? (only HTTP, see "timestamps")
         "token"     : "ToLdk3DNs3PqbKNS2hdZMureuGpk4IR1xSvo__VOYPNmPEnaM9bFc8SRmuZ5BkyKYcNEewiE0eu4lE0OUWRt8w=="
-    },
+    }, // note the token is used only HTTP: generate it to allow writing to the "bucket"
 
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s] (min. value = 1s to reduce CPU load)
-        "timestamps"      : "local",     // "local" or "db" time [select "precision"]
+        "linesperwrite"   : 50,          // number of lines per Write() - optimize throughput
+        "timestamps"      : "local",     // "local" or "db" (HTTP) time [see "precision"]
         "verbosity"       : 1            // 0=quiet, 1=1msg/event, 2=verbose, >=3=debug
     },
 

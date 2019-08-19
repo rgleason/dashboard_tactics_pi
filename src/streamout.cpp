@@ -86,7 +86,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_pconfig = GetOCPNConfigObject();
     m_configFileName = wxEmptyString;
 
-    m_server = emptyStr;
+    m_target = emptyStr;
+    m_targetAsFilePath = emptyStr;
+    m_linesPerWrite = 0;
     m_api = emptyStr;
     m_org = emptyStr;
     m_bucket = emptyStr;
@@ -338,19 +340,41 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
 
-    wxSocketBase::Initialize();
-    wxSocketClient *socket  = new wxSocketClient();
-    socket->SetTimeout( 5 );
-    wxIPV4address  *address = new wxIPV4address();
-    wxUniChar separator = 0x3a;
-    address->Hostname(m_server.BeforeFirst(separator));
-    address->Service(m_server.AfterFirst(separator));
+    wxSocketClient *socket  = NULL;
+    wxIPV4address  *address = NULL;
+    wxFile         *file    = NULL;
+    bool            fileOp  = true;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
-    if ( m_verbosity > 1) {
-        m_threadMsg = wxString::Format("dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
-                                       m_server.BeforeFirst(separator), m_server.AfterFirst(separator));
-        wxQueueEvent( m_frame, event.Clone() );
-    }
+
+    if ( m_targetAsFilePath.IsEmpty() ) { 
+        wxSocketBase::Initialize();
+        socket = new wxSocketClient();
+        socket->SetTimeout( 5 );
+        address = new wxIPV4address();
+        wxUniChar separator = 0x3a;
+        address->Hostname(m_target.BeforeFirst(separator));
+        address->Service(m_target.AfterFirst(separator));
+        if ( m_verbosity > 1) {
+            m_threadMsg = wxString::Format(
+                "dashboard_tactics_pi: DB Streamer : STSM_STATE_INIT : (%s:%s)",
+                m_target.BeforeFirst(separator), m_target.AfterFirst(separator));
+            wxQueueEvent( m_frame, event.Clone() );
+        }
+        fileOp = false;
+    } // then HTTP API
+    else {
+        file = new wxFile( m_targetAsFilePath, wxFile::write );
+        if ( !file->IsOpened() ) {
+            if ( m_verbosity > 0) {
+                m_threadMsg = wxString::Format(
+                    "dashboard_tactics_pi: ERROR : DB Streamer : opening file for writing : %s",
+                    m_targetAsFilePath);
+                wxQueueEvent( m_frame, event.Clone() );
+            } // then failed to open the file for writing
+            wxMilliSleep( 1000 );
+            return (wxThread::ExitCode)0;
+        } // then the file opening did not quite succeeded
+    } // else file based Line Protocol 
 
     wxString sCnxPrg[3];
     sCnxPrg[0] = L"\u2192 \u2013 \u2013";
@@ -371,7 +395,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += " HTTP/1.1\r\n";
 
     header += "Host: ";
-    header += m_server;
+    header += m_target;
     header += "\r\n";	
 
     header += "User-Agent: OpenCPN/5.0\r\n";
@@ -633,8 +657,27 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         }
 
         if ( !root.HasMember("influxdb") ) throw 100;
-        if ( !root["influxdb"].HasMember("server") ) throw 101;
-        m_server += root["influxdb"]["server"].AsString();
+        if ( !root["influxdb"].HasMember("target") ) throw 101;
+        m_target += root["influxdb"]["target"].AsString();
+        wxUniChar separator = 0x3a;
+        if ( m_target.Find( separator ) != wxNOT_FOUND ) {
+            m_targetAsFilePath = m_confdir + m_target;
+            if ( wxFileExists( m_targetAsFilePath ) ) {
+                wxDateTime bupTime = wxDateTime:Now();
+                wxString sBupTime = bupTime.Format("_%F_%H-%M-%S");
+                wxString sTargetBackupName = m_target + sBupTime;
+                wxString sTargetBackupPath = m_confdir + sTargetBackupName;
+                bool ret = wxRenameFile ( m_targetFileAsPath, sTargetBackupPath );
+                if ( !ret ) {
+                    wxLogMessage ("dashboard_tactics_pi: ERROR - cannot rename data %s to %s",
+                                  m_targetFileAsPath, sTargetBackupPath);
+                    m_data = L"\u2013 ERR:DataFileBackup \u2013";
+                    *m_echoStreamerShow = m_data;
+                    return false;
+                } // then could not rename the original datafile as a backup file
+            } // else the target data file exists already, we do not want to append, rename
+        } // else this is not HTTP API but a file name
+
         if ( !root["influxdb"].HasMember("api") ) throw 102;
         m_api += root["influxdb"]["api"].AsString();
         if ( !root["influxdb"].HasMember("org") ) throw 103;
@@ -651,21 +694,26 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
         if ( m_connectionRetry <=0)
             m_connectionRetry = 1; // cannot be <=0 ; used to throttle the thread
-        if ( !root["streamer"].HasMember("timestamps") ) throw 202;
+        if ( !root["streamer"].HasMember("linesperwrite") ) throw 202;
+        m_linePerWrite = root["streamer"]["linesperwrite"].AsInt();
+        if ( m_linesPerWrite <=0)
+            m_linesPerWrite = 1;
+        if ( !root["streamer"].HasMember("timestamps") ) throw 203;
         m_timestamps += root["streamer"]["timestamps"].AsString();
         if ( m_timestamps.IsSameAs( _T("db"), false ) )
             m_stamp = false;
-        if ( !root["streamer"].HasMember("verbosity") ) throw 203;
+        if ( !root["streamer"].HasMember("verbosity") ) throw 204;
         m_verbosity = root["streamer"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"",  m_server );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"",  m_target );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB API version  = \"%s\"",  m_api );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB organization = \"%s\"",  m_org );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB bucket       = \"%s\"",  m_bucket );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB precision    = \"%s\"",  m_precision );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB token        =\n\"%s\"", m_token );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB conn.retry   = %d s.",   m_connectionRetry );
+            wxLogMessage( "dashboard_tactics_pi: InfluxDB lines/write  = %d",      m_linesPerWrite );
             wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps   = \"%s\"",  m_timestamps );
             wxLogMessage( "dashboard_tactics_pi: Streamer verbosity    = %d",      m_verbosity );
         }
