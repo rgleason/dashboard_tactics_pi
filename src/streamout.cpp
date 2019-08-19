@@ -663,14 +663,14 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         if ( m_target.Find( separator ) != wxNOT_FOUND ) {
             m_targetAsFilePath = m_confdir + m_target;
             if ( wxFileExists( m_targetAsFilePath ) ) {
-                wxDateTime bupTime = wxDateTime:Now();
+                wxDateTime bupTime = wxDateTime::Now();
                 wxString sBupTime = bupTime.Format("_%F_%H-%M-%S");
                 wxString sTargetBackupName = m_target + sBupTime;
                 wxString sTargetBackupPath = m_confdir + sTargetBackupName;
-                bool ret = wxRenameFile ( m_targetFileAsPath, sTargetBackupPath );
+                bool ret = wxRenameFile ( m_targetAsFilePath, sTargetBackupPath );
                 if ( !ret ) {
                     wxLogMessage ("dashboard_tactics_pi: ERROR - cannot rename data %s to %s",
-                                  m_targetFileAsPath, sTargetBackupPath);
+                                  m_targetAsFilePath, sTargetBackupPath);
                     m_data = L"\u2013 ERR:DataFileBackup \u2013";
                     *m_echoStreamerShow = m_data;
                     return false;
@@ -695,7 +695,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         if ( m_connectionRetry <=0)
             m_connectionRetry = 1; // cannot be <=0 ; used to throttle the thread
         if ( !root["streamer"].HasMember("linesperwrite") ) throw 202;
-        m_linePerWrite = root["streamer"]["linesperwrite"].AsInt();
+        m_linesPerWrite = root["streamer"]["linesperwrite"].AsInt();
         if ( m_linesPerWrite <=0)
             m_linesPerWrite = 1;
         if ( !root["streamer"].HasMember("timestamps") ) throw 203;
