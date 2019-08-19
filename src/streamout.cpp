@@ -513,7 +513,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     while ( __NOT_STOP_THREAD__ && !readAvailable &&
                             (waitMilliSeconds < (m_connectionRetry * 500)) ) {
                         char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? (void)0 : readAvailable = true );
+                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
                         if ( !readAvailable) {
                             wxMilliSleep( 20 );
                             waitMilliSeconds += 20;
