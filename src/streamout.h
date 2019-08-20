@@ -189,7 +189,7 @@ protected:
     std::vector<sentenceSchema> vSchema;
     long long         m_pushedInFifo;
     long long         m_poppedFromFifo;
-    long long         m_writtenToSocket;
+    long long         m_writtenToOutput;
     int               m_stateFifoOverFlow;
     std::queue<lineProtocol> qLine;
     std::mutex        m_mtxQLine;

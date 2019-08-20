@@ -107,7 +107,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 
     m_pushedInFifo    = 0LL;
     m_poppedFromFifo  = 0LL;
-    m_writtenToSocket = 0LL;
+    m_writtenToOutput = 0LL;
     m_stateFifoOverFlow = STSM_FIFO_OFW_UNKNOWN;
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = STSM_STATE_UNKNOWN;
@@ -412,7 +412,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
 
-    m_stateComm = STSM_STATE_CONNECTING;
+    if ( fileOp )
+        m_stateComm = STSM_STATE_READY;
+    else
+        m_stateComm = STSM_STATE_CONNECTING;
 
     while (__NOT_STOP_THREAD__) {
 
@@ -454,140 +457,174 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 } // then thread does not need to terminate
             } // then thread does not need to terminate
         } // then need to attempt to connect()
-
+        
         if ( m_stateComm == STSM_STATE_READY ) {
-            mtxQLine.lock();
-            if (qLine.empty()) {
-                mtxQLine.unlock();
+            
+            wxString sData = wxEmptyString;
+            int linesPrepared = 0;        
+            if ( m_verbosity > 2) {
+                m_threadMsg = wxString::Format(
+                    "dashboard_tactics_pi: DB Streamer : m_linesPerWrite (%d)", m_linesPerWrite);
                 wxMilliSleep( 100 );
-            } // no data to be sent
-            else {
-                lineProtocol lineOut = qLine.front();
-                qLine.pop();
-                m_poppedFromFifo = m_poppedFromFifo + 1LL;
-                mtxQLine.unlock();
+                wxQueueEvent( m_frame, event.Clone() );
+                wxMilliSleep( 100 );
+            }
+            while ( linesPrepared < m_linesPerWrite ) {
+                
+                mtxQLine.lock();
+                if (qLine.empty()) {
+                    mtxQLine.unlock();
+                    wxMilliSleep( 100 );
+                    if (GetThread()->TestDestroy()) {
+                        linesPrepared = 0;
+                        if (m_cmdThreadStop) {
+                            linesPrepared = 1;
+                            break;
+                        }
+                    }
+                } // no data to be sent
+                else {
+                    lineProtocol lineOut = qLine.front();
+                    qLine.pop();
+                    m_poppedFromFifo = m_poppedFromFifo + 1LL;
+                    mtxQLine.unlock();
 
-                wxString sData = wxEmptyString;
-                sData += lineOut.measurement;
-                if ( !lineOut.tag_key1.IsEmpty() ) {
-                    sData += ",";
-                    sData += lineOut.tag_key1;
-                    sData += "=";
-                    sData += lineOut.tag_value1;
-                    if ( !lineOut.tag_key2.IsEmpty() ) {
+                    sData += lineOut.measurement;
+                    if ( !lineOut.tag_key1.IsEmpty() ) {
                         sData += ",";
-                        sData += lineOut.tag_key2;
+                        sData += lineOut.tag_key1;
                         sData += "=";
-                        sData += lineOut.tag_value2;
-                        if ( !lineOut.tag_key3.IsEmpty() ) {
+                        sData += lineOut.tag_value1;
+                        if ( !lineOut.tag_key2.IsEmpty() ) {
                             sData += ",";
-                            sData += lineOut.tag_key3;
+                            sData += lineOut.tag_key2;
                             sData += "=";
-                            sData += lineOut.tag_value3;
+                            sData += lineOut.tag_value2;
+                            if ( !lineOut.tag_key3.IsEmpty() ) {
+                                sData += ",";
+                                sData += lineOut.tag_key3;
+                                sData += "=";
+                                sData += lineOut.tag_value3;
+                            }
                         }
                     }
-                }
-                sData += " ";
-                sData += lineOut.field_key1;
-                sData += "=";
-                sData += lineOut.field_value1; // all data is expected to be float
-                if ( !lineOut.field_key2.IsEmpty() ) {
-                    sData += ",";
-                    sData += lineOut.field_key2;
-                    sData += "=";             // if later on we save units as strings : += "\"";
-                    sData += lineOut.field_value2;
-                    // if later on we save units as string:      sData += "\"";
-                    if ( !lineOut.field_key3.IsEmpty() ) {
-                        sData += ",";
-                        sData += lineOut.field_key3;
-                        sData += "=";         // see above the comment about strings
-                        sData += lineOut.field_value3;
-                        // see above the comment about stings:   sData += "\"";
-                    }
-                }
-                if ( !lineOut.timestamp.IsEmpty() ) {
                     sData += " ";
-                    sData += lineOut.timestamp;
-                }
-                
-                wxString sHdrOut = header;
-                sHdrOut += wxString::Format("%d", sData.Len() );
-                sHdrOut += "\r\n";
-                sHdrOut += "\r\n";
-                sHdrOut += sData;
-
-                if ( m_verbosity > 3) {
-                    m_threadMsg = wxString::Format("dashboard_tactics_pi: sData: %s", sData);
-                    wxQueueEvent( m_frame, event.Clone() );
-                } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
-
-                wxScopedCharBuffer scb = sHdrOut.mb_str();
-                size_t len = scb.length();
-                
-                socket->Write( scb.data(), len );
-                if ( !socket->Error() ) {
-                    m_writtenToSocket = m_writtenToSocket + 1LL;
-                    wxString sWrittenToSocket;
-                    sLL (  m_writtenToSocket, sWrittenToSocket );
-                    m_data = sWrittenToSocket;
-                    *m_echoStreamerShow = m_data;
-
-                    int waitMilliSeconds = 0;
-                    bool readAvailable = false;
-                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                        char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                        if ( !readAvailable) {
-                            wxMilliSleep( 20 );
-                            waitMilliSeconds += 20;
+                    sData += lineOut.field_key1;
+                    sData += "=";
+                    sData += lineOut.field_value1; // all data is expected to be float
+                    if ( !lineOut.field_key2.IsEmpty() ) {
+                        sData += ",";
+                        sData += lineOut.field_key2;
+                        sData += "=";             // if later on we save units as strings : += "\"";
+                        sData += lineOut.field_value2;
+                        // if later on we save units as string:      sData += "\"";
+                        if ( !lineOut.field_key3.IsEmpty() ) {
+                            sData += ",";
+                            sData += lineOut.field_key3;
+                            sData += "=";         // see above the comment about strings
+                            sData += lineOut.field_value3;
+                            // see above the comment about stings:   sData += "\"";
                         }
                     }
+                    if ( !lineOut.timestamp.IsEmpty() ) {
+                        sData += " ";
+                        sData += lineOut.timestamp;
+                    }
+                    sData += "\r\n";
+                    linesPrepared++;
+
                     if (__STOP_THREAD__)
                         break;
-                    if ( readAvailable ) {
-                        wxCharBuffer buf(100);
-                        socket->Read( buf.data(), 100 );
-                        wxString sBuf = buf;
-                        bool sBufError = true;
-                        if ( sBuf.Contains("HTTP/1.1 204") )
-                            sBufError = false;
-                        unsigned int lostReadCount = UINT_MAX;
-                        int lostLoop100s = 0;
-                        while ( lostReadCount > 0 ) {
-                            wxCharBuffer lostbuf(100);
-                            socket->Read( lostbuf.data(), 100 );
-                            lostReadCount = socket->LastReadCount();
-                            lostLoop100s += lostReadCount;
+
+                } // while number of lines to prepare
+                
+                if (__STOP_THREAD__)
+                    break;
+                
+                if ( fileOp ) {
+                    
+                    file->Write( sData );
+
+                    if (__STOP_THREAD__)
+                        break;
+                    wxMilliSleep(100);
+                    
+                } // then write to file
+                else {
+
+                    wxString sHdrOut = header;
+                    sHdrOut += wxString::Format("%d", sData.Len() );
+                    sHdrOut += "\r\n";
+                    sHdrOut += "\r\n";
+                    sHdrOut += sData;
+                    wxScopedCharBuffer scb = sHdrOut.mb_str();
+                    size_t len = scb.length();
+
+                    socket->Write( scb.data(), len );
+                    if ( !socket->Error() ) {
+                        m_writtenToOutput = m_writtenToOutput + 1LL;
+                        wxString sWrittenToSocket;
+                        sLL (  m_writtenToOutput, sWrittenToSocket );
+                        m_data = sWrittenToSocket;
+                        *m_echoStreamerShow = m_data;
+
+                        int waitMilliSeconds = 0;
+                        bool readAvailable = false;
+                        while ( __NOT_STOP_THREAD__ && !readAvailable &&
+                                (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                            char c;
+                            ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                            if ( !readAvailable) {
+                                wxMilliSleep( 20 );
+                                waitMilliSeconds += 20;
+                            }
                         }
-                        if ( sBufError ) {
-                            if ( m_verbosity > 2) {
-                                m_threadMsg = wxString::Format(
-                                    "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
+                        if (__STOP_THREAD__)
+                            break;
+                        if ( readAvailable ) {
+                            wxCharBuffer buf(100);
+                            socket->Read( buf.data(), 100 );
+                            wxString sBuf = buf;
+                            bool sBufError = true;
+                            if ( sBuf.Contains("HTTP/1.1 204") )
+                                sBufError = false;
+                            unsigned int lostReadCount = UINT_MAX;
+                            int lostLoop100s = 0;
+                            while ( lostReadCount > 0 ) {
+                                wxCharBuffer lostbuf(100);
+                                socket->Read( lostbuf.data(), 100 );
+                                lostReadCount = socket->LastReadCount();
+                                lostLoop100s += lostReadCount;
+                            }
+                            if ( sBufError ) {
+                                if ( m_verbosity > 2) {
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
                                         sBuf, sData);
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                }
+                            } // then error from the DB write API
+                        } // then read buffer of the socket contains some data
+                        else {
+                            m_stateComm = STSM_STATE_ERROR;
+                            socket->Close();
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
                                 wxQueueEvent( m_frame, event.Clone() );
                             }
-                        } // then error from the DB write API
-                    } // then read buffer of the socket contains some data
+                            giveUpConnectionRetry100ms(5);
+                        } // else no data in the socket buffer
+                    } // then no error in the socket write
                     else {
                         m_stateComm = STSM_STATE_ERROR;
                         socket->Close();
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         giveUpConnectionRetry100ms(5);
-                    } // else no data in the socket buffer
-                } // then no error in the socket write
-                else {
-                    m_stateComm = STSM_STATE_ERROR;
-                    socket->Close();
-                    if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
-                        wxQueueEvent( m_frame, event.Clone() );
-                    }
-                    giveUpConnectionRetry100ms(5);
-                } // else error in the socket Write()
+                    } // else error in the socket Write()
+                } // else network (socket) operation
             } // else data available to be sent
         } // then ready state
 
@@ -660,7 +697,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         if ( !root["influxdb"].HasMember("target") ) throw 101;
         m_target += root["influxdb"]["target"].AsString();
         wxUniChar separator = 0x3a;
-        if ( m_target.Find( separator ) != wxNOT_FOUND ) {
+        if ( m_target.Find( separator ) == wxNOT_FOUND ) {
             m_targetAsFilePath = m_confdir + m_target;
             if ( wxFileExists( m_targetAsFilePath ) ) {
                 wxDateTime bupTime = wxDateTime::Now();

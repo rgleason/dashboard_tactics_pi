@@ -38,7 +38,7 @@
       The template DB schema is according to the Signal K schema, see
           https://github.com/SignalK/specification/blob/master/schemas/
 
-      Sentence data management andthrottling settings.
+      Sentence data management and throttling settings.
       "store"=false: item will not be stored
       "interval" 0 : save all the data items received
                 >0 : define in seconds the minimum time in seconds which shall be elapsed
