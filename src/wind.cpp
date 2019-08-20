@@ -152,8 +152,33 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
     double data, wxString unit)
 { 
 #ifdef _TACTICSPI_H_
-    if (std::isnan(data))
+    if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
+        unit = DEGREE_SIGN + L"\u2192";
+    }
+    else if ( (unit == _T("\u00B0r")) || (unit == _T("\u00B0rl")) ) {
+        unit = DEGREE_SIGN + L"\u2190";
+    }
+    else if (unit == _T("\u00B0u")){
+        unit = DEGREE_SIGN + L"\u2191";
+    }
+    else if (unit == _T("\u00B0d")){
+        unit = DEGREE_SIGN + L"\u2193";
+    }
+    if (std::isnan(data)) {
+        if ( st == OCPN_DBP_STC_AWS ) {
+            m_MainValueApp  = NAN;
+            m_ExtraValueApp = NAN;
+            Refresh();
+            return;
+        } // perhaps AWS watchdog has hit, reset both AWA and AWS.
+        else if ( st == OCPN_DBP_STC_TWS ) {
+            m_MainValueTrue  = NAN;
+            m_ExtraValueTrue = NAN;
+            Refresh();
+            return;
+        } // perhaps TWS watchdog has hit, reset both TWA and TWS.
         return;
+    } // else invalid data received
 #endif // _TACTICSPI_H_
 
     if (st == OCPN_DBP_STC_TWA){
@@ -181,11 +206,6 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
         m_TWD = data;
         m_TWDUnit = unit;
     }
-    //if AWS == NAN, also reset AWA; we have a watchdog for AWS and use it here ...
-    if (std::isnan(m_ExtraValueApp))
-        m_MainValueApp = NAN;
-    //if TWS == NAN, also reset TWA; we have a watchdog for TWS and use it here ...
-    if (std::isnan(m_ExtraValueTrue)) m_MainValueTrue = NAN;
 #endif // _TACTICSPI_H_
     Refresh();
 }
@@ -257,7 +277,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
            m_MainValue is supplied as <0..180><L | R>
            * for example TWA & AWA */
 #ifdef _TACTICSPI_H_
-        if (m_MainValueTrueUnit == _T("\u00B0lr"))
+        if (m_MainValueTrueUnit == (DEGREE_SIGN + L"\u2192") )
 #else
         if (m_MainValueTrueUnit == _T("\u00B0L"))
 #endif // _TACTICSPI_H_
@@ -301,7 +321,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
        when m_MainValue is supplied as <0..180><L | R>
        * for example TWA & AWA */
 #ifdef _TACTICSPI_H_
-    if (m_MainValueAppUnit == _T("\u00B0lr"))
+    if (m_MainValueAppUnit == (DEGREE_SIGN + L"\u2192") )
 #else
     if (m_MainValueAppUnit == _T("\u00B0L"))
 #endif // _TACTICSPI_H_
@@ -345,28 +365,28 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 	wxString text;
 	if (!std::isnan(value))
 	{
-		if (unit == _T("\u00B0"))
-			text = wxString::Format(format, value) + DEGREE_SIGN;
 #ifdef _TACTICSPI_H_
-		else if (unit == _T("\u00B0lr")) // No special display for now, might be XXdeg< (as in text-only instrument)
-#else
-		else if (unit == _T("\u00B0L")) // No special display for now, might be XXdeg< (as in text-only instrument)
-#endif // _TACTICSPI_H_
-			text = wxString::Format(format, value) + DEGREE_SIGN;
+        if ( (unit != (DEGREE_SIGN + L"\u2192")) && (unit != (DEGREE_SIGN + L"\u2190")) &&
+             (unit != (DEGREE_SIGN + L"\u2191")) && (unit != (DEGREE_SIGN + L"\u2193")) )
+        {
+#endif
+            if (unit == _T("\u00B0"))
+                text = wxString::Format(format, value) + DEGREE_SIGN;
+            else if (unit == _T("\u00B0L")) // No special display for now, might be XXdeg< (as in text-only instrument)
+                text = wxString::Format(format, value) + DEGREE_SIGN;
+            else if (unit == _T("\u00B0R")) // No special display for now, might be >XXdeg
+                text = wxString::Format(format, value) + DEGREE_SIGN;
+            else if (unit == _T("\u00B0T"))
+                text = wxString::Format(format, value) + DEGREE_SIGN + _T("T");
+            else if (unit == _T("\u00B0M"))
+                text = wxString::Format(format, value) + DEGREE_SIGN + _T("M");
+            else if (unit == _T("N")) // Knots
+                text = wxString::Format(format, value) + _T(" Kts");
+            else
+                text = wxString::Format(format, value) + _T(" ") + unit;
 #ifdef _TACTICSPI_H_
-		else if (unit == _T("\u00B0rl")) // No special display for now, might be >XXdeg
-#else
-		else if (unit == _T("\u00B0R")) // No special display for now, might be >XXdeg
-#endif // _TACTICSPI_H_
-			text = wxString::Format(format, value) + DEGREE_SIGN;
-		else if (unit == _T("\u00B0T"))
-			text = wxString::Format(format, value) + DEGREE_SIGN + _T("T");
-		else if (unit == _T("\u00B0M"))
-			text = wxString::Format(format, value) + DEGREE_SIGN + _T("M");
-		else if (unit == _T("N")) // Knots
-			text = wxString::Format(format, value) + _T(" Kts");
-		else
-			text = wxString::Format(format, value) + _T(" ") + unit;
+        } // then "unit" display texts for wind are set for at arrival in SetData()data,
+#endif
 	}
 	else
 		text = _T("---");

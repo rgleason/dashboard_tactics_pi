@@ -112,13 +112,6 @@ void DashboardInstrument_Dial::SetData(
     double data, wxString unit)
 {
 #ifdef _TACTICSPI_H_
-    if ( std::isnan(data) ) {
-        if ( st == m_MainValueCap )
-            m_MainValue = 0.0;
-        if ( st == m_ExtraValueCap )
-            m_ExtraValue = 0.0;
-        return;
-    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -131,6 +124,13 @@ void DashboardInstrument_Dial::SetData(
     else if (unit == _T("\u00B0d")){
         unit = DEGREE_SIGN + L"\u2193";
     }
+    if ( std::isnan(data) ) {
+        if ( st == m_MainValueCap )
+            m_MainValue = 0.0;
+        if ( st == m_ExtraValueCap )
+            m_ExtraValue = 0.0;
+        return;
+    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
 #endif // _TACTICSPI_H_
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
@@ -409,20 +409,28 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       wxString text;
       if(!std::isnan(value))
       {
-          if (unit == _T("\u00B0"))
-               text = wxString::Format(format, value)+DEGREE_SIGN;
-          else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
-               text = wxString::Format(format, value)+DEGREE_SIGN;
-          else if (unit == _T("\u00B0R")) // No special display for now, might be >XX°
-               text = wxString::Format(format, value)+DEGREE_SIGN;
-          else if (unit == _T("\u00B0T"))
-               text = wxString::Format(format, value)+DEGREE_SIGN+_T("T");
-          else if (unit == _T("\u00B0M"))
-               text = wxString::Format(format, value)+DEGREE_SIGN+_T("M");
-          else if (unit == _T("N")) // Knots
-               text = wxString::Format(format, value)+_T(" Kts");
-          else
-               text = wxString::Format(format, value)+_T(" ")+unit;
+#ifdef _TACTICSPI_H_
+        if ( (unit != (DEGREE_SIGN + L"\u2192")) && (unit != (DEGREE_SIGN + L"\u2190")) &&
+             (unit != (DEGREE_SIGN + L"\u2191")) && (unit != (DEGREE_SIGN + L"\u2193")) )
+        {
+#endif
+            if (unit == _T("\u00B0"))
+                text = wxString::Format(format, value)+DEGREE_SIGN;
+            else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
+                text = wxString::Format(format, value)+DEGREE_SIGN;
+            else if (unit == _T("\u00B0R")) // No special display for now, might be >XX°
+                text = wxString::Format(format, value)+DEGREE_SIGN;
+            else if (unit == _T("\u00B0T"))
+                text = wxString::Format(format, value)+DEGREE_SIGN+_T("T");
+            else if (unit == _T("\u00B0M"))
+                text = wxString::Format(format, value)+DEGREE_SIGN+_T("M");
+            else if (unit == _T("N")) // Knots
+                text = wxString::Format(format, value)+_T(" Kts");
+            else
+                text = wxString::Format(format, value)+_T(" ")+unit;
+#ifdef _TACTICSPI_H_
+        } // then "unit" display texts for wind are set for at arrival in SetData()data,
+#endif
       }
       else
            text = _T("---");
