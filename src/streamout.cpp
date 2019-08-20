@@ -273,7 +273,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
             if ( pushDelta <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING ) {
                 qLine.push( line );
                 m_pushedInFifo = m_pushedInFifo + 1LL;
-            } // then FIFO is not filling up
+            } // then FIFO has not been filled up yet to the limit
             else {
                 m_stateFifoOverFlow = STSM_FIFO_OFW_BLOCKING;
                 if ( m_verbosity > 0) {
@@ -285,8 +285,8 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
                         "dashboard_tactics_pi: SetData() : FIFO overflow (%s >= %s (limit)),\npushed: %s, popped: %s",
                         sPushDelta, sBlockingLimit, sPushedInFifo, sPoppedFromFifo);
                 }
-            } // else comm.thread is dead, connection lost or there is too much data for the connection
-        } // then we presume that data is continuously going out the same rate we push (it is no true)
+            } // else comm.thread is dead, connection lost or there is too much data in FIFO
+        } // then the last information was that there was room in the FIFO
         else {
             if ( pushDelta <= STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING ) {
                 m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;

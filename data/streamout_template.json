@@ -32,30 +32,17 @@
     },
 
     /*
-      Sentence mapping into a respective DB schema.
-      Sentence data throttling settings.
-
+      Sentence mapping as a DB schema.
       The mapping of dashoard_tactics_pi sentences is according to
-      ../instruments.h : normally, do not change "sentence" and "mask" values.
+          ../instruments.h : normally, do not change "sentence" and "mask" values.
+      The template DB schema is according to the Signal K schema, see
+          https://github.com/SignalK/specification/blob/master/schemas/
 
-      The template DB schema is according to Signal K schema, see
-      https://github.com/SignalK/specification/blob/master/schemas/
-
-      To optimize query performance with filters, measurement's sub-propertie, which
-      appears before the data value field are presented as tags in InfluxDB API.
-      User can change the measurement class, tags and even measurement
-      fields to his or her liking, of course.
-
-      The primary implementation is done with a single data instrument,
-      therefore the other data fields are, in general, empty in the schema. They
-      shall not be removed but left empty - the same schema can be used in
-      multidata instruments.
-
-      You do not have to delete a definition from the table, use the "interval":
-      -1 : do not save this data item at all
-       0 : save all the data items received
-      >0 : define in seconds the minimum time in seconds which shall be elapsed
-           before the next data item can be saved (for space saving)
+      Sentence data management andthrottling settings.
+      "store"=false: item will not be stored
+      "interval" 0 : save all the data items received
+                >0 : define in seconds the minimum time in seconds which shall be elapsed
+                     before the next data item can be sent to the streamer
     */
     "dbschema" : [
         {
