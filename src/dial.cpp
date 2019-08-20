@@ -131,27 +131,34 @@ void DashboardInstrument_Dial::SetData(
             m_ExtraValue = 0.0;
         return;
     } // then having NaN: can mean that data stream has ended and it is the watchog barking.
+
+#ifdef _TACTICSPI_H_
+#else
+#endif // _TACTICSPI_H_
+
+
+
 #endif // _TACTICSPI_H_
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
 #ifdef _TACTICSPI_H_
-      if ( (st == m_MainValueCap) && (data < 400.0) )
+    if ( (st == m_MainValueCap) && (data < 400.0) )
 #else
-      if ( (st == m_MainValueCap) && (data < 1200.0) )
+    if ( (st == m_MainValueCap) && (data < 1200.0) )
 #endif // _TACTICSPI_H_
-      {
-            m_MainValue = data;
-            m_MainValueUnit = unit;
-      }
+    {
+        m_MainValue = data;
+        m_MainValueUnit = unit;
+    }
 #ifdef _TACTICSPI_H_
-      else if ( (st == m_ExtraValueCap) && (data < 400.0) )
+    else if ( (st == m_ExtraValueCap) && (data < 400.0) )
 #else
-      else if ( (st == m_ExtraValueCap) && (data < 1200.0) )
+    else if ( (st == m_ExtraValueCap) && (data < 1200.0) )
 #endif // _TACTICSPI_H_
-      {
-          m_ExtraValue = data;
-          m_ExtraValueUnit = unit;
-      }
+    {
+        m_ExtraValue = data;
+        m_ExtraValueUnit = unit;
+    }
 }
 
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
@@ -429,7 +436,10 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
             else
                 text = wxString::Format(format, value)+_T(" ")+unit;
 #ifdef _TACTICSPI_H_
-        } // then "unit" display texts for wind are set for at arrival in SetData()data,
+        } // then "unit" value is not set yet for wind SetData()data,
+        else {
+            text = wxString::Format(format, value) + unit;
+        } // else "unit" value has been set for wind SetData()data,
 #endif
       }
       else
@@ -476,7 +486,11 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
                   break;
             case DIAL_POSITION_BOTTOMRIGHT:
                   TextPoint.x = size.x-width-1;
+#ifdef _TACTICSPI_H_
+                  TextPoint.y = size.y-height;
+#else
                   TextPoint.y = size.x-height;
+#endif
                   break;
       }
 

@@ -385,7 +385,10 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
             else
                 text = wxString::Format(format, value) + _T(" ") + unit;
 #ifdef _TACTICSPI_H_
-        } // then "unit" display texts for wind are set for at arrival in SetData()data,
+        } // then "unit" value is not set yet for wind SetData()data,
+        else {
+            text = wxString::Format(format, value) + unit;
+        } // else "unit" value has been set for wind SetData()data,
 #endif
 	}
 	else

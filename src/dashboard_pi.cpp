@@ -3535,10 +3535,18 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                                                                          DIAL_LABEL_HORIZONTAL );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMarker( 1,
                                                                           DIAL_MARKER_SIMPLE, 5 );
+#ifdef _TACTICSPI_H_
+            ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("A:%.2f"),
+#else
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("A %.2f"),
+#endif // _TACTICSPI_H_
                                                                              DIAL_POSITION_BOTTOMLEFT );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionExtraValue(
+#ifdef _TACTICSPI_H_
+                OCPN_DBP_STC_TWS, _T("T:%.1f"), DIAL_POSITION_BOTTOMRIGHT );
+#else
                 OCPN_DBP_STC_TWS, _T("T %.1f"), DIAL_POSITION_BOTTOMRIGHT );
+#endif // _TACTICSPI_H_
             break;
         case ID_DBP_D_TW: //True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_TrueWindAngle( this, wxID_ANY,
