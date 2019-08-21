@@ -336,6 +336,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 }
 #define __NOT_STOP_THREAD__ (!GetThread()->TestDestroy() && !m_cmdThreadStop)
 #define __STOP_THREAD__ (GetThread()->TestDestroy() || m_cmdThreadStop)
+#define __INCR_CNTROUT__ m_writtenToOutput = m_writtenToOutput + 1LL; \
+                         wxString sWrittenToOutput; sLL (  m_writtenToOutput, sWrittenToOutput ); \
+                         m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
+
 
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
@@ -411,6 +415,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += "Content-Length: "; // from this starts the dynamic part
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
+    m_writtenToOutput = -1LL;
 
     if ( fileOp )
         m_stateComm = STSM_STATE_READY;
@@ -462,25 +467,17 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             
             wxString sData = wxEmptyString;
             int linesPrepared = 0;        
-            if ( m_verbosity > 2) {
-                m_threadMsg = wxString::Format(
-                    "dashboard_tactics_pi: DB Streamer : m_linesPerWrite (%d)", m_linesPerWrite);
-                wxMilliSleep( 100 );
-                wxQueueEvent( m_frame, event.Clone() );
-                wxMilliSleep( 100 );
-            }
-            while ( linesPrepared < m_linesPerWrite ) {
+            __INCR_CNTROUT__;
+
+            while ( (linesPrepared < m_linesPerWrite) && __NOT_STOP_THREAD__ ) {
                 
                 mtxQLine.lock();
                 if (qLine.empty()) {
                     mtxQLine.unlock();
                     wxMilliSleep( 100 );
-                    if (GetThread()->TestDestroy()) {
-                        linesPrepared = 0;
-                        if (m_cmdThreadStop) {
+                    if (__STOP_THREAD__) {
                             linesPrepared = 1;
                             break;
-                        }
                     }
                 } // no data to be sent
                 else {
@@ -530,109 +527,112 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         sData += " ";
                         sData += lineOut.timestamp;
                     }
-                    sData += "\r\n";
+                    sData += "\n";
                     linesPrepared++;
-
+                    
                     if (__STOP_THREAD__)
                         break;
-
-                } // while number of lines to prepare
+                } // else there is valid data in the queue
+            } // while number of lines to prepare
                 
-                if (__STOP_THREAD__)
-                    break;
+            if ( fileOp ) {
                 
-                if ( fileOp ) {
+                file->Write( sData );
+                
+                __INCR_CNTROUT__;
+                
+                wxMilliSleep(100);
                     
-                    file->Write( sData );
-
-                    if (__STOP_THREAD__)
-                        break;
-                    wxMilliSleep(100);
+            } // then write to file
+            else {
                     
-                } // then write to file
-                else {
+                wxString sHdrOut = header;
+                sHdrOut += wxString::Format("%d", sData.Len() );
+                sHdrOut += "\r\n";
+                sHdrOut += "\r\n";
+                sHdrOut += sData;
+                wxScopedCharBuffer scb = sHdrOut.mb_str();
+                size_t len = scb.length();
 
-                    wxString sHdrOut = header;
-                    sHdrOut += wxString::Format("%d", sData.Len() );
-                    sHdrOut += "\r\n";
-                    sHdrOut += "\r\n";
-                    sHdrOut += sData;
-                    wxScopedCharBuffer scb = sHdrOut.mb_str();
-                    size_t len = scb.length();
+                socket->Write( scb.data(), len );
+                
+                if ( !socket->Error() ) {
 
-                    socket->Write( scb.data(), len );
-                    if ( !socket->Error() ) {
-                        m_writtenToOutput = m_writtenToOutput + 1LL;
-                        wxString sWrittenToSocket;
-                        sLL (  m_writtenToOutput, sWrittenToSocket );
-                        m_data = sWrittenToSocket;
-                        *m_echoStreamerShow = m_data;
+                    __INCR_CNTROUT__;
 
-                        int waitMilliSeconds = 0;
-                        bool readAvailable = false;
-                        while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                                (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                            char c;
-                            ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                            if ( !readAvailable) {
-                                wxMilliSleep( 20 );
-                                waitMilliSeconds += 20;
-                            }
+                    int waitMilliSeconds = 0;
+                    bool readAvailable = false;
+                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
+                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                        char c;
+                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        if ( !readAvailable) {
+                            wxMilliSleep( 20 );
+                            waitMilliSeconds += 20;
                         }
-                        if (__STOP_THREAD__)
-                            break;
-                        if ( readAvailable ) {
-                            wxCharBuffer buf(100);
-                            socket->Read( buf.data(), 100 );
-                            wxString sBuf = buf;
-                            bool sBufError = true;
-                            if ( sBuf.Contains("HTTP/1.1 204") )
-                                sBufError = false;
-                            unsigned int lostReadCount = UINT_MAX;
-                            int lostLoop100s = 0;
-                            while ( lostReadCount > 0 ) {
-                                wxCharBuffer lostbuf(100);
-                                socket->Read( lostbuf.data(), 100 );
-                                lostReadCount = socket->LastReadCount();
-                                lostLoop100s += lostReadCount;
-                            }
-                            if ( sBufError ) {
-                                if ( m_verbosity > 2) {
-                                    m_threadMsg = wxString::Format(
-                                        "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
-                                        sBuf, sData);
-                                    wxQueueEvent( m_frame, event.Clone() );
-                                }
-                            } // then error from the DB write API
-                        } // then read buffer of the socket contains some data
-                        else {
-                            m_stateComm = STSM_STATE_ERROR;
-                            socket->Close();
-                            if ( m_verbosity > 1) {
-                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
+                    }
+                    if (__STOP_THREAD__)
+                        break;
+                    if ( readAvailable ) {
+                        wxCharBuffer buf(100);
+                        socket->Read( buf.data(), 100 );
+                        wxString sBuf = buf;
+                        bool sBufError = true;
+                        if ( sBuf.Contains("HTTP/1.1 204") )
+                            sBufError = false;
+                        unsigned int lostReadCount = UINT_MAX;
+                        int lostLoop100s = 0;
+                        while ( lostReadCount > 0 ) {
+                            wxCharBuffer lostbuf(100);
+                            socket->Read( lostbuf.data(), 100 );
+                            lostReadCount = socket->LastReadCount();
+                            lostLoop100s += lostReadCount;
+                        }
+                        if ( sBufError ) {
+                            if ( m_verbosity > 2) {
+                                m_threadMsg = wxString::Format(
+                                    "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
+                                    sBuf, sData);
                                 wxQueueEvent( m_frame, event.Clone() );
                             }
-                            giveUpConnectionRetry100ms(5);
-                        } // else no data in the socket buffer
-                    } // then no error in the socket write
+                        } // then error from the DB write API
+                    } // then read buffer of the socket contains some data
                     else {
                         m_stateComm = STSM_STATE_ERROR;
                         socket->Close();
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
+                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         giveUpConnectionRetry100ms(5);
-                    } // else error in the socket Write()
-                } // else network (socket) operation
-            } // else data available to be sent
-        } // then ready state
-
+                    } // else no data in the socket buffer
+                } // then no error in the socket write
+                else {
+                    m_stateComm = STSM_STATE_ERROR;
+                    socket->Close();
+                    if ( m_verbosity > 1) {
+                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
+                        wxQueueEvent( m_frame, event.Clone() );
+                    }
+                    giveUpConnectionRetry100ms(5);
+                } // else error in the socket Write()
+            } // else network (socket) operation
+        } // else data available to be sent
     } // while not to be stopped / destroyed
         
-    socket->Destroy();
-    wxSocketBase::Shutdown();
-    delete address;
+    if ( fileOp ) {
+        if ( file->IsOpened() ) {
+            (void) file->Flush();
+            wxMilliSleep( 20 );
+            (void) file->Close();
+        }
+        delete file;
+    } // then close file operations
+    else {
+        socket->Destroy();
+        wxSocketBase::Shutdown();
+        delete address;
+    } // else socket operation termination
     
     return (wxThread::ExitCode)0;
     
