@@ -336,8 +336,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 }
 #define __NOT_STOP_THREAD__ (!GetThread()->TestDestroy() && !m_cmdThreadStop)
 #define __STOP_THREAD__ (GetThread()->TestDestroy() || m_cmdThreadStop)
+#define __CNTROUT__ sLL (  m_writtenToOutput, sWrittenToOutput ); \
+                    m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
 #define __INCR_CNTROUT__ m_writtenToOutput = m_writtenToOutput + 1LL; \
-                         wxString sWrittenToOutput; sLL (  m_writtenToOutput, sWrittenToOutput ); \
+                         sLL (  m_writtenToOutput, sWrittenToOutput ); \
                          m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
 
 
@@ -348,6 +350,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     wxIPV4address  *address = NULL;
     wxFile         *file    = NULL;
     bool            fileOp  = true;
+    wxString        sWrittenToOutput = wxEmptyString;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
 
     if ( m_targetAsFilePath.IsEmpty() ) { 
@@ -415,7 +418,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     header += "Content-Length: "; // from this starts the dynamic part
 
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
-    m_writtenToOutput = -1LL;
+    m_writtenToOutput = 0LL;
 
     if ( fileOp )
         m_stateComm = STSM_STATE_READY;
@@ -467,7 +470,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             
             wxString sData = wxEmptyString;
             int linesPrepared = 0;        
-            __INCR_CNTROUT__;
+            __CNTROUT__;
 
             while ( (linesPrepared < m_linesPerWrite) && __NOT_STOP_THREAD__ ) {
                 
@@ -476,7 +479,6 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     mtxQLine.unlock();
                     wxMilliSleep( 100 );
                     if (__STOP_THREAD__) {
-                            linesPrepared = 1;
                             break;
                     }
                 } // no data to be sent
@@ -486,6 +488,10 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     m_poppedFromFifo = m_poppedFromFifo + 1LL;
                     mtxQLine.unlock();
 
+                    if ( linesPrepared > 0 ) {
+                        if ( !fileOp )
+                        sData += "\n";
+                    }
                     sData += lineOut.measurement;
                     if ( !lineOut.tag_key1.IsEmpty() ) {
                         sData += ",";
@@ -527,13 +533,17 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         sData += " ";
                         sData += lineOut.timestamp;
                     }
-                    sData += "\n";
+                    if ( fileOp )
+                        sData += "\r\n";
                     linesPrepared++;
                     
                     if (__STOP_THREAD__)
                         break;
                 } // else there is valid data in the queue
             } // while number of lines to prepare
+
+            if (__STOP_THREAD__)
+                        break;
                 
             if ( fileOp ) {
                 
@@ -555,7 +565,12 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 size_t len = scb.length();
 
                 socket->Write( scb.data(), len );
-                
+
+                if ( m_verbosity > 3) {
+                    m_threadMsg = wxString::Format("dashboard_tactics_pi: sData: %s", sData);
+                    wxQueueEvent( m_frame, event.Clone() );
+                } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
+
                 if ( !socket->Error() ) {
 
                     __INCR_CNTROUT__;
@@ -643,6 +658,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 void TacticsInstrument_StreamoutSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
     wxLogMessage ("%s", m_threadMsg);
+    m_threadMsg = wxEmptyString;
 }
 /***********************************************************************************
 
