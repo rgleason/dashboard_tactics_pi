@@ -351,6 +351,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     wxFile         *file    = NULL;
     bool            fileOp  = true;
     wxString        sWrittenToOutput = wxEmptyString;
+    size_t          wFdOut  = 0;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
 
     if ( m_targetAsFilePath.IsEmpty() ) { 
@@ -534,7 +535,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         sData += lineOut.timestamp;
                     }
                     if ( fileOp )
-                        sData += "\r\n";
+                        sData += "\n";
                     linesPrepared++;
                     
                     if (__STOP_THREAD__)
@@ -548,6 +549,11 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
             if ( fileOp ) {
                 
                 file->Write( sData );
+                wFdOut += sData.Len();
+                if ( wFdOut >= 2048 ) {
+                    file->Flush();
+                    wFdOut = 0;
+                } // then let's flush the buffer every 2kB (if the fsync() is available in the OS)
                 
                 __INCR_CNTROUT__;
                 
