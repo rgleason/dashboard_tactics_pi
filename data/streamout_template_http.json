@@ -11,18 +11,18 @@
       Either file output (default) or HTTP Influx DB API (live dashboards)
     */
     "influxdb" : {
-        "target"    : "streamout",      // Line protocol output file name
-        "api"       : "",               // disk operation, not needed
-        "org"       : "",               // will select when uploading to DB
-        "bucket"    : "",               // will select when uploading to DB
-        "precision" : "",               // (select "ms" when uploading to DB)
-        "token"     : ""                // disk operaration, not needed
-    }, 
+        "target"    : "localhost:9999", // set to InfluxDB HTTP (no https) API
+        "api"       : "v2",             // HTTP: currently only v2 is supported
+        "org"       : "myorg",          // HTTP: Influx DB organization name
+        "bucket"    : "mybucket",       // HTTP: Influx DB bucket to write to
+        "precision" : "ms",             // HTTP: timestamps "local" -> "ms"
+        "token"     : "ToLdk3DNs3PqbKNS2hdZMureuGpk4IR1xSvo__VOYPNmPEnaM9bFc8SRmuZ5BkyKYcNEewiE0eu4lE0OUWRt8w=="
+    }, // "token" only HTTP: InfluxAPI UI generates, allows writing in "bucket"
 
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s] (min.=1s to reduce CPU load)
-        "linesperwrite"   : 100,         /* number of lines per Write()
+        "linesperwrite"   : 50,          /* number of lines per Write()
                                             - optimize throughput by reducing
                                               HTTP handshakes or file writes */
         "timestamps"      : "local",     // "local" (file/HTTP) or "db" (HTTP)
@@ -37,7 +37,7 @@
           https://github.com/SignalK/specification/blob/master/schemas/
 
       Sentence data management and throughput throttling settings.
-      DISK FILE STREAMING SETTINGS
+      HTTP INFLUX DB API (DOCKER) STREAMING SETTINGS
       "store"=false: item will not be stored
       "interval" 0 : save all the data items received
                 >0 : define in seconds the minimum time in seconds which shall
@@ -74,7 +74,7 @@
             "sentence"    : "OCPN_DBP_STC_SOG",
             "mask"        : 2,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -87,7 +87,7 @@
             "sentence"    : "OCPN_DBP_STC_COG",
             "mask"        : 3,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -100,7 +100,7 @@
             "sentence"    : "OCPN_DBP_STC_STW",
             "mask"        : 4,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -113,7 +113,7 @@
             "sentence"    : "OCPN_DBP_STC_HDM",
             "mask"        : 5,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 5,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -126,7 +126,7 @@
             "sentence"    : "OCPN_DBP_STC_HDT",
             "mask"        : 6,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -152,7 +152,7 @@
             "sentence"    : "OCPN_DBP_STC_BRG",
             "mask"        : 8,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "courseRhumbline",
             "prop2"       : "nextPoint",
@@ -165,7 +165,7 @@
             "sentence"    : "OCPN_DBP_STC_AWA",
             "mask"        : 9,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "",
@@ -178,7 +178,7 @@
             "sentence"    : "OCPN_DBP_STC_AWS",
             "mask"        : 10,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "",
@@ -191,7 +191,7 @@
             "sentence"    : "OCPN_DBP_STC_TWA",
             "mask"        : 11,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "",
@@ -204,13 +204,13 @@
             "sentence"    : "OCPN_DBP_STC_TWS",
             "mask"        : 12,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "",
             "prop3"       : "",
-            "field1"      : "speedTrueGround",   // SOG based
-//            "field1"      : "speedTrueWater", // STW based
+            "field1"      : "angleTrueGround",   // SOG based
+//            "field1"      : "angleTrueWater", // STW based
             "field2"      : "",
             "field3"      : ""
         },
@@ -218,7 +218,7 @@
             "sentence"    : "OCPN_DBP_STC_DPT",
             "mask"        : 13,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 5,
             "measurement" : "environment",
             "prop1"       : "depth",
             "prop2"       : "",
@@ -265,7 +265,7 @@
         {
             "sentence"    : "OCPN_DBP_STC_VMG",
             "mask"        : 15,
-            "store"       : true,
+            "store"       : false,
             "interval"    : 0,
             "measurement" : "performance",
             "prop1"       : "",
@@ -278,7 +278,7 @@
         {
             "sentence"    : "OCPN_DBP_STC_RSA",
             "mask"        : 16,
-            "store"       : true,
+            "store"       : false,
             "interval"    : 0,
             "measurement" : "steering",
             "prop1"       : "",
@@ -292,7 +292,7 @@
             "sentence"   : "OCPN_DBP_STC_SAT",
             "mask"       : 17,
             "store"      : true,
-            "interval"   : 60,
+            "interval"   : 120,
             "measurement" : "navigation",
             "prop1"       : "gnss",
             "prop2"       : "",
@@ -353,7 +353,7 @@
             "sentence"    : "OCPN_DBP_STC_TWD",
             "mask"        : 24,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "",
@@ -366,13 +366,13 @@
             "sentence"    : "OCPN_DBP_STC_TWS2", // MWV and MWD
             "mask"        : 25,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "mwv",
             "prop3"       : "mwd",
-            "field1"      : "speedTrueGround",   // SOG based
-//            "field1"      : "speedTrueWater", // STW based
+            "field1"      : "angleTrueGround",   // SOG based
+//            "field1"      : "angleTrueWater", // STW based
             "field2"      : "",
             "field3"      : ""
         },
@@ -419,7 +419,7 @@
             "sentence"    : "OCPN_DBP_STC_MCOG",
             "mask"        : 29,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 60,
             "measurement" : "navigation",
             "prop1"       : "",
             "prop2"       : "",
@@ -432,7 +432,7 @@
             "sentence"    : "OCPN_DBP_STC_PITCH",
             "mask"        : 30,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "attitude",
             "prop2"       : "",
@@ -445,7 +445,7 @@
             "sentence"    : "OCPN_DBP_STC_HEEL",
             "mask"        : 31,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "attitude",
             "prop2"       : "",
@@ -457,7 +457,7 @@
         {
             "sentence"    : "OCPN_DBP_STC_LEEWAY",
             "mask"        : 32,
-            "store"       : true,
+            "store"       : false,
             "interval"    : 1,
             "measurement" : "performance",
             "prop1"       : "",
@@ -471,7 +471,7 @@
             "sentence"    : "OCPN_DBP_STC_CURRDIR",
             "mask"        : 33,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 60,
             "measurement" : "environment",
             "prop1"       : "current",
             "prop2"       : "",
@@ -484,7 +484,7 @@
             "sentence"    : "OCPN_DBP_STC_CURRSPD",
             "mask"        : 34,
             "store"       : true,
-            "interval"    : 0,
+            "interval"    : 60,
             "measurement" : "environment",
             "prop1"       : "current",
             "prop2"       : "",
@@ -496,7 +496,7 @@
         {
             "sentence"    : "OCPN_DBP_STC_DTW",
             "mask"        : 35,
-            "store"       : true,
+            "store"       : false,
             "interval"    : 0,
             "measurement" : "navigation",
             "prop1"       : "courseRhumbline",

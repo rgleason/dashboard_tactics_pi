@@ -3856,7 +3856,6 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_SAT        |
                 OCPN_DBP_STC_PLA        |
                 OCPN_DBP_STC_PLO        |
-                OCPN_DBP_STC_MON        |
                 OCPN_DBP_STC_ATMP       |
                 OCPN_DBP_STC_TWD        |
                 OCPN_DBP_STC_TWS2       |
@@ -3870,7 +3869,6 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_CURRDIR    |
                 OCPN_DBP_STC_CURRSPD    |
                 OCPN_DBP_STC_DTW        |
-                OCPN_DBP_STC_BC         |
                 OCPN_DBP_STC_TWAMARK    |
                 OCPN_DBP_STC_POLPERF,
                 _T("%s"),
