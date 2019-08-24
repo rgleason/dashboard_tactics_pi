@@ -23,7 +23,7 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ***************************************************************************
 */
-#include <limits.h>
+#include <limits>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -601,7 +601,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         bool sBufError = true;
                         if ( sBuf.Contains("HTTP/1.1 204") )
                             sBufError = false;
-                        unsigned int lostReadCount = UINT_MAX;
+                        unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
                         int lostLoop100s = 0;
                         while ( lostReadCount > 0 ) {
                             wxCharBuffer lostbuf(100);
