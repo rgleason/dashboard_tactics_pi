@@ -105,14 +105,22 @@ enum eSentenceType : unsigned long long {
 	OCPN_DBP_STC_HEEL  = 1 << 31  //Heel
 #else
     // >32 sentence capacity identifiers needs 64 bits enumeration
-	OCPN_DBP_STC_HEEL    = 1ULL << 31,  //Heel
-    OCPN_DBP_STC_LEEWAY  = 1ULL << 32,
-    OCPN_DBP_STC_CURRDIR = 1ULL << 33,
-    OCPN_DBP_STC_CURRSPD = 1ULL << 34,
-    OCPN_DBP_STC_DTW     = 1ULL << 35,
-    OCPN_DBP_STC_BC      = 1ULL << 36,
-    OCPN_DBP_STC_TWAMARK = 1ULL << 37, // TWA to a Waypoint
-    OCPN_DBP_STC_POLPERF = 1ULL << 38  // Polar Performance
+	OCPN_DBP_STC_HEEL         = 1ULL << 31,  //Heel
+    OCPN_DBP_STC_LEEWAY       = 1ULL << 32,
+    OCPN_DBP_STC_CURRDIR      = 1ULL << 33,
+    OCPN_DBP_STC_CURRSPD      = 1ULL << 34,
+    OCPN_DBP_STC_DTW          = 1ULL << 35, // Direction to waypoint
+    OCPN_DBP_STC_TWAMARK      = 1ULL << 36, // TWA to a Waypoint
+    OCPN_DBP_STC_POLPERF      = 1ULL << 37, // Polar perf. percentage
+    OCPN_DBP_STC_POLSPD       = 1ULL << 38, // Polar Speed
+    OCPN_DBP_STC_POLVMG       = 1ULL << 39, // Polar (Actual) VMG (ref. TWS/STW)
+    OCPN_DBP_STC_POLTVMG      = 1ULL << 40, // Polar Target VMG (ref. TWA/TWS)
+    OCPN_DBP_STC_POLTVMGANGLE = 1ULL << 41, // Target VMG Angle
+    OCPN_DBP_STC_POLCMG       = 1ULL << 42, // Actual (towards WP) CMG
+    OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
+    OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44, // Target CMG Angle
+    // fill above
+    OCPN_DBP_STC_FLUSH        = 1ULL << 63  // streamout flush cmd
 #endif // _TACTICSPI_H_
 };
 

@@ -119,7 +119,9 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         m_state = SSSM_STATE_FAIL;
         return;
     } // will not talk
-    if ( GetThread()->Run() != wxTHREAD_NO_ERROR ) {
+    m_thread = GetThread();
+    m_thread->SetPriority( ((wxPRIORITY_MAX * 9) / 10) );
+    if ( m_thread->Run() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
             wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer: cannot run communication thread.");
         m_state = SSSM_STATE_FAIL;
@@ -140,9 +142,9 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     *m_echoStreamerShow = m_data;
     SaveConfig();
     if ( GetThread() ) {
-        if ( GetThread()->IsRunning() ) {
+        if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
-            GetThread()->Wait();
+            m_thread->Wait();
         }
     }
 }
@@ -242,6 +244,15 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         m_data = *m_echoStreamerShow;
         return;
     }
+
+    if ( st == OCPN_DBP_STC_FLUSH ) {
+        if ( m_thread->IsAlive() ) {
+            if ( m_thread->IsPaused() ) {
+                m_thread->Resume();
+            }
+        }
+        return;
+    }
     
     if (std::isnan(data))
         return;
@@ -260,6 +271,14 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     if ( !schema.sProp1.IsEmpty() ) {
         line.tag_key1 = _T("prop1");
         line.tag_value1 = schema.sProp1;
+        if ( !schema.sProp2.IsEmpty() ) {
+            line.tag_key2 = _T("prop2");
+            line.tag_value2 = schema.sProp2;
+            if ( !schema.sProp3.IsEmpty() ) {
+                line.tag_key3 = _T("prop3");
+                line.tag_value3 = schema.sProp3;
+            }
+        }
     }
     line.field_key1 = schema.sField1;
     line.field_value1 = wxString::Format( "%f", data );
@@ -316,9 +335,9 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
     if ( m_verbosity > 1)
         wxLogMessage ("dashboard_tactics_pi: OnClose() : received CloseEvent, waiting on comm. thread.");
     if ( GetThread() ) {
-        if ( GetThread()->IsRunning() ) {
+        if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
-            GetThread()->Wait();
+            m_thread->Wait();
         }
     }
     Destroy();
@@ -330,12 +349,12 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
 wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 {
 #define giveUpConnectionRetry100ms(__MS_100__) int waitMilliSeconds = 0; \
-    while ( (!GetThread()->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * __MS_100__ * 100)) ) { \
+    while ( (!m_thread->TestDestroy()) && (waitMilliSeconds < (m_connectionRetry * __MS_100__ * 100)) ) { \
     wxMilliSleep( 100 ); \
     waitMilliSeconds += 100; \
 }
-#define __NOT_STOP_THREAD__ (!GetThread()->TestDestroy() && !m_cmdThreadStop)
-#define __STOP_THREAD__ (GetThread()->TestDestroy() || m_cmdThreadStop)
+#define __NOT_STOP_THREAD__ (!m_thread->TestDestroy() && !m_cmdThreadStop)
+#define __STOP_THREAD__ (m_thread->TestDestroy() || m_cmdThreadStop)
 #define __CNTROUT__ sLL (  m_writtenToOutput, sWrittenToOutput ); \
                     m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
 #define __INCR_CNTROUT__ m_writtenToOutput = m_writtenToOutput + 1LL; \
@@ -550,7 +569,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 
                 file->Write( sData );
                 wFdOut += sData.Len();
-                if ( wFdOut >= 2048 ) {
+                if ( wFdOut >= 4096 ) {
                     file->Flush();
                     wFdOut = 0;
                 } // then let's flush the buffer every 2kB (if the fsync() is available in the OS)

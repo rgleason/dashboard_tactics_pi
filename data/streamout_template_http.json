@@ -209,8 +209,8 @@
             "prop1"       : "wind",
             "prop2"       : "",
             "prop3"       : "",
-            "field1"      : "angleTrueGround",   // SOG based
-//            "field1"      : "angleTrueWater", // STW based
+            "field1"      : "speedTrueGround",   // SOG based
+//            "field1"      : "speedTrueWater", // STW based
             "field2"      : "",
             "field3"      : ""
         },
@@ -497,7 +497,7 @@
             "sentence"    : "OCPN_DBP_STC_DTW",
             "mask"        : 35,
             "store"       : false,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "navigation",
             "prop1"       : "courseRhumbline",
             "prop2"       : "nextPoint",
@@ -506,17 +506,11 @@
             "field2"      : "",
             "field3"      : ""
         },
-        /*
-          OCPN_DBP_STC_BC (36) not sent to to InfluxDB "instrument"
-        */
-        /*
-          OCPN_DBP_STC_TWAMARK (37) currently not sent to to InfluxDB "instrument"
-        */
         {
             "sentence"    : "OCPN_DBP_STC_TWAMARK",
-            "mask"        : 37,
+            "mask"        : 36,
             "store"       : false,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "performance",
             "prop1"       : "",
             "prop2"       : "",
@@ -525,19 +519,107 @@
             "field2"      : "",
             "field3"      : ""
         },
-        /*
-          OCPN_DBP_STC_POLPERF (38) currently not sent to to InfluxDB "instrument"
-        */
         {
             "sentence"    : "OCPN_DBP_STC_POLPERF",
-            "mask"        : 38,
+            "mask"        : 37,
             "store"       : false,
-            "interval"    : 0,
+            "interval"    : 1,
             "measurement" : "performance",
-            "prop1"       : "",
+            "prop1"       : "polar",
             "prop2"       : "",
             "prop3"       : "",
             "field1"      : "polarSpeedRatio",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLSPD",
+            "mask"        : 38,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "",
+            "prop3"       : "",
+            "field1"      : "polarSpeed",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLVMG",
+            "mask"        : 39,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "actual",
+            "prop3"       : "",
+            "field1"      : "velocityMadeGood",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLTVMG",
+            "mask"        : 40,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "target",
+            "prop3"       : "",
+            "field1"      : "velocityMadeGood",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLTVMGANGLE",
+            "mask"        : 41,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "target",
+            "prop3"       : "",
+            "field1"      : "targetAngle",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLCMG",
+            "mask"        : 42,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "actual",
+            "prop3"       : "",
+            "field1"      : "courseMadeGood",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLTCMG",
+            "mask"        : 43,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "target",
+            "prop3"       : "",
+            "field1"      : "courseMadeGood",
+            "field2"      : "",
+            "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_POLTCMGANGLE",
+            "mask"        : 44,
+            "store"       : false,
+            "interval"    : 1,
+            "measurement" : "performance",
+            "prop1"       : "polar",
+            "prop2"       : "target",
+            "prop3"       : "",
+            "field1"      : "courseAngle",
             "field2"      : "",
             "field3"      : ""
         },

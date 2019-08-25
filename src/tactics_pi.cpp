@@ -1829,6 +1829,19 @@ bool tactics_pi::SendSentenceToAllInstruments_PerformanceCorrections(
 }
 
 /********************************************************************
+This method is method is to use to pass calculated performance
+sentences from Tactics instruments and functions to other
+instruments and/or between the Tactics instruments.
+An example client of these sentences is streaming/archiving and
+statistical calculation instruments.
+*********************************************************************/
+void tactics_pi::SendPerfSentenceToAllInstruments(
+    unsigned long long st, double value, wxString unit ) {
+    // use the shortcut to instruments, i.e. not making callbacks to this module
+    pSendSentenceToAllInstruments( st, value, unit );
+}
+
+/********************************************************************
 Before the derived class which implements the abstract method
 SendSentenceToAllInstruments() actually sends the sentences to
 the instrumetns in its windows, it needs to call this method to
@@ -3282,4 +3295,8 @@ void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
 
 	return;
 
+}
+void TacticsWindow::SendPerfSentenceToAllInstruments(
+    unsigned long long st, double value, wxString unit ) {
+    m_plugin->SendSentenceToAllInstruments( st, value, unit );
 }

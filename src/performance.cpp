@@ -23,6 +23,10 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ***************************************************************************
 */
+#include <map>
+#include <cmath>
+using namespace std;
+
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -38,11 +42,11 @@
 #include <wx/progdlg.h>
 #include <wx/gdicmn.h>
 #include <wx/fileconf.h>
-#include "nmea0183/nmea0183.h"
 
+#include "dashboard_pi.h"
+
+#include "nmea0183/nmea0183.h"
 #include "performance.h"
-#include <map>
-#include <cmath>
 
 extern Polar* BoatPolar;
 extern wxString g_path_to_PolarLookupOutputFile;
@@ -65,9 +69,10 @@ extern wxString g_sDataExportSeparator;
 //    TacticsInstrument_Simple Implementation
 //
 //----------------------------------------------------------------
-TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format)
-	:DashboardInstrument(pparent, id, title, cap_flag)
+TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format)
+	: DashboardInstrument( (wxWindow *) pparent, id, title, cap_flag )
 {
+    m_pparent = pparent;
     mTWS = NAN;
     mTWA = NAN;
     mSTW = NAN;
@@ -210,7 +215,8 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
                     double percent = mSTW / targetspeed * 100;
                     double user_targetSpeed = toUsrSpeed_Plugin(targetspeed, g_iDashSpeedUnit);
                     m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f ", user_targetSpeed) + stwunit;
-                    //m_data = wxString::Format("%.2f / ", avgtargetspeed) + wxString::Format("%.2f", user_targetSpeed) + _T(" ") + stwunit;
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLPERF, percent, _T("%") );
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLSPD,  user_targetSpeed, stwunit );
                 }
             }
         }
@@ -221,8 +227,8 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
             else {
                 double VMG = BoatPolar->Calc_VMG(mTWA,mSTW);
                 double user_VMG = toUsrSpeed_Plugin(VMG, g_iDashSpeedUnit);
-      
                 m_data = wxString::Format("%.2f", user_VMG) + _T(" ") + stwunit;
+                m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLVMG, user_VMG, stwunit );
             }
       
         }
@@ -236,8 +242,9 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
                     double VMG = BoatPolar->Calc_VMG(mTWA, mSTW);
                     double percent = fabs(VMG / targetVMG.TargetSpeed * 100.);
                     targetVMG.TargetSpeed = toUsrSpeed_Plugin(targetVMG.TargetSpeed, g_iDashSpeedUnit);
-	
-                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f", targetVMG.TargetSpeed) + _T(" ") + stwunit;
+                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") +
+                        wxString::Format("%.2f", targetVMG.TargetSpeed) + _T(" ") + stwunit;
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTVMG, targetVMG.TargetSpeed, stwunit );
                 }
                 else
                     m_data =  _T("--- % / --- ") + stwunit;
@@ -249,10 +256,13 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
             }
             else {
                 TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
-                if (!std::isnan(targetVMG.TargetAngle))
+                if (!std::isnan(targetVMG.TargetAngle)) {
                     m_data = wxString::Format("%.0f", targetVMG.TargetAngle) + _T("\u00B0");
-                else
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTVMGANGLE, targetVMG.TargetAngle, _T("\u00B0") );
+                }
+                else {
                     m_data = _T("no polar data");
+                }
             }
         }
     }
@@ -269,6 +279,7 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
                 mCMG = BoatPolar->Calc_CMG(mCOG, mSOG, mBRG);
                 double user_CMG = toUsrSpeed_Plugin(mCMG, g_iDashSpeedUnit);
                 m_data = wxString::Format("%.2f", user_CMG) + _T(" ") + stwunit;
+                m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMG, user_CMG, stwunit );
             }
             else {
                 m_data = _T("no bearing");
@@ -295,6 +306,7 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
                     TCMGMax.TargetSpeed = toUsrSpeed_Plugin(TCMGMax.TargetSpeed, g_iDashSpeedUnit);
                     m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") +
                         wxString::Format("%.2f", TCMGMax.TargetSpeed) + _T(" ") + stwunit;
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMG, TCMGMax.TargetSpeed, stwunit );
                 }
                 else {
                     m_data = _T("--- % / --- ") + stwunit;
@@ -318,6 +330,7 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
                 }
                 if (!std::isnan(TCMGMax.TargetAngle)) {
                     m_data = wxString::Format("%.0f", TCMGMax.TargetAngle) + _T("\u00B0");
+                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMGANGLE, TCMGMax.TargetAngle, _T("\u00B0") );
                 }
                 else {
                     m_data = _T("no polar data");
@@ -332,7 +345,8 @@ void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double 
         if (mBRG>=0 && !std::isnan(mTWD)) {
             double markBrG = getDegRange(mBRG, mTWD);
             m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
-        }
+            m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_TWAMARK, markBrG, _T("\u00B0") );
+                                                                 }
         else {
                 m_data = _T("---");
         }

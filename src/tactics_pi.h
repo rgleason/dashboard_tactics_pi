@@ -146,6 +146,10 @@ public:
 
     virtual void SendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit ) = 0;
+    virtual void pSendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit) = 0;
+    virtual void SendPerfSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit ) final;
     virtual bool SendSentenceToAllInstruments_LaunchTrueWindCalculations(
@@ -422,6 +426,8 @@ public:
     virtual void TacticsInContextMenuAction (
         const int eventId ) final;
 
+    void SendPerfSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit );
 
 private:
 

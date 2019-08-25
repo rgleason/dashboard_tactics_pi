@@ -672,6 +672,9 @@ void dashboard_pi::Notify()
 {
 
     SendUtcTimeToAllInstruments( mUTCDateTime );
+#ifdef _TACTICSPI_H_
+    pSendSentenceToAllInstruments( OCPN_DBP_STC_FLUSH, NULL, "" );
+#endif // _TACTICSPI_H_
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) dashboard_window->Refresh();
@@ -3836,41 +3839,49 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             instrument = new TacticsInstrument_StreamoutSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id),
-                OCPN_DBP_STC_LAT        |
-                OCPN_DBP_STC_LON        |
-                OCPN_DBP_STC_SOG        |
-                OCPN_DBP_STC_COG        |
-                OCPN_DBP_STC_STW        |
-                OCPN_DBP_STC_HDM        |
-                OCPN_DBP_STC_HDT        |
-                OCPN_DBP_STC_HMV        |
-                OCPN_DBP_STC_BRG        |
-                OCPN_DBP_STC_AWA        |
-                OCPN_DBP_STC_AWS        |
-                OCPN_DBP_STC_TWA        |
-                OCPN_DBP_STC_TWS        |
-                OCPN_DBP_STC_DPT        |
-                OCPN_DBP_STC_TMP        |
-                OCPN_DBP_STC_VMG        |
-                OCPN_DBP_STC_RSA        |
-                OCPN_DBP_STC_SAT        |
-                OCPN_DBP_STC_PLA        |
-                OCPN_DBP_STC_PLO        |
-                OCPN_DBP_STC_ATMP       |
-                OCPN_DBP_STC_TWD        |
-                OCPN_DBP_STC_TWS2       |
-                OCPN_DBP_STC_VLW1       |
-                OCPN_DBP_STC_VLW2       |
-                OCPN_DBP_STC_MDA        |
-                OCPN_DBP_STC_MCOG       |
-                OCPN_DBP_STC_PITCH      |
-                OCPN_DBP_STC_HEEL       |
-                OCPN_DBP_STC_LEEWAY     |
-                OCPN_DBP_STC_CURRDIR    |
-                OCPN_DBP_STC_CURRSPD    |
-                OCPN_DBP_STC_DTW        |
-                OCPN_DBP_STC_TWAMARK    |
-                OCPN_DBP_STC_POLPERF,
+                OCPN_DBP_STC_LAT          |
+                OCPN_DBP_STC_LON          |
+                OCPN_DBP_STC_SOG          |
+                OCPN_DBP_STC_COG          |
+                OCPN_DBP_STC_STW          |
+                OCPN_DBP_STC_HDM          |
+                OCPN_DBP_STC_HDT          |
+                OCPN_DBP_STC_HMV          |
+                OCPN_DBP_STC_BRG          |
+                OCPN_DBP_STC_AWA          |
+                OCPN_DBP_STC_AWS          |
+                OCPN_DBP_STC_TWA          |
+                OCPN_DBP_STC_TWS          |
+                OCPN_DBP_STC_DPT          |
+                OCPN_DBP_STC_TMP          |
+                OCPN_DBP_STC_VMG          |
+                OCPN_DBP_STC_RSA          |
+                OCPN_DBP_STC_SAT          |
+                OCPN_DBP_STC_PLA          |
+                OCPN_DBP_STC_PLO          |
+                OCPN_DBP_STC_ATMP         |
+                OCPN_DBP_STC_TWD          |
+                OCPN_DBP_STC_TWS2         |
+                OCPN_DBP_STC_VLW1         |
+                OCPN_DBP_STC_VLW2         |
+                OCPN_DBP_STC_MDA          |
+                OCPN_DBP_STC_MCOG         |
+                OCPN_DBP_STC_PITCH        |
+                OCPN_DBP_STC_HEEL         |
+                OCPN_DBP_STC_LEEWAY       |
+                OCPN_DBP_STC_CURRDIR      |
+                OCPN_DBP_STC_CURRSPD      |
+                OCPN_DBP_STC_DTW          |
+                OCPN_DBP_STC_TWAMARK      |
+                OCPN_DBP_STC_POLPERF      |
+                OCPN_DBP_STC_POLSPD       |
+                OCPN_DBP_STC_POLVMG       |
+                OCPN_DBP_STC_POLTVMG      |
+                OCPN_DBP_STC_POLTVMGANGLE |
+                OCPN_DBP_STC_POLCMG       |
+                OCPN_DBP_STC_POLTCMG      |
+                OCPN_DBP_STC_POLTCMGANGLE |
+                OCPN_DBP_STC_FLUSH,
                 _T("%s"),
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,

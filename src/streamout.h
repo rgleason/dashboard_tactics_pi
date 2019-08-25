@@ -175,6 +175,7 @@ protected:
     TacticsInstrument_StreamoutSingle *m_frame;
     
     int               m_state;
+    wxThread         *m_thread;
     std::mutex       *m_mtxNofStreamOut;
     int              *m_nofStreamOut;
     wxString         *m_echoStreamerShow;

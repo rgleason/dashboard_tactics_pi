@@ -39,7 +39,7 @@
 
 #include "instrument.h"
 #include "plugin_ids.h"
-// #include "dial.h"
+
 
 WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
 
@@ -54,6 +54,7 @@ struct TargetxMG{
 	double TargetSpeed=0;
 };
 class tactics_pi;
+class DashboardWindow;
 class Polar;
 double getDegRange(double max, double min);
 double getSignedDegRange(double max, double min);
@@ -70,16 +71,16 @@ double getSignedDegRange(double max, double min);
 class TacticsInstrument_PerformanceSingle : public DashboardInstrument
 {
 public:
-	TacticsInstrument_PerformanceSingle(wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format);
-	~TacticsInstrument_PerformanceSingle(){}
+    TacticsInstrument_PerformanceSingle(DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format);
+    ~TacticsInstrument_PerformanceSingle(){}
 
-	wxSize GetSize(int orient, wxSize hint);
-	void SetData(unsigned long long st, double data, wxString unit);
-	void SetDisplayType(int displaytype);
-	double mTWS;
-	double mTWA;
-	double mSTW;
-	double mCMG;
+    wxSize GetSize(int orient, wxSize hint);
+    void SetData(unsigned long long st, double data, wxString unit);
+    void SetDisplayType(int displaytype);
+    double mTWS;
+    double mTWA;
+    double mSTW;
+    double mCMG;
     double mSOG;
     double mCOG;
     double mBRG;
@@ -87,18 +88,18 @@ public:
     double mTWD;
     double m_lat;
     double m_lon;
-	wxString stwunit;
-	int m_displaytype;
+    wxString stwunit;
+    int m_displaytype;
 
 protected:
-	wxString          m_data;
-	wxString          m_format;
-	int               m_DataHeight;
-	
-	void Draw(wxGCDC* dc);
+    wxString          m_data;
+    wxString          m_format;
+    int               m_DataHeight;
+    
+    void Draw(wxGCDC* dc);
 private :
-	wxFileConfig     *m_pconfig;
-
+    wxFileConfig      *m_pconfig;
+    DashboardWindow   *m_pparent;
 };
 
 
