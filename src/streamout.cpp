@@ -587,8 +587,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
                 socket->Write( scb.data(), len );
 
-                if ( m_verbosity > 3) {
-                    m_threadMsg = wxString::Format("dashboard_tactics_pi: sData: %s", sData);
+                if ( m_verbosity > 4) {
+                    m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
                     wxQueueEvent( m_frame, event.Clone() );
                 } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 
@@ -696,7 +696,7 @@ void TacticsInstrument_StreamoutSingle::OnStreamOutUpdTimer( wxTimerEvent &evt )
             m_thread->Resume();
         }
     }
-    if ( m_verbosity > 4 ) {
+    if ( m_verbosity > 3 ) {
         std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
         long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
         wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
