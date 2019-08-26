@@ -38,6 +38,7 @@ enum pluginids {
     myID_THREAD_POLARPERFORMANCE,
     myID_THREAD_BAROHISTORY,
     myID_THREAD_IFLXAPI,
+    myID_TICK_IFLXAPI,
     // end of tacticsEvents
     myID_EDIT_LAST
 };

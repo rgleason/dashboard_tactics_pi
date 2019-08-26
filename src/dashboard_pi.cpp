@@ -672,9 +672,6 @@ void dashboard_pi::Notify()
 {
 
     SendUtcTimeToAllInstruments( mUTCDateTime );
-#ifdef _TACTICSPI_H_
-    pSendSentenceToAllInstruments( OCPN_DBP_STC_FLUSH, NULL, "" );
-#endif // _TACTICSPI_H_
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) dashboard_window->Refresh();
@@ -3880,8 +3877,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_POLTVMGANGLE |
                 OCPN_DBP_STC_POLCMG       |
                 OCPN_DBP_STC_POLTCMG      |
-                OCPN_DBP_STC_POLTCMGANGLE |
-                OCPN_DBP_STC_FLUSH,
+                OCPN_DBP_STC_POLTCMGANGLE,
                 _T("%s"),
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,

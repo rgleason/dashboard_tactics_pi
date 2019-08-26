@@ -43,6 +43,7 @@ extern int g_iSpeedFormat;
 
 wxBEGIN_EVENT_TABLE (TacticsInstrument_StreamoutSingle, DashboardInstrument)
    EVT_THREAD (myID_THREAD_IFLXAPI, TacticsInstrument_StreamoutSingle::OnThreadUpdate)
+   EVT_TIMER (myID_TICK_IFLXAPI, TacticsInstrument_StreamoutSingle::OnStreamOutUpdTimer)
    EVT_CLOSE (TacticsInstrument_StreamoutSingle::OnClose)
 wxEND_EVENT_TABLE ()
 
@@ -127,6 +128,8 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
         m_state = SSSM_STATE_FAIL;
         return;
     }
+    m_timer = new wxTimer( this, myID_TICK_IFLXAPI );
+    m_timer->Start( SSSM_TICK_COUNT, wxTIMER_CONTINUOUS );
     m_state = SSSM_STATE_READY;
 }
 /***********************************************************************************
@@ -138,6 +141,8 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     (*m_nofStreamOut)--;
     if ( m_state == SSSM_STATE_DISPLAYRELAY )
         return;
+    this->m_timer->Stop();
+    delete this->m_timer;
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerShow = m_data;
     SaveConfig();
@@ -245,15 +250,6 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         return;
     }
 
-    if ( st == OCPN_DBP_STC_FLUSH ) {
-        if ( m_thread->IsAlive() ) {
-            if ( m_thread->IsPaused() ) {
-                m_thread->Resume();
-            }
-        }
-        return;
-    }
-    
     if (std::isnan(data))
         return;
 
@@ -285,7 +281,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     if ( m_stamp )
         line.timestamp = wxString::Format( "%lld", msNow );
 
-    std::unique_lock<std::mutex> lckmTWS( m_mtxQLine );
+    std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
     if ( m_stateComm == STSM_STATE_READY ) {
         long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
         if ( m_stateFifoOverFlow == STSM_FIFO_OFW_NOT_BLOCKING ) {
@@ -684,6 +680,35 @@ void TacticsInstrument_StreamoutSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
     wxLogMessage ("%s", m_threadMsg);
     m_threadMsg = wxEmptyString;
+}
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamoutSingle::OnStreamOutUpdTimer( wxTimerEvent &evt )
+{
+    if ( m_thread->TestDestroy() || m_cmdThreadStop )
+        return;
+    if ( m_thread->IsAlive() ) {
+        if ( m_thread->IsPaused() ) {
+            if ( m_verbosity > 3) {
+                wxLogMessage("dashboard_tactics_pi: DEBUG : OnStreamOutUpdTime : m_thread IsPaused()");
+                } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
+            m_thread->Resume();
+        }
+    }
+    if ( m_verbosity > 4 ) {
+        std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
+        long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
+        wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
+        wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
+        lckmQline.unlock();
+        wxString sBlockingLimit; sLL( STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
+        wxString sUnblockingLimit; sLL( STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
+        wxString sPushDelta; sLL( pushDelta, sPushDelta );
+        wxLogMessage(
+            "dashboard_tactics_pi: DEBUG : OnStreamOutUpdTime : FIFO : (In %s Out %s Delta %s Block %s Unblock %s)",
+            sPushedInFifo, sPoppedFromFifo, sPushDelta, sBlockingLimit, sUnblockingLimit );
+    } // for BIG time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 }
 /***********************************************************************************
 

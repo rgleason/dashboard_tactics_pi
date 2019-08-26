@@ -118,9 +118,7 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLTVMGANGLE = 1ULL << 41, // Target VMG Angle
     OCPN_DBP_STC_POLCMG       = 1ULL << 42, // Actual (towards WP) CMG
     OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
-    OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44, // Target CMG Angle
-    // fill above
-    OCPN_DBP_STC_FLUSH        = 1ULL << 63  // streamout flush cmd
+    OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44  // Target CMG Angle
 #endif // _TACTICSPI_H_
 };
 

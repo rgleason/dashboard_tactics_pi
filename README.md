@@ -18,19 +18,15 @@ You can start without a polar file and just use the basic functions to start wit
 
 ## Configuration
 
-Although not mandatory, it is recommended to disable the built-in
-Dashboard (we use the same parameters), standalone Tactics plug-in
-and WMM_pi plug-in (unless you do not get the magnetic variation
-from your instruments).
+Although not mandatory, it is recommended to disable the Dashboard coming with the OpenCPN by default (this plug-in is using the same parameters), standalone Tactics plug-in and WMM_pi plug-in (unless you do not get the magnetic variation from your instruments).
 
-If you are a user of tactics_pi, its settings are imported - the originals are not modifed - at first startup of this plug-in.
-    
+If you are a user of tactics_pi, its settings are imported at first startup of this plug-in. Tactics plug-in's settings are not modified.
 
 ## Compiling
 
 * git clone git://github.com/canne/dashboard_tactics_pi.git
 
-Under windows, you must find the file "opencpn.lib" (Visual Studio) which is built in the build directory after compiling opencpn. 
+Under windows, you must find the file "opencpn.lib" (Visual Studio) located in the build directory after compiling opencpn. 
 This file must be copied to the plugins build directory.
 
 ### Windows build :

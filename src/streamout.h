@@ -51,6 +51,7 @@ enum SocketThreadStateMachine {
 
 #define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   20000LL // roughly 1GB of memory
 #define STSM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 19800LL
+#define SSSM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
 
 enum stateFifoOverFlow {
     STSM_FIFO_OFW_UNKNOWN, STSM_FIFO_OFW_NOT_BLOCKING, STSM_FIFO_OFW_BLOCKING };
@@ -74,6 +75,7 @@ public:
 
 	wxSize GetSize(int orient, wxSize hint);
 	void SetData(unsigned long long st, double data, wxString unit);
+    void OnStreamOutUpdTimer(wxTimerEvent& event);
 
 protected:
 
@@ -176,6 +178,7 @@ protected:
     
     int               m_state;
     wxThread         *m_thread;
+    wxTimer          *m_timer;
     std::mutex       *m_mtxNofStreamOut;
     int              *m_nofStreamOut;
     wxString         *m_echoStreamerShow;
