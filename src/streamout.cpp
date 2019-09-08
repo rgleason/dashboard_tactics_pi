@@ -36,7 +36,6 @@
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
 
-extern wxString g_path_to_PolarFile;
 extern int g_iDashWindSpeedUnit;
 extern int g_iDashSpeedUnit;
 extern int g_iSpeedFormat;

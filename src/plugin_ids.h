@@ -39,9 +39,10 @@ enum pluginids {
     myID_THREAD_BAROHISTORY,
     myID_THREAD_IFLXAPI,
     myID_TICK_IFLXAPI,
+    myID_THREAD_SK_IN,
+    myID_TICK_SK_IN,
     // end of tacticsEvents
     myID_EDIT_LAST
 };
-
 
 #endif // _PLUGINIDS_H_

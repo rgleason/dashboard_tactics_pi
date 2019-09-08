@@ -2,8 +2,11 @@
     /* /////////////////////////////////////////////////////////////////////////
       Purpose: Database schema and configuration options for InfluxDB.
     ---------------------------------------------------------------------------
-      Edit the copy of the *_template-file, located in the program's data
-      directory (copied at first launch, name can be changed in ini-/conf-file)
+      Edit the copy of the *_template-file, streamout.json, located in the
+      program's data directory for plug-ins, in dashboard_tactics_pi folder.
+      This template get copied at first launch. The name of the file to use
+      can be changed in ini-/conf-file, see Streamout/ConfigFile, allowing
+      multiple configurations (but only one used at a time).
     ///////////////////////////////////////////////////////////////////////// */
 
     /*
