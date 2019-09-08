@@ -74,8 +74,8 @@ public:
 	~TacticsInstrument_StreamInSkSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
-	void SetData(unsigned long long st, double data, wxString unit);
     void OnStreamInSkUpdTimer(wxTimerEvent& event);
+    void SetNMEASentence(wxString& delta);
 
 protected:
 
@@ -202,8 +202,8 @@ protected:
     wxString          m_threadMsg;
 
     // From configuration file
-    wxString          m_target;
-    wxString          m_targetAsFilePath;
+    wxString          m_source;
+    wxString          m_sourceAsFilePath;
     wxString          m_api;
     wxString          m_org;
     wxString          m_bucket;

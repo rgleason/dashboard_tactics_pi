@@ -900,7 +900,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
 
         return false;
         
-    } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
+    } // A JSON file can have errors which make this old JSON code to break
 
     return true;
 }

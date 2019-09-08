@@ -86,8 +86,8 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_pconfig = GetOCPNConfigObject();
     m_configFileName = wxEmptyString;
 
-    m_target = emptyStr;
-    m_targetAsFilePath = emptyStr;
+    m_source = emptyStr;
+    m_sourceAsFilePath = emptyStr;
     m_linesPerWrite = 0;
     m_api = emptyStr;
     m_org = emptyStr;
@@ -115,7 +115,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_threadMsg = emptyStr;
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
-            wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
+            wxLogMessage ("dashboard_tactics_pi: Delta Streamer FAILED : Signal K Delta Streamer : could not create communication thread.");
         m_state = SSKM_STATE_FAIL;
         return;
     } // will not talk
@@ -123,7 +123,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_thread->SetPriority( ((wxPRIORITY_MAX * 9) / 10) );
     if ( m_thread->Run() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
-            wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer: cannot run communication thread.");
+            wxLogMessage ("dashboard_tactics_pi: Delta Streamer FAILED : Signal K Delta Streamer: cannot run communication thread.");
         m_state = SSKM_STATE_FAIL;
         return;
     }
@@ -240,89 +240,6 @@ void TacticsInstrument_StreamInSkSingle::sLL(long long cnt, wxString &retString)
 /***********************************************************************************
 
 ************************************************************************************/
-void TacticsInstrument_StreamInSkSingle::SetData(unsigned long long st, double data, wxString unit)
-{
-    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-
-    if ( m_state == SSKM_STATE_DISPLAYRELAY ) {
-        m_data = *m_echoStreamerShow;
-        return;
-    }
-
-    if (std::isnan(data))
-        return;
-
-    if ( !( (m_state == SSKM_STATE_READY) && m_configured ) )
-        return;
-    
-    sentenceSchema schema;
-    long long msNow = wxllNowMs.GetValue();
-    if ( !GetSchema( st, msNow, schema ) )
-        return;
-    
-    lineProtocol line;
-    
-    line.measurement = schema.sMeasurement;
-    if ( !schema.sProp1.IsEmpty() ) {
-        line.tag_key1 = _T("prop1");
-        line.tag_value1 = schema.sProp1;
-        if ( !schema.sProp2.IsEmpty() ) {
-            line.tag_key2 = _T("prop2");
-            line.tag_value2 = schema.sProp2;
-            if ( !schema.sProp3.IsEmpty() ) {
-                line.tag_key3 = _T("prop3");
-                line.tag_value3 = schema.sProp3;
-            }
-        }
-    }
-    line.field_key1 = schema.sField1;
-    line.field_value1 = wxString::Format( "%f", data );
-    if ( m_stamp )
-        line.timestamp = wxString::Format( "%lld", msNow );
-
-    std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
-    if ( m_stateComm == SKTM_STATE_READY ) {
-        long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
-        if ( m_stateFifoOverFlow == SKTM_FIFO_OFW_NOT_BLOCKING ) {
-            if ( pushDelta <= SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING ) {
-                qLine.push( line );
-                m_pushedInFifo = m_pushedInFifo + 1LL;
-            } // then FIFO has not been filled up yet to the limit
-            else {
-                m_stateFifoOverFlow = SKTM_FIFO_OFW_BLOCKING;
-                if ( m_verbosity > 0) {
-                    wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
-                    wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
-                    wxString sBlockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
-                    wxString sPushDelta; sLL( pushDelta, sPushDelta );
-                    wxLogMessage(
-                        "dashboard_tactics_pi: SetData() : FIFO overflow (%s >= %s (limit)),\npushed: %s, popped: %s",
-                        sPushDelta, sBlockingLimit, sPushedInFifo, sPoppedFromFifo);
-                }
-            } // else comm.thread is dead, connection lost or there is too much data in FIFO
-        } // then the last information was that there was room in the FIFO
-        else {
-            if ( pushDelta <= SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING ) {
-                m_stateFifoOverFlow = SKTM_FIFO_OFW_NOT_BLOCKING;
-                if ( m_verbosity > 0) {
-                    wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
-                    wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
-                    wxString sPushDelta; sLL( pushDelta, sPushDelta );
-                    wxString sUnblockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
-                    wxLogMessage(
-                        "dashboard_tactics_pi: SetData() : FIFO back writable (%s <= %s (limit)),\npushed: %s, popped: %s",
-                        sPushDelta, sUnblockingLimit, sPushedInFifo, sPoppedFromFifo);
-                }
-                qLine.push( line );
-                m_pushedInFifo = m_pushedInFifo + 1LL;
-            } // then FIFO is emptying and has gone under the threshold
-        } // else there has been a FIFO overflow, let's check if we've passed under the threshold
-    } // then the communication thread is alive and has connection with the server
-
-}
-/***********************************************************************************
-
-************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &evt )
 {
     if ( m_state == SSKM_STATE_DISPLAYRELAY )
@@ -368,29 +285,29 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     size_t          wFdOut  = 0;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
-    if ( m_targetAsFilePath.IsEmpty() ) { 
+    if ( m_sourceAsFilePath.IsEmpty() ) { 
         wxSocketBase::Initialize();
         socket = new wxSocketClient();
         socket->SetTimeout( 5 );
         address = new wxIPV4address();
         wxUniChar separator = 0x3a;
-        address->Hostname(m_target.BeforeFirst(separator));
-        address->Service(m_target.AfterFirst(separator));
+        address->Hostname(m_source.BeforeFirst(separator));
+        address->Service(m_source.AfterFirst(separator));
         if ( m_verbosity > 1) {
             m_threadMsg = wxString::Format(
-                "dashboard_tactics_pi: DB Streamer : SKTM_STATE_INIT : (%s:%s)",
-                m_target.BeforeFirst(separator), m_target.AfterFirst(separator));
+                "dashboard_tactics_pi: Delta Streamer : SKTM_STATE_INIT : (%s:%s)",
+                m_source.BeforeFirst(separator), m_source.AfterFirst(separator));
             wxQueueEvent( m_frame, event.Clone() );
         }
         fileOp = false;
     } // then HTTP API
     else {
-        file = new wxFile( m_targetAsFilePath, wxFile::write );
+        file = new wxFile( m_sourceAsFilePath, wxFile::write );
         if ( !file->IsOpened() ) {
             if ( m_verbosity > 0) {
                 m_threadMsg = wxString::Format(
-                    "dashboard_tactics_pi: ERROR : DB Streamer : opening file for writing : %s",
-                    m_targetAsFilePath);
+                    "dashboard_tactics_pi: ERROR : Delta Streamer : opening file for writing : %s",
+                    m_sourceAsFilePath);
                 wxQueueEvent( m_frame, event.Clone() );
             } // then failed to open the file for writing
             wxMilliSleep( 1000 );
@@ -417,7 +334,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     header += " HTTP/1.1\r\n";
 
     header += "Host: ";
-    header += m_target;
+    header += m_source;
     header += "\r\n";	
 
     header += "User-Agent: OpenCPN/5.0\r\n";
@@ -463,14 +380,14 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                     if ( connectionErr.IsEmpty() ) {
                         m_stateComm = SKTM_STATE_READY;
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : SKTM_STATE_READY");
+                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : SKTM_STATE_READY");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                     }
                     else {
                         m_stateComm = SKTM_STATE_ERROR;
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : SKTM_STATE_ERROR");
+                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : SKTM_STATE_ERROR");
                             m_threadMsg += connectionErr;
                             wxQueueEvent( m_frame, event.Clone() );
                         }
@@ -626,7 +543,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         if ( sBufError ) {
                             if ( m_verbosity > 2) {
                                 m_threadMsg = wxString::Format(
-                                    "dashboard_tactics_pi: DB Streamer : Data Rejected (%s) : %s",
+                                    "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
                                     sBuf, sData);
                                 wxQueueEvent( m_frame, event.Clone() );
                             }
@@ -636,7 +553,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         m_stateComm = SKTM_STATE_ERROR;
                         socket->Close();
                         if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
+                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         giveUpConnectionRetry100ms(5);
@@ -646,7 +563,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                     m_stateComm = SKTM_STATE_ERROR;
                     socket->Close();
                     if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
+                        m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : socket Write() error.");
                         wxQueueEvent( m_frame, event.Clone() );
                     }
                     giveUpConnectionRetry100ms(5);
@@ -722,12 +639,12 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
     if (!pConf)
         return false;
     pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/SteaminSk/"));
-    pConf->Read(_T("ConfigFile"), &m_configFileName, "streamout.json");
+    pConf->Read(_T("ConfigFile"), &m_configFileName, "streamin-sk.json");
     wxString s = wxFileName::GetPathSeparator();
     wxString confPath = m_confdir + m_configFileName;
     if ( !wxFileExists( confPath ) ) {
         wxString tmplPath  = *GetpSharedDataLocation();
-        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamout_template.json");
+        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamout_sk_template.json");
         if ( !wxFileExists( tmplPath ) ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - missing template %s", tmplPath);
             m_data = L"\u2013 No template. \u2013";
@@ -751,156 +668,57 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
 
         if ( numErrors > 0 )  {
             const wxArrayString& errors = reader.GetErrors();
-            wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+            wxMessageBox(
+                _("Signal K Steamer configuration file parsing error, see log file."));
             for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
-                wxLogMessage ("dashboard_tactics_pi: ERROR - parsing errors in the configuration file: %s", errors.Item(i) );
+                wxLogMessage(
+                    "dashboard_tactics_pi: ERROR - parsing errors in the configuration file: %s", errors.Item(i) );
             }
             return false;
         }
 
-        if ( !root.HasMember("influxdb") ) throw 100;
-        if ( !root["influxdb"].HasMember("target") ) throw 101;
-        m_target += root["influxdb"]["target"].AsString();
+        if ( !root.HasMember("streamin-sk") ) throw 100;
+        if ( !root["streamin-sk"].HasMember("source") ) throw 101;
+        m_source += root["streamin-sk"]["source"].AsString();
         wxUniChar separator = 0x3a;
-        if ( m_target.Find( separator ) == wxNOT_FOUND ) {
-            m_targetAsFilePath = m_confdir + m_target;
-            if ( wxFileExists( m_targetAsFilePath ) ) {
-                wxDateTime bupTime = wxDateTime::Now();
-                wxString sBupTime = bupTime.Format("_%F_%H-%M-%S");
-                wxString sTargetBackupName = m_target + sBupTime;
-                wxString sTargetBackupPath = m_confdir + sTargetBackupName;
-                bool ret = wxRenameFile ( m_targetAsFilePath, sTargetBackupPath );
-                if ( !ret ) {
-                    wxLogMessage ("dashboard_tactics_pi: ERROR - cannot rename data %s to %s",
-                                  m_targetAsFilePath, sTargetBackupPath);
-                    m_data = L"\u2013 ERR:DataFileBackup \u2013";
-                    *m_echoStreamerShow = m_data;
-                    return false;
-                } // then could not rename the original datafile as a backup file
-            } // else the target data file exists already, we do not want to append, rename
-        } // else this is not HTTP API but a file name
-
-        if ( !root["influxdb"].HasMember("api") ) throw 102;
-        m_api += root["influxdb"]["api"].AsString();
-        if ( !root["influxdb"].HasMember("org") ) throw 103;
-        m_org += root["influxdb"]["org"].AsString();
-        if ( !root["influxdb"].HasMember("bucket") ) throw 104;
-        m_bucket += root["influxdb"]["bucket"].AsString();
-        if ( !root["influxdb"].HasMember("precision") ) throw 105;
-        m_precision += root["influxdb"]["precision"].AsString();
-        if ( !root["influxdb"].HasMember("token") ) throw 106;
-        m_token += root["influxdb"]["token"].AsString();
-
-        if ( !root.HasMember("streamer") ) throw 200;
-        if ( !root["streamer"].HasMember("connectionretry") ) throw 201;
+        if ( m_source.Find( separator ) == wxNOT_FOUND ) {
+            wxLogMessage(
+                "dashboard_tactics_pi: ERROR - Signal K source config file missing ':' in 'source', now : %s", m_source);
+            return false;
+        }
+        if ( !root["streamin-sk"].HasMember("api") ) throw 102;
+        m_api += root["streamin-sk"]["api"].AsString();
+        if ( !root["streamin-sk"].HasMember("connectionretry") ) throw 103;
         m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
         if ( m_connectionRetry <=0)
             m_connectionRetry = 1; // cannot be <=0 ; used to throttle the thread
-        if ( !root["streamer"].HasMember("linesperwrite") ) throw 202;
-        m_linesPerWrite = root["streamer"]["linesperwrite"].AsInt();
-        if ( m_linesPerWrite <=0)
-            m_linesPerWrite = 1;
-        if ( !root["streamer"].HasMember("timestamps") ) throw 203;
+        if ( !root["streamer"].HasMember("timestamps") ) throw 104;
         m_timestamps += root["streamer"]["timestamps"].AsString();
-        if ( m_timestamps.IsSameAs( _T("db"), false ) )
+        if ( m_timestamps.IsSameAs( _T("server"), false ) )
             m_stamp = false;
-        if ( !root["streamer"].HasMember("verbosity") ) throw 204;
+        if ( !root["streamer"].HasMember("verbosity") ) throw 105;
         m_verbosity = root["streamer"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API server   = \"%s\"",  m_target );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB API version  = \"%s\"",  m_api );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB organization = \"%s\"",  m_org );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB bucket       = \"%s\"",  m_bucket );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB precision    = \"%s\"",  m_precision );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB token        =\n\"%s\"", m_token );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB conn.retry   = %d s.",   m_connectionRetry );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB lines/write  = %d",      m_linesPerWrite );
-            wxLogMessage( "dashboard_tactics_pi: InfluxDB timestamps   = \"%s\"",  m_timestamps );
+            wxLogMessage( "dashboard_tactics_pi: Signal K source       = \"%s\"",  m_source );
+            wxLogMessage( "dashboard_tactics_pi: Signal K API version  = \"%s\"",  m_api );
+            wxLogMessage( "dashboard_tactics_pi: Signal K conn.retry   = %d s.",   m_connectionRetry );
+            wxLogMessage( "dashboard_tactics_pi: Signal K timestamps   = \"%s\"",  m_timestamps );
             wxLogMessage( "dashboard_tactics_pi: Streamer verbosity    = %d",      m_verbosity );
         }
 
-        if ( !root.HasMember("dbschema") ) throw 300;
-        wxJSONValue dbSchemas = root["dbschema"];
-        if ( !dbSchemas.IsArray() ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is not an array.");
-            throw 300;
-        }
-        int asize = dbSchemas.Size();
-        if ( asize == 0 ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is an array but it is empty.");
-            throw 300;
-        }
-        for ( int i = 0; i < asize; i++ ) {
-
-            sentenceSchema schema;
-
-            if ( !dbSchemas[i].HasMember("sentence") ) throw ( 10000 + (i * 100) + 1 );
-            schema.stc = dbSchemas[i]["sentence"].AsString();
-
-            if ( !dbSchemas[i].HasMember("mask") ) throw ( 10000 + (i * 100) + 2 );
-            int mask = dbSchemas[i]["mask"].AsInt();
-            schema.st = 1ULL << mask;
-            
-            if ( !dbSchemas[i].HasMember("store") ) throw ( 10000 + (i * 100) + 3 );
-            schema.bStore = dbSchemas[i]["store"].AsBool();
-
-            schema.lastTimeStamp = 0LL;
-
-            if ( !dbSchemas[i].HasMember("interval") ) throw ( 10000 + (i * 100) + 4 );
-            int iInterval = dbSchemas[i]["interval"].AsInt();
-            if ( iInterval < 0 )
-                iInterval = 0;
-            schema.iInterval = iInterval;
-
-            if ( !dbSchemas[i].HasMember("measurement") ) throw ( 10000 + (i * 100) + 5 );
-            schema.sMeasurement = dbSchemas[i]["measurement"].AsString();
-
-            if ( !dbSchemas[i].HasMember("prop1") ) throw ( 10000 + (i * 100) + 6 );
-            schema.sProp1 = dbSchemas[i]["prop1"].AsString();
-
-            if ( !dbSchemas[i].HasMember("prop2") ) throw ( 10000 + (i * 100) + 7 );
-            schema.sProp2 = dbSchemas[i]["prop2"].AsString();
-
-            if ( !dbSchemas[i].HasMember("prop3") ) throw ( 10000 + (i * 100) + 8 );
-            schema.sProp3 = dbSchemas[i]["prop3"].AsString();
-
-            if ( !dbSchemas[i].HasMember("field1") ) throw ( 10000 + (i * 100) + 9 );
-            schema.sField1 = dbSchemas[i]["field1"].AsString();
-
-            if ( !dbSchemas[i].HasMember("field2") ) throw ( 10000 + (i * 100) + 10 );
-            schema.sField2 = dbSchemas[i]["field2"].AsString();
-
-            if ( !dbSchemas[i].HasMember("field3") ) throw ( 10000 + (i * 100) + 11 );
-            schema.sField3 = dbSchemas[i]["field3"].AsString();
-
-            vSchema.push_back ( schema );
-            
-        } // while array has sentence schemas defined
     }
     catch (int x) {
         wxString expErr = wxEmptyString;
         if ( (x >= 100) && (x < 200) ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'influxdb'",
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'streamin-sk'",
                           confPath, (x - 100) );
         }
-        else if ( (x >= 200) && (x < 300) ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'streamer'",
-                          confPath, (x - 200) );
-        }
-        else if ( (x >= 300) && (x < 400) ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'dbschema'",
-                          confPath, (x - 300) );
-        }
-        else {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing item in 'dbschema' array %d (10000=ignore, 100's=sentence number, 1's=index in sentence)",
-                          confPath, x );
-        }
-        wxMessageBox(_("InfluxDB Steamer configuration file parsing error, see log file."));
+        wxMessageBox(_("Signal K Steamer configuration file parsing error, see log file."));
 
         return false;
         
-    } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
+    } // A JSON file can have errors which make this old JSON code to break
 
     return true;
 }
@@ -920,5 +738,13 @@ void TacticsInstrument_StreamInSkSingle::SaveConfig()
     pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/SteaminSk/"));
     pConf->Write(_T("ConfigFile"),m_configFileName);
 
+    return;
+}
+
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamInSkSingle::SetNMEASentence(wxString& delta)
+{
     return;
 }
