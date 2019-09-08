@@ -92,6 +92,8 @@ IF (TACTICS_INSTRUMENTS)
       src/tactics_pi.cpp
       src/performance.h
       src/performance.cpp
+      src/streamin-sk.h
+      src/streamin-sk.cpp
       src/streamout.h
       src/streamout.cpp
       src/plugin_ids.h

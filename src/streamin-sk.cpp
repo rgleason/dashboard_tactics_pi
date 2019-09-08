@@ -31,7 +31,7 @@
 #include <wx/fileconf.h>
 #include <wx/socket.h>
 
-#include "streamout.h"
+#include "streamin-sk.h"
 #include "ocpn_plugin.h"
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
@@ -42,7 +42,7 @@ extern int g_iSpeedFormat;
 
 wxBEGIN_EVENT_TABLE (TacticsInstrument_StreamInSkSingle, DashboardInstrument)
    EVT_THREAD (myID_THREAD_SK_IN, TacticsInstrument_StreamInSkSingle::OnThreadUpdate)
-   EVT_TIMER (myID_TICK_SK_IN, TacticsInstrument_StreamInSkSingle::OnStreamOutUpdTimer)
+   EVT_TIMER (myID_TICK_SK_IN, TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer)
    EVT_CLOSE (TacticsInstrument_StreamInSkSingle::OnClose)
 wxEND_EVENT_TABLE ()
 
@@ -53,7 +53,7 @@ wxEND_EVENT_TABLE ()
 //----------------------------------------------------------------
 TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
-    std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerShow, wxString confdir)
+    std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
     m_frame = this;
@@ -61,7 +61,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     nofStreamInSk++;
     m_mtxNofStreamInSk = &mtxNofStreamInSk;
     m_nofStreamInSk = &nofStreamInSk;
-    m_echoStreamerShow = &echoStreamerShow;
+    m_echoStreamerInSkShow = &echoStreamerInSkShow;
     m_state = SSKM_STATE_UNKNOWN;
 
     wxString emptyStr = wxEmptyString;
@@ -69,17 +69,17 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
 
     m_data  = emptyStr;
     if ( nofStreamInSk > 1) {
-        wxString checkHalt = echoStreamerShow.wc_str();
+        wxString checkHalt = echoStreamerInSkShow.wc_str();
         wxString isHalt = L"\u2013 HALT \u2013";
         if ( !checkHalt.IsSameAs( isHalt ) ) {
             m_state = SSKM_STATE_DISPLAYRELAY;
-            m_data = echoStreamerShow;
+            m_data = echoStreamerInSkShow;
             return;
         } // check against case that there is halted slave displays and this is a restart
     }
     m_state = SSKM_STATE_INIT;
     m_data += L"\u2013 \u2013 \u2013";
-    echoStreamerShow = m_data;
+    echoStreamerInSkShow = m_data;
     m_format = format;
     m_DataHeight = 0;
     m_confdir = confdir;
@@ -88,12 +88,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
 
     m_source = emptyStr;
     m_sourceAsFilePath = emptyStr;
-    m_linesPerWrite = 0;
     m_api = emptyStr;
-    m_org = emptyStr;
-    m_bucket = emptyStr;
-    m_precision = emptyStr;
-    m_token = emptyStr;
     m_connectionRetry = 0;
     m_timestamps = emptyStr;
     m_stamp = true;
@@ -109,6 +104,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_poppedFromFifo  = 0LL;
     m_writtenToOutput = 0LL;
     m_stateFifoOverFlow = SKTM_FIFO_OFW_UNKNOWN;
+
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = SKTM_STATE_UNKNOWN;
     m_cmdThreadStop = false;
@@ -143,7 +139,7 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
     this->m_timer->Stop();
     delete this->m_timer;
     m_data = L"\u2013 HALT \u2013";
-    *m_echoStreamerShow = m_data;
+    *m_echoStreamerInSkShow = m_data;
     SaveConfig();
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
@@ -268,10 +264,10 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 #define __NOT_STOP_THREAD__ (!m_thread->TestDestroy() && !m_cmdThreadStop)
 #define __STOP_THREAD__ (m_thread->TestDestroy() || m_cmdThreadStop)
 #define __CNTROUT__ sLL (  m_writtenToOutput, sWrittenToOutput ); \
-                    m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
+                    m_data = sWrittenToOutput; *m_echoStreamerInSkShow = m_data
 #define __INCR_CNTROUT__ m_writtenToOutput = m_writtenToOutput + 1LL; \
                          sLL (  m_writtenToOutput, sWrittenToOutput ); \
-                         m_data = sWrittenToOutput; *m_echoStreamerShow = m_data
+                         m_data = sWrittenToOutput; *m_echoStreamerInSkShow = m_data
 
 
     m_stateComm = SKTM_STATE_INIT;
@@ -279,46 +275,28 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 
     wxSocketClient *socket  = NULL;
     wxIPV4address  *address = NULL;
-    wxFile         *file    = NULL;
-    bool            fileOp  = true;
     wxString        sWrittenToOutput = wxEmptyString;
     size_t          wFdOut  = 0;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
-    if ( m_sourceAsFilePath.IsEmpty() ) { 
-        wxSocketBase::Initialize();
-        socket = new wxSocketClient();
-        socket->SetTimeout( 5 );
-        address = new wxIPV4address();
-        wxUniChar separator = 0x3a;
-        address->Hostname(m_source.BeforeFirst(separator));
-        address->Service(m_source.AfterFirst(separator));
-        if ( m_verbosity > 1) {
-            m_threadMsg = wxString::Format(
-                "dashboard_tactics_pi: Delta Streamer : SKTM_STATE_INIT : (%s:%s)",
-                m_source.BeforeFirst(separator), m_source.AfterFirst(separator));
-            wxQueueEvent( m_frame, event.Clone() );
-        }
-        fileOp = false;
-    } // then HTTP API
-    else {
-        file = new wxFile( m_sourceAsFilePath, wxFile::write );
-        if ( !file->IsOpened() ) {
-            if ( m_verbosity > 0) {
-                m_threadMsg = wxString::Format(
-                    "dashboard_tactics_pi: ERROR : Delta Streamer : opening file for writing : %s",
-                    m_sourceAsFilePath);
-                wxQueueEvent( m_frame, event.Clone() );
-            } // then failed to open the file for writing
-            wxMilliSleep( 1000 );
-            return (wxThread::ExitCode)0;
-        } // then the file opening did not quite succeeded
-    } // else file based Line Protocol 
+    wxSocketBase::Initialize();
+    socket = new wxSocketClient();
+    socket->SetTimeout( 5 );
+    address = new wxIPV4address();
+    wxUniChar separator = 0x3a;
+    address->Hostname(m_source.BeforeFirst(separator));
+    address->Service(m_source.AfterFirst(separator));
+    if ( m_verbosity > 1) {
+        m_threadMsg = wxString::Format(
+            "dashboard_tactics_pi: Signal K Delta Streamer : SKTM_STATE_INIT : (%s:%s)",
+            m_source.BeforeFirst(separator), m_source.AfterFirst(separator));
+        wxQueueEvent( m_frame, event.Clone() );
+    }
 
     wxString sCnxPrg[3];
-    sCnxPrg[0] = L"\u2192 \u2013 \u2013";
-    sCnxPrg[1] = L"\u2013 \u2192 \u2013";
-    sCnxPrg[2] = L"\u2013 \u2013 \u2192";
+    sCnxPrg[0] = L"\u2013 \u2013 \u2190";
+    sCnxPrg[1] = L"\u2013 \u2190 \u2013";
+    sCnxPrg[2] = L"\u2190 \u2013 \u2013";
     int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
@@ -340,9 +318,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     header += "User-Agent: OpenCPN/5.0\r\n";
     header += "Accept: */*\r\n";
 
-    header += "Authorization: Token ";
-    header += m_token;
-    header += "\r\n";
     header += "Content-Type: application/x-www-form-urlencoded";
     header += "\r\n";
     header += "Connection: keep-alive";
@@ -352,10 +327,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
     m_writtenToOutput = 0LL;
 
-    if ( fileOp )
-        m_stateComm = SKTM_STATE_READY;
-    else
-        m_stateComm = SKTM_STATE_CONNECTING;
+    m_stateComm = SKTM_STATE_CONNECTING;
 
     while (__NOT_STOP_THREAD__) {
 
@@ -365,7 +337,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             if ( __NOT_STOP_THREAD__ ) {
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
-                *m_echoStreamerShow = m_data;
+                *m_echoStreamerInSkShow = m_data;
                 if ( !socket->Connect( *address, false ) ) {
                     if ( !socket->WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
@@ -404,188 +376,83 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             int linesPrepared = 0;        
             __CNTROUT__;
 
-            while ( (linesPrepared < m_linesPerWrite) && __NOT_STOP_THREAD__ ) {
-                
-                mtxQLine.lock();
-                if (qLine.empty()) {
-                    mtxQLine.unlock();
-                    wxMilliSleep( 100 );
-                    if (__STOP_THREAD__) {
-                            break;
-                    }
-                } // no data to be sent
-                else {
-                    lineProtocol lineOut = qLine.front();
-                    qLine.pop();
-                    m_poppedFromFifo = m_poppedFromFifo + 1LL;
-                    mtxQLine.unlock();
-
-                    if ( linesPrepared > 0 ) {
-                        if ( !fileOp )
-                        sData += "\n";
-                    }
-                    sData += lineOut.measurement;
-                    if ( !lineOut.tag_key1.IsEmpty() ) {
-                        sData += ",";
-                        sData += lineOut.tag_key1;
-                        sData += "=";
-                        sData += lineOut.tag_value1;
-                        if ( !lineOut.tag_key2.IsEmpty() ) {
-                            sData += ",";
-                            sData += lineOut.tag_key2;
-                            sData += "=";
-                            sData += lineOut.tag_value2;
-                            if ( !lineOut.tag_key3.IsEmpty() ) {
-                                sData += ",";
-                                sData += lineOut.tag_key3;
-                                sData += "=";
-                                sData += lineOut.tag_value3;
-                            }
-                        }
-                    }
-                    sData += " ";
-                    sData += lineOut.field_key1;
-                    sData += "=";
-                    sData += lineOut.field_value1; // all data is expected to be float
-                    if ( !lineOut.field_key2.IsEmpty() ) {
-                        sData += ",";
-                        sData += lineOut.field_key2;
-                        sData += "=";             // if later on we save units as strings : += "\"";
-                        sData += lineOut.field_value2;
-                        // if later on we save units as string:      sData += "\"";
-                        if ( !lineOut.field_key3.IsEmpty() ) {
-                            sData += ",";
-                            sData += lineOut.field_key3;
-                            sData += "=";         // see above the comment about strings
-                            sData += lineOut.field_value3;
-                            // see above the comment about stings:   sData += "\"";
-                        }
-                    }
-                    if ( !lineOut.timestamp.IsEmpty() ) {
-                        sData += " ";
-                        sData += lineOut.timestamp;
-                    }
-                    if ( fileOp )
-                        sData += "\n";
-                    linesPrepared++;
-                    
-                    if (__STOP_THREAD__)
-                        break;
-                } // else there is valid data in the queue
-            } // while number of lines to prepare
-
             if (__STOP_THREAD__)
                         break;
                 
-            if ( fileOp ) {
-                
-                file->Write( sData );
-                wFdOut += sData.Len();
-                if ( wFdOut >= 4096 ) {
-                    file->Flush();
-                    wFdOut = 0;
-                } // then let's flush the buffer every 2kB (if the fsync() is available in the OS)
+            wxString sHdrOut = header;
+            sHdrOut += wxString::Format("%d", sData.Len() );
+            sHdrOut += "\r\n";
+            sHdrOut += "\r\n";
+            sHdrOut += sData;
+            wxScopedCharBuffer scb = sHdrOut.mb_str();
+            size_t len = scb.length();
+            
+            socket->Write( scb.data(), len );
+
+            if ( m_verbosity > 4) {
+                m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
+                wxQueueEvent( m_frame, event.Clone() );
+            } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
+            
+            if ( !socket->Error() ) {
                 
                 __INCR_CNTROUT__;
-                
-                wxMilliSleep(100);
-                    
-            } // then write to file
-            else {
-                    
-                wxString sHdrOut = header;
-                sHdrOut += wxString::Format("%d", sData.Len() );
-                sHdrOut += "\r\n";
-                sHdrOut += "\r\n";
-                sHdrOut += sData;
-                wxScopedCharBuffer scb = sHdrOut.mb_str();
-                size_t len = scb.length();
 
-                socket->Write( scb.data(), len );
-
-                if ( m_verbosity > 4) {
-                    m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
-                    wxQueueEvent( m_frame, event.Clone() );
-                } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
-
-                if ( !socket->Error() ) {
-
-                    __INCR_CNTROUT__;
-
-                    int waitMilliSeconds = 0;
-                    bool readAvailable = false;
-                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                        char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                        if ( !readAvailable) {
-                            wxMilliSleep( 20 );
-                            waitMilliSeconds += 20;
-                        }
+                int waitMilliSeconds = 0;
+                bool readAvailable = false;
+                while ( __NOT_STOP_THREAD__ && !readAvailable &&
+                        (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                    char c;
+                    ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                    if ( !readAvailable) {
+                        wxMilliSleep( 20 );
+                        waitMilliSeconds += 20;
                     }
-                    if (__STOP_THREAD__)
-                        break;
-                    if ( readAvailable ) {
-                        wxCharBuffer buf(100);
-                        socket->Read( buf.data(), 100 );
-                        wxString sBuf = buf;
-                        bool sBufError = true;
-                        if ( sBuf.Contains("HTTP/1.1 204") )
-                            sBufError = false;
-                        unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
-                        int lostLoop100s = 0;
-                        while ( lostReadCount > 0 ) {
-                            wxCharBuffer lostbuf(100);
-                            socket->Read( lostbuf.data(), 100 );
-                            lostReadCount = socket->LastReadCount();
-                            lostLoop100s += lostReadCount;
-                        }
-                        if ( sBufError ) {
-                            if ( m_verbosity > 2) {
-                                m_threadMsg = wxString::Format(
-                                    "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
-                                    sBuf, sData);
-                                wxQueueEvent( m_frame, event.Clone() );
-                            }
-                        } // then error from the DB write API
-                    } // then read buffer of the socket contains some data
-                    else {
-                        m_stateComm = SKTM_STATE_ERROR;
-                        socket->Close();
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
+                }
+                if (__STOP_THREAD__)
+                    break;
+                if ( readAvailable ) {
+                    wxCharBuffer buf(100);
+                    socket->Read( buf.data(), 100 );
+                    wxString sBuf = buf;
+                    bool sBufError = true;
+                    if ( sBuf.Contains("HTTP/1.1 204") )
+                        sBufError = false;
+                    unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
+                    int lostLoop100s = 0;
+                    while ( lostReadCount > 0 ) {
+                        wxCharBuffer lostbuf(100);
+                        socket->Read( lostbuf.data(), 100 );
+                        lostReadCount = socket->LastReadCount();
+                        lostLoop100s += lostReadCount;
+                    }
+                    if ( sBufError ) {
+                        if ( m_verbosity > 2) {
+                            m_threadMsg = wxString::Format(
+                                "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
+                                sBuf, sData);
                             wxQueueEvent( m_frame, event.Clone() );
                         }
-                        giveUpConnectionRetry100ms(5);
-                    } // else no data in the socket buffer
-                } // then no error in the socket write
+                    } // then error from the DB write API
+                } // then read buffer of the socket contains some data
                 else {
                     m_stateComm = SKTM_STATE_ERROR;
                     socket->Close();
                     if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : socket Write() error.");
+                        m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
                         wxQueueEvent( m_frame, event.Clone() );
                     }
                     giveUpConnectionRetry100ms(5);
-                } // else error in the socket Write()
-            } // else network (socket) operation
-        } // else data available to be sent
+                } // else no data in the socket buffer
+            } // then no error in the socket
+        } // else connection available
     } // while not to be stopped / destroyed
         
-    if ( fileOp ) {
-        if ( file->IsOpened() ) {
-            (void) file->Flush();
-            wxMilliSleep( 20 );
-            (void) file->Close();
-        }
-        delete file;
-    } // then close file operations
-    else {
-        socket->Destroy();
-        wxSocketBase::Shutdown();
-        delete address;
-    } // else socket operation termination
     
+    socket->Destroy();
+    wxSocketBase::Shutdown();
+    delete address;
+
     return (wxThread::ExitCode)0;
     
 }
@@ -613,17 +480,17 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
         }
     }
     if ( m_verbosity > 3 ) {
-        std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
-        long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
-        wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
-        wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
-        lckmQline.unlock();
-        wxString sBlockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
-        wxString sUnblockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
-        wxString sPushDelta; sLL( pushDelta, sPushDelta );
-        wxLogMessage(
-            "dashboard_tactics_pi: DEBUG : OnStreamInSkUpdTime : FIFO : (In %s Out %s Delta %s Block %s Unblock %s)",
-            sPushedInFifo, sPoppedFromFifo, sPushDelta, sBlockingLimit, sUnblockingLimit );
+        // std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
+        // long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
+        // wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
+        // wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
+        // lckmQline.unlock();
+        // wxString sBlockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
+        // wxString sUnblockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
+        // wxString sPushDelta; sLL( pushDelta, sPushDelta );
+        // wxLogMessage(
+        //     "dashboard_tactics_pi: DEBUG : OnStreamInSkUpdTime : FIFO : (In %s Out %s Delta %s Block %s Unblock %s)",
+        //     sPushedInFifo, sPoppedFromFifo, sPushDelta, sBlockingLimit, sUnblockingLimit );
     } // for BIG time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 }
 /***********************************************************************************
@@ -644,18 +511,18 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
     wxString confPath = m_confdir + m_configFileName;
     if ( !wxFileExists( confPath ) ) {
         wxString tmplPath  = *GetpSharedDataLocation();
-        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamout_sk_template.json");
+        tmplPath += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("streamin_sk_template.json");
         if ( !wxFileExists( tmplPath ) ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - missing template %s", tmplPath);
             m_data = L"\u2013 No template. \u2013";
-            *m_echoStreamerShow = m_data;
+            *m_echoStreamerInSkShow = m_data;
             return false;
         }
         bool ret = wxCopyFile ( tmplPath, confPath ); 
         if ( !ret ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - cannot copy template %s to %s", tmplPath, confPath);
             m_data = L"\u2013 ConfigFile? \u2013";
-            *m_echoStreamerShow = m_data;
+            *m_echoStreamerInSkShow = m_data;
             return false;
         }
     }
@@ -677,27 +544,27 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
             return false;
         }
 
-        if ( !root.HasMember("streamin-sk") ) throw 100;
-        if ( !root["streamin-sk"].HasMember("source") ) throw 101;
-        m_source += root["streamin-sk"]["source"].AsString();
+        if ( !root.HasMember("streaminsk") ) throw 100;
+        if ( !root["streaminsk"].HasMember("source") ) throw 101;
+        m_source += root["streaminsk"]["source"].AsString();
         wxUniChar separator = 0x3a;
         if ( m_source.Find( separator ) == wxNOT_FOUND ) {
             wxLogMessage(
                 "dashboard_tactics_pi: ERROR - Signal K source config file missing ':' in 'source', now : %s", m_source);
             return false;
         }
-        if ( !root["streamin-sk"].HasMember("api") ) throw 102;
-        m_api += root["streamin-sk"]["api"].AsString();
-        if ( !root["streamin-sk"].HasMember("connectionretry") ) throw 103;
-        m_connectionRetry = root["streamer"]["connectionretry"].AsInt();
+        if ( !root["streaminsk"].HasMember("api") ) throw 102;
+        m_api += root["streaminsk"]["api"].AsString();
+        if ( !root["streaminsk"].HasMember("connectionretry") ) throw 103;
+        m_connectionRetry = root["streaminsk"]["connectionretry"].AsInt();
         if ( m_connectionRetry <=0)
             m_connectionRetry = 1; // cannot be <=0 ; used to throttle the thread
-        if ( !root["streamer"].HasMember("timestamps") ) throw 104;
-        m_timestamps += root["streamer"]["timestamps"].AsString();
+        if ( !root["streaminsk"].HasMember("timestamps") ) throw 104;
+        m_timestamps += root["streaminsk"]["timestamps"].AsString();
         if ( m_timestamps.IsSameAs( _T("server"), false ) )
             m_stamp = false;
-        if ( !root["streamer"].HasMember("verbosity") ) throw 105;
-        m_verbosity = root["streamer"]["verbosity"].AsInt();
+        if ( !root["streaminsk"].HasMember("verbosity") ) throw 105;
+        m_verbosity = root["streaminsk"]["verbosity"].AsInt();
 
         if ( m_verbosity > 1 ) {
             wxLogMessage( "dashboard_tactics_pi: Signal K source       = \"%s\"",  m_source );
@@ -711,7 +578,7 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
     catch (int x) {
         wxString expErr = wxEmptyString;
         if ( (x >= 100) && (x < 200) ) {
-            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'streamin-sk'",
+            wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'streaminsk'",
                           confPath, (x - 100) );
         }
         wxMessageBox(_("Signal K Steamer configuration file parsing error, see log file."));

@@ -216,6 +216,9 @@ public:
     int                m_nofStreamOut;
     std::mutex         m_mtxNofStreamOut;
     wxString           m_echoStreamerShow;
+    int                m_nofStreamInSk;
+    std::mutex         m_mtxNofStreamInSk;
+    wxString           m_echoStreamerInSkShow;
 #endif // _TACTICSPI_H_
     
 private:

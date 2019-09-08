@@ -51,6 +51,7 @@
 #include "avg_wind.h"
 #include "polarcompass.h"
 #include "streamout.h"
+#include "streamin-sk.h"
 
 class Polar;
 

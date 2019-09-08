@@ -25,8 +25,8 @@
 ***************************************************************************
 */
 
-#ifndef __STREAMOUT_H__
-#define __STREAMOUT_H__
+#ifndef __STREANINSK_H__
+#define __STREANINSK_H__
 using namespace std;
 #include <mutex>
 #include <vector>
@@ -45,7 +45,7 @@ enum StreamInSkSingleStateMachine {
     SSKM_STATE_UNKNOWN, SSKM_STATE_DISPLAYRELAY, SSKM_STATE_INIT, SSKM_STATE_CONFIGURED,
     SSKM_STATE_READY, SSKM_STATE_FAIL };
 
-enum SocketThreadStateMachine {
+enum SocketInSkThreadStateMachine {
     SKTM_STATE_UNKNOWN, SKTM_STATE_INIT, SKTM_STATE_ERROR, SKTM_STATE_CONNECTING,
     SKTM_STATE_READY };
 
@@ -53,7 +53,7 @@ enum SocketThreadStateMachine {
 #define SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 19800LL
 #define SSKM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
 
-enum stateFifoOverFlow {
+enum stateInSkFifoOverFlow {
     SKTM_FIFO_OFW_UNKNOWN, SKTM_FIFO_OFW_NOT_BLOCKING, SKTM_FIFO_OFW_BLOCKING };
 
 //+------------------------------------------------------------------------------
@@ -70,10 +70,11 @@ class TacticsInstrument_StreamInSkSingle : public DashboardInstrument, public wx
 public:
 	TacticsInstrument_StreamInSkSingle(
         wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
-        std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerShow, wxString confdir);
+        std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir);
 	~TacticsInstrument_StreamInSkSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
+    void SetData(unsigned long long st, double data, wxString unit){};
     void OnStreamInSkUpdTimer(wxTimerEvent& event);
     void SetNMEASentence(wxString& delta);
 
@@ -181,7 +182,7 @@ protected:
     wxTimer          *m_timer;
     std::mutex       *m_mtxNofStreamInSk;
     int              *m_nofStreamInSk;
-    wxString         *m_echoStreamerShow;
+    wxString         *m_echoStreamerInSkShow;
     wxString          m_data;
     wxString          m_format;
     int               m_DataHeight;
@@ -230,5 +231,5 @@ private :
 
 };
 
-#endif // not defined __STREAMOUT_H__
+#endif // not defined __STREANINSK_H__
 

@@ -128,7 +128,7 @@ enum eInstruments {
     ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_TWAMARK, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD,
     ID_DBP_D_BRG, ID_DBP_I_POLSPD, ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE,
     ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG, ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND,
-    ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DPB_PERF_LAST,
+    ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DBP_V_INSK, ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
@@ -301,6 +301,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191Polar Compass");
     case ID_DBP_V_IFLX:
 		return _(L"\u2191InfluxDB Out");
+    case ID_DBP_V_INSK:
+		return _(L"\u2191Signal K In");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -357,6 +359,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLTCMG:
 	case ID_DBP_I_POLTCMGANGLE:
     case ID_DBP_V_IFLX:
+    case ID_DBP_V_INSK:
 #endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
@@ -488,6 +491,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_nofStreamOut = 0;
     std::unique_lock<std::mutex> init_m_mtxNofStreamOut( m_mtxNofStreamOut, std::defer_lock );
     m_echoStreamerShow = wxEmptyString;
+    m_nofStreamInSk = 0;
+    std::unique_lock<std::mutex> init_m_mtxNofStreamInSk( m_mtxNofStreamInSk, std::defer_lock );
+    m_echoStreamerInSkShow = wxEmptyString;
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
     m_pluginFrame = NULL;
@@ -3882,6 +3888,17 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,
                 m_plugin->m_echoStreamerShow,
+                m_plugin->GetStandardPath() );
+            break;
+        case ID_DBP_V_INSK:
+            instrument = new TacticsInstrument_StreamInSkSingle(
+                this, wxID_ANY,
+                getInstrumentCaption(id),
+                0ULL,
+                _T("%s"),
+                m_plugin->m_mtxNofStreamInSk,
+                m_plugin->m_nofStreamInSk,
+                m_plugin->m_echoStreamerInSkShow,
                 m_plugin->GetStandardPath() );
             break;
         case ID_DBP_D_POLPERF:
