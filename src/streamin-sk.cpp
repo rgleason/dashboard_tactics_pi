@@ -30,6 +30,7 @@
 #include <wx/wfstream.h> 
 #include <wx/fileconf.h>
 #include <wx/socket.h>
+#include <wx/sckstrm.h>
 
 #include "streamin-sk.h"
 #include "ocpn_plugin.h"
@@ -274,6 +275,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     m_stateFifoOverFlow = SKTM_FIFO_OFW_NOT_BLOCKING;
 
     wxSocketClient *socket  = NULL;
+    wxSocketInputStream *streamin = NULL;
     wxIPV4address  *address = NULL;
     wxString        sWrittenToOutput = wxEmptyString;
     size_t          wFdOut  = 0;
@@ -292,6 +294,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             m_source.BeforeFirst(separator), m_source.AfterFirst(separator));
         wxQueueEvent( m_frame, event.Clone() );
     }
+    streamin = new wxSocketInputStream( (wxSocketBase &)*socket );
 
     wxString sCnxPrg[3];
     sCnxPrg[0] = L"\u2013 \u2013 \u2190";
@@ -412,39 +415,58 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 if (__STOP_THREAD__)
                     break;
                 if ( readAvailable ) {
-                    wxCharBuffer buf(100);
-                    socket->Read( buf.data(), 100 );
-                    wxString sBuf = buf;
-                    bool sBufError = true;
-                    if ( sBuf.Contains("HTTP/1.1 204") )
-                        sBufError = false;
-                    unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
-                    int lostLoop100s = 0;
-                    while ( lostReadCount > 0 ) {
-                        wxCharBuffer lostbuf(100);
-                        socket->Read( lostbuf.data(), 100 );
-                        lostReadCount = socket->LastReadCount();
-                        lostLoop100s += lostReadCount;
-                    }
-                    if ( sBufError ) {
-                        if ( m_verbosity > 2) {
-                            m_threadMsg = wxString::Format(
-                                "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
-                                sBuf, sData);
+                    try {
+                        wxJSONValue  root;
+                        wxJSONReader reader;
+                        int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
+                        if ( numErrors > 0 )  {
+                            const wxArrayString& errors = reader.GetErrors();
+                            for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+                                m_threadMsg = wxString::Format(
+                                    "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                            }
                             wxQueueEvent( m_frame, event.Clone() );
                         }
-                    } // then error from the DB write API
-                } // then read buffer of the socket contains some data
-                else {
-                    m_stateComm = SKTM_STATE_ERROR;
-                    socket->Close();
-                    if ( m_verbosity > 1) {
-                        m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
-                        wxQueueEvent( m_frame, event.Clone() );
+                        int depth = reader.GetDepth();
+                        m_threadMsg = wxString::Format(
+                            "dashboard_tactics_pi: JSON input depth %d", depth );
                     }
-                    giveUpConnectionRetry100ms(5);
-                } // else no data in the socket buffer
-            } // then no error in the socket
+                    catch (int x) {
+                    } // errors in reading
+                //     wxCharBuffer buf(100);
+                //     socket->Read( buf.data(), 100 );
+                //     wxString sBuf = buf;
+                //     bool sBufError = true;
+                //     if ( sBuf.Contains("HTTP/1.1 204") )
+                //         sBufError = false;
+                //     unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
+                //     int lostLoop100s = 0;
+                //     while ( lostReadCount > 0 ) {
+                //         wxCharBuffer lostbuf(100);
+                //         socket->Read( lostbuf.data(), 100 );
+                //         lostReadCount = socket->LastReadCount();
+                //         lostLoop100s += lostReadCount;
+                //     }
+                //     if ( sBufError ) {
+                //         if ( m_verbosity > 2) {
+                //             m_threadMsg = wxString::Format(
+                //                 "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
+                //                 sBuf, sData);
+                //             wxQueueEvent( m_frame, event.Clone() );
+                //         }
+                //     } // then error from the DB write API
+                // } // then read buffer of the socket contains some data
+                // else {
+                //     m_stateComm = SKTM_STATE_ERROR;
+                //     socket->Close();
+                //     if ( m_verbosity > 1) {
+                //         m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
+                //         wxQueueEvent( m_frame, event.Clone() );
+                //     }
+                //     giveUpConnectionRetry100ms(5);
+                    
+                } // else something available in the socket buffer
+            } // then no error in the socket when writing into it
         } // else connection available
     } // while not to be stopped / destroyed
         
