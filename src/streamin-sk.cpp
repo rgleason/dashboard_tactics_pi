@@ -64,6 +64,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_nofStreamInSk = &nofStreamInSk;
     m_echoStreamerInSkShow = &echoStreamerInSkShow;
     m_state = SSKM_STATE_UNKNOWN;
+    m_timer = NULL;
 
     wxString emptyStr = wxEmptyString;
     emptyStr = emptyStr.wc_str();
@@ -106,6 +107,9 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_writtenToOutput = 0LL;
     m_stateFifoOverFlow = SKTM_FIFO_OFW_UNKNOWN;
 
+    wxSocketBase::Initialize();
+    m_socket.SetTimeout( 5 );
+    
     std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = SKTM_STATE_UNKNOWN;
     m_cmdThreadStop = false;
@@ -137,8 +141,10 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
     (*m_nofStreamInSk)--;
     if ( m_state == SSKM_STATE_DISPLAYRELAY )
         return;
-    this->m_timer->Stop();
-    delete this->m_timer;
+    if ( this->m_timer != NULL ) {
+        this->m_timer->Stop();
+        delete this->m_timer;
+    }
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerInSkShow = m_data;
     SaveConfig();
@@ -148,6 +154,9 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
             m_thread->Wait();
         }
     }
+    m_socket.Close();
+    m_socket.Destroy();
+    wxSocketBase::Shutdown();
 }
 /***********************************************************************************
 
@@ -274,16 +283,11 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     m_stateComm = SKTM_STATE_INIT;
     m_stateFifoOverFlow = SKTM_FIFO_OFW_NOT_BLOCKING;
 
-    wxSocketClient *socket  = NULL;
-    wxSocketInputStream *streamin = NULL;
     wxIPV4address  *address = NULL;
     wxString        sWrittenToOutput = wxEmptyString;
     size_t          wFdOut  = 0;
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
-    wxSocketBase::Initialize();
-    socket = new wxSocketClient();
-    socket->SetTimeout( 5 );
     address = new wxIPV4address();
     wxUniChar separator = 0x3a;
     address->Hostname(m_source.BeforeFirst(separator));
@@ -294,7 +298,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             m_source.BeforeFirst(separator), m_source.AfterFirst(separator));
         wxQueueEvent( m_frame, event.Clone() );
     }
-    streamin = new wxSocketInputStream( (wxSocketBase &)*socket );
 
     wxString sCnxPrg[3];
     sCnxPrg[0] = L"\u2013 \u2013 \u2190";
@@ -303,15 +306,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
-    header += "POST ";
-    header += "/api/";
-    header += m_api;
-    header += "/write?org=";
-    header += m_org;
-    header += "&bucket=";
-    header += m_bucket;
-    header += "&precision=";
-    header += m_precision;
+    header += "GET ";
     header += " HTTP/1.1\r\n";
 
     header += "Host: ";
@@ -341,12 +336,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerInSkShow = m_data;
-                if ( !socket->Connect( *address, false ) ) {
-                    if ( !socket->WaitOnConnect() ) {
+                if ( !m_socket.Connect( *address, false ) ) {
+                    if ( !m_socket.WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
                     }
                     else {
-                        if ( !socket->IsConnected() ) {
+                        if ( !m_socket.IsConnected() ) {
                             connectionErr += _T(" (refused by peer)");
                         }
                     }
@@ -390,14 +385,14 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             wxScopedCharBuffer scb = sHdrOut.mb_str();
             size_t len = scb.length();
             
-            socket->Write( scb.data(), len );
+            m_socket.Write( scb.data(), len );
 
             if ( m_verbosity > 4) {
                 m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
             
-            if ( !socket->Error() ) {
+            if ( !m_socket.Error() ) {
                 
                 __INCR_CNTROUT__;
 
@@ -406,7 +401,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 while ( __NOT_STOP_THREAD__ && !readAvailable &&
                         (waitMilliSeconds < (m_connectionRetry * 500)) ) {
                     char c;
-                    ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                    ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
                     if ( !readAvailable) {
                         wxMilliSleep( 20 );
                         waitMilliSeconds += 20;
@@ -416,6 +411,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                     break;
                 if ( readAvailable ) {
                     try {
+                        wxSocketInputStream streamin( (wxSocketBase &)m_socket );
                         wxJSONValue  root;
                         wxJSONReader reader;
                         int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
@@ -428,13 +424,66 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                             wxQueueEvent( m_frame, event.Clone() );
                         }
                         int depth = reader.GetDepth();
+                        bool hasUpdates = root.HasMember( "updates" );
                         m_threadMsg = wxString::Format(
-                            "dashboard_tactics_pi: JSON input depth %d", depth );
+                            "dashboard_tactics_pi: JSON input depth: %d, updates: %d", depth, (int)hasUpdates );
+                        wxQueueEvent( m_frame, event.Clone() );
+                        if ( hasUpdates) {
+                            wxJSONValue updates = root["updates"];
+                            if ( !updates.IsArray() ) throw 100;
+                            int asize = updates.Size();
+                            if ( asize == 0 ) throw 105;
+                            for ( int i = 0; i < asize; i++ ) {
+                                if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
+                                wxJSONValue source = updates[i]["source"];
+                                if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
+                                wxString type = source["type"].AsString();
+                                wxString sentence = wxEmptyString;
+                                wxString talker = wxEmptyString;
+                                wxString src = wxEmptyString;
+                                int pgn = 0;
+                                if ( type.IsSameAs("NMEA0183", false) ) {
+                                    if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
+                                    sentence = source["sentence"].AsString();
+                                    if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
+                                    talker = source["talker"].AsString();
+                                }
+                                else if ( type.IsSameAs("NMEA2000", false) ) {
+                                    if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
+                                    src = source["src"].AsString();
+                                    if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
+                                    pgn = source["pgn"].AsInt();
+                                }
+                                else throw (i+1)*10000 + 3000;
+                                if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
+                                wxString timestamp = updates[i]["timestamp"].AsString();
+                                if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
+                                wxJSONValue values = updates[i]["values"];
+                                if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
+                                int vsize = values.Size();
+                                if ( vsize == 0 ) throw (i+1)*10000 + 5010;
+                                for ( int v = 0; v < vsize; v++ ) {
+                                    if ( !values[v].HasMember( "path")) throw (i+1)*100000 + (v+1)*10000 + 5015;
+                                    wxString path = values[v]["path"].AsString();
+                                    if ( !values[v].HasMember( "value")) throw (i+1)*100000 + (v+1)*10000 + 5020;
+                                    double value = values[v]["value"].AsDouble();
+                                    // do something
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
+                                        type, sentence, talker, src, pgn, timestamp, path, value);
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                    //
+                                } // for items in the array of values
+                            } // for items in the array of updates
+                        } // then has updates
                     }
                     catch (int x) {
+                        m_threadMsg = wxString::Format(
+                            "dashboard_tactics_pi: ERROR Signal K JSON updates: exception number %s.", x );
+                        wxQueueEvent( m_frame, event.Clone() );
                     } // errors in reading
                 //     wxCharBuffer buf(100);
-                //     socket->Read( buf.data(), 100 );
+                //     m_socket.Read( buf.data(), 100 );
                 //     wxString sBuf = buf;
                 //     bool sBufError = true;
                 //     if ( sBuf.Contains("HTTP/1.1 204") )
@@ -443,8 +492,8 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 //     int lostLoop100s = 0;
                 //     while ( lostReadCount > 0 ) {
                 //         wxCharBuffer lostbuf(100);
-                //         socket->Read( lostbuf.data(), 100 );
-                //         lostReadCount = socket->LastReadCount();
+                //         m_socket.Read( lostbuf.data(), 100 );
+                //         lostReadCount = m_socket.LastReadCount();
                 //         lostLoop100s += lostReadCount;
                 //     }
                 //     if ( sBufError ) {
@@ -458,7 +507,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 // } // then read buffer of the socket contains some data
                 // else {
                 //     m_stateComm = SKTM_STATE_ERROR;
-                //     socket->Close();
+                //     m_socket.Close();
                 //     if ( m_verbosity > 1) {
                 //         m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
                 //         wxQueueEvent( m_frame, event.Clone() );
@@ -471,8 +520,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     } // while not to be stopped / destroyed
         
     
-    socket->Destroy();
-    wxSocketBase::Shutdown();
     delete address;
 
     return (wxThread::ExitCode)0;
@@ -483,7 +530,8 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 ************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
-    wxLogMessage ("%s", m_threadMsg);
+    if ( !m_threadMsg.IsEmpty() )
+        wxLogMessage ("%s", m_threadMsg);
     m_threadMsg = wxEmptyString;
 }
 /***********************************************************************************

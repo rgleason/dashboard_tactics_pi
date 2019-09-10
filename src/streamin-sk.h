@@ -38,6 +38,7 @@ using namespace std;
 #endif //precompiled headers
 
 #include <wx/thread.h>
+#include <wx/socket.h>
 
 #include "instrument.h"
 
@@ -179,6 +180,7 @@ protected:
     
     int               m_state;
     wxThread         *m_thread;
+    wxSocketClient    m_socket;
     wxTimer          *m_timer;
     std::mutex       *m_mtxNofStreamInSk;
     int              *m_nofStreamInSk;

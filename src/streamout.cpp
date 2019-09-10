@@ -63,6 +63,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_nofStreamOut = &nofStreamOut;
     m_echoStreamerShow = &echoStreamerShow;
     m_state = SSSM_STATE_UNKNOWN;
+    m_timer = NULL;
 
     wxString emptyStr = wxEmptyString;
     emptyStr = emptyStr.wc_str();
@@ -140,8 +141,10 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     (*m_nofStreamOut)--;
     if ( m_state == SSSM_STATE_DISPLAYRELAY )
         return;
-    this->m_timer->Stop();
-    delete this->m_timer;
+    if ( this->m_timer != NULL ) {
+        this->m_timer->Stop();
+        delete this->m_timer;
+    }
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerShow = m_data;
     SaveConfig();
