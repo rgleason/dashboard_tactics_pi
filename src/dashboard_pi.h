@@ -192,6 +192,8 @@ public:
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
+    void SetNMEASentence(
+        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL, wxString* src=NULL, int* pgn=NULL);
     void SetNMEASentence(wxString &sentence);
     void SetPositionFix(PlugIn_Position_Fix &pfix);
     void SetCursorLatLon(double lat, double lon);
