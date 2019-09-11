@@ -32,10 +32,11 @@
 #include <wx/socket.h>
 #include <wx/sckstrm.h>
 
-#include "streamin-sk.h"
-#include "ocpn_plugin.h"
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
+
+#include "dashboard_pi.h"
+#include "streamin-sk.h"
 
 extern int g_iDashWindSpeedUnit;
 extern int g_iDashSpeedUnit;
@@ -53,11 +54,12 @@ wxEND_EVENT_TABLE ()
 //
 //----------------------------------------------------------------
 TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
-    wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
+    DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
     std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
     m_frame = this;
+    m_pparent = pparent;
     std::unique_lock<std::mutex> lck_mtxNofStreamInSk( mtxNofStreamInSk);
     nofStreamInSk++;
     m_mtxNofStreamInSk = &mtxNofStreamInSk;
@@ -89,8 +91,6 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_configFileName = wxEmptyString;
 
     m_source = emptyStr;
-    m_sourceAsFilePath = emptyStr;
-    m_api = emptyStr;
     m_connectionRetry = 0;
     m_timestamps = emptyStr;
     m_stamp = true;
@@ -102,17 +102,13 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
         return;
     m_state = SSKM_STATE_CONFIGURED;
 
-    m_pushedInFifo    = 0LL;
-    m_poppedFromFifo  = 0LL;
-    m_writtenToOutput = 0LL;
-    m_stateFifoOverFlow = SKTM_FIFO_OFW_UNKNOWN;
-
     wxSocketBase::Initialize();
     m_socket.SetTimeout( 5 );
     
-    std::unique_lock<std::mutex> init_m_mtxQLine( m_mtxQLine, std::defer_lock );
     m_stateComm = SKTM_STATE_UNKNOWN;
     m_cmdThreadStop = false;
+    m_updatesSent = 0;
+    m_startGraceCnt = 0;
     m_threadMsg = emptyStr;
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
@@ -211,41 +207,6 @@ void TacticsInstrument_StreamInSkSingle::Draw(wxGCDC* dc)
 /***********************************************************************************
 
 ************************************************************************************/
-bool TacticsInstrument_StreamInSkSingle::GetSchema(
-    unsigned long long st, long long msNow, sentenceSchema &schema)
-{
-    for ( unsigned int i = 0; i < vSchema.size(); i++ ) {
-        if ( vSchema[i].st == st ) {
-            schema = vSchema[i];
-            if ( !schema.bStore )
-                return false;
-            if ( schema.iInterval == 0 ) {
-                schema.lastTimeStamp = msNow;
-                vSchema[i].lastTimeStamp = msNow;
-                return true;
-            }
-            long long timeLapse = (msNow - schema.lastTimeStamp) / 1000;
-            if ( static_cast<long long>(vSchema[i].iInterval) <= timeLapse ) {
-                schema.lastTimeStamp = msNow;
-                vSchema[i].lastTimeStamp = msNow;
-                return true;
-            }
-        } 
-    }
-    return false;
-}
-/***********************************************************************************
-
-************************************************************************************/
-void TacticsInstrument_StreamInSkSingle::sLL(long long cnt, wxString &retString)
-{
-    wxLongLong wxLL = cnt;
-    wxString sBuffer = wxLL.ToString();
-    retString = sBuffer.wc_str();
-}
-/***********************************************************************************
-
-************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &evt )
 {
     if ( m_state == SSKM_STATE_DISPLAYRELAY )
@@ -273,20 +234,11 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 }
 #define __NOT_STOP_THREAD__ (!m_thread->TestDestroy() && !m_cmdThreadStop)
 #define __STOP_THREAD__ (m_thread->TestDestroy() || m_cmdThreadStop)
-#define __CNTROUT__ sLL (  m_writtenToOutput, sWrittenToOutput ); \
-                    m_data = sWrittenToOutput; *m_echoStreamerInSkShow = m_data
-#define __INCR_CNTROUT__ m_writtenToOutput = m_writtenToOutput + 1LL; \
-                         sLL (  m_writtenToOutput, sWrittenToOutput ); \
-                         m_data = sWrittenToOutput; *m_echoStreamerInSkShow = m_data
-
 
     m_stateComm = SKTM_STATE_INIT;
-    m_stateFifoOverFlow = SKTM_FIFO_OFW_NOT_BLOCKING;
 
     wxIPV4address  *address = NULL;
-    wxString        sWrittenToOutput = wxEmptyString;
-    size_t          wFdOut  = 0;
-    wxThreadEvent event( wxEVT_THREAD, myID_THREAD_SK_IN );
+    wxThreadEvent   event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
     address = new wxIPV4address();
     wxUniChar separator = 0x3a;
@@ -321,9 +273,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     header += "Connection: keep-alive";
     header += "\r\n";
     header += "Content-Length: "; // from this starts the dynamic part
-
-    std::unique_lock<std::mutex> mtxQLine( m_mtxQLine, std::defer_lock );
-    m_writtenToOutput = 0LL;
 
     m_stateComm = SKTM_STATE_CONNECTING;
 
@@ -370,9 +319,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         
         if ( m_stateComm == SKTM_STATE_READY ) {
             
-            wxString sData = wxEmptyString;
-            int linesPrepared = 0;        
-            __CNTROUT__;
+            wxString sData = wxEmptyString; // no payload this time
 
             if (__STOP_THREAD__)
                         break;
@@ -388,14 +335,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             m_socket.Write( scb.data(), len );
 
             if ( m_verbosity > 4) {
-                m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
+                m_threadMsg = wxString::Format("dashboard_tactics_pi: streamin-sk: written to socket:\n%s", sHdrOut);
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
             
             if ( !m_socket.Error() ) {
                 
-                __INCR_CNTROUT__;
-
                 int waitMilliSeconds = 0;
                 bool readAvailable = false;
                 while ( __NOT_STOP_THREAD__ && !readAvailable &&
@@ -410,110 +355,110 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 if (__STOP_THREAD__)
                     break;
                 if ( readAvailable ) {
-                    try {
-                        wxSocketInputStream streamin( (wxSocketBase &)m_socket );
-                        wxJSONValue  root;
-                        wxJSONReader reader;
-                        int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
-                        if ( numErrors > 0 )  {
-                            const wxArrayString& errors = reader.GetErrors();
-                            for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
-                                m_threadMsg = wxString::Format(
-                                    "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
-                            }
-                            wxQueueEvent( m_frame, event.Clone() );
-                        }
-                        int depth = reader.GetDepth();
-                        bool hasUpdates = root.HasMember( "updates" );
-                        m_threadMsg = wxString::Format(
-                            "dashboard_tactics_pi: JSON input depth: %d, updates: %d", depth, (int)hasUpdates );
-                        wxQueueEvent( m_frame, event.Clone() );
-                        if ( hasUpdates) {
-                            wxJSONValue updates = root["updates"];
-                            if ( !updates.IsArray() ) throw 100;
-                            int asize = updates.Size();
-                            if ( asize == 0 ) throw 105;
-                            for ( int i = 0; i < asize; i++ ) {
-                                if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
-                                wxJSONValue source = updates[i]["source"];
-                                if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
-                                wxString type = source["type"].AsString();
-                                wxString sentence = wxEmptyString;
-                                wxString talker = wxEmptyString;
-                                wxString src = wxEmptyString;
-                                int pgn = 0;
-                                if ( type.IsSameAs("NMEA0183", false) ) {
-                                    if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
-                                    sentence = source["sentence"].AsString();
-                                    if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
-                                    talker = source["talker"].AsString();
-                                }
-                                else if ( type.IsSameAs("NMEA2000", false) ) {
-                                    if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
-                                    src = source["src"].AsString();
-                                    if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
-                                    pgn = source["pgn"].AsInt();
-                                }
-                                else throw (i+1)*10000 + 3000;
-                                if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
-                                wxString timestamp = updates[i]["timestamp"].AsString();
-                                if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
-                                wxJSONValue values = updates[i]["values"];
-                                if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
-                                int vsize = values.Size();
-                                if ( vsize == 0 ) throw (i+1)*10000 + 5010;
-                                for ( int v = 0; v < vsize; v++ ) {
-                                    if ( !values[v].HasMember( "path")) throw (i+1)*100000 + (v+1)*10000 + 5015;
-                                    wxString path = values[v]["path"].AsString();
-                                    if ( !values[v].HasMember( "value")) throw (i+1)*100000 + (v+1)*10000 + 5020;
-                                    double value = values[v]["value"].AsDouble();
-                                    // do something
+
+                    wxSocketInputStream streamin( (wxSocketBase &)m_socket );
+                    wxLongLong wxllNowMs;
+                    long long  msNow;
+
+                    while (__NOT_STOP_THREAD__) {
+
+                        try {
+                            wxJSONValue  root;
+                            wxJSONReader reader;
+                            int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
+                            wxllNowMs = wxGetUTCTimeMillis();
+                            msNow = wxllNowMs.GetValue();
+                            if ( numErrors > 0 )  {
+                                const wxArrayString& errors = reader.GetErrors();
+                                for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
                                     m_threadMsg = wxString::Format(
-                                        "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
-                                        type, sentence, talker, src, pgn, timestamp, path, value);
-                                    wxQueueEvent( m_frame, event.Clone() );
-                                    //
-                                } // for items in the array of values
-                            } // for items in the array of updates
-                        } // then has updates
-                    }
-                    catch (int x) {
-                        m_threadMsg = wxString::Format(
-                            "dashboard_tactics_pi: ERROR Signal K JSON updates: exception number %s.", x );
-                        wxQueueEvent( m_frame, event.Clone() );
-                    } // errors in reading
-                //     wxCharBuffer buf(100);
-                //     m_socket.Read( buf.data(), 100 );
-                //     wxString sBuf = buf;
-                //     bool sBufError = true;
-                //     if ( sBuf.Contains("HTTP/1.1 204") )
-                //         sBufError = false;
-                //     unsigned int lostReadCount = std::numeric_limits<unsigned int>::max();
-                //     int lostLoop100s = 0;
-                //     while ( lostReadCount > 0 ) {
-                //         wxCharBuffer lostbuf(100);
-                //         m_socket.Read( lostbuf.data(), 100 );
-                //         lostReadCount = m_socket.LastReadCount();
-                //         lostLoop100s += lostReadCount;
-                //     }
-                //     if ( sBufError ) {
-                //         if ( m_verbosity > 2) {
-                //             m_threadMsg = wxString::Format(
-                //                 "dashboard_tactics_pi: Delta Streamer : Data Rejected (%s) : %s",
-                //                 sBuf, sData);
-                //             wxQueueEvent( m_frame, event.Clone() );
-                //         }
-                //     } // then error from the DB write API
-                // } // then read buffer of the socket contains some data
-                // else {
-                //     m_stateComm = SKTM_STATE_ERROR;
-                //     m_socket.Close();
-                //     if ( m_verbosity > 1) {
-                //         m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : Error - no data received from server.");
-                //         wxQueueEvent( m_frame, event.Clone() );
-                //     }
-                //     giveUpConnectionRetry100ms(5);
-                    
+                                        "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                                }
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
+                            bool hasUpdates = root.HasMember( "updates" );
+                            if ( hasUpdates) {
+                                wxJSONValue updates = root["updates"];
+                                if ( !updates.IsArray() ) throw 100;
+                                int asize = updates.Size();
+                                if ( asize == 0 ) throw 105;
+                                for ( int i = 0; i < asize; i++ ) {
+                                    if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
+                                    wxJSONValue source = updates[i]["source"];
+                                    if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
+                                    wxString type = source["type"].AsString();
+                                    wxString sentence = wxEmptyString;
+                                    wxString talker = wxEmptyString;
+                                    wxString src = wxEmptyString;
+                                    int pgn = 0;
+                                    if ( type.IsSameAs("NMEA0183", false) ) {
+                                        if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
+                                        sentence = source["sentence"].AsString();
+                                        if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
+                                        talker = source["talker"].AsString();
+                                    }
+                                    else if ( type.IsSameAs("NMEA2000", false) ) {
+                                        if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
+                                        src = source["src"].AsString();
+                                        if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
+                                        pgn = source["pgn"].AsInt();
+                                    }
+                                    else throw (i+1)*10000 + 3000;
+                                    if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
+                                    wxString timestamp = updates[i]["timestamp"].AsString();
+                                    if ( !m_stamp ) {
+                                        wxDateTime epoch; // Signal K https://tools.ietf.org/html/rfc3339
+                                        if ( epoch.ParseISOCombined( timestamp.BeforeLast('.') ) ) {
+                                            wxllNowMs = epoch.GetValue();
+                                            msNow = wxllNowMs.GetValue();
+                                            wxString millis = timestamp.AfterLast('.');
+                                            millis = timestamp.BeforeLast('Z');
+                                            long long retMs;
+                                            (void) millis.ToLongLong( &retMs );
+                                            msNow += retMs;
+                                        } // then conversion OK
+                                        else {
+                                            m_threadMsg = wxString::Format(
+                                                "dashboard_tactics_pi: ERROR Signal K JSON updates: timestamp %s?",
+                                                timestamp);
+                                            wxQueueEvent( m_frame, event.Clone() );
+                                        } // else a problem which may be recurrant and filling log quickly
+                                    } // then use server's timestamp
+                                    if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
+                                    wxJSONValue values = updates[i]["values"];
+                                    if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
+                                    int vsize = values.Size();
+                                    if ( vsize == 0 ) throw (i+1)*10000 + 5010;
+                                    for ( int v = 0; v < vsize; v++ ) {
+                                        if ( !values[v].HasMember( "path")) throw (i+1)*100000 + (v+1)*10000 + 5015;
+                                        wxString path = values[v]["path"].AsString();
+                                        if ( !values[v].HasMember( "value")) throw (i+1)*100000 + (v+1)*10000 + 5020;
+                                        double value = values[v]["value"].AsDouble();
+                                        
+                                        m_pparent->SetUpdateSignalK (
+                                            &type, &sentence, &talker, &src, pgn, &path, value, msNow );
+
+                                        m_updatesSent += 1;
+                                        
+                                        if ( m_verbosity > 3) {
+                                            m_threadMsg = wxString::Format(
+                                                "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
+                                                "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
+                                                type, sentence, talker, src, pgn, timestamp, path, value);
+                                            wxQueueEvent( m_frame, event.Clone() );
+                                        } // then slowing down with the indirect debug log
+                                    } // for items in the array of values
+                                } // for items in the array of updates
+                            } // then has updates
+                        }
+                        catch (int x) {
+                            if ( m_verbosity > 1 ) {
+                                m_threadMsg = wxString::Format(
+                                    "dashboard_tactics_pi: ERROR Signal K JSON updates: exception number %s.", x );
+                                wxQueueEvent( m_frame, event.Clone() );
+                            } // then this is probably repeating event if it occurs, filling the logs
+                        } // errors in reading
+                    } // while no stop
                 } // else something available in the socket buffer
             } // then no error in the socket when writing into it
         } // else connection available
@@ -549,19 +494,14 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
             m_thread->Resume();
         }
     }
-    if ( m_verbosity > 3 ) {
-        // std::unique_lock<std::mutex> lckmQline( m_mtxQLine );
-        // long long pushDelta = m_pushedInFifo - m_poppedFromFifo;
-        // wxString sPushedInFifo; sLL( m_pushedInFifo, sPushedInFifo );
-        // wxString sPoppedFromFifo; sLL( m_poppedFromFifo, sPoppedFromFifo );
-        // lckmQline.unlock();
-        // wxString sBlockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING, sBlockingLimit );
-        // wxString sUnblockingLimit; sLL( SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING, sUnblockingLimit );
-        // wxString sPushDelta; sLL( pushDelta, sPushDelta );
-        // wxLogMessage(
-        //     "dashboard_tactics_pi: DEBUG : OnStreamInSkUpdTime : FIFO : (In %s Out %s Delta %s Block %s Unblock %s)",
-        //     sPushedInFifo, sPoppedFromFifo, sPushDelta, sBlockingLimit, sUnblockingLimit );
-    } // for BIG time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
+    if ( m_startGraceCnt >= SSKM_START_GRACE_COUNT )
+        m_data = wxString::Format("%3d  [1/s]", m_updatesSent);
+    else {
+        m_startGraceCnt ++;
+        if ( m_updatesSent > 0 )
+            m_data = ( (m_startGraceCnt % 2) == 0? L"  \u2665" : L"" );
+    }
+    m_updatesSent = 0;
 }
 /***********************************************************************************
 

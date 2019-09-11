@@ -1848,16 +1848,10 @@ class.
 *********************************************************************/
 void tactics_pi::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        double value, long long timestamp )
+        wxString *path, double value, long long timestamp )
 {
     wxString noNMEA = wxEmptyString;
-    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, value, timestamp )
-}
-
-SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit ) {
-    // use the shortcut to instruments, i.e. not making callbacks to this module
-    pSendSentenceToAllInstruments( st, value, unit );
+    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, timestamp );
 }
 
 /********************************************************************
@@ -3322,7 +3316,7 @@ void TacticsWindow::SendPerfSentenceToAllInstruments(
 }
 void TacticsWindow::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        double value, long long timestamp )
+        wxString *path, double value, long long timestamp )
 {
-    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, value, timestamp );
+    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, timestamp );
 }

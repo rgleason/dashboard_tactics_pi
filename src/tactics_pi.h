@@ -124,11 +124,11 @@ public:
 
     virtual void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
-        wxString* src=NULL, int pgn=0, double value=NAN, long long timestamp=0LL)
+        wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, long long timestamp=0LL)
         = 0;
     virtual void SetUpdateSignalK(
         wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
-        double value, long long timestamp ) final;
+        wxString* path, double value, long long timestamp ) final;
     void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
@@ -437,7 +437,7 @@ public:
         unsigned long long st, double value, wxString unit );
     void SetUpdateSignalK(
         wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
-        double value, long long timestamp );
+        wxString* path, double value, long long timestamp );
 
 private:
 

@@ -41,6 +41,7 @@ using namespace std;
 #include <wx/socket.h>
 
 #include "instrument.h"
+class DashboardWindow;
 
 enum StreamInSkSingleStateMachine {
     SSKM_STATE_UNKNOWN, SSKM_STATE_DISPLAYRELAY, SSKM_STATE_INIT, SSKM_STATE_CONFIGURED,
@@ -50,12 +51,8 @@ enum SocketInSkThreadStateMachine {
     SKTM_STATE_UNKNOWN, SKTM_STATE_INIT, SKTM_STATE_ERROR, SKTM_STATE_CONNECTING,
     SKTM_STATE_READY };
 
-#define SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_BLOCKING   20000LL // roughly 1GB of memory
-#define SKTM_MAX_UNWRITTEN_FIFO_ELEMENTS_UNBLOCKING 19800LL
 #define SSKM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
-
-enum stateInSkFifoOverFlow {
-    SKTM_FIFO_OFW_UNKNOWN, SKTM_FIFO_OFW_NOT_BLOCKING, SKTM_FIFO_OFW_BLOCKING };
+#define SSKM_START_GRACE_COUNT 15 // tick is not accurate at startup
 
 //+------------------------------------------------------------------------------
 //|
@@ -70,7 +67,7 @@ class TacticsInstrument_StreamInSkSingle : public DashboardInstrument, public wx
 {
 public:
 	TacticsInstrument_StreamInSkSingle(
-        wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
+        DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
         std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir);
 	~TacticsInstrument_StreamInSkSingle();
 
@@ -81,103 +78,8 @@ public:
 
 protected:
 
-    class sentenceSchema
-    {
-    public:
-        sentenceSchema(void) {
-            stc = wxEmptyString;
-            st = 0ULL;
-            bStore = false;
-            iInterval = 0;
-            lastTimeStamp = 0LL;
-            sMeasurement = wxEmptyString;
-            sProp1 = wxEmptyString;
-            sProp2 = wxEmptyString;
-            sProp3 = wxEmptyString;
-            sField1 = wxEmptyString;
-            sField2 = wxEmptyString;
-            sField3 = wxEmptyString;
-        };
-        sentenceSchema( const sentenceSchema& source) {
-#define sentenceSchemaCopy(__SS_SOURCE__)  stc = __SS_SOURCE__.stc; st = __SS_SOURCE__.st; bStore = __SS_SOURCE__.bStore; \
-            iInterval = __SS_SOURCE__.iInterval; lastTimeStamp = __SS_SOURCE__.lastTimeStamp; \
-            sMeasurement = __SS_SOURCE__.sMeasurement; sProp1 = __SS_SOURCE__.sProp1; sProp2 = __SS_SOURCE__.sProp2; \
-            sProp3 = __SS_SOURCE__.sProp3; sField1 = __SS_SOURCE__.sField1; sField2 = __SS_SOURCE__.sField2; \
-            sField3 = __SS_SOURCE__.sField3
-            sentenceSchemaCopy(source);
-        };
-        const sentenceSchema& operator = (const sentenceSchema &source) {
-            if ( this != &source) {
-                sentenceSchemaCopy(source);
-            }
-            return *this;
-        };
-        wxString stc;
-        unsigned long long st;
-        bool bStore;
-        int iInterval;
-        long long lastTimeStamp;
-        wxString sMeasurement;
-        wxString sProp1;
-        wxString sProp2;
-        wxString sProp3;
-        wxString sField1;
-        wxString sField2;
-        wxString sField3;
-    }; // This class presents the elements of the configuration file
-    
-    class lineProtocol
-    {
-    public:
-        lineProtocol(void) {
-            measurement = wxEmptyString;
-            tag_key1 = wxEmptyString;
-            tag_value1 = wxEmptyString;
-            tag_key2 = wxEmptyString;
-            tag_value2 = wxEmptyString;
-            tag_key3 = wxEmptyString;
-            tag_value3 = wxEmptyString;
-            field_key1 = wxEmptyString;
-            field_value1 = wxEmptyString;
-            field_key2 = wxEmptyString;
-            field_value2 = wxEmptyString;
-            field_key3 = wxEmptyString;
-            field_value3 = wxEmptyString;
-            timestamp = wxEmptyString;
-        };
-        lineProtocol( const lineProtocol& source) {
-#define lineProtocolCopy(__LP_SOURCE__) measurement = __LP_SOURCE__.measurement; tag_key1 = __LP_SOURCE__.tag_key1; \
-            tag_value1 = __LP_SOURCE__.tag_value1; tag_key2 = __LP_SOURCE__.tag_key2; tag_value2 = __LP_SOURCE__.tag_value2; \
-            tag_key3 = __LP_SOURCE__.tag_key3; tag_value3 = __LP_SOURCE__.tag_value3; field_key1 = __LP_SOURCE__.field_key1; \
-            field_value1 = __LP_SOURCE__.field_value1; field_key2 = __LP_SOURCE__.field_key2; \
-            field_value2 = __LP_SOURCE__.field_value2; field_key3 = __LP_SOURCE__.field_key3; \
-            field_value3 = __LP_SOURCE__.field_value3;timestamp = __LP_SOURCE__.timestamp
-            lineProtocolCopy(source);
-        };
-        const lineProtocol& operator = (const lineProtocol &source) {
-            if ( this != &source) {
-                lineProtocolCopy(source);
-            }
-            return *this;
-        };
-        wxString measurement;
-        wxString tag_key1;
-        wxString tag_value1;
-        wxString tag_key2;
-        wxString tag_value2;
-        wxString tag_key3;
-        wxString tag_value3;
-        wxString field_key1;
-        wxString field_value1;
-        wxString field_key2;
-        wxString field_value2;
-        wxString field_key3;
-        wxString field_value3;
-        wxString timestamp;
-    }; // This class presents the line propotocol elements in the data FIFO queue 
-
     TacticsInstrument_StreamInSkSingle *m_frame;
-    
+
     int               m_state;
     wxThread         *m_thread;
     wxSocketClient    m_socket;
@@ -190,36 +92,22 @@ protected:
     int               m_DataHeight;
     wxString          m_confdir;
     wxString          m_configFileName;
-    wxFileConfig     *m_pconfig;
     bool              m_configured;
 
-    std::vector<sentenceSchema> vSchema;
-    long long         m_pushedInFifo;
-    long long         m_poppedFromFifo;
-    long long         m_writtenToOutput;
-    int               m_stateFifoOverFlow;
-    std::queue<lineProtocol> qLine;
-    std::mutex        m_mtxQLine;
     int               m_stateComm;
+    int               m_updatesSent;
+    int               m_startGraceCnt;
     bool              m_cmdThreadStop;
     wxString          m_threadMsg;
 
     // From configuration file
     wxString          m_source;
-    wxString          m_sourceAsFilePath;
     wxString          m_api;
-    wxString          m_org;
-    wxString          m_bucket;
-    wxString          m_precision;
-    wxString          m_token;
     int               m_connectionRetry;
-    int               m_linesPerWrite;
     wxString          m_timestamps;
     bool              m_stamp;
     int               m_verbosity;
 
-    bool GetSchema(unsigned long long st, long long msNow, sentenceSchema& schema);
-    void sLL(long long cnt, wxString& retString);
     bool LoadConfig(void);
     void SaveConfig(void);
     void Draw(wxGCDC* dc);
@@ -228,6 +116,9 @@ protected:
     void OnThreadUpdate(wxThreadEvent& evt);
     
 private :
+
+    wxFileConfig     *m_pconfig;
+    DashboardWindow  *m_pparent;
 
     wxDECLARE_EVENT_TABLE();
 
