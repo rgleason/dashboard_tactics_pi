@@ -975,10 +975,10 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
 }
 
 #ifdef _TACTICSPI_H_
-    void SetNMEASentence(
+void dashboard_pi::SetNMEASentence(
         wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int *pgn)
 #else
-    void SetNMEASentence(wxString &sentence)
+void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_
 	
 {
