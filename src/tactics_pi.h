@@ -122,7 +122,9 @@ public:
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
 
-    virtual void SetNMEASentence(wxString &sentence) = 0;
+    virtual void SetNMEASentence(
+        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL, wxString* src=NULL, int* pgn=NULL)
+        = 0;
     void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
