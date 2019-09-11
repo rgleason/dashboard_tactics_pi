@@ -192,9 +192,12 @@ public:
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
+#ifdef _TACTICSPI_H_
     void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL, wxString* src=NULL, int* pgn=NULL);
+#else
     void SetNMEASentence(wxString &sentence);
+#endif // _TACTICSPI_H_
     void SetPositionFix(PlugIn_Position_Fix &pfix);
     void SetCursorLatLon(double lat, double lon);
     int GetToolbarToolCount(void);
