@@ -518,6 +518,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mVar_Watchdog = 2;
 #ifdef _TACTICSPI_H_
     mStW_Watchdog = 2;
+    mSiK_Watchdog = 0;
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
@@ -710,6 +711,8 @@ void dashboard_pi::Notify()
         SendSentenceToAllInstruments( OCPN_DBP_STC_STW, NAN, "" );
         mStW_Watchdog = gps_watchdog_timeout_ticks;
     }
+    if ( mSiK_Watchdog > 0)
+        mSiK_Watchdog--;
 #endif // _TACTICSPI_H_
 
     mGPS_Watchdog--;
@@ -976,7 +979,8 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
 
 #ifdef _TACTICSPI_H_
 void dashboard_pi::SetNMEASentence(
-        wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int *pgn)
+        wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
+        int pgn, double value, long long timestamp)
 #else
 void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_

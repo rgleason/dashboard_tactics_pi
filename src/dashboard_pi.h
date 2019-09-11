@@ -194,7 +194,8 @@ public:
     //    The optional method overrides
 #ifdef _TACTICSPI_H_
     void SetNMEASentence(
-        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL, wxString* src=NULL, int* pgn=NULL);
+        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
+        wxString* src=NULL, int pgn=0, double value=NAN, long long timestamp=0LL);
 #else
     void SetNMEASentence(wxString &sentence);
 #endif // _TACTICSPI_H_
@@ -284,6 +285,7 @@ private:
     int                  mVar_Watchdog;
 #ifdef _TACTICSPI_H_
     int                  mStW_Watchdog;
+    int                  mSiK_Watchdog;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

@@ -1842,6 +1842,25 @@ void tactics_pi::SendPerfSentenceToAllInstruments(
 }
 
 /********************************************************************
+This method is method is to use to pass streamed-in Signal K update
+into the NMEA interpretation method of the implementating (derived)
+class.
+*********************************************************************/
+void tactics_pi::SetUpdateSignalK(
+        wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
+        double value, long long timestamp )
+{
+    wxString noNMEA = wxEmptyString;
+    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, value, timestamp )
+}
+
+SendPerfSentenceToAllInstruments(
+    unsigned long long st, double value, wxString unit ) {
+    // use the shortcut to instruments, i.e. not making callbacks to this module
+    pSendSentenceToAllInstruments( st, value, unit );
+}
+
+/********************************************************************
 Before the derived class which implements the abstract method
 SendSentenceToAllInstruments() actually sends the sentences to
 the instrumetns in its windows, it needs to call this method to
@@ -3297,6 +3316,13 @@ void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
 
 }
 void TacticsWindow::SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit ) {
+    unsigned long long st, double value, wxString unit )
+{
     m_plugin->SendSentenceToAllInstruments( st, value, unit );
+}
+void TacticsWindow::SetUpdateSignalK(
+        wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
+        double value, long long timestamp )
+{
+    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, value, timestamp );
 }
