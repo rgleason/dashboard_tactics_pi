@@ -102,9 +102,6 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
         return;
     m_state = SSKM_STATE_CONFIGURED;
 
-    wxSocketBase::Initialize();
-    m_socket.SetTimeout( 5 );
-    
     m_stateComm = SKTM_STATE_UNKNOWN;
     m_cmdThreadStop = false;
     m_updatesSent = 0;
@@ -150,9 +147,6 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
             m_thread->Wait();
         }
     }
-    m_socket.Close();
-    m_socket.Destroy();
-    wxSocketBase::Shutdown();
 }
 /***********************************************************************************
 
@@ -237,6 +231,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 
     m_stateComm = SKTM_STATE_INIT;
 
+    wxSocketClient  socket;
+    wxSocketBase::Initialize();
+    socket.SetTimeout( 5 );
     wxIPV4address  *address = NULL;
     wxThreadEvent   event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
@@ -285,12 +282,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerInSkShow = m_data;
-                if ( !m_socket.Connect( *address, false ) ) {
-                    if ( !m_socket.WaitOnConnect() ) {
+                if ( !socket.Connect( *address, false ) ) {
+                    if ( !socket.WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
                     }
                     else {
-                        if ( !m_socket.IsConnected() ) {
+                        if ( !socket.IsConnected() ) {
                             connectionErr += _T(" (refused by peer)");
                         }
                     }
@@ -332,21 +329,21 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             wxScopedCharBuffer scb = sHdrOut.mb_str();
             size_t len = scb.length();
             
-            m_socket.Write( scb.data(), len );
+            socket.Write( scb.data(), len );
 
             if ( m_verbosity > 4) {
                 m_threadMsg = wxString::Format("dashboard_tactics_pi: streamin-sk: written to socket:\n%s", sHdrOut);
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
             
-            if ( !m_socket.Error() ) {
+            if ( !socket.Error() ) {
                 
                 int waitMilliSeconds = 0;
                 bool readAvailable = false;
                 while ( __NOT_STOP_THREAD__ && !readAvailable &&
                         (waitMilliSeconds < (m_connectionRetry * 500)) ) {
                     char c;
-                    ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                    ( socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
                     if ( !readAvailable) {
                         wxMilliSleep( 20 );
                         waitMilliSeconds += 20;
@@ -356,7 +353,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                     break;
                 if ( readAvailable ) {
 
-                    wxSocketInputStream streamin( (wxSocketBase &)m_socket );
+                    wxSocketInputStream streamin( (wxSocketBase &)socket );
                     wxLongLong wxllNowMs;
                     long long  msNow;
 
@@ -465,6 +462,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     } // while not to be stopped / destroyed
         
     
+    socket.Close();
+    socket.Destroy();
+    wxSocketBase::Shutdown();
     delete address;
 
     return (wxThread::ExitCode)0;
