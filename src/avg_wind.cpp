@@ -121,7 +121,7 @@ wxSize TacticsInstrument_AvgWindDir::GetSize(int orient, wxSize hint)
   }
 }
 void TacticsInstrument_AvgWindDir::SetData(
-    unsigned long long st, double data, wxString unit)
+    unsigned long long st, double data, wxString unit, long long timestamp)
 {
     if (st == OCPN_DBP_STC_TWD ) { 
       m_WindDir = data;

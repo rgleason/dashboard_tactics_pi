@@ -64,7 +64,7 @@ public:
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnBaroHistUpdTimer(wxTimerEvent &event);
 #else
     void SetData(int, double, wxString);

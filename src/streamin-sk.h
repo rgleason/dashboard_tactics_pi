@@ -72,7 +72,7 @@ public:
 	~TacticsInstrument_StreamInSkSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
-    void SetData(unsigned long long st, double data, wxString unit){};
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL){};
     void OnStreamInSkUpdTimer(wxTimerEvent& event);
     void SetNMEASentence(wxString& delta);
 

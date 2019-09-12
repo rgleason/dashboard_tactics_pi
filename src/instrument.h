@@ -148,7 +148,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit) = 0;
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        ) = 0;
     void SetDrawSoloInPane(bool value);
     void MouseEvent( wxMouseEvent &event );
       
@@ -187,7 +191,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit);
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
 
 protected:
     wxString          m_data;
@@ -218,7 +226,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit);
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
 
 protected:
     wxString          m_data1;

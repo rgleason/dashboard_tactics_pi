@@ -257,11 +257,15 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
 
 void DashboardInstrument_Single::SetData(
 #ifdef _TACTICSPI_H_
-        unsigned long long st,
+    unsigned long long st,
 #else
-        int st,
+    int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
 #ifdef _TACTICSPI_H_
     // units strings shall allow passing long format strings
@@ -414,7 +418,11 @@ void DashboardInstrument_Position::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
       if (st == m_cap_flag1)
       {

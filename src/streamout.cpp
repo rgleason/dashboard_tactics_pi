@@ -243,7 +243,7 @@ void TacticsInstrument_StreamoutSingle::sLL(long long cnt, wxString &retString)
 /***********************************************************************************
 
 ************************************************************************************/
-void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
+void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit, long long timestamp)
 {
     wxLongLong wxllNowMs = wxGetUTCTimeMillis();
 
@@ -259,7 +259,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         return;
     
     sentenceSchema schema;
-    long long msNow = wxllNowMs.GetValue();
+    long long msNow = ( timestamp == 0 ? wxllNowMs.GetValue() : timestamp );
     if ( !GetSchema( st, msNow, schema ) )
         return;
     

@@ -185,8 +185,15 @@ public:
     wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
+#ifdef _TACTICSPI_H_
     void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit);
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+    void pSendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+#else
+    void SendSentenceToAllInstruments(
+        int st, double value, wxString unit);
+#endif // _TACTICSPI_H_
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
 #endif // _TACTICSPI_H_
@@ -235,16 +242,8 @@ private:
 #ifdef _TACTICSPI_H_
     wxString GetCommonNameVersion(void);  
     wxString GetNameVersion(void);  
-#endif // _TACTICSPI_H_
- 
+#endif // _TACTICSPI_H_ 
 
-#ifdef _TACTICSPI_H_
-    void pSendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit);
-#else
-    void SendSentenceToAllInstruments(
-        int st, double value, wxString unit);
-#endif // _TACTICSPI_H_
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
@@ -419,7 +418,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-       double value, wxString unit );
+       double value, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
     void SendUtcTimeToAllInstruments( wxDateTime value );
     void ChangePaneOrientation( int orient, bool updateAUImgr );

@@ -243,7 +243,11 @@ void DashboardInstrument_WindDirHistory::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
     if (st == OCPN_DBP_STC_TWD || st == OCPN_DBP_STC_TWS
 #ifdef _TACTICSPI_H_

@@ -74,7 +74,7 @@ public:
 	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
-	void SetData(unsigned long long st, double data, wxString unit);
+	void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnStreamOutUpdTimer(wxTimerEvent& event);
 
 protected:

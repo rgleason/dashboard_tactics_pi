@@ -83,7 +83,11 @@ void DashboardInstrument_FromOwnship::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
     if (st == m_cap_flag1)
     {

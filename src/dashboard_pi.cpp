@@ -842,33 +842,33 @@ wxString dashboard_pi::GetStandardPath()
    the original method and optional, Tactics specific NMEA sentences are
    passed to instruments here as in the original Dashboard_pi. */
 void dashboard_pi::pSendSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit )
+    unsigned long long st, double value, wxString unit, long long timestamp  )
 {
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window )
             dashboard_window->SendSentenceToAllInstruments(
-                st, value, unit );
+                st, value, unit, timestamp );
     }
 }
 /* Porting note: with Tactics new, virtual NMEA sentences are introduced, like
-   the true wind calculations. Likewise, the bearing to the \u2191TacticsWP
+   the true wind calculations. Likewise, the bearing to the TacticsWP
    (if it exists) to performance instruments as a specific NMEA sentence having
    a special unit. Current speed and leeway are also virtual, calculated
-   NMEA sentences. To the outside world we can publish target angle information
+   NMEA sentences. We can publish to the outside world target angle information
    and similar to be displayed to the helmsman on a performance instruments.
    This is not enough: it is also possible to make corrections to the
    NMEA sentences coming from the boat's instruments (you need to read
    the excellent documentation of Tactics plugin for the theory).
    For these calculations, Tactics class and its helpers are using the real
-   NMEA senteces. The logic of these operations is strict and defined below.
+   NMEA sentences. The logic of these operations is strict and defined below.
    It is not recommend to alter or experiment with this logic without a good
    understanding of the Tactics class' internal variables and how they get
    their data. A good debugging tool is a must to visualize the actual value
    and unit versus the calculated value(s) and unit(s). */
 void dashboard_pi::SendSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit )
+    unsigned long long st, double value, wxString unit, long long timestamp )
 {
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
@@ -990,7 +990,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #ifdef _TACTICSPI_H_
     bool SignalK = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
-    if ( (type != NULL) && (sentenceID != NULL) && (talker != NULL) &&
+    if ( (type != NULL) && (sentenceId != NULL) && (talker != NULL) &&
          (src != NULL) && (path != NULL) && (!std::isnan(value)) ) {
         SignalK = true;
     } // then Signal K input stream provided data
@@ -1000,34 +1000,19 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         mSiK_Watchdog = gps_watchdog_timeout_ticks;
     if ( !SignalK )
 #endif // _TACTICSPI_H_
-    m_NMEA0183 << sentence;
+
+        m_NMEA0183 << sentence;
 
 #ifdef _TACTICSPI_H_
     if ( !SignalK ) {
         if( !m_NMEA0183.PreParse() )
             return;
     }
+    if ( !SignalK ) {
 #else
-    if( m_NMEA0183.PreParse() ) {
+    if ( m_NMEA0183.PreParse() ) {
 #endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
-        if ( SignalK ) {
-            if ( sentenceId->CmpNoCase(_T("DBT")) ) {
-                if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
-                    if( mPriDepth >= 2 ) {
-                        mPriDepth = 2;
-                        double depth = value + g_dDashDBTOffset;
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_DPT,
-                            toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-                            getUsrDistanceUnit_Plugin( g_iDashDepthUnit ) );
-                    }
-                }
-            }
-        }
-        else {
-#endif // _TACTICSPI_H_
         if( m_NMEA0183.LastSentenceIDReceived == _T("DBT") ) {
             if( m_NMEA0183.Parse() ) {
                 if( mPriDepth >= 2 ) {
@@ -1049,27 +1034,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             }
         }
-#ifdef _TACTICSPI_H_
-        }
-#endif // _TACTICSPI_H_
-
-// #ifdef _TACTICSPI_H_
-//         if ( SignalK ) {
-//             if ( sentenceId->CmpNoCase(_T("DPT")) ) {
-//                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
-//                     if( mPriDepth >= 1 ) {
-//                         mPriDepth = 1;
-//                         double depth = value + g_dDashDBTOffset;
-//                         SendSentenceToAllInstruments(
-//                             OCPN_DBP_STC_DPT,
-//                             toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-//                             getUsrDistanceUnit_Plugin( g_iDashDepthUnit ) );
-//                     }
-//                 }
-//             }
-//         }
-//         else {
-// #endif // _TACTICSPI_H_
 
         else if( m_NMEA0183.LastSentenceIDReceived == _T("DPT") ) {
             if( m_NMEA0183.Parse() ) {
@@ -1198,10 +1162,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #ifdef _TACTICSPI_H_
                         /* Porting note: Why not rearm the mVar_Watchdog?
                            Answer: it does not matter. We get anyway the mVar from O's 'fix'
-                                   which distributes it to all plugins including us. Here it
-                                   is the priority #1 mVar source, so the others do not really
-                                   never get used, unless O itself fails at some point to
-                                   interpret NMEA-sentences.
+                           which distributes it to all plugins including us. Here it
+                           is the priority #1 mVar source, so the others do not really
+                           never get used, unless O itself fails at some point to
+                           interpret NMEA-sentences.
                         */
                         mVar_Watchdog = gps_watchdog_timeout_ticks;
 #endif // _TACTICSPI_H_
@@ -1490,11 +1454,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_DTW, m_NMEA0183.Rmb.RangeToDestinationNauticalMiles, _T("Nm"));
                     /*
-                       Note: there are no consumers in Tactics functions for the below sentence but without it
-                       the Dashboard's VMG-instruments remain silent when there is next active waypoint set
-                       by the OpenCPN's routing functions. We capture here the sentence send by OpenCPN
-                       to the autopilot and  other interested parties like. If the GitHub issue #1422 is
-                       recognized and fixed in OpenCPN, this note and the below sentences can be removed */
+                      Note: there are no consumers in Tactics functions for the below sentence but without it
+                      the Dashboard's VMG-instruments remain silent when there is next active waypoint set
+                      by the OpenCPN's routing functions. We capture here the sentence send by OpenCPN
+                      to the autopilot and  other interested parties like. If the GitHub issue #1422 is
+                      recognized and fixed in OpenCPN, this note and the below sentences can be removed */
                     if ( !std::isnan(m_NMEA0183.Rmb.DestinationClosingVelocityKnots) &&
                          (m_NMEA0183.Rmb.DestinationClosingVelocityKnots < 999.) ) { // empty field
                         SendSentenceToAllInstruments(
@@ -1690,7 +1654,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #ifdef _TACTICSPI_H_
                     this->SetNMEASentence_Arm_AWS_Watchdog();
 #endif // _TACTICSPI_H_
-                   /*
+                    /*
                       double m_NMEA0183.Vwr.WindSpeedms;
                       double m_NMEA0183.Vwr.WindSpeedKmh;
                     */
@@ -1783,9 +1747,9 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                             || m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("PITCH")) {
                             if (m_NMEA0183.Xdr.TransducerInfo[i].Data > 0) {
 #ifdef _TACTICSPI_H_
-                               xdrunit = L"\u00B0u";
+                                xdrunit = L"\u00B0u";
 #else
-                               xdrunit = _T("\u00B0 Nose up");
+                                xdrunit = _T("\u00B0 Nose up");
 #endif // _TACTICSPI_H_                                
                             }
                             else if (m_NMEA0183.Xdr.TransducerInfo[i].Data < 0) {
@@ -1803,10 +1767,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         }
 #ifdef _TACTICSPI_H_
                         else if ((m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
-                                 (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("Heel Angle"))) {
+                                 (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("Heel Angle")))
 #else
-                        else if (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ROLL")) {
+                        else if (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ROLL"))
 #endif // _TACTICSPI_H_
+                        {
                             if (m_NMEA0183.Xdr.TransducerInfo[i].Data > 0) {
 #ifdef _TACTICSPI_H_
                                 xdrunit = L"\u00B0r";
@@ -1826,31 +1791,30 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                 xdrunit = _T("\u00B0");
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
+                        } 
+                        //Nasa style water temp
+                        else if (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ENV_WATER_T")){
+#ifdef _TACTICSPI_H_
+                            double TemperatureValue               = xdrdata;
+                            wxString TemperatureUnitOfMeasurement = m_NMEA0183.Xdr.TransducerInfo[i].Unit;
+                            checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
+#else
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_TMP,
+                                m_NMEA0183.Xdr.TransducerInfo[i].Data,m_NMEA0183.Xdr.TransducerInfo[i].Unit);
+#endif // _TACTICSPI_H_
                         }
                     }
-                    //Nasa style water temp
-                    if (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ENV_WATER_T")){
-#ifdef _TACTICSPI_H_
-                        double TemperatureValue               = xdrdata;
-                        wxString TemperatureUnitOfMeasurement = m_NMEA0183.Xdr.TransducerInfo[i].Unit;
-                        checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
-#else
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_TMP,
-                            m_NMEA0183.Xdr.TransducerInfo[i].Data,m_NMEA0183.Xdr.TransducerInfo[i].Unit);
-#endif // _TACTICSPI_H_
-                    }
-                }
-            }
-        }
-
-       else if (m_NMEA0183.LastSentenceIDReceived == _T("ZDA")) {
-           if( m_NMEA0183.Parse() ) {
-               if( mPriDateTime >= 2 ) {
+                } // for XDR transducers
+            } // then parse OK
+        } // then XDR
+        else if (m_NMEA0183.LastSentenceIDReceived == _T("ZDA")) {
+            if( m_NMEA0183.Parse() ) {
+                if( mPriDateTime >= 2 ) {
                     mPriDateTime = 2;
-
+                    
                     /*
                       wxString m_NMEA0183.Zda.UTCTime;
                       int      m_NMEA0183.Zda.Day;
@@ -1867,29 +1831,59 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             }
         }
-    }
-    //      Process an AIVDO message
-    else if( sentence.Mid( 1, 5 ).IsSameAs( _T("AIVDO") ) ) {
-        PlugIn_Position_Fix_Ex gpd;
-        if( DecodeSingleVDOMessage(sentence, &gpd, &m_VDO_accumulator) ) {
-
-            if( !std::isnan(gpd.Lat) )
-                SendSentenceToAllInstruments( OCPN_DBP_STC_LAT, gpd.Lat, _T("SDMM") );
-
-            if( !std::isnan(gpd.Lon) )
-                SendSentenceToAllInstruments( OCPN_DBP_STC_LON, gpd.Lon, _T("SDMM") );
-
-            SendSentenceToAllInstruments(
-                OCPN_DBP_STC_SOG, toUsrSpeed_Plugin(
-                    mSOGFilter.filter(gpd.Sog), g_iDashSpeedUnit),
-                getUsrSpeedUnit_Plugin(g_iDashSpeedUnit));
-            SendSentenceToAllInstruments( OCPN_DBP_STC_COG, mCOGFilter.filter(gpd.Cog), _T("\u00B0") );
-            if( !std::isnan(gpd.Hdt) ) {
-                SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, gpd.Hdt, _T("\u00B0T") );
-                mHDT_Watchdog = gps_watchdog_timeout_ticks;
+        //      Process an AIVDO message
+        else if( sentence.Mid( 1, 5 ).IsSameAs( _T("AIVDO") ) ) {
+            PlugIn_Position_Fix_Ex gpd;
+            if( DecodeSingleVDOMessage(sentence, &gpd, &m_VDO_accumulator) ) {
+                    
+                if( !std::isnan(gpd.Lat) )
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_LAT, gpd.Lat, _T("SDMM") );
+                    
+                if( !std::isnan(gpd.Lon) )
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_LON, gpd.Lon, _T("SDMM") );
+                    
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_SOG, toUsrSpeed_Plugin(
+                        mSOGFilter.filter(gpd.Sog), g_iDashSpeedUnit),
+                    getUsrSpeedUnit_Plugin(g_iDashSpeedUnit));
+                SendSentenceToAllInstruments( OCPN_DBP_STC_COG, mCOGFilter.filter(gpd.Cog), _T("\u00B0") );
+                if( !std::isnan(gpd.Hdt) ) {
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, gpd.Hdt, _T("\u00B0T") );
+                    mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                }
             }
         }
-#infdef _TACTICSPI_H_        
+    }
+#ifdef _TACTICSPI_H_
+    else { // Signal K
+
+        if ( sentenceId->CmpNoCase(_T("DBT")) ) { // https://git.io/JeYfB
+            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
+                if( mPriDepth >= 2 ) {
+                    mPriDepth = 2;
+                    double depth = value + g_dDashDBTOffset;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_DPT,
+                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+                        timestamp );
+                }
+            }
+        }
+                
+        else if ( sentenceId->CmpNoCase(_T("DPT")) ) { // https://git.io/JeYf4
+            if ( path->CmpNoCase(_T("environment.depth.belowKeel")) ) {  // depth + offset
+                if( mPriDepth >= 1 ) {
+                    mPriDepth = 1;
+                    double depth = value + g_dDashDBTOffset;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_DPT,
+                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+                        timestamp );
+                }
+            }
+        }
     }
 #endif // _TACTICSPI_H_
 }
@@ -4024,7 +4018,11 @@ void DashboardWindow::SendSentenceToAllInstruments(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double value, wxString unit )
+    double value, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
 
@@ -4036,7 +4034,11 @@ void DashboardWindow::SendSentenceToAllInstruments(
 #endif // _TACTICSPI_H_
                 )
             m_ArrayOfInstrument.Item( i )->m_pInstrument->SetData(
-                st, value, unit );
+                st, value, unit
+#ifdef _TACTICSPI_H_
+                , timestamp
+#endif // _TACTICSPI_H_
+                );
     }
 }
 

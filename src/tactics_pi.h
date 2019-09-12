@@ -152,9 +152,9 @@ public:
     virtual void TacticsOnContextMenuItemCallback(int id) final;
 
     virtual void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit ) = 0;
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL ) = 0;
     virtual void pSendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit) = 0;
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
     virtual void SendPerfSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(

@@ -150,7 +150,8 @@ void TacticsInstrument_PerformanceSingle::SetDisplayType(int type){
 /***********************************************************************************
 
 ************************************************************************************/
-void TacticsInstrument_PerformanceSingle::SetData(unsigned long long st, double data, wxString unit)
+void TacticsInstrument_PerformanceSingle::SetData(
+    unsigned long long st, double data, wxString unit, long long timestamp)
 {
     if (std::isnan(data))
         return;
@@ -1280,7 +1281,8 @@ wxSize TacticsInstrument_PolarPerformance::GetSize(int orient, wxSize hint)
     return wxSize(wxMax(hint.x, DefaultWidth), wxMax(m_TitleHeight + 140, hint.y));
   }
 }
-void TacticsInstrument_PolarPerformance::SetData(unsigned long long st, double data, wxString unit)
+void TacticsInstrument_PolarPerformance::SetData(
+    unsigned long long st, double data, wxString unit, long long timestamp )
 {
   if (std::isnan(data))
     return;
