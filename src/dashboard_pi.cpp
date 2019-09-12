@@ -986,9 +986,48 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_
 	
 {
+
+#ifdef _TACTICSPI_H_
+    bool SignalK = false;
+    // Select datasource: either O's NMEA event distribution or Signal K input stream
+    if ( (type != NULL) && (sentencID != NULL) && (talker != NULL) &&
+         (src != NULL) && (path != NULL) && (!std::isnan(value) ) {
+        SignalK = true;
+    } // then Signal K input stream provided data
+    if ( !SignalK && (mSiK_Watchdog > 0) )
+        return;
+    if ( SignalK )
+        mSiK_Watchdog = gps_watchdog_timeout_ticks;
+    if ( !SignalK )
+#endif // _TACTICSPI_H_
     m_NMEA0183 << sentence;
 
+#ifdef _TACTICSPI_H_
+    if ( !SignalK ) {
+        if( !m_NMEA0183.PreParse() )
+            return;
+    }
+#else
     if( m_NMEA0183.PreParse() ) {
+#endif // _TACTICSPI_H_
+
+#ifdef _TACTICSPI_H_
+        if ( SignalK ) {
+            if ( sentenceId->CmpNoCase(_T("DBT")) ) {
+                if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
+                    if( mPriDepth >= 2 ) {
+                        mPriDepth = 2;
+                        double depth = value + g_dDashDBTOffset;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_DPT,
+                            toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                            getUsrDistanceUnit_Plugin( g_iDashDepthUnit ) );
+                    }
+                }
+            }
+        }
+        else {
+#endif // _TACTICSPI_H_
         if( m_NMEA0183.LastSentenceIDReceived == _T("DBT") ) {
             if( m_NMEA0183.Parse() ) {
                 if( mPriDepth >= 2 ) {
@@ -1010,6 +1049,27 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             }
         }
+#ifdef _TACTICSPI_H_
+        }
+#endif // _TACTICSPI_H_
+
+// #ifdef _TACTICSPI_H_
+//         if ( SignalK ) {
+//             if ( sentenceId->CmpNoCase(_T("DPT")) ) {
+//                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
+//                     if( mPriDepth >= 1 ) {
+//                         mPriDepth = 1;
+//                         double depth = value + g_dDashDBTOffset;
+//                         SendSentenceToAllInstruments(
+//                             OCPN_DBP_STC_DPT,
+//                             toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+//                             getUsrDistanceUnit_Plugin( g_iDashDepthUnit ) );
+//                     }
+//                 }
+//             }
+//         }
+//         else {
+// #endif // _TACTICSPI_H_
 
         else if( m_NMEA0183.LastSentenceIDReceived == _T("DPT") ) {
             if( m_NMEA0183.Parse() ) {
@@ -1829,7 +1889,9 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 mHDT_Watchdog = gps_watchdog_timeout_ticks;
             }
         }
+#infdef _TACTICSPI_H_        
     }
+#endif // _TACTICSPI_H_
 }
 
 void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
