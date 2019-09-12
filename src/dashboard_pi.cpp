@@ -990,8 +990,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #ifdef _TACTICSPI_H_
     bool SignalK = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
-    if ( (type != NULL) && (sentencID != NULL) && (talker != NULL) &&
-         (src != NULL) && (path != NULL) && (!std::isnan(value) ) {
+    if ( (type != NULL) && (sentenceID != NULL) && (talker != NULL) &&
+         (src != NULL) && (path != NULL) && (!std::isnan(value)) ) {
         SignalK = true;
     } // then Signal K input stream provided data
     if ( !SignalK && (mSiK_Watchdog > 0) )
