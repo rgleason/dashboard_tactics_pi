@@ -285,6 +285,7 @@ private:
 #ifdef _TACTICSPI_H_
     int                  mStW_Watchdog;
     int                  mSiK_Watchdog;
+    int                  mSiK_navigationGnssMethodQuality;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

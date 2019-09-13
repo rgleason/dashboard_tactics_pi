@@ -168,6 +168,15 @@ wxSize TacticsInstrument_StreamInSkSingle::GetSize(int orient, wxSize hint)
 /***********************************************************************************
 
 ************************************************************************************/
+void TacticsInstrument_StreamInSkSingle::sLL(long long cnt, wxString &retString)
+{
+    wxLongLong wxLL = cnt;
+    wxString sBuffer = wxLL.ToString();
+    retString = sBuffer.wc_str();
+}
+/***********************************************************************************
+
+************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::Draw(wxGCDC* dc)
 {
 	wxColour cl;
@@ -413,6 +422,14 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                             long long retMs;
                                             (void) millis.ToLongLong( &retMs );
                                             msNow += retMs;
+                                            if ( m_verbosity > 4) {
+                                                wxString msNowLLString = wxEmptyString;
+                                                sLL ( msNow, msNowLLString );
+                                                m_threadMsg = wxString::Format(
+                                                    "dashboard_tactics_pi: Signal K timestamp (%s) msNow (%s)",
+                                                    timestamp, msNowLLSTring );
+                                                wxQueueEvent( m_frame, event.Clone() );
+                                            } // then slowing down with the indirect debug log
                                         } // then conversion OK
                                         else {
                                             m_threadMsg = wxString::Format(

@@ -519,6 +519,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 #ifdef _TACTICSPI_H_
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mSiK_navigationGnssMethodQuality = 0;
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
@@ -1884,7 +1885,31 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             }
         }
+
+        else if ( sentenceId->CmpNoCase(_T("GGA")) ) { // https://git.io/JeYWl
+            if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) )
+                mSiK_navigationGnssMethodQuality = (int) value;
+            else if ( path->CmpNoCase(_T("")) )
+                if( mPriDepth >= 1 ) {
+                    mPriDepth = 1;
+                    double depth = value + g_dDashDBTOffset;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_DPT,
+                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+                        timestamp );
+                }
+            }
+        }
+
+
+
+
     }
+
+
+
+
 #endif // _TACTICSPI_H_
 }
 
