@@ -24,6 +24,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
  ***************************************************************************
  */
+#ifdef _TACTICSPI_H_
+using namespace std;
+#endif // _TACTICSPI_H_
 
 #include "from_ownship.h"
 
@@ -89,6 +92,11 @@ void DashboardInstrument_FromOwnship::SetData(
 #endif // _TACTICSPI_H_
     )
 {
+#ifdef _TACTICSPI_H_
+    if ( std::isnan( data ) )
+        return;
+#endif // _TACTICSPI_H_
+    
     if (st == m_cap_flag1)
     {
 	      c_lat = data;
