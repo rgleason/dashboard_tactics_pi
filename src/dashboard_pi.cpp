@@ -1889,26 +1889,19 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         else if ( sentenceId->CmpNoCase(_T("GGA")) ) { // https://git.io/JeYWl
             if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) )
                 mSiK_navigationGnssMethodQuality = (int) value;
-            else if ( path->CmpNoCase(_T("")) )
-                if( mPriDepth >= 1 ) {
-                    mPriDepth = 1;
-                    double depth = value + g_dDashDBTOffset;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_DPT,
-                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
-                        timestamp );
-                }
-            }
+            // else if ( path->CmpNoCase(_T("")) )
+            //     if( mPriDepth >= 1 ) {
+            //         mPriDepth = 1;
+            //         double depth = value + g_dDashDBTOffset;
+            //         SendSentenceToAllInstruments(
+            //             OCPN_DBP_STC_DPT,
+            //             toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+            //             getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+            //             timestamp );
+            //    }
         }
 
-
-
-
-    }
-
-
-
+    } // else Signal K
 
 #endif // _TACTICSPI_H_
 }

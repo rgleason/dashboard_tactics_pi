@@ -413,12 +413,13 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
                                     wxString timestamp = updates[i]["timestamp"].AsString();
                                     if ( !m_stamp ) {
-                                        wxDateTime epoch; // Signal K https://tools.ietf.org/html/rfc3339
-                                        if ( epoch.ParseISOCombined( timestamp.BeforeLast('.') ) ) {
-                                            wxllNowMs = epoch.GetValue();
+                                        wxDateTime utc0; // Signal K https://tools.ietf.org/html/rfc3339
+                                        if (utc0.ParseISOCombined( timestamp.BeforeLast('.') ) ) {
+                                            utc0 = utc0.FromTimezone(wxDateTime::UTC); // (w/ DST):the "Z"
+                                            wxllNowMs = utc0.GetValue();
                                             msNow = wxllNowMs.GetValue();
                                             wxString millis = timestamp.AfterLast('.');
-                                            millis = timestamp.BeforeLast('Z');
+                                            millis = millis.BeforeLast('Z');
                                             long long retMs;
                                             (void) millis.ToLongLong( &retMs );
                                             msNow += retMs;
@@ -427,7 +428,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                 sLL ( msNow, msNowLLString );
                                                 m_threadMsg = wxString::Format(
                                                     "dashboard_tactics_pi: Signal K timestamp (%s) msNow (%s)",
-                                                    timestamp, msNowLLSTring );
+                                                    timestamp, msNowLLString );
                                                 wxQueueEvent( m_frame, event.Clone() );
                                             } // then slowing down with the indirect debug log
                                         } // then conversion OK
