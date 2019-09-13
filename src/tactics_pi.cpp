@@ -1848,10 +1848,10 @@ class.
 *********************************************************************/
 void tactics_pi::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        wxString *path, double value, long long timestamp )
+        wxString *path, double value, long long timestamp, wxString *key )
 {
     wxString noNMEA = wxEmptyString;
-    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, timestamp );
+    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, timestamp, key );
 }
 
 /********************************************************************
@@ -3316,7 +3316,7 @@ void TacticsWindow::SendPerfSentenceToAllInstruments(
 }
 void TacticsWindow::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        wxString *path, double value, long long timestamp )
+        wxString *path, double value, long long timestamp, wxString *key )
 {
-    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, timestamp );
+    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, timestamp, key );
 }

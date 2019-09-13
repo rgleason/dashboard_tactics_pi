@@ -445,23 +445,43 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     int vsize = values.Size();
                                     if ( vsize == 0 ) throw (i+1)*10000 + 5010;
                                     for ( int v = 0; v < vsize; v++ ) {
-                                        if ( !values[v].HasMember( "path")) throw (i+1)*100000 + (v+1)*10000 + 5015;
+                                        if ( !values[v].HasMember( "path" )) throw (i+1)*100000 + (v+1)*10000 + 5015;
                                         wxString path = values[v]["path"].AsString();
-                                        if ( !values[v].HasMember( "value")) throw (i+1)*100000 + (v+1)*10000 + 5020;
-                                        double value = values[v]["value"].AsDouble();
+                                        if ( !values[v].HasMember( "value" )) throw (i+1)*100000 + (v+1)*10000 + 5020;
+                                        double value;
+                                        wxJSONValue valueset = values[v]["value"];
+                                        if ( !valueset.IsObject() ) {
+                                            value = valueset.AsDouble();
+                                            m_pparent->SetUpdateSignalK (
+                                                &type, &sentence, &talker, &src, pgn, &path, value, msNow );
+                                            if ( m_verbosity > 3) {
+                                                m_threadMsg = wxString::Format(
+                                                    "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
+                                                    "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
+                                                    type, sentence, talker, src, pgn, timestamp, path, value);
+                                                wxQueueEvent( m_frame, event.Clone() );
+                                            } // then slowing down with the indirect debug log
+                                        }
+                                        else {
+                                            wxArrayString names = valueset.GetMemberNames();
+                                            for ( int n = 0; (size_t) n < names.GetCount(); n++ ) {
+                                                wxString key = names[n];
+                                                if ( !valueset.HasMember( key ) ) throw (n+1)*1000000 + (i+1)*100000 + (v+1)*10000 + 5025;
+                                                value = valueset[ key ].AsDouble();
+                                                m_pparent->SetUpdateSignalK (
+                                                    &type, &sentence, &talker, &src, pgn, &path, value, msNow, &key );
+                                                if ( m_verbosity > 3) {
+                                                    m_threadMsg = wxString::Format(
+                                                        "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
+                                                        "src (%s) pgn (%d) timestamp (%s) path (%s) key (%s) value (%f)",
+                                                        type, sentence, talker, src, pgn, timestamp, path, key, value);
+                                                    wxQueueEvent( m_frame, event.Clone() );
+                                                } // then slowing down with the indirect debug log
+                                            } 
+                                        }
                                         
-                                        m_pparent->SetUpdateSignalK (
-                                            &type, &sentence, &talker, &src, pgn, &path, value, msNow );
-
                                         m_updatesSent += 1;
                                         
-                                        if ( m_verbosity > 3) {
-                                            m_threadMsg = wxString::Format(
-                                                "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
-                                                "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
-                                                type, sentence, talker, src, pgn, timestamp, path, value);
-                                            wxQueueEvent( m_frame, event.Clone() );
-                                        } // then slowing down with the indirect debug log
                                     } // for items in the array of values
                                 } // for items in the array of updates
                             } // then has updates
