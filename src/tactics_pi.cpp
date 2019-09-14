@@ -1,4 +1,4 @@
-/***************************************************************************
+b/***************************************************************************
 * $Id: tactics_pi.cpp, v1.0 2016/06/07 tomBigSpeedy Exp $
 *
 * Project:  OpenCPN
@@ -1848,10 +1848,10 @@ class.
 *********************************************************************/
 void tactics_pi::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        wxString *path, double value, long long timestamp, wxString *key )
+        wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
 {
     wxString noNMEA = wxEmptyString;
-    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, timestamp, key );
+    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
 }
 
 /********************************************************************
@@ -3316,7 +3316,7 @@ void TacticsWindow::SendPerfSentenceToAllInstruments(
 }
 void TacticsWindow::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        wxString *path, double value, long long timestamp, wxString *key )
+        wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
 {
-    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, timestamp, key );
+    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
 }

@@ -442,6 +442,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         m_stateComm = STSM_STATE_READY;
     else
         m_stateComm = STSM_STATE_CONNECTING;
+    int prevStateComm = m_stateComm;
 
     while (__NOT_STOP_THREAD__) {
 
@@ -465,20 +466,25 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 if ( __NOT_STOP_THREAD__) {
                     if ( connectionErr.IsEmpty() ) {
                         m_stateComm = STSM_STATE_READY;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
-                            wxQueueEvent( m_frame, event.Clone() );
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                     }
                     else {
                         m_stateComm = STSM_STATE_ERROR;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
-                            m_threadMsg += connectionErr;
-                            wxQueueEvent( m_frame, event.Clone() );
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
+                                m_threadMsg += connectionErr;
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                         giveUpConnectionRetry100ms(5);
-                        m_stateComm = STSM_STATE_CONNECTING; 
                     } // else error state wait until attempting again
                 } // then thread does not need to terminate
             } // then thread does not need to terminate

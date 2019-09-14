@@ -519,6 +519,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 #ifdef _TACTICSPI_H_
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
@@ -981,7 +982,7 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
 #ifdef _TACTICSPI_H_
 void dashboard_pi::SetNMEASentence(
         wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
-        int pgn, wxString *path, double value, long long timestamp, wxString *key)
+        int pgn, wxString *path, double value, wxString *valStr, long long timestamp, wxString *key)
 #else
 void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_
@@ -1858,8 +1859,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #ifdef _TACTICSPI_H_
     else { // Signal K
 
-        if ( sentenceId->CmpNoCase(_T("DBT")) ) { // https://git.io/JeYfB
-            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) ) {
+        if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
+            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
                 if( mPriDepth >= 2 ) {
                     mPriDepth = 2;
                     double depth = value + g_dDashDBTOffset;
@@ -1872,8 +1873,17 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         }
                 
-        else if ( sentenceId->CmpNoCase(_T("DPT")) ) { // https://git.io/JeYf4
-            if ( path->CmpNoCase(_T("environment.depth.belowKeel")) ) {  // depth + offset
+        else if ( sentenceId->CmpNoCase(_T("DPT")) == 0 ) { // https://git.io/JeYf4
+            bool depthvalue = false;
+            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
+                if ( !mSiK_DPT_environmentDepthBelowKeel )
+                    depthvalue = true;
+            }
+            else if ( path->CmpNoCase(_T("environment.depth.belowKeel")) == 0 ) {  // depth + offset
+                depthvalue = true;
+                mSiK_DPT_environmentDepthBelowKeel = true; // lock priority
+            }
+            if ( depthvalue ) {
                 if( mPriDepth >= 1 ) {
                     mPriDepth = 1;
                     double depth = value + g_dDashDBTOffset;
@@ -1886,19 +1896,32 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         }
 
-        else if ( sentenceId->CmpNoCase(_T("GGA")) ) { // https://git.io/JeYWl
-            if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) )
-                mSiK_navigationGnssMethodQuality = (int) value;
-            // else if ( path->CmpNoCase(_T("")) )
-            //     if( mPriDepth >= 1 ) {
-            //         mPriDepth = 1;
-            //         double depth = value + g_dDashDBTOffset;
-            //         SendSentenceToAllInstruments(
-            //             OCPN_DBP_STC_DPT,
-            //             toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-            //             getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
-            //             timestamp );
-            //    }
+        else if ( sentenceId->CmpNoCase(_T("GGA")) == 0 ) { // https://git.io/JeYWl
+            if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
+                if ( valStr->CmpNoCase(_T("DGNSS fix")) == 0 ) {
+                        mSiK_navigationGnssMethodQuality = 1;
+                }
+            }
+            else if ( mSiK_navigationGnssMethodQuality > 0 ) {
+                if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
+                    if( mPriPosition >= 3 ) {
+                        mPriPosition = 3;
+                        if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
+                                                          value,
+                                                          _T("SDMM"),
+                                                          timestamp );
+                        if ( key->CmpNoCase(_T("latitude")) == 0 )
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
+                                                          value,
+                                                          _T("SDMM"),
+                                                          timestamp );
+                    }
+                }
+                else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
+                    mSatsInView = value;
+                }
+            }
         }
 
     } // else Signal K

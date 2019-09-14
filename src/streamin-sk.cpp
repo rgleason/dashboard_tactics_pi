@@ -281,6 +281,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     header += "Content-Length: "; // from this starts the dynamic part
 
     m_stateComm = SKTM_STATE_CONNECTING;
+    int prevStateComm = m_stateComm;
 
     while (__NOT_STOP_THREAD__) {
 
@@ -303,27 +304,32 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 }
                 if ( __NOT_STOP_THREAD__) {
                     if ( connectionErr.IsEmpty() ) {
-                        m_stateComm = SKTM_STATE_READY;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : SKTM_STATE_READY");
-                            wxQueueEvent( m_frame, event.Clone() );
+                        m_stateComm = SKTM_STATE_WAITING;
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: SignalK Delta Streamer : SKTM_STATE_WAITING");
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                     }
                     else {
                         m_stateComm = SKTM_STATE_ERROR;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: Delta Streamer : SKTM_STATE_ERROR");
-                            m_threadMsg += connectionErr;
-                            wxQueueEvent( m_frame, event.Clone() );
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: SignalK Delta Streamer : SKTM_STATE_ERROR");
+                                m_threadMsg += connectionErr;
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                         giveUpConnectionRetry100ms(5);
-                        m_stateComm = SKTM_STATE_CONNECTING; 
                     } // else error state wait until attempting again
                 } // then thread does not need to terminate
             } // then thread does not need to terminate
         } // then need to attempt to connect()
         
-        if ( m_stateComm == SKTM_STATE_READY ) {
+        if ( m_stateComm == SKTM_STATE_WAITING ) {
             
             wxString sData = wxEmptyString; // no payload this time
 
@@ -345,165 +351,195 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
             
-            if ( !socket.Error() ) {
-                
-                int waitMilliSeconds = 0;
-                bool readAvailable = false;
-                while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                        (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                    char c;
-                    ( socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                    if ( !readAvailable) {
-                        wxMilliSleep( 20 );
-                        waitMilliSeconds += 20;
+            if ( socket.Error() ) {
+                m_stateComm = SKTM_STATE_ERROR;
+            }
+            else {
+
+                while ( __NOT_STOP_THREAD__ && (m_stateComm == SKTM_STATE_WAITING) ) {
+                    int waitMilliSeconds = 0;
+                    bool readAvailable = false;
+                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
+                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                        char c;
+                        ( socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        if ( !readAvailable) {
+                            wxMilliSleep( 20 );
+                            waitMilliSeconds += 20;
+                        }
                     }
-                }
-                if (__STOP_THREAD__)
-                    break;
-                if ( readAvailable ) {
+                    if (__STOP_THREAD__)
+                        break;
+                    if ( readAvailable ) {
 
-                    wxSocketInputStream streamin( (wxSocketBase &)socket );
-                    wxLongLong wxllNowMs;
-                    long long  msNow;
+                        m_stateComm = SKTM_STATE_READY;
+                        if ( m_verbosity > 1) {
+                            m_threadMsg = _T("dashboard_tactics_pi: SignalK Delta Streamer : SKTM_STATE_READY");
+                            wxQueueEvent( m_frame, event.Clone() );
+                        }
 
-                    while (__NOT_STOP_THREAD__) {
+                        wxSocketInputStream streamin( (wxSocketBase &)socket );
+                        wxLongLong wxllNowMs;
+                        long long  msNow;
+                        bool syncerror = false;
 
-                        try {
-                            wxJSONValue  root;
-                            wxJSONReader reader;
-                            int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
-                            wxllNowMs = wxGetUTCTimeMillis();
-                            msNow = wxllNowMs.GetValue();
-                            if ( numErrors > 0 )  {
-                                const wxArrayString& errors = reader.GetErrors();
-                                for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
-                                    m_threadMsg = wxString::Format(
-                                        "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                        while ( __NOT_STOP_THREAD__ && !syncerror ) {
+
+                            try {
+                                wxJSONValue  root;
+                                wxJSONReader reader;
+                                int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
+                                wxllNowMs = wxGetUTCTimeMillis();
+                                msNow = wxllNowMs.GetValue();
+                                if ( numErrors > 0 )  {
+                                    const wxArrayString& errors = reader.GetErrors();
+                                    for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+                                        m_threadMsg = wxString::Format(
+                                            "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                                    }
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                    throw 1; // lost sync, it is quite useless to continue
                                 }
-                                wxQueueEvent( m_frame, event.Clone() );
-                            }
-                            bool hasUpdates = root.HasMember( "updates" );
-                            if ( hasUpdates) {
-                                wxJSONValue updates = root["updates"];
-                                if ( !updates.IsArray() ) throw 100;
-                                int asize = updates.Size();
-                                if ( asize == 0 ) throw 105;
-                                for ( int i = 0; i < asize; i++ ) {
-                                    if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
-                                    wxJSONValue source = updates[i]["source"];
-                                    if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
-                                    wxString type = source["type"].AsString();
-                                    wxString sentence = wxEmptyString;
-                                    wxString talker = wxEmptyString;
-                                    wxString src = wxEmptyString;
-                                    int pgn = 0;
-                                    if ( type.IsSameAs("NMEA0183", false) ) {
-                                        if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
-                                        sentence = source["sentence"].AsString();
-                                        if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
-                                        talker = source["talker"].AsString();
-                                    }
-                                    else if ( type.IsSameAs("NMEA2000", false) ) {
-                                        if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
-                                        src = source["src"].AsString();
-                                        if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
-                                        pgn = source["pgn"].AsInt();
-                                    }
-                                    else throw (i+1)*10000 + 3000;
-                                    if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
-                                    wxString timestamp = updates[i]["timestamp"].AsString();
-                                    if ( !m_stamp ) {
-                                        wxDateTime utc0; // Signal K https://tools.ietf.org/html/rfc3339
-                                        if (utc0.ParseISOCombined( timestamp.BeforeLast('.') ) ) {
-                                            utc0 = utc0.FromTimezone(wxDateTime::UTC); // (w/ DST):the "Z"
-                                            wxllNowMs = utc0.GetValue();
-                                            msNow = wxllNowMs.GetValue();
-                                            wxString millis = timestamp.AfterLast('.');
-                                            millis = millis.BeforeLast('Z');
-                                            long long retMs;
-                                            (void) millis.ToLongLong( &retMs );
-                                            msNow += retMs;
-                                            if ( m_verbosity > 4) {
-                                                wxString msNowLLString = wxEmptyString;
-                                                sLL ( msNow, msNowLLString );
-                                                m_threadMsg = wxString::Format(
-                                                    "dashboard_tactics_pi: Signal K timestamp (%s) msNow (%s)",
-                                                    timestamp, msNowLLString );
-                                                wxQueueEvent( m_frame, event.Clone() );
-                                            } // then slowing down with the indirect debug log
-                                        } // then conversion OK
-                                        else {
-                                            m_threadMsg = wxString::Format(
-                                                "dashboard_tactics_pi: ERROR Signal K JSON updates: timestamp %s?",
-                                                timestamp);
-                                            wxQueueEvent( m_frame, event.Clone() );
-                                        } // else a problem which may be recurrant and filling log quickly
-                                    } // then use server's timestamp
-                                    if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
-                                    wxJSONValue values = updates[i]["values"];
-                                    if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
-                                    int vsize = values.Size();
-                                    if ( vsize == 0 ) throw (i+1)*10000 + 5010;
-                                    for ( int v = 0; v < vsize; v++ ) {
-                                        if ( !values[v].HasMember( "path" )) throw (i+1)*100000 + (v+1)*10000 + 5015;
-                                        wxString path = values[v]["path"].AsString();
-                                        if ( !values[v].HasMember( "value" )) throw (i+1)*100000 + (v+1)*10000 + 5020;
-                                        double value;
-                                        wxJSONValue valueset = values[v]["value"];
-                                        if ( !valueset.IsObject() ) {
-                                            value = valueset.AsDouble();
-                                            m_pparent->SetUpdateSignalK (
-                                                &type, &sentence, &talker, &src, pgn, &path, value, msNow );
-                                            if ( m_verbosity > 3) {
-                                                m_threadMsg = wxString::Format(
-                                                    "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
-                                                    "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f)",
-                                                    type, sentence, talker, src, pgn, timestamp, path, value);
-                                                wxQueueEvent( m_frame, event.Clone() );
-                                            } // then slowing down with the indirect debug log
+                                bool hasUpdates = root.HasMember( "updates" );
+                                if ( hasUpdates) {
+                                    wxJSONValue updates = root["updates"];
+                                    if ( !updates.IsArray() ) throw 100;
+                                    int asize = updates.Size();
+                                    if ( asize == 0 ) throw 105;
+                                    for ( int i = 0; i < asize; i++ ) {
+                                        if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
+                                        wxJSONValue source = updates[i]["source"];
+                                        if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
+                                        wxString type = source["type"].AsString();
+                                        wxString sentence = wxEmptyString;
+                                        wxString talker = wxEmptyString;
+                                        wxString src = wxEmptyString;
+                                        int pgn = 0;
+                                        if ( type.IsSameAs("NMEA0183", false) ) {
+                                            if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
+                                            sentence = source["sentence"].AsString();
+                                            if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
+                                            talker = source["talker"].AsString();
                                         }
-                                        else {
-                                            wxArrayString names = valueset.GetMemberNames();
-                                            for ( int n = 0; (size_t) n < names.GetCount(); n++ ) {
-                                                wxString key = names[n];
-                                                if ( !valueset.HasMember( key ) ) throw (n+1)*1000000 + (i+1)*100000 + (v+1)*10000 + 5025;
-                                                value = valueset[ key ].AsDouble();
+                                        else if ( type.IsSameAs("NMEA2000", false) ) {
+                                            if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
+                                            src = source["src"].AsString();
+                                            if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
+                                            pgn = source["pgn"].AsInt();
+                                        }
+                                        else throw (i+1)*10000 + 3000;
+                                        if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
+                                        wxString timestamp = updates[i]["timestamp"].AsString();
+                                        if ( !m_stamp ) {
+                                            wxDateTime utc0; // Signal K https://tools.ietf.org/html/rfc3339
+                                            if (utc0.ParseISOCombined( timestamp.BeforeLast('.') ) ) { // rfc3359 not understood
+                                                utc0 = utc0.FromTimezone(wxDateTime::UTC); // (w/ DST):the "Z", still no ms
+                                                wxllNowMs = utc0.GetValue();
+                                                msNow = wxllNowMs.GetValue();
+                                                wxString millis = timestamp.AfterLast('.');
+                                                millis = millis.BeforeLast('Z');
+                                                long long retMs;
+                                                (void) millis.ToLongLong( &retMs );
+                                                msNow += retMs;
+                                                if ( m_verbosity > 4) {
+                                                    wxString msNowLLString = wxEmptyString;
+                                                    sLL ( msNow, msNowLLString );
+                                                    m_threadMsg = wxString::Format(
+                                                        "dashboard_tactics_pi: Signal K timestamp (%s) msNow (%s)",
+                                                        timestamp, msNowLLString );
+                                                    wxQueueEvent( m_frame, event.Clone() );
+                                                } // then slowing down with the indirect debug log
+                                            } // then conversion OK
+                                            else {
+                                                if ( m_verbosity > 3) {
+                                                    m_threadMsg = wxString::Format(
+                                                        "dashboard_tactics_pi: ERROR Signal K JSON updates: timestamp %s?",
+                                                        timestamp);
+                                                    wxQueueEvent( m_frame, event.Clone() );
+                                                } // then a serious problem but let's throttle a bit
+                                            } // else a problem which may be recurrant and filling log quickly
+                                        } // then use server's timestamp
+                                        if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
+                                        wxJSONValue values = updates[i]["values"];
+                                        if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
+                                        int vsize = values.Size();
+                                        if ( vsize == 0 ) throw (i+1)*10000 + 5010;
+                                        for ( int v = 0; v < vsize; v++ ) {
+                                            if ( !values[v].HasMember( "path" )) throw (i+1)*100000 + (v+1)*10000 + 5015;
+                                            wxString path = values[v]["path"].AsString();
+                                            if ( !values[v].HasMember( "value" )) throw (i+1)*100000 + (v+1)*10000 + 5020;
+                                            double value;
+                                            wxString valStr;
+                                            wxJSONValue valueset = values[v]["value"];
+                                            if ( !valueset.IsObject() ) {
+                                                value = valueset.AsDouble();
+                                                valStr = valueset.AsString();
                                                 m_pparent->SetUpdateSignalK (
-                                                    &type, &sentence, &talker, &src, pgn, &path, value, msNow, &key );
+                                                    &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow );
                                                 if ( m_verbosity > 3) {
                                                     m_threadMsg = wxString::Format(
                                                         "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
-                                                        "src (%s) pgn (%d) timestamp (%s) path (%s) key (%s) value (%f)",
-                                                        type, sentence, talker, src, pgn, timestamp, path, key, value);
+                                                        "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f), valStr (%s)",
+                                                        type, sentence, talker, src, pgn, timestamp, path, value, valStr);
                                                     wxQueueEvent( m_frame, event.Clone() );
                                                 } // then slowing down with the indirect debug log
-                                            } 
-                                        }
+                                            }
+                                            else {
+                                                wxArrayString names = valueset.GetMemberNames();
+                                                for ( int n = 0; (size_t) n < names.GetCount(); n++ ) {
+                                                    wxString key = names[n];
+                                                    if ( !valueset.HasMember( key ) ) throw (n+1)*1000000 + (i+1)*100000 + (v+1)*10000 + 5025;
+                                                    value = valueset[ key ].AsDouble();
+                                                    valStr = valueset[ key ].AsString();
+                                                    m_pparent->SetUpdateSignalK (
+                                                        &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow, &key );
+                                                    if ( m_verbosity > 3) {
+                                                        m_threadMsg = wxString::Format(
+                                                            "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
+                                                            "src (%s) pgn (%d) timestamp (%s) path (%s) key (%s) value (%f), valStr (%s)",
+                                                            type, sentence, talker, src, pgn, timestamp, path, key, value, valStr);
+                                                        wxQueueEvent( m_frame, event.Clone() );
+                                                    } // then slowing down with the indirect debug log
+                                                } 
+                                            }
                                         
-                                        m_updatesSent += 1;
+                                            m_updatesSent += 1;
                                         
-                                    } // for items in the array of values
-                                } // for items in the array of updates
-                            } // then has updates
-                        }
-                        catch (int x) {
-                            if ( m_verbosity > 1 ) {
-                                m_threadMsg = wxString::Format(
-                                    "dashboard_tactics_pi: ERROR Signal K JSON updates: exception number %s.", x );
-                                wxQueueEvent( m_frame, event.Clone() );
-                            } // then this is probably repeating event if it occurs, filling the logs
-                        } // errors in reading
-                    } // while no stop
-                } // else something available in the socket buffer
-            } // then no error in the socket when writing into it
-        } // else connection available
+                                        } // for items in the array of values
+                                    } // for items in the array of updates
+                                } // then has updates
+                            }
+                            catch (int x) {
+                                if ( x = 1 ) {
+                                    syncerror = true;
+                                    m_stateComm = SKTM_STATE_WAITING;
+                                    if ( m_verbosity > 1 ) {
+                                        m_threadMsg = wxString::Format(
+                                            "dashboard_tactics_pi: ERROR Signal K JSON updates: sync lost, waiting...");
+                                        wxQueueEvent( m_frame, event.Clone() );
+                                    }
+                                    wxMilliSleep( 100 );
+                                } // then we've probably lost the connection - sync error anyway, difficult to catch, try anyway
+                                else {
+                                    if ( m_verbosity > 1 ) {
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: ERROR Signal K JSON updates: exception number %d.", x );
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                    }
+                                } // else a fatal error - this is probably a repeating event if it occurs, filling the logs if no filter
+                            } // catch errors in reading
+                        } // while continuously parsing from the socket input stream
+                    } // then poked that a read() is possible
+                } // while waiting on the socket for read()
+            } // else socket is not in error after writing HTTP header into it
+        } // then connected to the socket, waiting for transaction
     } // while not to be stopped / destroyed
         
     
     socket.Close();
     socket.Destroy();
     wxSocketBase::Shutdown();
-    delete address;
+    //    delete address;
 
     return (wxThread::ExitCode)0;
     

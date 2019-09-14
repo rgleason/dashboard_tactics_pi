@@ -202,7 +202,8 @@ public:
 #ifdef _TACTICSPI_H_
     void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
-        wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, long long timestamp=0LL, wxString* key=NULL);
+        wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, wxString* valStr=NULL,
+        long long timestamp=0LL, wxString* key=NULL);
 #else
     void SetNMEASentence(wxString &sentence);
 #endif // _TACTICSPI_H_
@@ -285,6 +286,7 @@ private:
 #ifdef _TACTICSPI_H_
     int                  mStW_Watchdog;
     int                  mSiK_Watchdog;
+    bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
 #endif // _TACTICSPI_H_
 

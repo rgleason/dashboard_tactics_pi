@@ -49,7 +49,7 @@ enum StreamInSkSingleStateMachine {
 
 enum SocketInSkThreadStateMachine {
     SKTM_STATE_UNKNOWN, SKTM_STATE_INIT, SKTM_STATE_ERROR, SKTM_STATE_CONNECTING,
-    SKTM_STATE_READY };
+    SKTM_STATE_WAITING, SKTM_STATE_READY };
 
 #define SSKM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
 #define SSKM_START_GRACE_COUNT 15 // tick is not accurate at startup
