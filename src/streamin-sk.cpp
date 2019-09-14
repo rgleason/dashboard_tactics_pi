@@ -567,12 +567,16 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
             m_thread->Resume();
         }
     }
-    if ( m_startGraceCnt >= SSKM_START_GRACE_COUNT )
-        m_data = wxString::Format("%3d  [1/s]", m_updatesSent);
+    if ( m_startGraceCnt >= SSKM_START_GRACE_COUNT ) {
+        if ( (m_stateComm == SKTM_STATE_READY) || (m_stateComm == SKTM_STATE_WAITING) ) {
+            m_data = wxString::Format("%3d  [1/s]", m_updatesSent);
+        }
+    }
     else {
         m_startGraceCnt ++;
-        if ( m_updatesSent > 0 )
+        if ( (m_stateComm == SKTM_STATE_READY) && (m_updatesSent > 0) ) {
             m_data = ( (m_startGraceCnt % 2) == 0? L"  \u2665" : L"" );
+        }
     }
     m_updatesSent = 0;
 }
