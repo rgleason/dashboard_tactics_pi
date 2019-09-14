@@ -673,7 +673,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         delete file;
     } // then close file operations
     else {
-        socket->Destroy();
+        socket->Close();
         wxSocketBase::Shutdown();
         delete address;
     } // else socket operation termination

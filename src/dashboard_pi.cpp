@@ -1904,7 +1904,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
             else if ( mSiK_navigationGnssMethodQuality > 0 ) {
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( mPriPosition >= 3 ) {
+                    if( mPriPosition >= 3 ) { // See SetPositionFix() - It rules even if no fix!
                         mPriPosition = 3;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,

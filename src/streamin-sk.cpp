@@ -537,9 +537,8 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         
     
     socket.Close();
-    socket.Destroy();
     wxSocketBase::Shutdown();
-    //    delete address;
+    delete address;
 
     return (wxThread::ExitCode)0;
     
