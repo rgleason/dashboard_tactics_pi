@@ -1980,6 +1980,19 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // HDG
         
+        else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) { // https://git.io/JeYdxn
+            if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                if( mPriHeadingM >= 2 ) { 
+                    if ( !std::isnan( value )) {
+                        mPriHeadingM = 2;
+                        mHdm = value * RAD_IN_DEG;
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM, mHdm, _T("\u00B0M") );
+                        mHDx_Watchdog = gps_watchdog_timeout_ticks;
+                    }
+                }
+            }
+        } // HDM
+        
 
     } // else Signal K
 
