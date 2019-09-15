@@ -87,6 +87,12 @@ class DashboardInstrumentContainer;
 
 #define gps_watchdog_timeout_ticks  10
 
+#ifdef _TACTICSPI_H_
+// Signal K conversions, see https://git.io/JeYry
+#define DEG_IN_RAD 0.0174532925
+#define RAD_IN_DEG 57.2957795
+#endif // _TACTICSPI_H_
+
 class DashboardWindowContainer
 {
 public:

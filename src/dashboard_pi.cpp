@@ -1871,7 +1871,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         timestamp );
                 }
             }
-        }
+        } // DBT
                 
         else if ( sentenceId->CmpNoCase(_T("DPT")) == 0 ) { // https://git.io/JeYf4
             bool depthvalue = false;
@@ -1894,7 +1894,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         timestamp );
                 }
             }
-        }
+        } // DPT
 
         else if ( sentenceId->CmpNoCase(_T("GGA")) == 0 ) { // https://git.io/JeYWl
             if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
@@ -1922,7 +1922,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     mSatsInView = value;
                 }
             }
-        }
+        } // GGA
 
         else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
             // Note: SignalK does not send delta is no validy flag set, see the link
@@ -1941,8 +1941,45 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                       timestamp );
                 }
             }
-        }
+        } // GLL
 
+        // Note: Sentence GSV not implemented, see https://git.io/JeYdd - see GGA
+
+        else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
+            if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                if( mPriHeadingM >= 1 ) { 
+                    if ( !std::isnan( value )) {
+                        mPriHeadingM = 1;
+                        mHdm = value * RAD_IN_DEG;
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM, mHdm, _T("\u00B0") );
+                        mHDx_Watchdog = gps_watchdog_timeout_ticks;
+                    }
+                }
+            }
+            else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+                if( mPriVar >= 2 ) { // see comment in NMEA equivalent: not really useful
+                    if ( !std::isnan( value )) {
+                        if ( value != 0.0 ) {
+                            mPriVar = 2;
+                            mVar = value * RAD_IN_DEG;
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
+                            mVar_Watchdog = gps_watchdog_timeout_ticks;
+                        }
+                    }
+                }
+            }
+            if ( !std::isnan( mVar )  && !std::isnan( mHdm ) && (mPriHeadingT > 3) ) {
+                mPriHeadingT = 4;
+                double heading = mHdm + mVar;
+                if (heading < 0)
+                    heading += 360;
+                else if (heading >= 360.0)
+                    heading -= 360;
+                SendSentenceToAllInstruments(OCPN_DBP_STC_HDT, heading, _T("\u00B0"));
+                mHDT_Watchdog = gps_watchdog_timeout_ticks;
+            }
+        } // HDG
+        
 
     } // else Signal K
 
