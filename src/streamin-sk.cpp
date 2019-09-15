@@ -114,7 +114,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
         return;
     } // will not talk
     m_thread = GetThread();
-    m_thread->SetPriority( ((wxPRIORITY_MAX * 9) / 10) );
+    m_thread->SetPriority( ((wxPRIORITY_MAX * 5) / 10) );
     if ( m_thread->Run() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
             wxLogMessage ("dashboard_tactics_pi: Delta Streamer FAILED : Signal K Delta Streamer: cannot run communication thread.");
@@ -384,6 +384,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         bool syncerror = false;
 
                         while ( __NOT_STOP_THREAD__ && !syncerror ) {
+
+                            /// TEST ////
+                            wxMilliSleep(100);
 
                             try {
                                 wxJSONValue  root;
