@@ -2,7 +2,7 @@
 * $Id: streamout.cpp, v1.0 2019/08/08 DarthVader Exp $
 *
 * Project:  OpenCPN
-* Purpose:  tactics Plugin
+* Purpose:  Tactics Plugin
 * Author:   Petri Makijarvi
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register                               *

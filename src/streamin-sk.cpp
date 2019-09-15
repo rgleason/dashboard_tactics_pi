@@ -2,7 +2,7 @@
 * $Id: streamout.cpp, v1.0 2019/08/08 DarthVader Exp $
 *
 * Project:  OpenCPN
-* Purpose:  tactics Plugin
+* Purpose:  Tactics Plugin
 * Author:   Petri Makijarvi
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register                               *
@@ -548,8 +548,8 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 ************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
-    if ( !m_threadMsg.IsEmpty() )
-        wxLogMessage ("%s", m_threadMsg);
+    if ( !m_threadMsg.IsEmpty() )         // NOTE: not to slow down the thread
+        wxLogMessage ("%s", m_threadMsg); // w/ high debug rate can't catch them all!
     m_threadMsg = wxEmptyString;
 }
 /***********************************************************************************

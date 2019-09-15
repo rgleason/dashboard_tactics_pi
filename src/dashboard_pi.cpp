@@ -980,7 +980,7 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
 }
 
 #ifdef _TACTICSPI_H_
-void dashboard_pi::SetNMEASentence(
+void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or from Signal K input
         wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
         int pgn, wxString *path, double value, wxString *valStr, long long timestamp, wxString *key)
 #else
@@ -1092,8 +1092,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         else if( m_NMEA0183.LastSentenceIDReceived == _T("GLL") ) {
             if( m_NMEA0183.Parse() ) {
                 if( m_NMEA0183.Gll.IsDataValid == NTrue ) {
-                    if( mPriPosition >= 2 ) {
-                        mPriPosition = 2;
+                    if( mPriPosition >= 1 ) {
+                        mPriPosition = 1;
                         double lat, lon;
                         float llt = m_NMEA0183.Gll.Position.Latitude.Latitude;
                         int lat_deg_int = (int) ( llt / 100 );
@@ -1904,7 +1904,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
             else if ( mSiK_navigationGnssMethodQuality > 0 ) {
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( mPriPosition >= 3 ) { // See SetPositionFix() - It rules even if no fix!
+                    if( mPriPosition >= 3 ) { // See SetPositionFix() - It rules, even if no fix!
                         mPriPosition = 3;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
@@ -1923,6 +1923,26 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             }
         }
+
+        else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
+            // Note: SignalK does not send delta is no validy flag set, see the link
+            if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
+                if( mPriPosition >= 2 ) { // See SetPositionFix() - It rules, even if no fix!
+                    mPriPosition = 2;
+                    if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
+                                                      value,
+                                                      _T("SDMM"),
+                                                      timestamp );
+                    if ( key->CmpNoCase(_T("latitude")) == 0 )
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
+                                                      value,
+                                                      _T("SDMM"),
+                                                      timestamp );
+                }
+            }
+        }
+
 
     } // else Signal K
 
