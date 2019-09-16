@@ -98,6 +98,7 @@ protected:
     int               m_updatesSent;
     int               m_startGraceCnt;
     bool              m_cmdThreadStop;
+    wxSocketClient    m_socket;
     wxString          m_threadMsg;
 
     // From configuration file

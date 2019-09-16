@@ -144,6 +144,7 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -219,6 +220,7 @@ void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &evt )
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -240,9 +242,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 
     m_stateComm = SKTM_STATE_INIT;
 
-    wxSocketClient  socket;
     wxSocketBase::Initialize();
-    socket.SetTimeout( 5 );
+    m_socket.SetTimeout( 5 );
+    m_socket.SetFlags( wxSOCKET_BLOCK );
     wxIPV4address  *address = NULL;
     wxThreadEvent   event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
@@ -292,12 +294,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerInSkShow = m_data;
-                if ( !socket.Connect( *address, false ) ) {
-                    if ( !socket.WaitOnConnect() ) {
+                if ( !m_socket.Connect( *address, false ) ) {
+                    if ( !m_socket.WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
                     }
                     else {
-                        if ( !socket.IsConnected() ) {
+                        if ( !m_socket.IsConnected() ) {
                             connectionErr += _T(" (refused by peer)");
                         }
                     }
@@ -344,14 +346,14 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             wxScopedCharBuffer scb = sHdrOut.mb_str();
             size_t len = scb.length();
             
-            socket.Write( scb.data(), len );
+            m_socket.Write( scb.data(), len );
 
             if ( m_verbosity > 4) {
                 m_threadMsg = wxString::Format("dashboard_tactics_pi: streamin-sk: written to socket:\n%s", sHdrOut);
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
             
-            if ( socket.Error() ) {
+            if ( m_socket.Error() ) {
                 m_stateComm = SKTM_STATE_ERROR;
             }
             else {
@@ -359,17 +361,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 while ( __NOT_STOP_THREAD__ && (m_stateComm == SKTM_STATE_WAITING) ) {
                     int waitMilliSeconds = 0;
                     bool readAvailable = false;
-                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
-                        char c;
-                        ( socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                        if ( !readAvailable) {
-                            wxMilliSleep( 20 );
-                            waitMilliSeconds += 20;
-                        }
-                    }
+                    ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                    if ( !readAvailable )
+                        readAvailable = m_socket.WaitForRead( );
                     if (__STOP_THREAD__)
                         break;
+
                     if ( readAvailable ) {
 
                         m_stateComm = SKTM_STATE_READY;
@@ -378,15 +375,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                             wxQueueEvent( m_frame, event.Clone() );
                         }
 
-                        wxSocketInputStream streamin( (wxSocketBase &)socket );
+                        wxSocketInputStream streamin( (wxSocketBase &)m_socket );
                         wxLongLong wxllNowMs;
                         long long  msNow;
                         bool syncerror = false;
 
                         while ( __NOT_STOP_THREAD__ && !syncerror ) {
-
-                            /// TEST ////
-                            wxMilliSleep(100);
 
                             try {
                                 wxJSONValue  root;
@@ -539,7 +533,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     } // while not to be stopped / destroyed
         
     
-    socket.Close();
+    m_socket.Close();
     wxSocketBase::Shutdown();
     delete address;
 
