@@ -2006,6 +2006,21 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // HDT
 
+        // MTA is not implemented in Signal K, cf. https://git.io/JeYdd - see XDR
+
+        else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
+            if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
+                // Note: value from Signal K is SI units, thus hPa already
+                if ( (value > 800) && (value < 1100) ) {
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_MDA, value,
+                                                  _T("hPa") );
+                } // then valid pressure in hPa
+                // Note: Dashboard does not deal with other values in MDA as for now so we skip them
+            }
+        } // MDA
+
+        
+        
     } // else Signal K
 
 #endif // _TACTICSPI_H_
