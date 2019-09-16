@@ -1993,6 +1993,18 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // HDM
         
+        else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) { // https://git.io/JeOCC
+            if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
+                if( mPriHeadingM >= 1 ) { 
+                    if ( !std::isnan( value )) {
+                        mPriHeadingM = 1;
+                        mHdm = value * RAD_IN_DEG;
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, mHdm, _T("\u00B0T") );
+                        mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                    }
+                }
+            }
+        } // HDT
 
     } // else Signal K
 

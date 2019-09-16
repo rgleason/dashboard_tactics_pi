@@ -361,6 +361,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 while ( __NOT_STOP_THREAD__ && (m_stateComm == SKTM_STATE_WAITING) ) {
                     int waitMilliSeconds = 0;
                     bool readAvailable = false;
+                    char c;
                     ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
                     if ( !readAvailable )
                         readAvailable = m_socket.WaitForRead( );
