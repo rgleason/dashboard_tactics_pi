@@ -165,17 +165,18 @@ public:
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
         unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
-        unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+        unsigned long long &st_twd, double &value_twd, wxString &unit_twd,
+        long long &calctimestamp
         ) final;
     virtual bool SendSentenceToAllInstruments_GetCalculatedLeeway(
         unsigned long long &st_leeway, double &value_leeway,
-        wxString &unit_leeway) final;
+        wxString &unit_leeway, long long &calctimestamp ) final;
     virtual bool SendSentenceToAllInstruments_GetCalculatedCurrent(
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_currdir, double &value_currdir,
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
-        wxString &unit_currspd) final;
+        wxString &unit_currspd, long long &calctimestamp) final;
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);

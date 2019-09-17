@@ -882,25 +882,27 @@ void dashboard_pi::SendSentenceToAllInstruments(
                  st, distvalue, distunit ) ) {
             perfCorrections = true;
             this->SetCalcVariables(st, distvalue, distunit);
-            pSendSentenceToAllInstruments( st, distvalue, distunit );
+            pSendSentenceToAllInstruments( st, distvalue, distunit, timestamp );
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit );
+            pSendSentenceToAllInstruments( st, value, unit, timestamp );
         } // else send the sentence as it is
         // AWS corrected or not, it is now sent, move to TW calculations
         unsigned long long st_twa, st_tws, st_tws2, st_twd;
         double value_twa, value_tws, value_twd;
         wxString unit_twa, unit_tws, unit_twd;
+        long long calctimestamp;
         if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
                 st, value, unit,
                 st_twa, value_twa, unit_twa,
                 st_tws, st_tws2, value_tws, unit_tws,
-                st_twd, value_twd, unit_twd)) {
-            pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa );
-            pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws );
-            pSendSentenceToAllInstruments( st_tws2, value_tws, unit_tws );
-            pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd );
+                st_twd, value_twd, unit_twd,
+                calctimestamp)) {
+            pSendSentenceToAllInstruments( st_twa, value_twa, unit_twa, calctimestamp );
+            pSendSentenceToAllInstruments( st_tws, value_tws, unit_tws, calctimestamp );
+            pSendSentenceToAllInstruments( st_tws2, value_tws, unit_tws, calctimestamp );
+            pSendSentenceToAllInstruments( st_twd, value_twd, unit_twd, calctimestamp );
             this->SetNMEASentence_Arm_TWD_Watchdog();
             this->SetNMEASentence_Arm_TWS_Watchdog();
         } // then calculated wind values required and need to be distributed
@@ -914,20 +916,21 @@ void dashboard_pi::SendSentenceToAllInstruments(
                  st, distvalue, distunit ) ) {
             perfCorrections = true;
             this->SetCalcVariables(st, distvalue, distunit);
-            pSendSentenceToAllInstruments( st, distvalue, distunit );
+            pSendSentenceToAllInstruments( st, distvalue, distunit, timestamp );
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit );
+            pSendSentenceToAllInstruments( st, value, unit, timestamp );
         } // else send the sentence as it is
         // Leeway
         unsigned long long st_leeway;
         double value_leeway;
         wxString unit_leeway;
+        long long calctimestamp;
         if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
-                st_leeway, value_leeway, unit_leeway)) {
+                st_leeway, value_leeway, unit_leeway, calctimestamp)) {
             pSendSentenceToAllInstruments( st_leeway, value_leeway,
-                                           unit_leeway );
+                                           unit_leeway, calctimestamp );
         } // then calculated leeway required, is avalaible can be be distributed
         // Current
         unsigned long long st_currdir, st_currspd;
@@ -936,11 +939,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
         if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
                 st, (perfCorrections ? distvalue : value), (perfCorrections ? distunit : unit),
                 st_currdir, value_currdir, unit_currdir,
-                st_currspd, value_currspd, unit_currspd)) {
+                st_currspd, value_currspd, unit_currspd, calctimestamp)) {
             pSendSentenceToAllInstruments(
-                st_currdir, value_currdir, unit_currdir );
+                st_currdir, value_currdir, unit_currdir, calctimestamp );
             pSendSentenceToAllInstruments(
-                st_currspd, value_currspd, unit_currspd );
+                st_currspd, value_currspd, unit_currspd, calctimestamp );
         } // then calculated current required and need to be distributed
     } // else no true wind calculations
     // Take this opportunity to keep the Tactics performance enginge ticking for rendering

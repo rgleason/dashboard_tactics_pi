@@ -2089,7 +2089,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     unsigned long long st, double value, wxString unit,
     unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
     unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
-    unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+    unsigned long long &st_twd, double &value_twd, wxString &unit_twd,
+    long long &calctimestamp
     )
 {
     double spdval;
@@ -2205,6 +2206,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     st_twd = OCPN_DBP_STC_TWD;
     value_twd = mTWD;
     unit_twd = _T("\u00B0T");
+    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+    calctimestamp = wxllNowMs.GetValue();
     if ( ( m_iDbgRes_TW_Calc_Exe != DBGRES_EXEC_TRUE ) ) {
         wxLogMessage (
             "dashboard_tactics_pi: Tactics true wind calculations: algorithm is running and returning now TWA %f '%s', TWS %f '%s, TWD %f '%s'.",
@@ -2349,7 +2352,7 @@ if the return value is true.
 *********************************************************************/
 bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
     unsigned long long &st_leeway, double &value_leeway,
-    wxString &unit_leeway)
+    wxString &unit_leeway, long long &calctimestamp)
 {
     bool calculatedLeeway = false;
 
@@ -2390,6 +2393,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
         st_leeway = OCPN_DBP_STC_LEEWAY;
         value_leeway = mLeeway;
         unit_leeway = mHeelUnit;
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        calctimestamp = wxllNowMs.GetValue();
         return true;
     }
     return false;
@@ -2420,7 +2425,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
     unsigned long long &st_currdir, double &value_currdir,
     wxString &unit_currdir,
     unsigned long long &st_currspd, double &value_currspd,
-    wxString &unit_currspd)
+    wxString &unit_currspd, long long &calctimestamp)
 {
 
     //don't calculate on ALL incoming sentences ...
@@ -2504,6 +2509,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             value_currspd = toUsrSpeed_Plugin(
                 m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
             unit_currspd = getUsrSpeedUnit_Plugin(g_iDashSpeedUnit);
+            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+            calctimestamp = wxllNowMs.GetValue();
             return true;
         }
         else{

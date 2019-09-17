@@ -605,17 +605,27 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
                     __INCR_CNTROUT__;
 
-                    int waitMilliSeconds = 0;
                     bool readAvailable = false;
+                    bool timeOut = false;
                     while ( __NOT_STOP_THREAD__ && !readAvailable ) {
                         char c;
                         ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                        if ( !readAvailable)
+                        if ( !readAvailable) {
+                            wxLongLong startWait = wxGetUTCTimeMillis();
                             readAvailable = m_socket.WaitForRead( );
-                        if (__STOP_THREAD__)
+                            if ( !readAvailable) {
+                                wxLongLong endWait = wxGetUTCTimeMillis();
+                                if ( (endWait.GetValue() - startWait.GetValue()) >= ( m_connectionRetry * 1000 ) ) {
+                                    m_socket.Close();
+                                    m_stateComm = STSM_STATE_ERROR;
+                                    timeOut = true;
+                                }
+                            }
+                       }
+                        if ( (__STOP_THREAD__) || timeOut )
                             break;
                     }
-                    if (__STOP_THREAD__)
+                    if ( (__STOP_THREAD__) || timeOut )
                         break;
                     if ( readAvailable ) {
                         wxCharBuffer buf(100);

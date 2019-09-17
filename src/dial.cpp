@@ -139,30 +139,16 @@ void DashboardInstrument_Dial::SetData(
             m_ExtraValue = 0.0;
         return;
     } // then having NaN: can mean that data stream has ended and it is the watchog barking.
-
-#ifdef _TACTICSPI_H_
-#else
 #endif // _TACTICSPI_H_
 
-
-
-#endif // _TACTICSPI_H_
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
-#ifdef _TACTICSPI_H_
-    if ( (st == m_MainValueCap) && (data < 400.0) )
-#else
     if ( (st == m_MainValueCap) && (data < 1200.0) )
-#endif // _TACTICSPI_H_
     {
         m_MainValue = data;
         m_MainValueUnit = unit;
     }
-#ifdef _TACTICSPI_H_
-    else if ( (st == m_ExtraValueCap) && (data < 400.0) )
-#else
     else if ( (st == m_ExtraValueCap) && (data < 1200.0) )
-#endif // _TACTICSPI_H_
     {
         m_ExtraValue = data;
         m_ExtraValueUnit = unit;

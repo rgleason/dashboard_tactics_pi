@@ -90,7 +90,7 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 #endif
 #ifdef _TACTICSPI_H_
       m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
-      previousTimestamp = 0;
+      previousTimestamp = 0LL;
       m_DPBITickTimer->Start( DBP_I_TIMER_TICK, wxTIMER_CONTINUOUS );
 #endif // _TACTICSPI_H_
 }

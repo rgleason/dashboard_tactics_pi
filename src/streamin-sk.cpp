@@ -359,13 +359,23 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             else {
 
                 while ( __NOT_STOP_THREAD__ && (m_stateComm == SKTM_STATE_WAITING) ) {
-                    int waitMilliSeconds = 0;
                     bool readAvailable = false;
+                    bool timeOut = false;
                     char c;
                     ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                    if ( !readAvailable )
+                    if ( !readAvailable ) {
+                        wxLongLong startWait = wxGetUTCTimeMillis();
                         readAvailable = m_socket.WaitForRead( );
-                    if (__STOP_THREAD__)
+                        if ( !readAvailable) {
+                            wxLongLong endWait = wxGetUTCTimeMillis();
+                            if ( (endWait.GetValue() - startWait.GetValue()) >= ( m_connectionRetry * 1000 ) ) {
+                                m_socket.Close();
+                                m_stateComm = SKTM_STATE_ERROR;
+                                timeOut = true;
+                            }
+                        }
+                    }
+                    if ( (__STOP_THREAD__) || timeOut )
                         break;
 
                     if ( readAvailable ) {
@@ -510,13 +520,15 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                             catch (int x) {
                                 if ( x = 1 ) {
                                     syncerror = true;
-                                    m_stateComm = SKTM_STATE_WAITING;
+                                    m_stateComm = SKTM_STATE_ERROR;
+                                    m_socket.Close();
                                     if ( m_verbosity > 1 ) {
                                         m_threadMsg = wxString::Format(
                                             "dashboard_tactics_pi: ERROR Signal K JSON updates: sync lost, waiting...");
                                         wxQueueEvent( m_frame, event.Clone() );
                                     }
                                     wxMilliSleep( 100 );
+                                    break;
                                 } // then we've probably lost the connection - sync error anyway, difficult to catch, try anyway
                                 else {
                                     if ( m_verbosity > 1 ) {
