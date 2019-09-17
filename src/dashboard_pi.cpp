@@ -1951,7 +1951,9 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     if ( !std::isnan( value )) {
                         mPriHeadingM = 1;
                         mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM, mHdm, _T("\u00B0") );
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
+                                                      mHdm,_T("\u00B0"),
+                                                      timestamp );
                         mHDx_Watchdog = gps_watchdog_timeout_ticks;
                     }
                 }
@@ -1962,7 +1964,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         if ( value != 0.0 ) {
                             mPriVar = 2;
                             mVar = value * RAD_IN_DEG;
-                            SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_HMV,
+                                                          mVar,
+                                                          _T("\u00B0"),
+                                                          timestamp );
                             mVar_Watchdog = gps_watchdog_timeout_ticks;
                         }
                     }
@@ -1975,7 +1980,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     heading += 360;
                 else if (heading >= 360.0)
                     heading -= 360;
-                SendSentenceToAllInstruments(OCPN_DBP_STC_HDT, heading, _T("\u00B0"));
+                SendSentenceToAllInstruments(OCPN_DBP_STC_HDT,
+                                             heading,
+                                             _T("\u00B0"),
+                                             timestamp );
                 mHDT_Watchdog = gps_watchdog_timeout_ticks;
             }
         } // HDG
@@ -1986,7 +1994,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     if ( !std::isnan( value )) {
                         mPriHeadingM = 2;
                         mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM, mHdm, _T("\u00B0M") );
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
+                                                      mHdm,
+                                                      _T("\u00B0M"),
+                                                      timestamp );
                         mHDx_Watchdog = gps_watchdog_timeout_ticks;
                     }
                 }
@@ -1999,7 +2010,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     if ( !std::isnan( value )) {
                         mPriHeadingM = 1;
                         mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, mHdm, _T("\u00B0T") );
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDT,
+                                                      mHdm,
+                                                      _T("\u00B0T"),
+                                                      timestamp );
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
                     }
                 }
@@ -2012,12 +2026,27 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
                 // Note: value from Signal K is SI units, thus hPa already
                 if ( (value > 800) && (value < 1100) ) {
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_MDA, value,
-                                                  _T("hPa") );
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
+                                                  value,
+                                                  _T("hPa"),
+                                                  timestamp );
                 } // then valid pressure in hPa
                 // Note: Dashboard does not deal with other values in MDA as for now so we skip them
             }
         } // MDA
+
+        else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
+            if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
+                // Note: value from Signal K is SI units, thus we receive Kelvins
+                double TemperatureValue = value - CELCIUS_IN_KELVIN; 
+                wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
+                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
+                                              TemperatureValue,
+                                              TemperatureUnitOfMeasurement,
+                                              timestamp );
+            }
+        } // MTW
 
         
         
