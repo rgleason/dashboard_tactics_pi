@@ -2048,6 +2048,23 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // MTW
 
+        else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
+            if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
+                // Note: value from Signal K is "as received", i.e. nautical miles
+                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
+                                              toUsrDistance_Plugin( value,
+                                                                    g_iDashDistanceUnit ),
+                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                              timestamp );
+            }
+            else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
+                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
+                                              toUsrDistance_Plugin( value,
+                                                                    g_iDashDistanceUnit ),
+                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                              timestamp );
+        } // VLW
+
         
         
     } // else Signal K
