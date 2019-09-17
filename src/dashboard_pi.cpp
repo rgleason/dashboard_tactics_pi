@@ -2064,7 +2064,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
                 if( mPriAWA >= 1 ) {
                     mPriAWA = 1;
-                    wxString awaunit = wxEmpyString;
+                    wxString awaunit = wxEmptyString;
                     double awaangle = value * RAD_IN_DEG;
                     if ( awaangle > 180.0 ) {
                         awaunit = L"\u00B0lr"; // == wind arrow on port side
@@ -2097,7 +2097,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
                 if( mPriTWA >= 1 ) {
                     mPriTWA = 1;
-                    wxString twaunit = wxEmpyString;
+                    wxString twaunit = wxEmptyString;
                     double twaangle = value * RAD_IN_DEG;
                     if ( twaangle > 180.0 ) {
                         twaunit = L"\u00B0lr"; // == wind arrow on port side
@@ -2129,6 +2129,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                                     g_iDashDistanceUnit ),
                                               getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
                                               timestamp );
+            }
         } // VLW
 
         
