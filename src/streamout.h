@@ -199,6 +199,7 @@ protected:
     std::mutex        m_mtxQLine;
     int               m_stateComm;
     bool              m_cmdThreadStop;
+    wxSocketClient    m_socket;
     wxString          m_threadMsg;
 
     // From configuration file
