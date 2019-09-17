@@ -95,6 +95,7 @@ void DashboardInstrument_FromOwnship::SetData(
 #ifdef _TACTICSPI_H_
     if ( std::isnan( data ) )
         return;
+    setTimestamp( timestamp );
 #endif // _TACTICSPI_H_
     
     if (st == m_cap_flag1)
@@ -125,6 +126,14 @@ void DashboardInstrument_FromOwnship::SetData(
 	  	
     Refresh(false);
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_FromOwnship::timeoutEvent()
+{
+    m_data1 =_T("---");
+    m_data2 =_T("---");
+}
+#endif // _TACTICSPI_H_
 
 wxSize DashboardInstrument_FromOwnship::GetSize( int orient, wxSize hint )
 {

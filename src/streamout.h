@@ -76,7 +76,8 @@ public:
 	wxSize GetSize(int orient, wxSize hint);
 	void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnStreamOutUpdTimer(wxTimerEvent& event);
-
+    virtual void timeoutEvent(void){};
+    
 protected:
 
     class sentenceSchema

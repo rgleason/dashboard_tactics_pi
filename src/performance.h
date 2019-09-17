@@ -77,6 +77,7 @@ public:
     wxSize GetSize(int orient, wxSize hint);
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void SetDisplayType(int displaytype);
+    virtual void timeoutEvent(void);
     double mTWS;
     double mTWA;
     double mSTW;
@@ -238,6 +239,7 @@ public:
     TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title);
     ~TacticsInstrument_PolarPerformance(void);
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
+    virtual void timeoutEvent(void){};
     wxSize GetSize(int orient, wxSize hint);
     void OnPolarPerfUpdTimer(wxTimerEvent & event);
     

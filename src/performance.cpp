@@ -155,6 +155,8 @@ void TacticsInstrument_PerformanceSingle::SetData(
 {
     if (std::isnan(data))
         return;
+
+    setTimestamp( timestamp );
   
     if (st == OCPN_DBP_STC_STW){
     
@@ -353,6 +355,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
         }
     }
 }
+
+void TacticsInstrument_PerformanceSingle::timeoutEvent()
+{
+      m_data = _T("---");
+}
+
 /***********************************************************************************
 
 ************************************************************************************/

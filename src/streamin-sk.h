@@ -76,6 +76,7 @@ public:
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL){};
     void OnStreamInSkUpdTimer(wxTimerEvent& event);
     void SetNMEASentence(wxString& delta);
+    void timeoutEvent(void){};
 
 protected:
 

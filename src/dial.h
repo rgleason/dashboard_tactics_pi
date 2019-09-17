@@ -103,6 +103,7 @@ public:
     wxSize GetSize( int orient, wxSize hint );
 #ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
+    virtual void timeoutEvent(void);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
@@ -136,6 +137,7 @@ protected:
     double m_MainValue;
 #ifdef _TACTICSPI_H_
     unsigned long long m_MainValueCap;
+    int m_s_value;
 #else
     int m_MainValueCap;
 #endif // _TACTICSPI_H_

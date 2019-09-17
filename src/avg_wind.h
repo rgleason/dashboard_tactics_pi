@@ -60,6 +60,7 @@ public:
     TacticsInstrument_AvgWindDir(wxWindow *parent, wxWindowID id, wxString title);
     ~TacticsInstrument_AvgWindDir(void){}
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
+    virtual void timeoutEvent(void){};
     wxSize GetSize(int orient, wxSize hint);
 
 private:

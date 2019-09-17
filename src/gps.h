@@ -56,6 +56,7 @@ public:
     wxSize GetSize( int orient, wxSize hint );
 #ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timetamp=0LL){}
+    virtual void timeoutEvent(void){};
 #else
     void SetData(int st, double data, wxString unit){}
 #endif // _TACTICSPI_H_

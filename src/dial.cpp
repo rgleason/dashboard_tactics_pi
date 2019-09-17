@@ -70,6 +70,9 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
     m_AngleStart = s_angle;
     m_AngleRange = r_angle;
     m_MainValue = static_cast<double>(s_value);
+#ifdef _TACTICSPI_H_
+    m_s_value = s_value;
+#endif // _TACTICSPI_H_
     m_MainValueCap = cap_flag;
     m_MainValueMin = m_MainValue;
     m_MainValueMax = static_cast<double>(e_value);
@@ -116,6 +119,7 @@ void DashboardInstrument_Dial::SetData(
     )
 {
 #ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -164,6 +168,16 @@ void DashboardInstrument_Dial::SetData(
         m_ExtraValueUnit = unit;
     }
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_Dial::timeoutEvent()
+{
+    m_MainValue = static_cast<double>(m_s_value);
+    m_MainValueUnit = _T("");
+    m_ExtraValue = 0.0;
+    m_ExtraValueUnit = _T("");
+}
+#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
 {

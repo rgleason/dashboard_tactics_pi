@@ -122,6 +122,12 @@ enum eSentenceType : unsigned long long {
 #endif // _TACTICSPI_H_
 };
 
+#ifdef _TACTICSPI_H_
+#define DBP_I_TIMER_TICK      1000 // in milliseconds
+#define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
+#endif // _TACTICSPI_H_
+
+
 class DashboardInstrument : public wxControl
 {
 public:
@@ -132,10 +138,17 @@ public:
                         int cap_flag
 #endif // _TACTICSPI_H_
         );
+#ifdef _TACTICSPI_H_
+    ~DashboardInstrument();
+#else
     ~DashboardInstrument(){}
+#endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
     unsigned long long GetCapacity(void);
+    virtual void timeoutEvent(void) = 0;
+    virtual void setTimestamp( long long ts ) final;
+    virtual long long getTimestamp(void) final;
 #else
     int GetCapacity();
 #endif // _TACTICSPI_H_
@@ -160,6 +173,7 @@ public:
 
 protected:
 #ifdef _TACTICSPI_H_
+    long long          previousTimestamp;
     unsigned long long m_cap_flag;
 #else
     int m_cap_flag;
@@ -170,6 +184,11 @@ protected:
     virtual void Draw(wxGCDC* dc) = 0;
 private:
     bool m_drawSoloInPane;
+#ifdef _TACTICSPI_H_
+    wxTimer *m_DPBITickTimer;
+    void OnDPBITimerTick(wxTimerEvent &event);
+    wxDECLARE_EVENT_TABLE();
+#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrument_Single : public DashboardInstrument
@@ -196,6 +215,9 @@ public:
         , long long timestamp=0LL
 #endif // _TACTICSPI_H_
         );
+#ifdef _TACTICSPI_H_
+    virtual void timeoutEvent(void);
+#endif // _TACTICSPI_H_
 
 protected:
     wxString          m_data;
@@ -231,6 +253,9 @@ public:
         , long long timestamp=0LL
 #endif // _TACTICSPI_H_
         );
+#ifdef _TACTICSPI_H_
+    virtual void timeoutEvent(void);
+#endif // _TACTICSPI_H_
 
 protected:
     wxString          m_data1;
