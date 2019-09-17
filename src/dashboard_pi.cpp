@@ -2048,6 +2048,72 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // MTW
 
+        // MWD is not implemented in Signal K, cf. https://git.io/JeYdd (but calculated in Tactics)
+
+        else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) { // https://git.io/JeOov
+            if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+                // Note: value from Signal K is SI units, thus we receive m/s
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_AWS,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                this->SetNMEASentence_Arm_AWS_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                if( mPriAWA >= 1 ) {
+                    mPriAWA = 1;
+                    wxString awaunit = wxEmpyString;
+                    double awaangle = value * RAD_IN_DEG;
+                    if ( awaangle > 180.0 ) {
+                        awaunit = L"\u00B0lr"; // == wind arrow on port side
+                        awaangle = 180.0 - (awaangle - 180.0);
+                    }
+                    else {
+                        awaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                    }
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
+                                                  awaangle,
+                                                  awaunit,
+                                                  timestamp );
+                } // AWA priority
+            }
+            if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_TWS,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_TWS2,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                this->SetNMEASentence_Arm_TWS_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
+                if( mPriTWA >= 1 ) {
+                    mPriTWA = 1;
+                    wxString twaunit = wxEmpyString;
+                    double twaangle = value * RAD_IN_DEG;
+                    if ( twaangle > 180.0 ) {
+                        twaunit = L"\u00B0lr"; // == wind arrow on port side
+                        twaangle = 180.0 - (twaangle - 180.0);
+                    }
+                    else {
+                        twaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                    }
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
+                                                  twaangle,
+                                                  twaunit,
+                                                  timestamp );
+                } // TWA priority
+            }
+        } // MWV
+        
         else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
             if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
                 // Note: value from Signal K is "as received", i.e. nautical miles
@@ -2065,7 +2131,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                               timestamp );
         } // VLW
 
-        
         
     } // else Signal K
 

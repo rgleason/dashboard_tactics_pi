@@ -92,6 +92,7 @@ class DashboardInstrumentContainer;
 #define DEG_IN_RAD 0.0174532925
 #define RAD_IN_DEG 57.2957795
 #define CELCIUS_IN_KELVIN 273.15
+#define MS_IN_KNOTS 1.943844
 #endif // _TACTICSPI_H_
 
 class DashboardWindowContainer
