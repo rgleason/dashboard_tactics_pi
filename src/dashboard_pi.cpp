@@ -1952,8 +1952,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         mPriHeadingM = 1;
                         mHdm = value * RAD_IN_DEG;
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
-                                                      mHdm,
-                                                      _T("\u00B0"),
+                                                      mHdm,_T("\u00B0"),
                                                       timestamp );
                         mHDx_Watchdog = gps_watchdog_timeout_ticks;
                     }
@@ -1966,7 +1965,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                             mPriVar = 2;
                             mVar = value * RAD_IN_DEG;
                             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV,
-                                                          mVar,_T("\u00B0"),
+                                                          mVar,
+                                                          _T("\u00B0"),
                                                           timestamp );
                             mVar_Watchdog = gps_watchdog_timeout_ticks;
                         }
@@ -2029,13 +2029,109 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
                                                   value,
                                                   _T("hPa"),
-                        timestamp );
+                                                  timestamp );
                 } // then valid pressure in hPa
                 // Note: Dashboard does not deal with other values in MDA as for now so we skip them
             }
         } // MDA
 
+        else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
+            if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
+                // Note: value from Signal K is SI units, thus we receive Kelvins
+                double TemperatureValue = value - CELCIUS_IN_KELVIN; 
+                wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
+                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
+                                              TemperatureValue,
+                                              TemperatureUnitOfMeasurement,
+                                              timestamp );
+            }
+        } // MTW
+
+        // MWD is not implemented in Signal K, cf. https://git.io/JeYdd (but calculated in Tactics)
+
+        else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) { // https://git.io/JeOov
+            if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+                // Note: value from Signal K is SI units, thus we receive m/s
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_AWS,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                this->SetNMEASentence_Arm_AWS_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                if( mPriAWA >= 1 ) {
+                    mPriAWA = 1;
+                    wxString awaunit = wxEmptyString;
+                    double awaangle = value * RAD_IN_DEG;
+                    if ( awaangle > 180.0 ) {
+                        awaunit = L"\u00B0lr"; // == wind arrow on port side
+                        awaangle = 180.0 - (awaangle - 180.0);
+                    }
+                    else {
+                        awaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                    }
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
+                                                  awaangle,
+                                                  awaunit,
+                                                  timestamp );
+                } // AWA priority
+            }
+            if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_TWS,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_TWS2,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                this->SetNMEASentence_Arm_TWS_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
+                if( mPriTWA >= 1 ) {
+                    mPriTWA = 1;
+                    wxString twaunit = wxEmptyString;
+                    double twaangle = value * RAD_IN_DEG;
+                    if ( twaangle > 180.0 ) {
+                        twaunit = L"\u00B0lr"; // == wind arrow on port side
+                        twaangle = 180.0 - (twaangle - 180.0);
+                    }
+                    else {
+                        twaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                    }
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
+                                                  twaangle,
+                                                  twaunit,
+                                                  timestamp );
+                } // TWA priority
+            }
+        } // MWV
         
+        else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
+            if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
+                // Note: value from Signal K is "as received", i.e. nautical miles
+                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
+                                              toUsrDistance_Plugin( value,
+                                                                    g_iDashDistanceUnit ),
+                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                              timestamp );
+            }
+            else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
+                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
+                                              toUsrDistance_Plugin( value,
+                                                                    g_iDashDistanceUnit ),
+                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                              timestamp );
+            }
+        } // VLW
+
         
     } // else Signal K
 

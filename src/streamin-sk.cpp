@@ -243,7 +243,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     m_stateComm = SKTM_STATE_INIT;
 
     wxSocketBase::Initialize();
-    m_socket.SetTimeout( 5 );
+    m_socket.SetTimeout( m_connectionRetry );
     m_socket.SetFlags( wxSOCKET_BLOCK );
     wxIPV4address  *address = NULL;
     wxThreadEvent   event( wxEVT_THREAD, myID_THREAD_SK_IN );

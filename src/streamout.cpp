@@ -151,6 +151,7 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -335,6 +336,7 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -363,7 +365,6 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
 
-    wxSocketClient *socket  = NULL;
     wxIPV4address  *address = NULL;
     wxFile         *file    = NULL;
     bool            fileOp  = true;
@@ -373,8 +374,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
     if ( m_targetAsFilePath.IsEmpty() ) { 
         wxSocketBase::Initialize();
-        socket = new wxSocketClient();
-        socket->SetTimeout( 5 );
+        m_socket.SetTimeout( m_connectionRetry );
+        m_socket.SetFlags( wxSOCKET_BLOCK );
         address = new wxIPV4address();
         wxUniChar separator = 0x3a;
         address->Hostname(m_target.BeforeFirst(separator));
@@ -453,12 +454,12 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerShow = m_data;
-                if ( !socket->Connect( *address, false ) ) {
-                    if ( !socket->WaitOnConnect() ) {
+                if ( !m_socket.Connect( *address, false ) ) {
+                    if ( !m_socket.WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
                     }
                     else {
-                        if ( !socket->IsConnected() ) {
+                        if ( !m_socket.IsConnected() ) {
                             connectionErr += _T(" (refused by peer)");
                         }
                     }
@@ -593,33 +594,32 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 wxScopedCharBuffer scb = sHdrOut.mb_str();
                 size_t len = scb.length();
 
-                socket->Write( scb.data(), len );
+                m_socket.Write( scb.data(), len );
 
                 if ( m_verbosity > 4) {
                     m_threadMsg = wxString::Format("dashboard_tactics_pi: streamout: written to socket:\n%s", sHdrOut);
                     wxQueueEvent( m_frame, event.Clone() );
                 } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 
-                if ( !socket->Error() ) {
+                if ( !m_socket.Error() ) {
 
                     __INCR_CNTROUT__;
 
                     int waitMilliSeconds = 0;
                     bool readAvailable = false;
-                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                    while ( __NOT_STOP_THREAD__ && !readAvailable ) {
                         char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
-                        if ( !readAvailable) {
-                            wxMilliSleep( 20 );
-                            waitMilliSeconds += 20;
-                        }
+                        ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        if ( !readAvailable)
+                            readAvailable = m_socket.WaitForRead( );
+                        if (__STOP_THREAD__)
+                            break;
                     }
                     if (__STOP_THREAD__)
                         break;
                     if ( readAvailable ) {
                         wxCharBuffer buf(100);
-                        socket->Read( buf.data(), 100 );
+                        m_socket.Read( buf.data(), 100 );
                         wxString sBuf = buf;
                         bool sBufError = true;
                         if ( sBuf.Contains("HTTP/1.1 204") )
@@ -628,8 +628,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         int lostLoop100s = 0;
                         while ( lostReadCount > 0 ) {
                             wxCharBuffer lostbuf(100);
-                            socket->Read( lostbuf.data(), 100 );
-                            lostReadCount = socket->LastReadCount();
+                            m_socket.Read( lostbuf.data(), 100 );
+                            lostReadCount = m_socket.LastReadCount();
                             lostLoop100s += lostReadCount;
                         }
                         if ( sBufError ) {
@@ -643,7 +643,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     } // then read buffer of the socket contains some data
                     else {
                         m_stateComm = STSM_STATE_ERROR;
-                        socket->Close();
+                        m_socket.Close();
                         if ( m_verbosity > 1) {
                             m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
                             wxQueueEvent( m_frame, event.Clone() );
@@ -653,7 +653,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 } // then no error in the socket write
                 else {
                     m_stateComm = STSM_STATE_ERROR;
-                    socket->Close();
+                    m_socket.Close();
                     if ( m_verbosity > 1) {
                         m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
                         wxQueueEvent( m_frame, event.Clone() );
@@ -673,7 +673,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         delete file;
     } // then close file operations
     else {
-        socket->Close();
+        m_socket.Close();
         wxSocketBase::Shutdown();
         delete address;
     } // else socket operation termination
