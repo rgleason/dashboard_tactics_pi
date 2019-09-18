@@ -435,7 +435,7 @@ public:
         const int eventId ) final;
 
     void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit );
+        unsigned long long st, double value, wxString unit, long long timestamp );
     void SetUpdateSignalK(
         wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
         wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
