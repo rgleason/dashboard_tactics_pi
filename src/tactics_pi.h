@@ -156,7 +156,7 @@ public:
     virtual void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
     virtual void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit ) final;
+        unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit ) final;
     virtual bool SendSentenceToAllInstruments_LaunchTrueWindCalculations(

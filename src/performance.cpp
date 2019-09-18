@@ -218,8 +218,17 @@ void TacticsInstrument_PerformanceSingle::SetData(
                     double percent = mSTW / targetspeed * 100;
                     double user_targetSpeed = toUsrSpeed_Plugin(targetspeed, g_iDashSpeedUnit);
                     m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f ", user_targetSpeed) + stwunit;
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLPERF, percent, _T("%") );
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLSPD,  user_targetSpeed, stwunit );
+                    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLPERF,
+                        percent,
+                        _T("%"),
+                        wxllNowMs.GetValue() );
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLSPD,
+                        user_targetSpeed,
+                        stwunit,
+                        wxllNowMs.GetValue() );
                 }
             }
         }
@@ -231,7 +240,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                 double VMG = BoatPolar->Calc_VMG(mTWA,mSTW);
                 double user_VMG = toUsrSpeed_Plugin(VMG, g_iDashSpeedUnit);
                 m_data = wxString::Format("%.2f", user_VMG) + _T(" ") + stwunit;
-                m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLVMG, user_VMG, stwunit );
+                wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                m_pparent->SendPerfSentenceToAllInstruments(
+                    OCPN_DBP_STC_POLVMG,
+                    user_VMG,
+                    stwunit,
+                    wxllNowMs.GetValue() );
             }
       
         }
@@ -247,7 +261,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                     targetVMG.TargetSpeed = toUsrSpeed_Plugin(targetVMG.TargetSpeed, g_iDashSpeedUnit);
                     m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") +
                         wxString::Format("%.2f", targetVMG.TargetSpeed) + _T(" ") + stwunit;
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTVMG, targetVMG.TargetSpeed, stwunit );
+                    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLTVMG,
+                        targetVMG.TargetSpeed,
+                        stwunit,
+                        wxllNowMs.GetValue() );
                 }
                 else
                     m_data =  _T("--- % / --- ") + stwunit;
@@ -261,7 +280,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                 TargetxMG targetVMG = BoatPolar->Calc_TargetVMG(mTWA, mTWS);
                 if (!std::isnan(targetVMG.TargetAngle)) {
                     m_data = wxString::Format("%.0f", targetVMG.TargetAngle) + _T("\u00B0");
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTVMGANGLE, targetVMG.TargetAngle, _T("\u00B0") );
+                    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLTVMGANGLE,
+                        targetVMG.TargetAngle,
+                        _T("\u00B0"),
+                        wxllNowMs.GetValue() );
                 }
                 else {
                     m_data = _T("no polar data");
@@ -282,7 +306,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                 mCMG = BoatPolar->Calc_CMG(mCOG, mSOG, mBRG);
                 double user_CMG = toUsrSpeed_Plugin(mCMG, g_iDashSpeedUnit);
                 m_data = wxString::Format("%.2f", user_CMG) + _T(" ") + stwunit;
-                m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMG, user_CMG, stwunit );
+                wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                m_pparent->SendPerfSentenceToAllInstruments(
+                    OCPN_DBP_STC_POLTCMG,
+                    user_CMG,
+                    stwunit,
+                    wxllNowMs.GetValue() );
             }
             else {
                 m_data = _T("no bearing");
@@ -309,7 +338,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                     TCMGMax.TargetSpeed = toUsrSpeed_Plugin(TCMGMax.TargetSpeed, g_iDashSpeedUnit);
                     m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") +
                         wxString::Format("%.2f", TCMGMax.TargetSpeed) + _T(" ") + stwunit;
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMG, TCMGMax.TargetSpeed, stwunit );
+                    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLTCMG,
+                        TCMGMax.TargetSpeed,
+                        stwunit,
+                        wxllNowMs.GetValue() );
                 }
                 else {
                     m_data = _T("--- % / --- ") + stwunit;
@@ -333,7 +367,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
                 }
                 if (!std::isnan(TCMGMax.TargetAngle)) {
                     m_data = wxString::Format("%.0f", TCMGMax.TargetAngle) + _T("\u00B0");
-                    m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_POLTCMGANGLE, TCMGMax.TargetAngle, _T("\u00B0") );
+                    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_POLTCMGANGLE,
+                        TCMGMax.TargetAngle,
+                        _T("\u00B0"),
+                        wxllNowMs.GetValue() );
                 }
                 else {
                     m_data = _T("no polar data");
@@ -348,7 +387,12 @@ void TacticsInstrument_PerformanceSingle::SetData(
         if (mBRG>=0 && !std::isnan(mTWD)) {
             double markBrG = getDegRange(mBRG, mTWD);
             m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
-            m_pparent->SendPerfSentenceToAllInstruments( OCPN_DBP_STC_TWAMARK, markBrG, _T("\u00B0") );
+            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+            m_pparent->SendPerfSentenceToAllInstruments(
+                OCPN_DBP_STC_TWAMARK,
+                markBrG,
+                _T("\u00B0"),
+                wxllNowMs.GetValue() );
                                                                  }
         else {
                 m_data = _T("---");
