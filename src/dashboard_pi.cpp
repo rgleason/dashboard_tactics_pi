@@ -1451,9 +1451,12 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             if (m_NMEA0183.Parse()) {
                 if (m_NMEA0183.Rmb.IsDataValid == NTrue) {
                     if ( !std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue) &&
-                         (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999.) ) // empty field
+                         (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999.) ) { // empty field
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.Rmb.To);
+                        this->SetNMEASentence_Arm_BRG_Watchdog();
+                        
+                    }
                     if ( !std::isnan(m_NMEA0183.Rmb.RangeToDestinationNauticalMiles) &&
                          (m_NMEA0183.Rmb.RangeToDestinationNauticalMiles < 999.) ) // empty field
                         SendSentenceToAllInstruments(
@@ -1472,12 +1475,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                             getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
                         this->SetNMEASentence_Arm_VMG_Watchdog();
                     } // then valid sentence with VMG information received
-                    if (!std::isnan(m_NMEA0183.Rmb.BearingToDestinationDegreesTrue) &&
-                        (m_NMEA0183.Rmb.BearingToDestinationDegreesTrue < 999. ) ) {
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.ErrorMessage);
-                        this->SetNMEASentence_Arm_BRG_Watchdog();
-                    } // then valid bearing destination
                 } // then valid data
             } // then sentence parse OK
         } // then last sentence is RMB
@@ -1937,7 +1934,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                       value,
                                                       _T("SDMM"),
                                                       timestamp );
-                    if ( key->CmpNoCase(_T("latitude")) == 0 )
+                    else if ( key->CmpNoCase(_T("latitude")) == 0 )
                         SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
                                                       value,
                                                       _T("SDMM"),
@@ -2117,6 +2114,85 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // MWV
         
+        else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) { // https://git.io/Je3UV
+            /* See the comment in the same sentence's interpretation above (when coming
+               from OpenCPN): the controversy of having it here is the same:
+               the infamous VMG interpretation of next destination waypoint is not
+               the same as in Tactics, i.e. for the sailing boat performance criteria.
+               It is kept here since it can be considered belonging to Dashboard which
+               needs to serve also the needs of a cruising sailing and motor boats but
+               it can be useful in the off-shore races, too.
+            */
+            // Dashboard ignores navigation.courseRhumbline.nextPoint, as for now
+            if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.bearingTrue")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_BRG,
+                    value * RAD_IN_DEG,
+                    _T("\u00B0"), // as for now, Origin ID not available from Signal K
+                    timestamp );
+                this->SetNMEASentence_Arm_BRG_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.velocityMadeGood")) == 0 ) {
+                // This is THE carburator for hours of useless "discussions" in forums; comment it out if you don't like it :)
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_VMG,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                    timestamp );
+                this->SetNMEASentence_Arm_VMG_Watchdog();
+            }
+            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_DTW,
+                    value * KM_IN_NM,
+                    _T("Nm"),
+                    timestamp );
+            }
+        } // RMB
+
+        else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) { // https://git.io/Je3T3
+            if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
+                if( mPriPosition >= 4 ) {  // See SetPositionFix() - It rules, even if no fix!
+                    mPriPosition = 4;
+                    if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
+                                                      value,
+                                                      _T("SDMM"),
+                                                      timestamp );
+                    else if ( key->CmpNoCase(_T("latitude")) == 0 )
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
+                                                      value,
+                                                      _T("SDMM"),
+                                                      timestamp );
+                } // selected by (low) priority
+            }
+            else if ( mPriCOGSOG >= 3 ) {
+                mPriCOGSOG = 3;
+                if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_COG,
+                        mCOGFilter.filter( value * RAD_IN_DEG ),
+                        _T("\u00B0"),
+                        timestamp );
+                }
+                else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_SOG,
+                        toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                           g_iDashSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                        timestamp );
+                }
+                else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_MCOG,
+                        value * RAD_IN_DEG,
+                        _T("\u00B0M"),
+                        timestamp );
+                }
+            } // mPriCOGSOG
+        } // RMC
+
         else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
             if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
                 // Note: value from Signal K is "as received", i.e. nautical miles
