@@ -1836,9 +1836,9 @@ An example client of these sentences is streaming/archiving and
 statistical calculation instruments.
 *********************************************************************/
 void tactics_pi::SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit ) {
+    unsigned long long st, double value, wxString unit, long long timestamp ) {
     // use the shortcut to instruments, i.e. not making callbacks to this module
-    pSendSentenceToAllInstruments( st, value, unit );
+    pSendSentenceToAllInstruments( st, value, unit, timestamp );
 }
 
 /********************************************************************
