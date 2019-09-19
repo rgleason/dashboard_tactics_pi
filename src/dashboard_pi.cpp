@@ -983,9 +983,16 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
 }
 
 #ifdef _TACTICSPI_H_
+void dashboard_pi::SetNMEASentence(wxString &sentence)
+{
+    this->SetNMEASentence (sentence,
+                           (wxString *)NULL, (wxString *)NULL,  (wxString *)NULL, (wxString *)NULL,
+                           0, (wxString *)NULL, NAN, (wxString *)NULL, 0LL, (wxString *)NULL );
+}
+
 void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or from Signal K input
-        wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
-        int pgn, wxString *path, double value, wxString *valStr, long long timestamp, wxString *key)
+    wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
+    int pgn, wxString *path, double value, wxString *valStr, long long timestamp, wxString *key)
 #else
 void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_
@@ -994,22 +1001,33 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
 #ifdef _TACTICSPI_H_
     bool SignalK = false;
+    bool preparsed = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
     if ( (type != NULL) && (sentenceId != NULL) && (talker != NULL) &&
          (src != NULL) && (path != NULL) && (!std::isnan(value)) ) {
         SignalK = true;
     } // then Signal K input stream provided data
-    if ( !SignalK && (mSiK_Watchdog > 0) )
-        return;
+    if ( !SignalK && (mSiK_Watchdog > 0) ) {
+        m_NMEA0183 << sentence;  //  peek for exceptions (not sent as delta by Signal K)
+        preparsed = m_NMEA0183.PreParse();
+        if ( preparsed ) {
+            if ( !(m_NMEA0183.LastSentenceIDReceived == _T("XDR")) &&
+                 !(m_NMEA0183.LastSentenceIDReceived == _T("GSV")) &&
+                 !(m_NMEA0183.LastSentenceIDReceived == _T("MTA")) &&
+                 !(m_NMEA0183.LastSentenceIDReceived == _T("MWD")) &&
+                 !(m_NMEA0183.LastSentenceIDReceived == _T("VWT")) )
+                return;
+        }
+    }
     if ( SignalK )
         mSiK_Watchdog = gps_watchdog_timeout_ticks;
-    if ( !SignalK )
+    if ( !SignalK && (mSiK_Watchdog <= 0) && !preparsed )
 #endif // _TACTICSPI_H_
 
         m_NMEA0183 << sentence;
 
 #ifdef _TACTICSPI_H_
-    if ( !SignalK ) {
+    if ( !SignalK && !preparsed ) {
         if( !m_NMEA0183.PreParse() )
             return;
     }
@@ -1943,7 +1961,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // GLL
 
-        // Note: Sentence GSV not implemented, see https://git.io/JeYdd - see GGA
+        // Note: Sentence GSV not implemented in Signal K delta, see https://git.io/JeYdd - see GGA
 
         else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
             if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
@@ -2020,7 +2038,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         } // HDT
 
-        // MTA is not implemented in Signal K, cf. https://git.io/JeYdd - see XDR
+        // MTA is not implemented in Signal K delta, cf. https://git.io/JeYdd - see XDR
 
         else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
             if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
@@ -2304,6 +2322,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
         // VWT not implemented as for now (but Tactics calculates it)
 
+        /*
+          XDR is not implemented in the Signal K TCP delta stream yet but it is
+          available from the NMEA stream which the OpenCPN receives from Signal K.
+          Therefore it is searched and executed in the above non-SignalK section.
+        */
         
     } // else Signal K
 

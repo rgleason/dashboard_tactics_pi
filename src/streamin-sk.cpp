@@ -380,12 +380,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 
                     if ( readAvailable ) {
 
-                        m_stateComm = SKTM_STATE_READY;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: SignalK Delta Streamer : SKTM_STATE_READY");
-                            wxQueueEvent( m_frame, event.Clone() );
-                        }
-
                         wxSocketInputStream streamin( (wxSocketBase &)m_socket );
                         wxLongLong wxllNowMs;
                         long long  msNow;
@@ -400,12 +394,14 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                 wxllNowMs = wxGetUTCTimeMillis();
                                 msNow = wxllNowMs.GetValue();
                                 if ( numErrors > 0 )  {
-                                    const wxArrayString& errors = reader.GetErrors();
-                                    for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
-                                        m_threadMsg = wxString::Format(
-                                            "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                                    if ( m_verbosity > 1 ) {
+                                        const wxArrayString& errors = reader.GetErrors();
+                                        for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+                                            m_threadMsg = wxString::Format(
+                                                "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                                        }
+                                        wxQueueEvent( m_frame, event.Clone() );
                                     }
-                                    wxQueueEvent( m_frame, event.Clone() );
                                     throw 1; // lost sync, it is quite useless to continue
                                 }
                                 bool hasUpdates = root.HasMember( "updates" );
