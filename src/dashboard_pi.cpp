@@ -1857,7 +1857,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         }
     }
 #ifdef _TACTICSPI_H_
-    else { // SignalK
+    else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
 
         if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
             if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
@@ -2167,8 +2167,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 } // selected by (low) priority
             }
             else if ( mPriCOGSOG >= 3 ) {
-                mPriCOGSOG = 3;
                 if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                    mPriCOGSOG = 3;
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_COG,
                         mCOGFilter.filter( value * RAD_IN_DEG ),
@@ -2176,6 +2176,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         timestamp );
                 }
                 else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                    mPriCOGSOG = 3;
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_SOG,
                         toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
@@ -2184,6 +2185,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         timestamp );
                 }
                 else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+                    mPriCOGSOG = 3;
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_MCOG,
                         value * RAD_IN_DEG,
@@ -2192,6 +2194,49 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 }
             } // mPriCOGSOG
         } // RMC
+
+        else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) { // https://git.io/Je3sA
+            if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_RSA,
+                    value * RAD_IN_DEG,
+                    _T("\u00B0"),
+                    timestamp );
+            }
+        } // RSA
+
+        else if ( sentenceId->CmpNoCase(_T("VHW")) == 0 ) { // https://git.io/Je3GE
+            if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
+                if ( mPriHeadingT >= 2 ) {
+                    mPriHeadingT = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_HDT,
+                        value * RAD_IN_DEG,
+                        _T("\u00B0T"),
+                        timestamp );
+                    mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                } // priority activation
+            }
+            else if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                if ( mPriHeadingM >= 3 ) {
+                    mPriHeadingM = 3;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_HDM,
+                        value * RAD_IN_DEG,
+                        _T("\u00B0M"),
+                        timestamp );
+                    mHDx_Watchdog = gps_watchdog_timeout_ticks;
+                } // priority activation
+            }
+            else if ( path->CmpNoCase(_T("navigation.speedThroughWater")) == 0 ) {
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_STW,
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                    timestamp );
+                mStW_Watchdog = gps_watchdog_timeout_ticks;
+            }
+        } // VHW
 
         else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
             if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
@@ -2210,6 +2255,54 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                               timestamp );
             }
         } // VLW
+
+        else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) { // https://git.io/Je3Zp
+            // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"           
+            if ( mPriCOGSOG >= 2 ) {
+                if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                    mPriCOGSOG = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_SOG,
+                        toUsrSpeed_Plugin(
+                            mSOGFilter.filter( value * MS_IN_KNOTS ),
+                            g_iDashSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                        timestamp );
+                }
+                else if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                    mPriCOGSOG = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_COG,
+                        mCOGFilter.filter( value * RAD_IN_DEG ),
+                        _T("\u00B0"),
+                        timestamp );
+                }
+            } // priority activation
+        } // VTG
+
+        else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
+            if( mPriAWA >= 2 ) {
+                if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                    mPriAWA = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_AWA,
+                        value * RAD_IN_DEG,
+                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                        timestamp );
+                }
+                if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+                    mPriAWA = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_AWA,
+                        toUsrSpeed_Plugin(
+                            value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                }
+            } // prirority activation
+        } // VWR
+
+        // VWT not implemented as for now (but Tactics calculates it)
 
         
     } // else Signal K
