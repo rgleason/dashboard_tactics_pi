@@ -99,7 +99,6 @@ protected:
     
     void Draw(wxGCDC* dc);
 private :
-    bool               receivingTimestamps;
     wxFileConfig      *m_pconfig;
     DashboardWindow   *m_pparent;
 };
