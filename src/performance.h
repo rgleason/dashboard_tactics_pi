@@ -75,9 +75,9 @@ public:
     ~TacticsInstrument_PerformanceSingle(){}
 
     wxSize GetSize(int orient, wxSize hint);
-    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void timeoutEvent(void) override;
     void SetDisplayType(int displaytype);
-    virtual void timeoutEvent(void);
     double mTWS;
     double mTWA;
     double mSTW;
@@ -99,6 +99,7 @@ protected:
     
     void Draw(wxGCDC* dc);
 private :
+    bool               receivingTimestamps;
     wxFileConfig      *m_pconfig;
     DashboardWindow   *m_pparent;
 };

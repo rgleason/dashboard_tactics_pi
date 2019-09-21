@@ -39,6 +39,9 @@
 #include <wx/wx.h>
 #endif
 
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
 class ExpSmooth;
@@ -62,7 +65,8 @@ public:
 
     ~TacticsInstrument_PolarCompass(void){ SaveConfig(); }
 
-    void SetData(unsigned long long, double, wxString);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void derivedTimeoutEvent(void) override;
     bool SaveConfig(void);
     double m_Bearing;
     double m_ExtraValueDTW;

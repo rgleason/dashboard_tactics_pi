@@ -999,41 +999,40 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 	
 {
 
+    
 #ifdef _TACTICSPI_H_
     bool SignalK = false;
-    bool preparsed = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
     if ( (type != NULL) && (sentenceId != NULL) && (talker != NULL) &&
          (src != NULL) && (path != NULL) && (!std::isnan(value)) ) {
         SignalK = true;
-    } // then Signal K input stream provided data
-    if ( !SignalK && (mSiK_Watchdog > 0) ) {
-        m_NMEA0183 << sentence;  //  peek for exceptions (not sent as delta by Signal K)
-        preparsed = m_NMEA0183.PreParse();
-        if ( preparsed ) {
-            if ( !(m_NMEA0183.LastSentenceIDReceived == _T("XDR")) &&
-                 !(m_NMEA0183.LastSentenceIDReceived == _T("GSV")) &&
-                 !(m_NMEA0183.LastSentenceIDReceived == _T("MTA")) &&
-                 !(m_NMEA0183.LastSentenceIDReceived == _T("MWD")) &&
-                 !(m_NMEA0183.LastSentenceIDReceived == _T("VWT")) )
-                return;
-        }
-    }
-    if ( SignalK )
         mSiK_Watchdog = gps_watchdog_timeout_ticks;
-    if ( !SignalK && (mSiK_Watchdog <= 0) && !preparsed )
-#endif // _TACTICSPI_H_
+    } // then Signal K input stream provided data
+    else {
+        if ( mSiK_Watchdog > 0 ) {
+            m_NMEA0183 << sentence;  //  peek for exceptions (not sent as delta by Signal K)
+            if ( m_NMEA0183.PreParse() ) { // list of NMEA-0183 sentences Signal K updates does not have
+                if ( !(m_NMEA0183.LastSentenceIDReceived == _T("XDR")) &&
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("GSV")) &&
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("MTA")) &&
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("MWD")) &&
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("VWT")) )
+                    return; // no reason to interleave NMEA-0183 coming from OpenCPN with Signal K
+            }
+            else
+                return; // failure in NMEA sentence
+        } // else Signal K is active; this is an interelaving NMEA-0183 coming via OpenCPN
+        else {
+            m_NMEA0183 << sentence;
+            if( !m_NMEA0183.PreParse() )
+                return; // failure in NMEA sentence
+        }  // else no Signal K, this is a normal cycle with NMEA-0183 coming from OpenCPN 
+    } // else this is NMEA-0183 coming via OpenCPN
 
-        m_NMEA0183 << sentence;
-
-#ifdef _TACTICSPI_H_
-    if ( !SignalK && !preparsed ) {
-        if( !m_NMEA0183.PreParse() )
-            return;
-    }
     if ( !SignalK ) {
 #else
-    if ( m_NMEA0183.PreParse() ) {
+        m_NMEA0183 << sentence;
+        if ( m_NMEA0183.PreParse() ) {
 #endif // _TACTICSPI_H_
 
         if( m_NMEA0183.LastSentenceIDReceived == _T("DBT") ) {
@@ -1922,7 +1921,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
             else if ( mSiK_navigationGnssMethodQuality > 0 ) {
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( mPriPosition >= 3 ) { // See SetPositionFix() - It rules, even if no fix!
+                    if( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
                         mPriPosition = 3;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
@@ -1945,7 +1944,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
             // Note: SignalK does not send delta is no validy flag set, see the link
             if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                if( mPriPosition >= 2 ) { // See SetPositionFix() - It rules, even if no fix!
+                if( (mPriPosition >= 2)  && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
                     mPriPosition = 2;
                     if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                         SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
@@ -2082,22 +2081,14 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
                 if( mPriAWA >= 1 ) {
                     mPriAWA = 1;
-                    wxString awaunit = wxEmptyString;
-                    double awaangle = value * RAD_IN_DEG;
-                    if ( awaangle > 180.0 ) {
-                        awaunit = L"\u00B0lr"; // == wind arrow on port side
-                        awaangle = 180.0 - (awaangle - 180.0);
-                    }
-                    else {
-                        awaunit = L"\u00B0rl"; // == wind arrow on starboard side
-                    }
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
-                                                  awaangle,
-                                                  awaunit,
-                                                  timestamp );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_AWA,
+                        std::abs( value ) * RAD_IN_DEG,
+                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                        timestamp );
                 } // AWA priority
             }
-            if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_TWS,
                     toUsrSpeed_Plugin( value * MS_IN_KNOTS,
@@ -2170,7 +2161,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
         else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) { // https://git.io/Je3T3
             if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                if( mPriPosition >= 4 ) {  // See SetPositionFix() - It rules, even if no fix!
+                if( (mPriPosition >= 4) && (key != NULL) ) {  // See SetPositionFix() - It rules, even if no fix!
                     mPriPosition = 4;
                     if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                         SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
@@ -2259,18 +2250,20 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
             if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
                 // Note: value from Signal K is "as received", i.e. nautical miles
-                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                              toUsrDistance_Plugin( value,
-                                                                    g_iDashDistanceUnit ),
-                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                              timestamp );
+                if ( value >= 0.0 )
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
+                                                  toUsrDistance_Plugin( value,
+                                                                        g_iDashDistanceUnit ),
+                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                                  timestamp );
             }
             else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
-                SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                              toUsrDistance_Plugin( value,
-                                                                    g_iDashDistanceUnit ),
-                                              getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                              timestamp );
+                if ( value >= 0.0 )
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
+                                                  toUsrDistance_Plugin( value,
+                                                                        g_iDashDistanceUnit ),
+                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                                  timestamp );
             }
         } // VLW
 
@@ -2300,21 +2293,22 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
         else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
             if( mPriAWA >= 2 ) {
-                if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
-                    mPriAWA = 2;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_AWA,
-                        value * RAD_IN_DEG,
-                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
-                        timestamp );
-                }
                 if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
                     mPriAWA = 2;
                     SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_AWA,
+                        OCPN_DBP_STC_AWS,
                         toUsrSpeed_Plugin(
                             value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    this->SetNMEASentence_Arm_AWS_Watchdog();
+                }
+                else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                    mPriAWA = 2;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_AWA,
+                        std::abs( value ) * RAD_IN_DEG,
+                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
                         timestamp );
                 }
             } // prirority activation

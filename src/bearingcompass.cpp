@@ -100,13 +100,18 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 	m_oldExpSmoothDiffCogHdt = 0.0;
     mExpSmDegRange = new ExpSmooth(g_dalphaDeltCoG);
 
+    m_timeout = false;
+
 	LoadConfig();
 
 }
 /***************************************************************************************
 ****************************************************************************************/
-void TacticsInstrument_BearingCompass::SetData(unsigned long long st, double data, wxString unit)
+void TacticsInstrument_BearingCompass::SetData(unsigned long long st, double data, wxString unit, long long timestamp )
 {
+    setTimestamp( timestamp );
+    m_timeout = false;
+
 	if (st == OCPN_DBP_STC_COG) {
 		m_Cog = data;
 	}
@@ -197,6 +202,22 @@ void TacticsInstrument_BearingCompass::SetData(unsigned long long st, double dat
     }
 	CalculateLaylineDegreeRange();
 }
+
+void TacticsInstrument_BearingCompass::derivedTimeoutEvent()
+{
+    m_timeout = true;
+    m_Bearing = NAN;
+    m_CurrDir = NAN;
+    m_CurrSpeed = NAN;
+    m_currAngleStart = NAN;
+    m_CurrDirUnit = wxEmptyString;
+    m_ToWpt = _T("---");
+    m_ExtraValueDTW = NAN;
+    m_predictedSog = NAN;
+    m_ExtraValueDTWUnit = getUsrDistanceUnit_Plugin(g_iDashDistanceUnit);
+    m_BearingUnit = _T("\u00B0");
+    m_ExtraValueDTW = NAN;
+}
 /***************************************************************************************
 ****************************************************************************************/
 void TacticsInstrument_BearingCompass::Draw(wxGCDC* bdc)
@@ -221,21 +242,50 @@ void TacticsInstrument_BearingCompass::Draw(wxGCDC* bdc)
 	DrawFrame(bdc);
 	DrawMarkers(bdc);
 	DrawBackground(bdc);
+
+    // current speed updates are coming too quickly after timeout so let's try like this:
+    if ( std::isnan(m_Bearing) && std::isnan(m_MainValue) )
+        m_CurrSpeed = NAN;
+    
     if (!std::isnan(m_Bearing)){
-      DrawData(bdc, m_Bearing, m_BearingUnit, _T("BRG:%.f"), DIAL_POSITION_TOPLEFT);
-      DrawData(bdc, 0, m_ToWpt, _T(""), DIAL_POSITION_TOPRIGHT);
+        DrawData(bdc, m_Bearing, m_BearingUnit, _T("BRG:%.f"), DIAL_POSITION_TOPLEFT);
+        DrawData(bdc, 0, m_ToWpt, _T(""), DIAL_POSITION_TOPRIGHT);
     }
-    if (!std::isnan(m_CurrSpeed)) DrawData(bdc, m_CurrSpeed, m_CurrSpeedUnit, _T("Curr:%.2f"), DIAL_POSITION_INSIDE);
-    if (!std::isnan(m_ExtraValueDTW)) DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_BOTTOMLEFT);
-    if (!std::isnan(m_CurrDir) && m_CurrDir >= 0 && m_CurrDir < 360)
+    else {
+        DrawData(bdc, 0, _T(""), _T(":%.f"), DIAL_POSITION_TOPLEFT);
+        DrawData(bdc, 0, _T(""), _T(""), DIAL_POSITION_TOPRIGHT);
+    }        
+    if ( !std::isnan(m_CurrSpeed) && !m_timeout ) {
+        DrawData(bdc, m_CurrSpeed, m_CurrSpeedUnit, _T("Curr:%.2f"), DIAL_POSITION_INSIDE);
+    }
+    else {
+        DrawData(bdc, 0, _T(""), _T(":%.2f"), DIAL_POSITION_INSIDE);
+    }
+    if (!std::isnan(m_ExtraValueDTW)) {
+        DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_BOTTOMLEFT);
+    }
+    else {
+        DrawData(bdc, 0, _T(""), _T(":%.1f"), DIAL_POSITION_BOTTOMLEFT);
+    }
+    if (!std::isnan(m_CurrDir) && m_CurrDir >= 0 && m_CurrDir < 360) {
 		DrawCurrent(bdc);
+    }
 	DrawForeground(bdc);
 
 	DrawLaylines(bdc);
-    if (!std::isnan(m_MainValue)) DrawData(bdc, m_MainValue, m_MainValueUnit, _T("%.0f"), DIAL_POSITION_TOPINSIDE);
+    if (!std::isnan(m_MainValue)) {
+        DrawData(bdc, m_MainValue, m_MainValueUnit, _T("%.0f"), DIAL_POSITION_TOPINSIDE);
+    }
+    else {
+        DrawData(bdc, 0, _T(""), _T("%.0f"), DIAL_POSITION_TOPINSIDE);
+    }
 
-    if (!std::isnan(m_predictedSog)) DrawData(bdc, m_predictedSog, getUsrSpeedUnit_Plugin(g_iDashSpeedUnit), _T("prd.SOG: ~%.1f"), DIAL_POSITION_BOTTOMRIGHT);
-
+    if (!std::isnan(m_predictedSog)) {
+        DrawData(bdc, m_predictedSog, getUsrSpeedUnit_Plugin(g_iDashSpeedUnit), _T("prd.SOG: ~%.1f"), DIAL_POSITION_BOTTOMRIGHT);
+    }
+    else {
+        DrawData(bdc, 0, getUsrSpeedUnit_Plugin(g_iDashSpeedUnit), _T(": ~%.1f"), DIAL_POSITION_BOTTOMRIGHT);
+    }
 
 }
 /***************************************************************************************

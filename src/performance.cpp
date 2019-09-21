@@ -89,6 +89,7 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(Dashboa
     m_data = _T("---");
     m_format = format;
     m_DataHeight = 0;
+    receivingTimestamps = false;
     m_pconfig = GetOCPNConfigObject();
 }
 /***********************************************************************************
@@ -156,8 +157,11 @@ void TacticsInstrument_PerformanceSingle::SetData(
     if (std::isnan(data))
         return;
 
-    setTimestamp( timestamp );
-  
+    if ( timestamp != 0LL ) {
+        setTimestamp( timestamp );
+        receivingTimestamps = true;
+    }
+
     if (st == OCPN_DBP_STC_STW){
     
         //convert to knots first
@@ -402,7 +406,8 @@ void TacticsInstrument_PerformanceSingle::SetData(
 
 void TacticsInstrument_PerformanceSingle::timeoutEvent()
 {
-      m_data = _T("---");
+    receivingTimestamps = false;
+    m_data = _T("---");
 }
 
 /***********************************************************************************

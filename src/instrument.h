@@ -216,7 +216,7 @@ public:
 #endif // _TACTICSPI_H_
         );
 #ifdef _TACTICSPI_H_
-    virtual void timeoutEvent(void);
+    void timeoutEvent(void) override;
 #endif // _TACTICSPI_H_
 
 protected:
@@ -254,7 +254,7 @@ public:
 #endif // _TACTICSPI_H_
         );
 #ifdef _TACTICSPI_H_
-    virtual void timeoutEvent(void);
+    void timeoutEvent(void) override;
 #endif // _TACTICSPI_H_
 
 protected:

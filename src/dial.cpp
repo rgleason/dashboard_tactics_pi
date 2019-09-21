@@ -162,6 +162,7 @@ void DashboardInstrument_Dial::timeoutEvent()
     m_MainValueUnit = _T("");
     m_ExtraValue = 0.0;
     m_ExtraValueUnit = _T("");
+    this->derivedTimeoutEvent();
 }
 #endif // _TACTICSPI_H_
 

@@ -40,6 +40,9 @@
 #include <wx/wx.h>
 #endif
 
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
 class ExpSmooth;
@@ -63,7 +66,8 @@ public:
 
     ~TacticsInstrument_BearingCompass(void){ SaveConfig(); }
 
-    void SetData(unsigned long long, double, wxString);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void derivedTimeoutEvent(void) override;
     bool SaveConfig(void);
     double m_Bearing;
     double m_ExtraValueDTW;
@@ -100,6 +104,7 @@ public:
 
 private:
     bool LoadConfig(void);
+    bool m_timeout;
     wxFileConfig     *m_pconfig;
 
 protected:
