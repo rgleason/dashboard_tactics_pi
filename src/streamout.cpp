@@ -846,7 +846,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             throw 300;
         }
         int asize = dbSchemas.Size();
-        if ( asize == 0 ) {
+        if ( asize <= 0 ) {
             wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is an array but it is empty.");
             throw 300;
         }

@@ -88,12 +88,16 @@ class DashboardInstrumentContainer;
 #define gps_watchdog_timeout_ticks  10
 
 #ifdef _TACTICSPI_H_
+// Incoming NMEA-2000 PGNs Dashboard inspects
+#define PGN_ENG_PARAM_RAP 127488
+#define PGN_ENG_PARAM_DYN 127489 
 // Signal K conversions, see https://git.io/JeYry
 #define DEG_IN_RAD 0.0174532925
 #define RAD_IN_DEG 57.2957795
 #define CELCIUS_IN_KELVIN 273.15
 #define MS_IN_KNOTS 1.943844
 #define KM_IN_NM 0.539956803
+#define PA_IN_BAR 100000
 #endif // _TACTICSPI_H_
 
 class DashboardWindowContainer

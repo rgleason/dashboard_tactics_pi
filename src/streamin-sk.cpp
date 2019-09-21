@@ -396,14 +396,16 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                 if ( numErrors > 0 )  {
                                     if ( m_verbosity > 1 ) {
                                         const wxArrayString& errors = reader.GetErrors();
-                                        for (int i = 0; ( ((size_t) i < errors.GetCount()) && ( i < 10 ) ); i++) {
+                                        for (int i = 0; ((i < numErrors) && ( i < 10 ) ); i++) {
                                             m_threadMsg = wxString::Format(
-                                                "dashboard_tactics_pi: ERROR - parsing errors in the streaming: %s", errors.Item(i) );
+                                                "dashboard_tactics_pi: ERROR - parsing errors in the streaming (%d):\n%s\n",
+                                                i, errors[i] );
+                                            wxQueueEvent( m_frame, event.Clone() );
+                                            wxMilliSleep(20);
                                         }
-                                        wxQueueEvent( m_frame, event.Clone() );
                                     }
                                     throw 1; // lost sync, it is quite useless to continue
-                                }
+                                } // then issues in the parsing
                                 bool hasUpdates = root.HasMember( "updates" );
                                 if ( hasUpdates) {
                                     wxJSONValue updates = root["updates"];
@@ -467,16 +469,23 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                         wxJSONValue values = updates[i]["values"];
                                         if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
                                         int vsize = values.Size();
-                                        if ( vsize == 0 ) throw (i+1)*10000 + 5010;
+                                        if ( vsize < 0 ) throw (i+1)*10000 + 5010;
                                         for ( int v = 0; v < vsize; v++ ) {
                                             if ( !values[v].HasMember( "path" )) throw (i+1)*100000 + (v+1)*10000 + 5015;
                                             wxString path = values[v]["path"].AsString();
                                             if ( !values[v].HasMember( "value" )) throw (i+1)*100000 + (v+1)*10000 + 5020;
-                                            double value;
-                                            wxString valStr;
+                                            double   value = 0.0;
+                                            int      valInt = 0;
+                                            wxString valStr = wxEmptyString;
                                             wxJSONValue valueset = values[v]["value"];
                                             if ( !valueset.IsObject() ) {
-                                                value = valueset.AsDouble();
+                                                if ( valueset.IsDouble() ) {
+                                                    value = valueset.AsDouble();
+                                                }
+                                                else if ( valueset.IsInt() ) {
+                                                    valInt = valueset.AsInt();
+                                                    value = static_cast<double>(valInt);
+                                                }
                                                 valStr = valueset.AsString();
                                                 m_pparent->SetUpdateSignalK (
                                                     &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow );
@@ -493,8 +502,28 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                 for ( int n = 0; (size_t) n < names.GetCount(); n++ ) {
                                                     wxString key = names[n];
                                                     if ( !valueset.HasMember( key ) ) throw (n+1)*1000000 + (i+1)*100000 + (v+1)*10000 + 5025;
-                                                    value = valueset[ key ].AsDouble();
-                                                    valStr = valueset[ key ].AsString();
+                                                    if ( !valueset[ key ].IsArray() ) {
+                                                        if ( valueset[ key ].IsDouble() ) {
+                                                            value = valueset[ key ].AsDouble();
+                                                        }
+                                                        else if ( valueset[ key ].IsInt() ) {
+                                                            valInt = valueset[ key ].AsInt();
+                                                            value = static_cast<double>(valInt);
+                                                        }
+                                                        valStr = valueset[ key ].AsString();
+                                                    }
+                                                    else {
+                                                        if ( valueset[ key ].Size() > 0 ) {
+                                                            if ( valueset[ key ][0].IsDouble() ) {
+                                                                value = valueset[ key ][0].AsDouble();
+                                                            }
+                                                            else if ( valueset[ key ][0].IsInt() ) {
+                                                                valInt = valueset[ key ][0].AsInt();
+                                                                value = static_cast<double>(valInt);
+                                                            }
+                                                            valStr = valueset[ key ][0].AsString();
+                                                        } 
+                                                    }
                                                     m_pparent->SetUpdateSignalK (
                                                         &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow, &key );
                                                     if ( m_verbosity > 3) {
@@ -514,7 +543,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                 } // then has updates
                             }
                             catch (int x) {
-                                if ( x = 1 ) {
+                                if ( x == 1 ) {
                                     syncerror = true;
                                     m_stateComm = SKTM_STATE_ERROR;
                                     m_socket.Close();

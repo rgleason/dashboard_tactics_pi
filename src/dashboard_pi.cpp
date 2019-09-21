@@ -124,11 +124,20 @@ enum eInstruments {
     ID_DBP_R_AABA, ID_DBP_R_AABB, ID_DBP_R_AABC, ID_DBP_R_AABD, ID_DBP_R_AABE, ID_DBP_R_AABF,
     /* These are the actual Tactics instrument enumerations, note _FIRST and _LAST markers;
        they are used to defined instrument belonging to "performance" category (i.e. Tactics).
-       If you need to add new perfomance instruments, put them just before ID_DPB_PERF_LAST. */
+       If you neednew perfomance instruments, put them between this andID_DPB_PERF_LAST. */
     ID_DPB_PERF_FIRST, ID_DBP_I_LEEWAY, ID_DBP_I_TWAMARK, ID_DBP_I_CURRDIR, ID_DBP_I_CURRSPD,
     ID_DBP_D_BRG, ID_DBP_I_POLSPD, ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE,
     ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG, ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND,
-    ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DBP_V_INSK, ID_DPB_PERF_LAST,
+    ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DBP_V_INSK,
+    /* More room between the sails and engines to allow sails to expand... */
+    ID_DBP_R_EAAA, ID_DBP_R_EAAB, ID_DBP_R_EAAC, ID_DBP_R_EAAD, ID_DBP_R_EAAE, ID_DBP_R_EAAF,
+    ID_DBP_R_EABA, ID_DBP_R_EABB, ID_DBP_R_EABC, ID_DBP_R_EABD, ID_DBP_R_EABE, ID_DBP_R_EABF,
+    /* Let's reserve this part for motoring (maybe it need to evolve to its own section) */
+    ID_DBP_I_ENGPRPM,
+    ID_DBP_I_ENGPTEMP,
+    ID_DBP_I_ENGPOILP,
+    /* the section end marker, do not remove */
+    ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
@@ -163,6 +172,18 @@ bool IsObsolete( int id ) {
     case ID_DBP_R_AABD:
     case ID_DBP_R_AABE:
     case ID_DBP_R_AABF:
+    case ID_DBP_R_EAAA:
+    case ID_DBP_R_EAAB:
+    case ID_DBP_R_EAAC:
+    case ID_DBP_R_EAAD:
+    case ID_DBP_R_EAAE:
+    case ID_DBP_R_EAAF:
+    case ID_DBP_R_EABA:
+    case ID_DBP_R_EABB:
+    case ID_DBP_R_EABC:
+    case ID_DBP_R_EABD:
+    case ID_DBP_R_EABE:
+    case ID_DBP_R_EABF:
 #endif // _TACTICSPI_H_
         return true;
     default:
@@ -303,6 +324,12 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191InfluxDB Out");
     case ID_DBP_V_INSK:
 		return _(L"\u2191Signal K In");
+    case ID_DBP_I_ENGPRPM: 
+		return _(L"\u2191z Eng1 RPM");
+    case ID_DBP_I_ENGPTEMP: 
+		return _(L"\u2191z Eng1 Temp");
+    case ID_DBP_I_ENGPOILP: 
+		return _(L"\u2191z Eng1 Oil P");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -360,6 +387,9 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLTCMGANGLE:
     case ID_DBP_V_IFLX:
     case ID_DBP_V_INSK:
+    case ID_DBP_I_ENGPRPM:
+    case ID_DBP_I_ENGPTEMP:
+    case ID_DBP_I_ENGPOILP:
 #endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
@@ -1875,453 +1905,484 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     }
 #ifdef _TACTICSPI_H_
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
+        if ( type->IsSameAs( "NMEA0183", false ) ) {
 
-        if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
-            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
-                if( mPriDepth >= 2 ) {
-                    mPriDepth = 2;
-                    double depth = value + g_dDashDBTOffset;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_DPT,
-                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
-                        timestamp );
+            if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
+                if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
+                    if( mPriDepth >= 2 ) {
+                        mPriDepth = 2;
+                        double depth = value + g_dDashDBTOffset;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_DPT,
+                            toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                            getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+                            timestamp );
+                    }
                 }
-            }
-        } // DBT
+            } // DBT
                 
-        else if ( sentenceId->CmpNoCase(_T("DPT")) == 0 ) { // https://git.io/JeYf4
-            bool depthvalue = false;
-            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
-                if ( !mSiK_DPT_environmentDepthBelowKeel )
+            else if ( sentenceId->CmpNoCase(_T("DPT")) == 0 ) { // https://git.io/JeYf4
+                bool depthvalue = false;
+                if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
+                    if ( !mSiK_DPT_environmentDepthBelowKeel )
+                        depthvalue = true;
+                }
+                else if ( path->CmpNoCase(_T("environment.depth.belowKeel")) == 0 ) {  // depth + offset
                     depthvalue = true;
-            }
-            else if ( path->CmpNoCase(_T("environment.depth.belowKeel")) == 0 ) {  // depth + offset
-                depthvalue = true;
-                mSiK_DPT_environmentDepthBelowKeel = true; // lock priority
-            }
-            if ( depthvalue ) {
-                if( mPriDepth >= 1 ) {
-                    mPriDepth = 1;
-                    double depth = value + g_dDashDBTOffset;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_DPT,
-                        toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
-                        getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
-                        timestamp );
+                    mSiK_DPT_environmentDepthBelowKeel = true; // lock priority
                 }
-            }
-        } // DPT
+                if ( depthvalue ) {
+                    if( mPriDepth >= 1 ) {
+                        mPriDepth = 1;
+                        double depth = value + g_dDashDBTOffset;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_DPT,
+                            toUsrDistance_Plugin( depth / 1852.0, g_iDashDepthUnit ),
+                            getUsrDistanceUnit_Plugin( g_iDashDepthUnit ),
+                            timestamp );
+                    }
+                }
+            } // DPT
 
-        else if ( sentenceId->CmpNoCase(_T("GGA")) == 0 ) { // https://git.io/JeYWl
-            if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
-                if ( valStr->CmpNoCase(_T("DGNSS fix")) == 0 ) {
+            else if ( sentenceId->CmpNoCase(_T("GGA")) == 0 ) { // https://git.io/JeYWl
+                if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
+                    if ( valStr->CmpNoCase(_T("DGNSS fix")) == 0 ) {
                         mSiK_navigationGnssMethodQuality = 1;
+                    }
                 }
-            }
-            else if ( mSiK_navigationGnssMethodQuality > 0 ) {
+                else if ( mSiK_navigationGnssMethodQuality > 0 ) {
+                    if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
+                        if( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
+                            mPriPosition = 3;
+                            if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                                SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
+                                                              value,
+                                                              _T("SDMM"),
+                                                              timestamp );
+                            if ( key->CmpNoCase(_T("latitude")) == 0 )
+                                SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
+                                                              value,
+                                                              _T("SDMM"),
+                                                              timestamp );
+                        }
+                    }
+                    else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
+                        mSatsInView = value;
+                    }
+                }
+            } // GGA
+
+            else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
+                // Note: Signal K does not send delta is no validy flag set, see the link
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
-                        mPriPosition = 3;
+                    if( (mPriPosition >= 2)  && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
+                        mPriPosition = 2;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
                                                           value,
                                                           _T("SDMM"),
                                                           timestamp );
-                        if ( key->CmpNoCase(_T("latitude")) == 0 )
+                        else if ( key->CmpNoCase(_T("latitude")) == 0 )
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
                                                           value,
                                                           _T("SDMM"),
                                                           timestamp );
                     }
                 }
-                else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
-                    mSatsInView = value;
-                }
-            }
-        } // GGA
+            } // GLL
 
-        else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
-            // Note: SignalK does not send delta is no validy flag set, see the link
-            if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                if( (mPriPosition >= 2)  && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
-                    mPriPosition = 2;
-                    if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                      value,
-                                                      _T("SDMM"),
-                                                      timestamp );
-                    else if ( key->CmpNoCase(_T("latitude")) == 0 )
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                      value,
-                                                      _T("SDMM"),
-                                                      timestamp );
-                }
-            }
-        } // GLL
+            // Note: Sentence GSV not implemented in Signal K delta, see https://git.io/JeYdd - see GGA
 
-        // Note: Sentence GSV not implemented in Signal K delta, see https://git.io/JeYdd - see GGA
-
-        else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
-            if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
-                if( mPriHeadingM >= 1 ) { 
-                    if ( !std::isnan( value )) {
-                        mPriHeadingM = 1;
-                        mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
-                                                      mHdm,_T("\u00B0"),
-                                                      timestamp );
-                        mHDx_Watchdog = gps_watchdog_timeout_ticks;
-                    }
-                }
-            }
-            else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
-                if( mPriVar >= 2 ) { // see comment in NMEA equivalent: not really useful
-                    if ( !std::isnan( value )) {
-                        if ( value != 0.0 ) {
-                            mPriVar = 2;
-                            mVar = value * RAD_IN_DEG;
-                            SendSentenceToAllInstruments( OCPN_DBP_STC_HMV,
-                                                          mVar,
-                                                          _T("\u00B0"),
+            else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
+                if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                    if( mPriHeadingM >= 1 ) { 
+                        if ( !std::isnan( value )) {
+                            mPriHeadingM = 1;
+                            mHdm = value * RAD_IN_DEG;
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
+                                                          mHdm,_T("\u00B0"),
                                                           timestamp );
-                            mVar_Watchdog = gps_watchdog_timeout_ticks;
+                            mHDx_Watchdog = gps_watchdog_timeout_ticks;
                         }
                     }
                 }
-            }
-            if ( !std::isnan( mVar )  && !std::isnan( mHdm ) && (mPriHeadingT > 3) ) {
-                mPriHeadingT = 4;
-                double heading = mHdm + mVar;
-                if (heading < 0)
-                    heading += 360;
-                else if (heading >= 360.0)
-                    heading -= 360;
-                SendSentenceToAllInstruments(OCPN_DBP_STC_HDT,
-                                             heading,
-                                             _T("\u00B0"),
-                                             timestamp );
-                mHDT_Watchdog = gps_watchdog_timeout_ticks;
-            }
-        } // HDG
-        
-        else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) { // https://git.io/JeYdxn
-            if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
-                if( mPriHeadingM >= 2 ) { 
-                    if ( !std::isnan( value )) {
-                        mPriHeadingM = 2;
-                        mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
-                                                      mHdm,
-                                                      _T("\u00B0M"),
-                                                      timestamp );
-                        mHDx_Watchdog = gps_watchdog_timeout_ticks;
-                    }
-                }
-            }
-        } // HDM
-        
-        else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) { // https://git.io/JeOCC
-            if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
-                if( mPriHeadingM >= 1 ) { 
-                    if ( !std::isnan( value )) {
-                        mPriHeadingM = 1;
-                        mHdm = value * RAD_IN_DEG;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_HDT,
-                                                      mHdm,
-                                                      _T("\u00B0T"),
-                                                      timestamp );
-                        mHDT_Watchdog = gps_watchdog_timeout_ticks;
-                    }
-                }
-            }
-        } // HDT
-
-        // MTA is not implemented in Signal K delta, cf. https://git.io/JeYdd - see XDR
-
-        else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
-            if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
-                // Note: value from Signal K is SI units, thus hPa already
-                if ( (value > 800) && (value < 1100) ) {
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
-                                                  value,
-                                                  _T("hPa"),
-                                                  timestamp );
-                } // then valid pressure in hPa
-                // Note: Dashboard does not deal with other values in MDA as for now so we skip them
-            }
-        } // MDA
-
-        else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
-            if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
-                // Note: value from Signal K is SI units, thus we receive Kelvins
-                double TemperatureValue = value - CELCIUS_IN_KELVIN; 
-                wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
-                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
-                SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
-                                              TemperatureValue,
-                                              TemperatureUnitOfMeasurement,
-                                              timestamp );
-            }
-        } // MTW
-
-        // MWD is not implemented in Signal K, cf. https://git.io/JeYdd (but calculated in Tactics)
-
-        else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) { // https://git.io/JeOov
-            if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
-                // Note: value from Signal K is SI units, thus we receive m/s
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_AWS,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                this->SetNMEASentence_Arm_AWS_Watchdog();
-            }
-            else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
-                if( mPriAWA >= 1 ) {
-                    mPriAWA = 1;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_AWA,
-                        std::abs( value ) * RAD_IN_DEG,
-                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
-                        timestamp );
-                } // AWA priority
-            }
-            else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_TWS,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_TWS2,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                this->SetNMEASentence_Arm_TWS_Watchdog();
-            }
-            else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
-                if( mPriTWA >= 1 ) {
-                    mPriTWA = 1;
-                    wxString twaunit = wxEmptyString;
-                    double twaangle = value * RAD_IN_DEG;
-                    if ( twaangle > 180.0 ) {
-                        twaunit = L"\u00B0lr"; // == wind arrow on port side
-                        twaangle = 180.0 - (twaangle - 180.0);
-                    }
-                    else {
-                        twaunit = L"\u00B0rl"; // == wind arrow on starboard side
-                    }
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
-                                                  twaangle,
-                                                  twaunit,
-                                                  timestamp );
-                } // TWA priority
-            }
-        } // MWV
-        
-        else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) { // https://git.io/Je3UV
-            /* See the comment in the same sentence's interpretation above (when coming
-               from OpenCPN): the controversy of having it here is the same:
-               the infamous VMG interpretation of next destination waypoint is not
-               the same as in Tactics, i.e. for the sailing boat performance criteria.
-               It is kept here since it can be considered belonging to Dashboard which
-               needs to serve also the needs of a cruising sailing and motor boats but
-               it can be useful in the off-shore races, too.
-            */
-            // Dashboard ignores navigation.courseRhumbline.nextPoint, as for now
-            if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.bearingTrue")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_BRG,
-                    value * RAD_IN_DEG,
-                    _T("\u00B0"), // as for now, Origin ID not available from Signal K
-                    timestamp );
-                this->SetNMEASentence_Arm_BRG_Watchdog();
-            }
-            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.velocityMadeGood")) == 0 ) {
-                // This is THE carburator for hours of useless "discussions" in forums; comment it out if you don't like it :)
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_VMG,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                this->SetNMEASentence_Arm_VMG_Watchdog();
-            }
-            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_DTW,
-                    value * KM_IN_NM,
-                    _T("Nm"),
-                    timestamp );
-            }
-        } // RMB
-
-        else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) { // https://git.io/Je3T3
-            if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                if( (mPriPosition >= 4) && (key != NULL) ) {  // See SetPositionFix() - It rules, even if no fix!
-                    mPriPosition = 4;
-                    if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                      value,
-                                                      _T("SDMM"),
-                                                      timestamp );
-                    else if ( key->CmpNoCase(_T("latitude")) == 0 )
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                      value,
-                                                      _T("SDMM"),
-                                                      timestamp );
-                } // selected by (low) priority
-            }
-            else if ( mPriCOGSOG >= 3 ) {
-                if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
-                    mPriCOGSOG = 3;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_COG,
-                        mCOGFilter.filter( value * RAD_IN_DEG ),
-                        _T("\u00B0"),
-                        timestamp );
-                }
-                else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
-                    mPriCOGSOG = 3;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_SOG,
-                        toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
-                                           g_iDashSpeedUnit ),
-                        getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
-                        timestamp );
-                }
                 else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
-                    mPriCOGSOG = 3;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_MCOG,
-                        value * RAD_IN_DEG,
-                        _T("\u00B0M"),
-                        timestamp );
+                    if( mPriVar >= 2 ) { // see comment in NMEA equivalent: not really useful
+                        if ( !std::isnan( value )) {
+                            if ( value != 0.0 ) {
+                                mPriVar = 2;
+                                mVar = value * RAD_IN_DEG;
+                                SendSentenceToAllInstruments( OCPN_DBP_STC_HMV,
+                                                              mVar,
+                                                              _T("\u00B0"),
+                                                              timestamp );
+                                mVar_Watchdog = gps_watchdog_timeout_ticks;
+                            }
+                        }
+                    }
                 }
-            } // mPriCOGSOG
-        } // RMC
-
-        else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) { // https://git.io/Je3sA
-            if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_RSA,
-                    value * RAD_IN_DEG,
-                    _T("\u00B0"),
-                    timestamp );
-            }
-        } // RSA
-
-        else if ( sentenceId->CmpNoCase(_T("VHW")) == 0 ) { // https://git.io/Je3GE
-            if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
-                if ( mPriHeadingT >= 2 ) {
-                    mPriHeadingT = 2;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_HDT,
-                        value * RAD_IN_DEG,
-                        _T("\u00B0T"),
-                        timestamp );
+                if ( !std::isnan( mVar )  && !std::isnan( mHdm ) && (mPriHeadingT > 3) ) {
+                    mPriHeadingT = 4;
+                    double heading = mHdm + mVar;
+                    if (heading < 0)
+                        heading += 360;
+                    else if (heading >= 360.0)
+                        heading -= 360;
+                    SendSentenceToAllInstruments(OCPN_DBP_STC_HDT,
+                                                 heading,
+                                                 _T("\u00B0"),
+                                                 timestamp );
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
-                } // priority activation
-            }
-            else if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
-                if ( mPriHeadingM >= 3 ) {
-                    mPriHeadingM = 3;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_HDM,
-                        value * RAD_IN_DEG,
-                        _T("\u00B0M"),
-                        timestamp );
-                    mHDx_Watchdog = gps_watchdog_timeout_ticks;
-                } // priority activation
-            }
-            else if ( path->CmpNoCase(_T("navigation.speedThroughWater")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_STW,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
-                    timestamp );
-                mStW_Watchdog = gps_watchdog_timeout_ticks;
-            }
-        } // VHW
-
-        else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
-            if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
-                // Note: value from Signal K is "as received", i.e. nautical miles
-                if ( value >= 0.0 )
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                                  toUsrDistance_Plugin( value,
-                                                                        g_iDashDistanceUnit ),
-                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                  timestamp );
-            }
-            else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
-                if ( value >= 0.0 )
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                                  toUsrDistance_Plugin( value,
-                                                                        g_iDashDistanceUnit ),
-                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                  timestamp );
-            }
-        } // VLW
-
-        else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) { // https://git.io/Je3Zp
-            // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"           
-            if ( mPriCOGSOG >= 2 ) {
-                if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
-                    mPriCOGSOG = 2;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_SOG,
-                        toUsrSpeed_Plugin(
-                            mSOGFilter.filter( value * MS_IN_KNOTS ),
-                            g_iDashSpeedUnit ),
-                        getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
-                        timestamp );
                 }
-                else if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
-                    mPriCOGSOG = 2;
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_COG,
-                        mCOGFilter.filter( value * RAD_IN_DEG ),
-                        _T("\u00B0"),
-                        timestamp );
+            } // HDG
+        
+            else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) { // https://git.io/JeYdxn
+                if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                    if( mPriHeadingM >= 2 ) { 
+                        if ( !std::isnan( value )) {
+                            mPriHeadingM = 2;
+                            mHdm = value * RAD_IN_DEG;
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
+                                                          mHdm,
+                                                          _T("\u00B0M"),
+                                                          timestamp );
+                            mHDx_Watchdog = gps_watchdog_timeout_ticks;
+                        }
+                    }
                 }
-            } // priority activation
-        } // VTG
+            } // HDM
+        
+            else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) { // https://git.io/JeOCC
+                if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
+                    if( mPriHeadingM >= 1 ) { 
+                        if ( !std::isnan( value )) {
+                            mPriHeadingM = 1;
+                            mHdm = value * RAD_IN_DEG;
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_HDT,
+                                                          mHdm,
+                                                          _T("\u00B0T"),
+                                                          timestamp );
+                            mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                        }
+                    }
+                }
+            } // HDT
 
-        else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
-            if( mPriAWA >= 2 ) {
+            // MTA is not implemented in Signal K delta, cf. https://git.io/JeYdd - see XDR
+
+            else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
+                if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
+                    // Note: value from Signal K is SI units, thus hPa already
+                    if ( (value > 800) && (value < 1100) ) {
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
+                                                      value,
+                                                      _T("hPa"),
+                                                      timestamp );
+                    } // then valid pressure in hPa
+                    // Note: Dashboard does not deal with other values in MDA as for now so we skip them
+                }
+            } // MDA
+
+            else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
+                if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
+                    // Note: value from Signal K is SI units, thus we receive Kelvins
+                    double TemperatureValue = value - CELCIUS_IN_KELVIN; 
+                    wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
+                    checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
+                                                  TemperatureValue,
+                                                  TemperatureUnitOfMeasurement,
+                                                  timestamp );
+                }
+            } // MTW
+
+            // MWD is not implemented in Signal K, cf. https://git.io/JeYdd (but calculated in Tactics)
+
+            else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) { // https://git.io/JeOov
                 if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
-                    mPriAWA = 2;
+                    // Note: value from Signal K is SI units, thus we receive m/s
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_AWS,
-                        toUsrSpeed_Plugin(
-                            value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
                         timestamp );
                     this->SetNMEASentence_Arm_AWS_Watchdog();
                 }
                 else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
-                    mPriAWA = 2;
+                    if( mPriAWA >= 1 ) {
+                        mPriAWA = 1;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_AWA,
+                            std::abs( value ) * RAD_IN_DEG,
+                            ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                            timestamp );
+                    } // AWA priority
+                }
+                else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
                     SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_AWA,
-                        std::abs( value ) * RAD_IN_DEG,
-                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                        OCPN_DBP_STC_TWS,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_TWS2,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    this->SetNMEASentence_Arm_TWS_Watchdog();
+                }
+                else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
+                    if( mPriTWA >= 1 ) {
+                        mPriTWA = 1;
+                        wxString twaunit = wxEmptyString;
+                        double twaangle = value * RAD_IN_DEG;
+                        if ( twaangle > 180.0 ) {
+                            twaunit = L"\u00B0lr"; // == wind arrow on port side
+                            twaangle = 180.0 - (twaangle - 180.0);
+                        }
+                        else {
+                            twaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                        }
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
+                                                      twaangle,
+                                                      twaunit,
+                                                      timestamp );
+                    } // TWA priority
+                }
+            } // MWV
+        
+            else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) { // https://git.io/Je3UV
+                /* See the comment in the same sentence's interpretation above (when coming
+                   from OpenCPN): the controversy of having it here is the same:
+                   the infamous VMG interpretation of next destination waypoint is not
+                   the same as in Tactics, i.e. for the sailing boat performance criteria.
+                   It is kept here since it can be considered belonging to Dashboard which
+                   needs to serve also the needs of a cruising sailing and motor boats but
+                   it can be useful in the off-shore races, too.
+                */
+                // Dashboard ignores navigation.courseRhumbline.nextPoint, as for now
+                if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.bearingTrue")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_BRG,
+                        value * RAD_IN_DEG,
+                        _T("\u00B0"), // as for now, Origin ID not available from Signal K
+                        timestamp );
+                    this->SetNMEASentence_Arm_BRG_Watchdog();
+                }
+                else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.velocityMadeGood")) == 0 ) {
+                    // This is THE carburator for hours of useless "discussions" in forums; comment it out if you don't like it :)
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_VMG,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    this->SetNMEASentence_Arm_VMG_Watchdog();
+                }
+                else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_DTW,
+                        value * KM_IN_NM,
+                        _T("Nm"),
                         timestamp );
                 }
-            } // prirority activation
-        } // VWR
+            } // RMB
 
-        // VWT not implemented as for now (but Tactics calculates it)
+            else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) { // https://git.io/Je3T3
+                if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
+                    if( (mPriPosition >= 4) && (key != NULL) ) {  // See SetPositionFix() - It rules, even if no fix!
+                        mPriPosition = 4;
+                        if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
+                                                          value,
+                                                          _T("SDMM"),
+                                                          timestamp );
+                        else if ( key->CmpNoCase(_T("latitude")) == 0 )
+                            SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
+                                                          value,
+                                                          _T("SDMM"),
+                                                          timestamp );
+                    } // selected by (low) priority
+                }
+                else if ( mPriCOGSOG >= 3 ) {
+                    if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                        mPriCOGSOG = 3;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_COG,
+                            mCOGFilter.filter( value * RAD_IN_DEG ),
+                            _T("\u00B0"),
+                            timestamp );
+                    }
+                    else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                        mPriCOGSOG = 3;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_SOG,
+                            toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                               g_iDashSpeedUnit ),
+                            getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                            timestamp );
+                    }
+                    else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+                        mPriCOGSOG = 3;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_MCOG,
+                            value * RAD_IN_DEG,
+                            _T("\u00B0M"),
+                            timestamp );
+                    }
+                } // mPriCOGSOG
+            } // RMC
 
-        /*
-          XDR is not implemented in the Signal K TCP delta stream yet but it is
-          available from the NMEA stream which the OpenCPN receives from Signal K.
-          Therefore it is searched and executed in the above non-SignalK section.
-        */
-        
+            else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) { // https://git.io/Je3sA
+                if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_RSA,
+                        value * RAD_IN_DEG,
+                        _T("\u00B0"),
+                        timestamp );
+                }
+            } // RSA
+
+            else if ( sentenceId->CmpNoCase(_T("VHW")) == 0 ) { // https://git.io/Je3GE
+                if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
+                    if ( mPriHeadingT >= 2 ) {
+                        mPriHeadingT = 2;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_HDT,
+                            value * RAD_IN_DEG,
+                            _T("\u00B0T"),
+                            timestamp );
+                        mHDT_Watchdog = gps_watchdog_timeout_ticks;
+                    } // priority activation
+                }
+                else if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                    if ( mPriHeadingM >= 3 ) {
+                        mPriHeadingM = 3;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_HDM,
+                            value * RAD_IN_DEG,
+                            _T("\u00B0M"),
+                            timestamp );
+                        mHDx_Watchdog = gps_watchdog_timeout_ticks;
+                    } // priority activation
+                }
+                else if ( path->CmpNoCase(_T("navigation.speedThroughWater")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_STW,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                        timestamp );
+                    mStW_Watchdog = gps_watchdog_timeout_ticks;
+                }
+            } // VHW
+
+            else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
+                if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
+                    // Note: value from Signal K is "as received", i.e. nautical miles
+                    if ( value >= 0.0 )
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
+                                                      toUsrDistance_Plugin( value,
+                                                                            g_iDashDistanceUnit ),
+                                                      getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                                      timestamp );
+                }
+                else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
+                    if ( value >= 0.0 )
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
+                                                      toUsrDistance_Plugin( value,
+                                                                            g_iDashDistanceUnit ),
+                                                      getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                                                      timestamp );
+                }
+            } // VLW
+
+            else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) { // https://git.io/Je3Zp
+                // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"           
+                if ( mPriCOGSOG >= 2 ) {
+                    if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                        mPriCOGSOG = 2;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_SOG,
+                            toUsrSpeed_Plugin(
+                                mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                g_iDashSpeedUnit ),
+                            getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                            timestamp );
+                    }
+                    else if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                        mPriCOGSOG = 2;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_COG,
+                            mCOGFilter.filter( value * RAD_IN_DEG ),
+                            _T("\u00B0"),
+                            timestamp );
+                    }
+                } // priority activation
+            } // VTG
+
+            else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
+                if( mPriAWA >= 2 ) {
+                    if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+                        mPriAWA = 2;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_AWS,
+                            toUsrSpeed_Plugin(
+                                value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                            getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                            timestamp );
+                        this->SetNMEASentence_Arm_AWS_Watchdog();
+                    }
+                    else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                        mPriAWA = 2;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_AWA,
+                            std::abs( value ) * RAD_IN_DEG,
+                            ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                            timestamp );
+                    }
+                } // prirority activation
+            } // VWR
+
+            // VWT not implemented as for now (but Tactics calculates it)
+
+            /*
+              XDR is not implemented in the Signal K TCP delta stream yet but it is
+              available from the NMEA stream which the OpenCPN receives from Signal K.
+              Therefore it is searched and executed in the above non-SignalK section.
+            */
+        } // then NMEA-0183 delta from Signal K
+        else if ( type->IsSameAs( "NMEA2000", false ) ) {
+
+            if ( pgn == PGN_ENG_PARAM_RAP ) {
+                if ( path->CmpNoCase(_T("propulsion.port.revolutions")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_ENGPRPM,
+                        ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
+                        L"",
+                        timestamp );
+                }
+            }
+            else if ( pgn == PGN_ENG_PARAM_DYN ) {
+                if ( path->CmpNoCase(_T("propulsion.port.temperature")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_ENGPTEMP,
+                        ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
+                        L"",
+                        timestamp );
+                }
+                else if ( path->CmpNoCase(_T("propulsion.port.oilPressure")) == 0 ) {
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_ENGPOILP,
+                        ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
+                        L"",
+                        timestamp );
+                }
+            }
+            
+        } // then NMEA-2000 delta from Signal K
+                
     } // else Signal K
 
 #endif // _TACTICSPI_H_
@@ -4413,6 +4474,24 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
         case ID_DBP_D_AVGWIND:
             instrument = new TacticsInstrument_AvgWindDir(
                 this, wxID_ANY, getInstrumentCaption(id));
+            break;
+        case ID_DBP_I_ENGPRPM:
+            instrument = new DashboardInstrument_Single(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_ENGPRPM,
+                _T("%4.0f rpm"));
+            break;
+        case ID_DBP_I_ENGPTEMP:
+            instrument = new DashboardInstrument_Single(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_ENGPTEMP,
+                _T("%3.0f \u00B0C"));
+            break;
+        case ID_DBP_I_ENGPOILP:
+            instrument = new DashboardInstrument_Single(
+                this, wxID_ANY,
+                getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
+                _T("%3.1f bar"));
             break;
 #endif // _TACTICSPI_H_
         }
