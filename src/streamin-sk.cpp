@@ -73,14 +73,12 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
 
     m_data  = emptyStr;
     if ( nofStreamInSk > 1) {
-        wxString checkHalt = echoStreamerInSkShow.wc_str();
-        wxString isHalt = L"\u2013 HALT \u2013";
-        if ( !checkHalt.IsSameAs( isHalt ) ) {
-            m_state = SSKM_STATE_DISPLAYRELAY;
-            m_data = echoStreamerInSkShow;
-            return;
-        } // check against case that there is halted slave displays and this is a restart
-    }
+        m_timer = new wxTimer( this, myID_TICK_SK_IN );
+        m_timer->Start( SSKM_TICK_COUNT, wxTIMER_CONTINUOUS );
+        m_state = SSKM_STATE_DISPLAYRELAY;
+        m_data = echoStreamerInSkShow;
+        return;
+    } // check against case that there is multiple disaplays and this is just slave
     m_state = SSKM_STATE_INIT;
     m_data += L"\u2013 \u2013 \u2013";
     echoStreamerInSkShow = m_data;
@@ -245,10 +243,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     wxSocketBase::Initialize();
     m_socket.SetTimeout( m_connectionRetry );
     m_socket.SetFlags( wxSOCKET_BLOCK );
-    wxIPV4address  *address = NULL;
+    wxIPV4address  *address = new wxIPV4address();
     wxThreadEvent   event( wxEVT_THREAD, myID_THREAD_SK_IN );
 
-    address = new wxIPV4address();
     wxUniChar separator = 0x3a;
     address->Hostname(m_source.BeforeFirst(separator));
     address->Service(m_source.AfterFirst(separator));
@@ -332,6 +329,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         } // then need to attempt to connect()
         
         if ( m_stateComm == SKTM_STATE_WAITING ) {
+
+            m_data = sCnxPrg[iCnxPrg];
+            *m_echoStreamerInSkShow = m_data;
             
             wxString sData = wxEmptyString; // no payload this time
 
@@ -563,6 +563,10 @@ void TacticsInstrument_StreamInSkSingle::OnThreadUpdate( wxThreadEvent &evt )
 ************************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt )
 {
+    if ( m_state == SSKM_STATE_DISPLAYRELAY ) {
+        m_data = *m_echoStreamerInSkShow;
+        return;
+    }
     if ( m_thread->TestDestroy() || m_cmdThreadStop )
         return;
     if ( m_thread->IsAlive() ) {
@@ -576,12 +580,14 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
     if ( m_startGraceCnt >= SSKM_START_GRACE_COUNT ) {
         if ( (m_stateComm == SKTM_STATE_READY) || (m_stateComm == SKTM_STATE_WAITING) ) {
             m_data = wxString::Format("%3d  [1/s]", m_updatesSent);
+            *m_echoStreamerInSkShow = m_data;
         }
     }
     else {
         m_startGraceCnt ++;
         if ( (m_stateComm == SKTM_STATE_READY) && (m_updatesSent > 0) ) {
             m_data = ( (m_startGraceCnt % 2) == 0? L"  \u2665" : L"" );
+            *m_echoStreamerInSkShow = m_data;
         }
     }
     m_updatesSent = 0;

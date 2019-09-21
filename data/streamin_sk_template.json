@@ -18,6 +18,6 @@
         "connectionretry" : 5,                // [s] (min.=1s to reduce CPU load)
         "timestamps"      : "server",         // "server" or "local"
         "verbosity"       : 1                 //0=no,1=events,2=verbose,3+=debug
-    },
+    }
 
 }
