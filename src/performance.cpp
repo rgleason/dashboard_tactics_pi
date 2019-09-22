@@ -409,7 +409,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
            m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
            }*/
         if (mBRG >= 0 && !std::isnan(mTWD) && !std::isnan(avWnd) ) {
-            double markBrG = getDegRange(mBRG, mTWD);
+            // double markBrG = getDegRange(mBRG, mTWD); // not used anywhere
             // do the rounding inside the function to keep it somehow in sync with the AvgWind instrument ...
             double AvgMarkBrG = getDegRange(mBRG, wxRound(avWnd));
             double leftMarkBrG = getDegRange(mBRG, wxRound(port));
