@@ -108,8 +108,10 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 /***************************************************************************************
 ****************************************************************************************/
 void TacticsInstrument_PolarCompass::SetData(unsigned long long st,
-                                             double data, wxString unit)
+                                             double data, wxString unit, long long timestamp )
 {
+    setTimestamp( timestamp );
+
 	if (st == OCPN_DBP_STC_COG) {
 		m_Cog = data;
 	}
@@ -201,6 +203,21 @@ void TacticsInstrument_PolarCompass::SetData(unsigned long long st,
     }
 	CalculateLaylineDegreeRange();
 }
+
+void TacticsInstrument_PolarCompass::derivedTimeoutEvent()
+{
+    m_Bearing = NAN;
+    m_ToWpt = _T("---");
+    m_ExtraValueDTW = NAN;
+    m_predictedSog = NAN;
+    m_ExtraValueDTWUnit = getUsrDistanceUnit_Plugin(g_iDashDistanceUnit);
+    m_BearingUnit = _T("\u00B0");
+    m_ExtraValueDTW = NAN;
+    m_CurrDir = NAN;
+    m_CurrSpeed = NAN;
+    m_currAngleStart = NAN;
+    m_CurrDirUnit = wxEmptyString;
+}
 /***************************************************************************************
 ****************************************************************************************/
 void TacticsInstrument_PolarCompass::Draw(wxGCDC* bdc)
@@ -229,6 +246,10 @@ void TacticsInstrument_PolarCompass::Draw(wxGCDC* bdc)
         //DrawData(bdc, m_Bearing, m_BearingUnit, _T("BRG:%.f"), DIAL_POSITION_TOPLEFT);
         DrawData(bdc, m_ExtraValueDTW, m_ExtraValueDTWUnit, _T("DTW:%.1f"), DIAL_POSITION_TOPLEFT);
         DrawData(bdc, 0, m_ToWpt, _T(""), DIAL_POSITION_TOPRIGHT);
+    }
+    else {
+        DrawData(bdc, 0, _T(""), _T(":%.1f"), DIAL_POSITION_TOPLEFT);
+        DrawData(bdc, 0, _T(""), _T(""), DIAL_POSITION_TOPRIGHT);
     }
     //wxLogMessage("-- ..PolarCompass-Draw() - m_TWA=%f m_TWS=%f", m_TWA, m_TWS);
     if (!std::isnan(m_TWA) && !std::isnan(m_TWS) ){

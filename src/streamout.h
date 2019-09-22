@@ -38,6 +38,7 @@ using namespace std;
 #endif //precompiled headers
 
 #include <wx/thread.h>
+#include <wx/socket.h>
 
 #include "instrument.h"
 
@@ -74,9 +75,10 @@ public:
 	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
-	void SetData(unsigned long long st, double data, wxString unit);
+	void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnStreamOutUpdTimer(wxTimerEvent& event);
-
+    virtual void timeoutEvent(void){};
+    
 protected:
 
     class sentenceSchema
@@ -199,6 +201,7 @@ protected:
     std::mutex        m_mtxQLine;
     int               m_stateComm;
     bool              m_cmdThreadStop;
+    wxSocketClient    m_socket;
     wxString          m_threadMsg;
 
     // From configuration file

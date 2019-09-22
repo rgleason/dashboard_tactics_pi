@@ -24,6 +24,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
  ***************************************************************************
  */
+#ifdef _TACTICSPI_H_
+using namespace std;
+#endif // _TACTICSPI_H_
 
 #include "from_ownship.h"
 
@@ -83,8 +86,18 @@ void DashboardInstrument_FromOwnship::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
+#ifdef _TACTICSPI_H_
+    if ( std::isnan( data ) )
+        return;
+    setTimestamp( timestamp );
+#endif // _TACTICSPI_H_
+    
     if (st == m_cap_flag1)
     {
 	      c_lat = data;
@@ -113,6 +126,14 @@ void DashboardInstrument_FromOwnship::SetData(
 	  	
     Refresh(false);
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_FromOwnship::timeoutEvent()
+{
+    m_data1 =_T("---");
+    m_data2 =_T("---");
+}
+#endif // _TACTICSPI_H_
 
 wxSize DashboardInstrument_FromOwnship::GetSize( int orient, wxSize hint )
 {

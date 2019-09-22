@@ -2,7 +2,7 @@
 * $Id: streamout.cpp, v1.0 2019/08/08 DarthVader Exp $
 *
 * Project:  OpenCPN
-* Purpose:  tactics Plugin
+* Purpose:  Tactics Plugin
 * Author:   Petri Makijarvi
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register                               *
@@ -36,7 +36,6 @@
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
 
-extern wxString g_path_to_PolarFile;
 extern int g_iDashWindSpeedUnit;
 extern int g_iDashSpeedUnit;
 extern int g_iSpeedFormat;
@@ -64,6 +63,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_nofStreamOut = &nofStreamOut;
     m_echoStreamerShow = &echoStreamerShow;
     m_state = SSSM_STATE_UNKNOWN;
+    m_timer = NULL;
 
     wxString emptyStr = wxEmptyString;
     emptyStr = emptyStr.wc_str();
@@ -141,14 +141,17 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     (*m_nofStreamOut)--;
     if ( m_state == SSSM_STATE_DISPLAYRELAY )
         return;
-    this->m_timer->Stop();
-    delete this->m_timer;
+    if ( this->m_timer != NULL ) {
+        this->m_timer->Stop();
+        delete this->m_timer;
+    }
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerShow = m_data;
     SaveConfig();
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -241,7 +244,7 @@ void TacticsInstrument_StreamoutSingle::sLL(long long cnt, wxString &retString)
 /***********************************************************************************
 
 ************************************************************************************/
-void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit)
+void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double data, wxString unit, long long timestamp)
 {
     wxLongLong wxllNowMs = wxGetUTCTimeMillis();
 
@@ -257,7 +260,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
         return;
     
     sentenceSchema schema;
-    long long msNow = wxllNowMs.GetValue();
+    long long msNow = ( timestamp == 0 ? wxllNowMs.GetValue() : timestamp );
     if ( !GetSchema( st, msNow, schema ) )
         return;
     
@@ -333,6 +336,7 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
     if ( GetThread() ) {
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
+            m_socket.InterruptWait();
             m_thread->Wait();
         }
     }
@@ -361,7 +365,6 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     m_stateComm = STSM_STATE_INIT;
     m_stateFifoOverFlow = STSM_FIFO_OFW_NOT_BLOCKING;
 
-    wxSocketClient *socket  = NULL;
     wxIPV4address  *address = NULL;
     wxFile         *file    = NULL;
     bool            fileOp  = true;
@@ -371,8 +374,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
 
     if ( m_targetAsFilePath.IsEmpty() ) { 
         wxSocketBase::Initialize();
-        socket = new wxSocketClient();
-        socket->SetTimeout( 5 );
+        m_socket.SetTimeout( m_connectionRetry );
+        m_socket.SetFlags( wxSOCKET_BLOCK );
         address = new wxIPV4address();
         wxUniChar separator = 0x3a;
         address->Hostname(m_target.BeforeFirst(separator));
@@ -440,6 +443,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         m_stateComm = STSM_STATE_READY;
     else
         m_stateComm = STSM_STATE_CONNECTING;
+    int prevStateComm = m_stateComm;
 
     while (__NOT_STOP_THREAD__) {
 
@@ -450,12 +454,12 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 ( (iCnxPrg >= 2) ? iCnxPrg = 0 : iCnxPrg++ );
                 m_data = sCnxPrg[iCnxPrg];
                 *m_echoStreamerShow = m_data;
-                if ( !socket->Connect( *address, false ) ) {
-                    if ( !socket->WaitOnConnect() ) {
+                if ( !m_socket.Connect( *address, false ) ) {
+                    if ( !m_socket.WaitOnConnect() ) {
                         connectionErr += _T(" (timeout)");
                     }
                     else {
-                        if ( !socket->IsConnected() ) {
+                        if ( !m_socket.IsConnected() ) {
                             connectionErr += _T(" (refused by peer)");
                         }
                     }
@@ -463,20 +467,25 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 if ( __NOT_STOP_THREAD__) {
                     if ( connectionErr.IsEmpty() ) {
                         m_stateComm = STSM_STATE_READY;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
-                            wxQueueEvent( m_frame, event.Clone() );
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_READY");
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                     }
                     else {
                         m_stateComm = STSM_STATE_ERROR;
-                        if ( m_verbosity > 1) {
-                            m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
-                            m_threadMsg += connectionErr;
-                            wxQueueEvent( m_frame, event.Clone() );
+                        if ( prevStateComm != m_stateComm ) {
+                            if ( m_verbosity > 1) {
+                                m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : STSM_STATE_ERROR");
+                                m_threadMsg += connectionErr;
+                                wxQueueEvent( m_frame, event.Clone() );
+                            }
                         }
+                        prevStateComm = m_stateComm;
                         giveUpConnectionRetry100ms(5);
-                        m_stateComm = STSM_STATE_CONNECTING; 
                     } // else error state wait until attempting again
                 } // then thread does not need to terminate
             } // then thread does not need to terminate
@@ -585,33 +594,42 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 wxScopedCharBuffer scb = sHdrOut.mb_str();
                 size_t len = scb.length();
 
-                socket->Write( scb.data(), len );
+                m_socket.Write( scb.data(), len );
 
                 if ( m_verbosity > 4) {
-                    m_threadMsg = wxString::Format("dashboard_tactics_pi: written to socket:\n%s", sHdrOut);
+                    m_threadMsg = wxString::Format("dashboard_tactics_pi: streamout: written to socket:\n%s", sHdrOut);
                     wxQueueEvent( m_frame, event.Clone() );
                 } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
 
-                if ( !socket->Error() ) {
+                if ( !m_socket.Error() ) {
 
                     __INCR_CNTROUT__;
 
-                    int waitMilliSeconds = 0;
                     bool readAvailable = false;
-                    while ( __NOT_STOP_THREAD__ && !readAvailable &&
-                            (waitMilliSeconds < (m_connectionRetry * 500)) ) {
+                    bool timeOut = false;
+                    while ( __NOT_STOP_THREAD__ && !readAvailable ) {
                         char c;
-                        ( socket->Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
+                        ( m_socket.Peek(&c,1).LastCount()==0 ? readAvailable = false : readAvailable = true );
                         if ( !readAvailable) {
-                            wxMilliSleep( 20 );
-                            waitMilliSeconds += 20;
-                        }
+                            wxLongLong startWait = wxGetUTCTimeMillis();
+                            readAvailable = m_socket.WaitForRead( );
+                            if ( !readAvailable) {
+                                wxLongLong endWait = wxGetUTCTimeMillis();
+                                if ( (endWait.GetValue() - startWait.GetValue()) >= ( m_connectionRetry * 1000 ) ) {
+                                    m_socket.Close();
+                                    m_stateComm = STSM_STATE_ERROR;
+                                    timeOut = true;
+                                }
+                            }
+                       }
+                        if ( (__STOP_THREAD__) || timeOut )
+                            break;
                     }
-                    if (__STOP_THREAD__)
+                    if ( (__STOP_THREAD__) || timeOut )
                         break;
                     if ( readAvailable ) {
                         wxCharBuffer buf(100);
-                        socket->Read( buf.data(), 100 );
+                        m_socket.Read( buf.data(), 100 );
                         wxString sBuf = buf;
                         bool sBufError = true;
                         if ( sBuf.Contains("HTTP/1.1 204") )
@@ -620,8 +638,8 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                         int lostLoop100s = 0;
                         while ( lostReadCount > 0 ) {
                             wxCharBuffer lostbuf(100);
-                            socket->Read( lostbuf.data(), 100 );
-                            lostReadCount = socket->LastReadCount();
+                            m_socket.Read( lostbuf.data(), 100 );
+                            lostReadCount = m_socket.LastReadCount();
                             lostLoop100s += lostReadCount;
                         }
                         if ( sBufError ) {
@@ -635,7 +653,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     } // then read buffer of the socket contains some data
                     else {
                         m_stateComm = STSM_STATE_ERROR;
-                        socket->Close();
+                        m_socket.Close();
                         if ( m_verbosity > 1) {
                             m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : Error - no data received from server.");
                             wxQueueEvent( m_frame, event.Clone() );
@@ -645,7 +663,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                 } // then no error in the socket write
                 else {
                     m_stateComm = STSM_STATE_ERROR;
-                    socket->Close();
+                    m_socket.Close();
                     if ( m_verbosity > 1) {
                         m_threadMsg = _T("dashboard_tactics_pi: DB Streamer : socket Write() error.");
                         wxQueueEvent( m_frame, event.Clone() );
@@ -665,7 +683,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
         delete file;
     } // then close file operations
     else {
-        socket->Destroy();
+        m_socket.Close();
         wxSocketBase::Shutdown();
         delete address;
     } // else socket operation termination
@@ -828,7 +846,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             throw 300;
         }
         int asize = dbSchemas.Size();
-        if ( asize == 0 ) {
+        if ( asize <= 0 ) {
             wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: 'dbschema' is an array but it is empty.");
             throw 300;
         }
@@ -901,7 +919,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
 
         return false;
         
-    } // A JSON file can have errors which has sometimes errors which make this old JSON code to break
+    } // A JSON file can have errors which make this old JSON code to break
 
     return true;
 }

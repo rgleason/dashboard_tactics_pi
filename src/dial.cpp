@@ -70,6 +70,9 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
     m_AngleStart = s_angle;
     m_AngleRange = r_angle;
     m_MainValue = static_cast<double>(s_value);
+#ifdef _TACTICSPI_H_
+    m_s_value = s_value;
+#endif // _TACTICSPI_H_
     m_MainValueCap = cap_flag;
     m_MainValueMin = m_MainValue;
     m_MainValueMax = static_cast<double>(e_value);
@@ -109,9 +112,14 @@ void DashboardInstrument_Dial::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
 #ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -131,35 +139,32 @@ void DashboardInstrument_Dial::SetData(
             m_ExtraValue = 0.0;
         return;
     } // then having NaN: can mean that data stream has ended and it is the watchog barking.
-
-#ifdef _TACTICSPI_H_
-#else
 #endif // _TACTICSPI_H_
 
-
-
-#endif // _TACTICSPI_H_
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
-#ifdef _TACTICSPI_H_
-    if ( (st == m_MainValueCap) && (data < 400.0) )
-#else
     if ( (st == m_MainValueCap) && (data < 1200.0) )
-#endif // _TACTICSPI_H_
     {
         m_MainValue = data;
         m_MainValueUnit = unit;
     }
-#ifdef _TACTICSPI_H_
-    else if ( (st == m_ExtraValueCap) && (data < 400.0) )
-#else
     else if ( (st == m_ExtraValueCap) && (data < 1200.0) )
-#endif // _TACTICSPI_H_
     {
         m_ExtraValue = data;
         m_ExtraValueUnit = unit;
     }
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_Dial::timeoutEvent()
+{
+    m_MainValue = static_cast<double>(m_s_value);
+    m_MainValueUnit = _T("");
+    m_ExtraValue = 0.0;
+    m_ExtraValueUnit = _T("");
+    this->derivedTimeoutEvent();
+}
+#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
 {

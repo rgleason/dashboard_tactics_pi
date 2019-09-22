@@ -58,8 +58,9 @@ public:
     DashboardInstrument_WindDirHistory( wxWindow *parent, wxWindowID id, wxString title);
 #ifdef _TACTICSPI_H_
     ~DashboardInstrument_WindDirHistory(void);
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnWindHistUpdTimer(wxTimerEvent &event);
+    virtual void timeoutEvent(void){};
 #else
     ~DashboardInstrument_WindDirHistory(void){}
     void SetData(int, double, wxString);

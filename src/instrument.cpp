@@ -35,6 +35,13 @@
 #include "instrument.h"
 #include "wx28compat.h"
 
+#ifdef _TACTICSPI_H_
+#include "plugin_ids.h"
+wxBEGIN_EVENT_TABLE (DashboardInstrument,wxControl)
+    EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
+wxEND_EVENT_TABLE ()
+#endif // _TACTICSPI_H_
+
 //----------------------------------------------------------------
 //
 //    Generic DashboardInstrument Implementation
@@ -81,7 +88,39 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 #ifdef __WXOSX__
       Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(DashboardInstrument::MouseEvent), NULL, this);
 #endif
+#ifdef _TACTICSPI_H_
+      m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
+      previousTimestamp = 0LL;
+      m_DPBITickTimer->Start( DBP_I_TIMER_TICK, wxTIMER_CONTINUOUS );
+#endif // _TACTICSPI_H_
 }
+
+#ifdef _TACTICSPI_H_
+DashboardInstrument::~DashboardInstrument()
+{
+    this->m_DPBITickTimer->Stop();
+}
+void DashboardInstrument::setTimestamp( long long ts )
+{
+    previousTimestamp = ts;
+}
+long long DashboardInstrument::getTimestamp()
+{
+    return previousTimestamp;
+}
+void DashboardInstrument::OnDPBITimerTick( wxTimerEvent &event )
+{
+    if (previousTimestamp == 0LL)
+        return;
+    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+    long long  llNowMs = wxllNowMs.GetValue();
+    if ( (llNowMs - previousTimestamp) >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
+        this->timeoutEvent();
+        previousTimestamp = llNowMs;
+    }
+}
+
+#endif // _TACTICSPI_H_
 
 void DashboardInstrument::MouseEvent( wxMouseEvent &event )
 {
@@ -257,13 +296,18 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
 
 void DashboardInstrument_Single::SetData(
 #ifdef _TACTICSPI_H_
-        unsigned long long st,
+    unsigned long long st,
 #else
-        int st,
+    int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
 #ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
 #endif // _TACTICSPI_H_
@@ -334,7 +378,12 @@ void DashboardInstrument_Single::SetData(
                 m_data = _T("---");
       }
 }
-
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_Single::timeoutEvent()
+{
+    m_data = _T("---");
+}
+#endif // _TACTICSPI_H_
 //----------------------------------------------------------------
 //
 //    DashboardInstrument_Position Implementation
@@ -414,20 +463,34 @@ void DashboardInstrument_Position::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
-      if (st == m_cap_flag1)
-      {
-            m_data1 = toSDMM(1, data);
-            m_data1[0] = ' ';
-      }
-      else if (st == m_cap_flag2)
-      {
-            m_data2 = toSDMM(2, data);
-      }
-      else return;
-      Refresh();
+#ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
+#endif // _TACTICSPI_H_
+    if (st == m_cap_flag1)
+    {
+        m_data1 = toSDMM(1, data);
+        m_data1[0] = ' ';
+    }
+    else if (st == m_cap_flag2)
+    {
+        m_data2 = toSDMM(2, data);
+    }
+    else return;
+    Refresh();
 }
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_Position::timeoutEvent()
+{
+      m_data1 = _T("---");
+      m_data2 = _T("---");
+}
+#endif // _TACTICSPI_H_
 
 /**************************************************************************/
 /*          Some assorted utilities                                       */

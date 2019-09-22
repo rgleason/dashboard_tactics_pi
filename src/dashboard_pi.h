@@ -87,6 +87,19 @@ class DashboardInstrumentContainer;
 
 #define gps_watchdog_timeout_ticks  10
 
+#ifdef _TACTICSPI_H_
+// Incoming NMEA-2000 PGNs Dashboard inspects
+#define PGN_ENG_PARAM_RAP 127488
+#define PGN_ENG_PARAM_DYN 127489 
+// Signal K conversions, see https://git.io/JeYry
+#define DEG_IN_RAD 0.0174532925
+#define RAD_IN_DEG 57.2957795
+#define CELCIUS_IN_KELVIN 273.15
+#define MS_IN_KNOTS 1.943844
+#define KM_IN_NM 0.539956803
+#define PA_IN_BAR 100000
+#endif // _TACTICSPI_H_
+
 class DashboardWindowContainer
 {
 public:
@@ -185,14 +198,28 @@ public:
     wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
+#ifdef _TACTICSPI_H_
     void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit);
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+    void pSendSentenceToAllInstruments(
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+#else
+    void SendSentenceToAllInstruments(
+        int st, double value, wxString unit);
+#endif // _TACTICSPI_H_
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    void OnAvgWindUpdTimer(wxTimerEvent& event);
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
+#ifdef _TACTICSPI_H_
+    void SetNMEASentence(
+        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
+        wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, wxString* valStr=NULL,
+        long long timestamp=0LL, wxString* key=NULL);
+#endif // _TACTICSPI_H_
     void SetPositionFix(PlugIn_Position_Fix &pfix);
     void SetCursorLatLon(double lat, double lon);
     int GetToolbarToolCount(void);
@@ -216,6 +243,9 @@ public:
     int                m_nofStreamOut;
     std::mutex         m_mtxNofStreamOut;
     wxString           m_echoStreamerShow;
+    int                m_nofStreamInSk;
+    std::mutex         m_mtxNofStreamInSk;
+    wxString           m_echoStreamerInSkShow;
 #endif // _TACTICSPI_H_
     
 private:
@@ -226,24 +256,17 @@ private:
 #ifdef _TACTICSPI_H_
     wxString GetCommonNameVersion(void);  
     wxString GetNameVersion(void);  
-#endif // _TACTICSPI_H_
- 
+#endif // _TACTICSPI_H_ 
 
-#ifdef _TACTICSPI_H_
-    void pSendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit);
-#else
-    void SendSentenceToAllInstruments(
-        int st, double value, wxString unit);
-#endif // _TACTICSPI_H_
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
 #ifdef _TACTICSPI_H_
-    bool                m_bToggledStateVisible;
-    int                 m_iPlugInRequirements;
-    wxWindow           *m_pluginFrame;
-    static const char  *s_common_name;
+    bool                 m_bToggledStateVisible;
+    int                  m_iPlugInRequirements;
+    wxWindow            *m_pluginFrame;
+    static const char   *s_common_name;
+    wxTimer             *m_avgWindUpdTimer;
 #endif // _TACTICSPI_H_
     wxFileConfig        *m_pconfig;
     wxAuiManager        *m_pauimgr;
@@ -276,14 +299,20 @@ private:
     int                  mVar_Watchdog;
 #ifdef _TACTICSPI_H_
     int                  mStW_Watchdog;
+    int                  mSiK_Watchdog;
+    bool                 mSiK_DPT_environmentDepthBelowKeel;
+    int                  mSiK_navigationGnssMethodQuality;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
-    //protected:
-    //      DECLARE_EVENT_TABLE();
-};
 
+protected:
+#ifdef _TACTICSPI_H_
+    DECLARE_EVENT_TABLE();
+#endif // _TACTICSPI_H_
+};
+  
 class DashboardPreferencesDialog : public
 #ifdef _TACTICSPI_H_
     TacticsPreferencesDialog
@@ -409,7 +438,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-       double value, wxString unit );
+       double value, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
     void SendUtcTimeToAllInstruments( wxDateTime value );
     void ChangePaneOrientation( int orient, bool updateAUImgr );

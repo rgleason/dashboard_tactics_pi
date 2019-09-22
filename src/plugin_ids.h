@@ -34,14 +34,18 @@ enum pluginids {
     myID_EDIT_FIRST,
     myID_FIRST_UNIQUE_ID = myID_EDIT_FIRST + 12500, // arbitrary number
     // threads or timer events as threaded execution
+    myID_DBP_I_TIMER_TICK,
     myID_THREAD_WINDHISTORY,
     myID_THREAD_POLARPERFORMANCE,
     myID_THREAD_BAROHISTORY,
     myID_THREAD_IFLXAPI,
     myID_TICK_IFLXAPI,
+    myID_THREAD_SK_IN,
+    myID_TICK_SK_IN,
+    myID_THREAD_AVGWIND,
+    myID_TICK_AVGWIND,
     // end of tacticsEvents
     myID_EDIT_LAST
 };
-
 
 #endif // _PLUGINIDS_H_

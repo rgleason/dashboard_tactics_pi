@@ -149,7 +149,11 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 { 
 #ifdef _TACTICSPI_H_
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {

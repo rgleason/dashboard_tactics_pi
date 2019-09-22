@@ -51,8 +51,10 @@
 #include "avg_wind.h"
 #include "polarcompass.h"
 #include "streamout.h"
+#include "streamin-sk.h"
 
 class Polar;
+class AvgWind;
 
 #define aws_watchdog_timeout_ticks 10
 #define brg_watchdog_timeout_ticks 10
@@ -121,7 +123,13 @@ public:
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
 
-    virtual void SetNMEASentence(wxString &sentence) = 0;
+    virtual void SetNMEASentence(
+        wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
+        wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, wxString* valStr=NULL,
+        long long timestamp=0LL, wxString* key=NULL) = 0;
+    virtual void SetUpdateSignalK(
+        wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
+        wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL ) final;
     void SetNMEASentence_Arm_AWS_Watchdog(void){mAWS_Watchdog = aws_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_BRG_Watchdog(void){mBRG_Watchdog = brg_watchdog_timeout_ticks;}
     void SetNMEASentence_Arm_TWD_Watchdog(void){mTWD_Watchdog = twd_watchdog_timeout_ticks;}
@@ -145,11 +153,11 @@ public:
     virtual void TacticsOnContextMenuItemCallback(int id) final;
 
     virtual void SendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit ) = 0;
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL ) = 0;
     virtual void pSendSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit) = 0;
+        unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
     virtual void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit ) final;
+        unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
         unsigned long long st, double &value, wxString &unit ) final;
     virtual bool SendSentenceToAllInstruments_LaunchTrueWindCalculations(
@@ -158,22 +166,27 @@ public:
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
         unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
-        unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+        unsigned long long &st_twd, double &value_twd, wxString &unit_twd,
+        long long &calctimestamp
         ) final;
     virtual bool SendSentenceToAllInstruments_GetCalculatedLeeway(
         unsigned long long &st_leeway, double &value_leeway,
-        wxString &unit_leeway) final;
+        wxString &unit_leeway, long long &calctimestamp ) final;
     virtual bool SendSentenceToAllInstruments_GetCalculatedCurrent(
         unsigned long long st, double value, wxString unit,
         unsigned long long &st_currdir, double &value_currdir,
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
-        wxString &unit_currspd) final;
+        wxString &unit_currspd, long long &calctimestamp) final;
+
+    virtual void OnAvgWindUpdTimer_Tactics(void) final;
 
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
+
 private:
+
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
@@ -316,6 +329,7 @@ private:
         double data3, double data4 );
     void SendNMEASentence( wxString sentence );
     wxString ComputeChecksum(wxString sentence);
+
 };
 
 class TacticsPreferencesDialog : public wxDialog
@@ -346,7 +360,6 @@ public:
     wxSpinCtrlDouble             *m_fixedLeeway;//TR
     wxButton                     *m_buttonLoadPolar;//TR
     wxButton                     *m_buttonPrefsApply;//TR
-    wxButton                     *m_buttonPrefOK;//TR
     wxTextCtrl                   *m_pTextCtrlPolar; //TR
     wxSpinCtrlDouble             *m_pLaylineLength; //TR
     wxSpinCtrlDouble             *m_heel5_45;
@@ -382,6 +395,9 @@ public:
     wxCheckBox                   *m_ExpPerfData03;
     wxCheckBox                   *m_ExpPerfData04;
     wxCheckBox                   *m_ExpPerfData05;
+    wxCheckBox                   *m_ExpFileData01;
+    wxCheckBox                   *m_ExpFileData02;
+    wxTextCtrl                   *m_pDataExportSeparator;
     wxCheckBox                   *m_PersistentChartPolarAnimation;
 private:
     void UpdateTacticsButtonsState(void);
@@ -427,7 +443,10 @@ public:
         const int eventId ) final;
 
     void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit );
+        unsigned long long st, double value, wxString unit, long long timestamp );
+    void SetUpdateSignalK(
+        wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
+        wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
 
 private:
 

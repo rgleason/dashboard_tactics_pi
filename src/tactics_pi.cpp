@@ -28,6 +28,8 @@
 #include "tactics_pi.h"
 using namespace std;
 
+
+
 extern int g_iDashSpeedMax;
 extern int g_iDashCOGDamp;
 extern int g_iDashSpeedUnit;
@@ -77,6 +79,9 @@ bool g_bExpPerfData05;
 bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
 wxString g_sCMGSynonym, g_sVMGSynonym;
 wxString g_sDataExportSeparator;
+bool     g_bDataExportUTC;
+bool     g_bDataExportClockticks;
+AvgWind* AverageWind;
 
 int g_iDbgRes_Polar_Status;
 
@@ -246,25 +251,32 @@ int tactics_pi::TacticsInit( opencpn_plugin *hostplugin, wxFileConfig *pConf )
     this->TacticsLoadConfig();
     this->TacticsApplyConfig();
 
-	  // Context menue for making marks
-	  m_pmenu = new wxMenu();
-	  // this is a dummy menu required by Windows as parent to item created
-	  wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ") + g_sMarkGUID);
-	  int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
-	  SetCanvasContextMenuItemViz(miid, true);
+    AverageWind = new AvgWind();
+    // Context menue for making marks
+    m_pmenu = new wxMenu();
+    // this is a dummy menu required by Windows as parent to item created
+    wxMenuItem *pmi = new wxMenuItem(m_pmenu, -1, _T("Set ") + g_sMarkGUID);
+    int miid = AddCanvasContextMenuItem(pmi, m_hostplugin);
+    SetCanvasContextMenuItemViz(miid, true);
 
- 	  return (WANTS_CURSOR_LATLON |
-		  WANTS_TOOLBAR_CALLBACK |
-		  INSTALLS_TOOLBAR_TOOL |
-		  WANTS_PREFERENCES |
-		  WANTS_CONFIG |
-		  WANTS_NMEA_SENTENCES |
-		  WANTS_NMEA_EVENTS |
-		  USES_AUI_MANAGER |
-		  WANTS_PLUGIN_MESSAGING |
-		  WANTS_OPENGL_OVERLAY_CALLBACK |
-		  WANTS_OVERLAY_CALLBACK
-		);
+    return (WANTS_CURSOR_LATLON |
+            WANTS_TOOLBAR_CALLBACK |
+            INSTALLS_TOOLBAR_TOOL |
+            WANTS_PREFERENCES |
+            WANTS_CONFIG |
+            WANTS_NMEA_SENTENCES |
+            WANTS_NMEA_EVENTS |
+            USES_AUI_MANAGER |
+            WANTS_PLUGIN_MESSAGING |
+            WANTS_OPENGL_OVERLAY_CALLBACK |
+            WANTS_OVERLAY_CALLBACK
+        );
+}
+
+void tactics_pi::OnAvgWindUpdTimer_Tactics()
+{
+    if ( !std::isnan(mTWD) )
+        AverageWind->CalcAvgWindDir(mTWD);
 }
 
 void tactics_pi::SetToggledStateVisible( bool isvisible )
@@ -493,6 +505,8 @@ void tactics_pi::LoadTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Read(_T("VMGSynonym"), &g_sVMGSynonym, _T("VMG"));
     pConf->Read(_T("DataExportSeparator"), &g_sDataExportSeparator, _(";"));
     pConf->Read(_T("TacticsImportChecked"), &g_bTacticsImportChecked, false);
+    pConf->Read(_T("DataExportUTC-ISO8601"), &g_bDataExportUTC, 0);
+    pConf->Read(_T("DataExportClockticks"), &g_bDataExportClockticks,0);
 }
 /*
   Import tactics_pi settings from the Tactics Performance Group,
@@ -590,6 +604,8 @@ void tactics_pi::SaveTacticsPluginBasePart ( wxFileConfig *pConf )
     pConf->Write(_T("CMGSynonym"), g_sCMGSynonym);
     pConf->Write(_T("VMGSynonym"), g_sVMGSynonym);
     pConf->Write(_T("DataExportSeparator"), g_sDataExportSeparator);
+    pConf->Write(_T("DataExportUTC-ISO8601"), g_bDataExportUTC);
+    pConf->Write(_T("DataExportClockticks"), g_bDataExportClockticks);
     pConf->Write(_T("TacticsImportChecked"), g_bTacticsImportChecked);
 }
 /*
@@ -903,7 +919,7 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         //        GLubyte red(7), green(107), blue(183), alpha(curr_trans);
         //        glColor4ub(7, 107, 183, curr_trans);                  // red, green, blue,  alpha
 
-        GLubyte red(7), green(107), blue(183), alpha(164);
+        //GLubyte red(7), green(107), blue(183), alpha(164);
         glColor4ub(7, 107, 183, 164); // red, green, blue,  alpha
         //        glLineWidth(2);
         //      glBegin(GL_POLYGON | GL_LINES);
@@ -977,12 +993,12 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         //it shows '<deg>L'= wind from left = port tack or '<deg>R'=wind from right = starboard tack
         //we're on port tack, so vertical layline is red
         if (curTack == _T("\u00B0lr")) {
-            GLubyte red(204), green(41), blue(41), alpha(128);
+            //GLubyte red(204), green(41), blue(41), alpha(128);
             glColor4ub(204, 41, 41, 128);                 	// red, green, blue,  alpha
             targetTack = _T("R");
         }
         else if (curTack == _T("\u00B0rl"))  {// we're on starboard tack, so vertical layline is green
-            GLubyte red(0), green(200), blue(0), alpha(128);
+            //GLubyte red(0), green(200), blue(0), alpha(128);
             glColor4ub(0, 200, 0, 128);                 	// red, green, blue,  alpha
             targetTack = _T("L");
         }
@@ -1026,12 +1042,12 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         m_ExpSmoothDiffCogHdt = mExpSmDiffCogHdt->GetSmoothVal((diffCogHdt < 0 ? -diffCogHdt : diffCogHdt));
         if (targetTack == _T("R")){ // currently wind is from port ...now
             mPredictedHdG = m_LaylineSmoothedCog - m_ExpSmoothDiffCogHdt - 2 * mTWA - fabs(mLeeway); //Leeway is signed
-            GLubyte red(0), green(200), blue(0), alpha(128);
+            //GLubyte red(0), green(200), blue(0), alpha(128);
             glColor4ub(0, 200, 0, 128);                 	// red, green, blue,  alpha
         }
         else if (targetTack == _T("L")){ //currently wind from starboard
             mPredictedHdG = m_LaylineSmoothedCog + m_ExpSmoothDiffCogHdt + 2 * mTWA + fabs(mLeeway); //Leeway is signed
-            GLubyte red(204), green(41), blue(41), alpha(128);
+            //GLubyte red(204), green(41), blue(41), alpha(128);
             glColor4ub(204, 41, 41, 128);                 	// red, green, blue,  alpha
         }
         else {
@@ -1836,9 +1852,22 @@ An example client of these sentences is streaming/archiving and
 statistical calculation instruments.
 *********************************************************************/
 void tactics_pi::SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit ) {
+    unsigned long long st, double value, wxString unit, long long timestamp ) {
     // use the shortcut to instruments, i.e. not making callbacks to this module
-    pSendSentenceToAllInstruments( st, value, unit );
+    pSendSentenceToAllInstruments( st, value, unit, timestamp );
+}
+
+/********************************************************************
+This method is method is to use to pass streamed-in Signal K update
+into the NMEA interpretation method of the implementating (derived)
+class.
+*********************************************************************/
+void tactics_pi::SetUpdateSignalK(
+        wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
+        wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
+{
+    wxString noNMEA = wxEmptyString;
+    SetNMEASentence( noNMEA, type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
 }
 
 /********************************************************************
@@ -2076,7 +2105,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     unsigned long long st, double value, wxString unit,
     unsigned long long &st_twa, double &value_twa, wxString &unit_twa,
     unsigned long long &st_tws, unsigned long long &st_tws2, double &value_tws, wxString &unit_tws,
-    unsigned long long &st_twd, double &value_twd, wxString &unit_twd
+    unsigned long long &st_twd, double &value_twd, wxString &unit_twd,
+    long long &calctimestamp
     )
 {
     double spdval;
@@ -2164,7 +2194,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     }
     mTWS = sqrt(pow((aws_kts*cos(mAWA*M_PI / 180.)) - spdval, 2) + pow(aws_kts*sin(mAWA*M_PI / 180.), 2));
     /* ToDo: adding leeway needs to be reviewed, as the direction
-       of the bow is still based in the magnetic compass,
+       of the bow is still based on the magnetic compass,
        no matter if leeway or not ...
        if (!std::isnan(mLeeway) && g_bUseHeelSensor) { //correct TWD with Leeway if heel is available. Makes only sense with heel sensor
        mTWD = (mAWAUnit == _T("\u00B0rl")) ? mHdt + mTWA + mLeeway : mHdt - mTWA + mLeeway;
@@ -2192,6 +2222,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     st_twd = OCPN_DBP_STC_TWD;
     value_twd = mTWD;
     unit_twd = _T("\u00B0T");
+    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+    calctimestamp = wxllNowMs.GetValue();
     if ( ( m_iDbgRes_TW_Calc_Exe != DBGRES_EXEC_TRUE ) ) {
         wxLogMessage (
             "dashboard_tactics_pi: Tactics true wind calculations: algorithm is running and returning now TWA %f '%s', TWS %f '%s, TWD %f '%s'.",
@@ -2336,7 +2368,7 @@ if the return value is true.
 *********************************************************************/
 bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
     unsigned long long &st_leeway, double &value_leeway,
-    wxString &unit_leeway)
+    wxString &unit_leeway, long long &calctimestamp)
 {
     bool calculatedLeeway = false;
 
@@ -2377,6 +2409,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
         st_leeway = OCPN_DBP_STC_LEEWAY;
         value_leeway = mLeeway;
         unit_leeway = mHeelUnit;
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        calctimestamp = wxllNowMs.GetValue();
         return true;
     }
     return false;
@@ -2407,7 +2441,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
     unsigned long long &st_currdir, double &value_currdir,
     wxString &unit_currdir,
     unsigned long long &st_currspd, double &value_currspd,
-    wxString &unit_currspd)
+    wxString &unit_currspd, long long &calctimestamp)
 {
 
     //don't calculate on ALL incoming sentences ...
@@ -2481,9 +2515,6 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             m_ExpSmoothCosCurrDir = mCosCurrDir->GetSmoothVal(cos(rad));
             m_CurrentDirection = (90. - (atan2(m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir)*180. / M_PI) + 360.);
             while (m_CurrentDirection >= 360) m_CurrentDirection -= 360;
-            // temporary output of Currdir to file ...
-            //str = wxString::Format(_T("%.2f;%.2f\n"), currdir, m_CurrentDirection);
-            //out.WriteString(str);
             st_currdir = OCPN_DBP_STC_CURRDIR;
             value_currdir = m_CurrentDirection;
             unit_currdir = _T("\u00B0");
@@ -2491,6 +2522,8 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             value_currspd = toUsrSpeed_Plugin(
                 m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
             unit_currspd = getUsrSpeedUnit_Plugin(g_iDashSpeedUnit);
+            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+            calctimestamp = wxllNowMs.GetValue();
             return true;
         }
         else{
@@ -3128,7 +3161,36 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 	itemFlexGridSizerExpData->Add(m_ExpPerfData05, 0, wxEXPAND, 5);
 	m_ExpPerfData05->SetValue(g_bExpPerfData05);
 	//--------------------
+    //****************************************************************************************************
+    //****************************************************************************************************
+    wxStaticBox* itemStaticBoxFileExp = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Export Data to File"));
+    wxStaticBoxSizer* itemStaticBoxSizerFileExp = new wxStaticBoxSizer(itemStaticBoxFileExp, wxHORIZONTAL);
+    itemBoxSizer06->Add(itemStaticBoxSizerFileExp, 0, wxEXPAND | wxALL, m_border_size);
+    wxFlexGridSizer *itemFlexGridSizerFileExp = new wxFlexGridSizer(2);
+    itemFlexGridSizerFileExp->AddGrowableCol(1);
+    itemStaticBoxSizerFileExp->Add(itemFlexGridSizerFileExp, 1, wxEXPAND | wxALL, 0);
+    //    wxStaticText* itemStaticTextDummy2 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
+    //    itemFlexGridSizerFileExp->Add(itemStaticTextDummy2, 0, wxEXPAND | wxALL, m_border_size);
+    //--------------------
+    //--------------------
+    m_ExpFileData01 = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Prepend Clockticks"));
+    itemFlexGridSizerFileExp->Add(m_ExpFileData01, 0, wxEXPAND, 5);
+    m_ExpFileData01->SetValue(g_bDataExportClockticks);
+    m_ExpFileData01->SetToolTip(_("Adds Clockticks to the data exports of BaroHistory, PolarPerformance and WindHistory"));
 	//--------------------
+    //--------------------
+    m_ExpFileData02 = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Prepend UTC Timestamp"));
+    itemFlexGridSizerFileExp->Add(m_ExpFileData02, 0, wxEXPAND, 5);
+    m_ExpFileData02->SetValue(g_bDataExportUTC);
+    m_ExpFileData02->SetToolTip(_("Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, PolarPerformance and WindHistory"));
+
+    wxStaticText* itemStaticText31 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Data Separator :"), wxDefaultPosition, wxDefaultSize, 0);
+    itemFlexGridSizerFileExp->Add(itemStaticText31, 0, wxEXPAND | wxALL, m_border_size);
+    m_pDataExportSeparator = new wxTextCtrl(itemPanelNotebook03, wxID_ANY, g_sDataExportSeparator, wxDefaultPosition, wxSize(30, -1), wxTE_LEFT);
+    itemFlexGridSizerFileExp->Add(m_pDataExportSeparator, 0, wxALL, m_border_size);
+    m_pDataExportSeparator->SetToolTip(_("Sets the separator for the data exports of BaroHistory, PolarPerformance and WindHistory;"));
+
+    //****************************************************************************************************
 	m_PersistentChartPolarAnimation = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Persistent Chart Perf. Animations"));
 	itemFlexGridSizerExpData->Add(m_PersistentChartPolarAnimation, 0, wxEXPAND, 5);
   m_PersistentChartPolarAnimation->SetValue(g_bPersistentChartPolarAnimation);
@@ -3219,6 +3281,9 @@ void TacticsPreferencesDialog::SaveTacticsConfig()
     g_bExpPerfData05 = m_ExpPerfData05->GetValue();
     g_bPersistentChartPolarAnimation =
         m_PersistentChartPolarAnimation->GetValue();
+    g_bDataExportClockticks= m_ExpFileData01->GetValue();
+    g_bDataExportUTC =  m_ExpFileData02->GetValue();
+    g_sDataExportSeparator = m_pDataExportSeparator->GetValue();
 }
 
 //----------------------------------------------------------------
@@ -3297,6 +3362,13 @@ void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
 
 }
 void TacticsWindow::SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit ) {
-    m_plugin->SendSentenceToAllInstruments( st, value, unit );
+    unsigned long long st, double value, wxString unit, long long timestamp )
+{
+    m_plugin->SendSentenceToAllInstruments( st, value, unit, timestamp );
+}
+void TacticsWindow::SetUpdateSignalK(
+        wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
+        wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
+{
+    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
 }

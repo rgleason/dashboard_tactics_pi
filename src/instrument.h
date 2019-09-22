@@ -118,9 +118,22 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLTVMGANGLE = 1ULL << 41, // Target VMG Angle
     OCPN_DBP_STC_POLCMG       = 1ULL << 42, // Actual (towards WP) CMG
     OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
-    OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44  // Target CMG Angle
+    OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44,  // Target CMG Angle
+    // Reservation for the engine and propulsion
+    OCPN_DBP_STC_ENGPRPM      = 1ULL << 58,  // Port side or main engine RPM
+    OCPN_DBP_STC_ENGSRPM      = 1ULL << 59,  // Starboard side engine RPM
+    OCPN_DBP_STC_ENGPTEMP     = 1ULL << 60,  // Port side or main engine temperature
+    OCPN_DBP_STC_ENGSTEMP     = 1ULL << 61,  // Starboard side engine temperature
+    OCPN_DBP_STC_ENGPOILP     = 1ULL << 62,  // Port side or main engine oil pressure
+    OCPN_DBP_STC_ENGSOILP     = 1ULL << 63   // Starboard side engine oil pressure
 #endif // _TACTICSPI_H_
 };
+
+#ifdef _TACTICSPI_H_
+#define DBP_I_TIMER_TICK      1000 // in milliseconds
+#define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
+#endif // _TACTICSPI_H_
+
 
 class DashboardInstrument : public wxControl
 {
@@ -132,10 +145,17 @@ public:
                         int cap_flag
 #endif // _TACTICSPI_H_
         );
+#ifdef _TACTICSPI_H_
+    ~DashboardInstrument();
+#else
     ~DashboardInstrument(){}
+#endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
     unsigned long long GetCapacity(void);
+    virtual void timeoutEvent(void) = 0;
+    virtual void setTimestamp( long long ts ) final;
+    virtual long long getTimestamp(void) final;
 #else
     int GetCapacity();
 #endif // _TACTICSPI_H_
@@ -148,7 +168,11 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit) = 0;
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        ) = 0;
     void SetDrawSoloInPane(bool value);
     void MouseEvent( wxMouseEvent &event );
       
@@ -156,6 +180,7 @@ public:
 
 protected:
 #ifdef _TACTICSPI_H_
+    long long          previousTimestamp;
     unsigned long long m_cap_flag;
 #else
     int m_cap_flag;
@@ -166,6 +191,11 @@ protected:
     virtual void Draw(wxGCDC* dc) = 0;
 private:
     bool m_drawSoloInPane;
+#ifdef _TACTICSPI_H_
+    wxTimer *m_DPBITickTimer;
+    void OnDPBITimerTick(wxTimerEvent &event);
+    wxDECLARE_EVENT_TABLE();
+#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrument_Single : public DashboardInstrument
@@ -187,7 +217,14 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit);
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
+#ifdef _TACTICSPI_H_
+    void timeoutEvent(void) override;
+#endif // _TACTICSPI_H_
 
 protected:
     wxString          m_data;
@@ -218,7 +255,14 @@ public:
 #else
         int st,
 #endif // _TACTICSPI_H_
-        double data, wxString unit);
+        double data, wxString unit
+#ifdef _TACTICSPI_H_
+        , long long timestamp=0LL
+#endif // _TACTICSPI_H_
+        );
+#ifdef _TACTICSPI_H_
+    void timeoutEvent(void) override;
+#endif // _TACTICSPI_H_
 
 protected:
     wxString          m_data1;

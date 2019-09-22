@@ -40,6 +40,8 @@
 #include "instrument.h"
 #include "plugin_ids.h"
 
+class DoubleExpSmooth;
+#include "avg_wind.h"
 
 WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
 
@@ -75,7 +77,8 @@ public:
     ~TacticsInstrument_PerformanceSingle(){}
 
     wxSize GetSize(int orient, wxSize hint);
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void timeoutEvent(void) override;
     void SetDisplayType(int displaytype);
     double mTWS;
     double mTWA;
@@ -237,7 +240,8 @@ class TacticsInstrument_PolarPerformance : public DashboardInstrument
 public:
     TacticsInstrument_PolarPerformance(wxWindow *parent, wxWindowID id, wxString title);
     ~TacticsInstrument_PolarPerformance(void);
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
+    virtual void timeoutEvent(void){};
     wxSize GetSize(int orient, wxSize hint);
     void OnPolarPerfUpdTimer(wxTimerEvent & event);
     
