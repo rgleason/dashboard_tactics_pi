@@ -42,6 +42,8 @@ enum pluginids {
     myID_TICK_IFLXAPI,
     myID_THREAD_SK_IN,
     myID_TICK_SK_IN,
+    myID_THREAD_AVGWIND,
+    myID_TICK_AVGWIND,
     // end of tacticsEvents
     myID_EDIT_LAST
 };

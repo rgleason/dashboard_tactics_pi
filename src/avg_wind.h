@@ -45,6 +45,37 @@
 #include "dial.h"
 #include "performance.h"
 
+// class for calculation of the average wind direction 
+class AvgWind
+{
+public:
+    AvgWind();
+    //  AvgWind(tactics_pi *parent);
+    ~AvgWind(void) {};
+    void CalcAvgWindDir(double CurWindDir);
+    void SetAvgTime(int time);
+    double GetAvgWindDir();
+    double GetDegRangePort();
+    double GetDegRangeStb();
+    double GetsignedWindDirArray(int idx);
+    double GetExpSmoothSignedWindDirArray(int idx);
+    int GetSampleCount();
+
+protected:
+    int              m_SampleCount;
+    double           m_DegRangeStb;
+    double           m_DegRangePort; //live max-, min values
+    int              m_AvgTime; // in [secs]
+    double           m_AvgWindDir;
+    double           m_WindDirArray[AVG_WIND_RECORDS];
+    double           m_signedWindDirArray[AVG_WIND_RECORDS];
+    double           m_ExpSmoothSignedWindDirArray[AVG_WIND_RECORDS];
+    double           m_ExpsinSmoothArrayWindDir[AVG_WIND_RECORDS];
+    double           m_ExpcosSmoothArrayWindDir[AVG_WIND_RECORDS]; //30 min with 60sec each
+    DoubleExpSmooth *mDblsinExpSmoothWindDir, *mDblcosExpSmoothWindDir;
+
+};
+
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -58,7 +89,7 @@ class TacticsInstrument_AvgWindDir : public DashboardInstrument
 {
 public:
     TacticsInstrument_AvgWindDir(wxWindow *parent, wxWindowID id, wxString title);
-    ~TacticsInstrument_AvgWindDir(void){}
+    ~TacticsInstrument_AvgWindDir(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     virtual void timeoutEvent(void){};
     wxSize GetSize(int orient, wxSize hint);
@@ -67,26 +98,28 @@ private:
     int m_soloInPane;
 
 protected:
-    double alpha;
+    double    m_WindDir;
+    double    m_ratioW;
+    double    m_ratioH;
+    double    m_AvgWindDir;
+    int       m_AvgTime; // in [secs]
+    double    m_DegRangeStb;
+    double    m_DegRangePort;
+    bool      m_IsRunning;
+    int       m_SampleCount;
+    wxSlider *m_AvgTimeSlider;
+    wxTimer  *m_avgWindUpdTimer;
+    int       m_TopLineHeight;
+    int       m_SliderHeight;
+    int       m_availableHeight;
+    int       m_width;
+    int       m_height;
+    int       m_cx;
+    wxSize    size;
+    int       m_Legend;
 
-    double m_WindDirRange;
-    double m_WindDir;
-    double m_ratioW, m_ratioH;
-    double m_oldDirVal;
-    double m_AvgWindDir;
-    double m_WindDirArray[AVG_WIND_RECORDS], m_signedWindDirArray[AVG_WIND_RECORDS];
-    double m_ExpSmoothSignedWindDirArray[AVG_WIND_RECORDS], m_ExpsinSmoothArrayWindDir[AVG_WIND_RECORDS], m_ExpcosSmoothArrayWindDir[AVG_WIND_RECORDS]; //30 min with 60sec each
-    int    m_AvgTime; // in [secs]
-    double m_DegRangeStb, m_DegRangePort;
-    bool m_IsRunning;
-    int m_SampleCount;
-    DoubleExpSmooth *mDblsinExpSmoothWindDir, *mDblcosExpSmoothWindDir;
-    wxSlider                     *m_AvgTimeSlider;
-    wxTimer m_avgWindUpdTimer;
-    int  m_TopLineHeight, m_SliderHeight, m_availableHeight;
-    int m_width, m_height, m_cx;
-    wxSize size;
-    int m_Legend;
+    wxDECLARE_EVENT_TABLE();
+
     void Draw(wxGCDC* dc);
     void DrawBackground(wxGCDC* dc);
     void DrawForeground(wxGCDC* dc);

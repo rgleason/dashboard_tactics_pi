@@ -54,6 +54,7 @@
 #include "streamin-sk.h"
 
 class Polar;
+class AvgWind;
 
 #define aws_watchdog_timeout_ticks 10
 #define brg_watchdog_timeout_ticks 10
@@ -178,10 +179,14 @@ public:
         unsigned long long &st_currspd, double &value_currspd,
         wxString &unit_currspd, long long &calctimestamp) final;
 
+    virtual void OnAvgWindUpdTimer_Tactics(void) final;
+
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
+
 private:
+
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
@@ -324,6 +329,7 @@ private:
         double data3, double data4 );
     void SendNMEASentence( wxString sentence );
     wxString ComputeChecksum(wxString sentence);
+
 };
 
 class TacticsPreferencesDialog : public wxDialog
@@ -354,7 +360,6 @@ public:
     wxSpinCtrlDouble             *m_fixedLeeway;//TR
     wxButton                     *m_buttonLoadPolar;//TR
     wxButton                     *m_buttonPrefsApply;//TR
-    wxButton                     *m_buttonPrefOK;//TR
     wxTextCtrl                   *m_pTextCtrlPolar; //TR
     wxSpinCtrlDouble             *m_pLaylineLength; //TR
     wxSpinCtrlDouble             *m_heel5_45;
@@ -390,6 +395,9 @@ public:
     wxCheckBox                   *m_ExpPerfData03;
     wxCheckBox                   *m_ExpPerfData04;
     wxCheckBox                   *m_ExpPerfData05;
+    wxCheckBox                   *m_ExpFileData01;
+    wxCheckBox                   *m_ExpFileData02;
+    wxTextCtrl                   *m_pDataExportSeparator;
     wxCheckBox                   *m_PersistentChartPolarAnimation;
 private:
     void UpdateTacticsButtonsState(void);

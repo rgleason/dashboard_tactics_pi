@@ -71,6 +71,13 @@ int g_iDashTemperatureUnit;
 int g_iUTCOffset;
 double g_dDashDBTOffset;
 
+#ifdef _TACTICSPI_H_
+#include "plugin_ids.h"
+wxBEGIN_EVENT_TABLE (dashboard_pi, wxTimer)
+EVT_TIMER (myID_THREAD_AVGWIND, dashboard_pi::OnAvgWindUpdTimer)
+wxEND_EVENT_TABLE ()
+#endif // _TACTICSPI_H_
+
 #if !defined(NAN)
 static const long long lNaN = 0xfff8000000000000;
 #define NAN (*(double*)&lNaN)
@@ -317,7 +324,7 @@ wxString getInstrumentCaption( unsigned int id )
 	case ID_DBP_D_POLPERF:
 		return _(L"\u2191Polar Performance");
 	case ID_DBP_D_AVGWIND:
-		return _(L"\u2191Average Wind");
+		return _(L"\u2191Average Wind Direction");
 	case ID_DBP_D_POLCOMP:
 		return _(L"\u2191Polar Compass");
     case ID_DBP_V_IFLX:
@@ -600,6 +607,9 @@ int dashboard_pi::Init( void )
 #ifdef _TACTICSPI_H_
     m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
+    // Tick for average wind calculations is taken care in Tactics class, we host the timers  
+    m_avgWindUpdTimer = new wxTimer ( this, myID_THREAD_AVGWIND );
+    m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 #endif //  _TACTICSPI_H_
 
     LoadConfig();
@@ -701,6 +711,8 @@ bool dashboard_pi::DeInit( void )
     delete g_pFontSmall;
 
 #ifdef _TACTICSPI_H_
+    this->m_avgWindUpdTimer->Stop();
+    delete this->m_avgWindUpdTimer;
     return this->TacticsDeInit();
 #endif //  _TACTICSPI_H_
 
@@ -768,6 +780,13 @@ void dashboard_pi::Notify()
     return;
 }
 
+#ifdef _TACTICSPI_H_
+void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
+{
+    this->OnAvgWindUpdTimer_Tactics();
+}
+#endif //  _TACTICSPI_H_
+
 int dashboard_pi::GetAPIVersionMajor()
 {
     return MY_API_VERSION_MAJOR;
@@ -831,6 +850,7 @@ wxString dashboard_pi::GetShortDescription()
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
+    
 }
 
 wxString dashboard_pi::GetLongDescription()

@@ -45,6 +45,9 @@
 #include <wx/fileconf.h>
 #include "plugin_ids.h"
 extern wxString g_sDataExportSeparator;
+extern bool g_bDataExportUTC;
+extern bool g_bDataExportClockticks;
+
 #define ID_EXPORTRATE_10 11110
 #define ID_EXPORTRATE_20 11120
 #define ID_EXPORTRATE_60 11160
@@ -92,7 +95,7 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
 #ifndef _TACTICSPI_H_
         m_ExpSmoothArrayPressure[idx] = -1;
 #endif // _TACTICSPI_H_
-        m_ArrayRecTime[idx]=wxDateTime::Now().GetTm();
+        m_ArrayRecTime[idx]=wxDateTime::UNow().GetTm();
         m_ArrayRecTime[idx].year=999;
     }
 
@@ -118,6 +121,7 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
 #endif // _TACTICSPI_H_
     m_LeftLegend = 3;
     m_RightLegend = 3;
+    m_TitleHeight = 10;
 
 #ifdef _TACTICSPI_H_
     m_logfile = wxEmptyString;
@@ -135,8 +139,11 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize,
                                wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
     m_LogButton->SetToolTip(_("'>' starts data export and creates a new or appends to an existing file,\n'X' stops data export"));
-    m_LogButton->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
-                         wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed), NULL, this);
+    m_LogButton->Connect(
+        wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed),
+        NULL,
+        this);
     if (LoadConfig() == false) {
         m_exportInterval = 10;
         SaveConfig();
@@ -160,6 +167,11 @@ DashboardInstrument_BaroHistory::~DashboardInstrument_BaroHistory(void) {
     if (m_isExporting)
         m_ostreamlogfile->Close();
     delete this->m_ostreamlogfile;
+    m_LogButton->Disconnect(
+        wxEVT_COMMAND_BUTTON_CLICKED,
+        wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed),
+        NULL,
+        this);
 }
 #endif // _TACTICSPI_H_
 
@@ -195,7 +207,7 @@ void DashboardInstrument_BaroHistory::SetData(
             m_PressRecCnt++;
         } // then wait for having enough data for averaging
         else {
-            m_LastReceivedTime = wxDateTime::Now().GetTm();
+            m_LastReceivedTime = wxDateTime::UNow().GetTm();
         }
     }
 #else
@@ -227,7 +239,7 @@ void DashboardInstrument_BaroHistory::SetData(
         }
         m_ExpSmoothArrayPressure[BARO_RECORD_COUNT-1]=alpha*m_ArrayPressHistory[BARO_RECORD_COUNT-2] +
             (1-alpha)*m_ExpSmoothArrayPressure[BARO_RECORD_COUNT-2];
-        m_ArrayRecTime[BARO_RECORD_COUNT-1]=wxDateTime::Now().GetTm();
+        m_ArrayRecTime[BARO_RECORD_COUNT-1]=wxDateTime::UNow().GetTm();
         m_MaxPress   = wxMax(m_Press,m_MaxPress);
 
         m_MinPress   = wxMin(m_MinPress,m_Press);
@@ -255,7 +267,8 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
             m_BaroHistUpdTimer->Start(5000, wxTIMER_CONTINUOUS);
         } // else can make ExportData() to sync from now on slow down the tick to 1/2 of min.recording
     }  // then we're still looking for divable by 10 time spot to start the actual 5s tick
-    wxDateTime localTimeNow = wxDateTime::Now().GetTm();
+    wxDateTime timeNow = wxDateTime::Now().GetTm();
+    m_LastReceivedTime = wxDateTime::Now().GetTm();
 
     //start working after we collected 5 records each, as start values for the smoothed curves
     if ( m_PressRecCnt >= BARO_START_AVG_CNT) {
@@ -270,7 +283,6 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
                 highest = m_PressStartVal[i];
         } // make weighted averaging
         m_LastReceivedPressure = (sum - lowest - highest) / ( BARO_START_AVG_CNT - 2);
-        m_LastReceivedTime = wxDateTime::Now().GetTm();
         m_IsRunning = true;
         m_PressRecCnt = -1; // make sure that we don't come back here here
     } // then can start by averaging the start point
@@ -309,7 +321,7 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
         m_TotalMaxPress = wxMax(m_LastReceivedPressure, m_TotalMaxPress);
         m_TotalMinPress = wxMin(m_LastReceivedPressure, m_TotalMinPress);
 
-        if ( localTimeNow.GetSecond() % m_exportInterval == 0 )
+        if ( timeNow.GetSecond() % m_exportInterval == 0 )
             ExportData();
 
     } // then pressure > 0
@@ -498,7 +510,7 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
 #endif // _TACTICSPI_H_
     pen.SetStyle(wxPENSTYLE_SOLID);
 #ifdef _TACTICSPI_H_
-    pen.SetColour(wxColour(61,61,204,255)); //blue, transparent
+    pen.SetColour(wxColour(61,61,204,255)); //blue, opaque
 #else
     pen.SetColour(wxColour(61,61,204,96)); //blue, transparent
 #endif // _TACTICSPI_H_
@@ -561,7 +573,7 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     int done=-1;
     wxPoint pointTime;
 #ifdef _TACTICSPI_H_
-    int prevfiverfit=-15;
+    int prevfiverfit = -15;
 #endif // _TACTICSPI_H_
     for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         if (m_ArrayRecTime[idx].year != 999) {
@@ -611,7 +623,9 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
         bool exists = m_ostreamlogfile->Exists(m_logfile);
         m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
         if (!exists) {
-            wxString str = wxString::Format(_T("%s%s%s%s%s\n"), "Date", g_sDataExportSeparator, "Time", g_sDataExportSeparator, "Pressure");
+            wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _("");
+            wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _("");
+            wxString str = wxString::Format(_T("%s%s%s%s%s%s%s\n"), str_ticks, str_utc, "Date", g_sDataExportSeparator, "local Time", g_sDataExportSeparator, "Pressure");
             m_ostreamlogfile->Write(str);
         }
         SaveConfig(); //save the new export-rate &filename to opencpn.ini
@@ -661,13 +675,22 @@ void DashboardInstrument_BaroHistory::ExportData()
 {
     if ( !m_IsRunning || !m_isExporting )
         return;
-    wxDateTime localTimeNow = wxDateTime::Now().GetTm();
-    wxDateTime daqTime(m_LastReceivedTime);
-    //    if ( localTimeNow.GetSecond() % m_exportInterval == 0 ) {
-        wxString str = wxString::Format(_T("%s%s%s%s%4.1f\n"), localTimeNow.FormatDate(), g_sDataExportSeparator,
-                                        localTimeNow.FormatTime(), g_sDataExportSeparator,
-                                        m_LastReceivedPressure);
-        m_ostreamlogfile->Write(str);
-        //    }
+
+    wxDateTime localTime(m_ArrayRecTime[BARO_RECORD_COUNT - 1]);
+    wxString str_utc, ticks;
+    if (g_bDataExportUTC) {
+        wxDateTime utc = localTime.ToUTC();
+        str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'), g_sDataExportSeparator);
+    }
+    else
+        str_utc = _T("");
+    if (g_bDataExportClockticks) {
+        wxLongLong ti = localTime.GetValue();
+        ticks = wxString::Format(_T("%s%s"), ti.ToString(), g_sDataExportSeparator);
+    }
+    else
+        ticks = _T("");
+    wxString str = wxString::Format(_T("%s%s%s%s%s%s%4.1f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_LastReceivedPressure);
+    m_ostreamlogfile->Write(str);
 }
 #endif // _TACTICSPI_H_

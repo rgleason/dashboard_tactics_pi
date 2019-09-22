@@ -40,6 +40,8 @@
 #include "instrument.h"
 #include "plugin_ids.h"
 
+class DoubleExpSmooth;
+#include "avg_wind.h"
 
 WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
 

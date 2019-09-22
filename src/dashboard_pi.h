@@ -209,6 +209,7 @@ public:
 #endif // _TACTICSPI_H_
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
+    void OnAvgWindUpdTimer(wxTimerEvent& event);
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
@@ -261,10 +262,11 @@ private:
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
 #ifdef _TACTICSPI_H_
-    bool                m_bToggledStateVisible;
-    int                 m_iPlugInRequirements;
-    wxWindow           *m_pluginFrame;
-    static const char  *s_common_name;
+    bool                 m_bToggledStateVisible;
+    int                  m_iPlugInRequirements;
+    wxWindow            *m_pluginFrame;
+    static const char   *s_common_name;
+    wxTimer             *m_avgWindUpdTimer;
 #endif // _TACTICSPI_H_
     wxFileConfig        *m_pconfig;
     wxAuiManager        *m_pauimgr;
@@ -304,10 +306,13 @@ private:
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
-    //protected:
-    //      DECLARE_EVENT_TABLE();
-};
 
+protected:
+#ifdef _TACTICSPI_H_
+    DECLARE_EVENT_TABLE();
+#endif // _TACTICSPI_H_
+};
+  
 class DashboardPreferencesDialog : public
 #ifdef _TACTICSPI_H_
     TacticsPreferencesDialog

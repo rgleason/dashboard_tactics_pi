@@ -384,6 +384,11 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         wxLongLong wxllNowMs;
                         long long  msNow;
                         bool syncerror = false;
+                        m_stateComm = SKTM_STATE_READY;
+                        if ( m_verbosity > 1) {
+                            m_threadMsg = _T("dashboard_tactics_pi: SignalK Delta Streamer : SKTM_STATE_READY");
+                            wxQueueEvent( m_frame, event.Clone() );
+                        }
 
                         while ( __NOT_STOP_THREAD__ && !syncerror ) {
 
