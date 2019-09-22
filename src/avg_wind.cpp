@@ -80,7 +80,6 @@ AvgWind::AvgWind()
 }
 void AvgWind::CalcAvgWindDir(double CurWindDir)
 {
-    int i;
     if (!wxIsNaN(CurWindDir)) {
 
         m_SampleCount = m_SampleCount < AVG_WIND_RECORDS ? m_SampleCount + 1 : AVG_WIND_RECORDS;
@@ -88,7 +87,7 @@ void AvgWind::CalcAvgWindDir(double CurWindDir)
         // we always fill the whole array, independent of which time average is set.
         // --> once the array is filled up, we can dynamically change the time average w/o the need to
         // wait for another full set of data.
-        for (i = AVG_WIND_RECORDS - 1; i > 0; i--) {
+        for (int i = AVG_WIND_RECORDS - 1; i > 0; i--) {
             m_WindDirArray[i] = m_WindDirArray[i - 1];
             m_ExpsinSmoothArrayWindDir[i] = m_ExpsinSmoothArrayWindDir[i - 1];
             m_ExpcosSmoothArrayWindDir[i] = m_ExpcosSmoothArrayWindDir[i - 1];
@@ -110,7 +109,7 @@ void AvgWind::CalcAvgWindDir(double CurWindDir)
         double cosAvgDir = 0.0;
         rad = 0.0;
         int samples = m_SampleCount < m_AvgTime ? m_SampleCount : m_AvgTime;
-        for (i = 0; i < samples; i++) {
+        for (int i = 0; i < samples; i++) {
             rad = (90. - m_WindDirArray[i])*M_PI / 180.;
             sinAvgDir += sin(rad);
             cosAvgDir += cos(rad);
@@ -121,13 +120,12 @@ void AvgWind::CalcAvgWindDir(double CurWindDir)
         m_DegRangePort = 360;
         m_DegRangeStb = -360;
 
-        double val, smval, smWDir;
-        for (i = 0; i < samples && !wxIsNaN(m_WindDirArray[i]); i++) {
-            val = getSignedDegRange(m_AvgWindDir, m_WindDirArray[i]);
+        for (int i = 0; i < samples && !wxIsNaN(m_WindDirArray[i]); i++) {
+            double val = getSignedDegRange(m_AvgWindDir, m_WindDirArray[i]);
             m_signedWindDirArray[i] = val;
-            smWDir = (90. - (atan2(m_ExpsinSmoothArrayWindDir[i], m_ExpcosSmoothArrayWindDir[i])*180. / M_PI) + 360.);
+            double smWDir = (90. - (atan2(m_ExpsinSmoothArrayWindDir[i], m_ExpcosSmoothArrayWindDir[i])*180. / M_PI) + 360.);
             while (smWDir >= 360) smWDir -= 360;
-            smval = getSignedDegRange(m_AvgWindDir, smWDir);
+            double smval = getSignedDegRange(m_AvgWindDir, smWDir);
             m_ExpSmoothSignedWindDirArray[i] = smval;
 
             if (val < m_DegRangePort) m_DegRangePort = val;
