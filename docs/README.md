@@ -10,6 +10,6 @@
 * [User's Guide](InfluxDBStreamer.ipynb)
 
 ---
-> This repository uses [Jupyter Lab 1.0.5][1] - not necessary for reading on GitHub but recommended if you have copied the repository.
+> This repository uses [Jupyter Lab 1.0.5][1] - not necessary for reading on GitHub but recommended if you have copied the repository on your local machine.
 
 [1]:https://jupyter.org/install

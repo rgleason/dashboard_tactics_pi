@@ -785,7 +785,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             m_targetAsFilePath = m_confdir + m_target;
             if ( wxFileExists( m_targetAsFilePath ) ) {
                 wxDateTime bupTime = wxDateTime::Now();
-                wxString sBupTime = bupTime.Format("_%F_%H-%M-%S");
+                wxString sBupTime = bupTime.Format("_bup_%F_%H-%M-%S");
                 wxString sTargetBackupName = m_target + sBupTime;
                 wxString sTargetBackupPath = m_confdir + sTargetBackupName;
                 bool ret = wxRenameFile ( m_targetAsFilePath, sTargetBackupPath );
