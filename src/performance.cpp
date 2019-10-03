@@ -547,7 +547,7 @@ void Polar::loadPolar(wxString FilePath)
 
     while (!stream.Eof())
     {
-        int col = 0, i = 0, x = 0;
+        int col = 0, i = 0;
         wxString s;
 
         wxString str = in.ReadLine();               // read line by line
