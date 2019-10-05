@@ -927,8 +927,10 @@ void dashboard_pi::SendSentenceToAllInstruments(
         // we have a valid AWS sentence here, it may require heel correction
         double distvalue = value;
         wxString distunit = unit;
+        bool perfCorrections = false;
         if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
                  st, distvalue, distunit ) ) {
+            perfCorrections = true;
             this->SetCalcVariables(st, distvalue, distunit);
             pSendSentenceToAllInstruments( st, distvalue, distunit, timestamp );
         } // then send with corrections
@@ -2132,7 +2134,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         mPriAWA = 1;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_AWA,
-                            value * RAD_IN_DEG,
+                            std::abs( value ) * RAD_IN_DEG,
                             ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
                             timestamp );
                     } // AWA priority
@@ -2155,9 +2157,18 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
                     if( mPriTWA >= 1 ) {
                         mPriTWA = 1;
+                        wxString twaunit = wxEmptyString;
+                        double twaangle = value * RAD_IN_DEG;
+                        if ( twaangle > 180.0 ) {
+                            twaunit = L"\u00B0lr"; // == wind arrow on port side
+                            twaangle = 180.0 - (twaangle - 180.0);
+                        }
+                        else {
+                            twaunit = L"\u00B0rl"; // == wind arrow on starboard side
+                        }
                         SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
-                                                      value * RAD_IN_DEG,
-                                                      ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                                                      twaangle,
+                                                      twaunit,
                                                       timestamp );
                     } // TWA priority
                 }
@@ -2347,7 +2358,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         mPriAWA = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_AWA,
-                            value * RAD_IN_DEG,
+                            std::abs( value ) * RAD_IN_DEG,
                             ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
                             timestamp );
                     }
