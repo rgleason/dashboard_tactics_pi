@@ -156,6 +156,7 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
     )
 { 
 #ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
