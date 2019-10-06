@@ -7,9 +7,9 @@
 * [Tactics User's Guide](tactics_pi.pdf)
 
 ### InfluxDB streamer
-* [User's Guide](InfluxDBStreamer.ipynb)
+* User's Guide ([html](InfluxDBStreamer.html) | [ipynb](InfluxDBStreamer.ipynb))
 
 ---
-> This repository uses [Jupyter Lab 1.0.5][1] - not necessary for reading on GitHub but recommended if you have copied the repository on your local machine.
+> This repository uses [Jupyter Lab 1.0.5][1] - not necessary for reading on GitHub but it is recommended for analysis pages in case you have copied the repository on your local machine.
 
 [1]:https://jupyter.org/install
