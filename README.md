@@ -10,7 +10,7 @@ If you are using both built-in Dashboard and the Tactics, you may want to have b
 
 Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about
 * [Tactics and performance functions documentation](docs/README.md)
-* [Influx DB 2.0 streaming and export](docs/InfluxDBStreamer.ipynb)
+* [Influx DB 2.0 streaming and export](docs/InfluxDBStreamer.html)
 
 ## Installation
 
