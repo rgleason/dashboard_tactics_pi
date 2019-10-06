@@ -1,5 +1,7 @@
 # Comparison of timestamps in three alternative NMEA data paths
 
+### Windows 10 - OpenCPN v5.0.0 - Signal K v1.17.0 - DashT v.0.5.2 
+
 We observe a five minute sampling period stored in InfluxDB database for each of the use case for single value of Apparent Wind Angle:
 
 1. data via Signal K delta TCP channel with Signal K timestamps at its own reception
@@ -8,7 +10,7 @@ We observe a five minute sampling period stored in InfluxDB database for each of
 
 3. data directly from USB to OpenCPN
 
-In all above cases the USB is set to 115200 baud at reception on Win10 running OpenCPN v5.0.0. Data is originated from Raymarine SeaTalk (4800 baud) and converted to USB in MiniPlex II multiplexer - about 40 values per second are transmitted through this channel but only Apparent Wind Angle timestamp behaviour is observed.
+In all above cases the USB is set to 115200 baud at reception on Win10 (Surface 3 i7) running OpenCPN v5.0.0. Data is originated from Raymarine SeaTalk (4800 baud) and converted to USB in MiniPlex II multiplexer - about 40 values per second are transmitted through this channel but only Apparent Wind Angle timestamp behaviour is observed.
 
 [<img src="2019-10-05_224016_3x_data_series_overview.png" width="800" />](2019-10-05_224016_3x_data_series_overview.png)
 
@@ -612,7 +614,7 @@ The difference will come apparent when we want to eliminate that jumping by appl
 
 1. It is not surprising that the direct TCP connection to the Signal K emitted delta values is the most efficient what comes to the accuracy of the timestamps - they are set at the reception, _i.e._ at the closest possible position to the source. Although this method is penalized having to transmit also information in its payload to which we are not necessarily willing to be subscribed, the fact that the timestamp travels with the data compensates that inconvenience.
 
-2. The fact that there is so little difference between the timaestamp accuracy through the Signal K to NMEA conversion and its actual delta channel is a proof of the excellent quality and effiency of Signal K and npm. Also, the TCP method of OpenCPN is the preferred one since apparently well implemented.
+2. The fact that there is so little difference between the timestamp accuracy through the Signal K to NMEA conversion and its actual delta channel is a proof of the excellent quality and effiency of Signal K and npm. Also, the TCP method of OpenCPN is the preferred one since apparently well implemented.
 
 3. There is nothing to gain by eliminating Signal K to allow the OpenCPN to connect directly to the USB channel: this is the clearly the less desirable configuration for any algorithm which analyzes time series.
 
