@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Three-way_timestamps_win10</title>
+<title>Three-way_timestamps_Rpi</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13084,7 +13084,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Windows-10---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">Windows 10 - OpenCPN v5.0.0 - Signal K v1.17.0 - DashT v.0.5.2<a class="anchor-link" href="#Windows-10---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">&#182;</a></h3>
+<h3 id="Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">Rasbian "Buster" - OpenCPN v5.0.0 - Signal K v1.17.0 - DashT v.0.5.2<a class="anchor-link" href="#Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13100,7 +13100,7 @@ div#notebook {
 <li><p>data directly from USB to OpenCPN</p>
 </li>
 </ol>
-<p>In all above cases the USB is set to 115200 baud at reception on Win10 (Surface 3 i7) running OpenCPN v5.0.0. Data is originated from Raymarine SeaTalk (4800 baud) and converted to USB in MiniPlex II multiplexer - about 40 values per second are transmitted through this channel but only Apparent Wind Angle timestamp behaviour is observed.</p>
+<p>In all above cases the USB is set to 115200 baud at reception on Rasbian "Buster" (Raspberry Pi 4B 4GB) running OpenCPN v5.0.0. Data is originated from Raymarine SeaTalk (4800 baud) and converted to USB in MiniPlex II multiplexer - about 40 values per second are transmitted through this channel but only True Wind Angle timestamp behaviour is observed in this test.</p>
 
 </div>
 </div>
@@ -13108,7 +13108,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="2019-10-05_224016_3x_data_series_overview.png"><img src="2019-10-05_224016_3x_data_series_overview.png" width="800" /></a></p>
+<p><img src="2019-10-05_224016_3x_data_series_overview_Rpi.png" alt="2019-10-05_224016_3x_data_series_overview_Rpi.png"> <a href="img/2019-10-05_224016_3x_data_series_overview_Rpi.png">(zoom)</a></p>
 
 </div>
 </div>
@@ -13137,7 +13137,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="2019-10-05_224308_SignalK_delta_zoom.png"><img src="2019-10-05_224308_SignalK_delta_zoom.png" width="800" /></a></p>
+<p><img src="2019-10-05_224308_SignalK_delta_zoom_Rpi.png" alt="2019-10-05_224308_SignalK_delta_zoom_Rpi.png"> <a href="img/2019-10-05_224308_SignalK_delta_zoom_Rpi.png">(zoom)</a></p>
 
 </div>
 </div>
@@ -13147,7 +13147,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224308_SignalK_delta_zoom.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224308_SignalK_delta_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13214,11 +13214,11 @@ div#notebook {
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:06:00Z</td>
-      <td>2019-10-05T20:11:00Z</td>
-      <td>2019-10-05T20:06:00.969Z</td>
-      <td>16.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:14:00Z</td>
+      <td>2019-10-05T16:19:00Z</td>
+      <td>2019-10-05T16:14:01.169Z</td>
+      <td>-28.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13227,11 +13227,11 @@ div#notebook {
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:06:00Z</td>
-      <td>2019-10-05T20:11:00Z</td>
-      <td>2019-10-05T20:06:02.904Z</td>
-      <td>17.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:14:00Z</td>
+      <td>2019-10-05T16:19:00Z</td>
+      <td>2019-10-05T16:14:03.106Z</td>
+      <td>-26.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13240,11 +13240,11 @@ div#notebook {
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:06:00Z</td>
-      <td>2019-10-05T20:11:00Z</td>
-      <td>2019-10-05T20:06:04.841Z</td>
-      <td>23.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:14:00Z</td>
+      <td>2019-10-05T16:19:00Z</td>
+      <td>2019-10-05T16:14:05.045Z</td>
+      <td>-26.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13253,11 +13253,11 @@ div#notebook {
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:06:00Z</td>
-      <td>2019-10-05T20:11:00Z</td>
-      <td>2019-10-05T20:06:06.775Z</td>
-      <td>30.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:14:00Z</td>
+      <td>2019-10-05T16:19:00Z</td>
+      <td>2019-10-05T16:14:06.049Z</td>
+      <td>-30.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13266,11 +13266,11 @@ div#notebook {
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:06:00Z</td>
-      <td>2019-10-05T20:11:00Z</td>
-      <td>2019-10-05T20:06:08.71Z</td>
-      <td>31.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:14:00Z</td>
+      <td>2019-10-05T16:19:00Z</td>
+      <td>2019-10-05T16:14:07.956Z</td>
+      <td>-33.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13309,14 +13309,14 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count    158.000000
-mean      16.382911
-std        8.111321
-min        0.500000
-25%        9.500000
-50%       17.250000
-75%       23.000000
-max       34.000000
+<pre>count    166.000000
+mean     -21.151807
+std       11.759992
+min      -46.600000
+25%      -28.975000
+50%      -22.100000
+75%      -14.725000
+max       26.500000
 Name: _value, dtype: float64</pre>
 </div>
 
@@ -13363,12 +13363,12 @@ Name: _value, dtype: float64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count                                  158
-unique                                 158
-top       2019-10-05 20:09:49.403000+00:00
+<pre>count                                  166
+unique                                 166
+top       2019-10-05 16:15:40.881000+00:00
 freq                                     1
-first     2019-10-05 20:06:00.969000+00:00
-last      2019-10-05 20:10:58.127000+00:00
+first     2019-10-05 16:14:01.169000+00:00
+last      2019-10-05 16:18:59.339000+00:00
 Name: _time, dtype: object</pre>
 </div>
 
@@ -13428,14 +13428,14 @@ Name: _time, dtype: object</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count     157.000000
-mean     1892.726115
-std       188.331733
-min      1001.000000
-25%      1925.000000
-50%      1935.000244
-75%      1940.000000
-max      2058.000244
+<pre>count     165.000000
+mean     1807.090909
+std       313.462833
+min      1000.000000
+25%      1863.000000
+50%      1931.000000
+75%      1942.999756
+max      2225.000000
 Name: _time, dtype: float64</pre>
 </div>
 
@@ -13455,7 +13455,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="2019-10-05_224509_SignalK_NMEA_TCP_zoom.png"><img src="2019-10-05_224509_SignalK_NMEA_TCP_zoom.png" width="800" /></a></p>
+<p><img src="2019-10-05_224509_SignalK_NMEA_TCP_zoom_Rpi.png" alt="2019-10-05_224509_SignalK_NMEA_TCP_zoom_Rpi.png"> <a href="img/2019-10-05_224509_SignalK_NMEA_TCP_zoom_Rpi.png">(zoom)</a></p>
 
 </div>
 </div>
@@ -13465,7 +13465,7 @@ Name: _time, dtype: float64</pre>
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224509_SignalK_NMEA_TCP_zoom.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224509_SignalK_NMEA_TCP_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13532,11 +13532,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:16:00Z</td>
-      <td>2019-10-05T20:21:00Z</td>
-      <td>2019-10-05T20:16:01.101Z</td>
-      <td>1.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:23:00Z</td>
+      <td>2019-10-05T16:28:00Z</td>
+      <td>2019-10-05T16:23:00.423Z</td>
+      <td>19.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13545,11 +13545,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:16:00Z</td>
-      <td>2019-10-05T20:21:00Z</td>
-      <td>2019-10-05T20:16:03.041Z</td>
-      <td>13.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:23:00Z</td>
+      <td>2019-10-05T16:28:00Z</td>
+      <td>2019-10-05T16:23:02.379Z</td>
+      <td>26.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13558,11 +13558,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:16:00Z</td>
-      <td>2019-10-05T20:21:00Z</td>
-      <td>2019-10-05T20:16:04.981Z</td>
-      <td>0.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:23:00Z</td>
+      <td>2019-10-05T16:28:00Z</td>
+      <td>2019-10-05T16:23:04.295Z</td>
+      <td>26.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13571,11 +13571,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:16:00Z</td>
-      <td>2019-10-05T20:21:00Z</td>
-      <td>2019-10-05T20:16:06.015Z</td>
-      <td>15.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:23:00Z</td>
+      <td>2019-10-05T16:28:00Z</td>
+      <td>2019-10-05T16:23:05.38Z</td>
+      <td>26.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13584,11 +13584,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:16:00Z</td>
-      <td>2019-10-05T20:21:00Z</td>
-      <td>2019-10-05T20:16:07.881Z</td>
-      <td>7.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:23:00Z</td>
+      <td>2019-10-05T16:28:00Z</td>
+      <td>2019-10-05T16:23:07.104Z</td>
+      <td>40.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13627,14 +13627,14 @@ Name: _time, dtype: float64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count    159.000000
-mean      10.710692
-std        8.320781
-min        0.000000
-25%        3.500000
-50%        9.500000
-75%       15.000000
-max       52.000000
+<pre>count    188.000000
+mean      21.622872
+std        9.844945
+min        0.500000
+25%       13.850000
+50%       22.850000
+75%       29.600000
+max       41.200000
 Name: _value, dtype: float64</pre>
 </div>
 
@@ -13681,12 +13681,12 @@ Name: _value, dtype: float64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count                                  159
-unique                                 159
-top       2019-10-05 20:16:01.101000+00:00
+<pre>count                                  188
+unique                                 188
+top       2019-10-05 16:24:50.701000+00:00
 freq                                     1
-first     2019-10-05 20:16:01.101000+00:00
-last      2019-10-05 20:20:58.255000+00:00
+first     2019-10-05 16:23:00.423000+00:00
+last      2019-10-05 16:27:59.431000+00:00
 Name: _time, dtype: object</pre>
 </div>
 
@@ -13746,14 +13746,14 @@ Name: _time, dtype: object</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count     158.000000
-mean     1880.721519
-std       212.353998
-min      1004.999756
-25%      1917.500000
-50%      1935.000000
-75%      1944.000000
-max      2046.999756
+<pre>count     187.000000
+mean     1598.973262
+std       422.940687
+min      1000.000000
+25%      1026.500000
+50%      1877.000000
+75%      1928.000000
+max      2036.000000
 Name: _time, dtype: float64</pre>
 </div>
 
@@ -13773,7 +13773,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="2019-10-05_224657_USB_to_O_zoom.png"><img src="2019-10-05_224657_USB_to_O_zoom.png" width="800" /></a></p>
+<p><img src="2019-10-05_224657_USB_to_O_zoom_Rpi.png" alt="2019-10-05_224657_USB_to_O_zoom_Rpi.png"> <a href="img/2019-10-05_224657_USB_to_O_zoom_Rpi.png">(zoom)</a></p>
 
 </div>
 </div>
@@ -13783,7 +13783,7 @@ Name: _time, dtype: float64</pre>
 <div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">of</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224657_USB_to_O_zoom.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">of</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224657_USB_to_O_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13850,11 +13850,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:25:00Z</td>
-      <td>2019-10-05T20:30:00Z</td>
-      <td>2019-10-05T20:25:00.249Z</td>
-      <td>3.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:01.719Z</td>
+      <td>8.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13863,11 +13863,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:25:00Z</td>
-      <td>2019-10-05T20:30:00Z</td>
-      <td>2019-10-05T20:25:02.189Z</td>
-      <td>8.5</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:03.658Z</td>
+      <td>9.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13876,11 +13876,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:25:00Z</td>
-      <td>2019-10-05T20:30:00Z</td>
-      <td>2019-10-05T20:25:04.106Z</td>
-      <td>9.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:05.585Z</td>
+      <td>4.1</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13889,11 +13889,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:25:00Z</td>
-      <td>2019-10-05T20:30:00Z</td>
-      <td>2019-10-05T20:25:06.051Z</td>
-      <td>17.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:07.545Z</td>
+      <td>1.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13902,11 +13902,11 @@ Name: _time, dtype: float64</pre>
       <td>NaN</td>
       <td>NaN</td>
       <td>0</td>
-      <td>2019-10-05T20:25:00Z</td>
-      <td>2019-10-05T20:30:00Z</td>
-      <td>2019-10-05T20:25:07.99Z</td>
-      <td>24.0</td>
-      <td>angleApparent</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:09.462Z</td>
+      <td>7.6</td>
+      <td>angleTrue</td>
       <td>environment</td>
       <td>wind</td>
     </tr>
@@ -13945,14 +13945,14 @@ Name: _time, dtype: float64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count    165.000000
-mean      18.845455
-std        8.896015
+<pre>count    172.000000
+mean      16.232558
+std       10.655020
 min        0.500000
-25%       13.500000
-50%       19.000000
-75%       24.500000
-max       49.000000
+25%        7.900000
+50%       15.600000
+75%       22.225000
+max       52.100000
 Name: _value, dtype: float64</pre>
 </div>
 
@@ -13999,12 +13999,12 @@ Name: _value, dtype: float64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count                                  165
-unique                                 165
-top       2019-10-05 20:25:11.876000+00:00
+<pre>count                                  172
+unique                                 172
+top       2019-10-05 16:36:01.753000+00:00
 freq                                     1
-first     2019-10-05 20:25:00.249000+00:00
-last      2019-10-05 20:29:59.340000+00:00
+first     2019-10-05 16:34:01.719000+00:00
+last      2019-10-05 16:38:58.943000+00:00
 Name: _time, dtype: object</pre>
 </div>
 
@@ -14064,15 +14064,221 @@ Name: _time, dtype: object</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>count     164.000000
-mean     1823.725610
-std       299.438559
+<pre>count     171.000000
+mean     1738.152047
+std       366.632300
 min      1000.000000
-25%      1896.000000
-50%      1931.500122
-75%      1944.000000
-max      2757.000244
+25%      1825.499634
+50%      1925.000000
+75%      1942.500000
+max      2025.999756
 Name: _time, dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Applying-moving-average">Applying moving average<a class="anchor-link" href="#Applying-moving-average">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-10-05_224657_USB_to_O_zoom_Rpi_moving_average.png" alt="2019-10-05_224657_USB_to_O_zoom_Rpi_moving_average.png"> <a href="img/2019-10-05_224657_USB_to_O_zoom_Rpi_moving_average.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224657_USB_to_O_zoom_Rpi_moving_average.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[27]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Unnamed: 0</th>
+      <th>result</th>
+      <th>table</th>
+      <th>_start</th>
+      <th>_stop</th>
+      <th>_time</th>
+      <th>_value</th>
+      <th>_field</th>
+      <th>_measurement</th>
+      <th>prop1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:33.669Z</td>
+      <td>18.570</td>
+      <td>angleTrue</td>
+      <td>environment</td>
+      <td>wind</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:35.605Z</td>
+      <td>18.795</td>
+      <td>angleTrue</td>
+      <td>environment</td>
+      <td>wind</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:37.541Z</td>
+      <td>18.745</td>
+      <td>angleTrue</td>
+      <td>environment</td>
+      <td>wind</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:39.468Z</td>
+      <td>18.995</td>
+      <td>angleTrue</td>
+      <td>environment</td>
+      <td>wind</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>2019-10-05T16:34:00Z</td>
+      <td>2019-10-05T16:39:00Z</td>
+      <td>2019-10-05T16:34:41.444Z</td>
+      <td>19.365</td>
+      <td>angleTrue</td>
+      <td>environment</td>
+      <td>wind</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[28]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>count    153.000000
+mean      16.781928
+std        5.240853
+min        5.600000
+25%       13.300000
+50%       17.200000
+75%       20.085000
+max       27.700000
+Name: _value, dtype: float64</pre>
 </div>
 
 </div>
@@ -14110,20 +14316,20 @@ Name: _time, dtype: float64</pre>
 <tr>
 <td>1 Signal K delta</td>
 <td>at source</td>
-<td style="text-align:center">188 ms</td>
-<td style="text-align:center">2058 ms</td>
+<td style="text-align:center">313 ms</td>
+<td style="text-align:center">2225 ms</td>
 </tr>
 <tr>
 <td>2 Signal K NMEA TCP</td>
 <td>at reception</td>
-<td style="text-align:center">212 ms</td>
-<td style="text-align:center">2047 ms</td>
+<td style="text-align:center">423 ms</td>
+<td style="text-align:center">2036 ms</td>
 </tr>
 <tr>
 <td>3 USB to OpenCPN</td>
 <td>at reception</td>
-<td style="text-align:center">299 ms</td>
-<td style="text-align:center">2757 ms</td>
+<td style="text-align:center">367 ms</td>
+<td style="text-align:center">2025 ms</td>
 </tr>
 </tbody>
 </table>
@@ -14178,7 +14384,7 @@ Name: _time, dtype: float64</pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
-<li>There is nothing to gain by eliminating Signal K to allow the OpenCPN to connect directly to the USB channel: this is the clearly the less desirable configuration for any algorithm which analyzes time series.</li>
+<li>One observation in this test using a modest Rasberry Pi 4B board is that it allows similar performances than more powerful i7 CPU based processor under Window 10. Also, the USB streaming implementationin wxWidgets/OpenCPN is now in equal or even better performance than the combined Signal K (USB input) with conversion to TCP which OpenCPN receives. However, the difference in jitter is not significative enough to justify a need to elimate Signal K from the signal chain: using it together with method (1) - direct delta connection - provides still the best overall performance for key parameters.</li>
 </ol>
 
 </div>

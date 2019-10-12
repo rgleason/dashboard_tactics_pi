@@ -12,11 +12,11 @@
     /*
       Definition of the data streaming input characteristics:
     */
-    "streamin-sk" : {
-        "source"          : "localhost:3875", // not limited to localhost
+    "streaminsk" : {
+        "source"          : "localhost:8375", // not limited to localhost
         "api"             : "v1",             // version of Signal K server
         "connectionretry" : 5,                // [s] (min.=1s to reduce CPU load)
-        "timestamps"      : "server",         // "server" or "local"
+        "timestamps"      : "server",         // Signal K "server" or "local"
         "verbosity"       : 1                 //0=no,1=events,2=verbose,3+=debug
     }
 
