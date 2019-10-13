@@ -10,8 +10,8 @@ If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN
 
 Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about it and other advanced features here:
 * [Tactics and performance functions](docs/Tactics.md)
-* [Influx DB 2.0 ouput streaming and export](docs/influxdb/InfluxDBStreamer.ipynb)
-* [Signal K data input streaming](docs/signalk/SignalKInputStreamerUsage.ipynb)
+* [Influx DB 2.0 ouput streaming and export](docs/influxdb/InfluxDBStreamer.pdf)
+* [Signal K data input streaming](docs/signalk/SignalKInputStreamerUsage.pdf)
 * [all docs](docs/README.md)
 
 ## Installation
