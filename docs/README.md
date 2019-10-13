@@ -16,6 +16,6 @@
 
 
 ---
-> This repository uses [Jupyter Lab][1] - not necessary for reading on GitHub but it is recommended for analysis pages in case you have copied the repository on your local machine and run embedded Python statements or create new ones.
+> This repository uses _Jupyter Lab_[1] - not necessary for reading on GitHub but it is recommended for analysis pages in case you have copied the repository on your local machine and run embedded Python statements or create new ones.
 
 [1 - notes](jupyter/notes.md)
