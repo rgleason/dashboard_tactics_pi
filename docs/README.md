@@ -2,6 +2,8 @@
 
 ## Available documentation
 
+See [canne.github.io](https://canne.github.io/) for HTML and PDF files in more readable format.
+
 ### Tactics performance instruments and functions
 * [Introduction](Tactics.md)
 * [Tactics User's Guide](tactics_pi.pdf)
