@@ -6,13 +6,13 @@ dashboard_pi with integrated tactics_pi performance enhancements.
 
 ## Introduction
 
-If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN v5 or greater, you may want to have but one plug-in instead of two to have all available instruments available in one place. Even if you are not interested in Tactics functions, it has also improved a few aspects of the plain Dashboard, like export/import functions and streaming. This version comes with more resources allowing it to be expandandable, to host even more (!) instruments such as engine monitoring, mast rotation, etc.
+If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN v5 or greater, you may want to have but one plug-in instead of two to have all available instruments available in one place. Even if you are not interested in Tactics functions, it has also improved a few aspects of the plain Dashboard, like export/import functions and streaming. This version comes with more resources allowing it to be expandandable, to host even more (!) instruments talking NMEA-2000, such as engine monitoring, mast rotation, etc.
 
 Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about it and other advanced features here:
 * [Tactics and performance functions](docs/Tactics.md)
 * [Influx DB 2.0 ouput streaming and export](docs/influxdb/InfluxDBStreamer.pdf)
 * [Signal K data input streaming](docs/signalk/SignalKInputStreamerUsage.pdf)
-* [all docs](docs/README.md)
+* [all docs](docs/README.md) - ([HTML/PDF formats here])(https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
 
 ## Installation
 
