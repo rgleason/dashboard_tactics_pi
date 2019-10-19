@@ -12,7 +12,7 @@ Tactics functions provide information to help you sail better - ranging from tru
 * [Tactics and performance functions](docs/Tactics.md)
 * [Influx DB 2.0 ouput streaming and export](docs/influxdb/InfluxDBStreamer.pdf)
 * [Signal K data input streaming](docs/signalk/SignalKInputStreamerUsage.pdf)
-* [all docs](docs/README.md) - ([HTML/PDF formats here])(https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
+* [all docs](docs/README.md) - [(HTML/PDF formats here)](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
 
 ## Installation
 
