@@ -2215,33 +2215,44 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                           timestamp );
                     } // selected by (low) priority
                 }
-                else if ( mPriCOGSOG >= 3 ) {
-                    if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
-                        mPriCOGSOG = 3;
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_COG,
-                            mCOGFilter.filter( value * RAD_IN_DEG ),
-                            _T("\u00B0"),
-                            timestamp );
-                    }
-                    else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
-                        mPriCOGSOG = 3;
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_SOG,
-                            toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
-                                               g_iDashSpeedUnit ),
-                            getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
-                            timestamp );
-                    }
-                    else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
-                        mPriCOGSOG = 3;
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_MCOG,
-                            value * RAD_IN_DEG,
-                            _T("\u00B0M"),
-                            timestamp );
-                    }
-                } // mPriCOGSOG
+                else if ( ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
+                          ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
+                          ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) ) {
+                    if ( mPriCOGSOG >= 3 ) {
+                        if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                            mPriCOGSOG = 3;
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_COG,
+                                mCOGFilter.filter( value * RAD_IN_DEG ),
+                                _T("\u00B0"),
+                                timestamp );
+                        }
+                        else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                            mPriCOGSOG = 3;
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_SOG,
+                                toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                                   g_iDashSpeedUnit ),
+                                getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
+                                timestamp );
+                        }
+                        else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+                            mPriCOGSOG = 3;
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_MCOG,
+                                value * RAD_IN_DEG,
+                                _T("\u00B0M"),
+                                timestamp );
+                        }
+                    } // mPriCOGSOG
+                } // then COGSOG contents
+                else if ( path->CmpNoCase(_T("navigation.datetime")) == 0 ) {
+                    if( mPriDateTime >= 3 ) {
+                        mPriDateTime = 3;
+                        wxString datetime = *valStr;
+                        mUTCDateTime.ParseISOCombined( datetime.BeforeLast('.') ); // rfc3359 not understood
+                    } // mPriDateTime
+                } // then date/time update received with the above data
             } // RMC
 
             else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) { // https://git.io/Je3sA

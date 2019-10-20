@@ -110,7 +110,11 @@ wxString DashboardInstrument_Clock::GetDisplayTime( wxDateTime UTCtime )
 
 DashboardInstrument_CPUClock::DashboardInstrument_CPUClock( wxWindow *parent, wxWindowID id, wxString title, wxString format ) :
     DashboardInstrument_Clock( parent, id, title, OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON | OCPN_DBP_STC_CLK, format )
-{ }
+{
+#ifdef _TACTICSPI_H_
+    m_data = wxEmptyString;
+#endif // _TACTICSPI_H_
+}
 
 void DashboardInstrument_CPUClock::SetData(
 #ifdef _TACTICSPI_H_
