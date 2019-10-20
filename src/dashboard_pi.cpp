@@ -1064,7 +1064,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                      !(m_NMEA0183.LastSentenceIDReceived == _T("GSV")) &&
                      !(m_NMEA0183.LastSentenceIDReceived == _T("MTA")) &&
                      !(m_NMEA0183.LastSentenceIDReceived == _T("MWD")) &&
-                     !(m_NMEA0183.LastSentenceIDReceived == _T("VWT")) )
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("VWT")) &&
+                     !(m_NMEA0183.LastSentenceIDReceived == _T("ZDA")) )
                     return; // no reason to interleave NMEA-0183 coming from OpenCPN with Signal K
             }
             else
