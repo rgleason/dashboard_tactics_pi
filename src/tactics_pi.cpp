@@ -123,6 +123,9 @@ tactics_pi::tactics_pi( void )
     mTWA = NAN;
     mTWD = NAN;
     mTWS = NAN;
+    m_bTrueWindAngle_available = false;
+    m_bTrueWindSpeed_available = false;
+    m_bTrueWindDirection_available = false;
     m_bTrueWind_available = false;
     m_bLaylinesIsVisible = false;
     m_bLaylinesIsVisibleSavedState = false;
@@ -1883,9 +1886,15 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         unsigned long long st, double value )
 {
     // Let's collect information about instruments providing true wind
-    if ( (st == OCPN_DBP_STC_TWA) &&
-         (st == OCPN_DBP_STC_TWS) &&
-         (st == OCPN_DBP_STC_TWD) )
+    if ( (st == OCPN_DBP_STC_TWA) )
+        m_bTrueWindAngle_available = true;
+    if ( (st == OCPN_DBP_STC_TWS) )
+        m_bTrueWindSpeed_available = true;
+    if ( (st == OCPN_DBP_STC_TWD) ) {
+        if ( std::isnan(value) || (value == 0.0) )
+                m_bTrueWindDirection_available = false;
+    }
+    if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && m_bTrueWindDirection_available )
         m_bTrueWind_available = true;
     // Here's the logic depending of the data and settings
     if ( st != OCPN_DBP_STC_AWS ) { // this is the data we're waiting
@@ -1916,11 +1925,20 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             } // then debug messsage out
         } // the true wind is available from instruments
         else {
-            if ( ( m_iDbgRes_TW_Calc_Force != DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE ) ) {
-                wxLogMessage (
-                    "dashboard_tactics_pi: Tactics true wind calculations: Forced calculation requested but no TW data as for now..");
-                m_iDbgRes_TW_Calc_Force = DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE;
-            } // no debug message yet
+            if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && !m_bTrueWindDirection_available ) {
+                if ( ( m_iDbgRes_TW_Calc_Force != DBGRES_FORCE_SELECTED_NO_TWD_AVAILABLE ) ) {
+                    wxLogMessage (
+                        "dashboard_tactics_pi: Tactics true wind calculations: Forced calculation requested, no TWD, but has TWA/TWS.");
+                    m_iDbgRes_TW_Calc_Force = DBGRES_FORCE_SELECTED_NO_TWD_AVAILABLE;
+                }
+            } // then true wind available but not true wind direction, perhaps we are moored
+            else {
+                if ( ( m_iDbgRes_TW_Calc_Force != DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE ) ) {
+                    wxLogMessage (
+                        "dashboard_tactics_pi: Tactics true wind calculations: Forced calculation requested but no TW data as for now..");
+                    m_iDbgRes_TW_Calc_Force = DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE;
+                } // no debug message yet
+            } // else true wind not available in general
         } // else no true wind available
     } // then force true wind calculations
     else {
@@ -2025,63 +2043,65 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
     } // else unit is null string
 
 
-    // Let's check that we have speed (water or ground available)
-    if ( g_bUseSOGforTWCalc ) {
-        if ( std::isnan(mSOG) ) {
-            if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_INVALID) ) {
-                wxLogMessage (
-                    "dashboard_tactics_pi: Tactics true wind calculations: SOG calculations requested but Tactics has no valid intenal SOG value.");
-                m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_INVALID;
-            } // then debug print
-            m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
-            return false;
-        } // then NaN SOG
-        else {
-            if ( mSOG > 0.0 ) {
-                if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_AVAILABLE) ) {
+    // Let's check that we have speed (water or ground available) - we need those for everything else but moored TWD
+    if ( !( g_bForceTrueWindCalculation && m_bTrueWindAngle_available && m_bTrueWindSpeed_available && !m_bTrueWindDirection_available ) ) {
+        if ( g_bUseSOGforTWCalc ) {
+            if ( std::isnan(mSOG) ) {
+                if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_INVALID) ) {
                     wxLogMessage (
-                        "dashboard_tactics_pi: Tactics true wind calculations: SOG calc. requested, a valid internal SOG value, now (%f).", mSOG);
-                    m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_AVAILABLE;
-                } // then debug print
-            } // then valid data above zero
-            else {
-                if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_IS_ZERO) ) {
-                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: SOG calc.request. but value is 0 or negative (%f).", mSOG);
-                    m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_IS_ZERO;
+                        "dashboard_tactics_pi: Tactics true wind calculations: SOG calculations requested but Tactics has no valid intenal SOG value.");
+                    m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_INVALID;
                 } // then debug print
                 m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
                 return false;
-            } // else data is zero
-        } // else no NaN SOG
-    } // then use SOG
-    else {
-        if ( std::isnan(mStW) ) {
-            if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_INVALID) ) {
-                wxLogMessage (
-                    "dashboard_tactics_pi: Tactics true wind calculations: StW calculations requested but Tactics has no valid internal StW value.");
-                m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_INVALID;
-            } // then debug print
-            m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
-            return false;
-        } // then NaN StW
-        else {
-            if ( mStW > 0.0 ) {
-                if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_AVAILABLE) ) {
-                    wxLogMessage (
-                        "dashboard_tactics_pi: Tactics true wind calculations: StW calc. requested, a valid internal StW value, now (%f).", mStW);
-                    m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_AVAILABLE;
-                } // then debug print
-            } // then valid data above zero
+            } // then NaN SOG
             else {
-                if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_IS_ZERO) ) {
-                    wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: StW calc. request but value is 0 or neg. (%f)", mStW);
-                    m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_IS_ZERO;
+                if ( mSOG > 0.0 ) {
+                    if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_AVAILABLE) ) {
+                        wxLogMessage (
+                            "dashboard_tactics_pi: Tactics true wind calculations: SOG calc. requested, a valid internal SOG value, now (%f).", mSOG);
+                        m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_AVAILABLE;
+                    } // then debug print
+                } // then valid data above zero
+                else {
+                    if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_IS_ZERO) ) {
+                        wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: SOG calc.request. but value is 0 or negative (%f).", mSOG);
+                        m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_IS_ZERO;
+                    } // then debug print
+                    m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
+                    return false;
+                } // else data is zero
+            } // else no NaN SOG
+        } // then use SOG
+        else {
+            if ( std::isnan(mStW) ) {
+                if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_INVALID) ) {
+                    wxLogMessage (
+                        "dashboard_tactics_pi: Tactics true wind calculations: StW calculations requested but Tactics has no valid StW value.");
+                    m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_INVALID;
                 } // then debug print
                 m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
                 return false;
-            } // else data is zero
-        } // else STW is not NaN
-    } // else STW speed calculations
+            } // then NaN StW
+            else {
+                if ( mStW > 0.0 ) {
+                    if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_AVAILABLE) ) {
+                        wxLogMessage (
+                            "dashboard_tactics_pi: Tactics true wind calculations: StW calc. requested, a valid internal StW value, now (%f).", mStW);
+                        m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_AVAILABLE;
+                    } // then debug print
+                } // then valid data above zero
+                else {
+                    if ( ( m_iDbgRes_TW_Calc_StW != DBGRES_MVAL_IS_ZERO) ) {
+                        wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: StW calc. request but value is 0 or neg. (%f)", mStW);
+                        m_iDbgRes_TW_Calc_StW = DBGRES_MVAL_IS_ZERO;
+                    } // then debug print
+                    m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
+                    return false;
+                } // else data is zero
+            } // else STW is not NaN
+        } // else STW speed calculations
+    } // then not TWD calculations in moored conditions where TWA/TWS are known
         
     // all OK!
     if ( ( m_iDbgRes_TW_Calc_Lau != DBGRES_EXEC_TRUE) ) {
@@ -2119,6 +2139,57 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     wxLogMessage ( "tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind() - g_bUseSOGforTWCalc %s, mSOG %f, mStW %f .",
                    (g_bUseSOGforTWCalc?"true":"false"), (std::isnan(mSOG)?999.99:mSOG), (std::isnan(mStW)?999.99:mStW) );
     */
+
+    // Let's first check if we've been asked to calculate the TWD value in moored conditions, where TWA and TWS are provided
+    if ( g_bForceTrueWindCalculation && m_bTrueWindAngle_available && m_bTrueWindSpeed_available && !m_bTrueWindDirection_available ) {
+
+        double stillval = 0.0; // supposed to be moored, otherwise normal calculations can be done
+        if ( !std::isnan(mSOG) )
+            stillval = mSOG;
+        else if ( !std::isnan(mStW) )
+            stillval = mStW;
+
+        if ( stillval < 0.2 ) {
+        
+            if ( std::isnan(mTWA) || std::isnan(mTWS) || !(mAWAUnit != _("")) || std::isnan(mHdt) ) {
+                m_calcTWD = NAN;
+                m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_FALSE;
+                return false;
+            } // then (still or again) invalid values, cannot progress
+            // Allright, now we can start the calculations
+            std::unique_lock<std::mutex> lckmAWSmAWA( mtxAWS ); //
+            std::unique_lock<std::mutex> lckmHdt( mtxHdt );
+            std::unique_lock<std::mutex> lckmTWD( mtxTWD );
+            mTWD = (mAWAUnit == _T("\u00B0rl")) ? mHdt + mTWA : mHdt - mTWA;
+            if (mTWD >= 360) mTWD -= 360;
+            if (mTWD < 0) mTWD += 360;
+            m_calcTWD = mTWD;
+            st_twa = OCPN_DBP_STC_TWA;
+            value_twa = mTWA;
+            unit_twa = mAWAUnit;
+            st_tws = OCPN_DBP_STC_TWS;
+            st_tws2 = OCPN_DBP_STC_TWS2;
+            value_tws = mTWS;
+            unit_tws = mAWSUnit;
+            st_twd = OCPN_DBP_STC_TWD;
+            value_twd = mTWD;
+            unit_twd = _T("\u00B0T");
+            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+            calctimestamp = wxllNowMs.GetValue();
+            if ( ( m_iDbgRes_TW_Calc_Exe != DBGRES_EXEC_TWDONLY_TRUE ) ) {
+                wxLogMessage (
+                    "dashboard_tactics_pi: Tactics true wind calculations: standstill TWD only requested, "
+                    "returning now TWA %f '%s', TWS %f '%s, TWD %f '%s'.",
+                    (std::isnan(value_twa)?999.99:value_twa), unit_twa,
+                    (std::isnan(value_tws)?999.99:value_tws), unit_tws,
+                    (std::isnan(value_twd)?999.99:value_twd), unit_twd );
+                m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_TWDONLY_TRUE;
+            } // then debug print
+            return true;
+        } // then we are at standstill, or almost got TWS/TWA but no TWD; calculate it from TWA/HDT if available
+        
+    } // then force calculate TWD forced in moored conditions when TWA and TWS are known
+    
     if ( g_bUseSOGforTWCalc ) {
         if ( std::isnan(mSOG) ) {
             m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_FALSE;
@@ -2131,9 +2202,9 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
             return false;
         } // then mStW is not valid
     } // else use StW, check if value
+    spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
 
     //  Calculate TWS (from AWS and StW/SOG)
-    spdval = (g_bUseSOGforTWCalc) ? mSOG : mStW ;
     std::unique_lock<std::mutex> lckmAWSmAWA( mtxAWS ); //
     std::unique_lock<std::mutex> lckmHdt( mtxHdt );
     /* The below is the single most important debugging tool for this method! We may need it again */
