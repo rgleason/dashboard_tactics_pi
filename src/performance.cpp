@@ -984,7 +984,7 @@ TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 	TargetxMG TCMG,tcmg2;
 	TCMG.TargetAngle;
 	TCMG.TargetSpeed = -999;
-	double cmg = 0;
+	double cmg;
 	int i_tws = wxRound(TWS);
     double range = getSignedDegRange(TWD, BRG);
     int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
