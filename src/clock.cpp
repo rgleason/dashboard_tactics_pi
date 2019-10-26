@@ -500,11 +500,33 @@ Inputs:
       double coshris = (cosZenith - (sinDecris * sin(DEGREE * latit))) / (cosDecris * cos(DEGREE * latit));
       double coshset = (cosZenith - (sinDecset * sin(DEGREE * latit))) / (cosDecset * cos(DEGREE * latit));
       bool neverrises = false;
+#ifdef _TACTICSPI_H_
+      if (coshris > 1) {
+          neverrises = true;
+          coshris = 1;
+      }
+      if (coshris < -1) {
+          neverrises = true;
+          coshris = -1;
+      }
+#else
       if (coshris > 1) neverrises = true;
       if (coshris < -1) neverrises = true; //nohal - it's cosine - even value lower than -1 is ilegal... correct me if i'm wrong
+#endif // _TACTICSPI_H_
       bool neversets = false;
+#ifdef _TACTICSPI_H_
+      if (coshset > 1) {
+          neverrises = true;
+          coshset = 1;
+      }
+      if (coshset < -1) {
+          neverrises = true;
+          coshset = -1;
+      }
+#else
       if (coshset < -1) neversets = true;
       if (coshset > 1) neversets = true; //nohal - it's cosine - even value greater than 1 is ilegal... correct me if i'm wrong
+#endif // _TACTICSPI_H_
 /*
 7b. finish calculating H and convert into hours
 
@@ -515,17 +537,9 @@ Inputs:
 
 	H = H / 15
 */
-#ifdef _TACTICSPI_H_
-      double hris = (neverrises ? 0.0 : 360 - RADIAN * acos(coshris) );
-#else
       double hris = 360 - RADIAN * acos(coshris);
-#endif // _TACTICSPI_H_
       hris = hris/15;
-#ifdef _TACTICSPI_H_
-      double hset = (neversets ? 0.0 : RADIAN * acos(coshset) );
-#else
       double hset = RADIAN * acos(coshset);
-#endif // _TACTICSPI_H_
       hset = hset/15;
 /*
 8. calculate local mean time of rising/setting
