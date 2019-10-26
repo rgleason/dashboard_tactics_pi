@@ -501,13 +501,13 @@ Inputs:
       double coshset = (cosZenith - (sinDecset * sin(DEGREE * latit))) / (cosDecset * cos(DEGREE * latit));
       bool neverrises = false;
 #ifdef _TACTICSPI_H_
-      if (coshris > 1) {
+      if (coshris > 1.0) {
           neverrises = true;
-          coshris = 1;
+          coshris = 1.0;
       }
-      if (coshris < -1) {
+      if (coshris < -1.0) {
           neverrises = true;
-          coshris = -1;
+          coshris = -1.0;
       }
 #else
       if (coshris > 1) neverrises = true;
@@ -515,13 +515,13 @@ Inputs:
 #endif // _TACTICSPI_H_
       bool neversets = false;
 #ifdef _TACTICSPI_H_
-      if (coshset > 1) {
+      if (coshset > 1.0) {
           neverrises = true;
-          coshset = 1;
+          coshset = 1.0;
       }
-      if (coshset < -1) {
+      if (coshset < -1.0) {
           neverrises = true;
-          coshset = -1;
+          coshset = -1.0;
       }
 #else
       if (coshset < -1) neversets = true;
