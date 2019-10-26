@@ -13113,6 +13113,20 @@ div#notebook {
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr />
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Numerical-comparison">Numerical comparison<a class="anchor-link" href="#Numerical-comparison">&#182;</a></h2>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
@@ -13130,7 +13144,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Data-via-Signal-K-delta-TCP-channel">1. Data via Signal K delta TCP channel<a class="anchor-link" href="#1.-Data-via-Signal-K-delta-TCP-channel">&#182;</a></h2>
+<h3 id="Data-via-Signal-K-delta-TCP-channel">Data via Signal K delta TCP channel<a class="anchor-link" href="#Data-via-Signal-K-delta-TCP-channel">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13448,7 +13462,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="2.-Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">2. Data via Signal K to NMEA-0183 converter TCP channel<a class="anchor-link" href="#2.-Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">&#182;</a></h2>
+<h3 id="Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">Data via Signal K to NMEA-0183 converter TCP channel<a class="anchor-link" href="#Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13766,7 +13780,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="3.-Data-without-Signal-K-directly-from-USB">3. Data without Signal K directly from USB<a class="anchor-link" href="#3.-Data-without-Signal-K-directly-from-USB">&#182;</a></h2>
+<h3 id="Data-without-Signal-K-directly-from-USB">Data without Signal K directly from USB<a class="anchor-link" href="#Data-without-Signal-K-directly-from-USB">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -14091,6 +14105,36 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Graphical-comparison">Graphical comparison<a class="anchor-link" href="#Graphical-comparison">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://www.gnu.org/software/octave/">GNU Octave v5.1</a>/MATLAB script <a href="jitterplots.m">jitterplots.m</a> was developed to present the jitter in graphical plot format, including the cumulative difference. The datafiles were truncated to hold 150 measurement points each. A helper script <a href="windowsjitter.m">windowsjitter.m</a> was used to produce the following plots.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="windowsjitter.png" alt="windowsjitter.png"> <a href="img/windowsjitter.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Summary-of-results">Summary of results<a class="anchor-link" href="#Summary-of-results">&#182;</a></h2>
 </div>
 </div>
@@ -14158,7 +14202,12 @@ Name: _time, dtype: float64</pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
-<li>It is not surprising that the direct TCP connection to the Signal K emitted delta values is the most efficient what comes to the accuracy of the timestamps - they are set at the reception, <em>i.e.</em> at the closest possible position to the source. Although this method is penalized having to transmit also information in its payload to which we are not necessarily willing to be subscribed, the fact that the timestamp travels with the data compensates that inconvenience.</li>
+<li><p>It is not surprising that the direct TCP connection to the Signal K emitted delta values is the most efficient what comes to the accuracy of the timestamps - they are set at the reception, <em>i.e.</em> at the closest possible position to the source. Although this method is penalized having to transmit also information in its payload to which we are not necessarily willing to be subscribed, the fact that the timestamp travels with the data compensates that inconvenience by reducing the jitter.</p>
+</li>
+<li><p>The fact that there is so little difference between the timestamp accuracy through the Signal K to NMEA conversion and its actual delta channel is a proof of the excellent quality and effiency of Signal K and npm implementation also on Windows platform. The TCP method of OpenCPN is also the preferred one compared to USB method since apparently the wxWidgets/OpenCPN TCP/IP interface works the best on Windows.</p>
+</li>
+<li><p>There is nothing to gain by eliminating Signal K to allow the OpenCPN to connect directly to the USB channel: this is the clearly the less desirable configuration for any algorithm which analyzes time series. It increases considerably the jitter albeit it performs well, but unfortunately in bursts.</p>
+</li>
 </ol>
 
 </div>
@@ -14167,9 +14216,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>The fact that there is so little difference between the timestamp accuracy through the Signal K to NMEA conversion and its actual delta channel is a proof of the excellent quality and effiency of Signal K and npm. Also, the TCP method of OpenCPN is the preferred one since apparently well implemented.</li>
-</ol>
+<p>On the Windows 10 platform the Signal K TCP feed to OpenCPN is the method to use, together with the Dashboard-Tactics plug-in's direct connection to Signal K's delta channel.</p>
 
 </div>
 </div>
@@ -14177,9 +14224,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>There is nothing to gain by eliminating Signal K to allow the OpenCPN to connect directly to the USB channel: this is the clearly the less desirable configuration for any algorithm which analyzes time series.</li>
-</ol>
+<p>Finally, let's consider the following statement from <em>Numerical Recipes In C: The Art of Scientific Computing (ISBN 0-521-43108-5)</em> concerning irregularly sampled data, where the values $f_i$ are not uniformly spaced in time:</p>
 
 </div>
 </div>
@@ -14187,7 +14232,16 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, the best improvement in this particular case would be to increase the sampling rate, which is, admittely, ridicuosly slow.</p>
+<blockquote><p>If the change in $f$ across the full width of the $N = nL + nR + 1$ point window is less than $\sqrt{N/2}$ times the measurement noise on a single point, then the cheap method can be used.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The "<em>cheap method</em>" is to ignore the jitter. But as the above graphics illustrates, were are constantly switching, here for the wind data, between $1 Hz$ and $0.5 Hz$ for $f_i$!</p>
 
 </div>
 </div>

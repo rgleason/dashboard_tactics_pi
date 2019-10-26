@@ -13084,7 +13084,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">Rasbian "Buster" - OpenCPN v5.0.0 - Signal K v1.17.0 - DashT v.0.5.2<a class="anchor-link" href="#Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">&#182;</a></h3>
+<h2 id="Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">Rasbian "Buster" - OpenCPN v5.0.0 - Signal K v1.17.0 - DashT v.0.5.2<a class="anchor-link" href="#Rasbian-&quot;Buster&quot;---OpenCPN-v5.0.0---Signal-K-v1.17.0---DashT-v.0.5.2">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -13113,9 +13113,23 @@ div#notebook {
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr />
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Numerical-comparison">Numerical comparison<a class="anchor-link" href="#Numerical-comparison">&#182;</a></h2>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -13130,7 +13144,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Data-via-Signal-K-delta-TCP-channel">1. Data via Signal K delta TCP channel<a class="anchor-link" href="#1.-Data-via-Signal-K-delta-TCP-channel">&#182;</a></h2>
+<h3 id="Data-via-Signal-K-delta-TCP-channel">Data via Signal K delta TCP channel<a class="anchor-link" href="#Data-via-Signal-K-delta-TCP-channel">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13144,7 +13158,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224308_SignalK_delta_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -13157,7 +13171,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -13173,7 +13187,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[3]:</div>
+    <div class="prompt output_prompt">Out[35]:</div>
 
 
 
@@ -13287,7 +13301,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13303,7 +13317,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[4]:</div>
+    <div class="prompt output_prompt">Out[36]:</div>
 
 
 
@@ -13328,7 +13342,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;_time&#39;</span><span class="p">])</span>
@@ -13341,7 +13355,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13357,7 +13371,7 @@ Name: _value, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[6]:</div>
+    <div class="prompt output_prompt">Out[38]:</div>
 
 
 
@@ -13380,7 +13394,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
@@ -13393,7 +13407,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
@@ -13406,7 +13420,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df3</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13422,7 +13436,7 @@ Name: _time, dtype: object</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[9]:</div>
+    <div class="prompt output_prompt">Out[41]:</div>
 
 
 
@@ -13448,7 +13462,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="2.-Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">2. Data via Signal K to NMEA-0183 converter TCP channel<a class="anchor-link" href="#2.-Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">&#182;</a></h2>
+<h3 id="Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">Data via Signal K to NMEA-0183 converter TCP channel<a class="anchor-link" href="#Data-via-Signal-K-to-NMEA-0183-converter-TCP-channel">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13462,7 +13476,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224509_SignalK_NMEA_TCP_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -13475,7 +13489,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -13491,7 +13505,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[11]:</div>
+    <div class="prompt output_prompt">Out[43]:</div>
 
 
 
@@ -13605,7 +13619,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13621,7 +13635,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[12]:</div>
+    <div class="prompt output_prompt">Out[44]:</div>
 
 
 
@@ -13646,7 +13660,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">nf</span><span class="p">[</span><span class="s1">&#39;_time&#39;</span><span class="p">])</span>
@@ -13659,7 +13673,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf1</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13675,7 +13689,7 @@ Name: _value, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[14]:</div>
+    <div class="prompt output_prompt">Out[46]:</div>
 
 
 
@@ -13698,7 +13712,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf2</span> <span class="o">=</span> <span class="n">nf1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
@@ -13711,7 +13725,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf3</span> <span class="o">=</span> <span class="n">nf2</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
@@ -13724,7 +13738,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">nf3</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13740,7 +13754,7 @@ Name: _time, dtype: object</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[17]:</div>
+    <div class="prompt output_prompt">Out[49]:</div>
 
 
 
@@ -13766,7 +13780,7 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="3.-Data-without-Signal-K-directly-from-USB">3. Data without Signal K directly from USB<a class="anchor-link" href="#3.-Data-without-Signal-K-directly-from-USB">&#182;</a></h2>
+<h3 id="Data-without-Signal-K-directly-from-USB">Data without Signal K directly from USB<a class="anchor-link" href="#Data-without-Signal-K-directly-from-USB">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13780,7 +13794,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224657_USB_to_O_zoom_Rpi.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -13793,7 +13807,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -13809,7 +13823,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[19]:</div>
+    <div class="prompt output_prompt">Out[51]:</div>
 
 
 
@@ -13923,7 +13937,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13939,7 +13953,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[20]:</div>
+    <div class="prompt output_prompt">Out[52]:</div>
 
 
 
@@ -13964,7 +13978,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">of</span><span class="p">[</span><span class="s1">&#39;_time&#39;</span><span class="p">])</span>
@@ -13977,7 +13991,7 @@ Name: _value, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of1</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -13993,7 +14007,7 @@ Name: _value, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[22]:</div>
+    <div class="prompt output_prompt">Out[54]:</div>
 
 
 
@@ -14016,7 +14030,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of2</span> <span class="o">=</span> <span class="n">of1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
@@ -14029,7 +14043,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of3</span> <span class="o">=</span> <span class="n">of2</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
@@ -14042,7 +14056,7 @@ Name: _time, dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">of3</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -14058,7 +14072,7 @@ Name: _time, dtype: object</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[25]:</div>
+    <div class="prompt output_prompt">Out[57]:</div>
 
 
 
@@ -14091,6 +14105,43 @@ Name: _time, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Graphical-comparison">Graphical comparison<a class="anchor-link" href="#Graphical-comparison">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://www.gnu.org/software/octave/">GNU Octave v5.1</a>/MATLAB script <a href="jitterplots.m">jitterplots.m</a> was developed to present the jitter in graphical plot format, including the cumulative difference. The datafiles were truncated to hold 150 measurement points each. A helper script <a href="raspberryjitter.m">raspberryjitter.m</a> was used to produce the following plots.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="raspberryjitter.png" alt="raspberryjitter.png"> <a href="img/raspberryjitter.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Miscellaneous-observations">Miscellaneous observations<a class="anchor-link" href="#Miscellaneous-observations">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Applying-moving-average">Applying moving average<a class="anchor-link" href="#Applying-moving-average">&#182;</a></h3>
 </div>
 </div>
@@ -14105,7 +14156,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;2019-10-05_224657_USB_to_O_zoom_Rpi_moving_average.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -14118,7 +14169,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -14134,7 +14185,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[27]:</div>
+    <div class="prompt output_prompt">Out[59]:</div>
 
 
 
@@ -14248,7 +14299,7 @@ Name: _time, dtype: float64</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">af</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -14264,7 +14315,7 @@ Name: _time, dtype: float64</pre>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[28]:</div>
+    <div class="prompt output_prompt">Out[60]:</div>
 
 
 
@@ -14363,9 +14414,16 @@ Name: _value, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>It is not surprising that the direct TCP connection to the Signal K emitted delta values is the most efficient what comes to the accuracy of the timestamps - they are set at the reception, <em>i.e.</em> at the closest possible position to the source. Although this method is penalized having to transmit also information in its payload to which we are not necessarily willing to be subscribed, the fact that the timestamp travels with the data compensates that inconvenience.</li>
-</ol>
+<blockquote><p>Based on the graphs we make an assumption that the upstream system, the Miniplex multiplexer receives the wind data from SeaTalk with $1Hz$ ($1/s$) frequency and that it adds some jitter into the system but that jitter is not possible to measure. However, that particular jitter source is the same to all three methods observed, allowing the comparison</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>On Raspberry with Raspian Linux we can observe:</p>
 
 </div>
 </div>
@@ -14374,7 +14432,12 @@ Name: _value, dtype: float64</pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
-<li>The fact that there is so little difference between the timestamp accuracy through the Signal K to NMEA conversion and its actual delta channel is a proof of the excellent quality and effiency of Signal K and npm. Also, the TCP method of OpenCPN is the preferred one since apparently well implemented.</li>
+<li><p>Signal K NMEA-0183 conversion and TCP/IP feed to OpenCPN which the passes the data to the plug-in loses less packages than the other two solutions - it receives more packages in a period. However, jitter-wise it the worst of the three - about every other second a data frame is missed.</p>
+</li>
+<li><p>Somewhat surprisingly, the direct connection of OpenCPN to the USB source is performing more badly than when it receives the data indirectly through Signal K using TCP/IP. The jitter is less important, however.</p>
+</li>
+<li><p>Jitter-wise, the direct connection to the Signal K is the best, as expected. However, on this platform it is losing more packages than the two other methods. This can be explained partly by the low performance of the CPU on this platform - there is probably a saturation either on the npm-thread on Signal K side sending the delta-values or the on the POSIX communication thread of the Dashboard-Tactics plug-in receiving them, or on both.</p>
+</li>
 </ol>
 
 </div>
@@ -14383,9 +14446,7 @@ Name: _value, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>One observation in this test using a modest Rasberry Pi 4B board is that it allows similar performances than more powerful i7 CPU based processor under Window 10. Also, the USB streaming implementationin wxWidgets/OpenCPN is now in equal or even better performance than the combined Signal K (USB input) with conversion to TCP which OpenCPN receives. However, the difference in jitter is not significative enough to justify a need to elimate Signal K from the signal chain: using it together with method (1) - direct delta connection - provides still the best overall performance for key parameters.</li>
-</ol>
+<p>On this platform the Signal K TCP feed to OpenCPN is the method to use if the number of samples is preferred, wxWidgets and OpenCPN TCP/IP implementation works very well here.</p>
 
 </div>
 </div>
@@ -14393,7 +14454,40 @@ Name: _value, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, the best improvement in this particular case would be to increase the sampling rate, which is, admittely, ridicuosly slow.</p>
+<p>The direct Signal K connection's advantage is the reduced jitter also in this platform, not to mention the functional enhancements it provides. It can be used together with the Signal K TCP/IP feed since the requirement was precisely to reduce jitter for the key parameters.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Albeit the OpenCPN direct USB connection on a modest Rasberry Pi 4B board allows similar performances than more powerful i7 CPU based processor under Window 10, a similar level of jitter with lesser performance would suggest to prefer the usage of Signal K and TCP/IP. Of course, a direct TCP/IP connection to the Miniplex multiplexer is possible but not studied. Performance-wise this can be expected to provide similar results but since there is no performance penalty by using Signal K it would be pity not to profit from the extra functionality it provides.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, let's consider the following statement from <em>Numerical Recipes In C: The Art of Scientific Computing (ISBN 0-521-43108-5)</em> concerning irregularly sampled data, where the values $f_i$ are not uniformly spaced in time:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>If the change in $f$ across the full width of the $N = nL + nR + 1$ point window is less than $\sqrt{N/2}$ times the measurement noise on a single point, then the cheap method can be used.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The "<em>cheap method</em>" is to ignore the jitter. But as the above graphics illustrates, were are constantly switching, here for the wind data, between $1 Hz$ and $0.5 Hz$ for $f_i$!</p>
 
 </div>
 </div>
