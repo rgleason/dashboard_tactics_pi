@@ -911,9 +911,9 @@ TargetxMG Polar::Calc_TargetVMG(double TWA, double TWS)
 	TargetxMG TVMG;
 	TVMG.TargetAngle = -999;
 	TVMG.TargetSpeed = -999;
-	double calcvmg=0;
+	double calcvmg;
 	int i_tws = wxRound(TWS);
-	int k=0;
+	int k;
 	if (TWA <90) { //upwind
 		for (k = 1; k < 90; k++){
 			if (!std::isnan(windsp[i_tws].winddir[k])){
@@ -982,7 +982,7 @@ Calculate opt. CMG (angle & speed) for up- and downwind courses with bearing to 
 TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 {
 	TargetxMG TCMG,tcmg2;
-	TCMG.TargetAngle = -999;
+	TCMG.TargetAngle;
 	TCMG.TargetSpeed = -999;
 	double cmg = 0;
 	int i_tws = wxRound(TWS);
@@ -1060,16 +1060,16 @@ void Polar::Calc_TargetCMG2(double TWS, double TWD, double BRG, TargetxMG *TCMGM
   TCMG1->TargetSpeed = -999;
   TCMG2->TargetAngle = -999;
   TCMG2->TargetSpeed = -999;
-  double cmg = 0;
+  double cmg;
 
   int i_tws = wxRound(TWS);  //still rounding here, not averaging ...to be done
   // wxLogMessage("-- Calc_TargetCMG2() - range?");
   double range = getSignedDegRange(TWD, BRG);
   // wxLogMessage("range =%f", range);
-  double diffAngle = 0;
+  double diffAngle;
 //  int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
   int k = 0;
-  int curAngle = 0;
+  int curAngle;
   int start = 0;
   //start = vPolarAngle - 180;
   start = 0;
