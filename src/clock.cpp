@@ -515,9 +515,17 @@ Inputs:
 
 	H = H / 15
 */
+#ifdef _TACTICSPI_H_
+      double hris = (neverrises ? 0.0 : 360 - RADIAN * acos(coshris) );
+#else
       double hris = 360 - RADIAN * acos(coshris);
+#endif // _TACTICSPI_H_
       hris = hris/15;
+#ifdef _TACTICSPI_H_
+      double hset = (neversets ? 0.0 : RADIAN * acos(coshset) );
+#else
       double hset = RADIAN * acos(coshset);
+#endif // _TACTICSPI_H_
       hset = hset/15;
 /*
 8. calculate local mean time of rising/setting
