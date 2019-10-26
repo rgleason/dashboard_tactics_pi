@@ -1856,7 +1856,7 @@ wxJSONReader::ReadMemoryBuff( wxInputStream& is, wxJSONValue& val )
 
     wxMemoryBuffer buff;
     int ch = 0; int errors = 0;
-    unsigned char byte = 0;
+    unsigned char byte;
     while ( ch >= 0 ) {
         ch = ReadChar( is );
         if ( ch < 0 )  {

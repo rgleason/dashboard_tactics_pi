@@ -2286,7 +2286,6 @@ wxJSONValue::Dump( bool deep, int indent ) const
     switch ( type )    {
         case wxJSONTYPE_OBJECT :
             map = AsMap();
-            size = Size();
             for ( it = map->begin(); it != map->end(); ++it )  {
                 const wxJSONValue& v = it->second;
                 sub = v.Dump( true, indent );
