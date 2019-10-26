@@ -898,7 +898,6 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         } // while array has sentence schemas defined
     }
     catch (int x) {
-        wxString expErr = wxEmptyString;
         if ( (x >= 100) && (x < 200) ) {
             wxLogMessage ("dashboard_tactics_pi: JSON file %s parsing exception: missing expected item %d in 'influxdb'",
                           confPath, (x - 100) );
