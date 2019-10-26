@@ -524,7 +524,6 @@ void Polar::loadPolar(wxString FilePath)
         if (fdlg.ShowModal() == wxID_CANCEL)
             return;
         filePath = fdlg.GetPath();
-        fname = fdlg.GetFilename();
         fname = filePath;
     }
     else {

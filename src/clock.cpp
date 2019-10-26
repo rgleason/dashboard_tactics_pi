@@ -516,11 +516,11 @@ Inputs:
       bool neversets = false;
 #ifdef _TACTICSPI_H_
       if (coshset > 1.0) {
-          neverrises = true;
+          neversets = true;
           coshset = 1.0;
       }
       if (coshset < -1.0) {
-          neverrises = true;
+          neversets = true;
           coshset = -1.0;
       }
 #else
@@ -537,7 +537,7 @@ Inputs:
 
 	H = H / 15
 */
-      double hris = 360 - RADIAN * acos(coshris);
+      double hris = 360 - (RADIAN * acos(coshris));
       hris = hris/15;
       double hset = RADIAN * acos(coshset);
       hset = hset/15;
