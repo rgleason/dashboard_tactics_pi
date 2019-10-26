@@ -308,8 +308,7 @@ void TacticsInstrument_AvgWindDir::DrawBackground(wxGCDC* dc)
   dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
   dc->DrawText(label, 1, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight - height / 2.)); 
   dc->DrawLine(m_Legend + 1, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight), m_Legend + 1 + m_width, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight));
-  int x1 = 0;
-  int x2 = 0;
+  int x1, x2;
   for (int i = 1; i < time; i++){
     if (i % 5 == 0){
       x1 = m_cx;
