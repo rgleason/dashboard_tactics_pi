@@ -2017,6 +2017,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid internal true heading value.");
             m_iDbgRes_TW_Calc_Hdt = DBGRES_MVAL_INVALID;
         } // then debug print
+        m_calcTWD = NAN; // that invalidates also this
         m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
         return false;
     } // then NaN Hdt
