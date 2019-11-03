@@ -685,7 +685,7 @@ void DashboardInstrument_BaroHistory::ExportData()
     else
         str_utc = _T("");
     if (g_bDataExportClockticks) {
-        wxLongLong ti = localTime.GetValue();
+        wxLongLong ti = wxGetUTCTimeMillis();
         ticks = wxString::Format(_T("%s%s"), ti.ToString(), g_sDataExportSeparator);
     }
     else

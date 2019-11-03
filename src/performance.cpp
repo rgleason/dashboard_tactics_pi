@@ -1890,12 +1890,13 @@ void TacticsInstrument_PolarPerformance::ExportData(void) {
         else
             str_utc = _T("");
         if (g_bDataExportClockticks) {
-            wxLongLong ti = localTime.GetValue();
+            wxLongLong ti = wxGetUTCTimeMillis();
             ticks = wxString::Format(_T("%s%s"), ti.ToString(), g_sDataExportSeparator);
         }
         else
             ticks = _T("");
-        wxString str = wxString::Format(_T("%s%s%s%s%s%s%3.0f%s%3.1f%s%3.2f%s%3.2f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_AvgTWA, g_sDataExportSeparator, toUsrSpeed_Plugin(m_AvgTWS, g_iDashWindSpeedUnit), g_sDataExportSeparator, toUsrSpeed_Plugin(m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1], g_iDashSpeedUnit), g_sDataExportSeparator, m_AvgSpdPercent);
+        // Albeit we print on the screen the wind angle with %3.0f precision, for export let's have one decimal: %3.1f
+        wxString str = wxString::Format(_T("%s%s%s%s%s%s%3.1f%s%3.1f%s%3.2f%s%3.2f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_AvgTWA, g_sDataExportSeparator, toUsrSpeed_Plugin(m_AvgTWS, g_iDashWindSpeedUnit), g_sDataExportSeparator, toUsrSpeed_Plugin(m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1], g_iDashSpeedUnit), g_sDataExportSeparator, m_AvgSpdPercent);
         m_ostreamlogfile->Write(str);
     }
   }
