@@ -991,7 +991,7 @@ void DashboardInstrument_WindDirHistory::ExportData(void)
   if (m_isExporting == true) {
     wxDateTime localTime(m_ArrayRecTime[WIND_RECORD_COUNT - 1]);
     if (localTime.GetSecond() % m_exportInterval == 0) {
-        wxString str_utc, ticks;
+        wxString str_utc, ticks, sBuffer, ticksString;
         if (g_bDataExportUTC) {
             wxDateTime utc = localTime.ToUTC();
             str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'), g_sDataExportSeparator);
@@ -1000,7 +1000,9 @@ void DashboardInstrument_WindDirHistory::ExportData(void)
             str_utc = _T("");
         if (g_bDataExportClockticks) {
             wxLongLong ti = wxGetUTCTimeMillis();
-            ticks = wxString::Format(_T("%s%s"), ti.ToString(), g_sDataExportSeparator);
+            sBuffer = ti.ToString();
+            ticksString = sBuffer.wc_str();
+            ticks = wxString::Format(_T("%s%s"), ticksString, g_sDataExportSeparator);
         }
         else
             ticks = _T("");
