@@ -113,9 +113,9 @@ tactics_pi::tactics_pi( void )
     m_calcTWA = NAN;
     m_calcTWD = NAN;
     m_calcTWS = NAN;
-    mHeelUnit = "";
-    mAWAUnit = "";
-    mAWSUnit = "";
+    mHeelUnit = _T("");
+    mAWAUnit = _T("");
+    mAWSUnit = _T("");
     mAWA = NAN;
     mAWAnocorr = NAN;
     mAWS = NAN;
@@ -2027,7 +2027,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         } // then debug print
     } // else no NaN Hdt
 
-    if ( (mAWAUnit != _("")) ) {
+    if ( (mAWAUnit != _T("")) ) {
         if ( ( m_iDbgRes_TW_Calc_AWAUnit != DBGRES_MVAL_AVAILABLE ) ) {
             wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: AWA unit is availabe, now (%s).", mAWAUnit);
             m_iDbgRes_TW_Calc_AWAUnit = DBGRES_MVAL_AVAILABLE;
@@ -2151,7 +2151,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
 
         if ( stillval < 0.2 ) {
         
-            if ( std::isnan(mTWA) || std::isnan(mTWS) || !(mAWAUnit != _("")) || std::isnan(mHdt) ) {
+            if ( std::isnan(mTWA) || std::isnan(mTWS) || !(mAWAUnit != _T("")) || std::isnan(mHdt) ) {
                 m_calcTWD = NAN;
                 m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_FALSE;
                 return false;
@@ -2224,7 +2224,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
         return false;
     } // then (still or again) invalid values, cannot progress
     if ( (m_bTrueWind_available && !g_bForceTrueWindCalculation) ||
-         !(mAWA >= 0.0) || !(mAWS >= 0.0) || !(spdval > 0.0) || !(mAWAUnit != _("")) ) {
+         !(mAWA >= 0.0) || !(mAWS >= 0.0) || !(spdval > 0.0) || !(mAWAUnit != _T("")) ) {
         m_calcTWS = NAN;
         m_calcTWD = NAN;
         m_calcTWA = NAN; 
@@ -2280,7 +2280,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     m_calcTWS = mTWS;
     m_calcTWD = mTWD;
     m_calcTWA = mTWA;
-    if (mAWSUnit == _(""))
+    if (mAWSUnit == _T(""))
         mAWSUnit = mAWAUnit;
     mTWD_Watchdog = twd_watchdog_timeout_ticks;
     st_twa = OCPN_DBP_STC_TWA;
