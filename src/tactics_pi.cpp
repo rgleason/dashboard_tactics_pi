@@ -1964,7 +1964,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
     
     if ( std::isnan(mAWA) ) {
         if ( ( m_iDbgRes_TW_Calc_AWA != DBGRES_MVAL_INVALID) ) {
-            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid intenal AWA value yet.");
+            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid internal AWA value.");
             m_iDbgRes_TW_Calc_AWA = DBGRES_MVAL_INVALID;
         } // then debug print
         m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
@@ -1989,7 +1989,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
 
     if ( std::isnan(mAWS) ) {
         if ( ( m_iDbgRes_TW_Calc_AWS != DBGRES_MVAL_INVALID) ) {
-            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid intenal AWS value yet.");
+            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid intenal AWS value.");
             m_iDbgRes_TW_Calc_AWS = DBGRES_MVAL_INVALID;
         } // then debug print
         m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
@@ -2014,7 +2014,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
 
     if ( std::isnan(mHdt) ) {
         if ( ( m_iDbgRes_TW_Calc_Hdt != DBGRES_MVAL_INVALID) ) {
-            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid intenal true heading value yet.");
+            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: Tactics has no valid internal true heading value.");
             m_iDbgRes_TW_Calc_Hdt = DBGRES_MVAL_INVALID;
         } // then debug print
         m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
@@ -2049,7 +2049,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
             if ( std::isnan(mSOG) ) {
                 if ( ( m_iDbgRes_TW_Calc_SOG != DBGRES_MVAL_INVALID) ) {
                     wxLogMessage (
-                        "dashboard_tactics_pi: Tactics true wind calculations: SOG calculations requested but Tactics has no valid intenal SOG value.");
+                        "dashboard_tactics_pi: Tactics true wind calculations: SOG calculations requested but Tactics has no valid internal SOG value.");
                     m_iDbgRes_TW_Calc_SOG = DBGRES_MVAL_INVALID;
                 } // then debug print
                 m_iDbgRes_TW_Calc_Lau = DBGRES_EXEC_FALSE;
@@ -2186,7 +2186,7 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
                 m_iDbgRes_TW_Calc_Exe = DBGRES_EXEC_TWDONLY_TRUE;
             } // then debug print
             return true;
-        } // then we are at standstill, or almost got TWS/TWA but no TWD; calculate it from TWA/HDT if available
+        } // then we are at standstill, or almost; got TWS/TWA but no TWD; calculate it from TWA/HDT if available
         
     } // then force calculate TWD forced in moored conditions when TWA and TWS are known
     
