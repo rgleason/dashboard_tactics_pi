@@ -13092,7 +13092,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>If not, be still reminded that the Signal K input streamer of Dashboard-Tactics plug-in is not needed to use OpenCPN with a Signal K server together.</p>
+<p>If not, be still reminded that the Signal K input streamer of Dashboard-Tactics plug-in is not needed to use OpenCPN with a Signal K server together:</p>
 
 </div>
 </div>
@@ -13100,7 +13100,37 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this document we expect that the Signal K server node's input is from USB as in the use case referred in above documents. Otherwise, it does not matter what are its inputs. We have set Signal K's AIS-to-NMEA forwarder plug-in output to <code>12000</code> (for no particular reason other than aesthetic). This results to following views, first on the Signal K server node's side...</p>
+<h2 id="Connecting-Signal-K-node-server-and-OpenCPN-instances">Connecting Signal K node server and OpenCPN instances<a class="anchor-link" href="#Connecting-Signal-K-node-server-and-OpenCPN-instances">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you missed the theory part, be aware that not all NMEA sentences will be served by Signal K input streamer but only those available in the delta channel of the Signal K node server. For example, AIS data is not. So, before setting the by-pass one needs to feed the OpenCPN so that it works also without the Signal K input streamer of the Dashboard Tactics plug-in.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this document we expect that the Signal K server node's input is from USB as in the use case referred in above documents. Otherwise, it does not matter what are its inputs. We have set Signal K's AIS-to-NMEA forwarder plug-in output to <code>12000</code> (for no particular reason other than aesthetic).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Classical-TCP-settings">Classical TCP settings<a class="anchor-link" href="#Classical-TCP-settings">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These are explained better in various Signal K node server documents. They results to following views, first on the Signal K server node's server administration side...</p>
 
 </div>
 </div>
@@ -13148,6 +13178,92 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="UDP-broadcasting-method">UDP broadcasting method<a class="anchor-link" href="#UDP-broadcasting-method">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is the alternative method for those having, for example multiple OpenCPN or other software clients requesting NMEA sentences on diffent computers. Signal K node servers becomes the broadcaster of those and asynchronous listeners will be... well, listening! Very efficient but with a possibility of a data loss. But for all practical terms, with these data rates that's not an issue.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You need to install @signalk/udp-nmea-plugin, if not yet installed,</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="signalkin_udp-nmea-plugin.png" alt="signalkin_udp-nmea-plugin.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Configuration: provide your network's address as base to broadcast to. 255 is the broadcast address. Line delimiter is optional, if you want to debug it simplifies your life. You can debug now, with (Linux) command <code>nc -ulkw 0 192.168.8.255 2000</code> where you would replace <code>192.168.8</code> with your network IP-address.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="signalkin_udp-nmea-plugin_config.png" alt="signalkin_udp-nmea-plugin_config.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>On your local instance of OpenCPN (<em>i.e.</em> on the same machine where the Signal K node server is running) you can use broadcast client address <code>127.0.0.255</code> - in case you change networks this address remains unchanged.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="signalkin_udp-nmea-o-config-local.png" alt="signalkin_udp-nmea-o-config-local.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Elsewhere in the network you would need to provide the network's address.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="signalkin_udp-nmea-o-config-remotes.png" alt="signalkin_udp-nmea-o-config-remotes.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr />
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Your all set!</p>
 
 </div>
@@ -13164,7 +13280,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>That question you need to ask from yourself, since now we are going to by-pass all that with Dashboard-Tactics plug-in's Signal K input streamer!</p>
+<p>That question you need to ask from yourself (or read the theory), since now we are going to by-pass all that with Dashboard-Tactics plug-in's Signal K input streamer!</p>
 
 </div>
 </div>
@@ -13266,7 +13382,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The above data throughput counter indicates only the data which is parsed and effectively passed to OpenCPN and its Dashboard plug-in. But not all of it is necessarily used: the input data stream in Signal K delta format can contain much more information, depending of your boat's instrumentation bus. To make a proof of concept for this, the Dashboard-Tactics plug-in provides three instruments to monitor the port side engine, <em>i.e.</em> the main engine.</p>
+<p>The above data throughput counter indicates only the data which is parsed and effectively passed to OpenCPN and its Dashboard plug-in. But not all of it is necessarily used: the input data stream in Signal K delta format can contain much more information, depending of your boat's instrumentation bus (perhaps <strong>NMEA-2000</strong>?). To make a proof of concept for this, the Dashboard-Tactics plug-in provides three instruments to monitor the port side engine, <em>i.e.</em> the main engine.</p>
 
 </div>
 </div>
@@ -13282,7 +13398,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This illustrates that while the main motivation for the Dashboard-Tactics plug-in's Signal K by-passing input streamer is in the overall system performance, the secondary requirement to be NMEA-2000 compatible has also been met, opening possibilities for enhancement requests in the future versions.</p>
+<p>This illustrates that while the main motivation for the Dashboard-Tactics plug-in's Signal K by-passing input streamer is in the overall system performance, the secondary requirement to be NMEA-2000 compatible has also been met, opening possibilities for enhancement requests in the future versions - albeit the Tactics part of Dashboard-Tactis plug-in is made for <em>voileux</em> this connector is available for everybody. Sharpen your <em>C++</em> pencils and jump on-board, Dashboard's dial gauge classes are waiting for you and your engine data!</p>
 
 </div>
 </div>
