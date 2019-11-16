@@ -373,7 +373,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     wxThreadEvent event( wxEVT_THREAD, myID_THREAD_IFLXAPI );
 
     if ( m_targetAsFilePath.IsEmpty() ) { 
-        wxSocketBase::Initialize();
+        // wxSocketBase::Initialize();  // note: for eventual unit test, not for production
         m_socket.SetTimeout( m_connectionRetry );
         m_socket.SetFlags( wxSOCKET_BLOCK );
         address = new wxIPV4address();
@@ -684,7 +684,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
     } // then close file operations
     else {
         m_socket.Close();
-        wxSocketBase::Shutdown();
+        // wxSocketBase::Shutdown();  // note: for eventual unit test, not for production
         delete address;
     } // else socket operation termination
     
