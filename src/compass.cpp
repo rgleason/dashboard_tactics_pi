@@ -62,22 +62,41 @@ void DashboardInstrument_Compass::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
-      if (st == m_MainValueCap)
-      {
-            // Rotate the rose
-            m_AngleStart = -data;
-            // Required to display data
-            m_MainValue = data;
-            m_MainValueUnit = unit;
-      }
-      else if (st == m_ExtraValueCap)
-      {
-            m_ExtraValue = data;
-            m_ExtraValueUnit = unit;
-      }
+#ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
+    // units strings shall allow passing long format strings
+    unit = unit.wc_str();
+#endif // _TACTICSPI_H_
+    if (st == m_MainValueCap)
+    {
+        // Rotate the rose
+        m_AngleStart = -data;
+        // Required to display data
+        m_MainValue = data;
+        m_MainValueUnit = unit;
+    }
+    else if (st == m_ExtraValueCap)
+    {
+        m_ExtraValue = data;
+        m_ExtraValueUnit = unit;
+    }
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_Compass::derivedTimeoutEvent()
+{
+    m_MainValue = static_cast<double>(m_s_value);
+    m_MainValueUnit = _T("");
+    m_ExtraValue = 0.0;
+    m_ExtraValueUnit = _T("");
+}
+#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Compass::DrawBackground(wxGCDC* dc)
 {

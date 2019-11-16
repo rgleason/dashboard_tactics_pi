@@ -68,7 +68,8 @@ public:
     ~DashboardInstrument_Compass(void){}
 
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void derivedTimeoutEvent(void) override;
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
