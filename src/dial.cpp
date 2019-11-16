@@ -68,6 +68,9 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
     m_cy = 0;
     m_radius = 0;
     m_AngleStart = s_angle;
+#ifdef _TACTICSPI_H_
+    m_s_angle = s_angle;
+#endif // _TACTICSPI_H_
     m_AngleRange = r_angle;
     m_MainValue = static_cast<double>(s_value);
 #ifdef _TACTICSPI_H_
@@ -159,6 +162,7 @@ void DashboardInstrument_Dial::SetData(
 void DashboardInstrument_Dial::timeoutEvent()
 {
     m_MainValue = static_cast<double>(m_s_value);
+    m_AngleStart = m_s_angle;
     m_MainValueUnit = _T("");
     m_ExtraValue = 0.0;
     m_ExtraValueUnit = _T("");

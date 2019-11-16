@@ -142,6 +142,7 @@ protected:
     double m_MainValue;
 #ifdef _TACTICSPI_H_
     unsigned long long m_MainValueCap;
+    int m_s_angle;
     int m_s_value;
 #else
     int m_MainValueCap;
