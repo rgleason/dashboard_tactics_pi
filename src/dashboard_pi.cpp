@@ -857,7 +857,7 @@ wxString dashboard_pi::GetLongDescription()
 {
 #ifdef _TACTICSPI_H_
     return _("Dashboard PlugIn with Tactics for OpenCPN\n\
-Provides navigation instruments and performance functions from NMEA sources.");
+Provides navigation instruments enhanced with performance functions and alternative input/output functions.");
 #else
     return _("Dashboard PlugIn for OpenCPN\n\
 Provides navigation instrument display from NMEA source.");
@@ -4605,10 +4605,12 @@ void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
 #ifdef _TACTICSPI_H_
              (!((m_ArrayOfInstrument.Item( i )->m_cap_flag &
                  OCPN_DBP_STC_CLK) == 0ULL))
-#else
-             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
-#endif // _TACTICSPI_H_
              && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
+#else
+             // ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS ) // default _D_GPS has no SetUtcTime()!
+             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_CLK )
+             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
+#endif // _TACTICSPI_H_
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Sun ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Moon ) ) ) )
             ((DashboardInstrument_Clock*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
