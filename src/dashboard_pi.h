@@ -198,7 +198,6 @@ public:
     wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
-#ifdef _TACTICSPI_H_
     void SendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
@@ -207,6 +206,7 @@ public:
     void SendSentenceToAllInstruments(
         int st, double value, wxString unit);
 #endif // _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
