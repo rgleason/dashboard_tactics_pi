@@ -59,7 +59,7 @@ public:
 
     wxSize GetSize( int orient, wxSize hint );
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
@@ -80,7 +80,7 @@ public:
 
     wxSize GetSize( int orient, wxSize hint );
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
@@ -104,7 +104,7 @@ public:
     wxSize GetSize( int orient, wxSize hint );
     void Draw(wxGCDC* dc);
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_
@@ -128,7 +128,7 @@ public:
     ~DashboardInstrument_CPUClock() {}
 
 #ifdef _TACTICSPI_H_
-    void SetData(unsigned long long st, double data, wxString unit);
+    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
 #else
     void SetData(int, double, wxString);
 #endif // _TACTICSPI_H_

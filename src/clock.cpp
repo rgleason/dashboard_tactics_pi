@@ -73,12 +73,13 @@ wxSize DashboardInstrument_Clock::GetSize( int orient, wxSize hint )
 
 void DashboardInstrument_Clock::SetData(
 #ifdef _TACTICSPI_H_
-    unsigned long long st, double data, wxString unit)
+    unsigned long long st, double data, wxString unit, long long timestamp)
 #else
     int, double, wxString )
 #endif // _TACTICSPI_H_
 {
-// Nothing to do here but we want to override the default
+    // Nothing to do here but we want to override the default
+    return;
 }
 
 void DashboardInstrument_Clock::SetUtcTime( wxDateTime data )
@@ -118,12 +119,13 @@ DashboardInstrument_CPUClock::DashboardInstrument_CPUClock( wxWindow *parent, wx
 
 void DashboardInstrument_CPUClock::SetData(
 #ifdef _TACTICSPI_H_
-    unsigned long long st, double data, wxString unit)
+    unsigned long long st, double data, wxString unit, long long timestamp)
 #else
     int, double, wxString)
 #endif // _TACTICSPI_H_
 {
     // Nothing to do here but we want to override the default
+    return;
 }
 
 void DashboardInstrument_CPUClock::SetUtcTime( wxDateTime data )
@@ -158,8 +160,15 @@ void DashboardInstrument_Moon::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-     double value, wxString format )
+     double value, wxString format
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
+#ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
+#endif // _TACTICSPI_H_
     if( st == OCPN_DBP_STC_LAT ) {
         m_hemisphere = (value < 0 ? _T("S") : _T("N") );
     }
@@ -365,16 +374,23 @@ void DashboardInstrument_Sun::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-     double data, wxString format )
+     double data, wxString format
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
-      if( st == OCPN_DBP_STC_LAT )
-      {
-            m_lat = data;
-      }
-      else if( st == OCPN_DBP_STC_LON )
-      {
-            m_lon = data;
-      }
+#ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
+#endif // _TACTICSPI_H_
+    if( st == OCPN_DBP_STC_LAT )
+    {
+        m_lat = data;
+    }
+    else if( st == OCPN_DBP_STC_LON )
+    {
+        m_lon = data;
+    }
 }
 
 void DashboardInstrument_Sun::calculateSun(double latit, double longit, wxDateTime &sunrise, wxDateTime &sunset){
