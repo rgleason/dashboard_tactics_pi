@@ -186,7 +186,7 @@ configure_file(${PROJECT_SOURCE_DIR}/buildosx/InstallOSX/pkg_background.jpg
 ENDIF(APPLE)
 
 IF(WIN32)
-  SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${PLUGIN_VERSION_MAJOR}.${PLUGIN_VERSION_MINOR}-win32.exe" )
+  SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${PLUGIN_VERSION_MAJOR}.${PLUGIN_VERSION_MINOR}-win32.exe" )
   MESSAGE(STATUS "FILE: ${CPACK_PACKAGE_FILE_NAME}")
   add_custom_command(OUTPUT ${CPACK_PACKAGE_FILE_NAME}
 	  COMMAND signtool sign /v /f \\cert\\OpenCPNSPC.pfx /d http://www.opencpn.org /t http://timestamp.verisign.com/scripts/timstamp.dll ${CPACK_PACKAGE_FILE_NAME}
