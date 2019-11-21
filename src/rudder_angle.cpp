@@ -74,26 +74,45 @@ void DashboardInstrument_RudderAngle::SetData(
 #else
     int st,
 #endif // _TACTICSPI_H_
-    double data, wxString unit)
+    double data, wxString unit
+#ifdef _TACTICSPI_H_
+    , long long timestamp
+#endif // _TACTICSPI_H_
+    )
 {
-      if (st == m_MainValueCap)
-      {
-            // Dial works clockwise but Rudder has negative values for left
-            // and positive for right so we must inverse it.
-            data = -data;
+#ifdef _TACTICSPI_H_
+    setTimestamp( timestamp );
+    // units strings shall allow passing long format strings
+    unit = unit.wc_str();
+#endif // _TACTICSPI_H_
+    if (st == m_MainValueCap)
+    {
+        // Dial works clockwise but Rudder has negative values for left
+        // and positive for right so we must inverse it.
+        data = -data;
 
-            if (data < m_MainValueMin) m_MainValue = m_MainValueMin;
-            else if (data > m_MainValueMax) m_MainValue = m_MainValueMax;
-            else m_MainValue = data;
-            m_MainValueUnit = unit;
-      }
-      else if (st == m_ExtraValueCap)
-      {
-            m_ExtraValue = data;
-            m_ExtraValueUnit = unit;
-      }
-      else return;
+        if (data < m_MainValueMin) m_MainValue = m_MainValueMin;
+        else if (data > m_MainValueMax) m_MainValue = m_MainValueMax;
+        else m_MainValue = data;
+        m_MainValueUnit = unit;
+    }
+    else if (st == m_ExtraValueCap)
+    {
+        m_ExtraValue = data;
+        m_ExtraValueUnit = unit;
+    }
+    else return;
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardInstrument_RudderAngle::derivedTimeoutEvent()
+{
+    m_MainValue = static_cast<double>(m_s_value);
+    m_MainValueUnit = _T("");
+    m_ExtraValue = 0.0;
+    m_ExtraValueUnit = _T("");
+}
+#endif // _TACTICSPI_H_
 
 void DashboardInstrument_RudderAngle::DrawFrame(wxGCDC* dc)
 {
