@@ -42,6 +42,11 @@
     #include <wx/wx.h>
 #endif
 
+#ifdef _TACTICSPI_H_
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
+#endif // _TACTICSPI_H_
 #include "dial.h"
 
 //+------------------------------------------------------------------------------
