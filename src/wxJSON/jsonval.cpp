@@ -209,6 +209,12 @@ wxJSONValue::Init( wxJSONType type )
 {
     wxJSONRefData* data;
     data = GetRefData();
+    if (data != 0) {
+        UnRef();
+    }
+
+    // we allocate a new instance of the referenced data
+    data = new wxJSONRefData();
     wxJSON_ASSERT( data );
 
     // in release builds we do not have ASSERT so we check 'data' before
