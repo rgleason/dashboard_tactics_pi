@@ -323,7 +323,7 @@ class DashboardPreferencesDialog : public
 public:
     DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
 #ifdef _TACTICSPI_H_
-                                , wxString commonName, wxString nameVersion, wxPoint pos 
+                                , wxString commonName, wxString nameVersion, wxPoint pos = wxDefaultPosition
 #endif // _TACTICSPI_H_
         );
     ~DashboardPreferencesDialog() {}

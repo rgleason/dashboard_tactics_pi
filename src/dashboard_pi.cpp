@@ -2495,17 +2495,12 @@ int dashboard_pi::GetToolbarToolCount( void )
 
 void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 {
-#ifdef _TACTICSPI_H_
-    wxPoint pos = wxGetMousePosition();
-    pos.y -= 500;
-    pos.x -= 100;
-#endif // _TACTICSPI_H_
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow
 #ifdef _TACTICSPI_H_
                                                                          , GetCommonName(),
                                                                          GetNameVersion(),
-                                                                         pos
+                                                                         wxDefaultPosition
 #endif // _TACTICSPI_H_
      );
 
@@ -3456,6 +3451,8 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     UpdateButtonsState();
     SetMinSize( wxSize( 450, -1 ) );
     Fit();
+    if ( pos == wxDefaultPosition )
+        Center();
 }
 
 void DashboardPreferencesDialog::OnCloseDialog( wxCloseEvent& event )
