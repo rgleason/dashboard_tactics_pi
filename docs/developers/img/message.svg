@@ -6,8 +6,8 @@
 >
   <text font-size="16" x="10" y="20">
     <tspan fill="blue">---- Developer? </tspan>
-    <tspan fill="blue">Bug fix? </tspan>!
-    <tspan fill="red">Read Me First </tspan>!
-    <tspan fill="blue">and save time! ----</tspan>!
+    <tspan fill="blue">Bug fix? </tspan>
+    <tspan fill="red">Read Me First </tspan>
+    <tspan fill="blue">and save time! ----</tspan>
   </text>
 </svg>
