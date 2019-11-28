@@ -1,4 +1,4 @@
-<a href=""><img src="doc/developers/img/message.svg" /></a><br />
+<a href="developers/README.md"><img src="developers/img/message.svg" /></a><br />
 # Dashboard/Tactics Plugin for OpenCPN
 
 ## Available documentation
