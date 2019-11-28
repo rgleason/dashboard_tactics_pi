@@ -6,7 +6,7 @@ On release of v1.5.11 in the 30th of November, 2019 the project contained
 * 37 [closed requirements](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
 * 0 [open requirement](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
 
-Starting from this holdpoint the project enters into long term maintenance phase for the main product, Dashboard-Tactics plug-in for OpenCPN v5.0.
+Starting from this holdpoint **the project enters into long term maintenance phase** for its main product, Dashboard-Tactics plug-in for OpenCPN v5.0.
 
 The long term maintenance may continue to cover other minor versions of the OpenCPN v5.
 
