@@ -16,11 +16,11 @@ Due to non-existing - or non-published - roadmap for OpenCPN v5 there is no poss
 
 Therefore the project is divided in three parts at this holdpoint:
 
-1. Long term maintenance
-2. R&D based on v1.6 hypothesis
+1. **Long term maintenance**
+2. **R&D based on v1.6 hypothesis**
   * Presuming that OpenCPN and plug-in API continues without any major changes or new plug-in supporting data retrieval and process intercommunicatio features are not introduced outside the API
   * In this hypothesis, data originating from a NMEA-2000 bus is not available
-3. R&D based on v2.0 hypothesis
+3. **R&D based on v2.0 hypothesis**
   * Presuming that OpenCPN and plug-in API evolve moderately in order to provide support for currently undefined data retrieval and process intercommunicatio features outside the API
   * In this hypothesis, data originating from a NMEA-2000 bus will be available
 
