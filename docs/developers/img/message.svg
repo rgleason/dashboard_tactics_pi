@@ -2,12 +2,12 @@
 <svg version="1.1" 
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="600" height="50"
+     width="600" height="20"
 >
   <text font-size="16" x="10" y="20">
-    <tspan fill="blue">---- Developer? </tspan>
-    <tspan fill="blue">Bug fix? </tspan>
+    <tspan fill="blue">----&gt; Developer? </tspan>
+    <tspan fill="blue">Making a bug fix? </tspan>
     <tspan fill="red">Read Me First </tspan>
-    <tspan fill="blue">and save time! ----</tspan>
+    <tspan fill="blue">and save time! &lt;----</tspan>
   </text>
 </svg>
