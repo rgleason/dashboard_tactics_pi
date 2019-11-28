@@ -1,6 +1,6 @@
 # Information for developers, contributors and collaborators
 
-## v1.5.11 and onward
+## v1.5.11 and onwards
 
 On release of v1.5.11 in the 30th of November, 2019 the project contained
 * 37 [closed requirements](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
