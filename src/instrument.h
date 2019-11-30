@@ -224,6 +224,11 @@ public:
         );
 #ifdef _TACTICSPI_H_
     void timeoutEvent(void) override;
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+    virtual void derivedTimeoutEvent(void){};
+#else
+    virtual void derivedTimeoutEvent(void);
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #endif // _TACTICSPI_H_
 
 protected:

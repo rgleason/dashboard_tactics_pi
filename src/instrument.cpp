@@ -382,6 +382,7 @@ void DashboardInstrument_Single::SetData(
 void DashboardInstrument_Single::timeoutEvent()
 {
     m_data = _T("---");
+    derivedTimeoutEvent();
 }
 #endif // _TACTICSPI_H_
 //----------------------------------------------------------------
