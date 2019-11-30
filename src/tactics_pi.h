@@ -451,6 +451,8 @@ public:
     void SetUpdateSignalK(
         wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
         wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
+    void subscribeTo ( wxString path, std::function<void(double, wxString, long long)> callback);
+    void unsubscribeFrom ( wxString path );
 
 private:
 
