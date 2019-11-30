@@ -103,6 +103,8 @@ IF (TACTICS_INSTRUMENTS)
       src/polarcompass.cpp
       src/avg_wind.h
       src/avg_wind.cpp
+      src/enginei.h
+      src/enginei.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 
