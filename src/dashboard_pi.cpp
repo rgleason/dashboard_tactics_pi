@@ -531,6 +531,16 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_nofStreamInSk = 0;
     std::unique_lock<std::mutex> init_m_mtxNofStreamInSk( m_mtxNofStreamInSk, std::defer_lock );
     m_echoStreamerInSkShow = wxEmptyString;
+
+    // Signal path keys available for subcscriptions and the corresponding language strings
+    sigPathLangTuple newPathDescr;
+    newPathDescr = std::make_tuple(L"propulsion.port.revolutions",_(L"\u2191 Eng1 RPM"),_(L"Engine speed - main or port side"));
+    m_sigPathLangVector.push_back(newPathDescr);
+    newPathDescr = std::make_tuple(L"propulsion.port.oilPressure",_(L"\u2191 Eng1 Oil P"),_(L"Engine oil pressure - main or port side"));
+    m_sigPathLangVector.push_back(newPathDescr);
+    newPathDescr = std::make_tuple(L"propulsion.port.temperature",_(L"\u2191 Eng1 Temp"),_(L"Engine cooling water temperature - main or port side"));
+    m_sigPathLangVector.push_back(newPathDescr);
+
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
     m_pluginFrame = NULL;
@@ -997,6 +1007,18 @@ void dashboard_pi::SendSentenceToAllInstruments(
     // Take this opportunity to keep the Tactics performance enginge ticking for rendering
     this->CalculateLaylineDegreeRange();
     this->CalculatePerformanceData();
+}
+
+void dashboard_pi::SendDataToAllPathSubscribers (
+    wxString path, double value, wxString unit, long long timestamp )
+{
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window )
+            dashboard_window->SendDataToAllPathSubscribers(
+                path, value, unit, timestamp);
+    }
 }
 
 #else
@@ -2378,8 +2400,13 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
             if ( pgn == PGN_ENG_PARAM_RAP ) {
                 if ( path->CmpNoCase(_T("propulsion.port.revolutions")) == 0 ) {
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_ENGPRPM,
+                //     SendSentenceToAllInstruments(
+                //         OCPN_DBP_STC_ENGPRPM,
+                //         ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
+                //         L"",
+                //         timestamp );
+                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+                        L"propulsion.port.revolutions",
                         ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
                         L"",
                         timestamp );
@@ -2387,15 +2414,25 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
             else if ( pgn == PGN_ENG_PARAM_DYN ) {
                 if ( path->CmpNoCase(_T("propulsion.port.temperature")) == 0 ) {
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_ENGPTEMP,
+                    // SendSentenceToAllInstruments(
+                    //     OCPN_DBP_STC_ENGPTEMP,
+                    //     ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
+                    //     L"",
+                    //     timestamp );
+                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+                        L"propulsion.port.temperature",
                         ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
                         L"",
                         timestamp );
                 }
                 else if ( path->CmpNoCase(_T("propulsion.port.oilPressure")) == 0 ) {
-                    SendSentenceToAllInstruments(
-                        OCPN_DBP_STC_ENGPOILP,
+                    // SendSentenceToAllInstruments(
+                    //     OCPN_DBP_STC_ENGPOILP,
+                    //     ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
+                    //     L"",
+                    //     timestamp );
+                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+                        L"propulsion.port.oilPressure",
                         ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
                         L"",
                         timestamp );
@@ -4494,10 +4531,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 this, wxID_ANY, getInstrumentCaption(id));
             break;
         case ID_DBP_I_ENGPRPM:
-            instrument = new DashboardInstrument_Single(
+            // instrument = new DashboardInstrument_Single(
+            //     this, wxID_ANY,
+            //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPRPM,
+            //     _T("%4.0f rpm"));
+            instrument = new DashboardInstrument_EngineI( // numerical instrument
                 this, wxID_ANY,
-                getInstrumentCaption(id), OCPN_DBP_STC_ENGPRPM,
-                _T("%4.0f rpm"));
+                &m_plugin->m_sigPathLangVector );         // describes available data w/ user language
             break;
         case ID_DBP_I_ENGPTEMP:
             instrument = new DashboardInstrument_Single(

@@ -44,6 +44,7 @@ using namespace std;
 #define __DERIVEDTIMEOUT_OVERRIDE__
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "instrument.h"
+#include "tactics_pi.h"
 
 //+------------------------------------------------------------------------------
 //|
@@ -58,16 +59,27 @@ class DashboardInstrument_EngineI : public DashboardInstrument_Single
 {
 public:
     DashboardInstrument_EngineI(
-        DashboardWindow *pparent, wxWindowID id, wxString title, wxString path, wxString format);
+        DashboardWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxString format = "%4.0f" );
     ~DashboardInstrument_EngineI(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );
     void derivedTimeoutEvent(void) override;
 
 protected:
-    int               m_soloInPane;
-    DashboardWindow  *m_pparent;
-    wxString          m_path;
+    int                  m_soloInPane;
+    DashboardWindow     *m_pparent;
+    wxString             m_path;
+    sigPathLangVector   *m_sigPathLangVector;
+    wxTimer             *m_threadEngineITimer;
+    bool                 m_threadRunning;
+    callbackFunction     m_pushHere;
+    wxString             m_pushHereUUID;
+
+    wxDECLARE_EVENT_TABLE();
+
+    void OnThreadTimerTick( wxTimerEvent& );
+    void OnClose(wxCloseEvent& evt);
+
 };
 
 #endif // __ENGINEI_H__

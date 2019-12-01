@@ -130,6 +130,13 @@ enum eSentenceType : unsigned long long {
 };
 
 #ifdef _TACTICSPI_H_
+// These are the streaming originated, (unlimited?) mappings for signal paths
+typedef std::tuple<wxString, wxString, wxString> sigPathLangTuple; // path, title, description
+typedef std::vector<sigPathLangTuple> sigPathLangVector;
+#endif // _TACTICSPI_H_
+
+
+#ifdef _TACTICSPI_H_
 #define DBP_I_TIMER_TICK      1000 // in milliseconds
 #define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
 #endif // _TACTICSPI_H_

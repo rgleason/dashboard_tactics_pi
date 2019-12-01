@@ -43,6 +43,7 @@
 #include <wx/fontpicker.h>
 #include <wx/glcanvas.h>
 #include <mutex>
+#include <unordered_map>
 
 #include "ocpn_plugin.h"
 #include "instrument.h"
@@ -433,6 +434,12 @@ enum eIdDashTacticsContextMenu {
     ID_DASH_TACTICS_PREFS_END
 };
 
+// helpers for the call-back methods in instruments subsribing to signal paths
+typedef std::function<void  (double, wxString, long long)> callbackFunction;
+typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
+typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
+typedef std::unordered_multimap<wxString, callbackFunctionTuple> callback_map;
+
 class TacticsWindow : public wxWindow
 {
 public:
@@ -451,12 +458,17 @@ public:
     void SetUpdateSignalK(
         wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
         wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
-    void subscribeTo ( wxString path, std::function<void(double, wxString, long long)> callback);
-    void unsubscribeFrom ( wxString path );
+    wxString subscribeTo ( wxString path, callbackFunction callback);
+    void unsubscribeFrom ( wxString callbackUUID );
+    void SendDataToAllPathSubscribers(
+        wxString path, double value, wxString unit, long long timestamp );
+
+protected:
+    callback_map       *m_callbacks;
 
 private:
-
     tactics_pi*         m_plugin;
+    std::mutex          m_mtxCallBackContainer;
 
 };
 

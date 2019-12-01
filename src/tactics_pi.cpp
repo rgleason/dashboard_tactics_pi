@@ -25,10 +25,10 @@
 ***************************************************************************
 */
 
-#include "tactics_pi.h"
 using namespace std;
+#include <unordered_map>
 
-
+#include "tactics_pi.h"
 
 extern int g_iDashSpeedMax;
 extern int g_iDashCOGDamp;
@@ -38,6 +38,7 @@ extern int g_iDashDepthUnit;
 extern int g_iDashDistanceUnit;  //0="Nautical miles", 1="Statute miles", 2="Kilometers", 3="Meters"
 extern int g_iDashWindSpeedUnit; //0="Kts", 1="mph", 2="km/h", 3="m/s"
 extern int g_iUTCOffset;
+extern wxString GetUUID(void);
 
 bool g_bTacticsImportChecked;
 double g_dalphaDeltCoG;
@@ -3371,11 +3372,14 @@ TacticsWindow::TacticsWindow (
         wxBORDER_NONE || wxFULL_REPAINT_ON_RESIZE, derivtitle )
 {
     m_plugin = tactics;
+    m_callbacks = new callback_map;
+    std::unique_lock<std::mutex> init_m_mtxCallBackContainer( m_mtxCallBackContainer, std::defer_lock );
     return;
 }
 
 TacticsWindow::~TacticsWindow()
 {
+    delete m_callbacks;
     return;
 }
 
@@ -3443,4 +3447,57 @@ void TacticsWindow::SetUpdateSignalK(
         wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
 {
     m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
+}
+
+wxString TacticsWindow::subscribeTo ( wxString path, callbackFunction callback)
+{
+    wxString retUUID = GetUUID();
+    callbackFunctionTuple newEntry = std::make_tuple(path, callback);
+    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
+    m_callbacks->insert ( make_pair(retUUID, newEntry) );
+    return retUUID;
+}
+
+void TacticsWindow::unsubscribeFrom ( wxString callbackUUID )
+{
+    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
+    callback_map::iterator it = m_callbacks->find( callbackUUID );
+    if ( it != m_callbacks->end() ) {
+            m_callbacks->erase( it );
+    } // key found, delete
+    callback_map::iterator it2 = m_callbacks->find( callbackUUID );
+    if ( it2 != m_callbacks->end() ) {
+            m_callbacks->erase( it2 );
+    } // key found, delete
+}
+void TacticsWindow::SendDataToAllPathSubscribers(
+    wxString path, double value, wxString unit, long long timestamp )
+{
+    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
+    callback_map::iterator it = m_callbacks->begin();
+    callbackFunctionPair  thisEntry;
+    callbackFunctionTuple thisSubscriber;
+    wxString checkUUID;
+    wxString subscribedPath;
+    callbackFunction callThis;
+    int survived;
+    while ( it != m_callbacks->end() ) {
+        thisEntry = *it;
+        checkUUID = std::get<0>(thisEntry);
+        if ( !checkUUID.IsEmpty() ) {
+            thisSubscriber = std::get<1>(thisEntry);
+            subscribedPath = std::get<0>(thisSubscriber);
+            if ( subscribedPath == path ) {
+                try {
+                    callThis = std::get<1>(thisSubscriber);
+                    callThis ( value, unit, timestamp );
+                }
+                catch (int x) {
+                    survived = x; // bonjour ddd
+                    return;
+                }
+            }
+        }
+        ++it;
+    }
 }

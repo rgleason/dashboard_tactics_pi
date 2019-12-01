@@ -78,6 +78,9 @@
 #include "baro_history.h"
 #include "from_ownship.h"
 #include "iirfilter.h"
+#ifdef _TACTICSPI_H_
+#include "enginei.h"
+#endif // _TACTICSPI_H_
 
 class DashboardWindow;
 class DashboardWindowContainer;
@@ -202,6 +205,8 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+    void SendDataToAllPathSubscribers(
+        wxString path, double value, wxString unit, long long timestamp );
 #else
     void SendSentenceToAllInstruments(
         int st, double value, wxString unit);
@@ -246,6 +251,7 @@ public:
     int                m_nofStreamInSk;
     std::mutex         m_mtxNofStreamInSk;
     wxString           m_echoStreamerInSkShow;
+    sigPathLangVector  m_sigPathLangVector; 
 #endif // _TACTICSPI_H_
     
 private:

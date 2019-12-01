@@ -33,40 +33,53 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+using namespace std;
+using namespace placeholders;
+#include <functional>
 
 #include "dashboard_pi.h"
 #include "enginei.h"
+#include "plugin_ids.h"
 
+// --- the following is probably needed only for demonstration and testing! ---
+extern int GetRandomNumber(int, int);
+
+wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineI, DashboardInstrument_Single)
+   EVT_TIMER (myID_TICK_ENGINEI, DashboardInstrument_EngineI::OnThreadTimerTick)
+   EVT_CLOSE (DashboardInstrument_EngineI::OnClose)
+wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
 DashboardInstrument_EngineI::DashboardInstrument_EngineI(
-                             DashboardWindow *pparent, wxWindowID id, wxString title,
-                             wxString path = L"propulsion.port.revolutions", wxString format = L"%4.0f" ) :
-    DashboardInstrument_Single(pparent, id, title, 0LL, format )
+                             DashboardWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
+DashboardInstrument_Single(pparent, id, "---", 0LL, format )
 {
-    SetDrawSoloInPane(true);
+    SetDrawSoloInPane(false);
 
     m_data = L"---";
     m_pparent = pparent;
-    m_path = path;
-    // auto m_pushHere = std::bind(&DashboardInstrument_EngineI::PushData,
-    //                             (DashboardInstrument_EngineI&) this, _1, _2, _3 );
-    std::function<void(double, wxString, long long)>  m_pushHere =
-        [this](double data, wxString unit, long long timestamp) {
-            if( !std::isnan(data) && (data < 9999.9) ) {
-                setTimestamp( timestamp );
-                /* Can do all the work here but let's call in interal method to complete: */
-                // m_data = wxString::Format(m_format, data) + L" " + unit;
-                this->PushData (data, unit, timestamp); // demo demo demo demo
-            };
-        };
-    m_pparent->subscribeTo( path, m_pushHere );
+    m_path = wxEmptyString;
+    m_sigPathLangVector = sigPaths;
+    m_pushHereUUID = wxEmptyString;
+    m_threadRunning = false;
+    // Start the instrument thread
+    m_threadEngineITimer = new wxTimer( this, myID_TICK_ENGINEI );
+    m_threadEngineITimer->Start(1000, wxTIMER_CONTINUOUS);
 }
 DashboardInstrument_EngineI::~DashboardInstrument_EngineI(void)
 {
-    // m_pparent->unsubscribeFrom( m_path );
+    if ( !m_pushHereUUID.IsEmpty() )
+        m_pparent->unsubscribeFrom( m_pushHereUUID );
+    return;
+}
+void DashboardInstrument_EngineI::OnClose( wxCloseEvent &evt )
+{
+    if ( !m_pushHereUUID.IsEmpty() ) {
+        m_pparent->unsubscribeFrom( m_pushHereUUID );
+        m_pushHereUUID = wxEmptyString;
+    }
     return;
 }
 
@@ -80,11 +93,44 @@ void DashboardInstrument_EngineI::PushData( // for demo/testing purposes in this
     double data, wxString unit, long long timestamp)
 {
     if( !std::isnan(data) && (data < 9999.9) ) {
-        m_data = wxString::Format(m_format, data) + L" " + unit;
-    } 
+        setTimestamp( timestamp );                               // Triggers also base class' watchdog
+        m_data = wxString::Format(m_format, data) + L" " + unit; // FYI, m_data is the string base class will draw
+    } // then valid datea 
 }
 
 void DashboardInstrument_EngineI::derivedTimeoutEvent()
 {
-    m_data = L"---";
+    m_data = L"---"; // No data seems to come in (anymore)
+}
+
+void DashboardInstrument_EngineI::OnThreadTimerTick( wxTimerEvent &event )
+{
+    m_threadRunning = true;
+    if ( m_path.IsEmpty() ) {
+        /*
+          We will emulate in this event the right click event for a selection a signal path from a list,
+          given by the hosting application in the constructor (see below how to use). We'll
+          make a simple random simulator (not to implement any GUI features for now)
+        */
+        wxString sTestingOnly[3];
+        sTestingOnly[0] = L"propulsion.port.revolutions";
+        sTestingOnly[1] = L"propulsion.port.oilPressure";
+        sTestingOnly[2] = L"propulsion.port.temperature";
+        m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
+        /*
+          Get the titles, descriptions and user's language for his selection from the hosting application
+        */
+        sigPathLangVector::iterator it = std::find_if(
+            m_sigPathLangVector->begin(), m_sigPathLangVector->end(),
+            [this](const sigPathLangTuple& e){return std::get<0>(e) == m_path;});
+        if ( it != m_sigPathLangVector->end() ) {
+            sigPathLangTuple sigPathWithLangFeatures = *it;
+            // the window title is changed in the base class, see instrument.h
+            m_title = std::get<1>(sigPathWithLangFeatures);
+            // Subscribe to the signal path data with this object's method to call back
+            m_pushHere = std::bind(&DashboardInstrument_EngineI::PushData,
+                                   this, _1, _2, _3 );
+            m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
+        } // then found user selection from the available signal paths for subsribtion
+    } // then no subscription to a signal path
 }
