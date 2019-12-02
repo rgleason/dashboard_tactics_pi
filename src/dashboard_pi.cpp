@@ -3813,7 +3813,11 @@ unsigned int AddInstrumentDlg::GetInstrumentAdded()
 //    Dashboard Window Implementation
 //
 //----------------------------------------------------------------
-
+#ifdef _TACTICSPI_H_
+wxBEGIN_EVENT_TABLE (DashboardWindow, TacticsWindow)
+   EVT_CLOSE (DashboardWindow::OnClose)
+wxEND_EVENT_TABLE ()
+#endif // _TACTICSPI_H_
 // wxWS_EX_VALIDATE_RECURSIVELY required to push events to parents
 DashboardWindow::DashboardWindow(
     wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
@@ -3863,7 +3867,18 @@ DashboardWindow::~DashboardWindow()
     }
 }
 
-void DashboardWindow::OnSize( wxSizeEvent& event )
+#ifdef _TACTICSPI_H_
+void DashboardWindow::OnClose( wxCloseEvent &event )
+{
+    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
+        DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
+        pdic->m_pInstrument->Close();
+    }
+    event.Skip(); // Destroy() must be called
+}
+#endif // _TACTICSPI_H_
+
+void DashboardWindow::OnSize( wxSizeEvent &event )
 {
     event.Skip();
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
@@ -3874,7 +3889,7 @@ void DashboardWindow::OnSize( wxSizeEvent& event )
     Refresh();
 }
 
-void DashboardWindow::OnContextMenu( wxContextMenuEvent& event )
+void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )
 {
     wxMenu* contextMenu = new wxMenu();
 

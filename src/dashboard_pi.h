@@ -456,6 +456,12 @@ public:
 
     DashboardWindowContainer* m_Container;
 
+#ifdef _TACTICSPI_H_
+protected:
+    wxDECLARE_EVENT_TABLE();
+    void OnClose(wxCloseEvent& evt);
+#endif // _TACTICSPI_H_
+
 private:
     wxAuiManager         *m_pauimgr;
     dashboard_pi*         m_plugin;
