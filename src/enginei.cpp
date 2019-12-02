@@ -70,17 +70,19 @@ DashboardInstrument_Single(pparent, id, "---", 0LL, format )
 }
 DashboardInstrument_EngineI::~DashboardInstrument_EngineI(void)
 {
-    if ( !m_pushHereUUID.IsEmpty() )
-        m_pparent->unsubscribeFrom( m_pushHereUUID );
+    this->m_threadEngineITimer->Stop();
+    delete this->m_threadEngineITimer;
+    if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is Delete()d
+        this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
 }
-void DashboardInstrument_EngineI::OnClose( wxCloseEvent &evt )
+void DashboardInstrument_EngineI::OnClose( wxCloseEvent &event )
 {
-    if ( !m_pushHereUUID.IsEmpty() ) {
+    if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
         m_pushHereUUID = wxEmptyString;
     }
-    return;
+    event.Skip(); // Destroy() must be called
 }
 
 void DashboardInstrument_EngineI::SetData(

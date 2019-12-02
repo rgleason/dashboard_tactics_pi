@@ -78,7 +78,7 @@ protected:
     wxDECLARE_EVENT_TABLE();
 
     void OnThreadTimerTick( wxTimerEvent& );
-    void OnClose(wxCloseEvent& evt);
+    void OnClose(wxCloseEvent& event);
 
 };
 
