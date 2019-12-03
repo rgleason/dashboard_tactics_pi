@@ -28,6 +28,7 @@
 #ifndef __ENGINEI_H__
 #define __ENGINEI_H__
 using namespace std;
+using namespace std::placeholders;
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>

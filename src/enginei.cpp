@@ -33,8 +33,8 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
-using namespace std;
-using namespace placeholders;
+
+#include <algorithm>
 #include <functional>
 
 #include "dashboard_pi.h"
