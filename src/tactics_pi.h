@@ -82,12 +82,6 @@ enum dbgPolarStat {
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-// helpers for the call-back methods in instruments subsribing to signal paths
-typedef std::function<void  (double, wxString, long long)> callbackFunction;
-typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
-typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
-typedef std::unordered_multimap<wxString, callbackFunctionTuple> callback_map;
-
 class tactics_pi
 {
 public:
@@ -191,9 +185,6 @@ public:
     static wxString get_sCMGSynonym(void);
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
-
-    std::mutex          m_mtxCallBackContainer;
-    callback_map       *m_callbacks;
 
 private:
 
@@ -442,6 +433,12 @@ enum eIdDashTacticsContextMenu {
     ID_DASH_TACTICS_PREFS_END
 };
 
+// helpers for the call-back methods in instruments subsribing to signal paths
+typedef std::function<void  (double, wxString, long long)> callbackFunction;
+typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
+typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
+typedef std::unordered_multimap<wxString, callbackFunctionTuple> callback_map;
+
 class TacticsWindow : public wxWindow
 {
 public:
@@ -464,6 +461,10 @@ public:
     void unsubscribeFrom ( wxString callbackUUID );
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
+
+protected:
+    std::mutex          m_mtxCallBackContainer;
+    callback_map       *m_callbacks;
 
 private:
     tactics_pi*         m_plugin;
