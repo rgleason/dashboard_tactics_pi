@@ -168,7 +168,7 @@ public:
 #endif // _TACTICSPI_H_
     void OnEraseBackground(wxEraseEvent& WXUNUSED(evt));
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
-    void OnPaint(wxPaintEvent& WXUNUSED(event));
+    virtual void OnPaint(wxPaintEvent& WXUNUSED(event));
     virtual void SetData(
 #ifdef _TACTICSPI_H_
         unsigned long long st,

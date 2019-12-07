@@ -45,6 +45,9 @@ enum pluginids {
     myID_THREAD_AVGWIND,
     myID_TICK_AVGWIND,
     myID_TICK_ENGINEI,
+    myID_TICK_ENGINED,
+    myID_WEBVIEW_LOADED_ENGINED,
+    myID_WEBVIEW_ERROR_ENGINED,
     // end of tacticsEvents
     myID_EDIT_LAST
 };

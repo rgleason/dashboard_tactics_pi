@@ -80,6 +80,7 @@
 #include "iirfilter.h"
 #ifdef _TACTICSPI_H_
 #include "enginei.h"
+#include "engined.h"
 #endif // _TACTICSPI_H_
 
 class DashboardWindow;

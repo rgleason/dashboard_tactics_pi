@@ -20,7 +20,7 @@
 
 
 # define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13.5)
 CMAKE_POLICY(SET CMP0043 NEW)
 
 # ON = performance instruments, OFF = exclude all tactics_pi originated code from compilation _and_ build
@@ -105,6 +105,8 @@ IF (TACTICS_INSTRUMENTS)
       src/avg_wind.cpp
       src/enginei.h
       src/enginei.cpp
+      src/engined.h
+      src/engined.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 

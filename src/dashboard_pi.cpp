@@ -4561,10 +4561,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 _T("%3.0f \u00B0C"));
             break;
         case ID_DBP_I_ENGPOILP:
-            instrument = new DashboardInstrument_Single(
+            // instrument = new DashboardInstrument_Single(
+            //     this, wxID_ANY,
+            //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
+            //     _T("%3.1f bar"));
+            instrument = new DashboardInstrument_EngineD( // Dial instrument
                 this, wxID_ANY,
-                getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
-                _T("%3.1f bar"));
+                &m_plugin->m_sigPathLangVector );         // describes available data w/ user language
             break;
 #endif // _TACTICSPI_H_
         }
