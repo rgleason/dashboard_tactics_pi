@@ -107,6 +107,8 @@ IF (TACTICS_INSTRUMENTS)
       src/enginei.cpp
       src/engined.h
       src/engined.cpp
+      src/instrujs.h
+      src/instrujs.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 

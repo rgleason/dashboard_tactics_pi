@@ -34,6 +34,8 @@
 #include <wx/wx.h>
 #endif
 
+#include <wx/version.h>
+
 #include <algorithm>
 #include <functional>
 
@@ -46,8 +48,6 @@ extern int GetRandomNumber(int, int);
 
 wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineD, DashboardInstrument)
    EVT_TIMER (myID_TICK_ENGINED, DashboardInstrument_EngineD::OnThreadTimerTick)
-   EVT_WEBVIEW_LOADED (myID_WEBVIEW_LOADED_ENGINED, DashboardInstrument_EngineD::OnPageLoaded)
-   EVT_WEBVIEW_ERROR (myID_WEBVIEW_ERROR_ENGINED, DashboardInstrument_EngineD::OnPageError)
    EVT_CLOSE (DashboardInstrument_EngineD::OnClose)
 wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
@@ -70,68 +70,11 @@ DashboardInstrument_EngineD::DashboardInstrument_EngineD(
     m_sigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
-    m_threadRunCount = 0;
-    m_webpanelCreated = false;
-    m_webpanelInitiated  = false;
-    m_webpanelLoaded = false;
-    m_webpanelError = 0;
-    m_webpanelErrorMsg = wxEmptyString;
 
-    // Create virtual file system and files in the memory
-    wxFileSystem::AddHandler(new wxMemoryFSHandler);
-    wxMemoryFSHandler::AddFile(
-        "index.html",
-        "<html><head><meta charset=\"utf-8\">"
-        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=yes\">"
-        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:engined1.css\">"
-        "</head>"
-        "<body><h1>EngineD</h></div>"
-        "</body>"
-        );
-    wxMemoryFSHandler::AddFile(
-        "engined1.html",
-        "<html><head><meta charset=\"utf-8\">"
-        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=yes\">"
-        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-        // "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:bootstrap.min.css\">"
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:engined1.css\">"
-        "</head>"
-        "<body><div id=\"content\" onclick=\"\"></div>"
-        "</body>"
-        "<script src=\"memory:engined1.js\"></script>"
-        );
-    wxMemoryFSHandler::AddFile("engined1.css", "h1 {color: blue;}");
-    wxMemoryFSHandler::AddFile(
-        "engined1.js", "var func = function() {"
-        "document.write(\"Hello World!\");"
-        "};"
-        "window.onload = func;");
-   
-    // Create the WebKit (type of - implementation varies) view
-    wxPoint pos( 0, 0 );
-    wxSize size( 400, 400 );
-#if wxUSE_WEBVIEW_IE
-    wxWebViewIE::MSWSetModernEmulationLevel();
-#endif
-    m_webpanel = wxWebView::New( m_pparent, m_id, wxWebViewDefaultURLStr, pos, size );
-    m_webpanel->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
-
-    // new wxLogWindow(this, _("Logging"), true, false);
+    // Start the instrument panel
+    m_instruJS = new InstruJS ( m_pparent, m_id );
     
-    // if ( !m_webpanelCreated ) {
-    //     wxPoint pos( 0, 0 );
-    //     wxSize size( 400, 400 );
-    //     m_webpanel->Create( m_pparent, m_id, "memory:index.html", pos, size ); 
-    //     m_webpanelCreated = true;
-    // }
-    // if ( !m_webpanelInitiated ) {
-    //     m_webpanel->LoadURL("memory:engined1.html");
-    //     m_webpanelInitiated  = true;
-    // }
-
-    
-     // Start the instrument thread
+    // Start the instrument thread
     m_threadEngineDTimer = new wxTimer( this, myID_TICK_ENGINED );
     m_threadEngineDTimer->Start(1000, wxTIMER_CONTINUOUS);
 }
@@ -139,46 +82,20 @@ DashboardInstrument_EngineD::~DashboardInstrument_EngineD(void)
 {
     this->m_threadEngineDTimer->Stop();
     delete this->m_threadEngineDTimer;
+    delete this->m_instruJS;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is Delete()d
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
 }
 void DashboardInstrument_EngineD::OnClose( wxCloseEvent &event )
 {
+    this->m_threadEngineDTimer->Stop();
+    m_instruJS->Close();
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
         m_pushHereUUID = wxEmptyString;
     }
     event.Skip(); // Destroy() must be called
-}
-void DashboardInstrument_EngineD::OnPageLoaded(wxWebViewEvent &event)
-{
-    m_webpanelLoaded = true;
-}
-void DashboardInstrument_EngineD::OnPageError(wxWebViewEvent &event)
-{
-#define WX_ERROR_CASE(type) \
-    case type: \
-        m_webpanelErrorMsg = #type; \
-        break;
-    m_webpanelError = event.GetInt();
-    
-    switch ( m_webpanelError )
-    {
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_CONNECTION);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_CERTIFICATE);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_AUTH);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_SECURITY);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_NOT_FOUND);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_REQUEST);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_USER_CANCELLED);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_OTHER);
-    }
-    
-    wxLogMessage("%s", "dashboard_tactics_pi: EngineD Error; url='" +
-                 event.GetURL() + "', error='" + m_webpanelErrorMsg +
-                 " (" + event.GetString() + ")'");
-
 }
 
 void DashboardInstrument_EngineD::SetData(
@@ -196,17 +113,6 @@ void DashboardInstrument_EngineD::PushData( // for demo/testing purposes in this
     } // then valid datea 
 }
 
-wxString DashboardInstrument_EngineD::RunScript( const wxString &javascript )
-{
-    wxString result = wxEmptyString;
-#if wxUSE_WEBVIEW_IE
-    m_webpanel->RunScript( javascript, &result );
-#else
-    m_webpanel->RunScript( javascript );
-#endif
-    return result;
-}
-
 void DashboardInstrument_EngineD::timeoutEvent()
 {
     m_data = L"---"; // No data seems to come in (anymore)
@@ -216,25 +122,6 @@ void DashboardInstrument_EngineD::timeoutEvent()
 void DashboardInstrument_EngineD::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_threadRunning = true;
-    m_threadRunCount++;
-
-    // if ( !m_webpanelCreated ) {
-    //     wxPoint pos( 0, 0 );
-    //     wxSize size( 400, 400 );
-    //     m_webpanel->Create( m_pparent, m_id, "memory:index.html", pos, size ); 
-    //     m_webpanelCreated = true;
-    // }
-    if ( !m_webpanelInitiated ) {
-        m_webpanel->LoadURL("memory:engined1.html");
-        m_webpanelInitiated  = true;
-    }
-
-    wxString javascript = wxString::Format(L"%s %d %s",
-                                           "document.write(\"Hello World!",
-                                           m_threadRunCount,
-                                           " \n\");");
-
-    RunScript( javascript );
 
     if ( m_path.IsEmpty() ) {
         /*
@@ -262,21 +149,7 @@ void DashboardInstrument_EngineD::OnThreadTimerTick( wxTimerEvent &event )
                                    this, _1, _2, _3 );
             m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
         } // then found user selection from the available signal paths for subsribtion
-        /*
-         Run the JavaScript engine
-        */
-        // if ( !m_javascriptRunning ) {
-//             wxString javascript = "<script>"
-// "var canvas = document.getElementById('myCanvas');"
-// "var ctx = canvas.getContext('2d');"
-// "ctx.font = '30px Arial';"
-// "ctx.fillText('Hello World',10,50);"
-//                 "</script>";
-//             RunScript( javascript );
-        //     RunScript("document.write(\"Hello World!\");");
-        //     m_javascriptRunning = true;
-        // }
-    } // then no subscription to a signal path
+    } // then not subscribed to any path yet
 }
 
 wxSize DashboardInstrument_EngineD::GetSize( int orient, wxSize hint )
