@@ -44,9 +44,6 @@ wxBEGIN_EVENT_TABLE (InstruJS, wxFrame)
    EVT_CLOSE (InstruJS::OnClose)
 wxEND_EVENT_TABLE ()
 
-// EVT_WEBVIEW_LOADED (myID_WEBVIEW_LOADED_INSTRUJS, InstruJS::OnPageLoaded)
-// EVT_WEBVIEW_ERROR (myID_WEBVIEW_ERROR_INSTRUJS, InstruJS::OnPageError)
-
 //************************************************************************************************************************
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
@@ -59,10 +56,8 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
     m_threadRunning = false;
     m_threadRunCount = 0;
     m_webpanelCreated = false;
+    m_webpanelCreateWait = false;
     m_webpanelInitiated  = false;
-    m_webpanelLoaded = false;
-    m_webpanelError = 0;
-    m_webpanelErrorMsg = wxEmptyString;
 
     // Create virtual file system and files in the memory
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
@@ -105,13 +100,6 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
 #endif
     m_webpanel->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
 
-// EVT_WEBVIEW_LOADED (myID_WEBVIEW_LOADED_INSTRUJS, InstruJS::OnPageLoaded)
-// EVT_WEBVIEW_ERROR (myID_WEBVIEW_ERROR_INSTRUJS, InstruJS::OnPageError)
-
-    Bind(wxEVT_WEBVIEW_LOADED, &InstruJS::OnPageLoaded, this, m_webpanel->GetId());
-    Bind(wxEVT_WEBVIEW_ERROR, &InstruJS::OnPageError, this, m_webpanel->GetId());
-
-
     // new wxLogWindow(this, _("Logging"), true, false);
     
     // if ( !m_webpanelCreated ) {
@@ -128,7 +116,7 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
     
      // Start the instrument pane thread
     m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-    m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+    m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
 }
 
 InstruJS::~InstruJS(void)
@@ -143,46 +131,13 @@ void InstruJS::OnClose( wxCloseEvent &event )
     event.Skip(); // Destroy() must be called
 }
 
-void InstruJS::OnPageLoaded(wxWebViewEvent &event)
-{
-    if(event.GetURL() == m_webpanel->GetCurrentURL())
-    {
-        wxLogMessage("%s", "Document loaded; url='" + event.GetURL() + "'");
-        m_webpanelLoaded = true;
-    }    
-}
-
-void InstruJS::OnPageError(wxWebViewEvent &event)
-{
-#define WX_ERROR_CASE(type) \
-    case type: \
-        m_webpanelErrorMsg = #type; \
-        break;
-    m_webpanelError = event.GetInt();
-    
-    switch ( m_webpanelError )
-    {
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_CONNECTION);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_CERTIFICATE);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_AUTH);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_SECURITY);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_NOT_FOUND);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_REQUEST);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_USER_CANCELLED);
-        WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_OTHER);
-    }
-    
-    wxLogMessage("%s", "dashboard_tactics_pi: InstruJS Error; url='" +
-                 event.GetURL() + "', error='" + m_webpanelErrorMsg +
-                 " (" + event.GetString() + ")'");
-
-}
-
 wxString InstruJS::RunScript( const wxString &javascript )
 {
     wxString result = wxEmptyString;
 #if wxCHECK_VERSION(3,1,0)
-    m_webpanel->RunScript( javascript, &result );
+    if ( !m_webpanel->RunScript( javascript, &result ) ) {
+        result = "NotReady";
+    }
 #else
     m_webpanel->RunScript( javascript );
 #endif
@@ -192,39 +147,51 @@ wxString InstruJS::RunScript( const wxString &javascript )
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_threadRunning = true;
-    m_threadRunCount++;
 
-    if ( !m_webpanelCreated ) {
-        wxPoint pos( 0, 0 );
-        wxSize size( 400, 400 );
-        m_webpanel->Create( m_pparent, m_id, "memory:index.html", pos, size ); 
-        m_webpanelCreated = true;
-    }
-    if ( !m_webpanelInitiated ) {
-        m_webpanel->LoadURL("memory:engined1.html");
-        m_webpanelInitiated  = true;
-    }
+    if ( m_webpanelInitiated ) {
+        m_threadRunCount++;
+        wxString javascript = wxString::Format(L"%s %d %s",
+                                               "document.write(\"Hello World!",
+                                               m_threadRunCount,
+                                               " \n\");");
+        RunScript( javascript );
+    } // then all code loaded
 
-    wxString javascript = wxString::Format(L"%s %d %s",
-                                           "document.write(\"Hello World!",
-                                           m_threadRunCount,
-                                           " \n\");");
+    else {
 
-    RunScript( javascript );
+        if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
+            wxPoint pos( 0, 0 );
+            wxSize size( 400, 400 );
+            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
+            m_webpanelCreateWait = true;
+        }
+        if ( !m_webpanelCreated && m_webpanelCreateWait ) {
+            if ( !m_webpanel->IsBusy() ) {
+                m_webpanelCreateWait = false;
+                m_webpanelCreated = true;
+            }
+        } //then poll until the initial page is loaded (load event not working)
+        // IE is a bit shaky, cannot trust the above, let's try to run a script
+        if ( m_webpanelCreated ) {
+            if ( !m_webpanelInitiated ) {
+                m_threadRunCount++;
+                wxString javascript = wxString::Format(L"%s %d %s",
+                                                       "document.write(\"Hello World!",
+                                                       m_threadRunCount,
+                                                       " \n\");");
+                wxString retval;
+                retval = RunScript( javascript );
+                if ( !retval.Cmp("NotReady") == 0 ) { // for the test script, no return value
+                    m_webpanelInitiated = true;
+                    m_threadInstruJSTimer->Stop();
+                    m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+                } // then scripts are working, (IE has finished loading)
+                else {
+                    m_threadRunCount--;
+                } // then scripts are yet working, (IE is probably still loading)
+            } //then attempt to run script until everything is loaded
+        } // Then the base module has been created but not sure if it is loaded
 
-        /*
-         Run the JavaScript engine
-        */
-        // if ( !m_javascriptRunning ) {
-//             wxString javascript = "<script>"
-// "var canvas = document.getElementById('myCanvas');"
-// "var ctx = canvas.getContext('2d');"
-// "ctx.font = '30px Arial';"
-// "ctx.fillText('Hello World',10,50);"
-//                 "</script>";
-//             RunScript( javascript );
-        //     RunScript("document.write(\"Hello World!\");");
-        //     m_javascriptRunning = true;
-        // }
+    } // else the webpanel is not yet loaded / scripts are not running
 }
 

@@ -75,10 +75,8 @@ protected:
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     bool                 m_webpanelCreated;
+    bool                 m_webpanelCreateWait;
     bool                 m_webpanelInitiated;
-    bool                 m_webpanelLoaded;
-    int                  m_webpanelError;
-    wxString             m_webpanelErrorMsg;
 
     wxDECLARE_EVENT_TABLE();
 
