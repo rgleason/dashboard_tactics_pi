@@ -145,7 +145,8 @@ IF(MSVC)
 ENDIF(MSVC)
 
 IF(NOT DEFINED wxWidgets_USE_FILE)
-    SET(wxWidgets_USE_LIBS base core net xml html adv aui webview)
+    SET(wxWidgets_USE_LIBS base core net xml html adv aui)
+#    SET(wxWidgets_USE_LIBS base core net xml html adv aui webview)
 ENDIF(NOT DEFINED wxWidgets_USE_FILE)
 
 #  QT_ANDROID is a cross-build, so the native FIND_PACKAGE(wxWidgets...) and wxWidgets_USE_FILE is not useful.
