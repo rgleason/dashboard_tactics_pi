@@ -199,7 +199,11 @@ void DashboardInstrument_EngineD::PushData( // for demo/testing purposes in this
 wxString DashboardInstrument_EngineD::RunScript( const wxString &javascript )
 {
     wxString result = wxEmptyString;
+#if wxUSE_WEBVIEW_IE
     m_webpanel->RunScript( javascript, &result );
+#else
+    m_webpanel->RunScript( javascript );
+#endif
     return result;
 }
 

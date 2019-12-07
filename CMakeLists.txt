@@ -20,7 +20,7 @@
 
 
 # define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.13.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
 CMAKE_POLICY(SET CMP0043 NEW)
 
 # ON = performance instruments, OFF = exclude all tactics_pi originated code from compilation _and_ build
