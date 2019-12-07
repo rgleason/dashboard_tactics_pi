@@ -13,9 +13,9 @@ install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]];
       then
         sudo apt-get -qq update;
-        sudo apt-get install libwxbase3.0-0 libwxbase3.0-dev
-        sudo apt-get install libwxgtk3.0-0 libwxgtk3.0-dev
-        sudo apt-get install libwxgtk-webview3.0-gtk3-0 libwxgtk-webview3.0-gtk3-dev
+        sudo apt-get install libwxbase3.0-0v5 libwxbase3.0-dev wx-common
+        sudo apt-get install libwxgtk3.0-gtk3-0v5 libwxgtk3.0-gtk3-dev
+        sudo apt-get install libwxgtk-webview3.0-gtk3-0v5 libwxgtk-webview3.0-gtk3-dev
         sudo apt-get install libgps-dev libglu1-mesa-dev libgtk2.0-dev libbz2-dev libtinyxml-dev;
         sudo apt-get install libexpat1-dev libcairo2-dev;
         sudo apt-get install rpm;
