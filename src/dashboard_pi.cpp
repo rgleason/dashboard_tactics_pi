@@ -37,6 +37,8 @@
 // xw 2.8
 #include <wx/filename.h>
 
+#include <wx/utils.h>
+
 #include <typeinfo>
 #include "dashboard_pi.h"
 
@@ -596,7 +598,17 @@ int dashboard_pi::Init( void )
     AddLocaleCatalog( _T("opencpn-dashboard_pi") );
 #endif // _TACTICSPI_H_
 
+#ifdef _TACTICSPI_H_
+    m_OsDescription = wxGetOsDescription();
+    int g_pFontTitleSize = 6;
+    if ( (m_OsDescription.Find("Linux") != wxNOT_FOUND) && // Like 'Linux 4.19.75-v7l+ armv7l' ?
+         (m_OsDescription.Find("armv7l") != wxNOT_FOUND) ) {
+        g_pFontTitleSize = 6;
+    } // then this is likely to be Raspberry Pi 4B or similar run-time, scale down
+    g_pFontTitle = new wxFont( g_pFontTitleSize, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
+#else
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
+#endif // _TACTICSPI_H_
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontLabel = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontSmall = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -3317,8 +3329,14 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     m_pButtonDown->Connect( wxEVT_COMMAND_BUTTON_CLICKED,
                             wxCommandEventHandler(DashboardPreferencesDialog::OnInstrumentDown), NULL, this );
 
-    wxPanel *itemPanelNotebook02 = new wxPanel( itemNotebook, wxID_ANY, wxDefaultPosition,
-                                                wxDefaultSize, wxTAB_TRAVERSAL );
+    wxScrolledWindow *itemPanelNotebook02 = new wxScrolledWindow(
+        itemNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxVSCROLL );
+    int scrollRate = 5;
+#ifdef __OCPN__ANDROID__
+    scrollRate = 1;
+#endif
+    itemPanelNotebook02->SetScrollRate(0, scrollRate);
+
     wxBoxSizer* itemBoxSizer05 = new wxBoxSizer( wxVERTICAL );
     itemPanelNotebook02->SetSizer( itemBoxSizer05 );
     itemNotebook->AddPage( itemPanelNotebook02, _("Appearance") );
