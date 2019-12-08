@@ -85,10 +85,10 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
         );
     wxMemoryFSHandler::AddFile("engined1.css", "h1 {color: blue;}");
     wxMemoryFSHandler::AddFile(
-        "engined1.js", "var func = function() {"
-        "document.write(\"Hello World!\");"
+        "engined1.js", "var func = function(srcstr) {"
+        "document.write(\"Hello World! (\" + srcstr + \") \");"
         "};"
-        "window.onload = func;");
+        "window.onload = func(\"ctr\");");
 
     // Create the WebKit (type of - implementation varies) view
     wxPoint pos( 0, 0 );
@@ -150,10 +150,10 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
     if ( m_webpanelInitiated ) {
         m_threadRunCount++;
-        wxString javascript = wxString::Format(L"%s %d %s",
-                                               "document.write(\"Hello World!",
+        wxString javascript = wxString::Format(L"%s%d%s",
+                                               "func(\"",
                                                m_threadRunCount,
-                                               " \n\");");
+                                               "\");");
         RunScript( javascript );
     } // then all code loaded
 
@@ -169,9 +169,15 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( !m_webpanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-            }
-        } //then poll until the initial page is loaded (load event not working)
-        // IE is a bit shaky, cannot trust the above, let's try to run a script
+#ifndef __WXMSW__
+                m_webpanelInitiated = true;
+                m_threadInstruJSTimer->Stop();
+                m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+#endif // (not) __WXMSW__
+            } // then, apparently (for IE), the page is loaded
+        } //then poll until the initial page is loaded (load event _not_ working down here)
+#ifdef __WXMSW__
+        // IE is a bit shaky as backend, cannot trust the above, let's try to run a script
         if ( m_webpanelCreated ) {
             if ( !m_webpanelInitiated ) {
                 m_threadRunCount++;
@@ -190,8 +196,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_threadRunCount--;
                 } // then scripts are yet working, (IE is probably still loading)
             } //then attempt to run script until everything is loaded
-        } // Then the base module has been created but not sure if it is loaded
-
+        } // Then the base module has been created but not sure if it is actually fully loaded
+#endif // __WXMSW__
     } // else the webpanel is not yet loaded / scripts are not running
 }
 

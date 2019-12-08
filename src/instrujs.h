@@ -41,9 +41,11 @@ using namespace std;
 #endif
 
 #include <wx/webview.h>
+#ifdef __WXMSW__
 #if wxUSE_WEBVIEW_IE
 #include "wx/msw/webview_ie.h"
 #endif
+#endif // __WXMSW__
 #include <wx/webviewfshandler.h>
 #include <wx/filesys.h>
 #include <wx/fs_mem.h>
