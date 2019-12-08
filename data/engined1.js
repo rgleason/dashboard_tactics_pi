@@ -1,6 +1,8 @@
 var func = function(newval) {
-//    dataDiv = document.getElementById('currentData');
-//   dataDiv.innterHTML = newval;
-    document.write(newval);
+    dataDiv = document.getElementById('currentData');
+    dataDiv.innerHTML = newval;
 };
-window.onload = func("<p>- - -</p>");
+window.addEventListener('load', 
+  function() { 
+    func("<p>- - -</p>");
+  }, false);
