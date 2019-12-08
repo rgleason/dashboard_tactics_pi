@@ -104,6 +104,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     m_threadRunning = true;
 
     if ( m_webpanelInitiated ) {
+        // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
         m_threadRunCount++;
         wxString javascript = wxString::Format(L"%s%d%s",
                                                "func('",
@@ -131,37 +132,11 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( !m_webpanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-                // #ifndef __WXMSW__
                 m_webpanelInitiated = true;
                 m_threadInstruJSTimer->Stop();
                 m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
-                // #endif // (not) __WXMSW__
-            } // then, apparently (for IE), the page is loaded
+            } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
-        //#ifdef __WXMSW__
-        // IE is a bit shaky as backend, cannot trust the above, let's try to run a script
-        /*
-        if ( m_webpanelCreated ) {
-            if ( !m_webpanelInitiated ) {
-                m_threadRunCount++;
-                wxString javascript = wxString::Format(L"%s%d%s",
-                                                       "func('",
-                                                       m_threadRunCount,
-                                                       "');");
-                wxString retval;
-                retval = RunScript( javascript );
-                if ( !retval.Cmp("NotReady") == 0 ) { // for the test script, no return value
-                    m_webpanelInitiated = true;
-                    m_threadInstruJSTimer->Stop();
-                    m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
-                } // then scripts are working, (IE has finished loading)
-                else {
-                    m_threadRunCount--;
-                } // then scripts are yet working, (IE is probably still loading)
-            } //then attempt to run script until everything is loaded
-        } // Then the base module has been created but not sure if it is actually fully loaded
-        */
-        //#endif // __WXMSW__
     } // else the webpanel is not yet loaded / scripts are not running
 }
 
