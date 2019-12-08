@@ -3,7 +3,7 @@ language: cpp
 
 matrix:
   include:
-    - dist: xenial
+    - dist: bionic
       compiler: gcc
     - os: osx
       compiler: clang
