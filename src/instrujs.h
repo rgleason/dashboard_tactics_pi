@@ -84,8 +84,6 @@ protected:
 
     void OnClose( wxCloseEvent& event );
     void OnThreadTimerTick( wxTimerEvent& event);
-    void OnPageLoaded(wxWebViewEvent& event);
-    void OnPageError(wxWebViewEvent& event);
     wxString RunScript(const wxString& javascript);
 
 };

@@ -59,37 +59,6 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
     m_webpanelCreateWait = false;
     m_webpanelInitiated  = false;
 
-    // Create virtual file system and files in the memory
-    wxFileSystem::AddHandler(new wxMemoryFSHandler);
-    wxMemoryFSHandler::AddFile(
-        "index.html",
-        "<html><head><meta charset=\"utf-8\">"
-        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=yes\">"
-        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:engined1.css\">"
-        "</head>"
-        "<body><h1>InstruJS</h></div>"
-        "</body>"
-        );
-    wxMemoryFSHandler::AddFile(
-        "engined1.html",
-        "<html><head><meta charset=\"utf-8\">"
-        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=yes\">"
-        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-        // "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:bootstrap.min.css\">"
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"memory:engined1.css\">"
-        "</head>"
-        "<body><div id=\"content\" onclick=\"\"></div>"
-        "</body>"
-        "<script src=\"memory:engined1.js\"></script>"
-        );
-    wxMemoryFSHandler::AddFile("engined1.css", "h1 {color: blue;}");
-    wxMemoryFSHandler::AddFile(
-        "engined1.js", "var func = function(srcstr) {"
-        "document.write(\"Hello World! (\" + srcstr + \") \");"
-        "};"
-        "window.onload = func(\"ctr\");");
-
     // Create the WebKit (type of - implementation varies) view
     wxPoint pos( 0, 0 );
     wxSize size( 400, 400 );
@@ -100,21 +69,7 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
 #endif
     m_webpanel->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
 
-    // new wxLogWindow(this, _("Logging"), true, false);
-    
-    // if ( !m_webpanelCreated ) {
-    //     wxPoint pos( 0, 0 );
-    //     wxSize size( 400, 400 );
-    //     m_webpanel->Create( m_pparent, m_id, "memory:index.html", pos, size ); 
-    //     m_webpanelCreated = true;
-    // }
-    // if ( !m_webpanelInitiated ) {
-    //     m_webpanel->LoadURL("memory:engined1.html");
-    //     m_webpanelInitiated  = true;
-    // }
-
-    
-     // Start the instrument pane thread
+    // Start the instrument pane thread (faster polling 1/10 seconds for initial loading)
     m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
     m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
 }
@@ -151,10 +106,10 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     if ( m_webpanelInitiated ) {
         m_threadRunCount++;
         wxString javascript = wxString::Format(L"%s%d%s",
-                                               "func(\"",
+                                               "func('",
                                                m_threadRunCount,
-                                               "\");");
-        RunScript( javascript );
+                                               "');");
+      RunScript( javascript );
     } // then all code loaded
 
     else {
@@ -162,29 +117,33 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
             wxPoint pos( 0, 0 );
             wxSize size( 400, 400 );
-            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
+            
+            m_webpanel->Create(
+                m_pparent, m_id, "file:///C:/ProgramData/opencpn/plugins/dashoard_tactics_pi/engined1.html", pos, size ); 
+            //            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
             m_webpanelCreateWait = true;
         }
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
             if ( !m_webpanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-#ifndef __WXMSW__
+                // #ifndef __WXMSW__
                 m_webpanelInitiated = true;
                 m_threadInstruJSTimer->Stop();
                 m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
-#endif // (not) __WXMSW__
+                // #endif // (not) __WXMSW__
             } // then, apparently (for IE), the page is loaded
         } //then poll until the initial page is loaded (load event _not_ working down here)
-#ifdef __WXMSW__
+        //#ifdef __WXMSW__
         // IE is a bit shaky as backend, cannot trust the above, let's try to run a script
+        /*
         if ( m_webpanelCreated ) {
             if ( !m_webpanelInitiated ) {
                 m_threadRunCount++;
-                wxString javascript = wxString::Format(L"%s %d %s",
-                                                       "document.write(\"Hello World!",
+                wxString javascript = wxString::Format(L"%s%d%s",
+                                                       "func('",
                                                        m_threadRunCount,
-                                                       " \n\");");
+                                                       "');");
                 wxString retval;
                 retval = RunScript( javascript );
                 if ( !retval.Cmp("NotReady") == 0 ) { // for the test script, no return value
@@ -197,7 +156,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 } // then scripts are yet working, (IE is probably still loading)
             } //then attempt to run script until everything is loaded
         } // Then the base module has been created but not sure if it is actually fully loaded
-#endif // __WXMSW__
+        */
+        //#endif // __WXMSW__
     } // else the webpanel is not yet loaded / scripts are not running
 }
 

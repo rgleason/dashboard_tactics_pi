@@ -253,7 +253,6 @@ public:
     std::mutex         m_mtxNofStreamInSk;
     wxString           m_echoStreamerInSkShow;
     sigPathLangVector  m_sigPathLangVector;
-    wxString           m_OsDescription;
 #endif // _TACTICSPI_H_
     
 private:

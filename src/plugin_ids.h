@@ -47,8 +47,6 @@ enum pluginids {
     myID_TICK_ENGINEI,
     myID_TICK_ENGINED,
     myID_TICK_INSTRUJS,
-    myID_WEBVIEW_LOADED_INSTRUJS,
-    myID_WEBVIEW_ERROR_INSTRUJS,
     // end of tacticsEvents
     myID_EDIT_LAST
 };
