@@ -107,9 +107,9 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
         m_threadRunCount++;
         wxString javascript = wxString::Format(L"%s%d%s",
-                                               "func('",
+                                               "func(",
                                                m_threadRunCount,
-                                               "');");
+                                               ");");
       RunScript( javascript );
     } // then all code loaded
 
@@ -117,13 +117,13 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
         if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
             wxPoint pos( 0, 0 );
-            wxSize size( 400, 400 );
+            wxSize size( 200, 200 );
             
             m_webpanel->Create(
 #ifdef __WXMSW__
-                m_pparent, m_id, "file:///C:/ProgramData/opencpn/plugins/dashoard_tactics_pi/engined1.html", pos, size );
+                m_pparent, m_id, "file:///C:/ProgramData/opencpn/plugins/dashoard_tactics_pi/engined2.html", pos, size );
 #else
-                m_pparent, m_id, "file:///home/pi/.opencpnplugins/dashoard_tactics_pi/engined1.html", pos, size );
+                m_pparent, m_id, "file:///home/pi/.opencpnplugins/dashoard_tactics_pi/engined2.html", pos, size );
 #endif // __WXMSW__
             //            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
             m_webpanelCreateWait = true;
