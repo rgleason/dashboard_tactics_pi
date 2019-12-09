@@ -6,8 +6,6 @@ var g = new JustGage({
     title: "Oil Pressure"
 });
 var func = function(newval) {
-    //    dataDiv = document.getElementById('currentData');
-    //    dataDiv.innerHTML = newval;
     g.refresh(newval);
 };
 window.addEventListener('load', 

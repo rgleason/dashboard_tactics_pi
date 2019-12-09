@@ -117,13 +117,13 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
         if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
             wxPoint pos( 0, 0 );
-            wxSize size( 200, 200 );
+            wxSize size( 400, 400 );
             
             m_webpanel->Create(
 #ifdef __WXMSW__
-                m_pparent, m_id, "file:///C:/ProgramData/opencpn/plugins/dashoard_tactics_pi/engined2.html", pos, size );
+                m_pparent, m_id, "file:///C:/Program Files (x86)/OpenCPN/plugins/dashboard_tactics_pi/data/enginedjg.html", pos, size );
 #else
-                m_pparent, m_id, "file:///home/pi/.opencpnplugins/dashoard_tactics_pi/engined2.html", pos, size );
+                m_pparent, m_id, "file:////usr/share/opencpn/plugins/dashoard_tactics_pi/data/engined2.html", pos, size );
 #endif // __WXMSW__
             //            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
             m_webpanelCreateWait = true;
