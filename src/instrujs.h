@@ -54,6 +54,8 @@ using namespace std;
 #error "A wxWebView backend is required by InstruJS"
 #endif
 
+#include "instrument.h"
+
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -63,11 +65,15 @@ using namespace std;
 //|    This instrument supporting class provides Web Kit (like) services
 //+------------------------------------------------------------------------------
 
-class InstruJS : public wxFrame
+//class InstruJS : public wxControl
+class InstruJS : public DashboardInstrument
 {
 public:
     InstruJS( wxWindow *pparent, wxWindowID id, wxString title = L"" );
     ~InstruJS(void);
+
+    virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) = 0; 
+    virtual wxSize GetSize( int orient, wxSize hint ) override;
     
 protected:
     wxWindow            *m_pparent;
@@ -85,6 +91,8 @@ protected:
     void OnClose( wxCloseEvent& event );
     void OnThreadTimerTick( wxTimerEvent& event);
     wxString RunScript(const wxString& javascript);
+    
+    virtual void Draw(wxGCDC* dc) = 0;
 
 };
 

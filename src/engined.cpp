@@ -46,7 +46,7 @@
 // --- the following is probably needed only for demonstration and testing! ---
 extern int GetRandomNumber(int, int);
 
-wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineD, DashboardInstrument)
+wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineD, InstruJS)
    EVT_TIMER (myID_TICK_ENGINED, DashboardInstrument_EngineD::OnThreadTimerTick)
    EVT_CLOSE (DashboardInstrument_EngineD::OnClose)
 wxEND_EVENT_TABLE ()
@@ -56,7 +56,7 @@ wxEND_EVENT_TABLE ()
 
 DashboardInstrument_EngineD::DashboardInstrument_EngineD(
                              DashboardWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
-                             DashboardInstrument ( pparent, id, L"", 0LL )
+                             InstruJS ( pparent, id, L"" )
 {
     // pro-forma, this class actually overrides the Paint() method of the base class, to avoid any flickering
     SetDrawSoloInPane( true );
@@ -71,8 +71,8 @@ DashboardInstrument_EngineD::DashboardInstrument_EngineD(
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
 
-    // Start the instrument panel
-    m_instruJS = new InstruJS ( m_pparent, m_id );
+    // // Start the instrument panel
+    // m_instruJS = new InstruJS ( m_pparent, m_id );
     
     // Start the instrument thread
     m_threadEngineDTimer = new wxTimer( this, myID_TICK_ENGINED );
@@ -82,7 +82,7 @@ DashboardInstrument_EngineD::~DashboardInstrument_EngineD(void)
 {
     this->m_threadEngineDTimer->Stop();
     delete this->m_threadEngineDTimer;
-    delete this->m_instruJS;
+    // delete this->m_instruJS;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is Delete()d
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
@@ -90,7 +90,7 @@ DashboardInstrument_EngineD::~DashboardInstrument_EngineD(void)
 void DashboardInstrument_EngineD::OnClose( wxCloseEvent &event )
 {
     this->m_threadEngineDTimer->Stop();
-    m_instruJS->Close();
+    // m_instruJS->Close();
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
         m_pushHereUUID = wxEmptyString;
@@ -150,20 +150,6 @@ void DashboardInstrument_EngineD::OnThreadTimerTick( wxTimerEvent &event )
             m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
         } // then found user selection from the available signal paths for subsribtion
     } // then not subscribed to any path yet
-}
-
-wxSize DashboardInstrument_EngineD::GetSize( int orient, wxSize hint )
-{
-    wxClientDC dc(this);
-    int w;
-    dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-    if( orient == wxHORIZONTAL ) {
-        w = wxMax(hint.y, DefaultWidth+m_TitleHeight);
-        return wxSize( w-m_TitleHeight, w );
-    } else {
-        w = wxMax(hint.x, DefaultWidth);
-        return wxSize( w, m_TitleHeight+w );
-    }
 }
 
 void DashboardInstrument_EngineD::Draw(wxGCDC* bdc)

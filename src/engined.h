@@ -52,7 +52,7 @@ using namespace std::placeholders;
 //|    This instrument provides numerical engine monitoring information
 //+------------------------------------------------------------------------------
 
-class DashboardInstrument_EngineD : public DashboardInstrument
+class DashboardInstrument_EngineD : public InstruJS
 {
 public:
     DashboardInstrument_EngineD(
@@ -67,13 +67,12 @@ public:
 #else
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-    wxSize GetSize( int orient, wxSize hint );
     void OnPaint(wxPaintEvent& WXUNUSED(event)) override;    
     
 protected:
     DashboardWindow     *m_pparent;
     wxWindowID           m_id;
-    InstruJS            *m_instruJS;
+    //    InstruJS            *m_instruJS;
     wxString             m_title;
     wxString             m_path;
     wxString             m_data;

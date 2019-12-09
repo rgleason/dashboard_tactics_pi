@@ -35,11 +35,12 @@
 #endif
 
 #include <wx/version.h>
+#include <wx/event.h>
 
 #include "instrujs.h"
 #include "plugin_ids.h"
 
-wxBEGIN_EVENT_TABLE (InstruJS, wxFrame)
+wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
    EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
    EVT_CLOSE (InstruJS::OnClose)
 wxEND_EVENT_TABLE ()
@@ -49,7 +50,7 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
-                             wxFrame ( NULL, wxID_ANY, title )
+          DashboardInstrument(pparent, id, "---", 0LL)
 {
     m_pparent = pparent;
     m_id = id;
@@ -67,8 +68,6 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    m_webpanel->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
-
     // Start the instrument pane thread (faster polling 1/10 seconds for initial loading)
     m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
     m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
@@ -117,16 +116,15 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
         if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
             wxPoint pos( 0, 0 );
-            wxSize size( 400, 400 );
+            wxSize size( 200, 200 );
             
             m_webpanel->Create(
 #ifdef __WXMSW__
                 m_pparent, m_id, "file:///C:/Program Files (x86)/OpenCPN/plugins/dashboard_tactics_pi/data/enginedjg.html",
-                pos, size );
 #else
-            m_pparent, m_id, "file:///usr/share/opencpn/plugins/dashboard_tactics_pi/data/enginedjg.html",
-                pos, size );
+                m_pparent, m_id, "file:///usr/share/opencpn/plugins/dashboard_tactics_pi/data/enginedjg.html",
 #endif // __WXMSW__
+                pos, size );
             //            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
             m_webpanelCreateWait = true;
         }
@@ -140,5 +138,10 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
     } // else the webpanel is not yet loaded / scripts are not running
+}
+
+wxSize InstruJS::GetSize( int orient, wxSize hint )
+{
+    return wxSize( 100, 100 );
 }
 
