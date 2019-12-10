@@ -69,9 +69,19 @@ using namespace std;
 class InstruJS : public DashboardInstrument
 {
 public:
-    InstruJS( wxWindow *pparent, wxWindowID id, wxString title = L"" );
+    InstruJS( wxWindow *pparent, wxWindowID id );
     ~InstruJS(void);
 
+    virtual void loadHTML( wxString fullPath );
+    virtual void stopScript(void); // if overriding OnClose(), call this
+
+    void timeoutEvent(void) override;
+#ifndef __DERIVEDTIMEOUTJS_OVERRIDE__
+    virtual void derivedTimeoutEvent(void){};
+#else
+    virtual void derivedTimeoutEvent(void);
+#endif // __DERIVEDTIMEOUTJS_OVERRIDE__
+    
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) = 0; 
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     
@@ -79,6 +89,7 @@ protected:
     wxWindow            *m_pparent;
     wxWindowID           m_id;
     wxWebView           *m_webpanel;
+    wxBoxSizer          *m_webpanelSizer;
     wxTimer             *m_threadInstruJSTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;

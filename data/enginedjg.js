@@ -16,9 +16,8 @@ var g = new JustGage({
         stroke_linecap: 'round'
     },
     labelFontColor: "black",
-    labelFontFamily: "Georgia",
     valueFontColor: "blue",
-    valueFontFamily: "Helvetica",
+    valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
 var func = function(newval) {

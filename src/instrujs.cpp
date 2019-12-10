@@ -49,7 +49,7 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
+InstruJS::InstruJS( wxWindow *pparent, wxWindowID id ) :
           DashboardInstrument(pparent, id, "---", 0LL)
 {
     m_pparent = pparent;
@@ -61,28 +61,41 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id, wxString title ) :
     m_webpanelInitiated  = false;
 
     // Create the WebKit (type of - implementation varies) view
-    wxPoint pos( 0, 0 );
-    wxSize size( 400, 400 );
-    //    m_webpanel = wxWebView::New( m_pparent, m_id, wxWebViewDefaultURLStr, pos, size );
     m_webpanel = wxWebView::New( );
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    // Start the instrument pane thread (faster polling 1/10 seconds for initial loading)
-    m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-    m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
+    m_webpanelSizer = new wxBoxSizer(wxVERTICAL);
+    m_threadInstruJSTimer = NULL;
 }
 
 InstruJS::~InstruJS(void)
 {
-    this->m_threadInstruJSTimer->Stop();
-    delete this->m_threadInstruJSTimer;
+    if ( this->m_threadInstruJSTimer != NULL ) {
+        this->m_threadInstruJSTimer->Stop();
+        delete this->m_threadInstruJSTimer;
+    }
+    delete this->m_webpanelSizer;
+}
+
+void InstruJS::stopScript( )
+{
+    if ( this->m_threadInstruJSTimer != NULL ) {
+        this->m_threadInstruJSTimer->Stop();
+    }
 }
 
 void InstruJS::OnClose( wxCloseEvent &event )
 {
-    this->m_threadInstruJSTimer->Stop();
+    if ( this->m_threadInstruJSTimer != NULL ) {
+        this->m_threadInstruJSTimer->Stop();
+    }
     event.Skip(); // Destroy() must be called
+}
+
+void InstruJS::timeoutEvent()
+{
+    derivedTimeoutEvent();
 }
 
 wxString InstruJS::RunScript( const wxString &javascript )
@@ -98,6 +111,20 @@ wxString InstruJS::RunScript( const wxString &javascript )
     return result;
 }
 
+void InstruJS::loadHTML( wxString fullPath )
+{
+    if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
+        m_webpanel->Create(
+            m_pparent, m_id, "file://" + fullPath );
+        m_webpanelSizer->Add( m_webpanel, wxSizerFlags().Expand().Proportion(1) );
+        SetSizer( m_webpanelSizer );
+        m_webpanelCreateWait = true;
+        // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
+        m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+        m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
+    }
+}
+
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_threadRunning = true;
@@ -111,23 +138,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                                                ");");
       RunScript( javascript );
     } // then all code loaded
-
     else {
-
-        if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
-            wxPoint pos( 0, 0 );
-            wxSize size( 200, 200 );
-            
-            m_webpanel->Create(
-#ifdef __WXMSW__
-                m_pparent, m_id, "file:///C:/Program Files (x86)/OpenCPN/plugins/dashboard_tactics_pi/data/enginedjg.html",
-#else
-                m_pparent, m_id, "file:///usr/share/opencpn/plugins/dashboard_tactics_pi/data/enginedjg.html",
-#endif // __WXMSW__
-                pos, size );
-            //            m_webpanel->Create( m_pparent, m_id, "memory:engined1.html", pos, size ); 
-            m_webpanelCreateWait = true;
-        }
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
             if ( !m_webpanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
@@ -142,6 +153,6 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
 wxSize InstruJS::GetSize( int orient, wxSize hint )
 {
-    return wxSize( 100, 100 );
+    return wxSize( 200, 160 ); // some min. defaults but override depending of the JS implementation
 }
 

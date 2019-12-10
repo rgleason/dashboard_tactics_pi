@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: engined.h, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: enginedjg.h, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
@@ -25,8 +25,8 @@
 ***************************************************************************
 */
 
-#ifndef __ENGINED_H__
-#define __ENGINED_H__
+#ifndef __ENGINEDJG_H__
+#define __ENGINEDJG_H__
 using namespace std;
 using namespace std::placeholders;
 
@@ -46,28 +46,29 @@ using namespace std::placeholders;
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
-//|    DashboardInstrument_EngineD
+//|    DashboardInstrument_EngineDJG
 //|
 //| DESCRIPTION:
 //|    This instrument provides numerical engine monitoring information
 //+------------------------------------------------------------------------------
 
-class DashboardInstrument_EngineD : public InstruJS
+class DashboardInstrument_EngineDJG : public InstruJS
 {
 public:
-    DashboardInstrument_EngineD(
+    DashboardInstrument_EngineDJG(
         DashboardWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths,
         wxString format = "" );
-    ~DashboardInstrument_EngineD(void);
+    ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );
-    void timeoutEvent(void);
-#ifndef __ENGINED_DERIVEDTIMEOUT_OVERRIDE__
+#ifndef __ENGINEDJG_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derivedTimeoutEvent(void){};
 #else
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-    void OnPaint(wxPaintEvent& WXUNUSED(event)) override;    
+    void OnPaint(wxPaintEvent& WXUNUSED(event)) override;
+    virtual wxSize GetSize( int orient, wxSize hint ) override;
+    bool LoadConfig(void);
     
 protected:
     DashboardWindow     *m_pparent;
@@ -78,11 +79,12 @@ protected:
     wxString             m_data;
     wxString             m_format;
     sigPathLangVector   *m_sigPathLangVector;
-    wxTimer             *m_threadEngineDTimer;
+    wxTimer             *m_threadEngineDJGTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     callbackFunction     m_pushHere;
     wxString             m_pushHereUUID;
+    wxString             m_fullPathHTML;
 
     wxDECLARE_EVENT_TABLE();
 
@@ -90,6 +92,7 @@ protected:
     void OnClose(wxCloseEvent& event);
 
     virtual void Draw(wxGCDC* dc) override;
+
 };
 
-#endif // __ENGINED_H__
+#endif // __ENGINEDJG_H__

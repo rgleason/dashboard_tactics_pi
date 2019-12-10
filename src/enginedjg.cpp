@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: engined.cpp, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: enginedjg.cpp, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
@@ -40,23 +40,23 @@
 #include <functional>
 
 #include "dashboard_pi.h"
-#include "engined.h"
+#include "enginedjg.h"
 #include "plugin_ids.h"
 
 // --- the following is probably needed only for demonstration and testing! ---
 extern int GetRandomNumber(int, int);
 
-wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineD, InstruJS)
-   EVT_TIMER (myID_TICK_ENGINED, DashboardInstrument_EngineD::OnThreadTimerTick)
-   EVT_CLOSE (DashboardInstrument_EngineD::OnClose)
+wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineDJG, InstruJS)
+   EVT_TIMER (myID_TICK_ENGINEDJG, DashboardInstrument_EngineDJG::OnThreadTimerTick)
+   EVT_CLOSE (DashboardInstrument_EngineDJG::OnClose)
 wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-DashboardInstrument_EngineD::DashboardInstrument_EngineD(
+DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
                              DashboardWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
-                             InstruJS ( pparent, id, L"" )
+                             InstruJS ( pparent, id )
 {
     // pro-forma, this class actually overrides the Paint() method of the base class, to avoid any flickering
     SetDrawSoloInPane( true );
@@ -71,26 +71,25 @@ DashboardInstrument_EngineD::DashboardInstrument_EngineD(
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
 
-    // // Start the instrument panel
-    // m_instruJS = new InstruJS ( m_pparent, m_id );
-    
-    // Start the instrument thread
-    m_threadEngineDTimer = new wxTimer( this, myID_TICK_ENGINED );
-    m_threadEngineDTimer->Start(1000, wxTIMER_CONTINUOUS);
+    if ( !LoadConfig() )
+        return;
+
+    m_threadEngineDJGTimer = new wxTimer( this, myID_TICK_ENGINEDJG );
+    m_threadEngineDJGTimer->Start(100, wxTIMER_CONTINUOUS);
 }
-DashboardInstrument_EngineD::~DashboardInstrument_EngineD(void)
+DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
-    this->m_threadEngineDTimer->Stop();
-    delete this->m_threadEngineDTimer;
+    this->m_threadEngineDJGTimer->Stop();
+    delete this->m_threadEngineDJGTimer;
     // delete this->m_instruJS;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is Delete()d
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
 }
-void DashboardInstrument_EngineD::OnClose( wxCloseEvent &event )
+void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
 {
-    this->m_threadEngineDTimer->Stop();
-    // m_instruJS->Close();
+    this->m_threadEngineDJGTimer->Stop();
+    this->stopScript();
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
         m_pushHereUUID = wxEmptyString;
@@ -98,13 +97,13 @@ void DashboardInstrument_EngineD::OnClose( wxCloseEvent &event )
     event.Skip(); // Destroy() must be called
 }
 
-void DashboardInstrument_EngineD::SetData(
+void DashboardInstrument_EngineDJG::SetData(
     unsigned long long st, double data, wxString unit, long long timestamp)
 {
     return; // this derived class gets its data from the multiplexer through a callback PushData()
 }
 
-void DashboardInstrument_EngineD::PushData( // for demo/testing purposes in this simple instrument
+void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here
     double data, wxString unit, long long timestamp)
 {
     if( !std::isnan(data) && (data < 9999.9) ) {
@@ -113,15 +112,15 @@ void DashboardInstrument_EngineD::PushData( // for demo/testing purposes in this
     } // then valid datea 
 }
 
-void DashboardInstrument_EngineD::timeoutEvent()
+void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
-    m_data = L"---"; // No data seems to come in (anymore)
-    derivedTimeoutEvent();
-}
-
-void DashboardInstrument_EngineD::OnThreadTimerTick( wxTimerEvent &event )
-{
-    m_threadRunning = true;
+    if ( !m_threadRunning ) {
+        this->loadHTML( m_fullPathHTML ); // this is base class method, no override
+        SetSize(wxSize(230, 185));
+        m_threadEngineDJGTimer->Stop();
+        m_threadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
+        m_threadRunning = true;
+    }
 
     if ( m_path.IsEmpty() ) {
         /*
@@ -145,20 +144,33 @@ void DashboardInstrument_EngineD::OnThreadTimerTick( wxTimerEvent &event )
             // the window title is changed in the base class, see instrument.h
             m_title = std::get<1>(sigPathWithLangFeatures);
             // Subscribe to the signal path data with this object's method to call back
-            m_pushHere = std::bind(&DashboardInstrument_EngineD::PushData,
+            m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
                                    this, _1, _2, _3 );
             m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
         } // then found user selection from the available signal paths for subsribtion
     } // then not subscribed to any path yet
 }
 
-void DashboardInstrument_EngineD::Draw(wxGCDC* bdc)
+void DashboardInstrument_EngineDJG::Draw(wxGCDC* bdc)
 {
     return;
 }
 
-void DashboardInstrument_EngineD::OnPaint(wxPaintEvent &WXUNUSED(event))
+void DashboardInstrument_EngineDJG::OnPaint(wxPaintEvent &WXUNUSED(event))
 {
     return;
+}
+
+wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
+{
+    return wxSize( 230, 185 );
+}
+
+bool DashboardInstrument_EngineDJG::LoadConfig()
+{
+    m_fullPathHTML = *GetpSharedDataLocation(); // provide by the plug-in API
+    wxString s = wxFileName::GetPathSeparator();
+    m_fullPathHTML += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("enginedjg.html");
+    return true;
 }
 

@@ -105,8 +105,8 @@ IF (TACTICS_INSTRUMENTS)
       src/avg_wind.cpp
       src/enginei.h
       src/enginei.cpp
-      src/engined.h
-      src/engined.cpp
+      src/enginedjg.h
+      src/enginedjg.cpp
       src/instrujs.h
       src/instrujs.cpp
   )

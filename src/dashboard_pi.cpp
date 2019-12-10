@@ -4573,7 +4573,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     this, wxID_ANY,
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
             //     _T("%3.1f bar"));
-            instrument = new DashboardInstrument_EngineD( // Dial instrument
+            instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
                 &m_plugin->m_sigPathLangVector );         // describes available data w/ user language
             break;
@@ -4587,7 +4587,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
                     id, instrument, instrument->GetCapacity() ) );
+#ifdef _TACTICSPI_H_
+            itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1));
+#else
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
             itemBoxSizer->SetSizeHints( this );

@@ -7,7 +7,7 @@ dashboard_pi with integrated tactics_pi performance enhancements.
 
 ## Introduction
 
-If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN v5 or greater, you may want to have but one plug-in instead of two to have all available instruments available in one place. Even if you are not interested in Tactics functions, it has also improved a few aspects of the plain Dashboard, like export/import functions and streaming. This version comes with more resources allowing it to be expandandable, to host even more (!) instruments talking NMEA-2000, such as engine monitoring, mast rotation, etc.
+If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN v5 or greater, you may want to have but just one plug-in instead of two. All available instruments will be in one place. Even if you are not interested in Tactics functions, Dashboard has also improved and has new functions, like export/import and input/output streaming. This version comes with more resources allowing it to be expandandable. It can host even more (!) instruments, also those talking NMEA-2000, such as engine monitoring, mast rotation, etc.
 
 Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about it and other advanced features here:
 * [Tactics and performance functions](docs/Tactics.md)
@@ -21,9 +21,9 @@ You can start without a polar file and just use the basic functions to start wit
 
 ## Configuration
 
-Although not mandatory, it is recommended to disable the Dashboard coming with the OpenCPN by default (this plug-in is using the same parameters), standalone Tactics plug-in and WMM_pi plug-in (unless you do not get the magnetic variation from your instruments).
+Although not mandatory, it is recommended to disable the Dashboard coming with the OpenCPN (this plug-in is using the same parameters), standalone Tactics plug-in and WMM_pi plug-in (unless you do not get the magnetic variation from your instruments).
 
-If you are a user of tactics_pi, its settings are imported at first startup of this plug-in. Tactics plug-in's settings are not modified.
+If you are a user of tactics_pi, its settings are imported at first startup of this plug-in. Tactics plug-in's settings are not modified so that you can switch back to it. The original Dashboard will also work with the modified parameters - if you have used Tactics instruments or enhanced instruments not in the original Dashboard, they would appear empty and you need to delete them manually and restart OpenCPN to get back to Dashboard-only configuration. For this reason, saving of your ini- or config-file is recommended for this reason if you just want to try out this plug-in.
 
 ## Compiling
 
