@@ -63,20 +63,20 @@ DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
     m_id = id;
     previousTimestamp = 0LL;
     m_path = wxEmptyString;
-    m_sigPathLangVector = sigPaths;
+    m_pSigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
 
     if ( !LoadConfig() )
         return;
 
-    m_threadEngineDJGTimer = new wxTimer( this, myID_TICK_ENGINEDJG );
-    m_threadEngineDJGTimer->Start(100, wxTIMER_CONTINUOUS);
+    m_pThreadEngineDJGTimer = new wxTimer( this, myID_TICK_ENGINEDJG );
+    m_pThreadEngineDJGTimer->Start(100, wxTIMER_CONTINUOUS);
 }
 DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
-    this->m_threadEngineDJGTimer->Stop();
-    delete this->m_threadEngineDJGTimer;
+    this->m_pThreadEngineDJGTimer->Stop();
+    delete this->m_pThreadEngineDJGTimer;
     // delete this->m_instruJS;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
@@ -84,7 +84,7 @@ DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 }
 void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
 {
-    this->m_threadEngineDJGTimer->Stop();
+    this->m_pThreadEngineDJGTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
@@ -113,8 +113,8 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
     if ( !m_threadRunning ) {
         this->loadHTML( m_fullPathHTML ); // this is base class method, no override
         // SetSize(wxSize(230, 185));
-        m_threadEngineDJGTimer->Stop();
-        m_threadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
+        m_pThreadEngineDJGTimer->Stop();
+        m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
         m_threadRunning = true;
     }
 
@@ -133,9 +133,9 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
           Get the titles, descriptions and user's language for his selection from the hosting application
         */
         sigPathLangVector::iterator it = std::find_if(
-            m_sigPathLangVector->begin(), m_sigPathLangVector->end(),
+            m_pSigPathLangVector->begin(), m_pSigPathLangVector->end(),
             [this](const sigPathLangTuple& e){return std::get<0>(e) == m_path;});
-        if ( it != m_sigPathLangVector->end() ) {
+        if ( it != m_pSigPathLangVector->end() ) {
             sigPathLangTuple sigPathWithLangFeatures = *it;
             // the window title is changed in the base class, see instrument.h
             m_title = std::get<1>(sigPathWithLangFeatures);

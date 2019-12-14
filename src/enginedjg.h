@@ -50,7 +50,7 @@ using namespace std::placeholders;
   also note the anti-scroll bar border (like for IE).
 */
 #define ENGINED_WINDOW_DEFAULT_WIDTH         230
-#define ENGINED_WINDOW_DEFAULT_HEIGHT        185
+#define ENGINED_WINDOW_DEFAULT_HEIGHT        120
 #define ENGINED_WINDOW_ANTISCROLLBAR_BORDER    1
 #define ENGINED_WINDOW_MINIMUM_WIDTH         (ENGINED_WINDOW_DEFAULT_WIDTH + ENGINED_WINDOW_ANTISCROLLBAR_BORDER)
 #define ENGINED_WINDOW_MINIMUM_HEIGHT        ENGINED_WINDOW_DEFAULT_HEIGHT
@@ -86,8 +86,8 @@ protected:
     wxWindowID           m_id;
     wxString             m_path;
     wxString             m_format;
-    sigPathLangVector   *m_sigPathLangVector;
-    wxTimer             *m_threadEngineDJGTimer;
+    sigPathLangVector   *m_pSigPathLangVector;
+    wxTimer             *m_pThreadEngineDJGTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     callbackFunction     m_pushHere;

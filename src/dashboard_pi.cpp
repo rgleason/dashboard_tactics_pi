@@ -3871,6 +3871,9 @@ DashboardWindow::~DashboardWindow()
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
+        if ( pdic->m_pInstrumentBoxSizer != NULL ) {
+            itemBoxSizer->Detach( pdic->m_pInstrumentBoxSizer );
+        }
         if ( pdic->m_pInstrument != NULL ) {
             delete pdic;
         }
@@ -4046,6 +4049,11 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
 void DashboardWindow::SetSizerOrientation( int orient )
 {
     itemBoxSizer->SetOrientation( orient );
+    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
+        DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
+        if ( pdic->m_pInstrumentBoxSizer != NULL )
+            pdic->m_pInstrumentBoxSizer->SetOrientation( orient );
+    }
     /* We must reset all MinSize to ensure we start with new default */
     wxWindowListNode* node = GetChildren().GetFirst();
     while(node) {
@@ -4583,6 +4591,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 this, wxID_ANY,
                 &m_plugin->m_sigPathLangVector,
                 pInstrumentBoxSizer );
+            pInstrumentBoxSizer->SetSizeHints( instrument );
+            Layout();
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4595,7 +4605,12 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 new DashboardInstrumentContainer(
                     id, instrument, instrument->GetCapacity(), pInstrumentBoxSizer ) );
 #ifdef _TACTICSPI_H_
-            itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
+            if ( pInstrumentBoxSizer != NULL ) {
+                itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
+            }
+            else {
+                itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
+            }
 #else
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
 #endif // _TACTICSPI_H_

@@ -91,9 +91,9 @@ protected:
     wxWindowID           m_id;
     wxString             m_title;
     wxString             m_data;
-    wxWebView           *m_webpanel;
-    wxBoxSizer          *m_webpanelSizer;
-    wxTimer             *m_threadInstruJSTimer;
+    wxWebView           *m_pWebPanel;
+    wxBoxSizer          *m_piBoxSizer;
+    wxTimer             *m_pThreadInstruJSTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     bool                 m_webpanelCreated;

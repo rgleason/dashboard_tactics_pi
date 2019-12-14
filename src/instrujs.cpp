@@ -65,48 +65,50 @@ DashboardInstrument( pparent, id, "---", 0LL, true )
     m_webpanelStopped = false;
 
     // Create the WebKit (type of - implementation varies) view
-    m_webpanel = wxWebView::New( );
+    m_pWebPanel = wxWebView::New( );
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    m_webpanelSizer = iBoxSizer;
-    SetSizer( m_webpanelSizer ); // this panel has its own sizer
-    m_threadInstruJSTimer = NULL;
+    m_piBoxSizer = iBoxSizer;
+    SetSizer( m_piBoxSizer ); // this panel has indivudual Sizer
+    m_pThreadInstruJSTimer = NULL;
 }
 
 InstruJS::~InstruJS(void)
 {
-    if ( this->m_threadInstruJSTimer != NULL ) {
-        this->m_threadInstruJSTimer->Stop();
-        delete this->m_threadInstruJSTimer;
+    if ( this->m_pThreadInstruJSTimer != NULL ) {
+        this->m_pThreadInstruJSTimer->Stop();
+        delete this->m_pThreadInstruJSTimer;
     }
     if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
          && !this->m_webpanelStopped ) {
-        this->m_webpanel->Stop();
+        this->m_pWebPanel->Stop();
     }
-    this->m_webpanelSizer->Detach( this->m_webpanel );
-    delete this->m_webpanel;
+    if ( this->m_webpanelCreated || this->m_webpanelCreateWait ) {
+        this->m_piBoxSizer->Detach( this->m_pWebPanel );
+        delete this->m_pWebPanel;
+    } 
 }
 
 void InstruJS::stopScript( )
 {
-    if ( this->m_threadInstruJSTimer != NULL ) {
-        this->m_threadInstruJSTimer->Stop();
+    if ( this->m_pThreadInstruJSTimer != NULL ) {
+        this->m_pThreadInstruJSTimer->Stop();
     }
     if ( (m_webpanelCreated || m_webpanelCreateWait) && !m_webpanelStopped ) {
-        m_webpanel->Stop();
+        m_pWebPanel->Stop();
         m_webpanelStopped = true;
     }
 }
 
 void InstruJS::OnClose( wxCloseEvent &event )
 {
-    if ( this->m_threadInstruJSTimer != NULL ) {
-        this->m_threadInstruJSTimer->Stop();
+    if ( this->m_pThreadInstruJSTimer != NULL ) {
+        this->m_pThreadInstruJSTimer->Stop();
     }
     if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
          && !this->m_webpanelStopped ) {
-        this->m_webpanel->Stop();
+        this->m_pWebPanel->Stop();
         this->m_webpanelStopped = true;
     }
     event.Skip(); // Destroy() must be called
@@ -121,11 +123,11 @@ wxString InstruJS::RunScript( const wxString &javascript )
 {
     wxString result = wxEmptyString;
 #if wxCHECK_VERSION(3,1,0)
-    if ( !m_webpanel->RunScript( javascript, &result ) ) {
+    if ( !m_pWebPanel->RunScript( javascript, &result ) ) {
         result = "NotReady";
     }
 #else
-    m_webpanel->RunScript( javascript );
+    m_pWebPanel->RunScript( javascript );
 #endif
     return result;
 }
@@ -133,15 +135,14 @@ wxString InstruJS::RunScript( const wxString &javascript )
 void InstruJS::loadHTML( wxString fullPath )
 {
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
-        m_webpanel->Create(
+        m_pWebPanel->Create(
             this, wxID_ANY, "file://" + fullPath );
-        m_webpanelSizer->Add( m_webpanel, wxSizerFlags().Expand().Proportion(1) );
-        //m_webpanel->SetSizerAndFit( m_webpanelSizer );
+        m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
         Fit();
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
-        m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-        m_threadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+        m_pThreadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
     }
 }
 
@@ -160,12 +161,12 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
-            if ( !m_webpanel->IsBusy() ) {
+            if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
                 m_webpanelInitiated = true;
-                m_threadInstruJSTimer->Stop();
-                m_threadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+                m_pThreadInstruJSTimer->Stop();
+                m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
     } // else the webpanel is not yet loaded / scripts are not running
