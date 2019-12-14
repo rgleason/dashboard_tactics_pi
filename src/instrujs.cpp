@@ -40,6 +40,7 @@
 #include "instrujs.h"
 #include "plugin_ids.h"
 
+
 wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
    EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
    EVT_CLOSE (InstruJS::OnClose)
@@ -49,9 +50,11 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( wxWindow *pparent, wxWindowID id ) :
-          DashboardInstrument(pparent, id, "---", 0LL)
+InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxBoxSizer *iBoxSizer ) :
+DashboardInstrument( pparent, id, "---", 0LL, true )
 {
+    m_data = L"---";
+    m_title = L"";
     m_pparent = pparent;
     m_id = id;
     m_threadRunning = false;
@@ -59,13 +62,15 @@ InstruJS::InstruJS( wxWindow *pparent, wxWindowID id ) :
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
     m_webpanelInitiated  = false;
+    m_webpanelStopped = false;
 
     // Create the WebKit (type of - implementation varies) view
     m_webpanel = wxWebView::New( );
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    m_webpanelSizer = new wxBoxSizer(wxVERTICAL);
+    m_webpanelSizer = iBoxSizer;
+    SetSizer( m_webpanelSizer ); // this panel has its own sizer
     m_threadInstruJSTimer = NULL;
 }
 
@@ -75,7 +80,12 @@ InstruJS::~InstruJS(void)
         this->m_threadInstruJSTimer->Stop();
         delete this->m_threadInstruJSTimer;
     }
-    delete this->m_webpanelSizer;
+    if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
+         && !this->m_webpanelStopped ) {
+        this->m_webpanel->Stop();
+    }
+    this->m_webpanelSizer->Detach( this->m_webpanel );
+    delete this->m_webpanel;
 }
 
 void InstruJS::stopScript( )
@@ -83,12 +93,21 @@ void InstruJS::stopScript( )
     if ( this->m_threadInstruJSTimer != NULL ) {
         this->m_threadInstruJSTimer->Stop();
     }
+    if ( (m_webpanelCreated || m_webpanelCreateWait) && !m_webpanelStopped ) {
+        m_webpanel->Stop();
+        m_webpanelStopped = true;
+    }
 }
 
 void InstruJS::OnClose( wxCloseEvent &event )
 {
     if ( this->m_threadInstruJSTimer != NULL ) {
         this->m_threadInstruJSTimer->Stop();
+    }
+    if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
+         && !this->m_webpanelStopped ) {
+        this->m_webpanel->Stop();
+        this->m_webpanelStopped = true;
     }
     event.Skip(); // Destroy() must be called
 }
@@ -115,9 +134,10 @@ void InstruJS::loadHTML( wxString fullPath )
 {
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_webpanel->Create(
-            m_pparent, m_id, "file://" + fullPath );
+            this, wxID_ANY, "file://" + fullPath );
         m_webpanelSizer->Add( m_webpanel, wxSizerFlags().Expand().Proportion(1) );
-        SetSizer( m_webpanelSizer );
+        //m_webpanel->SetSizerAndFit( m_webpanelSizer );
+        Fit();
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_threadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
@@ -136,7 +156,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                                                "func(",
                                                m_threadRunCount,
                                                ");");
-      RunScript( javascript );
+        RunScript( javascript );
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
@@ -151,8 +171,14 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     } // else the webpanel is not yet loaded / scripts are not running
 }
 
-wxSize InstruJS::GetSize( int orient, wxSize hint )
+void InstruJS::Draw(wxGCDC* bdc)
 {
-    return wxSize( 200, 160 ); // some min. defaults but override depending of the JS implementation
+    return;
 }
+
+void InstruJS::OnPaint(wxPaintEvent &WXUNUSED(event))
+{
+    return;
+}
+
 

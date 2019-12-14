@@ -42,6 +42,18 @@ using namespace std::placeholders;
 #endif
 
 #include "instrujs.h"
+/*
+  The default window size value are depending both of the HTML-file
+  and the JavaScript instrument, here we have set the values to
+  the JustGauge scalable, SVG-drawn instrument, experimentally: it
+  appears to scale down to the below window on supported platforms,
+  also note the anti-scroll bar border (like for IE).
+*/
+#define ENGINED_WINDOW_DEFAULT_WIDTH         230
+#define ENGINED_WINDOW_DEFAULT_HEIGHT        185
+#define ENGINED_WINDOW_ANTISCROLLBAR_BORDER    1
+#define ENGINED_WINDOW_MINIMUM_WIDTH         (ENGINED_WINDOW_DEFAULT_WIDTH + ENGINED_WINDOW_ANTISCROLLBAR_BORDER)
+#define ENGINED_WINDOW_MINIMUM_HEIGHT        ENGINED_WINDOW_DEFAULT_HEIGHT
 
 //+------------------------------------------------------------------------------
 //|
@@ -56,7 +68,7 @@ class DashboardInstrument_EngineDJG : public InstruJS
 {
 public:
     DashboardInstrument_EngineDJG(
-        DashboardWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths,
+        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxBoxSizer* iBoxSizer,
         wxString format = "" );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
@@ -66,17 +78,13 @@ public:
 #else
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-    void OnPaint(wxPaintEvent& WXUNUSED(event)) override;
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     bool LoadConfig(void);
     
 protected:
-    DashboardWindow     *m_pparent;
+    TacticsWindow       *m_pparent;
     wxWindowID           m_id;
-    //    InstruJS            *m_instruJS;
-    wxString             m_title;
     wxString             m_path;
-    wxString             m_data;
     wxString             m_format;
     sigPathLangVector   *m_sigPathLangVector;
     wxTimer             *m_threadEngineDJGTimer;
@@ -90,8 +98,6 @@ protected:
 
     void OnThreadTimerTick( wxTimerEvent& event );
     void OnClose(wxCloseEvent& event);
-
-    virtual void Draw(wxGCDC* dc) override;
 
 };
 

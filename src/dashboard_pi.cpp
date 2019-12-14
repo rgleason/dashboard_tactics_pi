@@ -3871,7 +3871,9 @@ DashboardWindow::~DashboardWindow()
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        delete pdic;
+        if ( pdic->m_pInstrument != NULL ) {
+            delete pdic;
+        }
     }
 }
 
@@ -4100,10 +4102,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     Refresh();
 #endif // _TACTICSPI_H_
 
+    DashboardInstrument *instrument;
+    wxBoxSizer *pInstrumentBoxSizer;
     
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
-        DashboardInstrument *instrument = NULL;
+        instrument = NULL;
+        pInstrumentBoxSizer = NULL;
         switch( id ){
         case ID_DBP_I_POS:
             instrument = new DashboardInstrument_Position( this, wxID_ANY,
@@ -4573,9 +4578,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     this, wxID_ANY,
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
             //     _T("%3.1f bar"));
+            pInstrumentBoxSizer = new wxBoxSizer(wxVERTICAL);
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector );         // describes available data w/ user language
+                &m_plugin->m_sigPathLangVector,
+                pInstrumentBoxSizer );
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4586,9 +4593,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #endif // _TACTICSPI_H_
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
-                    id, instrument, instrument->GetCapacity() ) );
+                    id, instrument, instrument->GetCapacity(), pInstrumentBoxSizer ) );
 #ifdef _TACTICSPI_H_
-            itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1));
+            itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
 #else
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
 #endif // _TACTICSPI_H_

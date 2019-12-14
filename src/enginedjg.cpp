@@ -46,6 +46,7 @@
 // --- the following is probably needed only for demonstration and testing! ---
 extern int GetRandomNumber(int, int);
 
+
 wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineDJG, InstruJS)
    EVT_TIMER (myID_TICK_ENGINEDJG, DashboardInstrument_EngineDJG::OnThreadTimerTick)
    EVT_CLOSE (DashboardInstrument_EngineDJG::OnClose)
@@ -55,14 +56,9 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
-                             DashboardWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
-                             InstruJS ( pparent, id )
+    TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxBoxSizer* iBoxSizer, wxString format ) :
+   InstruJS ( pparent, id, iBoxSizer )
 {
-    // pro-forma, this class actually overrides the Paint() method of the base class, to avoid any flickering
-    SetDrawSoloInPane( true );
-
-    m_data = L"---";
-    m_title = L"";
     m_pparent = pparent;
     m_id = id;
     previousTimestamp = 0LL;
@@ -82,14 +78,14 @@ DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
     this->m_threadEngineDJGTimer->Stop();
     delete this->m_threadEngineDJGTimer;
     // delete this->m_instruJS;
-    if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is Delete()d
+    if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
 }
 void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
 {
     this->m_threadEngineDJGTimer->Stop();
-    this->stopScript();
+    this->stopScript(); // base class implements, we are first to be called
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
         m_pparent->unsubscribeFrom( m_pushHereUUID );
         m_pushHereUUID = wxEmptyString;
@@ -116,7 +112,7 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
     if ( !m_threadRunning ) {
         this->loadHTML( m_fullPathHTML ); // this is base class method, no override
-        SetSize(wxSize(230, 185));
+        // SetSize(wxSize(230, 185));
         m_threadEngineDJGTimer->Stop();
         m_threadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
         m_threadRunning = true;
@@ -151,19 +147,18 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
     } // then not subscribed to any path yet
 }
 
-void DashboardInstrument_EngineDJG::Draw(wxGCDC* bdc)
-{
-    return;
-}
-
-void DashboardInstrument_EngineDJG::OnPaint(wxPaintEvent &WXUNUSED(event))
-{
-    return;
-}
-
 wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
 {
-    return wxSize( 230, 185 );
+    int x,y;
+    if( orient == wxHORIZONTAL ) {
+        y = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_WIDTH );
+        x = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_HEIGHT );
+    }
+    else {
+        x = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_WIDTH );
+        y = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_HEIGHT );
+      }
+    return wxSize( x, y );
 }
 
 bool DashboardInstrument_EngineDJG::LoadConfig()

@@ -54,6 +54,7 @@ using namespace std;
 #error "A wxWebView backend is required by InstruJS"
 #endif
 
+#include "tactics_pi.h"
 #include "instrument.h"
 
 //+------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ using namespace std;
 class InstruJS : public DashboardInstrument
 {
 public:
-    InstruJS( wxWindow *pparent, wxWindowID id );
+    InstruJS( TacticsWindow* pparent, wxWindowID id, wxBoxSizer* iBoxSizer );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath );
@@ -82,12 +83,14 @@ public:
     virtual void derivedTimeoutEvent(void);
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
     
-    virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) = 0; 
-    virtual wxSize GetSize( int orient, wxSize hint ) override;
+    virtual wxSize GetSize( int orient, wxSize hint ) = 0;
+    virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     
 protected:
-    wxWindow            *m_pparent;
+    TacticsWindow       *m_pparent;
     wxWindowID           m_id;
+    wxString             m_title;
+    wxString             m_data;
     wxWebView           *m_webpanel;
     wxBoxSizer          *m_webpanelSizer;
     wxTimer             *m_threadInstruJSTimer;
@@ -96,6 +99,7 @@ protected:
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
     bool                 m_webpanelInitiated;
+    bool                 m_webpanelStopped;
 
     wxDECLARE_EVENT_TABLE();
 
@@ -103,7 +107,7 @@ protected:
     void OnThreadTimerTick( wxTimerEvent& event);
     wxString RunScript(const wxString& javascript);
     
-    virtual void Draw(wxGCDC* dc) = 0;
+    virtual void Draw(wxGCDC* dc) final;
 
 };
 

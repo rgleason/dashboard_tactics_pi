@@ -138,18 +138,22 @@ DashboardWindow              *m_pDashboardWindow;
 class DashboardInstrumentContainer
 {
 public:
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
 #ifdef _TACTICSPI_H_
-    unsigned long long capa
+    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
+                                 unsigned long long capa, wxBoxSizer *iBoxSizer )
+        {
+            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
+            m_pInstrumentBoxSizer = iBoxSizer;
+        };
 #else
-    int capa
+    DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
+        {
+            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
+        };
 #endif // _TACTICSPI_H_
-        ) {
-        m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-    }
-    ~DashboardInstrumentContainer(){ delete m_pInstrument; }
-
+    ~DashboardInstrumentContainer(){ delete m_pInstrument; };
     DashboardInstrument    *m_pInstrument;
+    wxBoxSizer             *m_pInstrumentBoxSizer;
     int                     m_ID;
 #ifdef _TACTICSPI_H_
     unsigned long long      m_cap_flag;

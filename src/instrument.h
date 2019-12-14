@@ -200,6 +200,7 @@ private:
     bool m_drawSoloInPane;
 #ifdef _TACTICSPI_H_
     wxTimer *m_DPBITickTimer;
+    void OnClose( wxCloseEvent& event );
     void OnDPBITimerTick(wxTimerEvent &event);
     wxDECLARE_EVENT_TABLE();
 #endif // _TACTICSPI_H_
