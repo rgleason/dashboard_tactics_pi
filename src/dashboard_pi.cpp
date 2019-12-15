@@ -2954,6 +2954,17 @@ void dashboard_pi::ApplyConfig(
                             if ( !p_cont.IsOk() ) {
                                 addpane = true;
                             } // then there is no pane for this window, create one (with a replacement window)
+                            else {
+                                int orientNow = cont->m_pDashboardWindow->GetSizerOrientation();
+                                if ( (orientNow == wxHORIZONTAL) &&
+                                     (newcont->m_sOrientation == _T("V")) ) {
+                                    addpane = true;
+                                } // then orientation change request
+                                if ( (orientNow == wxVERTICAL) &&
+                                     (newcont->m_sOrientation == _T("H")) ) {
+                                    addpane = true;
+                                } // then orientation change request
+                            } // else there is a pane for the window, check orientation
                         } // else there is no change in the instrument list, check there is a pane
                     } // then there is an instrument dashboard window
                     else {
@@ -3946,14 +3957,32 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
         return; // Does it's own save.
     }
     case ID_DASH_VERTICAL: {
+#ifdef _TACTICSPI_H_
+        m_Container->m_sOrientation = _T("V");
+
+        /// NEED A TRUC HERE: KILLS THIS WINDOW!
+
+        
+        m_plugin->ApplyConfig();
+        m_plugin->SaveConfig();
+        return;
+#else
         ChangePaneOrientation( wxVERTICAL, true );
         m_Container->m_sOrientation = _T("V");
         break;
+#endif // _TACTICSPI_H_
     }
     case ID_DASH_HORIZONTAL: {
+#ifdef _TACTICSPI_H_
+        m_Container->m_sOrientation = _T("H");
+        m_plugin->ApplyConfig();
+        m_plugin->SaveConfig();
+        return;
+#else
         ChangePaneOrientation( wxHORIZONTAL, true );
         m_Container->m_sOrientation = _T("H");
         break;
+#endif // _TACTICSPI_H_
     }
     case ID_DASH_UNDOCK: {
         ChangePaneOrientation( GetSizerOrientation( ), true );
@@ -4053,6 +4082,7 @@ void DashboardWindow::SetSizerOrientation( int orient )
         node->GetData()->SetMinSize( wxDefaultSize );
         node = node->GetNext();
     }
+// #endif // _TACTICSPI_H_
     SetMinSize( wxDefaultSize );
     Fit();
     SetMinSize( itemBoxSizer->GetMinSize() );
