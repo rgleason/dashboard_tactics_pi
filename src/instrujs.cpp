@@ -51,7 +51,7 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxBoxSizer *iBoxSizer ) :
+InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id ) :
 DashboardInstrument( pparent, id, "---", 0LL, true )
 {
     m_data = L"---";
@@ -70,7 +70,6 @@ DashboardInstrument( pparent, id, "---", 0LL, true )
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    m_piBoxSizer = iBoxSizer;
     m_pThreadInstruJSTimer = NULL;
 }
 
@@ -85,7 +84,6 @@ InstruJS::~InstruJS(void)
         this->m_pWebPanel->Stop();
     }
     if ( this->m_webpanelCreated || this->m_webpanelCreateWait ) {
-        this->m_piBoxSizer->Detach( this->m_pWebPanel );
         delete this->m_pWebPanel;
     } 
 }
@@ -138,7 +136,6 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
         m_pWebPanel->Create(
             this, wxID_ANY, "file://" + fullPath );
         m_pWebPanel->SetAutoLayout( true );
-        // m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
         m_pWebPanel->SetInitialSize( initialSize );
         Fit();
         m_webpanelCreateWait = true;

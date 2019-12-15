@@ -56,8 +56,8 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
-    TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxBoxSizer* iBoxSizer, wxString format ) :
-   InstruJS ( pparent, id, iBoxSizer )
+    TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
+   InstruJS ( pparent, id )
 {
     m_pparent = pparent;
     m_id = id;
@@ -154,12 +154,12 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
 {
     int x,y;
     if( orient == wxHORIZONTAL ) {
-        y = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_WIDTH );
-        x = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_HEIGHT );
+        x = ENGINED_WINDOW_MINIMUM_WIDTH;
+        y = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_HEIGHT );
     }
     else {
-        x = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_WIDTH );
-        y = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_HEIGHT );
+        x = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_WIDTH );
+        y = ENGINED_WINDOW_MINIMUM_HEIGHT;
       }
     return wxSize( x, y );
 }

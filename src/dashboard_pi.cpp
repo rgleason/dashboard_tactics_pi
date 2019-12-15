@@ -3871,9 +3871,6 @@ DashboardWindow::~DashboardWindow()
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        if ( pdic->m_pInstrumentBoxSizer != NULL ) {
-            itemBoxSizer->Detach( pdic->m_pInstrumentBoxSizer );
-        }
         if ( pdic->m_pInstrument != NULL ) {
             delete pdic;
         }
@@ -4050,12 +4047,6 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
 void DashboardWindow::SetSizerOrientation( int orient )
 {
     itemBoxSizer->SetOrientation( orient );
-    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
-        DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        if ( pdic->m_pInstrumentBoxSizer != NULL )
-            pdic->m_pInstrumentBoxSizer->SetOrientation(
-                (orient==wxVERTICAL?wxHORIZONTAL:wxVERTICAL) );
-    }
     /* We must reset all MinSize to ensure we start with new default */
     wxWindowListNode* node = GetChildren().GetFirst();
     while(node) {
@@ -4113,12 +4104,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #endif // _TACTICSPI_H_
 
     DashboardInstrument *instrument;
-    wxBoxSizer *pInstrumentBoxSizer;
     
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
         instrument = NULL;
-        pInstrumentBoxSizer = NULL;
         switch( id ){
         case ID_DBP_I_POS:
             instrument = new DashboardInstrument_Position( this, wxID_ANY,
@@ -4588,11 +4577,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     this, wxID_ANY,
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
             //     _T("%3.1f bar"));
-            pInstrumentBoxSizer = new wxBoxSizer(wxHORIZONTAL);
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector,
-                pInstrumentBoxSizer );
+                &m_plugin->m_sigPathLangVector );
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4603,21 +4590,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #endif // _TACTICSPI_H_
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
-                    id, instrument, instrument->GetCapacity(), pInstrumentBoxSizer ) );
-#ifdef _TACTICSPI_H_
-            if ( pInstrumentBoxSizer != NULL ) {
-                pInstrumentBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
-                //    itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
-                pInstrumentBoxSizer->SetSizeHints( instrument );
-                instrument->SetAutoLayout( true );
-                itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
-            }
-            else {
-                itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
-            }
-#else
+                    id, instrument, instrument->GetCapacity() ) );
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
-#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
             itemBoxSizer->SetSizeHints( this );

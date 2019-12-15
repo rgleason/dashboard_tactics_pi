@@ -140,10 +140,9 @@ class DashboardInstrumentContainer
 public:
 #ifdef _TACTICSPI_H_
     DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
-                                 unsigned long long capa, wxBoxSizer *iBoxSizer )
+                                 unsigned long long capa)
         {
             m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-            m_pInstrumentBoxSizer = iBoxSizer;
         };
 #else
     DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
@@ -153,7 +152,6 @@ public:
 #endif // _TACTICSPI_H_
     ~DashboardInstrumentContainer(){ delete m_pInstrument; };
     DashboardInstrument    *m_pInstrument;
-    wxBoxSizer             *m_pInstrumentBoxSizer;
     int                     m_ID;
 #ifdef _TACTICSPI_H_
     unsigned long long      m_cap_flag;

@@ -70,7 +70,7 @@ using namespace std;
 class InstruJS : public DashboardInstrument
 {
 public:
-    InstruJS( TacticsWindow* pparent, wxWindowID id, wxBoxSizer* iBoxSizer );
+    InstruJS( TacticsWindow* pparent, wxWindowID id );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
@@ -92,7 +92,6 @@ protected:
     wxString             m_title;
     wxString             m_data;
     wxWebView           *m_pWebPanel;
-    wxBoxSizer          *m_piBoxSizer;
     wxTimer             *m_pThreadInstruJSTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
