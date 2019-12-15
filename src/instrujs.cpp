@@ -43,6 +43,7 @@
 
 wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
    EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
+   EVT_SIZE (InstruJS::OnSize)
    EVT_CLOSE (InstruJS::OnClose)
 wxEND_EVENT_TABLE ()
 
@@ -54,7 +55,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxBoxSizer *iBoxSizer
 DashboardInstrument( pparent, id, "---", 0LL, true )
 {
     m_data = L"---";
-    m_title = L"";
+    m_title = L"InstruJS";
     m_pparent = pparent;
     m_id = id;
     m_threadRunning = false;
@@ -136,19 +137,26 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_pWebPanel->Create(
             this, wxID_ANY, "file://" + fullPath );
-        //        m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
+        m_pWebPanel->SetAutoLayout( true );
+        // m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
         m_pWebPanel->SetInitialSize( initialSize );
+        Fit();
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
         m_pThreadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
     }
 }
-void InstruJS::webViewSetMinSize ( wxSize minSize )
+
+void InstruJS::OnSize( wxSizeEvent &event )
 {
-    if ( m_webpanelCreated || m_webpanelCreateWait ) {
-        m_pWebPanel->SetMinSize( minSize );
-    }
+    wxSize newSize = wxControl::GetSize();
+    if ( m_webpanelCreated || m_webpanelCreateWait )
+        m_pWebPanel->SetSize( newSize );
+    Fit();
+    Layout();
+    Refresh();
+    event.Skip();
 }
 
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
@@ -177,7 +185,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     } // else the webpanel is not yet loaded / scripts are not running
 }
 
-void InstruJS::Draw(wxGCDC* bdc)
+void InstruJS::Draw(wxGCDC* dc)
 {
     return;
 }

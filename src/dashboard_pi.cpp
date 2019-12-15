@@ -4608,8 +4608,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             if ( pInstrumentBoxSizer != NULL ) {
                 pInstrumentBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
                 //    itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
-            pInstrumentBoxSizer->SetSizeHints( instrument );
-            itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
+                pInstrumentBoxSizer->SetSizeHints( instrument );
+                instrument->SetAutoLayout( true );
+                itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
             }
             else {
                 itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );

@@ -164,16 +164,6 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
     return wxSize( x, y );
 }
 
-void DashboardInstrument_EngineDJG::SetMinSize( wxSize minSize )
-{
-    wxControl::SetMinSize ( minSize );
-    int x,y;
-    x = wxMax( minSize.x, ENGINED_WINDOW_DEFAULT_WIDTH );
-    y = wxMax( minSize.y, ENGINED_WINDOW_DEFAULT_HEIGHT );
-    this->webViewSetMinSize( wxSize ( x, y ) );
-    SetSize( minSize );
-}
-
 bool DashboardInstrument_EngineDJG::LoadConfig()
 {
     m_fullPathHTML = *GetpSharedDataLocation(); // provide by the plug-in API

@@ -84,8 +84,6 @@ public:
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
-    virtual void SetMinSize( wxSize minSize ) = 0;
-    virtual void webViewSetMinSize ( wxSize minSize ) final;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     
 protected:
@@ -106,6 +104,7 @@ protected:
     wxDECLARE_EVENT_TABLE();
 
     void OnClose( wxCloseEvent& event );
+    void OnSize( wxSizeEvent& event );
     void OnThreadTimerTick( wxTimerEvent& event);
     wxString RunScript(const wxString& javascript);
     

@@ -79,7 +79,6 @@ public:
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
     virtual wxSize GetSize( int orient, wxSize hint ) override;
-    virtual void SetMinSize( wxSize minSize ) override;
     bool LoadConfig(void);
     
 protected:
