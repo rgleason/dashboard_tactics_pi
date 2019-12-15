@@ -3896,7 +3896,8 @@ void DashboardWindow::OnSize( wxSizeEvent &event )
     event.Skip();
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
-        inst->SetMinSize( inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() ) );
+        wxSize instMinSize = inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() );
+        inst->SetMinSize( instMinSize );
     }
     Layout();
     Refresh();
@@ -4052,7 +4053,8 @@ void DashboardWindow::SetSizerOrientation( int orient )
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
         if ( pdic->m_pInstrumentBoxSizer != NULL )
-            pdic->m_pInstrumentBoxSizer->SetOrientation( orient );
+            pdic->m_pInstrumentBoxSizer->SetOrientation(
+                (orient==wxVERTICAL?wxHORIZONTAL:wxVERTICAL) );
     }
     /* We must reset all MinSize to ensure we start with new default */
     wxWindowListNode* node = GetChildren().GetFirst();
@@ -4586,13 +4588,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     this, wxID_ANY,
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
             //     _T("%3.1f bar"));
-            pInstrumentBoxSizer = new wxBoxSizer(wxVERTICAL);
+            pInstrumentBoxSizer = new wxBoxSizer(wxHORIZONTAL);
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
                 &m_plugin->m_sigPathLangVector,
                 pInstrumentBoxSizer );
-            pInstrumentBoxSizer->SetSizeHints( instrument );
-            Layout();
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4606,7 +4606,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                     id, instrument, instrument->GetCapacity(), pInstrumentBoxSizer ) );
 #ifdef _TACTICSPI_H_
             if ( pInstrumentBoxSizer != NULL ) {
-                itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
+                pInstrumentBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );
+                //    itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
+            pInstrumentBoxSizer->SetSizeHints( instrument );
+            itemBoxSizer->Add( pInstrumentBoxSizer, wxSizerFlags().Expand().Proportion(1) );
             }
             else {
                 itemBoxSizer->Add( instrument, wxSizerFlags().Expand().Proportion(1) );

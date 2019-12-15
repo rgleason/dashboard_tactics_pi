@@ -50,7 +50,7 @@ using namespace std::placeholders;
   also note the anti-scroll bar border (like for IE).
 */
 #define ENGINED_WINDOW_DEFAULT_WIDTH         230
-#define ENGINED_WINDOW_DEFAULT_HEIGHT        120
+#define ENGINED_WINDOW_DEFAULT_HEIGHT        185
 #define ENGINED_WINDOW_ANTISCROLLBAR_BORDER    1
 #define ENGINED_WINDOW_MINIMUM_WIDTH         (ENGINED_WINDOW_DEFAULT_WIDTH + ENGINED_WINDOW_ANTISCROLLBAR_BORDER)
 #define ENGINED_WINDOW_MINIMUM_HEIGHT        ENGINED_WINDOW_DEFAULT_HEIGHT
@@ -79,6 +79,7 @@ public:
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
     virtual wxSize GetSize( int orient, wxSize hint ) override;
+    virtual void SetMinSize( wxSize minSize ) override;
     bool LoadConfig(void);
     
 protected:

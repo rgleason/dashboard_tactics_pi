@@ -77,7 +77,6 @@ DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
     this->m_pThreadEngineDJGTimer->Stop();
     delete this->m_pThreadEngineDJGTimer;
-    // delete this->m_instruJS;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     return;
@@ -111,8 +110,12 @@ void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
     if ( !m_threadRunning ) {
-        this->loadHTML( m_fullPathHTML ); // this is base class method, no override
-        // SetSize(wxSize(230, 185));
+        wxSize thisFrameInitSize = wxSize (ENGINED_WINDOW_MINIMUM_WIDTH,
+                                           ENGINED_WINDOW_MINIMUM_HEIGHT);
+        SetInitialSize ( thisFrameInitSize );
+        wxSize webViewInitSize = wxSize (ENGINED_WINDOW_DEFAULT_WIDTH,
+                                         ENGINED_WINDOW_DEFAULT_HEIGHT);
+        this->loadHTML( m_fullPathHTML, webViewInitSize );
         m_pThreadEngineDJGTimer->Stop();
         m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
         m_threadRunning = true;
@@ -159,6 +162,16 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
         y = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_HEIGHT );
       }
     return wxSize( x, y );
+}
+
+void DashboardInstrument_EngineDJG::SetMinSize( wxSize minSize )
+{
+    wxControl::SetMinSize ( minSize );
+    int x,y;
+    x = wxMax( minSize.x, ENGINED_WINDOW_DEFAULT_WIDTH );
+    y = wxMax( minSize.y, ENGINED_WINDOW_DEFAULT_HEIGHT );
+    this->webViewSetMinSize( wxSize ( x, y ) );
+    SetSize( minSize );
 }
 
 bool DashboardInstrument_EngineDJG::LoadConfig()

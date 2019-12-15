@@ -73,7 +73,7 @@ public:
     InstruJS( TacticsWindow* pparent, wxWindowID id, wxBoxSizer* iBoxSizer );
     ~InstruJS(void);
 
-    virtual void loadHTML( wxString fullPath );
+    virtual void loadHTML( wxString fullPath, wxSize initialSize );
     virtual void stopScript(void); // if overriding OnClose(), call this
 
     void timeoutEvent(void) override;
@@ -84,6 +84,8 @@ public:
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
+    virtual void SetMinSize( wxSize minSize ) = 0;
+    virtual void webViewSetMinSize ( wxSize minSize ) final;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     
 protected:

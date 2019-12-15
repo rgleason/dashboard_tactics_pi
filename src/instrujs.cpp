@@ -70,7 +70,6 @@ DashboardInstrument( pparent, id, "---", 0LL, true )
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
     m_piBoxSizer = iBoxSizer;
-    SetSizer( m_piBoxSizer ); // this panel has indivudual Sizer
     m_pThreadInstruJSTimer = NULL;
 }
 
@@ -132,17 +131,23 @@ wxString InstruJS::RunScript( const wxString &javascript )
     return result;
 }
 
-void InstruJS::loadHTML( wxString fullPath )
+void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 {
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_pWebPanel->Create(
             this, wxID_ANY, "file://" + fullPath );
-        m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
-        Fit();
+        //        m_piBoxSizer->Add( m_pWebPanel, wxSizerFlags().Expand().Proportion(1) );
+        m_pWebPanel->SetInitialSize( initialSize );
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
         m_pThreadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
+    }
+}
+void InstruJS::webViewSetMinSize ( wxSize minSize )
+{
+    if ( m_webpanelCreated || m_webpanelCreateWait ) {
+        m_pWebPanel->SetMinSize( minSize );
     }
 }
 
