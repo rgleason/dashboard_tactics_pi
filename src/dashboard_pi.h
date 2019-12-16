@@ -108,13 +108,14 @@ class DashboardWindowContainer
 {
 public:
     DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; }
+        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
 
 #ifdef _TACTICSPI_H_
     DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
             m_pDashboardWindow = sourcecont->m_pDashboardWindow;
             m_bIsVisible       = sourcecont->m_bIsVisible;
             m_bIsDeleted       = sourcecont->m_bIsDeleted;
+            m_bIsDocked        = sourcecont->m_bIsDocked;
             m_bPersVisible     = sourcecont->m_bPersVisible;
             m_sName            = sourcecont->m_sName;
             m_sCaption         = sourcecont->m_sCaption;
@@ -129,6 +130,7 @@ DashboardWindow              *m_pDashboardWindow;
     bool                      m_bIsVisible;
     bool                      m_bIsDeleted;
     bool                      m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
+    bool                      m_bIsDocked;
     wxString                  m_sName;
     wxString                  m_sCaption;
     wxString                  m_sOrientation;
@@ -218,6 +220,7 @@ public:
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
+    void OnAuiRender( wxAuiManagerEvent& event );
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
@@ -245,6 +248,7 @@ public:
 #ifdef _TACTICSPI_H_
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
+    void SetApplySaveWinRequest(void) { mApS_Watchcat = true; }
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
@@ -311,6 +315,7 @@ private:
     int                  mSiK_Watchdog;
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
+    bool                 mApS_Watchcat;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

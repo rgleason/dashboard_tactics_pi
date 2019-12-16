@@ -570,6 +570,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_Watchdog = 0;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
+    mApS_Watchcat = false;
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
@@ -606,10 +607,12 @@ int dashboard_pi::Init( void )
     m_pauimgr = GetFrameAuiManager();
 #ifdef _TACTICSPI_H_
     m_pluginFrame = m_pauimgr->GetManagedWindow();
-#endif //  _TACTICSPI_H_
-
+    m_pauimgr->Connect( wxEVT_AUI_RENDER, wxAuiManagerEventHandler( dashboard_pi::OnAuiRender ),
+                        NULL, this );
+#else
     m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
                         NULL, this );
+#endif //  _TACTICSPI_H_
 
     //    Get a pointer to the opencpn configuration object
     m_pconfig = GetOCPNConfigObject();
@@ -788,6 +791,12 @@ void dashboard_pi::Notify()
     }
 #ifdef _TACTICSPI_H_
     this->TacticsNotify();
+
+    if ( mApS_Watchcat ) {
+        ApplyConfig();
+        SaveConfig();
+        mApS_Watchcat = false;
+    }
 #endif //  _TACTICSPI_H_
     return;
 }
@@ -796,6 +805,18 @@ void dashboard_pi::Notify()
 void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
 {
     this->OnAvgWindUpdTimer_Tactics();
+}
+
+void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
+{
+    event.Skip();
+    // wxAuiPaneInfo &pane = m_pauimgr->GetPane( this );
+    // if ( pane.IsOk() ) {
+    //     if ( pane.IsDocked() && !m_Container->m_bIsDocked )
+    //         m_plugin->SetApplySaveWinRequest();
+    //     else if ( pane.IsFloating() && m_Container->m_bIsDocked )
+    //         m_plugin->SetApplySaveWinRequest();
+    // }
 }
 #endif //  _TACTICSPI_H_
 
@@ -2944,33 +2965,43 @@ void dashboard_pi::ApplyConfig(
                 addpane = true;
             } // in the init we need always a new pane
             else {
-                if ( !isDocked ) {
-                    if ( cont->m_pDashboardWindow ) {
-                        if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
+                if ( cont->m_pDashboardWindow ) {
+                    if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
+                        addpane = true;
+                    } // then a change in instruments replacement window is needed, needs a pane
+                    else {
+                        p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+                        if ( !p_cont.IsOk() ) {
                             addpane = true;
-                        } // then a change in instruments replacement window is needed, needs a pane
+                        } // then there is no pane for this window, create one (with a replacement window)
                         else {
-                            p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-                            if ( !p_cont.IsOk() ) {
-                                addpane = true;
-                            } // then there is no pane for this window, create one (with a replacement window)
+                            if ( isDocked ) {
+                                if ( !newcont->m_bIsDocked ) {
+                                    addpane = true;
+                                    newcont->m_bIsDocked = true;
+                                } // has been just docked, may need a rerarrangement
+                            } // then there is a pane, unmodified instuments, docked
                             else {
+                                if ( newcont->m_bIsDocked ) {
+                                    addpane = true;
+                                    newcont->m_bIsDocked = false;
+                                } // has been just undocked, may need a rerarrangement
                                 int orientNow = cont->m_pDashboardWindow->GetSizerOrientation();
                                 if ( (orientNow == wxHORIZONTAL) &&
                                      (newcont->m_sOrientation == _T("V")) ) {
                                     addpane = true;
-                                } // then orientation change request
+                                } // then orientation change request to vertical
                                 if ( (orientNow == wxVERTICAL) &&
                                      (newcont->m_sOrientation == _T("H")) ) {
                                     addpane = true;
-                                } // then orientation change request
-                            } // else there is a pane for the window, check orientation
-                        } // else there is no change in the instrument list, check there is a pane
-                    } // then there is an instrument dashboard window
-                    else {
-                        addpane = true;
-                    } // else there is no instrument window
-                } // then not init and an exitisting floating pane
+                                } // then orientation change request to horizontal
+                            } // else there is a pane, unmodified instruments, floating
+                        } // else pane is OK
+                    } // else there is no change in the instrument list
+                } // then there is an instrument dashboard window
+                else {
+                    addpane = true;
+                } // else there is no instrument window
             } // else not init, study run-time dashboard window
 
             bool NewDashboardCreated = false;
@@ -3916,14 +3947,18 @@ void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )
     wxMenu* contextMenu = new wxMenu();
 
     wxAuiPaneInfo &pane = m_pauimgr->GetPane( this );
-    if ( pane.IsOk( ) && pane.IsDocked( ) ) {
-        contextMenu->Append( ID_DASH_UNDOCK, _( "Undock" ) );
-    }
-    wxMenuItem* btnVertical = contextMenu->AppendRadioItem( ID_DASH_VERTICAL, _("Vertical") );
-    btnVertical->Check( itemBoxSizer->GetOrientation() == wxVERTICAL );
-    wxMenuItem* btnHorizontal = contextMenu->AppendRadioItem( ID_DASH_HORIZONTAL, _("Horizontal") );
-    btnHorizontal->Check( itemBoxSizer->GetOrientation() == wxHORIZONTAL );
-    contextMenu->AppendSeparator();
+    if ( pane.IsOk() ) {
+        if ( pane.IsDocked() ) {
+            contextMenu->Append( ID_DASH_UNDOCK, _( "Undock" ) );
+        } // then docked
+        else {
+            wxMenuItem* btnVertical = contextMenu->AppendRadioItem( ID_DASH_VERTICAL, _("Vertical") );
+            btnVertical->Check( itemBoxSizer->GetOrientation() == wxVERTICAL );
+            wxMenuItem* btnHorizontal = contextMenu->AppendRadioItem( ID_DASH_HORIZONTAL, _("Horizontal") );
+            btnHorizontal->Check( itemBoxSizer->GetOrientation() == wxHORIZONTAL );
+            contextMenu->AppendSeparator();
+        } // else non-docked
+    } // then a pane
 
     m_plugin->PopulateContextMenu( contextMenu );
 
@@ -3933,7 +3968,7 @@ void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )
 #endif // _TACTICSPI_H_
 
     contextMenu->AppendSeparator();
-    contextMenu->Append( ID_DASH_PREFS, _("Preferences...") );
+    contextMenu->Append( ID_DASH_PREFS, _("Preferences") );
     PopupMenu( contextMenu );
     delete contextMenu;
 }
@@ -3959,12 +3994,7 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     case ID_DASH_VERTICAL: {
 #ifdef _TACTICSPI_H_
         m_Container->m_sOrientation = _T("V");
-
-        /// NEED A TRUC HERE: KILLS THIS WINDOW!
-
-        
-        m_plugin->ApplyConfig();
-        m_plugin->SaveConfig();
+        m_plugin->SetApplySaveWinRequest();
         return;
 #else
         ChangePaneOrientation( wxVERTICAL, true );
@@ -3975,8 +4005,7 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     case ID_DASH_HORIZONTAL: {
 #ifdef _TACTICSPI_H_
         m_Container->m_sOrientation = _T("H");
-        m_plugin->ApplyConfig();
-        m_plugin->SaveConfig();
+        m_plugin->SetApplySaveWinRequest();
         return;
 #else
         ChangePaneOrientation( wxHORIZONTAL, true );
@@ -3985,9 +4014,9 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
 #endif // _TACTICSPI_H_
     }
     case ID_DASH_UNDOCK: {
-        ChangePaneOrientation( GetSizerOrientation( ), true );
+        ChangePaneOrientation( GetSizerOrientation(), true );
 #ifdef _TACTICSPI_H_
-        break;      // Actually, the pane name has changed
+        break;      // Actually, the pane name has changed so better save
 #else
         return;     // Nothing changed so nothing need be saved
 #endif //  _TACTICSPI_H_
@@ -4043,8 +4072,8 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
             } // then update (saving in event handler)
             return;
         } // then a docked container, undock request
-    } // else there is no orientation request, check if this is undock request
-    // orientation change request
+    } // then this is not orientation request, check if this is undock request
+    // orientation change request service follows
 #endif // _TACTICSPI_H_
     m_pauimgr->DetachPane( this );
     SetSizerOrientation( orient );
