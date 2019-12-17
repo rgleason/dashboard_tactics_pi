@@ -248,7 +248,8 @@ public:
 #ifdef _TACTICSPI_H_
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
-    void SetApplySaveWinRequest(void) { mApS_Watchcat = true; }
+    void SetApplySaveWinRequest(void) { mApS_Watchcat = 2; }
+    bool ApplySaveWinRequested(void) { return (((mApS_Watchcat!=0)?true:false)); }
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
@@ -315,7 +316,7 @@ private:
     int                  mSiK_Watchdog;
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
-    bool                 mApS_Watchcat;
+    int                  mApS_Watchcat;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

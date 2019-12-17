@@ -570,7 +570,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_Watchdog = 0;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
-    mApS_Watchcat = false;
+    mApS_Watchcat = -1;
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
@@ -792,10 +792,10 @@ void dashboard_pi::Notify()
 #ifdef _TACTICSPI_H_
     this->TacticsNotify();
 
-    if ( mApS_Watchcat ) {
+    if ( mApS_Watchcat == 2 ) {
         ApplyConfig();
         SaveConfig();
-        mApS_Watchcat = false;
+        mApS_Watchcat = 1;
     }
 #endif //  _TACTICSPI_H_
     return;
@@ -810,13 +810,27 @@ void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
 void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
 {
     event.Skip();
-    // wxAuiPaneInfo &pane = m_pauimgr->GetPane( this );
-    // if ( pane.IsOk() ) {
-    //     if ( pane.IsDocked() && !m_Container->m_bIsDocked )
-    //         m_plugin->SetApplySaveWinRequest();
-    //     else if ( pane.IsFloating() && m_Container->m_bIsDocked )
-    //         m_plugin->SetApplySaveWinRequest();
-    // }
+    if ( ApplySaveWinRequested() )
+        return;
+    DashboardWindow *dashboard_window = NULL;
+    wxAuiPaneInfo pane;
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window ) {
+            pane = m_pauimgr->GetPane( dashboard_window );
+            if ( pane.IsOk() ) {
+                if ( pane.IsDocked() && !m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
+                    SetApplySaveWinRequest();
+                    return;
+                } // then workaround missing Aui on-docking event
+                else if ( pane.IsFloating() && m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
+                    SetApplySaveWinRequest();
+                    return;
+                } // else workardound missing Aui on-undocking event
+            } // then valid window pane of the dashboard window
+        } // then valid dashboard window in the container
+    } // for number of dashboard windows in the container
 }
 #endif //  _TACTICSPI_H_
 
@@ -2963,7 +2977,7 @@ void dashboard_pi::ApplyConfig(
             bool addpane = false;
             if ( init ) {
                 addpane = true;
-            } // in the init we need always a new pane
+            } // in the init we need always a new pane, pro-forma
             else {
                 if ( cont->m_pDashboardWindow ) {
                     if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
@@ -3034,72 +3048,58 @@ void dashboard_pi::ApplyConfig(
             /*
               The logic for creating a new window pane is as follows
               init: always create a new window pane
-              otherwise:
-              -         floating pane: create new one, replace the old one
-              -                        * this is because of suspected resizer bug
-                                         (wxWidgets or Dashboard) when instruments
-                                         are removed and the pane does not shrink
-              -         docked pane:   use existing one since there is no need for
-                                       pane resizing
+              otherwise: create only if change in the contents, orientation, etc.
             */
             wxAuiPaneInfo p;
-            if ( init || (!init && !isDocked) ) {
-                if ( addpane ) {
-                    wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
-                    // Mac has a little trouble with initial Layout() sizing...
+            if ( addpane ) {
+                wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
+                // Mac has a little trouble with initial Layout() sizing...
 #ifdef __WXOSX__
-                    if(sz.x == 0)
-                        sz.IncTo( wxSize( 160, 388) );
+                if(sz.x == 0)
+                    sz.IncTo( wxSize( 160, 388) );
 #endif
-                    p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
-                        false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
-                            false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(
-                                sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
-                } // then it was necessary to add new pane for init or replacement resizing
-                if ( addpane && !init ) {
-                    newcont->m_bPersVisible = cont->m_bIsVisible;
-                    if ( cont->m_pDashboardWindow ) {
-                        m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                        cont->m_pDashboardWindow->Close();
-                        cont->m_pDashboardWindow->Destroy();
-                    } // then this is an existing window in an existing window pane, replaced with a new one
-                    m_ArrayOfDashboardWindow.Remove( cont );
-                    m_ArrayOfDashboardWindow.Add( newcont );
-                    m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-                    newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
-                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
-                    m_pauimgr->Update();
-                } // then we have created a pane and it is a replacement of an exiting pane, detach/destroy the old
-                else {
-                    if ( init ) {
-                        m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-                        newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
-                        newcont->m_bPersVisible = newcont->m_bIsVisible;
-                        m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
-                        cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-                        m_pauimgr->Update();
-                    } // then a brand new window, register it
-                    else {
-                        m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
-                        m_pauimgr->Update();
-                        if ( NewDashboardCreated ) {
-                            newcont->m_pDashboardWindow->Close();
-                            newcont->m_pDashboardWindow->Destroy();
-                            newcont->m_pDashboardWindow = NULL;
-                        } // then, just in case, garbage collection
-                    } // no need to do a replacement or to create a new window
-                } // else brand new pane or no action
-            } // else new pane - an initial new one, or a new replacement of a floating pane
+                p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
+                    false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
+                        false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(
+                            sz ).FloatingPosition( position ).Show( false ).Gripper(false) ;
+                (newcont->m_bIsDocked?p.Dock():p.Float());
+            } // then it was necessary to add new pane for init or replacement resizing
             else {
                 m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption( newcont->m_sCaption ).Show( newcont->m_bIsVisible );
-                if( !newcont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
-                    newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
-                    wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
-                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).MinSize( sz ).BestSize( sz ).FloatingSize( sz );
+            } // else is non-init run on an existing and unmodified pane, keep it
+            if ( addpane && !init ) {
+                newcont->m_bPersVisible = cont->m_bIsVisible;
+                if ( cont->m_pDashboardWindow ) {
+                    m_pauimgr->DetachPane( cont->m_pDashboardWindow );
+                    cont->m_pDashboardWindow->Close();
+                    cont->m_pDashboardWindow->Destroy();
+                } // then this is an existing window in an existing window pane, replaced with a new one
+                m_ArrayOfDashboardWindow.Remove( cont );
+                m_ArrayOfDashboardWindow.Add( newcont );
+                m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
+                m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
+                m_pauimgr->Update();
+            } // then we have created a pane and it is a replacement of an exiting pane, detach/destroy the old
+            else {
+                if ( init ) {
+                    m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+                    newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
+                    newcont->m_bPersVisible = newcont->m_bIsVisible;
+                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
+                    cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
                     m_pauimgr->Update();
-                } // then there is change in the instrument list of a docked pane
-            } // else is non-init run on an existing and docked pane, keep it (no pane resizer bug[?])
-
+                } // then a brand new window, register it
+                else {
+                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
+                    m_pauimgr->Update();
+                    if ( NewDashboardCreated ) {
+                        newcont->m_pDashboardWindow->Close();
+                        newcont->m_pDashboardWindow->Destroy();
+                        newcont->m_pDashboardWindow = NULL;
+                    } // then, just in case, garbage collection
+                } // no need to do a replacement or to create a new window
+            } // else brand new pane or no action
         } // else not a deleted window, to be created or recreated
 #else
         else if( !cont->m_pDashboardWindow ) {
@@ -3124,9 +3124,6 @@ void dashboard_pi::ApplyConfig(
                     sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( 100, 100 ).Float().Show( cont->m_bIsVisible ).Gripper(false) ;
 
             m_pauimgr->AddPane( cont->m_pDashboardWindow, p);
-            //wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable(
-            // !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize(
-            // sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( 100, 100 ).Float().Show( cont->m_bIsVisible ) );
         } else {
             wxAuiPaneInfo& pane = m_pauimgr->GetPane( cont->m_pDashboardWindow );
             pane.Caption( cont->m_sCaption ).Show( cont->m_bIsVisible );
@@ -3140,13 +3137,16 @@ void dashboard_pi::ApplyConfig(
             }
         }
 #endif // _TACTICSPI_H_
-    }
+    }  // for dashboard window arrays
 
 #ifdef _TACTICSPI_H_
     this->TacticsApplyConfig();
 #endif // _TACTICSPI_H_
 
     m_pauimgr->Update();
+#ifdef _TACTICSPI_H_
+    mApS_Watchcat = 0; // in case we have been triggered by the docking etc. watch cat
+#endif // _TACTICSPI_H_
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
     mCOGFilter.setFC(g_iDashCOGDamp ? 1.0 / (2.0*g_iDashCOGDamp) : 0.0);
     mCOGFilter.setType(IIRFILTER_TYPE_DEG);
