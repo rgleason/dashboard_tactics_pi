@@ -570,7 +570,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_Watchdog = 0;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
-    mApS_Watchcat = -1;
+    APPLYSAVEWININIT
 #endif // _TACTICSPI_H_
     // Create the PlugIn icons
     initialize_images();
@@ -792,11 +792,11 @@ void dashboard_pi::Notify()
 #ifdef _TACTICSPI_H_
     this->TacticsNotify();
 
-    if ( mApS_Watchcat == 2 ) {
+    if ( APPLYSAVEWINREQUESTED ) {
         ApplyConfig();
         SaveConfig();
-        mApS_Watchcat = 1;
     }
+    APPLYSAVEWINSERVED
 #endif //  _TACTICSPI_H_
     return;
 }
@@ -810,7 +810,7 @@ void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
 void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
 {
     event.Skip();
-    if ( ApplySaveWinRequested() )
+    if ( APPLYSAVEWINRUNNING )
         return;
     DashboardWindow *dashboard_window = NULL;
     wxAuiPaneInfo pane;
@@ -824,7 +824,7 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
                     SetApplySaveWinRequest();
                     return;
                 } // then workaround missing Aui on-docking event
-                else if ( pane.IsFloating() && m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
+                else if ( m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
                     SetApplySaveWinRequest();
                     return;
                 } // else workardound missing Aui on-undocking event
@@ -2623,6 +2623,7 @@ int dashboard_pi::GetDashboardWindowShownCount()
     return cnt;
 }
 
+#ifndef _TACTICSPI_H_
 void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
 {
     // if name is unique, we should use it
@@ -2645,6 +2646,7 @@ void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
 
     event.Skip();
 }
+#endif // (not) _TACTICSPI_H_
 
 void dashboard_pi::OnToolbarToolCallback( int id )
 {
@@ -2743,8 +2745,9 @@ void dashboard_pi::OnContextMenuItemCallback(int id)
 
 void dashboard_pi::UpdateAuiStatus( void )
 {
-    //    This method is called after the PlugIn is initialized
+    //    This method is called by OpenCPN (pluginmanager.cpp) after the PlugIn is initialized
     //    and the frame has done its initial layout, possibly from a saved wxAuiManager "Perspective"
+    //    (see also OCPN_AUIManager.cpp, it knows type "Dashboard" but not "Dashboard_Tactics"). 
     //    It is a chance for the PlugIn to syncronize itself internally with the state of any Panes that
     //    were added to the frame in the PlugIn ctor.
 
@@ -2975,6 +2978,7 @@ void dashboard_pi::ApplyConfig(
                 } // then this is non-init (run-time) and there is a window pane
             } // then run-time
             bool addpane = false;
+            bool rebuildpane = false; // either or but not both
             if ( init ) {
                 addpane = true;
             } // in the init we need always a new pane, pro-forma
@@ -2991,15 +2995,14 @@ void dashboard_pi::ApplyConfig(
                         else {
                             if ( isDocked ) {
                                 if ( !newcont->m_bIsDocked ) {
-                                    addpane = true;
-                                    newcont->m_bIsDocked = true;
-                                } // has been just docked, may need a rerarrangement
+                                    cont->m_bIsDocked = newcont->m_bIsDocked = true;
+                                    rebuildpane = true;
+                                } // has been just docked, a rerarrangement is needed (ov50 some cases)
                             } // then there is a pane, unmodified instuments, docked
                             else {
                                 if ( newcont->m_bIsDocked ) {
-                                    addpane = true;
-                                    newcont->m_bIsDocked = false;
-                                } // has been just undocked, may need a rerarrangement
+                                    cont->m_bIsDocked = newcont->m_bIsDocked = false;
+                                } // from docked to undocked, just register, no need for rearrangement (ov50)
                                 int orientNow = cont->m_pDashboardWindow->GetSizerOrientation();
                                 if ( (orientNow == wxHORIZONTAL) &&
                                      (newcont->m_sOrientation == _T("V")) ) {
@@ -3061,8 +3064,7 @@ void dashboard_pi::ApplyConfig(
                 p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
                     false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
                         false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(
-                            sz ).FloatingPosition( position ).Show( false ).Gripper(false) ;
-                (newcont->m_bIsDocked?p.Dock():p.Float());
+                            sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
             } // then it was necessary to add new pane for init or replacement resizing
             else {
                 m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption( newcont->m_sCaption ).Show( newcont->m_bIsVisible );
@@ -3088,10 +3090,19 @@ void dashboard_pi::ApplyConfig(
                     newcont->m_bPersVisible = newcont->m_bIsVisible;
                     m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                     cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
+                    if ( isDocked ) {
+                        cont->m_bIsDocked;
+                    } // was created as docked, however the container constructor defaults to floating
                     m_pauimgr->Update();
                 } // then a brand new window, register it
                 else {
                     m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
+                    if ( rebuildpane ) {
+                        cont->m_pDashboardWindow->RebuildPane( newcont->m_aInstrumentList );
+                        if ( isDocked ) {
+                            cont->m_bIsDocked;
+                        } // was docked and rebuilt, however the constructor defaults to floating
+                    }
                     m_pauimgr->Update();
                     if ( NewDashboardCreated ) {
                         newcont->m_pDashboardWindow->Close();
@@ -3107,9 +3118,6 @@ void dashboard_pi::ApplyConfig(
             cont->m_pDashboardWindow = new DashboardWindow(
                 GetOCPNCanvasWindow(), wxID_ANY,
                 m_pauimgr, this, orient, cont
-#ifdef _TACTICSPI_H_
-                , GetCommonName()
-#endif // _TACTICSPI_H_
                 );
             cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList );
             bool vertical = orient == wxVERTICAL;
@@ -3144,9 +3152,6 @@ void dashboard_pi::ApplyConfig(
 #endif // _TACTICSPI_H_
 
     m_pauimgr->Update();
-#ifdef _TACTICSPI_H_
-    mApS_Watchcat = 0; // in case we have been triggered by the docking etc. watch cat
-#endif // _TACTICSPI_H_
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
     mCOGFilter.setFC(g_iDashCOGDamp ? 1.0 / (2.0*g_iDashCOGDamp) : 0.0);
     mCOGFilter.setType(IIRFILTER_TYPE_DEG);
@@ -3924,10 +3929,25 @@ void DashboardWindow::OnClose( wxCloseEvent &event )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        pdic->m_pInstrument->Close();
+        if ( pdic->m_pInstrument != NULL ) {
+            pdic->m_pInstrument->Close();
+        }
     }
     event.Skip(); // Destroy() must be called
 }
+
+void DashboardWindow::RebuildPane( wxArrayInt list )
+{
+    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
+        DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
+        if ( pdic->m_pInstrument != NULL ) {
+            pdic->m_pInstrument->Close();
+            delete pdic;
+        }
+    }
+    SetInstrumentList( list );
+}
+
 #endif // _TACTICSPI_H_
 
 void DashboardWindow::OnSize( wxSizeEvent &event )

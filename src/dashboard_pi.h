@@ -237,7 +237,9 @@ public:
     void OnToolbarToolCallback(int id);
     void ShowPreferencesDialog( wxWindow* parent );
     void SetColorScheme(PI_ColorScheme cs);
+#ifndef _TACTICSPI_H_
     void OnPaneClose( wxAuiManagerEvent& event );
+#endif //  (not) _TACTICSPI_H_
     void UpdateAuiStatus(void);
     bool SaveConfig(void);
     void PopulateContextMenu( wxMenu* menu );
@@ -248,8 +250,11 @@ public:
 #ifdef _TACTICSPI_H_
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
-    void SetApplySaveWinRequest(void) { mApS_Watchcat = 2; }
-    bool ApplySaveWinRequested(void) { return (((mApS_Watchcat!=0)?true:false)); }
+    void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
+#define APPLYSAVEWININIT       mApS_Watchcat=-1;
+#define APPLYSAVEWINREQUESTED  mApS_Watchcat==1
+#define APPLYSAVEWINRUNNING    mApS_Watchcat!=0
+#define APPLYSAVEWINSERVED     mApS_Watchcat=0;
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
@@ -447,6 +452,9 @@ public:
     void OnContextMenuSelect( wxCommandEvent& evt );
     bool isInstrumentListEqual( const wxArrayInt& list );
     void SetInstrumentList( wxArrayInt list );
+#ifdef _TACTICSPI_H_
+    void RebuildPane( wxArrayInt list );
+#endif // _TACTICSPI_H_
     void SendSentenceToAllInstruments(
 #ifdef _TACTICSPI_H_
         unsigned long long st,
