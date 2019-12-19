@@ -145,7 +145,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
     }
 }
 
-void InstruJS::OnSize( wxSizeEvent &event )
+void InstruJS::FitIn()
 {
     wxSize newSize = wxControl::GetSize();
     if ( m_webpanelCreated || m_webpanelCreateWait )
@@ -153,7 +153,12 @@ void InstruJS::OnSize( wxSizeEvent &event )
     Fit();
     Layout();
     Refresh();
+}
+
+void InstruJS::OnSize( wxSizeEvent &event )
+{
     event.Skip();
+    FitIn();
 }
 
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )

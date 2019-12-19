@@ -2968,15 +2968,15 @@ void dashboard_pi::ApplyConfig(
               replacement is needed
             */
             wxAuiPaneInfo p_cont;
-            bool isDocked = false;
-            if ( !init ) {
-                if ( newcont->m_pDashboardWindow ) {
-                    p_cont = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
-                    if ( p_cont.IsOk() && p_cont.IsDocked() ) {
-                        isDocked = true;
+            bool wIsDocked = false;
+            if ( newcont->m_pDashboardWindow ) {
+                p_cont = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
+                if ( p_cont.IsOk() ) {
+                    if ( p_cont.IsDocked() ) {
+                    wIsDocked = true;
                     } // then window is in a pane which is docked
-                } // then this is non-init (run-time) and there is a window pane
-            } // then run-time
+                } // then a valid pane
+            } // then this is non-init (run-time) and there is a window pane
             bool addpane = false;
             bool rebuildpane = false; // either or but not both
             if ( init ) {
@@ -2993,7 +2993,7 @@ void dashboard_pi::ApplyConfig(
                             addpane = true;
                         } // then there is no pane for this window, create one (with a replacement window)
                         else {
-                            if ( isDocked ) {
+                            if ( wIsDocked ) {
                                 if ( !newcont->m_bIsDocked ) {
                                     cont->m_bIsDocked = newcont->m_bIsDocked = true;
                                     rebuildpane = true;
@@ -3090,16 +3090,17 @@ void dashboard_pi::ApplyConfig(
                     newcont->m_bPersVisible = newcont->m_bIsVisible;
                     m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                     cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-                    if ( isDocked ) {
-                        cont->m_bIsDocked;
+                    if ( wIsDocked ) {
+                        cont->m_bIsDocked;  // Memo ov50: never comes here in Init() - docked pane is nor recognized as such
                     } // was created as docked, however the container constructor defaults to floating
+                    //cont->m_pDashboardWindow->SetMinSizes();
                     m_pauimgr->Update();
                 } // then a brand new window, register it
                 else {
                     m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                     if ( rebuildpane ) {
                         cont->m_pDashboardWindow->RebuildPane( newcont->m_aInstrumentList );
-                        if ( isDocked ) {
+                        if ( wIsDocked ) {
                             cont->m_bIsDocked;
                         } // was docked and rebuilt, however the constructor defaults to floating
                     }
@@ -3950,9 +3951,8 @@ void DashboardWindow::RebuildPane( wxArrayInt list )
 
 #endif // _TACTICSPI_H_
 
-void DashboardWindow::OnSize( wxSizeEvent &event )
+void DashboardWindow::SetMinSizes( )
 {
-    event.Skip();
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
         wxSize instMinSize = inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() );
@@ -3960,6 +3960,12 @@ void DashboardWindow::OnSize( wxSizeEvent &event )
     }
     Layout();
     Refresh();
+}
+
+void DashboardWindow::OnSize( wxSizeEvent &event )
+{
+    event.Skip();
+    SetMinSizes();
 }
 
 void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )

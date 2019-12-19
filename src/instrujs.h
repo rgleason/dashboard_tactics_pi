@@ -85,6 +85,7 @@ public:
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
+    virtual void FitIn(void) final;
     
 protected:
     TacticsWindow       *m_pparent;

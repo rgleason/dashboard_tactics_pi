@@ -251,10 +251,11 @@ public:
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
     void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
-#define APPLYSAVEWININIT       mApS_Watchcat=-1;
+#define APPLYSAVEWININIT       mApS_Watchcat=-1; // no OnAuiRender() at init
 #define APPLYSAVEWINREQUESTED  mApS_Watchcat==1
 #define APPLYSAVEWINRUNNING    mApS_Watchcat!=0
 #define APPLYSAVEWINSERVED     mApS_Watchcat=0;
+    //#define APPLYSAVEWININIT       APPLYSAVEWINSERVED    // OnAuiRender() capture possible at init
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
@@ -453,6 +454,7 @@ public:
     bool isInstrumentListEqual( const wxArrayInt& list );
     void SetInstrumentList( wxArrayInt list );
 #ifdef _TACTICSPI_H_
+    void SetMinSizes( void );
     void RebuildPane( wxArrayInt list );
 #endif // _TACTICSPI_H_
     void SendSentenceToAllInstruments(

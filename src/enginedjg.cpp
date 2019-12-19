@@ -160,7 +160,7 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
     else {
         x = wxMax( hint.x, ENGINED_WINDOW_MINIMUM_WIDTH );
         y = ENGINED_WINDOW_MINIMUM_HEIGHT;
-      }
+    }
     return wxSize( x, y );
 }
 
