@@ -92,14 +92,15 @@ protected:
     wxWindowID           m_id;
     wxString             m_title;
     wxString             m_data;
-    wxWebView           *m_pWebPanel;
-    wxTimer             *m_pThreadInstruJSTimer;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
     bool                 m_webpanelInitiated;
     bool                 m_webpanelStopped;
+    wxWebView           *m_pWebPanel;
+    wxTimer             *m_pThreadInstruJSTimer;
+    wxSize               m_lastSize;
 
     wxDECLARE_EVENT_TABLE();
 

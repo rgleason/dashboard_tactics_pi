@@ -3039,13 +3039,20 @@ void dashboard_pi::ApplyConfig(
             if ( orient == wxHORIZONTAL )
                 vertical = false;
 
-            wxPoint position = m_pluginFrame->GetPosition();
-            position.x += 100;
-            position.y += 100;
+            wxPoint position;
+            if ( wIsDocked )
+                position = wxDefaultPosition;
+            else {
+                position = m_pluginFrame->GetPosition();
+                position.x += 100;
+                position.y += 100;
+            }
             if ( !init && NewDashboardCreated ) {
                 if ( newcont->m_pDashboardWindow ) {
-                    if ( p_cont.IsOk() )
-                        position = p_cont.floating_pos;
+                    if ( p_cont.IsOk() ) {
+                        if ( !wIsDocked )
+                            position = p_cont.floating_pos;
+                    } // then let's study if we can put the window in its original position
                 } // then there is a window in this pane
             } // then this is a run-time call
             /*
@@ -3953,9 +3960,11 @@ void DashboardWindow::RebuildPane( wxArrayInt list )
 
 void DashboardWindow::SetMinSizes( )
 {
+
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
-        wxSize instMinSize = inst->GetSize( itemBoxSizer->GetOrientation(), GetClientSize() );
+        wxSize instMinSize = inst->GetSize(
+            itemBoxSizer->GetOrientation(), GetClientSize() );
         inst->SetMinSize( instMinSize );
     }
     Layout();

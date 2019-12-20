@@ -71,6 +71,7 @@ DashboardInstrument( pparent, id, "---", 0LL, true )
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
     m_pThreadInstruJSTimer = NULL;
+    m_lastSize = wxControl::GetSize();
 }
 
 InstruJS::~InstruJS(void)
@@ -137,7 +138,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
             this, wxID_ANY, "file://" + fullPath );
         m_pWebPanel->SetAutoLayout( true );
         m_pWebPanel->SetInitialSize( initialSize );
-        Fit();
+        FitIn();
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
@@ -148,11 +149,15 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 void InstruJS::FitIn()
 {
     wxSize newSize = wxControl::GetSize();
-    if ( m_webpanelCreated || m_webpanelCreateWait )
-        m_pWebPanel->SetSize( newSize );
-    Fit();
-    Layout();
-    Refresh();
+    if ( newSize != m_lastSize ) {
+        m_lastSize = newSize;
+        if ( m_webpanelCreated || m_webpanelCreateWait ) {
+            m_pWebPanel->SetSize( newSize );
+            Fit();
+            Layout();
+            Refresh();
+        }
+    }
 }
 
 void InstruJS::OnSize( wxSizeEvent &event )
@@ -166,6 +171,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     m_threadRunning = true;
 
     if ( m_webpanelInitiated ) {
+        FitIn();
         // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
         m_threadRunCount++;
         wxString javascript = wxString::Format(L"%s%d%s",
