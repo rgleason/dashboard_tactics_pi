@@ -3102,7 +3102,7 @@ void dashboard_pi::ApplyConfig(
                     m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
                     cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
                     if ( wIsDocked ) {
-                        cont->m_bIsDocked;  // Memo ov50: never comes here in Init() - docked pane is nor recognized as such
+                        cont->m_bIsDocked = true;  // Memo ov50: never comes here in Init() - docked pane is nor recognized as such
                     } // was created as docked, however the container constructor defaults to floating
                     //cont->m_pDashboardWindow->SetMinSizes();
                     m_pauimgr->Update();
@@ -3112,7 +3112,7 @@ void dashboard_pi::ApplyConfig(
                     if ( rebuildpane ) {
                         cont->m_pDashboardWindow->RebuildPane( newcont->m_aInstrumentList );
                         if ( wIsDocked ) {
-                            cont->m_bIsDocked;
+                            cont->m_bIsDocked = true;
                         } // was docked and rebuilt, however the constructor defaults to floating
                     }
                     m_pauimgr->Update();

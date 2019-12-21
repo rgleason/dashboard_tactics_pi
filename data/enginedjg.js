@@ -20,10 +20,15 @@ var g = new JustGage({
     valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
-var func = function(newval) {
+var setval = function(newval) {
     g.refresh(newval);
 };
+var unloadScrollBars = function() {
+    document.documentElement.style.overflow = 'hidden'; // webkit
+    document.body.scroll = "no"; // ie
+}
 window.addEventListener('load', 
-  function() { 
-    func(0);
-  }, false);
+                        function() {
+                            unloadScrollBars();                     
+                            setval(0);
+                        }, false);
