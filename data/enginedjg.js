@@ -4,7 +4,7 @@ var g = new JustGage({
     decimals: 1,
     label: "Oil pressure [bar]",
     min: 0,
-    max: 100,
+    max: 6,
     pointer: true,
     pointerOptions: {
         toplength: -15,

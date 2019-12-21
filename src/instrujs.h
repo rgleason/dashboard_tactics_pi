@@ -80,11 +80,10 @@ public:
 #ifndef __DERIVEDTIMEOUTJS_OVERRIDE__
     virtual void derivedTimeoutEvent(void){};
 #else
-    virtual void derivedTimeoutEvent(void);
+    virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
-    virtual void SendDataToJS ( double data );
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     virtual void FitIn(void) final;
     
@@ -93,6 +92,7 @@ protected:
     wxWindowID           m_id;
     wxString             m_title;
     wxString             m_data;
+    wxString             m_dataout;
     bool                 m_threadRunning;
     int                  m_threadRunCount;
     bool                 m_webpanelCreated;

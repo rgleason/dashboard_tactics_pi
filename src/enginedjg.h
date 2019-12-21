@@ -41,7 +41,9 @@ using namespace std::placeholders;
 #include <wx/wx.h>
 #endif
 
+#define __DERIVEDTIMEOUTJS_OVERRIDE__
 #include "instrujs.h"
+
 /*
   The default window size value are depending both of the HTML-file
   and the JavaScript instrument, here we have set the values to
@@ -85,10 +87,11 @@ public:
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );
 #ifndef __ENGINEDJG_DERIVEDTIMEOUT_OVERRIDE__
-    virtual void derivedTimeoutEvent(void){};
+    virtual void derived2TimeoutEvent(void){};
 #else
-    virtual void derivedTimeoutEvent(void) = 0;
+    virtual void derived2TimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
+    virtual void derivedTimeoutEvent(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     bool LoadConfig(void);
     

@@ -95,6 +95,12 @@ void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
     event.Skip(); // Destroy() must be called
 }
 
+void DashboardInstrument_EngineDJG::derivedTimeoutEvent()
+{
+    m_data = L"0.0";
+    derived2TimeoutEvent();
+}
+
 void DashboardInstrument_EngineDJG::SetData(
     unsigned long long st, double data, wxString unit, long long timestamp)
 {

@@ -40,6 +40,7 @@
 #include "instrujs.h"
 #include "plugin_ids.h"
 
+extern int GetRandomNumber(int, int);
 
 wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
    EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
@@ -54,7 +55,8 @@ wxEND_EVENT_TABLE ()
 InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id ) :
 DashboardInstrument( pparent, id, "---", 0LL, true )
 {
-    m_data = L"---";
+    m_data = L"0.0";
+    m_dataout = L"";
     m_title = L"InstruJS";
     m_pparent = pparent;
     m_id = id;
@@ -155,7 +157,7 @@ void InstruJS::FitIn()
         m_lastSize = newSize;
         if ( m_webpanelCreated || m_webpanelCreateWait ) {
             m_pWebPanel->SetSize( newSize );
-            /* Note: do not call here Layout() even this is used also by OnSize() event,
+            /* Note: do not call here Layout() even this is used also by OnSize() event:
                the WebPanel is attached to the DashboardWindow object's (top level) sizer */
         }
     }
@@ -167,33 +169,19 @@ void InstruJS::OnSize( wxSizeEvent &event )
     FitIn();
 }
 
-void InstruJS::SendDataToJS ( double data )
-{
-    if ( std::isnan(data) )
-        return;
-    if ( !m_webpanelInitiated )
-        return;
-    wxString javascript = wxString::Format(L"%s%.1f%s",
-                                           "setval(",
-                                           data,
-                                           ");");
-    //(void) RunScript( javascript );
-    return;
-}
-
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_threadRunning = true;
 
     if ( m_webpanelInitiated ) {
-        // FitIn();
-        // // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
-        // m_threadRunCount++;
-        // wxString javascript = wxString::Format(L"%s%d%s",
-        //                                        "setval(",
-        //                                        m_threadRunCount,
-        //                                        ");");
-        // RunScript( javascript );
+        if ( !m_dataout.IsSameAs( m_data ) ) {
+            m_dataout = m_data;
+            wxString javascript = wxString::Format(L"%s%s%s",
+                                                   "setval(",
+                                                   m_dataout,
+                                                   ");");
+            RunScript( javascript );
+        } // then worthwhile to be sent to the instrument
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
@@ -202,6 +190,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_webpanelCreated = true;
                 m_webpanelInitiated = true;
                 m_pThreadInstruJSTimer->Stop();
+                wxMilliSleep( GetRandomNumber( 100,999 ) ); // avoid running all updates at the same time
                 m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
