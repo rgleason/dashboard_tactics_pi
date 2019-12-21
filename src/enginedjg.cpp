@@ -63,7 +63,8 @@ DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
     m_id = id;
     previousTimestamp = 0LL; // dashboard instru base class
     m_path = wxEmptyString;
-    m_format = format;
+    m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format
+    m_data = wxString::Format( m_format, 0.0 );
     m_orient = wxVERTICAL;
     m_pSigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
@@ -100,13 +101,13 @@ void DashboardInstrument_EngineDJG::SetData(
     return; // this derived class gets its data from the multiplexer through a callback PushData()
 }
 
-void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here
+void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here, communication thread driven
     double data, wxString unit, long long timestamp)
 {
-    if( !std::isnan(data) && (data < 9999.9) ) {
-        setTimestamp( timestamp );                               // Triggers also base class' watchdog
-        m_data = wxString::Format(m_format, data) + L" " + unit; // FYI, m_data is the string base class will draw
-    } // then valid datea 
+    if ( !std::isnan(data) && (data < 9999.9) ) {
+        setTimestamp( timestamp );  // Triggers also base class' watchdog
+        m_data = wxString::Format( m_format, data );
+    } // then valid data 
 }
 
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
@@ -123,7 +124,7 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         m_threadRunning = true;
     }
 
-    if ( m_path.IsEmpty() ) {
+    if ( m_path.IsEmpty() && m_threadRunning ) {
         /*
           We will emulate in this event the right click event for a selection a signal path from a list,
           given by the hosting application in the constructor (see below how to use). We'll
@@ -133,7 +134,8 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         sTestingOnly[0] = L"propulsion.port.revolutions";
         sTestingOnly[1] = L"propulsion.port.oilPressure";
         sTestingOnly[2] = L"propulsion.port.temperature";
-        m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
+        // m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
+        m_path = sTestingOnly[1]; // Let's test with the oil pressure!
         /*
           Get the titles, descriptions and user's language for his selection from the hosting application
         */

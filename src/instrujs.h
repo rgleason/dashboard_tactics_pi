@@ -84,6 +84,7 @@ public:
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
+    virtual void SendDataToJS ( double data );
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     virtual void FitIn(void) final;
     

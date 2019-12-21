@@ -167,19 +167,33 @@ void InstruJS::OnSize( wxSizeEvent &event )
     FitIn();
 }
 
+void InstruJS::SendDataToJS ( double data )
+{
+    if ( std::isnan(data) )
+        return;
+    if ( !m_webpanelInitiated )
+        return;
+    wxString javascript = wxString::Format(L"%s%.1f%s",
+                                           "setval(",
+                                           data,
+                                           ");");
+    //(void) RunScript( javascript );
+    return;
+}
+
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_threadRunning = true;
 
     if ( m_webpanelInitiated ) {
-        FitIn();
-        // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
-        m_threadRunCount++;
-        wxString javascript = wxString::Format(L"%s%d%s",
-                                               "setval(",
-                                               m_threadRunCount,
-                                               ");");
-        RunScript( javascript );
+        // FitIn();
+        // // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
+        // m_threadRunCount++;
+        // wxString javascript = wxString::Format(L"%s%d%s",
+        //                                        "setval(",
+        //                                        m_threadRunCount,
+        //                                        ");");
+        // RunScript( javascript );
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
