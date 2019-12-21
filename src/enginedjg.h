@@ -82,7 +82,7 @@ class DashboardInstrument_EngineDJG : public InstruJS
 {
 public:
     DashboardInstrument_EngineDJG(
-        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxString format = "" );
+        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxString ids, wxString format = "" );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );
@@ -98,6 +98,7 @@ public:
 protected:
     TacticsWindow       *m_pparent;
     wxWindowID           m_id;
+    wxString             m_ids;
     wxString             m_path;
     wxString             m_format;
     int                  m_orient;

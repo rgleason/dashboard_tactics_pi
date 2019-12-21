@@ -2823,26 +2823,47 @@ bool dashboard_pi::LoadConfig( void )
             int i_cnt;
             pConf->Read( _T("InstrumentCount"), &i_cnt, -1 );
             wxArrayInt ar;
+#ifdef _TACTICSPI_H_
+            wxArrayString idar;
+#endif // _TACTICSPI_H_
             if( i_cnt != -1 ) {
                 for( int i = 0; i < i_cnt; i++ ) {
                     int id;
+#ifdef _TACTICSPI_H_
+                    wxString ids;
+                    pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
+                    pConf->Read( wxString::Format( _T("InstrumentID%d"), i + 1 ), &ids, _T("") );
+                    if( id != -1 ) {
+                        ar.Add( id );
+                        idar.Add ( ids );
+                    }
+#else
                     pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
                     if( id != -1 ) ar.Add( id );
+#endif // _TACTICSPI_H_
                 }
             } else {
                 // This is the default instrument list
+#ifdef _TACTICSPI_H_
+                ar.Add( ID_DBP_I_POS ); idar.Add( _T("") );
+                ar.Add( ID_DBP_D_COG ); idar.Add( _T("") );
+                ar.Add( ID_DBP_D_GPS ); idar.Add( _T("") );
+#else
                 ar.Add( ID_DBP_I_POS );
                 ar.Add( ID_DBP_D_COG );
                 ar.Add( ID_DBP_D_GPS );
+#endif // _TACTICSPI_H_
             }
 
-            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
 #ifdef _TACTICSPI_H_
+            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
                                                                            _("Dashboard_Tactics"),
+                                                                           _T("V"), ar, idar );
 #else
+            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
                                                                            _("Dashboard"),
-#endif // _TACTICSPI_H_
                                                                            _T("V"), ar );
+#endif // _TACTICSPI_H_
             cont->m_bPersVisible = true;
             m_ArrayOfDashboardWindow.Add(cont);
 
@@ -2869,14 +2890,31 @@ bool dashboard_pi::LoadConfig( void )
                 pConf->Read( _T("Persistence"), &b_persist, 1 );
 
                 wxArrayInt ar;
+#ifdef _TACTICSPI_H_
+                wxArrayString idar;
+                for( int j = 0; j < i_cnt; j++ ) {
+#else
                 for( int i = 0; i < i_cnt; i++ ) {
+#endif // _TACTICSPI_H_
                     int id;
+#ifdef _TACTICSPI_H_
+                    wxString ids;
+                    pConf->Read( wxString::Format( _T("Instrument%d"), j + 1 ), &id, -1 );
+                    pConf->Read( wxString::Format( _T("InstrumentID%d"), j + 1 ), &ids, _T("") );
+                    if( id != -1 ) {
+                        ar.Add( id );
+                        idar.Add ( ids );
+                    }
+                }
+                // TODO: Do not add if GetCount == 0
+                DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, name, caption, orient, ar, idar );
+#else
                     pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
                     if( id != -1 ) ar.Add( id );
                 }
                 // TODO: Do not add if GetCount == 0
-
                 DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, name, caption, orient, ar );
+#endif // _TACTICSPI_H_
                 cont->m_bPersVisible = b_persist;
 
                 if(b_persist)
@@ -2933,9 +2971,18 @@ bool dashboard_pi::SaveConfig( void )
             pConf->Write( _T("Persistence"), cont->m_bPersVisible );
 
             pConf->Write( _T("InstrumentCount"), (int) cont->m_aInstrumentList.GetCount() );
+#ifdef _TACTICSPI_H_
+            for( unsigned int j = 0; j < cont->m_aInstrumentList.GetCount(); j++ ) {
+                pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
+                              cont->m_aInstrumentList.Item( j ) );
+                pConf->Write( wxString::Format( _T("InstrumentID%d"), j + 1 ),
+                              cont->m_aInstrumentIDs.Item( j ) );
+            }
+#else
             for( unsigned int j = 0; j < cont->m_aInstrumentList.GetCount(); j++ )
                 pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
                               cont->m_aInstrumentList.Item( j ) );
+#endif // _TACTICSPI_H_
         }
         return true;
     } else
@@ -3031,7 +3078,8 @@ void dashboard_pi::ApplyConfig(
                     GetOCPNCanvasWindow(), wxID_ANY,
                     m_pauimgr, this, orient, (init ? cont : newcont), GetCommonName() );
                 newcont->m_pDashboardWindow->Show( false );
-                newcont->m_pDashboardWindow->SetInstrumentList( newcont->m_aInstrumentList );
+                newcont->m_pDashboardWindow->SetInstrumentList(
+                    newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );
                 if ( !init )
                     newcont->m_sName = MakeName();
                 NewDashboardCreated = true;
@@ -3110,7 +3158,8 @@ void dashboard_pi::ApplyConfig(
                 else {
                     m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                     if ( rebuildpane ) {
-                        cont->m_pDashboardWindow->RebuildPane( newcont->m_aInstrumentList );
+                        cont->m_pDashboardWindow->RebuildPane(
+                            newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );
                         if ( wIsDocked ) {
                             cont->m_bIsDocked = true;
                         } // was docked and rebuilt, however the constructor defaults to floating
@@ -3131,7 +3180,7 @@ void dashboard_pi::ApplyConfig(
                 GetOCPNCanvasWindow(), wxID_ANY,
                 m_pauimgr, this, orient, cont
                 );
-            cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList );
+            cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList, cont->m_aInstrumentIDs );
             bool vertical = orient == wxVERTICAL;
             wxSize sz = cont->m_pDashboardWindow->GetMinSize();
             // Mac has a little trouble with initial Layout() sizing...
@@ -3148,7 +3197,8 @@ void dashboard_pi::ApplyConfig(
             wxAuiPaneInfo& pane = m_pauimgr->GetPane( cont->m_pDashboardWindow );
             pane.Caption( cont->m_sCaption ).Show( cont->m_bIsVisible );
             if( !cont->m_pDashboardWindow->isInstrumentListEqual( cont->m_aInstrumentList ) ) {
-                cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList );
+                cont->m_pDashboardWindow->SetInstrumentList(
+                    cont->m_aInstrumentList, cont->m_aInstrumentIDs );
                 wxSize sz = cont->m_pDashboardWindow->GetMinSize();
                 pane.MinSize( sz ).BestSize( sz ).FloatingSize( sz );
             }
@@ -3608,10 +3658,39 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
         cont->m_sOrientation =
             m_pChoiceOrientation->GetSelection() ==
             0 ? _T("V") : _T("H");
+#ifdef _TACTICSPI_H_
+        DashboardWindowContainer *oldcont = new DashboardWindowContainer( cont );
+#endif // _TACTICSPI_H_
         cont->m_aInstrumentList.Clear();
+#ifdef _TACTICSPI_H_
+        cont->m_aInstrumentIDs.Clear();
+        int id, j, oldmax;
+        bool idMatch;
+        for( int i = 0; i < m_pListCtrlInstruments->GetItemCount(); i++ ) {
+            id = (int) m_pListCtrlInstruments->GetItemData( i );
+            j = 0;
+            oldmax = oldcont->m_aInstrumentIDs.GetCount();
+            idMatch = false;
+            while ( !idMatch && (j < oldmax) ) {
+                if ( id == oldcont->m_aInstrumentList.Item( j ) )
+                    idMatch = true;
+                else
+                    j++;
+            } // while searching IDs from the old instrument container
+            wxString ids = _T("");
+            if ( idMatch ) {
+                ids = oldcont->m_aInstrumentIDs.Item( j );
+                oldcont->m_aInstrumentIDs.RemoveAt( j );
+                oldcont->m_aInstrumentList.RemoveAt( j );
+            }
+            cont->m_aInstrumentList.Add( id );
+            cont->m_aInstrumentIDs.Add( ids );
+        } // for number of selected instruments
+#else
         for( int i = 0; i < m_pListCtrlInstruments->GetItemCount(); i++ )
             cont->m_aInstrumentList.Add(
                 (int) m_pListCtrlInstruments->GetItemData( i ) );
+#endif // _TACTICSPI_H_
     }
 }
 
@@ -3696,13 +3775,16 @@ void DashboardPreferencesDialog::OnDashboardAdd( wxCommandEvent& event )
     // Data is index in m_Config
     m_pListCtrlDashboards->SetItemData( idx, m_Config.GetCount() );
     wxArrayInt ar;
-    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
 #ifdef _TACTICSPI_H_
+    wxArrayString idar;
+    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
                                                                   _("Dashboard_Tactics"),
+                                                                  _T("V"), ar, idar );
 #else
+    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
                                                                   _("Dashboard"),
-#endif // _TACTICSPI_H_
                                                                   _T("V"), ar );
+#endif // _TACTICSPI_H_
     dwc->m_bIsVisible = true;
     dwc->m_bPersVisible = true;
     m_Config.Add( dwc );
@@ -3948,7 +4030,7 @@ void DashboardWindow::OnClose( wxCloseEvent &event )
     event.Skip(); // Destroy() must be called
 }
 
-void DashboardWindow::RebuildPane( wxArrayInt list )
+void DashboardWindow::RebuildPane( wxArrayInt list, wxArrayString listIDs )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
@@ -3957,7 +4039,7 @@ void DashboardWindow::RebuildPane( wxArrayInt list )
             delete pdic;
         }
     }
-    SetInstrumentList( list );
+    SetInstrumentList( list, listIDs );
 }
 
 #endif // _TACTICSPI_H_
@@ -4175,7 +4257,11 @@ bool DashboardWindow::isInstrumentListEqual( const wxArrayInt& list )
     return isArrayIntEqual( list, m_ArrayOfInstrument );
 }
 
+#ifdef _TACTICSPI_H_
+void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs )
+#else
 void DashboardWindow::SetInstrumentList( wxArrayInt list )
+#endif // _TACTICSPI_H_
 {
     /* options
        ID_DBP_D_SOG: config max value, show STW optional
@@ -4204,6 +4290,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
+#ifdef _TACTICSPI_H_
+        wxString ids = listIDs.Item( i );
+#endif // _TACTICSPI_H_
         instrument = NULL;
         switch( id ){
         case ID_DBP_I_POS:
@@ -4674,9 +4763,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     this, wxID_ANY,
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
             //     _T("%3.1f bar"));
+            if ( ids.IsEmpty() )
+                ids = GetUUID();
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector );
+                &m_plugin->m_sigPathLangVector, ids );
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4685,9 +4776,15 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #ifdef _TACTICSPI_H_
             Unbind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
 #endif // _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
+            m_ArrayOfInstrument.Add(
+                new DashboardInstrumentContainer(
+                    id, instrument, instrument->GetCapacity(), ids ) );
+#else
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
                     id, instrument, instrument->GetCapacity() ) );
+#endif // _TACTICSPI_H_
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
 #ifdef _TACTICSPI_H_
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
@@ -4702,7 +4799,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 #endif // _TACTICSPI_H_
             }
         }
-    }
+#ifdef _TACTICSPI_H_
+        m_Container->m_aInstrumentIDs.Item( i ) = ids; // UUID for persistance
+#endif // _TACTICSPI_H_
+    } // for items in the list
 #ifdef _TACTICSPI_H_
     itemBoxSizer->SetSizeHints( this );
     Layout();

@@ -107,9 +107,16 @@ class DashboardInstrumentContainer;
 class DashboardWindowContainer
 {
 public:
+#ifdef _TACTICSPI_H_
+    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation,
+                             wxArrayInt inst, wxArrayString instID ) {
+        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation;
+        m_aInstrumentList = inst; m_aInstrumentIDs = instID;
+        m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
+#else
     DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
         m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
-
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
             m_pDashboardWindow = sourcecont->m_pDashboardWindow;
@@ -121,6 +128,7 @@ public:
             m_sCaption         = sourcecont->m_sCaption;
             m_sOrientation     = sourcecont->m_sOrientation;
             m_aInstrumentList  = sourcecont->m_aInstrumentList;
+            m_aInstrumentIDs   = sourcecont->m_aInstrumentIDs;
     }
 #endif // _TACTICSPI_H_
  
@@ -135,6 +143,9 @@ DashboardWindow              *m_pDashboardWindow;
     wxString                  m_sCaption;
     wxString                  m_sOrientation;
     wxArrayInt                m_aInstrumentList;
+#ifdef _TACTICSPI_H_
+    wxArrayString             m_aInstrumentIDs;
+#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrumentContainer
@@ -142,9 +153,9 @@ class DashboardInstrumentContainer
 public:
 #ifdef _TACTICSPI_H_
     DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
-                                 unsigned long long capa)
+                                 unsigned long long capa, wxString ids = _T("") )
         {
-            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
+            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; m_IDs = ids;
         };
 #else
     DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
@@ -157,6 +168,7 @@ public:
     int                     m_ID;
 #ifdef _TACTICSPI_H_
     unsigned long long      m_cap_flag;
+    wxString                m_IDs;
 #else
     int                     m_cap_flag;
 #endif // _TACTICSPI_H_
@@ -452,10 +464,14 @@ public:
     void OnContextMenu( wxContextMenuEvent& evt );
     void OnContextMenuSelect( wxCommandEvent& evt );
     bool isInstrumentListEqual( const wxArrayInt& list );
+#ifdef _TACTICSPI_H_
+    void SetInstrumentList( wxArrayInt list, wxArrayString listIDs );
+#else
     void SetInstrumentList( wxArrayInt list );
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     void SetMinSizes( void );
-    void RebuildPane( wxArrayInt list );
+    void RebuildPane( wxArrayInt list, wxArrayString listIDs);
 #endif // _TACTICSPI_H_
     void SendSentenceToAllInstruments(
 #ifdef _TACTICSPI_H_
