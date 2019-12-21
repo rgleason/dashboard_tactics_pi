@@ -136,6 +136,8 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_pWebPanel->Create(
             this, wxID_ANY, "file://" + fullPath );
+        wxSizer *thisSizer = GetSizer();
+        m_pWebPanel->SetSizer( thisSizer ); 
         m_pWebPanel->SetAutoLayout( true );
         m_pWebPanel->SetInitialSize( initialSize );
         FitIn();
@@ -153,9 +155,8 @@ void InstruJS::FitIn()
         m_lastSize = newSize;
         if ( m_webpanelCreated || m_webpanelCreateWait ) {
             m_pWebPanel->SetSize( newSize );
-            Fit();
-            Layout();
-            Refresh();
+            /* Note: do not call here Layout() even this is used also by OnSize() event,
+               the WebPanel is attached to the DashboardWindow object's (top level) sizer */
         }
     }
 }
