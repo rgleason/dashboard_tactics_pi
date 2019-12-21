@@ -61,8 +61,10 @@ DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
 {
     m_pparent = pparent;
     m_id = id;
-    previousTimestamp = 0LL;
+    previousTimestamp = 0LL; // dashboard instru base class
     m_path = wxEmptyString;
+    m_format = format;
+    m_orient = wxVERTICAL;
     m_pSigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
@@ -110,11 +112,11 @@ void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
     if ( !m_threadRunning ) {
-        wxSize thisFrameInitSize = wxSize (ENGINED_WINDOW_MINIMUM_WIDTH,
-                                           ENGINED_WINDOW_MINIMUM_HEIGHT);
+        wxSize thisSize = wxControl::GetSize();
+        wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
         SetInitialSize ( thisFrameInitSize );
-        wxSize webViewInitSize = wxSize (ENGINED_WINDOW_DEFAULT_WIDTH,
-                                         ENGINED_WINDOW_DEFAULT_HEIGHT);
+        wxSize webViewInitSize = thisFrameInitSize;
+        webViewInitSize.x -= ENGINED_WINDOW_ANTISCROLLBAR_BORDER;
         this->loadHTML( m_fullPathHTML, webViewInitSize );
         m_pThreadEngineDJGTimer->Stop();
         m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
@@ -153,7 +155,8 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
 {
     int x,y;
-    if( orient == wxHORIZONTAL ) {
+    m_orient = orient;
+    if( m_orient == wxHORIZONTAL ) {
         x = ENGINED_WINDOW_MINIMUM_WIDTH;
         y = wxMax( hint.y, ENGINED_WINDOW_MINIMUM_HEIGHT );
     }

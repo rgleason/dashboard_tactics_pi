@@ -820,14 +820,18 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
         if( dashboard_window ) {
             pane = m_pauimgr->GetPane( dashboard_window );
             if ( pane.IsOk() ) {
-                if ( pane.IsDocked() && !m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
-                    SetApplySaveWinRequest();
-                    return;
-                } // then workaround missing Aui on-docking event
-                else if ( m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
-                    SetApplySaveWinRequest();
-                    return;
-                } // else workardound missing Aui on-undocking event
+                if ( pane.IsDocked() ) {
+                    if ( !m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
+                        SetApplySaveWinRequest();
+                        return;
+                    } // then workaround missing Aui on-docking event
+                } // then pane is docked
+                else {
+                    if ( m_ArrayOfDashboardWindow.Item( i )->m_bIsDocked ) {
+                        SetApplySaveWinRequest();
+                        return;
+                    } // then workaround for missing AUI un-dock pane event
+                } // else pane is floating
             } // then valid window pane of the dashboard window
         } // then valid dashboard window in the container
     } // for number of dashboard windows in the container
@@ -3960,7 +3964,6 @@ void DashboardWindow::RebuildPane( wxArrayInt list )
 
 void DashboardWindow::SetMinSizes( )
 {
-
     for( unsigned int i=0; i<m_ArrayOfInstrument.size(); i++ ) {
         DashboardInstrument* inst = m_ArrayOfInstrument.Item(i)->m_pInstrument;
         wxSize instMinSize = inst->GetSize(

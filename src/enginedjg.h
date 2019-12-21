@@ -85,6 +85,7 @@ protected:
     wxWindowID           m_id;
     wxString             m_path;
     wxString             m_format;
+    int                  m_orient;
     sigPathLangVector   *m_pSigPathLangVector;
     wxTimer             *m_pThreadEngineDJGTimer;
     bool                 m_threadRunning;
