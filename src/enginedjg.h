@@ -47,13 +47,25 @@ using namespace std::placeholders;
   and the JavaScript instrument, here we have set the values to
   the JustGauge scalable, SVG-drawn instrument, experimentally: it
   appears to scale down to the below window on supported platforms,
-  also note the anti-scroll bar border (like for IE).
+  also note the anti-scroll bar border (like for IE) in addition to
+  to javascript to turn off the scroll bars. It allows to have also
+  a narrow area where browser menu items do not mask the application
+  menu. If one changes these value, multi-platform, multi-window
+  re-testing with docked and non-docked windows is mandatory.
 */
-#define ENGINED_WINDOW_DEFAULT_WIDTH         230
-#define ENGINED_WINDOW_DEFAULT_HEIGHT        185
-#define ENGINED_WINDOW_ANTISCROLLBAR_BORDER    2
-#define ENGINED_WINDOW_MINIMUM_WIDTH         (ENGINED_WINDOW_DEFAULT_WIDTH + ENGINED_WINDOW_ANTISCROLLBAR_BORDER)
-#define ENGINED_WINDOW_MINIMUM_HEIGHT        ENGINED_WINDOW_DEFAULT_HEIGHT
+#ifdef __WXMSW__
+#define ENGINEDJG_WIDTH    232
+#define ENGINEDJG_HEIGHT   185
+#define ENGINEDJG_BORDER     0
+#define ENGINEDJG_MIN_WIDTH  (ENGINEDJG_WIDTH + ENGINEDJG_BORDER)
+#define ENGINEDJG_MIN_HEIGHT ENGINEDJG_HEIGHT
+#else
+#define ENGINEDJG_WIDTH    120
+#define ENGINEDJG_HEIGHT   102
+#define ENGINEDJG_BORDER     2
+#define ENGINEDJG_MIN_WIDTH  ENGINEDJG_WIDTH
+#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_HEIGHT + ENGINEDJG_BORDER)
+#endif // ifdef __WXMSW__
 
 //+------------------------------------------------------------------------------
 //|

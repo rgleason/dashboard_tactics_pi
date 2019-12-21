@@ -176,7 +176,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         // Demonstrate the passing of a value "à la numerical DashboardInstrument" to WebView
         m_threadRunCount++;
         wxString javascript = wxString::Format(L"%s%d%s",
-                                               "func(",
+                                               "setval(",
                                                m_threadRunCount,
                                                ");");
         RunScript( javascript );
