@@ -36,6 +36,7 @@
 
 #include "skdata.h"
 #include <string>
+#include <algorithm>
 
 //************************************************************************************************************************
 // Signal K originated data handling / containers / C++/HTML/CSS/JS
