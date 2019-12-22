@@ -2,7 +2,7 @@ var g = new JustGage({
     id: "gauge",
     value: 0,
     decimals: 1,
-    label: "Right click\nto select",
+    label: "[init]",
     min: 0,
     max: 100,
     pointer: true,
@@ -21,17 +21,29 @@ var g = new JustGage({
     relativeGaugeSize: true
 });
 var skpath = "";
+var titlepath = "";
+var unit = "";
+var conversion = 100000;
 var setval = function(newval) {
-    g.refresh(newval);
+    var conval = newval / conversion;
+    g.refresh(conval);
 };
 var setconf = function(newskpath, val, min, max ) {
     skpath = newskpath;
     var arr = newskpath.split(".");
-    if ( arr.length > 2)
-        var str2 = arr[0] + '.' + arr[1] + '\n';
-    for ( i = 2; i < arr.length; i++ )
-        str2 += '.' + arr[i]; 
-    g.refresh(val, max, min, str2 );
+    titlepath = "<p>";
+    for ( i = 0; i < (arr.length-1); i++ )
+        titlepath += arr[i] + ".";
+    titlepath += "<b>" + arr[arr.length-1] + "</b>";
+    document.getElementById('skPath').innerHTML = titlepath;
+    unit = "[bar]"
+    var nMin = min || null;
+    if (nMin == null)
+        nMin = 0;
+    var nMax = max || null;
+    if (nMax == null)
+        nMax = 6
+    g.refresh(val, nMax, nMin, unit );
 };
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden'; // webkit

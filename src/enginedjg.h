@@ -56,17 +56,19 @@ using namespace std::placeholders;
   re-testing with docked and non-docked windows is mandatory.
 */
 #ifdef __WXMSW__
+#define ENGINEDJG_TITLEH    20
 #define ENGINEDJG_WIDTH    232
 #define ENGINEDJG_HEIGHT   180
 #define ENGINEDJG_BORDER     0
 #define ENGINEDJG_MIN_WIDTH  (ENGINEDJG_WIDTH + ENGINEDJG_BORDER)
-#define ENGINEDJG_MIN_HEIGHT ENGINEDJG_HEIGHT
+#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_TITLEH + ENGINEDJG_HEIGHT)
 #else
+#define ENGINEDJG_TITLEH    20
 #define ENGINEDJG_WIDTH    120
 #define ENGINEDJG_HEIGHT   102
 #define ENGINEDJG_BORDER     2
 #define ENGINEDJG_MIN_WIDTH  ENGINEDJG_WIDTH
-#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_HEIGHT + ENGINEDJG_BORDER)
+#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_TITLEH + ENGINEDJG_HEIGHT + ENGINEDJG_BORDER)
 #endif // ifdef __WXMSW__
 
 //+------------------------------------------------------------------------------

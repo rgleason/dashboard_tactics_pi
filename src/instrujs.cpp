@@ -185,13 +185,9 @@ void InstruJS::setNewConfig( wxString newSkPath )
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     if ( !instrIsReadyForConfig() )
         return;
-    wxString min = "0";
-    wxString max = "400000";
-    wxString javascript = wxString::Format(L"%s%s%s%s%s%s%s%s%s",
+    wxString javascript = wxString::Format(L"%s%s%s%s%s",
                                            "setconf(\"",newSkPath,
                                            "\",",m_data,
-                                           ",",min,
-                                           ",",max,
                                            ");");
     RunScript( javascript );
 }
