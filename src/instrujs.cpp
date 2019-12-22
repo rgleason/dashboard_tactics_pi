@@ -61,7 +61,7 @@ DashboardInstrument( pparent, id, "---", 0LL, true )
     m_pparent = pparent;
     m_id = id;
     m_threadRunning = false;
-    m_threadRunCount = 0;
+    std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
     m_webpanelInitiated  = false;
@@ -169,10 +169,37 @@ void InstruJS::OnSize( wxSizeEvent &event )
     FitIn();
 }
 
+void InstruJS::suspendInstrument()
+{
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    if ( instrIsRunning() ) {
+        m_pThreadInstruJSTimer->Stop();
+        m_webpanelInitiated = false;
+        wxMilliSleep( GetRandomNumber( 100,199 ) ); // avoid running all updates at the same time
+        m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+    } // then running, can be suspended but keep thread running
+}
+
+void InstruJS::setNewConfig( wxString newSkPath )
+{
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    if ( !instrIsReadyForConfig() )
+        return;
+    wxString min = "0";
+    wxString max = "400000";
+    wxString javascript = wxString::Format(L"%s%s%s%s%s%s%s%s%s",
+                                           "setconf(\"",newSkPath,
+                                           "\",",m_data,
+                                           ",",min,
+                                           ",",max,
+                                           ");");
+    RunScript( javascript );
+}
+
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     m_threadRunning = true;
-
     if ( m_webpanelInitiated ) {
         if ( !m_dataout.IsSameAs( m_data ) ) {
             m_dataout = m_data;
@@ -188,7 +215,6 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-                m_webpanelInitiated = true;
                 m_pThreadInstruJSTimer->Stop();
                 wxMilliSleep( GetRandomNumber( 100,999 ) ); // avoid running all updates at the same time
                 m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);

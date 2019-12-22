@@ -109,6 +109,8 @@ IF (TACTICS_INSTRUMENTS)
       src/enginedjg.cpp
       src/instrujs.h
       src/instrujs.cpp
+      src/skdata.h
+      src/skdata.cpp
   )
 ENDIF (TACTICS_INSTRUMENTS)
 

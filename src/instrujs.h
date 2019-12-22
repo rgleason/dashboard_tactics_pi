@@ -74,6 +74,11 @@ public:
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
+    virtual bool instrIsRunning(void) { return m_webpanelInitiated; };
+    virtual void suspendInstrument(void);
+    virtual bool instrIsReadyForConfig(void) { return m_webpanelCreated; };
+    virtual void setNewConfig ( wxString newSkPath );
+    virtual void restartInstrument(void) { m_webpanelInitiated = true; };
     virtual void stopScript(void); // if overriding OnClose(), call this
 
     void timeoutEvent(void) override;
@@ -93,8 +98,8 @@ protected:
     wxString             m_title;
     wxString             m_data;
     wxString             m_dataout;
+    std::mutex           m_mtxScriptRun;
     bool                 m_threadRunning;
-    int                  m_threadRunCount;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
     bool                 m_webpanelInitiated;

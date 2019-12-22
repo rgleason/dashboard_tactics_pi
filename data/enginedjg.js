@@ -1,10 +1,10 @@
 var g = new JustGage({
     id: "gauge",
-    value: 67,
+    value: 0,
     decimals: 1,
-    label: "Oil pressure [bar]",
+    label: "Right click\nto select",
     min: 0,
-    max: 6,
+    max: 100,
     pointer: true,
     pointerOptions: {
         toplength: -15,
@@ -20,8 +20,18 @@ var g = new JustGage({
     valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
+var skpath = "";
 var setval = function(newval) {
     g.refresh(newval);
+};
+var setconf = function(newskpath, val, min, max ) {
+    skpath = newskpath;
+    var arr = newskpath.split(".");
+    if ( arr.length > 2)
+        var str2 = arr[0] + '.' + arr[1] + '\n';
+    for ( i = 2; i < arr.length; i++ )
+        str2 += '.' + arr[i]; 
+    g.refresh(val, max, min, str2 );
 };
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden'; // webkit

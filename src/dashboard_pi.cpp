@@ -570,8 +570,10 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_Watchdog = 0;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
-    APPLYSAVEWININIT
+    APPLYSAVEWININIT;
+    mSkData = new SkData();
 #endif // _TACTICSPI_H_
+
     // Create the PlugIn icons
     initialize_images();
 }
@@ -581,6 +583,7 @@ dashboard_pi::~dashboard_pi( void )
 #ifdef _TACTICSPI_H_
     delete _img_dashboard_tactics_pi;
     delete _img_dashboard_tactics;
+    delete mSkData;
 #else
     delete _img_dashboard_pi;
     delete _img_dashboard;
@@ -796,7 +799,7 @@ void dashboard_pi::Notify()
         ApplyConfig();
         SaveConfig();
     }
-    APPLYSAVEWINSERVED
+    APPLYSAVEWINSERVED;
 #endif //  _TACTICSPI_H_
     return;
 }
@@ -1989,6 +1992,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
         if ( type->IsSameAs( "NMEA0183", false ) ) {
 
+            // mSkData->UpdateNMEA0183PathList( path, key );
+            
             if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
                     if( mPriDepth >= 2 ) {
@@ -2439,46 +2444,53 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         } // then NMEA-0183 delta from Signal K
         else if ( type->IsSameAs( "NMEA2000", false ) ) {
 
-            if ( pgn == PGN_ENG_PARAM_RAP ) {
-                if ( path->CmpNoCase(_T("propulsion.port.revolutions")) == 0 ) {
-                //     SendSentenceToAllInstruments(
-                //         OCPN_DBP_STC_ENGPRPM,
-                //         ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
-                //         L"",
-                //         timestamp );
-                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-                        L"propulsion.port.revolutions",
-                        ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
-                        L"",
-                        timestamp );
-                }
-            }
-            else if ( pgn == PGN_ENG_PARAM_DYN ) {
-                if ( path->CmpNoCase(_T("propulsion.port.temperature")) == 0 ) {
-                    // SendSentenceToAllInstruments(
-                    //     OCPN_DBP_STC_ENGPTEMP,
-                    //     ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
-                    //     L"",
-                    //     timestamp );
-                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-                        L"propulsion.port.temperature",
-                        ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
-                        L"",
-                        timestamp );
-                }
-                else if ( path->CmpNoCase(_T("propulsion.port.oilPressure")) == 0 ) {
-                    // SendSentenceToAllInstruments(
-                    //     OCPN_DBP_STC_ENGPOILP,
-                    //     ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
-                    //     L"",
-                    //     timestamp );
-                    this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-                        L"propulsion.port.oilPressure",
-                        ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
-                        L"",
-                        timestamp );
-                }
-            }
+            mSkData->UpdateNMEA2000PathList( path, key );
+
+            this->SendDataToAllPathSubscribers(
+                ( key == NULL ? *path : (*path + _T(".") + *key) ),
+                ( std::isnan( value ) ? 0.0 : value), L"", timestamp );
+
+            // if ( pgn == PGN_ENG_PARAM_RAP ) {
+            //     if ( path->CmpNoCase(_T("propulsion.port.revolutions")) == 0 ) {
+            //     //     SendSentenceToAllInstruments(
+            //     //         OCPN_DBP_STC_ENGPRPM,
+            //     //         ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
+            //     //         L"",
+            //     //         timestamp );
+            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+            //             L"propulsion.port.revolutions",
+            //             ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
+            //             L"",
+            //             timestamp );
+            //     }
+            // }
+            // else if ( pgn == PGN_ENG_PARAM_DYN ) {
+            //     if ( path->CmpNoCase(_T("propulsion.port.temperature")) == 0 ) {
+            //         // SendSentenceToAllInstruments(
+            //         //     OCPN_DBP_STC_ENGPTEMP,
+            //         //     ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
+            //         //     L"",
+            //         //     timestamp );
+            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+            //             L"propulsion.port.temperature",
+            //             ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
+            //             L"",
+            //             timestamp );
+            //     }
+            //     else if ( path->CmpNoCase(_T("propulsion.port.oilPressure")) == 0 ) {
+            //         // SendSentenceToAllInstruments(
+            //         //     OCPN_DBP_STC_ENGPOILP,
+            //         //     ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
+            //         //     L"",
+            //         //     timestamp );
+            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
+            //             L"propulsion.port.oilPressure",
+            //             ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
+            //             L"",
+            //             timestamp );
+            //     }
+
+            // }
             
         } // then NMEA-2000 delta from Signal K
                 

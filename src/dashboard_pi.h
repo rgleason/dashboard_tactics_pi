@@ -79,6 +79,7 @@
 #include "from_ownship.h"
 #include "iirfilter.h"
 #ifdef _TACTICSPI_H_
+#include "skdata.h"
 #include "enginei.h"
 #include "enginedjg.h"
 #endif // _TACTICSPI_H_
@@ -266,7 +267,7 @@ public:
     //#define APPLYSAVEWININIT       mApS_Watchcat=-1; // no OnAuiRender() at init (fast, but will hit later on docked items)
 #define APPLYSAVEWINREQUESTED  mApS_Watchcat==1
 #define APPLYSAVEWINRUNNING    mApS_Watchcat!=0
-#define APPLYSAVEWINSERVED     mApS_Watchcat=0;
+#define APPLYSAVEWINSERVED     mApS_Watchcat=0
 #define APPLYSAVEWININIT       APPLYSAVEWINSERVED    // OnAuiRender() capture handled at init, slower/reliable docked items)
 #endif // _TACTICSPI_H_
 
@@ -335,6 +336,7 @@ private:
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
+    SkData              *mSkData;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

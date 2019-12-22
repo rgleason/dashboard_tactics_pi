@@ -111,7 +111,7 @@ void DashboardInstrument_EngineDJG::SetData(
 void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here, communication thread driven
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) && (data < 9999.9) ) {
+    if ( !std::isnan(data) ) {
         setTimestamp( timestamp );  // Triggers also base class' watchdog
         m_data = wxString::Format( m_format, data );
     } // then valid data 
@@ -119,7 +119,30 @@ void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here,
 
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
-    if ( !m_threadRunning ) {
+    if ( m_threadRunning ) {
+        if ( m_path.IsEmpty() ) {
+            /*
+              We will emulate in this event the right click event for a selection a signal path from a list,
+              given by the hosting application in the constructor (see below how to use). We'll
+              make a simple random simulator (not to implement any GUI features for now)
+            */
+            wxString sTestingOnly[3];
+            sTestingOnly[0] = L"propulsion.port.revolutions";
+            sTestingOnly[1] = L"propulsion.port.oilPressure";
+            sTestingOnly[2] = L"propulsion.port.temperature";
+            // m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
+            m_path = sTestingOnly[1]; // Let's test with the oil pressure!
+            // Subscribe to the signal path data with this object's method to call back
+            m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
+                                   this, _1, _2, _3 );
+            m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
+        }
+        if ( instrIsReadyForConfig() && !instrIsRunning() ) {
+            setNewConfig ( m_path );
+            restartInstrument();
+        }
+    }
+    else {
         wxSize thisSize = wxControl::GetSize();
         wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
         SetInitialSize ( thisFrameInitSize );
@@ -129,36 +152,26 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         m_pThreadEngineDJGTimer->Stop();
         m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
         m_threadRunning = true;
-    }
+    } // else thread is not running (no JS instrument created in this frame)
 
-    if ( m_path.IsEmpty() && m_threadRunning ) {
-        /*
-          We will emulate in this event the right click event for a selection a signal path from a list,
-          given by the hosting application in the constructor (see below how to use). We'll
-          make a simple random simulator (not to implement any GUI features for now)
-        */
-        wxString sTestingOnly[3];
-        sTestingOnly[0] = L"propulsion.port.revolutions";
-        sTestingOnly[1] = L"propulsion.port.oilPressure";
-        sTestingOnly[2] = L"propulsion.port.temperature";
-        // m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
-        m_path = sTestingOnly[1]; // Let's test with the oil pressure!
+
         /*
           Get the titles, descriptions and user's language for his selection from the hosting application
         */
-        sigPathLangVector::iterator it = std::find_if(
-            m_pSigPathLangVector->begin(), m_pSigPathLangVector->end(),
-            [this](const sigPathLangTuple& e){return std::get<0>(e) == m_path;});
-        if ( it != m_pSigPathLangVector->end() ) {
-            sigPathLangTuple sigPathWithLangFeatures = *it;
-            // the window title is changed in the base class, see instrument.h
-            m_title = std::get<1>(sigPathWithLangFeatures);
-            // Subscribe to the signal path data with this object's method to call back
-            m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
-                                   this, _1, _2, _3 );
-            m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
-        } // then found user selection from the available signal paths for subsribtion
-    } // then not subscribed to any path yet
+        // sigPathLangVector::iterator it = std::find_if(
+        //     m_pSigPathLangVector->begin(), m_pSigPathLangVector->end(),
+        //     [this](const sigPathLangTuple& e){return std::get<0>(e) == m_path;});
+        // if ( it != m_pSigPathLangVector->end() ) {
+        //     sigPathLangTuple sigPathWithLangFeatures = *it;
+        //     // the window title is changed in the base class, see instrument.h
+        //     m_title = std::get<1>(sigPathWithLangFeatures);
+        //     // Subscribe to the signal path data with this object's method to call back
+        //     m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
+        //                            this, _1, _2, _3 );
+        //     m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
+        // } // then found user selection from the available signal paths for subsribtion
+
+    // } // then not subscribed to any path yet
 }
 
 wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
