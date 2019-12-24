@@ -24,11 +24,13 @@ var skpath = "";
 var titlepath = "";
 var unit = "";
 var conversion = 100000;
-var setval = function(newval) {
+
+function setval(newval) {
     var conval = newval / conversion;
     g.refresh(conval);
-};
-var setconf = function(newskpath, val, min, max ) {
+}
+
+function setconf(newskpath, val, min, max ) {
     skpath = newskpath;
     let arr = newskpath.split(".");
     titlepath = "<p>";
@@ -44,19 +46,14 @@ var setconf = function(newskpath, val, min, max ) {
     if (nMax == null)
         nMax = 6
     g.refresh(val, nMax, nMin, unit );
-};
-var unloadScrollBars = function() {
-    document.documentElement.style.overflow = 'visible'; // webkit
-    document.body.scroll = "no"; // ie
 }
-window.addEventListener('load', 
-                        function() {
-                            unloadScrollBars();                     
-                            setval(0);
-                            setMenu();
-                        }, false);
 
-var setMenu = (function() {
+function regPath(selectedPath) {
+    console.log('regPath ', selectedPath );
+    setconf( selectedPath, 0 );
+}
+
+var setMenu = (function setMenu() {
     let sortedpath = [
         'environment.wind.angleApparent',
         'environment.wind.speedApparent',
@@ -95,31 +92,51 @@ var setMenu = (function() {
             }
         }
         menuul += '<li class="menu-item">';
-        menuul += '<button type="button" class="menu-btn">';
-        menuul += '<span class="menu-text">';
+        // menuul += '<button type="button" class="menu-btn">';
+        menuul += '<button onclick="regPath(' + "'";
+        menuul += sortedpath[i];
+        menuul += "'" + ');" type="button" class="menu-btn">';
+        menuul += '<span onclick="regPath(' + "'";
+        menuul += sortedpath[i];
+        menuul += "'" + ');" class="menu-text">';
         menuul += pathel[j];
         menuul += '</span></button></li>';
     }
-    menuul += '</li>';
+    menuul += '</li></ul>';
     document.getElementById('pathMenu').innerHTML = menuul;
     document.getElementById('pathMenu').overflow = 'visible';
 })();
+
+window.addEventListener('load', 
+                        function() {
+//                            unloadScrollBars();                     
+                            setval(0);
+  //                          setMenu();
+                        }, false);
 
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden'; // webkit
     document.body.scroll = "no"; // ie
 }
+
 window.addEventListener('load', 
                         function() {
-                            // unloadScrollBars(); 
+                            // unloadScrollBars();
+                            setval(0);
+                            // setMenu();
                         }, false);
 
 //Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
 var menu = document.querySelector('.menu');
 
 function showMenu(x, y){
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
+   /*
+     Override the default position in CSS to be the one of the cursors.
+     However, the canvas is usually very small a situation may occure
+     where not all menu items are entirely visible. Adjust rather CSS.
+   */
+    //    menu.style.left = x + 'px';
+    //    menu.style.top = y + 'px';
     menu.classList.add('menu-show');
 }
 

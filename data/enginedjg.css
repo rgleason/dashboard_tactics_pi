@@ -1,7 +1,8 @@
-body {style="overflow: visible"}
 p {color: blue; font-size: 12px; font-family:helvetica;}
 
-//Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+// Original work MIT Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+// Modified for OpenCPN
+
 html {
     width: 100%;
     height: 100%;
@@ -9,9 +10,11 @@ html {
 }
 
 .container {
-    position: absolute;
-    top: 20%;
-    left: 0;
+//    position: absolute;
+    position: fixed;
+    overflow: visible;
+    top: 2%;
+    left: 2%;
     width: 100%;
     margin: auto;
     text-align: center;
@@ -26,8 +29,10 @@ h2 {
 
 .menu {
     position: absolute;
-    width: 180px;
-    padding: 2px;
+    top: 2%;
+    left: 2%;
+    width: 130px;
+    padding: 1px;
     margin: 0;
     border: 1px solid #bbb;
     background: #eee;
@@ -54,13 +59,13 @@ h2 {
 .menu-btn { 
     display: block;
     color: #444;
-    font-family: 'Roboto', sans-serif;
-    font-size: 13px;
+    font-family: 'Helvetica', sans-serif;
+    font-size: 11px;
     cursor: pointer;
     border: 1px solid transparent;
     white-space: nowrap;
-    padding: 6px 8px;
-    border-radius: 3px;
+    padding: 3px 4px;
+    border-radius: 2px;
 }
 
 button.menu-btn {
@@ -80,12 +85,12 @@ a.menu-btn {
 }
 
 .menu-text {
-    margin-left: 5px;
+    margin-left: 2px;
 }
 
 .menu-btn .fa {
     position: absolute;
-    left: 8px;
+    left: 4px;
     top: 50%;
     -webkit-transform: translateY(-50%);
     transform: translateY(-50%);
@@ -111,7 +116,7 @@ a.menu-btn {
 
 .menu-separator {
     display:block;
-    margin: 7px 5px;
+    margin: 5px 3px;
     height:1px;
     border-bottom: 1px solid #fff;
     background-color: #aaa;
@@ -120,7 +125,7 @@ a.menu-btn {
 .menu-item-submenu::after {
     content: "";
     position: absolute;
-    right: 6px;
+    right: 1px;
     top: 50%;
     -webkit-transform: translateY(-50%);
     transform: translateY(-50%);
@@ -133,8 +138,8 @@ a.menu-btn {
 }
 
 .menu .menu {
-    top: 4px;
-    left: 99%;
+    top: 2px;
+    left: 20%;
 }
 
 .menu-show,
@@ -149,4 +154,3 @@ a.menu-btn {
     -webkit-transition-delay: 300ms;
     transition-delay: 300ms;
 }
-
