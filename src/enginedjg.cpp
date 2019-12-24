@@ -2,7 +2,7 @@
 * $Id: enginedjg.cpp, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
-* Purpose:  dahbooard_tactics_pi plug-in
+* Purpose:  dahboard_tactics_pi plug-in
 * Author:   Jean-Eudes Onfray
 * 
 ***************************************************************************

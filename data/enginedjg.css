@@ -1,7 +1,7 @@
 p {color: blue; font-size: 12px; font-family:helvetica;}
 
 // Original work MIT Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
-// Modified for OpenCPN
+// Modified for OpenCPN and wxWidgets/WebKit
 
 html {
     width: 100%;

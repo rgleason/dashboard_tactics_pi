@@ -1,3 +1,7 @@
+/* $Id: enginedjg.js, v1.0 2019/11/30 VaderDarth Exp $
+ * OpenCPN dashboard_tactics plug-in
+ * Licensed under MIT - see distribution.
+ */
 var g = new JustGage({
     id: "gauge",
     value: 0,
@@ -30,22 +34,28 @@ function setval(newval) {
     g.refresh(conval);
 }
 
-function setconf(newskpath, val, min, max ) {
-    skpath = newskpath;
-    let arr = newskpath.split(".");
+// Interface to C++, types needs to be set
+function setconf(newskpath, inval, inmin, inmax ) {
+    if ( (newskpath == null) || ( newskpath === '' ) ) {
+        console.log('enginedjg.js setconf() - warning: null or invalid SK path');
+        return;
+    }
+    skpath = newskpath + '';
+    var arrxsk = skpath.split(".");
     titlepath = "<p>";
-    for ( i = 0; i < (arr.length-1); i++ )
-        titlepath += arr[i] + ".";
-    titlepath += "<b>" + arr[arr.length-1] + "</b>";
+    for ( i = 0; i < (arrxsk.length-1); i++ ) {
+        titlepath += arrxsk[i] + ".";
+    }
+    titlepath += "<b>" + arrxsk[arrxsk.length-1] + "</b>";
     document.getElementById('skPath').innerHTML = titlepath;
-    unit = "[bar]"
-    let nMin = min || null;
+    unit = "[bar]";
+    var nMin = inmin || null;
     if (nMin == null)
         nMin = 0;
-    let nMax = max || null;
+    var nMax = inmax || null;
     if (nMax == null)
-        nMax = 6
-    g.refresh(val, nMax, nMin, unit );
+        nMax = 6;
+    g.refresh(inval, nMax, nMin, unit );
 }
 
 function regPath(selectedPath) {
@@ -54,7 +64,7 @@ function regPath(selectedPath) {
 }
 
 var setMenu = (function setMenu() {
-    let sortedpath = [
+    var sortedpath = [
         'environment.wind.angleApparent',
         'environment.wind.speedApparent',
         'navigation.courseOverGroundTrue',
@@ -69,11 +79,11 @@ var setMenu = (function setMenu() {
         'propulsion.starboard.temperature',
         'battery.empty',
     ];
-    let menuul = '<ul id="mi1-u-0" class="menu">';
-    let topics = ['','','','','','','','',''];
-    let submenustart = 0;
+    var menuul = '<ul id="mi1-u-0" class="menu">';
+    var topics = ['','','','','','','','',''];
+    var submenustart = 0;
     for ( i = 0; i < sortedpath.length; i++ ) {
-        let pathel = sortedpath[ i ].split('.');
+        var pathel = sortedpath[ i ].split('.');
         for ( j = 0; j < ( pathel.length - 1); j++ ) {
             if ( pathel[j] != topics[j] ) {
                 topics[j] = pathel[j];
@@ -112,8 +122,7 @@ var setMenu = (function setMenu() {
 
 window.addEventListener('load', 
                         function() {
-//                            unloadScrollBars();                     
-                            setval(0);
+                            newval('',0);
   //                          setMenu();
                         }, false);
 
@@ -126,14 +135,7 @@ var unloadScrollBars = function() {
 // Modified for OpenCPN gauge / display usage
 var menu = document.querySelector('.menu');
 
-function showMenu(x, y){
-   /*
-     Override the default position in CSS to be the one of the cursors.
-     However, the canvas is usually very small a situation may occure
-     where not all menu items are entirely visible. Adjust rather CSS.
-   */
-    //    menu.style.left = x + 'px';
-    //    menu.style.top = y + 'px';
+function showMenu(){
     menu.classList.add('menu-show');
 }
 
@@ -143,8 +145,8 @@ function hideMenu(){
 
 function onContextMenu(e){
     e.preventDefault();
-    showMenu(e.pageX, e.pageY);
-    document.addEventListener('mousedown', onMouseDown, false);
+    showMenu();
+    document.addEventListener('mousedown', onMouseDown );
 }
 
 function onMouseDown(e){
@@ -152,14 +154,14 @@ function onMouseDown(e){
     e= e.srcElement;
     if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
         if ( e.id !== '' ) {
-            let ids = e.id.split( '-' );
+            var ids = e.id.split( '-' );
             if ( ids[0] == 'mif' ) {
                 regPath(ids[2]);
                 hideMenu();
             }
             else {
                 if ( ids[0] == 'mi1' )
-                    document.addEventListener('mousedown', onMouseDown, false);
+                        document.addEventListener('mousedown', onMouseDown );
                 else
                     hideMenu();
             }
@@ -170,9 +172,9 @@ function onMouseDown(e){
     }
     else {
         if ( e.id !== '' ) {
-            let ids = e.id.split( '-' );
+            var ids = e.id.split( '-' );
             if ( ids[0] == 'mi1' )
-                document.addEventListener('mousedown', onMouseDown, false);
+                document.addEventListener('mousedown', onMouseDown );
             else
                 hideMenu();
         }
@@ -182,4 +184,3 @@ function onMouseDown(e){
 }
 
 document.addEventListener('contextmenu', onContextMenu, false);
-

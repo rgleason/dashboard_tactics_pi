@@ -2,6 +2,17 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- developer: This page is intended to run on embedded devices like
+    Raspberry Pi, on its WebKit based WebView provided by wxWidgets. On Windows,
+    it is IE-based! Fancy design may work on you browser but does it work on
+    wxWidgets-WebView on WebKit/IE backend? Please check the compatibility and
+    debug on a system with various wxWidgets and/or WebKit configs (like RPI):
+    build /usr/share/doc/wx3.0-examples/examples/src/samples/webview -
+    simultaneously, use same remotely on Windows, normally here:
+    C:\wxWidgets-3.1.2\samples\webview\vc_mswud - to feed both platforms, use
+    npm http-server in the distribuution directory, debug w/ weinre: -->
+    <!--script src="http://192.168.8.103:8081/target/target-script-min.js#anonymous"></script-->
+    <!-- end of the developer section -->
     <link rel="stylesheet" type="text/css" href="enginedjg.css">
     <script src="raphael-2.3.0.min.js"></script>
     <script src="justgage-1.3.3.min.js"></script>
