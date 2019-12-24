@@ -69,7 +69,7 @@ var setMenu = (function setMenu() {
         'propulsion.starboard.temperature',
         'battery.empty',
     ];
-    let menuul = '<ul class="menu">';
+    let menuul = '<ul id="mi1-u-0" class="menu">';
     let topics = ['','','','','','','','',''];
     let submenustart = 0;
     for ( i = 0; i < sortedpath.length; i++ ) {
@@ -83,22 +83,25 @@ var setMenu = (function setMenu() {
                     submenustart--;         
                 }
                 submenustart++;
-                menuul += '<li class="menu-item menu-item-submenu">';
-                menuul += '<button type="button" class="menu-btn">';
-                menuul += '<span class="menu-text">';
+                menuul += '<li id="mi1-l-' + i + '-' + j;
+                menuul += '" class="menu-item menu-item-submenu">';
+                menuul += '<button id="mi1-b-' + i + '-' + j;
+                menuul += '" type="button" class="menu-btn">';
+                menuul += '<span id="mi1-s-' + i + '-' + j;
+                menuul += '" class="menu-text">';
                 menuul += pathel[j];
                 menuul += '</span></button>';
-                menuul += '<ul class="menu">';           
+                menuul += '<ul id="mi1-u-' + i + '-' + j;
+                menuul += '" class="menu">';           
             }
         }
-        menuul += '<li class="menu-item">';
-        // menuul += '<button type="button" class="menu-btn">';
-        menuul += '<button onclick="regPath(' + "'";
+        menuul += '<li id="mi1-l-' + i + '-' + j + '" class="menu-item">';
+        menuul += '<button id="mif-b-';
         menuul += sortedpath[i];
-        menuul += "'" + ');" type="button" class="menu-btn">';
-        menuul += '<span onclick="regPath(' + "'";
+        menuul += '" type="button" class="menu-btn">';
+        menuul += '<span id="mif-s-';
         menuul += sortedpath[i];
-        menuul += "'" + ');" class="menu-text">';
+        menuul += '" class="menu-text">';
         menuul += pathel[j];
         menuul += '</span></button></li>';
     }
@@ -119,14 +122,8 @@ var unloadScrollBars = function() {
     document.body.scroll = "no"; // ie
 }
 
-window.addEventListener('load', 
-                        function() {
-                            // unloadScrollBars();
-                            setval(0);
-                            // setMenu();
-                        }, false);
-
-//Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+// Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+// Modified for OpenCPN gauge / display usage
 var menu = document.querySelector('.menu');
 
 function showMenu(x, y){
@@ -151,8 +148,37 @@ function onContextMenu(e){
 }
 
 function onMouseDown(e){
-    hideMenu();
     document.removeEventListener('mousedown', onMouseDown);
+    e= e.srcElement;
+    if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
+        if ( e.id !== '' ) {
+            let ids = e.id.split( '-' );
+            if ( ids[0] == 'mif' ) {
+                regPath(ids[2]);
+                hideMenu();
+            }
+            else {
+                if ( ids[0] == 'mi1' )
+                    document.addEventListener('mousedown', onMouseDown, false);
+                else
+                    hideMenu();
+            }
+        }
+        else {
+            hideMenu();
+        }
+    }
+    else {
+        if ( e.id !== '' ) {
+            let ids = e.id.split( '-' );
+            if ( ids[0] == 'mi1' )
+                document.addEventListener('mousedown', onMouseDown, false);
+            else
+                hideMenu();
+        }
+        else
+            hideMenu();
+    }
 }
 
 document.addEventListener('contextmenu', onContextMenu, false);
