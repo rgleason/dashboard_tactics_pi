@@ -102,8 +102,6 @@ public:
     
 protected:
     TacticsWindow       *m_pparent;
-    wxWindowID           m_id;
-    wxString             m_ids;
     wxString             m_path;
     wxString             m_format;
     int                  m_orient;

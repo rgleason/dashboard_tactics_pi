@@ -24,6 +24,7 @@ var g = new JustGage({
     valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
+var uid = '';
 var msie = 0;
 var skpath = '';
 var titlepath = '';
@@ -36,13 +37,60 @@ function setval(newval) {
     g.refresh(conval);
 }
 
+// Persistence
+function saveParam( cname, cvalue, inexdays ) {
+    var d = new Date();
+    var expires = '';
+    var exdays = inexdays || null;
+    if ( exdays != null ) {
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = ";expires="+d.toUTCString();
+    }
+    document.cookie = cname + "=" + cvalue + expires + ";path=/" + uid;
+}
+function getParam( cname ) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 // Interface to C++, types needs to be set
-function setconf(newskpath, inval, inmin, inmax ) {
-    if ( (newskpath == null) || ( newskpath === '' ) ) {
-        console.log('enginedjg.js setconf() - warning: null or invalid SK path');
+function setconf(newuid, newskpath, inval, inmin, inmax ) {
+    if ( newuid == null ) {
+        console.error('enginedjg.js setconf() - error: null UID');
         return;
     }
-    skpath = newskpath + '';
+    if ( uid == '' )
+        console.log('enginedjg.js setconf() - warning: empty UID, no config saving');
+    else
+        console.log('enginedjg.js setconf() - warning: empty UID, using existing: ', uid);
+    if ( (newskpath == null) && ( newuid === '' ) && ( uid == '') ) {
+        console.error('enginedjg.js setconf() - error: no uid, no newuid, no newskpath!');
+        return;
+    }
+    if ( ( skpath == '' ) && ( newuid === '') && ( uid == '') ) {
+        console.error('enginedjg.js setconf() - error: no new UID, no SK path given, no SK path memorized, no UID.');
+        return;
+    }
+    var nUid = newuid || null;
+    if (nUid != null)
+        uid = nUid;
+    if ( newuid != '' ) {
+        skpath = newskpath;
+    }
+    else {
+        if ( uid != '')
+        skpath = getParam( 'skpath' );
+    }
     var arrxsk = skpath.split(".");
     titlepath = "<p>";
     for ( i = 0; i < (arrxsk.length-1); i++ ) {
@@ -62,31 +110,37 @@ function setconf(newskpath, inval, inmin, inmax ) {
         newval = 700000;
     var conval = newval / conversion;
     g.refresh(conval, nMax, nMin, unit );
+    saveParam( 'skpath', skpath );
 }
 
 function regPath(selectedPath) {
     console.log('regPath ', selectedPath );
-    setconf( selectedPath, 60 * 100000 );
+    setconf( uid, selectedPath, 60 * 100000 );
 }
 
 var menu = document.querySelector('.menu');
 
-function setMenu() {
-    var sortedpath = [
-        'environment.wind.angleApparent',
-        'environment.wind.speedApparent',
-        'navigation.courseOverGroundTrue',
-        'navigation.speedOverGround',
-        'navigation.position.latitude',
-        'navigation.position.longitude',
-        'propulsion.port.oilPressure',
-        'propulsion.port.revolutions',
-        'propulsion.port.temperature',
-        'propulsion.starboard.oilPressure',
-        'propulsion.starboard.revolutions',
-        'propulsion.starboard.temperature',
-        'battery.empty',
-    ];
+var alldatapaths = [
+    'environment.wind.angleApparent',
+    'environment.wind.speedApparent',
+    'navigation.courseOverGroundTrue',
+    'navigation.speedOverGround',
+    'navigation.position.latitude',
+    'navigation.position.longitude',
+    'propulsion.port.oilPressure',
+    'propulsion.port.revolutions',
+    'propulsion.port.temperature',
+    'propulsion.starboard.oilPressure',
+    'propulsion.starboard.revolutions',
+    'propulsion.starboard.temperature',
+    'battery.empty',
+];
+
+var emptypath = [
+    'no data available'
+];
+
+function setMenu( sortedpath ) {
     var menuul = '<ul id="mi1-u-0" class="menu">';
     var topics = ['','','','','','','','',''];
     var submenustart = 0;
@@ -164,7 +218,7 @@ window.addEventListener('load',
         }
         unloadScrollBars();
         setval(50 * 100000);
-        setMenu();
+        setMenu( emptypath );
     }, false);
 
 /* Menu */

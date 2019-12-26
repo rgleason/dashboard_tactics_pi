@@ -52,9 +52,11 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id ) :
-DashboardInstrument( pparent, id, "---", 0LL, true )
+InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids ) :
+          DashboardInstrument( pparent, id, "---", 0LL, true )
 {
+    m_id = id;
+    m_ids = ids;
     m_data = L"0.0";
     m_dataout = L"";
     m_title = L"InstruJS";
@@ -186,7 +188,8 @@ void InstruJS::setNewConfig( wxString newSkPath )
     if ( !instrIsReadyForConfig() )
         return;
     wxString javascript = wxString::Format(L"%s%s%s%s%s",
-                                           "setconf(\"",newSkPath,
+                                           "setconf(\"",m_ids,
+                                           "\",",newSkPath,
                                            "\",",m_data,
                                            ");");
     RunScript( javascript );

@@ -57,11 +57,9 @@ wxEND_EVENT_TABLE ()
 
 DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
     TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString ids, wxString format ) :
-   InstruJS ( pparent, id )
+    InstruJS ( pparent, id, ids )
 {
     m_pparent = pparent;
-    m_id = id;
-    m_ids = ids;
     previousTimestamp = 0LL; // dashboard instru base class
     m_path = wxEmptyString;
     m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format

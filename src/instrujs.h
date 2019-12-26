@@ -70,7 +70,7 @@ using namespace std;
 class InstruJS : public DashboardInstrument
 {
 public:
-    InstruJS( TacticsWindow* pparent, wxWindowID id );
+    InstruJS( TacticsWindow* pparent, wxWindowID id, wxString ids );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
@@ -95,6 +95,7 @@ public:
 protected:
     TacticsWindow       *m_pparent;
     wxWindowID           m_id;
+    wxString             m_ids;
     wxString             m_title;
     wxString             m_data;
     wxString             m_dataout;
