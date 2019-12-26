@@ -29,6 +29,7 @@ var titlepath = "";
 var unit = "";
 var conversion = 100000;
 
+
 function setval(newval) {
     var conval = newval / conversion;
     g.refresh(conval);
@@ -54,16 +55,22 @@ function setconf(newskpath, inval, inmin, inmax ) {
         nMin = 0;
     var nMax = inmax || null;
     if (nMax == null)
-        nMax = 6;
-    g.refresh(inval, nMax, nMin, unit );
+        nMax = 70;
+    var newval = inval || null;
+    if (newval == null)
+        newval = 700000;
+    var conval = newval / conversion;
+    g.refresh(conval, nMax, nMin, unit );
 }
 
 function regPath(selectedPath) {
     console.log('regPath ', selectedPath );
-    setconf( selectedPath, 0 );
+    setconf( selectedPath, 60 * 100000 );
 }
 
-var setMenu = (function setMenu() {
+var menu = document.querySelector('.menu');
+
+function setMenu() {
     var sortedpath = [
         'environment.wind.angleApparent',
         'environment.wind.speedApparent',
@@ -117,14 +124,10 @@ var setMenu = (function setMenu() {
     }
     menuul += '</li></ul>';
     document.getElementById('pathMenu').innerHTML = menuul;
-    document.getElementById('pathMenu').overflow = 'visible';
-})();
+    document.getElementById('pathMenu').overflow = 'hidden';
+    menu = document.querySelector('.menu');
+}
 
-window.addEventListener('load', 
-                        function() {
-                            newval('',0);
-  //                          setMenu();
-                        }, false);
 
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden'; // webkit
@@ -133,7 +136,15 @@ var unloadScrollBars = function() {
 
 // Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
 // Modified for OpenCPN gauge / display usage
-var menu = document.querySelector('.menu');
+
+window.addEventListener('load',
+                        function() {
+                            console.log('loading enginedjg.js');
+                            unloadScrollBars();
+                            setval(50 * 100000);
+                            setMenu();
+                        }, false);
+
 
 function showMenu(){
     menu.classList.add('menu-show');
@@ -144,12 +155,14 @@ function hideMenu(){
 }
 
 function onContextMenu(e){
+    console.log('onContextMenu()');
     e.preventDefault();
     showMenu();
     document.addEventListener('mousedown', onMouseDown );
 }
 
 function onMouseDown(e){
+    console.log('onMouseDown()');
     document.removeEventListener('mousedown', onMouseDown);
     e= e.srcElement;
     if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
@@ -184,3 +197,4 @@ function onMouseDown(e){
 }
 
 document.addEventListener('contextmenu', onContextMenu, false);
+
