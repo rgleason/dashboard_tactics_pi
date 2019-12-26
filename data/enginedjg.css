@@ -6,14 +6,32 @@ html {
     background: radial-gradient(circle, #fff 0%, #a6b9c1 100%) no-repeat;
 }
 
+/* Gauge face */
+.gaugeface {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+/*
+.block {
+    position: static;
+    overflow: hidden;
+    display: block;
+    margin-left: 1%;
+    width: 98%;
+}
+*/
+
 /* Path */
 .skpath {
-    position: fixed;
-    overflow: visible;
-    top: 2%;
-    width: 100%;
+    top: 1%;
+    margin-left: 1%;
+    width: 98%;
+    height: 5%;
+    padding-top: 1px;
+    margin-bottom: 1%;
     padding-bottom: 1px;
-    margin-bottom: 2x;
     color: #2E3940;
     text-align: center;
     font-family: "Helvetica", sans-serif;
@@ -26,6 +44,23 @@ html {
 @media screen and (min-width: 501px) { .skpath.fixed { font-size: 18px; } }
 @media screen and (min-width: 601px) { .skpath.fixed { font-size: 20px; } }
 
+/* Gauge */
+.gauge {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 90%;
+    margin-bottom: 0px;
+}
+.bottom {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 3%;
+    color: #2E3940;
+    text-align: center;
+    font-family: "Helvetica", sans-serif;
+}
 
 /* Menu */
 /* Original work MIT Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
@@ -33,8 +68,8 @@ html {
 
 .menu {
     position: absolute;
-    top: 2%;
-    left: 2%;
+    top: 1%;
+    left: 1%;
     width: 130px;
     padding: 1px;
     margin: 0;

@@ -180,14 +180,12 @@ function hideMenu(){
 }
 
 function onContextMenu(e){
-    console.log('onContextMenu()');
     e.preventDefault();
     showMenu();
     document.addEventListener('mousedown', onMouseDown );
 }
 
 function onMouseDown(e){
-    console.log('onMouseDown()');
     document.removeEventListener('mousedown', onMouseDown);
     e= e.srcElement;
     if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
