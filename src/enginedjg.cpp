@@ -147,7 +147,6 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
         SetInitialSize ( thisFrameInitSize );
         wxSize webViewInitSize = thisFrameInitSize;
-        webViewInitSize.x -= ENGINEDJG_BORDER;
         this->loadHTML( m_fullPathHTML, webViewInitSize );
         m_pThreadEngineDJGTimer->Stop();
         m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
@@ -179,12 +178,12 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
     int x,y;
     m_orient = orient;
     if( m_orient == wxHORIZONTAL ) {
-        x = ENGINEDJG_MIN_WIDTH;
-        y = wxMax( hint.y, ENGINEDJG_MIN_HEIGHT );
+        x = ENGINEDJG_H_MIN_WIDTH;
+        y = wxMax( hint.y, ENGINEDJG_H_MIN_HEIGHT );
     }
     else {
-        x = wxMax( hint.x, ENGINEDJG_MIN_WIDTH );
-        y = ENGINEDJG_MIN_HEIGHT;
+        x = wxMax( hint.x, ENGINEDJG_V_MIN_WIDTH );
+        y = ENGINEDJG_V_MIN_HEIGHT;
     }
     return wxSize( x, y );
 }

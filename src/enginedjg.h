@@ -46,30 +46,33 @@ using namespace std::placeholders;
 
 /*
   The default window size value are depending both of the HTML-file
-  and the JavaScript instrument, here we have set the values to
-  the JustGauge scalable, SVG-drawn instrument, experimentally: it
-  appears to scale down to the below window on supported platforms,
-  also note the anti-scroll bar border (like for IE) in addition to
-  to javascript to turn off the scroll bars. It allows to have also
-  a narrow area where browser menu items do not mask the application
-  menu. If one changes these value, multi-platform, multi-window
-  re-testing with docked and non-docked windows is mandatory.
+  and the JavaScript C++ instrument, here we have set the values to
+  the JustGauge scalable, SVG-drawn instrument.
+  See enginedjg.css: skpath, gauge and bottom classes for the ratios.
 */
 #ifdef __WXMSW__
-#define ENGINEDJG_TITLEH    20
-#define ENGINEDJG_WIDTH    232
-#define ENGINEDJG_HEIGHT   180
-#define ENGINEDJG_BORDER     0
-#define ENGINEDJG_MIN_WIDTH  (ENGINEDJG_WIDTH + ENGINEDJG_BORDER)
-#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_TITLEH + ENGINEDJG_HEIGHT)
+#define ENGINEDJG_V_TITLEH    18
+#define ENGINEDJG_V_WIDTH    230
+#define ENGINEDJG_V_HEIGHT   230
+#define ENGINEDJG_V_BOTTOM     8
+#define ENGINEDJG_H_TITLEH    19
+#define ENGINEDJG_H_WIDTH    250
+#define ENGINEDJG_H_HEIGHT   230
+#define ENGINEDJG_H_BOTTOM     9
 #else
-#define ENGINEDJG_TITLEH    20
-#define ENGINEDJG_WIDTH    232
-#define ENGINEDJG_HEIGHT   230
-#define ENGINEDJG_BORDER     2
-#define ENGINEDJG_MIN_WIDTH  (ENGINEDJG_WIDTH + ENGINEDJG_BORDER)
-#define ENGINEDJG_MIN_HEIGHT (ENGINEDJG_TITLEH + ENGINEDJG_HEIGHT)
+#define ENGINEDJG_V_TITLEH    18
+#define ENGINEDJG_V_WIDTH    230
+#define ENGINEDJG_V_HEIGHT   230
+#define ENGINEDJG_V_BOTTOM     8
+#define ENGINEDJG_H_TITLEH    19
+#define ENGINEDJG_H_WIDTH    250
+#define ENGINEDJG_H_HEIGHT   230
+#define ENGINEDJG_H_BOTTOM     9
 #endif // ifdef __WXMSW__
+#define ENGINEDJG_V_MIN_WIDTH  ENGINEDJG_V_WIDTH
+#define ENGINEDJG_V_MIN_HEIGHT (ENGINEDJG_V_TITLEH + ENGINEDJG_V_HEIGHT + ENGINEDJG_V_BOTTOM)
+#define ENGINEDJG_H_MIN_WIDTH  ENGINEDJG_H_WIDTH
+#define ENGINEDJG_H_MIN_HEIGHT (ENGINEDJG_H_TITLEH + ENGINEDJG_H_HEIGHT + ENGINEDJG_H_BOTTOM)
 
 //+------------------------------------------------------------------------------
 //|
