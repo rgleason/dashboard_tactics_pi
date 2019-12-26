@@ -24,9 +24,10 @@ var g = new JustGage({
     valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
-var skpath = "";
-var titlepath = "";
-var unit = "";
+var msie = 0;
+var skpath = '';
+var titlepath = '';
+var unit = '';
 var conversion = 100000;
 
 
@@ -128,23 +129,47 @@ function setMenu() {
     menu = document.querySelector('.menu');
 }
 
-
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden'; // webkit
     document.body.scroll = "no"; // ie
 }
 
-// Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
-// Modified for OpenCPN gauge / display usage
-
 window.addEventListener('load',
-                        function() {
-                            console.log('loading enginedjg.js');
-                            unloadScrollBars();
-                            setval(50 * 100000);
-                            setMenu();
-                        }, false);
+    function() {
+        console.log('loading enginedjg.js');  
+        try { 
+            if ( CSS.supports ) {
+                if ( CSS.supports("font-size","5vw") ) {
+                    console.log('Viewport proportinal support');
+                    document.getElementById("skPath").className += " propl";
+                }
+                else{
+                    console.log('No viewport proportinal support, fixed size');
+                    document.getElementById("skPath").className += " fixed";
+                }
+            }
+        }
+        catch( error ) {
+            console.log('No CSS.supports()');
+            var ua = window.navigator.userAgent;
+            msie = ua.indexOf("MSIE ");
+            if ( msie > 0 ) {
+                console.log('MSIE - WebView forcing to IE8+ presumed, viewport proportional');
+                document.getElementById("skPath").className += " propl";
+            }
+            else {
+                console.log('cannot determine viewport proportinal support, fixed size');
+                document.getElementById("skPath").className += " fixed";
+            }
+        }
+        unloadScrollBars();
+        setval(50 * 100000);
+        setMenu();
+    }, false);
 
+/* Menu */
+/* Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+   Modified for OpenCPN gauge / display usage */
 
 function showMenu(){
     menu.classList.add('menu-show');

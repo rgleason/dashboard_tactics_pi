@@ -1,10 +1,8 @@
-/* Original work MIT Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
-   Modified for OpenCPN and wxWidgets/WebKit */
 
 html {
     width: 100%;
     height: 100%;
-    font-size: 8px;
+    font-size: 10px;
     background: radial-gradient(circle, #fff 0%, #a6b9c1 100%) no-repeat;
 }
 
@@ -18,12 +16,20 @@ html {
     margin-bottom: 2x;
     color: #2E3940;
     text-align: center;
-    font-family: sans-serif;
-    font-size: 7vw;
-    /* font-size: 12px; */
+    font-family: "Helvetica", sans-serif;
 }
+.skpath.propl { font-size: 5vw; }
+.skpath.fixed { font-size: 10px; }
+@media screen and (min-width: 201px) { .skpath.fixed { font-size: 12px; } }
+@media screen and (min-width: 301px) { .skpath.fixed { font-size: 14px; } }
+@media screen and (min-width: 401px) { .skpath.fixed { font-size: 16px; } }
+@media screen and (min-width: 501px) { .skpath.fixed { font-size: 18px; } }
+@media screen and (min-width: 601px) { .skpath.fixed { font-size: 20px; } }
+
 
 /* Menu */
+/* Original work MIT Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
+   Modified for OpenCPN and wxWidgets/WebKit */
 
 .menu {
     position: absolute;
