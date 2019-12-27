@@ -187,7 +187,7 @@ void InstruJS::setNewConfig( wxString newSkPath )
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     if ( !instrIsReadyForConfig() )
         return;
-    wxString javascript = wxString::Format(L"%s%s%s%s%s",
+    wxString javascript = wxString::Format(L"%s%s%s%s%s%s%s",
                                            "setconf(\"",m_ids,
                                            "\",",newSkPath,
                                            "\",",m_data,
