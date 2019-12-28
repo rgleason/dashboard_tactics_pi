@@ -189,7 +189,7 @@ void InstruJS::setNewConfig( wxString newSkPath )
         return;
     wxString javascript = wxString::Format(L"%s%s%s%s%s%s%s",
                                            "setconf(\"",m_ids,
-                                           "\",",newSkPath,
+                                           "\",\"",newSkPath,
                                            "\",",m_data,
                                            ");");
     RunScript( javascript );

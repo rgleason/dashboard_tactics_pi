@@ -131,7 +131,7 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
             sTestingOnly[1] = L"propulsion.port.oilPressure";
             sTestingOnly[2] = L"propulsion.port.temperature";
             // m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
-            m_path = sTestingOnly[1]; // Let's test with the oil pressure!
+            // m_path = sTestingOnly[1]; // Let's test with the oil pressure!
             // Subscribe to the signal path data with this object's method to call back
             m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
                                    this, _1, _2, _3 );
