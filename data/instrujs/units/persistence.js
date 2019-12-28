@@ -1,4 +1,4 @@
-/* $Id: util.js, v1.0 2019/11/30 VaderDarth Exp $
+/* $Id: persistence.js, v1.0 2019/11/30 VaderDarth Exp $
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
@@ -14,12 +14,12 @@ function saveObj( cid, cobj ) {
     // let's avoid mess
     var nCid = cid || null;
     if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js saveObj(): no cid');
+        console.error('persistence.js saveObj(): no cid');
         return false;
     }
     var nCobj = cobj || null;
     if ( nCobj == null ) {
-        console.error('util.js saveObj(): cobj is null');
+        console.error('persistence.js saveObj(): cobj is null');
         return false;
     }
     try {
@@ -27,7 +27,7 @@ function saveObj( cid, cobj ) {
         return true;
     }
     catch ( error ) {
-        console.error('util.js saveObj(): error: ', error );
+        console.error('persistence.js saveObj(): error: ', error );
         return false;
     }
 }
@@ -36,7 +36,7 @@ function deleteObj( cid ) {
     // deleting phantom data would be useless
     var nCid = cid || null;
     if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js deleteObj(): no cid');
+        console.error('persistence.js deleteObj(): no cid');
         return false;
     }
     try {
@@ -44,7 +44,7 @@ function deleteObj( cid ) {
         return true;
     }
     catch (error) {
-        console.error('util.js deleteObj(): error: ', error);
+        console.error('persistence.js deleteObj(): error: ', error);
         return false;
     }
 }
@@ -53,14 +53,14 @@ function getObj( cid ) {
     // let's avoid chasing phantom data
     var nCid = cid || null;
     if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js getObj(): no cid');
+        console.error('persistence.js getObj(): no cid');
         return null;
     }
     try {
        return JSON.parse( localStorage.getItem( cid ) );
     }
     catch (error) {
-        console.error('util.js getObj(): error: ', error);
+        console.error('persistence.js getObj(): error: ', error);
         return null;
     }
 }
@@ -73,18 +73,18 @@ function saveParam( cname, cid, cvalue, inexdays ) {
     // let's avoid creating useless cookies
     var nCname = cname || null;
     if ( (nCname == null) || (nCname == '') ) {
-        console.error('util.js saveParam(): no cname');
-        return;
+        console.error('persistence.js saveParam(): no cname');
+        return false;
     }
     var nCid = cid || null;
     if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js saveParam(): no cid');
-        return;
+        console.error('persistence.js saveParam(): no cid');
+        return false;
     }
     var nCvalue = cvalue || null;
     if ( nCvalue == null ) {
-        console.error('util.js saveParam(): cvalue is null');
-        return;
+        console.error('persistence.js saveParam(): cvalue is null');
+        return false;
     }
     var d = new Date();
     var expires = '';
@@ -95,38 +95,27 @@ function saveParam( cname, cid, cvalue, inexdays ) {
     var expires = ';expires='+d.toUTCString();
     var cookiestr = cname + '-' + cid + '=' + cvalue + expires + ';path=/';
     console.log('saveParam():', cookiestr);
-    document.cookie = cookiestr;
-}
-function deleteParam( cname, cid ) {
-    console.log('deleteParam(): ', cname, cid);
-    // deleting phantom cookies would be useless
-    var nCname = cname || null;
-    if ( (nCname == null) || (nCname == '') ) {
-        console.error('util.js deleteParam(): no cname');
-        return;
+    try {
+        document.cookie = cookiestr;
+        return true;
     }
-    var nCid = cid || null;
-    if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js deleteParam(): no cid');
-        return;
+    catch( error ) {
+        console.error('persistence.js saveParam(): cvalue is document.cookie expception: ', error);
+        return false;
     }
-    var expires = ';expires=Thu, 01 Jan 1970 00:00:00 UTC';
-    var cookiestr = cname + '-' + cid + '=' + expires + ';path=/';
-    console.log('deleteParam():', cookiestr);
-    document.cookie = cookiestr;
 }
 function getParam( cname, cid ) {
     console.log('getParam(): ', cname, cid);
     // let's avoid chasing phantom cookies
     var nCname = cname || null;
     if ( (nCname == null) || (nCname == '') ) {
-        console.error('util.js getParam(): no cname');
-        return;
+        console.error('persistence.js getParam(): no cname');
+        return null;
     }
     var nCid = cid || null;
     if ( (nCid == null) || (nCid == '') ) {
-        console.error('util.js getParam(): no cid');
-        return;
+        console.error('persistence.js getParam(): no cid');
+        return null;
     }
     var name = cname + '-' + cid + '=';
     var ca = document.cookie.split(';');
@@ -142,5 +131,30 @@ function getParam( cname, cid ) {
         }
     }
     console.log('getParam(): ', cname, ' not found.');
-    return "";
+    return null;
+}
+function deleteParam( cname, cid ) {
+    console.log('deleteParam(): ', cname, cid);
+    // deleting phantom cookies would be useless
+    var nCname = cname || null;
+    if ( (nCname == null) || (nCname == '') ) {
+        console.error('persistence.js deleteParam(): no cname');
+        return false;
+    }
+    var nCid = cid || null;
+    if ( (nCid == null) || (nCid == '') ) {
+        console.error('persistence.js deleteParam(): no cid');
+        return false;
+    }
+    var expires = ';expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    var cookiestr = cname + '-' + cid + '=' + expires + ';path=/';
+    console.log('deleteParam():', cookiestr);
+    try {
+        document.cookie = cookiestr;
+        return true;
+    }
+    catch( error ) {
+        console.error('persistence.js deleteParam(): cvalue is document.cookie expception: ', error);
+        return false;
+    }
 }

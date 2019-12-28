@@ -44,6 +44,7 @@ var conf = {
 // Functional and environmental
 var msie = 0;
 var bLocalStorage = false;
+var bCookies = false;
 var href;
 var protocol;
 var hostname;
@@ -268,6 +269,29 @@ window.addEventListener('load',
         }
         catch( error ) {
             console.log('localStorage() support not available, protocol: ', protocol);
+        }
+            var cNameTest = 'test-cookie-by-enginedjg-js';
+            var cCidTest  = String( Math.floor(Math.random() * Math.floor(999999)) );
+            var cValTest  = 'test';
+        try {
+            if ( saveParam( cNameTest, cCidTest, cValTest ) ) {
+                var cValComp = getParam( cNameTest, cCidTest );
+                if ( cValComp === cValTest ) {
+                    console.log('document.cookie support is available, protocol: ', protocol);
+                    bCookies = true;
+                    if ( !deleteParam( cNameTest, cCidTest ) )
+                        console.log('document.cookie: warning: cannot delete the test cookie: ', cNameTest, '-', cCidTest);
+                }
+                else {
+                    console.log('document.cookie support is not available (cannot read back), protocol: ', protocol);
+                }
+            }
+            else {
+                console.log('document.cookie support is not available (cannot save), protocol: ', protocol);
+            }
+        }
+        catch( error) {
+            console.log('document.cookie support is not available, protocol: ', protocol, ' error: ', error);
         }
         unloadScrollBars();
         setval(50 * 100000);
