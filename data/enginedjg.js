@@ -2,6 +2,9 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
+
+
+/* The gauge */
 var g = new JustGage({
     id: "gauge",
     value: 0,
@@ -24,95 +27,28 @@ var g = new JustGage({
     valueFontFamily: "Courier",
     relativeGaugeSize: true
 });
+
 var uid = '';
+var conf = {
+    skpath: '',
+    title: '',
+    unit: '',
+    decimals: 1,
+    minval: 0,
+    maxval: 100,
+    theme: '',
+    opts: '',
+    optn: 0
+};
 var msie = 0;
 var skpath = '';
 var titlepath = '';
 var unit = '';
 var conversion = 100000;
 
-
 function setval(newval) {
     var conval = newval / conversion;
     g.refresh(conval);
-}
-
-// Persistence
-function saveParam( cname, cid, cvalue, inexdays ) {
-    console.log('saveParam(): ', cname, cid, cvalue, inexdays);
-    // let's avoid creating useless cookies
-    var nCname = cname || null;
-    if ( (nCname == null) || (nCname == '') ) {
-        console.error('enginedjg.js saveParam(): no cname');
-        return;
-    }
-    var nCid = cid || null;
-    if ( (nCid == null) || (nCid == '') ) {
-        console.error('enginedjg.js saveParam(): no cid');
-        return;
-    }
-    var nCvalue = cid || null;
-    if ( nCvalue == null ) {
-        console.error('enginedjg.js saveParam(): cvalue is null');
-        return;
-    }
-    var d = new Date();
-    var expires = '';
-    var exdays = inexdays || null;
-    if ( exdays == null )
-        exdays = 365; // unused will disappear after 1 year
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = ';expires='+d.toUTCString();
-    var cookiestr = cname + '-' + cid + '=' + cvalue + expires + ';path=/';
-    console.log('saveParam():', cookiestr);
-    document.cookie = cookiestr;
-}
-function deleteParam( cname, cid ) {
-    console.log('deleteParam(): ', cname, cid);
-    // deleting phantom cookies would be useless
-    var nCname = cname || null;
-    if ( (nCname == null) || (nCname == '') ) {
-        console.error('enginedjg.js deleteParam(): no cname');
-        return;
-    }
-    var nCid = cid || null;
-    if ( (nCid == null) || (nCid == '') ) {
-        console.error('enginedjg.js deleteParam(): no cid');
-        return;
-    }
-    var expires = ';expires=Thu, 01 Jan 1970 00:00:00 UTC';
-    var cookiestr = cname + '-' + cid + '=' + expires + ';path=/';
-    console.log('deleteParam():', cookiestr);
-    document.cookie = cookiestr;
-}
-function getParam( cname, cid ) {
-    console.log('getParam(): ', cname, cid);
-    // let's avoid chasing phantom cookies
-    var nCname = cname || null;
-    if ( (nCname == null) || (nCname == '') ) {
-        console.error('enginedjg.js getParam(): no cname');
-        return;
-    }
-    var nCid = cid || null;
-    if ( (nCid == null) || (nCid == '') ) {
-        console.error('enginedjg.js getParam(): no cid');
-        return;
-    }
-    var name = cname + '-' + cid + '=';
-    var ca = document.cookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            retval = c.substring(name.length, c.length);
-            console.log('getParam(): ', cname=retval);
-            return retval;
-        }
-    }
-    console.log('getParam(): ', cname, ' not found.');
-    return "";
 }
 
 // Interface to C++, types needs to be set
@@ -144,8 +80,17 @@ function setconf(newuid, newskpath, inval, inmin, inmax ) {
         skpath = newskpath;
     }
     else {
-        if ( uid != '')
-            skpath = getParam( 'skpath', uid );
+        if ( uid != '') {
+            var nConf = getObj( uid );
+            if ( nConf == null ) {
+                console.log('enginedjg.js setconf() - warning: new configuration? No conf for: ', uid );
+            }
+            else {
+                conf = nConf;
+                console.log('enginedjg.js setconf() - For ', uid, ' retrieved: ', conf );
+            }
+            skpath = conf.skpath;
+        }
     }
     var arrxsk = skpath.split(".");
     titlepath = "<p>";
@@ -166,8 +111,13 @@ function setconf(newuid, newskpath, inval, inmin, inmax ) {
         newval = 700000;
     var conval = newval / conversion;
     g.refresh(conval, nMax, nMin, unit );
-    if ( uid != '' )
-        saveParam( 'skpath', uid, skpath );
+    if ( uid != '' ) {
+        conf.skpath = skpath;
+        if ( !saveObj( uid, conf ) ) {
+            console.error('enginedjg.js setconf() - failed to save for ', uid, ' configuration: ', conf );
+        }
+    }
+    return;
 }
 
 function regPath(selectedPath) {
