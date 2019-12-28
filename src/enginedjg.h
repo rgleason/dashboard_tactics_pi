@@ -99,6 +99,7 @@ public:
     virtual void derivedTimeoutEvent(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     bool LoadConfig(void);
+    void SaveConfig(void);
     
 protected:
     TacticsWindow       *m_pparent;
@@ -106,13 +107,15 @@ protected:
     wxString             m_format;
     int                  m_orient;
     sigPathLangVector   *m_pSigPathLangVector;
-    wxTimer             *m_pThreadEngineDJGTimer;
-    bool                 m_threadRunning;
-    int                  m_threadRunCount;
-    callbackFunction     m_pushHere;
     wxString             m_pushHereUUID;
+    bool                 m_threadRunning;
+    wxTimer             *m_pThreadEngineDJGTimer;
+    int                  m_threadRunCount;
+    wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
-
+    
+    callbackFunction     m_pushHere;
+    
     wxDECLARE_EVENT_TABLE();
 
     void OnThreadTimerTick( wxTimerEvent& event );

@@ -293,6 +293,9 @@ window.addEventListener('load',
         catch( error) {
             console.log('document.cookie support is not available, protocol: ', protocol, ' error: ', error);
         }
+        if ( !bLocalStorage && !bCookies ) {
+            console.error('enginedjg.js: no local storage support available, probably a back-end (IE or WebKit) policy prevents the usage for the protocol: ', protocol);
+        }
         unloadScrollBars();
         setval(50 * 100000);
         setMenu( emptypath );

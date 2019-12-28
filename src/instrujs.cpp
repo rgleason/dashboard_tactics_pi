@@ -139,7 +139,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 {
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_pWebPanel->Create(
-            this, wxID_ANY, "file://" + fullPath );
+            this, wxID_ANY, fullPath );
         wxSizer *thisSizer = GetSizer();
         m_pWebPanel->SetSizer( thisSizer ); 
         m_pWebPanel->SetAutoLayout( true );

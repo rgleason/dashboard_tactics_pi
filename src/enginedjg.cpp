@@ -68,6 +68,7 @@ DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
     m_pSigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
+    m_pconfig = GetOCPNConfigObject();
 
     if ( !LoadConfig() )
         return;
@@ -81,6 +82,7 @@ DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
     delete this->m_pThreadEngineDJGTimer;
     if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
         this->m_pparent->unsubscribeFrom( m_pushHereUUID );
+    SaveConfig();
     return;
 }
 void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
@@ -188,9 +190,34 @@ wxSize DashboardInstrument_EngineDJG::GetSize( int orient, wxSize hint )
 
 bool DashboardInstrument_EngineDJG::LoadConfig()
 {
-    m_fullPathHTML = *GetpSharedDataLocation(); // provide by the plug-in API
+    wxFileConfig *pConf = m_pconfig;
+    
+    if (!pConf)
+        return false;
+    
+    // Make a proposal for the defaul path _and_ the protocool, which use can then override in the file:
+    wxString sFullPathHTML = "file://"; // preferably 'http://' or 'https://' but this is easier for people to start with
+    sFullPathHTML += *GetpSharedDataLocation(); // provide by the plug-in API
     wxString s = wxFileName::GetPathSeparator();
-    m_fullPathHTML += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("enginedjg.html");
+    sFullPathHTML += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("instrujs") + s + _T("enginedjg.html");
+
+    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
+    pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
+    
+    
     return true;
+}
+
+void DashboardInstrument_EngineDJG::SaveConfig()
+{
+    wxFileConfig *pConf = m_pconfig;
+    
+    if (!pConf)
+        return;
+
+    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
+    pConf->Write(_T("instrujsURL"), m_fullPathHTML );
+    
+    return;
 }
 
