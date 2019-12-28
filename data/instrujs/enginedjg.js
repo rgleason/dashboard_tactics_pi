@@ -28,6 +28,7 @@ var g = new JustGage({
     relativeGaugeSize: true
 });
 
+// Persistent configuration
 var uid = '';
 var conf = {
     skpath: '',
@@ -40,7 +41,16 @@ var conf = {
     opts: '',
     optn: 0
 };
+// Functional and environmental
 var msie = 0;
+var bLocalStorage = false;
+var href;
+var protocol;
+var hostname;
+var domain;
+var port;
+
+// Run-time
 var skpath = '';
 var titlepath = '';
 var unit = '';
@@ -197,15 +207,35 @@ var unloadScrollBars = function() {
 
 window.addEventListener('load',
     function() {
-        console.log('loading enginedjg.js');  
+        console.log('loading enginedjg.js');
+        if ( window.location ) {
+            href = window.location.href;
+            console.log('href: ', href );
+            protocol = window.location.protocol;
+            console.log('protocol: ', protocol );
+            hostname = window.location.hostname;
+            console.log('hostname: ', hostname );
+            if ( window.location.domain )
+                domain = window.location.domain;
+            else
+                domain = '';
+            console.log('domain: ', domain );
+            if ( window.location.port )
+                port = window.location.port;
+            else
+                port = '';
+            port = window.location.port;
+            console.log('port: ', port );
+        }
+
         try { 
             if ( CSS.supports ) {
                 if ( CSS.supports("font-size","5vw") ) {
-                    console.log('Viewport proportinal support');
+                    console.log('Has viewport proportional font size support');
                     document.getElementById("skPath").className += " propl";
                 }
                 else{
-                    console.log('No viewport proportinal support, fixed size');
+                    console.log('No viewport proportional font size support, use media properties');
                     document.getElementById("skPath").className += " fixed";
                 }
             }
@@ -222,6 +252,22 @@ window.addEventListener('load',
                 console.log('cannot determine viewport proportinal support, fixed size');
                 document.getElementById("skPath").className += " fixed";
             }
+        }
+        try {
+            var sKey  = 'test.enginedjg.js';
+            var sTest = 'test';
+            localStorage.setItem( sKey, sTest );
+            var sComp = localStorage.getItem( sKey );
+            localStorage.removeItem( sKey );
+            if ( sTest === sComp ) {
+                bLocalStorage = true;
+                console.log('localStorage() support is available, protocol: ', protocol);
+            }
+            else
+                console.log('localStorage() support is available but verification failed, protocol: ', protocol);
+        }
+        catch( error ) {
+            console.log('localStorage() support not available, protocol: ', protocol);
         }
         unloadScrollBars();
         setval(50 * 100000);
