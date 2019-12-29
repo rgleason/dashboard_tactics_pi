@@ -199,7 +199,9 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
     wxString sFullPathHTML = "file://"; // preferably 'http://' or 'https://' but this is easier for people to start with
     sFullPathHTML += *GetpSharedDataLocation(); // provide by the plug-in API
     wxString s = wxFileName::GetPathSeparator();
-    sFullPathHTML += _T("plugins") + s + _T("dashboard_tactics_pi") + s + _T("data") + s + _T("instrujs") + s + _T("enginedjg.html");
+    sFullPathHTML +=
+        _T("plugins")  + s + _T("dashboard_tactics_pi") + s + _T("data")+ s +
+        _T("instrujs") + s + _T("enginedjg") + s + _T("index.html");
 
     pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
