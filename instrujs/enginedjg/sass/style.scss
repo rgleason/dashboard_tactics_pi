@@ -1,0 +1,49 @@
+@use '../sass/instrujs';
+@use '../sass/menu';
+
+/* Path */
+
+$skpathcolor : #2E3940;
+$skbotmcolor : #2E3940;
+
+.skpath {
+    top: 1%;
+    margin-left: 1%;
+    width: 98%;
+    height: 5%;
+    padding-top: 1px;
+    margin-bottom: 1%;
+    padding-bottom: 1px;
+    color: $skpathcolor;
+    text-align: center;
+    font-family: "Helvetica", sans-serif;
+}
+.skpath.propl { font-size: 5vw; }
+$skffssz : 10px;
+$skfffin :  2px;
+.skpath.fixed { font-size: $skffssz; }
+$skfist : 201px;
+$skfiin : 100px;
+@media screen and (min-width: $skfist)             { .skpath.fixed { font-size: $skffssz + $skfffin;   } }
+@media screen and (min-width: $skfist + $skfiin)   { .skpath.fixed { font-size: $skffssz + 2*$skfffin; } }
+@media screen and (min-width: $skfist + 2*$skfiin) { .skpath.fixed { font-size: $skffssz + 3*$skfffin; } }
+@media screen and (min-width: $skfist + 3*$skfiin) { .skpath.fixed { font-size: $skffssz + 4*$skfffin; } }
+@media screen and (min-width: $skfist + 4*$skfiin) { .skpath.fixed { font-size: $skffssz + 5*$skfffin; } }
+
+/* Gauge */
+.gauge {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 90%;
+    margin-bottom: 0px;
+}
+.bottom {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 3%;
+    color: $skbotmcolor;
+    text-align: center;
+    font-family: instrujs.$ifontfamily;
+}
