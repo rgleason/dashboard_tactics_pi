@@ -142,6 +142,10 @@ a.menu-btn {
   font-family: "Helvetica", sans-serif;
 }
 
+:root {
+  --skpproplw: 5vw;
+}
+
 .skpath.propl {
   font-size: 5vw;
 }

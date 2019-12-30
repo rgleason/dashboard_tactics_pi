@@ -18,7 +18,11 @@ $skbotmcolor : #2E3940;
     text-align: center;
     font-family: "Helvetica", sans-serif;
 }
-.skpath.propl { font-size: 5vw; }
+$skproplw : 5vw;
+:root {
+    --skpproplw: #{$skproplw};
+}
+.skpath.propl { font-size: $skproplw; }
 $skffssz : 10px;
 $skfffin :  2px;
 .skpath.fixed { font-size: $skffssz; }
