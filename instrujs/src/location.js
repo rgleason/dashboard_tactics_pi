@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 
-export function getLocInfo() {
+export default function getLocInfo() {
     var href = ''
     var protocol = ''
     var hostname = ''

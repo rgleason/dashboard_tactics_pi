@@ -5,9 +5,11 @@
 
 import '../sass/style.scss'
 
-export function setSkPathFontResizingStyle( msie ) {
+export function setSkPathFontResizingStyle() {
     var hasproplsupport = false
     var hadexception = false
+    var ua = window.navigator.userAgent
+    var msie = ua.indexOf("MSIE ")
     try { 
         if ( CSS.supports ) {
             if ( CSS.supports("font-size",
@@ -24,7 +26,7 @@ export function setSkPathFontResizingStyle( msie ) {
     }
     catch( error ) {
         hadexception = true
-        console.log('No CSS.supports() - got exception, use media properties - unless this is a MSIE use propl, anyway')
+        console.log('No CSS.supports() - got exception, use media properties - unless this is a MSIE: use propl, anyway!')
     }
     if ( hasproplsupport || ( hadexception && (msie > 0) ) )
         document.getElementById("skPath").className += " propl"

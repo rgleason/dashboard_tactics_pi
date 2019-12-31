@@ -4,31 +4,29 @@
  */
 
 import '../sass/style.scss'
-import { saveParam, getParam, deleteParam } from '../../src/persistence'
-import { getLocInfo } from '../../src/location'
+import { loadConf, saveConf } from '../../src/persistence'
+import getLocInfo from '../../src/location'
 import { createGauge } from './gauge'
 import { setSkPathFontResizingStyle } from './css'
+import confObj from './confObj'
+
+var mylib1= require('exports-loader?mylib1!./iface.js')
+var global1 = mylib1.multiply(2, 4)
+var bottom = null
+console.log('global1: ', global1)
+
+
+// const sPubConf = require('exports-loader?pubConf!./setConf.js');
+import sPubConf from './setConf'
+console.log('the sPubConf', sPubConf)
 
 var gauge = [] // from 1...n gauges, here only [0]!
 
 // Persistent configuration
 var uid = ''
-var conf = {
-    skpath: '',
-    title: '',
-    unit: '',
-    decimals: 1,
-    minval: 0,
-    maxval: 100,
-    theme: '',
-    opts: '',
-    optn: 0
-}
+var conf = confObj()
 // Functional and environmental
-var msie = 0
-var bLocalStorage = false
-var bCookies = false
-var locInfo // not available before window load
+var locInfo = getLocInfo();
 
 // Run-time
 var skpath = ''
@@ -42,28 +40,34 @@ function setval(newval) {
 }
 
 // Interface to C++, types needs to be set
-function setconf(newuid, newskpath, inval, inmin, inmax ) {
+export function setconf(newuid, newskpath, inval, inmin, inmax ) {
     console.log('setconf(): ', newuid, newskpath)
     var nUid = newuid || null
     if (nUid != null)
         uid = nUid
     else {
-        console.error('enginedjg.js setconf() - error: null UID')
+        console.error(
+            'setconf() - error: null UID')
         return
     }
     if ( nUid == '') {
         if ( uid == '' )
-            console.log('enginedjg.js setconf() - warning: empty UID, no existing')
+            console.log(
+                'setconf() - warning: empty UID, no existing')
         else
-            console.log('enginedjg.js setconf() - warning: empty UID, using existing: ', uid)
+            console.log(
+                'setconf() - warning: empty UID, using existing: ', uid)
     }
     var nSkPath = newskpath || null
     if ( (nSkPath == null) && ( uid == '') ) {
-        console.error('enginedjg.js setconf() - error: no uid (no newuid), no newskpath!')
+        console.error(
+            'setconf() - error: no uid (no newuid), no newskpath!')
         return
     }
     if ( ( skpath == '' ) && ( uid == '') ) {
-        console.error('enginedjg.js setconf() - error: no new UID, no SK path memorized, no UID.')
+        console.error(
+            'setconf() - error: no new UID,',
+            'no SK path memorized, no UID.')
         return
     }
     if ( ( nSkPath != null) && (nSkPath != '') ) {
@@ -71,13 +75,15 @@ function setconf(newuid, newskpath, inval, inmin, inmax ) {
     }
     else {
         if ( uid != '') {
-            var nConf = getObj( uid )
+            var nConf = loadConf( uid, conf, locInfo.path )
             if ( nConf == null ) {
-                console.log('enginedjg.js setconf() - warning: new configuration? No conf for: ', uid )
+                console.log(
+                    'setconf() - warning: new configuration?',
+                    'No conf for: ', uid )
             }
             else {
                 conf = nConf
-                console.log('enginedjg.js setconf() - For ', uid, ' retrieved: ', conf )
+                console.log('setconf() - For ', uid, ' retrieved: ', conf )
             }
             skpath = conf.skpath
         }
@@ -103,8 +109,10 @@ function setconf(newuid, newskpath, inval, inmin, inmax ) {
     gauge[0].refresh(conval, nMax, nMin, unit )
     if ( uid != '' ) {
         conf.skpath = skpath
-        if ( !saveObj( uid, conf ) ) {
-            console.error('enginedjg.js setconf() - failed to save for ', uid, ' configuration: ', conf )
+        if ( !saveConf( uid, conf ) ) {
+            console.error(
+                'setconf() - failed to save for ', uid,
+                ' configuration: ', conf )
         }
     }
     return
@@ -188,56 +196,34 @@ var unloadScrollBars = function() {
 window.addEventListener('load',
     function() {
         console.log('loading EngineDJG')
-        gauge.push (createGauge('gauge0', 0, 1, '[init]') )
+
         locInfo = getLocInfo()
+
+        gauge.push (createGauge('gauge0', 0, 1, '[init]') )
+
         setSkPathFontResizingStyle()
         
-        try {
-            var sKey  = 'test.enginedjg.js'
-            var sTest = 'test'
-            localStorage.setItem( sKey, sTest )
-            var sComp = localStorage.getItem( sKey )
-            localStorage.removeItem( sKey )
-            if ( sTest === sComp ) {
-                bLocalStorage = true
-                console.log('localStorage() support is available, protocol: ', locInfo.protocol)
-            }
-            else
-                console.log('localStorage() support is available but verification failed, protocol: ', locInfo.protocol)
-        }
-        catch( error ) {
-            console.log('localStorage() support not available, protocol: ', locInfo.protocol)
-        }
-            var cNameTest = 'test-cookie-by-enginedjg-js'
-            var cCidTest  = String( Math.floor(Math.random() * Math.floor(999999)) )
-            var cValTest  = 'test'
-        try {
-            if ( saveParam( cNameTest, cCidTest, cValTest ) ) {
-                var cValComp = getParam( cNameTest, cCidTest )
-                if ( cValComp === cValTest ) {
-                    console.log('document.cookie support is available, protocol: ', locInfo.protocol)
-                    bCookies = true
-                    if ( !deleteParam( cNameTest, cCidTest ) )
-                        console.log('document.cookie: warning: cannot delete the test cookie: ', cNameTest, '-', cCidTest)
-                }
-                else {
-                    console.log('document.cookie support is not available (cannot read back), protocol: ', locInfo.protocol)
-                }
-            }
-            else {
-                console.log('document.cookie support is not available (cannot save), protocol: ', locInfo.protocol)
-            }
-        }
-        catch( error) {
-            console.log('document.cookie support is not available, protocol: ', locInfo.protocol, ' error: ', error)
-        }
-        if ( !bLocalStorage && !bCookies ) {
-            console.error('enginedjg.js: no local storage support available, probably a back-end (IE or WebKit) policy prevents the usage for the protocol: ', locInfo.protocol)
-        }
         unloadScrollBars()
+
+        /// TESTING /////
+        sPubConf( 'from load' )
         setval(50 * 100000)
+
+        // Create the event, attach it to the 'bottom' id
+        bottom = document.getElementById ('bottom' )
+        var event = document.createEvent('Event')
+        // Define the event name
+        event.initEvent('skdatain', true, true);
+        // Listen for the event.
+        bottom.addEventListener('skdatain', function (e) {
+            console.log('bottom: customEvent "skdatain"')
+        }, false);
+        // Register the event for external triggering
+        mylib1.regevent( bottom, event )
+        
         setMenu( emptypath )
     }, false)
+
 
 /* Menu */
 /* Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)

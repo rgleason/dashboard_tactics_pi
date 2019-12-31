@@ -13,7 +13,7 @@ module.exports = {
         path: path.resolve(__dirname, '../../data/instrujs/enginedjg'),
         filename: 'bundle.js'
     },
-    module: {
+    module: { 
         rules: [
             {
                 test: /\.js$/,
@@ -47,9 +47,9 @@ module.exports = {
                     }
                 ]
             },
-           {
+            {
                 test: /\.(png|jpe?g|gif|svg)$/,
-               include: [path.resolve(__dirname, "../image")],
+                include: [path.resolve(__dirname, "../image")],
                 exclude: /(node_modules)/,
                 use: [
                     {
@@ -59,8 +59,18 @@ module.exports = {
                         }
                     }
                 ]
-            }
-        ]
+            },
+            {
+                test: /iface\.js$/,
+                include: [path.resolve(__dirname, "./src")],
+                exclude: /(node_modules)/,
+                use: [
+                    {
+                        loader: 'exports-loader'
+                    },
+                ]
+            },
+        ],
     },
     optimization: {
         minimizer: [
@@ -86,7 +96,7 @@ module.exports = {
         new htmlinstaller({
             template: './html/index.html',
             filename: 'index.html'
-        })
+        }),
     ],
     //default mode is production
     mode: 'development'
