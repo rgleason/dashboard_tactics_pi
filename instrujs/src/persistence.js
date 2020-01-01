@@ -1,5 +1,7 @@
-/* Persistence */
-
+/* $Id: persistence.js, v1.0 2019/11/30 VaderDarth Exp $
+ * OpenCPN dashboard_tactics plug-in
+ * Licensed under MIT - see distribution.
+ */
 /*
   LocalStorage (JSON objects) - works (usually) with file:// URIs on WebKitbut can be
   blocked by policy. On MSIE it is cookies which work on WebView backend. Likewise,

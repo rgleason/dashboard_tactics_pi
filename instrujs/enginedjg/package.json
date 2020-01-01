@@ -30,8 +30,9 @@
     },
     "homepage": "https://github.com/canne/dashboard_tactics_pi#readme",
     "dependencies": {
-        "justgage": "^1.3.3",
-        "raphael": "^2.3.0"
+        "justgage": "1.3.3",
+        "raphael": "2.3.0",
+        "xstate": "4.7.5"
     },
     "devDependencies": {
         "@babel/core": "^7.7.2",

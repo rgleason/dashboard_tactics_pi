@@ -5,6 +5,7 @@
 
 import '../sass/style.scss'
 import { loadConf, saveConf } from '../../src/persistence'
+import { getInstrujsService } from './statemachine'
 import getLocInfo from '../../src/location'
 import { createGauge } from './gauge'
 import { setSkPathFontResizingStyle } from './css'
@@ -18,9 +19,14 @@ console.log('global1: ', global1)
 
 // const sPubConf = require('exports-loader?pubConf!./setConf.js');
 import sPubConf from './setConf'
-console.log('the sPubConf', sPubConf)
+console.log('the sPubConf: ', sPubConf)
 
 var gauge = [] // from 1...n gauges, here only [0]!
+
+// State Machine Service
+var sms = getInstrujsService();
+console.log('the sms: ', sms)
+// sms.send('FETCH')
 
 // Persistent configuration
 var uid = ''
