@@ -63,6 +63,7 @@ module.exports = {
             {
                 test: /iface\.js$/,
                 include: [path.resolve(__dirname, "./src")],
+                include: [path.resolve(__dirname, "../src")],
                 exclude: /(node_modules)/,
                 use: [
                     {

@@ -2,7 +2,18 @@ html {
   width: 100%;
   height: 100%;
   font-size: 10px;
+}
+
+.instrument.day {
   background: radial-gradient(circle, #fff 0%, #a6b9c1 100%) no-repeat;
+}
+
+.instrument.dusk {
+  background: radial-gradient(circle, #a6b9c1 0%, #638694 100%) no-repeat;
+}
+
+.instrument.night {
+  background: radial-gradient(circle, #638694 0%, #2b3e45 100%) no-repeat;
 }
 
 /* Menu */
@@ -193,7 +204,8 @@ a.menu-btn {
   margin-left: 1%;
   width: 98%;
   height: 3%;
-  color: #2E3940;
-  text-align: center;
+  color: blue;
+  font-size: 18px;
+  text-align: left;
   font-family: "Helvetica", sans-serif;
 }

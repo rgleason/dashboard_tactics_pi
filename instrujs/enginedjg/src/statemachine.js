@@ -2,65 +2,43 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
-import { Machine, interpret } from 'xstate';
-
 /*
-  Designed with https://xstate.js.org/viz/
-  gist: https://git.io/Jexfk
-  Works on non-IE browsers, unfortunately wxWidgets WebView backend on Windows is IE!
+  Visualize with https://xstate.js.org/viz/ current schema https://git.io/JexUj
+  (not implementable with 'xstate', it is not working on IE :( )
 */
-const instrujsMachine =  Machine({
-    // Machine identifier
-    id: 'enginedjg',
+import StateMachine from 'javascript-state-machine';
+import { getidAskClient, getidClientAnswer } from './getid.js'
 
-    // Initial state
-    initial: 'window',
-
-    // Local context for entire machine
-    context: {
-        elapsed: 0,
-    },
-
-    // State definitions
-    states: {
-        window: {
-            on: {
-                FETCH: 'loading'
-            }
+export function createStateMachine() {
+    return new StateMachine({
+        init: 'window',
+        data: {
+            luminosity : 'day'
         },
-        loading: {
-            on: {
-                NOCFG: 'askall',
-                LOADCFG: 'askpath'
-            }
-        },
-        askall: {
-            on: {
-                ALLAVLB: 'showmenu'
-            }
-        },
-        showmenu: {
-            on: {
-                SELECTION: 'askpath'
-            }
-        },
-        askpath: {
-            on: {
-                ACKSUBSR: 'showdata'
-            }
-        },
-        showdata: {
-            on: {
-                CHGCONF: 'askall',
-                NEWDATA: 'showdata',
-                WATCHDOG: 'askpath'
-            }
+        transitions: [
+            { name: 'fetch',    from: 'window',   to: 'loading' },
+            { name: 'loaded',   from: 'loading',  to: 'getid' },
+            { name: 'setid',    from: 'getid',    to: 'getid' },
+            { name: 'nocfg',    from: 'getid',    to: 'getall' },
+            { name: 'loadcfg',  from: 'getid',    to: 'getpath' },
+            { name: 'allavlb',  from: 'getall',   to: 'showmenu' },
+            { name: 'selected', from: 'showmenu', to: 'askpath' },
+            { name: 'acksubsr', from: 'getpath',  to: 'showdata' },
+            { name: 'chgconf',  from: 'showdata', to: 'getall' },
+            { name: 'newdata',  from: 'showdata', to: 'showdata' },
+            { name: 'watchcat', from: 'showdata', to: 'askpath' },
+            { name: 'luminsty', from: 'getid',    to: 'getid' },
+            { name: 'luminsty', from: 'getpath',  to: 'getpath' },
+            { name: 'luminsty', from: 'getall',   to: 'getall' },
+            { name: 'luminsty', from: 'showmenu', to: 'showmenu' },
+            { name: 'luminsty', from: 'showdata', to: 'showdata' }
+        ],
+        methods: {
+            onFetch:    function() { console.log('onFetch()')    },
+            onLoaded:   function() {
+                getidAskClient()
+            },
+            onSetid:    function() { console.log('onSetid()')    }
         }
-    }
-});
-
-const instrujsService = interpret(instrujsMachine)
-  .onTransition(state => console.log(state.context.count))
-  .start();
-
-export function getInstrujsService() { return instrujsService }
+    })
+}

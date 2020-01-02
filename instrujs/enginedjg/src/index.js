@@ -5,17 +5,14 @@
 
 import '../sass/style.scss'
 import { loadConf, saveConf } from '../../src/persistence'
-import { getInstrujsService } from './statemachine'
+import { createStateMachine } from './statemachine'
 import getLocInfo from '../../src/location'
 import { createGauge } from './gauge'
 import { setSkPathFontResizingStyle } from './css'
 import confObj from './confObj'
 
-var mylib1= require('exports-loader?mylib1!./iface.js')
-var global1 = mylib1.multiply(2, 4)
-var bottom = null
-console.log('global1: ', global1)
-
+// we could access it with window.iface but this is needed once to get it in...
+var iface = require('exports-loader?iface!../../src/iface.js')
 
 // const sPubConf = require('exports-loader?pubConf!./setConf.js');
 import sPubConf from './setConf'
@@ -24,9 +21,14 @@ console.log('the sPubConf: ', sPubConf)
 var gauge = [] // from 1...n gauges, here only [0]!
 
 // State Machine Service
-var sms = getInstrujsService();
-console.log('the sms: ', sms)
-// sms.send('FETCH')
+var fsm = createStateMachine();
+console.log('EngineDJG - state: ', fsm.state)
+try {
+    fsm.fetch()
+}
+catch( error ) {
+    console.error('index.js: fsm.fetch() transition failed, errror: ', error)
+}
 
 // Persistent configuration
 var uid = ''
@@ -201,7 +203,7 @@ var unloadScrollBars = function() {
 
 window.addEventListener('load',
     function() {
-        console.log('loading EngineDJG')
+        console.log('EngineDJG - state: ', fsm.state)
 
         locInfo = getLocInfo()
 
@@ -215,19 +217,31 @@ window.addEventListener('load',
         sPubConf( 'from load' )
         setval(50 * 100000)
 
-        // Create the event, attach it to the 'bottom' id
-        bottom = document.getElementById ('bottom' )
+        // Create the transitional events (IE way) for clieant messages
+        var bottom = document.getElementById ('bottom' )
         var event = document.createEvent('Event')
-        // Define the event name
-        event.initEvent('skdatain', true, true);
-        // Listen for the event.
-        bottom.addEventListener('skdatain', function (e) {
-            console.log('bottom: customEvent "skdatain"')
+        event.initEvent('setid', true, true);
+        bottom.addEventListener('setid', function (e) {
+            try {
+                fsm.getid()
+            }
+            catch( error ) {
+                console.error(
+                    'Event:  setid: fsm.getid() transition failed, errror: ', error,
+                    ' current state: ', fsm.state)
+            }
         }, false);
-        // Register the event for external triggering
-        mylib1.regevent( bottom, event )
+        window.iface.regevent( bottom, event )
         
         setMenu( emptypath )
+
+        try {
+            fsm.loaded()
+        }
+        catch( error ) {
+            console.error('loading: fsm.loaded() transition failed, errror: ', error)
+        }
+        
     }, false)
 
 

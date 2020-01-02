@@ -1,11 +1,30 @@
 
 $radgradstart: #fff;
 $radgradstop : #a6b9c1;
+$radgradstartdusk: $radgradstop;
+$radgradstopdusk: #638694;
+$radgradstartnight: $radgradstopdusk;
+$radgradstopnight: #2b3e45;
+$skbotmcolor: blue;
+$skbotfsize: 18px;
+$skbottalign: left;
 $ifontfamily : "Helvetica", sans-serif;
 
 html {
     width: 100%;
     height: 100%;
     font-size: 10px;
+}
+
+.instrument {
+}
+.instrument.day {
     background: radial-gradient(circle,$radgradstart 0%, $radgradstop 100%) no-repeat;
 }
+.instrument.dusk {
+    background: radial-gradient(circle,$radgradstartdusk 0%, $radgradstopdusk 100%) no-repeat;
+}
+.instrument.night {
+    background: radial-gradient(circle,$radgradstartnight 0%, $radgradstopnight 100%) no-repeat;
+}
+

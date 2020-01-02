@@ -35,6 +35,8 @@ $skfiin : 100px;
 @media screen and (min-width: $skfist + 4*$skfiin) { .skpath.fixed { font-size: $skffssz + 5*$skfffin; } }
 
 /* Gauge */
+.gaugeface {
+}
 .gauge {
     top: 0px;
     margin-left: 1%;
@@ -47,7 +49,8 @@ $skfiin : 100px;
     margin-left: 1%;
     width: 98%;
     height: 3%;
-    color: $skbotmcolor;
-    text-align: center;
+    color: instrujs.$skbotmcolor;
+    font-size: instrujs.$skbotfsize;
+    text-align: instrujs.$skbottalign;
     font-family: instrujs.$ifontfamily;
 }
