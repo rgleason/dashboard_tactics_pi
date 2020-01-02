@@ -337,6 +337,7 @@ private:
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
     SkData              *mSkData;
+    PI_ColorScheme       mColorScheme;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

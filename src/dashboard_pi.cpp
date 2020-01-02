@@ -572,6 +572,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
     mSkData = new SkData();
+    mColorScheme = PI_GLOBAL_COLOR_SCHEME_DAY;
 #endif // _TACTICSPI_H_
 
     // Create the PlugIn icons
@@ -2619,6 +2620,9 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 
 void dashboard_pi::SetColorScheme( PI_ColorScheme cs )
 {
+#ifdef _TACTICSPI_H_
+    mColorScheme = cs;
+#enfid // _TACTICSPI_H_
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) dashboard_window->SetColorScheme( cs );
