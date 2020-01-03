@@ -13,6 +13,7 @@ import { createEmptyConf } from './conf'
 export function initLoad( that ) {
     that.locInfo = getLocInfo()
     that.gauge.push ( createGauge('gauge0', 0, 1, '[init]') )
+    that.glastvalue[0] = 0;
     setSkPathFontResizingStyle()
     that.conf = createEmptyConf()
 }

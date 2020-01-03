@@ -4,6 +4,7 @@
     "description": "HTML/CSS/JS based WebView dial instruments for OpenCPN Dashboard-Tactics plug-in",
     "main": "index.js",
     "scripts": {
+        "patch": "cp src/justgauge133fix241updatefixie.js node_modules/justgage",
         "build": "webpack -p --progress",
         "debug": "webpack -d --display-modules",
         "watch": "webpack -d --display-modules --watch",

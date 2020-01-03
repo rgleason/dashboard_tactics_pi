@@ -24,7 +24,8 @@ export function createStateMachine() {
             luminosity : 'day',
             locInfo    : getLocInfo(),
             // Functional
-            gauge      : []
+            gauge      : [],
+            glastvalue : [0]
         },
         transitions: [
             { name: 'fetch',    from: 'window',   to: 'loading' },

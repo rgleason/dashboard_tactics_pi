@@ -139,7 +139,7 @@ a.menu-btn {
   transition-delay: 300ms;
 }
 
-/* Path */
+/* Path - keep synced with the JustGauge, see ../src/css.js and ../src/gauge.js */
 .skpath {
   top: 1%;
   margin-left: 1%;
@@ -148,7 +148,6 @@ a.menu-btn {
   padding-top: 1px;
   margin-bottom: 1%;
   padding-bottom: 1px;
-  color: #2E3940;
   text-align: center;
   font-family: "Helvetica", sans-serif;
 }
@@ -190,6 +189,30 @@ a.menu-btn {
     font-size: 20px;
   }
 }
+.skpath.propl.day {
+  color: #101566;
+}
+
+.skpath.propl.dusk {
+  color: #232b99;
+}
+
+.skpath.propl.night {
+  color: #aaaeeb;
+}
+
+.skpath.fixed.day {
+  color: #101566;
+}
+
+.skpath.fixed.dusk {
+  color: #232b99;
+}
+
+.skpath.fixed.night {
+  color: #aaaeeb;
+}
+
 /* Gauge */
 .gauge {
   top: 0px;

@@ -8,9 +8,9 @@ export function createEmptyConf() {
         skpath: '',
         title: '',
         unit: '',
-        decimals: '1',
-        minval: '0',
-        maxval: '100',
+        decimals: 1,
+        minval: 0,
+        maxval: 100,
         theme: '',
         opt1: '',
         opt2: ''

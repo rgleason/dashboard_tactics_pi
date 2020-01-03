@@ -1,9 +1,11 @@
 @use '../sass/instrujs';
 @use '../sass/menu';
 
-/* Path */
+/* Path - keep synced with the JustGauge, see ../src/css.js and ../src/gauge.js */
+$skpathcolorday   : #101566;
+$skpathcolordusk  : #232b99;
+$skpathcolornight : #aaaeeb;
 
-$skpathcolor : #2E3940;
 $skbotmcolor : #2E3940;
 
 .skpath {
@@ -14,10 +16,10 @@ $skbotmcolor : #2E3940;
     padding-top: 1px;
     margin-bottom: 1%;
     padding-bottom: 1px;
-    color: $skpathcolor;
     text-align: center;
     font-family: "Helvetica", sans-serif;
 }
+
 $skproplw : 5vw;
 :root {
     --skpproplw: #{$skproplw};
@@ -33,6 +35,13 @@ $skfiin : 100px;
 @media screen and (min-width: $skfist + 2*$skfiin) { .skpath.fixed { font-size: $skffssz + 3*$skfffin; } }
 @media screen and (min-width: $skfist + 3*$skfiin) { .skpath.fixed { font-size: $skffssz + 4*$skfffin; } }
 @media screen and (min-width: $skfist + 4*$skfiin) { .skpath.fixed { font-size: $skffssz + 5*$skfffin; } }
+
+.skpath.propl.day   { color: $skpathcolorday; }
+.skpath.propl.dusk  { color: $skpathcolordusk; }
+.skpath.propl.night { color: $skpathcolornight; }
+.skpath.fixed.day   { color: $skpathcolorday; }
+.skpath.fixed.dusk  { color: $skpathcolordusk; }
+.skpath.fixed.night { color: $skpathcolornight; }
 
 /* Gauge */
 .gaugeface {
