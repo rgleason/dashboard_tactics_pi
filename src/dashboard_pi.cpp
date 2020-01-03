@@ -4906,10 +4906,8 @@ void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
 #ifdef _TACTICSPI_H_
 void DashboardWindow::SendColorSchemeToAllJSInstruments( PI_ColorScheme cs )
 {
-    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
-        if( (!(m_ArrayOfInstrument.Item( i )->m_cap_flag &
-               ///// >>>>>>> DEBUG DEBUG DEBUG DEBUG DEBUG <<<<<<<<<<
-               ID_DBP_I_ENGPOILP) == 0ULL) )
+    for ( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
+        if ( m_ArrayOfInstrument.Item( i )->m_pInstrument != NULL )
             m_ArrayOfInstrument.Item(i)->m_pInstrument->setColorScheme( cs );
     }
 }

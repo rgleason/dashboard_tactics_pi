@@ -4,9 +4,9 @@
  */
 
 var iface = {
-    eventsetid   : null,
-    elemsetid    : null,
-    uid          : '',
+    eventsetid    : null,
+    elemsetid     : null,
+    uid           : '',
     regeventsetid: function ( newelem, newevent ) {
         this.elemsetid = newelem
         this.eventsetid = newevent
@@ -22,6 +22,25 @@ var iface = {
             return
         this.clearFlag()
         return this.uid
+    },
+    eventluminsty : null,
+    elemluminsty  : null,
+    luminsty      : '',
+    regeventluminsty: function ( newelem, newevent ) {
+        this.elemluminsty = newelem
+        this.eventluminsty = newevent
+    },
+    setluminsty: function( newluminsty ) {
+        this.luminsty = newluminsty
+        if ( (this.eventluminsty == null) || (this.elemluminsty == null) )
+            return
+        this.elemluminsty.dispatchEvent( this.eventluminsty )
+    },
+    getluminsty: function() {
+        if ( (this.luminsty == null) || (this.luminsty === '') )
+            return
+        this.clearFlag()
+        return this.luminsty
     },
     setFlag: function( elemid, request ) {
         var el = document.getElementById(elemid)
@@ -49,5 +68,5 @@ var iface = {
         }
     }
 }
-window.iface = iface;
+window.iface = iface
 

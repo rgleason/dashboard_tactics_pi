@@ -120,6 +120,8 @@ protected:
     TacticsWindow       *m_pparent;
     instruState          m_istate;
     instruHandShake      m_handshake;
+    wxString             m_requestServed;
+    bool                 m_hasRequestedId;
     wxWindowID           m_id;
     wxString             m_ids;
     wxString             m_substyle;

@@ -28,10 +28,11 @@ var titlepath = ''
 var unit = ''
 var conversion = 100000
 
-// Create the transitional events (IE way, sorry) for clieant messages
+// Create the transitional events (the IE way, sorry!) for clieant messages
 var bottom = document.getElementById ('bottom' )
-var event = document.createEvent('Event')
-event.initEvent('setid', true, true);
+// UID
+var eventsetid = document.createEvent('Event')
+eventsetid.initEvent('setid', false, false);
 bottom.addEventListener('setid', function (e) {
     try {
         fsm.setid()
@@ -41,8 +42,23 @@ bottom.addEventListener('setid', function (e) {
             'Event:  setid: fsm.setid() transition failed, errror: ', error,
             ' current state: ', fsm.state)
     }
-}, false);
-window.iface.regeventsetid( bottom, event )
+}, true);
+window.iface.regeventsetid( bottom, eventsetid )
+// Luminosity
+var eventluminsty = document.createEvent('Event')
+eventluminsty.initEvent('luminsty', false, false);
+bottom.addEventListener('luminsty', function (e) {
+    try {
+        fsm.luminsty()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  luminsty: fsm.luminsty() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventluminsty( bottom, eventluminsty )
+
 
 /* Since now no other events apart the window load(), we need to await here until
    until it has been executed, before continuing to event driven operation */

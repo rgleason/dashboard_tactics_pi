@@ -35,3 +35,19 @@ export function setSkPathFontResizingStyle() {
     return
 }
 
+export function getNewLuminosity( that ) {
+    var newluminosity = window.iface.luminsty
+    if ( (newluminosity === 'day') ||
+         (newluminosity === 'dusk') ||
+         (newluminosity === 'night') ) {
+        that.luminosity  = newluminosity
+        var newclass = 'instrument ' + newluminosity
+        var elem = document.getElementById("instrument")
+        var oldclass = elem.className
+        if ( newclass === oldclass )
+            return
+        elem.className = newclass
+    }
+    return
+}
+

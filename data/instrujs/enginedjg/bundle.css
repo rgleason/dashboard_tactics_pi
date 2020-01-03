@@ -9,11 +9,11 @@ html {
 }
 
 .instrument.dusk {
-  background: radial-gradient(circle, #a6b9c1 0%, #638694 100%) no-repeat;
+  background: radial-gradient(circle, #638694 0%, #2b3e45 100%) no-repeat;
 }
 
 .instrument.night {
-  background: radial-gradient(circle, #638694 0%, #2b3e45 100%) no-repeat;
+  background: radial-gradient(circle, #2b3e45 0%, #141d20 100%) no-repeat;
 }
 
 /* Menu */

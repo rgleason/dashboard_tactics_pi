@@ -11,6 +11,7 @@ import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
 import { initLoad } from './init.js'
 import { getidAskClient, getidClientAnswer } from './getid.js'
+import { getNewLuminosity } from './css.js'
 
 export function createStateMachine() {
     return new StateMachine({
@@ -65,9 +66,10 @@ export function createStateMachine() {
             onSetid:    function() { console.log('onSetid()')
                                      getidClientAnswer( this )
                                      console.log('uid: ', this.uid )
-                                     console.log('locInfo: ', this.locInfo )
-                                     console.log('gauge[', this.gauge.length, ']')
-                                     console.log('conf: ', this.conf)
+                                   },
+            onLuminsty: function() { console.log('onLuminsty()')
+                                     getNewLuminosity( this )
+                                     console.log('luminosity: ', this.luminosity )
                                    }
         }
     })

@@ -59,6 +59,8 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_pparent = pparent;
     m_istate = JSI_UNDEFINED;
     m_handshake = JSI_HDS_NO_REQUEST;
+    m_requestServed = wxEmptyString;
+    m_hasRequestedId = false;
     m_id = id;
     m_ids = ids;
     m_substyle = "day";
@@ -66,7 +68,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
         m_substyle = "dusk";
     if ( cs == PI_GLOBAL_COLOR_SCHEME_NIGHT )
         m_substyle = "night";
-    m_newsubstyle = m_substyle;
+    m_newsubstyle = wxEmptyString;
     m_title = L"InstruJS";
     m_data = L"0.0";
     m_dataout = L"";
@@ -220,7 +222,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     m_threadRunning = true;
     if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) ) {
         // see  ../instrujs/src/iface.js for the interface,
-        // see   ../instrujs/<instrument>/src/statemachine.js for the states
+        // see  ../instrujs/<instrument>/src/statemachine.js for the states
         wxString request = m_pWebPanel->GetSelectedText();
         switch ( m_handshake ) {
         case JSI_HDS_NO_REQUEST:
@@ -228,7 +230,30 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_NO_REQUEST;
                 break;
             }
-            m_handshake = JSI_HDS_REQUEST;
+            m_handshake = JSI_HDS_SERVED;
+        case JSI_HDS_SERVED:
+            if ( (request == wxEmptyString) ) {
+                m_handshake = JSI_HDS_ACKNOWLEDGED;
+                m_istate = JSI_NO_REQUEST;
+                break;
+            }
+            if ( request != m_requestServed ) {
+                m_handshake = JSI_HDS_ACKNOWLEDGED;
+                m_istate = JSI_NO_REQUEST;
+            } // then another request, let's pass by acknwowledge, nevertheless
+            else
+                break;
+        case JSI_HDS_ACKNOWLEDGED:
+            if ( request == wxEmptyString ) {
+                m_handshake = JSI_HDS_NO_REQUEST;
+                m_istate = JSI_NO_REQUEST;
+                break;
+            }
+            if ( request != m_requestServed ) {
+                m_handshake = JSI_HDS_REQUEST;
+             } // then another request, let's pass to execution, nevertheless
+            else
+                break;
         case JSI_HDS_REQUEST:
             if ( request == wxEmptyString ) {
                 m_handshake = JSI_HDS_NO_REQUEST;
@@ -240,6 +265,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
                 break;
             }
+            m_requestServed = request;
             if ( request.CmpNoCase("getid") == 0 ) {
                 m_istate = JSI_GETID;
                 wxString javascript =
@@ -250,27 +276,38 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         "');");
                 RunScript( javascript );
                 m_handshake = JSI_HDS_SERVED;
+                m_hasRequestedId = true;
             }
             else 
                 break;
-        case JSI_HDS_SERVED:
-            if ( request == wxEmptyString ) {
-                m_handshake = JSI_HDS_ACKNOWLEDGED;
-                m_istate = JSI_NO_REQUEST;
-                break;
-            }
-            break;
-        case JSI_HDS_ACKNOWLEDGED:
-            if ( request == wxEmptyString ) {
-                m_handshake = JSI_HDS_NO_REQUEST;
-                m_istate = JSI_NO_REQUEST;
-                break;
-            }
-            break;
         default:
             m_handshake = JSI_HDS_NO_REQUEST;
             m_istate = JSI_NO_REQUEST;
         }
+        if ( m_hasRequestedId ) {
+            bool sendNewValue = false;
+            if ( m_newsubstyle.IsEmpty() ) {
+                if ( m_substyle != "day" ) {
+                    sendNewValue = true;
+                } // then need to change the initial luminosity style
+            } // then luminosity style comes from the constructor (from plug-in)
+            else {
+                if ( m_newsubstyle != m_substyle ) {
+                    m_substyle = m_newsubstyle;
+                    sendNewValue = true;
+                } // then need to change
+            } /// else the luminosity style comes from the OpenCPN via plug-in
+            if ( sendNewValue ) {
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s",
+                        "window.iface.setluminsty('",
+                        m_substyle,
+                        "');");
+                RunScript( javascript );
+            } // then there is a reason to ask the instrument to change style
+        } // then instru state machine allows luminosity changes
+        
         /*
         if ( !m_dataout.IsSameAs( m_data ) ) {
             m_dataout = m_data;
