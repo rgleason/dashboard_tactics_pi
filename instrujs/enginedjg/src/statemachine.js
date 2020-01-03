@@ -9,9 +9,11 @@
 */
 import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
-import { initLoad } from './init.js'
-import { getidAskClient, getidClientAnswer } from './getid.js'
-import { getNewLuminosity } from './css.js'
+import { initLoad } from './init'
+import { getidAskClient, getidClientAnswer } from './getid'
+import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
+import { showData } from './data'
+import { getNewLuminosity } from './css'
 
 export function createStateMachine() {
     return new StateMachine({
@@ -25,7 +27,10 @@ export function createStateMachine() {
             locInfo    : getLocInfo(),
             // Functional
             gauge      : [],
-            glastvalue : [0]
+            glastvalue : [0],
+            // Signal K Paths
+            path       : '',
+            allpaths   : []
         },
         transitions: [
             { name: 'fetch',    from: 'window',   to: 'loading' },
@@ -33,13 +38,12 @@ export function createStateMachine() {
             { name: 'initok',   from: 'initga',   to: 'getid' },
             { name: 'setid',    from: 'getid',    to: 'getid' },
             { name: 'nocfg',    from: 'getid',    to: 'getall' },
-            { name: 'loadcfg',  from: 'getid',    to: 'getpath' },
-            { name: 'allavlb',  from: 'getall',   to: 'showmenu' },
+            { name: 'hascfg',   from: 'getid',    to: 'getpath' },
+            { name: 'setall',   from: 'getall',   to: 'showmenu' },
             { name: 'selected', from: 'showmenu', to: 'askpath' },
-            { name: 'acksubsr', from: 'getpath',  to: 'showdata' },
+            { name: 'newdata',  from: 'getpath',  to: 'showdata' },
             { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'newdata',  from: 'showdata', to: 'showdata' },
-            { name: 'watchcat', from: 'showdata', to: 'askpath' },
             { name: 'luminsty', from: 'getid',    to: 'getid' },
             { name: 'luminsty', from: 'getpath',  to: 'getpath' },
             { name: 'luminsty', from: 'getall',   to: 'getall' },
@@ -61,12 +65,25 @@ export function createStateMachine() {
                                      console.log('gauge[', this.gauge.length, ']')
                                      console.log('conf: ', this.conf)
                                    },
-            onGetid:   function() { console.log('onInit()')
-                                    getidAskClient()
-                                  },
+            onGetid:    function() { console.log('onInit()')
+                                     getidAskClient()
+                                   },
             onSetid:    function() { console.log('onSetid()')
                                      getidClientAnswer( this )
                                      console.log('uid: ', this.uid )
+                                   },
+            onGetall:   function() { console.log('onGetall()')
+                                     getallAskClient()
+                                   },
+            onAllavlb:  function() { console.log('onAllavlb()')
+                                     getiallClientAnswer( this )
+                                     console.log('allpaths: ', this.allpaths )
+                                   },
+            onGetpath:  function() { console.log('onGetpath()')
+                                     getpathAskClient( this )
+                                   },
+            onShowdata: function() { console.log('onShowData()')
+                                     showData( this )
                                    },
             onLuminsty: function() { console.log('onLuminsty()')
                                      getNewLuminosity( this )

@@ -30,7 +30,8 @@ var conversion = 100000
 
 // Create the transitional events (the IE way, sorry!) for clieant messages
 var bottom = document.getElementById ('bottom' )
-// UID
+
+// UID and configuration file
 var eventsetid = document.createEvent('Event')
 eventsetid.initEvent('setid', false, false);
 bottom.addEventListener('setid', function (e) {
@@ -42,8 +43,67 @@ bottom.addEventListener('setid', function (e) {
             'Event:  setid: fsm.setid() transition failed, errror: ', error,
             ' current state: ', fsm.state)
     }
+    function pollgetid () {
+        console.log('pollgetid() - waiting for getid, now: ', fsm.state)
+        if ( fsm.is('getid') ) {
+            if ( fsm.conf == null ) {
+                try {
+                    fsm.nocfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.js:  fsm.nocfg() transition failed, errror: ', error,
+                        ' current state: ', fsm.state)
+                }
+            }
+            else {
+                try {
+                    fsm.hascfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.js:  fsm.hascfg() transition failed, errror: ', error,
+                        ' current state: ', fsm.state)
+                }
+            }
+        } else {
+            setTimeout(pollgetid, 100);
+        }
+    }
+    pollgetid(); // do _everything_ in the routing once condition met
 }, true);
 window.iface.regeventsetid( bottom, eventsetid )
+
+// All available paths have been set
+var eventsetall = document.createEvent('Event')
+eventsetall.initEvent('setall', false, false);
+bottom.addEventListener('setall', function (e) {
+    try {
+        fsm.setall()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  setall: fsm.setall() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventsetall( bottom, eventsetall )
+
+// New data is coming in
+var eventnewdata = document.createEvent('Event')
+eventnewdata.initEvent('newdata', false, false);
+bottom.addEventListener('newdata', function (e) {
+    try {
+        fsm.newdata()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  newdata: fsm.newdata() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventnewdata( bottom, eventnewdata )
+
 // Luminosity
 var eventluminsty = document.createEvent('Event')
 eventluminsty.initEvent('luminsty', false, false);

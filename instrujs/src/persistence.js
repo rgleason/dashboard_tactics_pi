@@ -12,7 +12,7 @@ var bSelfTest = false
 var bLocalStorage = false
 var bCookies = false
 
-export function loadConf( cid, confObj, locProtocol ) {
+export function loadConf( cid, locProtocol ) {
     if ( !bSelfTest ) {
         SelfTest( locProtocol )
     }
@@ -271,7 +271,8 @@ function SelfTest( locProtocol ) {
                   'Provide instrument files by protocol "http://"')
         else
             alert('Saving of settings not available!\n' +
-                  'System policy prevents local storage.')
+                  'System policy prevents local storage.' +
+                  'This is often the case for "file:://" protocol.')
     }
     return
 }

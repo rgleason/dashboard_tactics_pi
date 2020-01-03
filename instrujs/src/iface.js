@@ -19,9 +19,47 @@ var iface = {
     },
     getid: function() {
         if ( (this.uid == null) || (this.uid === '') )
-            return
+            return ''
         this.clearFlag()
         return this.uid
+    },
+    eventsetall    : null,
+    elemsetall     : null,
+    all            : [],
+    regeventsetall: function ( newelem, newevent ) {
+        this.elemsetall = newelem
+        this.eventsetall = newevent
+    },
+    setall: function( newuid ) {
+        this.uid = newuid
+        if ( (this.eventsetall == null) || (this.elemsetall == null) )
+            return
+        this.elemsetall.dispatchEvent( this.eventsetall )
+    },
+    getall: function() {
+        if ( this.all.length == 0 )
+            return []
+        this.clearFlag()
+        return this.all
+    },
+    eventnewdata    : null,
+    elemnewdata     : null,
+    value           : 0.0,
+    regeventnewdata: function ( newelem, newevent ) {
+        this.elemnewdata = newelem
+        this.eventnewdata = newevent
+    },
+    newdata: function( newvalue ) {
+        this.value = newvalue
+        if ( (this.eventnewdata == null) || (this.elemnewdata == null) )
+            return
+        this.elemnewdata.dispatchEvent( this.eventnewdata )
+    },
+    getdata: function() {
+        if ( this.value == null )
+            return 0.0
+        this.clearFlag()
+        return this.value
     },
     eventluminsty : null,
     elemluminsty  : null,
