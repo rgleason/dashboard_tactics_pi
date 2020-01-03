@@ -1,10 +1,10 @@
 @use '../sass/instrujs';
 @use '../sass/menu';
 
-/* Path - keep synced with the JustGauge, see ../src/css.js and ../src/gauge.js */
-$skpathcolorday   : #101566;
-$skpathcolordusk  : #232b99;
-$skpathcolornight : #aaaeeb;
+/* Path - in ../src/gauge there are *FontColore, but no CSS so consider it as well */
+$skpathcolorday   : #232b99;
+$skpathcolordusk  : #eeeef0;
+$skpathcolornight : #6168c2;
 
 $skbotmcolor : #2E3940;
 

@@ -60,26 +60,6 @@ export function getNewLuminosity( that ) {
         oldclass = elem.className
         if ( !(newclass === oldclass) )
             elem.className = newclass
-
-        // Gauge
-        if ( newluminosity == 'day') {
-            that.gauge[0].labelFontColor = '#262626'
-            that.gauge[0].update('labelFontColor', '#262626')
-            that.gauge[0].valueFontColor = '#101566'
-            that.gauge[0].update('valueFontColor', '#101566')
-        }
-        else if ( newluminosity == 'dusk') {
-            that.gauge[0].labelFontColor = '#8389e0'
-            that.gauge[0].update('labelFontColor', '#8389e0')
-            that.gauge[0].valueFontColor = '#232b99'
-            that.gauge[0].update('valueFontColor', '#232b99')
-        }
-        else if ( newluminosity == 'night') {
-            that.gauge[0].labelFontColor = '#d3d5f5'
-            that.gauge[0].update('labelFontColor', 'd3d5f5')
-            that.gauge[0].valueFontColor = '#aaaeeb'
-            that.gauge[0].update('valueFontColor', 'aaaeeb')
-        }
     }
     return
 }

@@ -3,11 +3,6 @@
  * Licensed under MIT - see distribution.
  */
 import JustGage from 'justgage'
-/* Note: >1.3.3 deeded in css.js (day / night switch ), update() method:
-         see package.json. If still 1.3.3 and no higher available, overrides
-         with file ./justgauge133fix241updateie.js before build.
-   Watchout: there was a 'const' in the update-method, strange characters in
-         a console log also - the WebView backend, IE on Windows does not like!  */
 
 export function createGauge(name, value, decimals, label) {
     return new JustGage({
@@ -29,7 +24,7 @@ export function createGauge(name, value, decimals, label) {
         },
         gaugeColor      : '#cdcbcb',
         labelFontColor  : '#262626',
-        valueFontColor  : '#101566',
+        valueFontColor  : '#232b99',
         valueFontFamily : "Courier",
         relativeGaugeSize: true
     })

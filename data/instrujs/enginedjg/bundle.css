@@ -5,15 +5,15 @@ html {
 }
 
 .instrument.day {
-  background: radial-gradient(circle, #fff 0%, #a6b9c1 100%) no-repeat;
+  background: radial-gradient(circle, #fff 0%, #858383 100%) no-repeat;
 }
 
 .instrument.dusk {
-  background: radial-gradient(circle, #638694 0%, #2b3e45 100%) no-repeat;
+  background: radial-gradient(circle, #858383 0%, #4d4d4d 100%) no-repeat;
 }
 
 .instrument.night {
-  background: radial-gradient(circle, #2b3e45 0%, #141d20 100%) no-repeat;
+  background: radial-gradient(circle, #4d4d4d 0%, #000 100%) no-repeat;
 }
 
 /* Menu */
@@ -28,8 +28,8 @@ html {
   margin: 0;
   border: 1px solid #bbb;
   background: #eee;
-  background: -webkit-linear-gradient(to bottom, #fff 0%, #a6b9c1 100px, #a6b9c1 100%);
-  background: linear-gradient(to bottom, #fff 0%, #a6b9c1 100px, #a6b9c1 100%);
+  background: -webkit-linear-gradient(to bottom, #fff 0%, #858383 100px, #858383 100%);
+  background: linear-gradient(to bottom, #fff 0%, #858383 100px, #858383 100%);
   z-index: 100;
   border-radius: 3px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
@@ -139,7 +139,7 @@ a.menu-btn {
   transition-delay: 300ms;
 }
 
-/* Path - keep synced with the JustGauge, see ../src/css.js and ../src/gauge.js */
+/* Path - in ../src/gauge there are *FontColore, but no CSS so consider it as well */
 .skpath {
   top: 1%;
   margin-left: 1%;
@@ -190,27 +190,27 @@ a.menu-btn {
   }
 }
 .skpath.propl.day {
-  color: #101566;
+  color: #232b99;
 }
 
 .skpath.propl.dusk {
-  color: #232b99;
+  color: #eeeef0;
 }
 
 .skpath.propl.night {
-  color: #aaaeeb;
+  color: #6168c2;
 }
 
 .skpath.fixed.day {
-  color: #101566;
-}
-
-.skpath.fixed.dusk {
   color: #232b99;
 }
 
+.skpath.fixed.dusk {
+  color: #eeeef0;
+}
+
 .skpath.fixed.night {
-  color: #aaaeeb;
+  color: #6168c2;
 }
 
 /* Gauge */
