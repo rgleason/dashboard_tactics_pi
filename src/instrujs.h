@@ -56,6 +56,28 @@ using namespace std;
 
 #include "tactics_pi.h"
 #include "instrument.h"
+#include "ocpn_plugin.h"
+
+enum instruState {
+    JSI_UNDEFINED,
+    JSI_NO_WINDOW,
+    JSI_WINDOW,
+    JSI_WINDOW_LOADED,
+    JSI_NO_REQUEST,
+    JSI_GETID,
+    JSI_GETALL,
+    JSI_GETPATH,
+    JSI_SHOWDATA,
+    JSI_NOF_STATES
+};
+enum instruHandShake {
+    JSI_HDS_NO_REQUEST,
+    JSI_HDS_REQUEST,
+    JSI_HDS_SERVING,
+    JSI_HDS_SERVED,
+    JSI_HDS_ACKNOWLEDGED
+};
+    
 
 //+------------------------------------------------------------------------------
 //|
@@ -70,15 +92,17 @@ using namespace std;
 class InstruJS : public DashboardInstrument
 {
 public:
-    InstruJS( TacticsWindow* pparent, wxWindowID id, wxString ids );
+    InstruJS( TacticsWindow* pparent, wxWindowID id, wxString ids,
+              PI_ColorScheme cs );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
-    virtual bool instrIsRunning(void) { return m_webpanelInitiated; };
+    virtual bool instrIsRunning(void) { return !m_webPanelSuspended; };
     virtual void suspendInstrument(void);
     virtual bool instrIsReadyForConfig(void) { return m_webpanelCreated; };
     virtual void setNewConfig ( wxString newSkPath );
-    virtual void restartInstrument(void) { m_webpanelInitiated = true; };
+    virtual void setColorScheme ( PI_ColorScheme cs ) override;
+    virtual void restartInstrument(void) { m_webPanelSuspended = false; };
     virtual void stopScript(void); // if overriding OnClose(), call this
 
     void timeoutEvent(void) override;
@@ -94,8 +118,12 @@ public:
     
 protected:
     TacticsWindow       *m_pparent;
+    instruState          m_istate;
+    instruHandShake      m_handshake;
     wxWindowID           m_id;
     wxString             m_ids;
+    wxString             m_substyle;
+    wxString             m_newsubstyle;
     wxString             m_title;
     wxString             m_data;
     wxString             m_dataout;
@@ -103,7 +131,7 @@ protected:
     bool                 m_threadRunning;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
-    bool                 m_webpanelInitiated;
+    bool                 m_webPanelSuspended;
     bool                 m_webpanelStopped;
     wxWebView           *m_pWebPanel;
     wxTimer             *m_pThreadInstruJSTimer;

@@ -163,6 +163,7 @@ public:
     virtual void timeoutEvent(void) = 0;
     virtual void setTimestamp( long long ts ) final;
     virtual long long getTimestamp(void) final;
+    virtual void setColorScheme ( PI_ColorScheme cs ) {};
 #else
     int GetCapacity();
 #endif // _TACTICSPI_H_

@@ -87,7 +87,8 @@ class DashboardInstrument_EngineDJG : public InstruJS
 {
 public:
     DashboardInstrument_EngineDJG(
-        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxString ids, wxString format = "" );
+        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths,
+        wxString ids, PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );

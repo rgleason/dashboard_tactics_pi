@@ -542,6 +542,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_sigPathLangVector.push_back(newPathDescr);
     newPathDescr = std::make_tuple(L"propulsion.port.temperature",_(L"\u2191 Eng1 Temp"),_(L"Engine cooling water temperature - main or port side"));
     m_sigPathLangVector.push_back(newPathDescr);
+    m_colorScheme = PI_GLOBAL_COLOR_SCHEME_DAY;
 
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
@@ -572,7 +573,6 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
     mSkData = new SkData();
-    mColorScheme = PI_GLOBAL_COLOR_SCHEME_DAY;
 #endif // _TACTICSPI_H_
 
     // Create the PlugIn icons
@@ -2621,11 +2621,17 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 void dashboard_pi::SetColorScheme( PI_ColorScheme cs )
 {
 #ifdef _TACTICSPI_H_
-    mColorScheme = cs;
-#enfid // _TACTICSPI_H_
+    m_colorScheme = cs;
+#endif // _TACTICSPI_H_
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
-        if( dashboard_window ) dashboard_window->SetColorScheme( cs );
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window ) {
+            dashboard_window->SetColorScheme( cs );
+#ifdef _TACTICSPI_H_
+            dashboard_window->SendColorSchemeToAllJSInstruments( cs );
+#endif // _TACTICSPI_H_
+        }
     }
 }
 
@@ -4783,7 +4789,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 ids = GetUUID();
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
                 this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector, ids );
+                &m_plugin->m_sigPathLangVector, ids, m_plugin->m_colorScheme );
             break;
 #endif // _TACTICSPI_H_
         }
@@ -4896,3 +4902,15 @@ void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
             ((DashboardInstrument_Clock*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
     }
 }
+
+#ifdef _TACTICSPI_H_
+void DashboardWindow::SendColorSchemeToAllJSInstruments( PI_ColorScheme cs )
+{
+    for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
+        if( (!(m_ArrayOfInstrument.Item( i )->m_cap_flag &
+               ///// >>>>>>> DEBUG DEBUG DEBUG DEBUG DEBUG <<<<<<<<<<
+               ID_DBP_I_ENGPOILP) == 0ULL) )
+            m_ArrayOfInstrument.Item(i)->m_pInstrument->setColorScheme( cs );
+    }
+}
+#endif // _TACTICSPI_H_

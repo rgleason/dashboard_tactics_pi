@@ -23,7 +23,8 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: ['@babel/preset-env'],
+                        plugins: ['@babel/plugin-transform-runtime']
                     }
                 }
             },
@@ -97,7 +98,7 @@ module.exports = {
         new htmlinstaller({
             template: './html/index.html',
             filename: 'index.html'
-        }),
+        })
     ],
     //default mode is production
     mode: 'development'

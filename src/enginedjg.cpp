@@ -56,8 +56,9 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
-    TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString ids, wxString format ) :
-    InstruJS ( pparent, id, ids )
+    TacticsWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths,
+    wxString ids, PI_ColorScheme cs, wxString format ) :
+    InstruJS ( pparent, id, ids, cs )
 {
     m_pparent = pparent;
     previousTimestamp = 0LL; // dashboard instru base class

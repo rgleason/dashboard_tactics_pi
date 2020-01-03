@@ -279,6 +279,7 @@ public:
     std::mutex         m_mtxNofStreamInSk;
     wxString           m_echoStreamerInSkShow;
     sigPathLangVector  m_sigPathLangVector;
+    PI_ColorScheme     m_colorScheme;
 #endif // _TACTICSPI_H_
     
 private:
@@ -337,7 +338,6 @@ private:
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
     SkData              *mSkData;
-    PI_ColorScheme       mColorScheme;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;
@@ -489,6 +489,9 @@ public:
         );
     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
     void SendUtcTimeToAllInstruments( wxDateTime value );
+#ifdef _TACTICSPI_H_
+    void SendColorSchemeToAllJSInstruments( PI_ColorScheme cs );
+#endif // _TACTICSPI_H_
     void ChangePaneOrientation( int orient, bool updateAUImgr );
     /*TODO: OnKeyPress pass event to main window or disable focus*/
 

@@ -7,9 +7,9 @@ var iface = {
     eventsetid   : null,
     elemsetid    : null,
     uid          : '',
-    regevent: function ( newelem, newevent ) {
-        this.elem = newelem
-        this.event = newevent
+    regeventsetid: function ( newelem, newevent ) {
+        this.elemsetid = newelem
+        this.eventsetid = newevent
     },
     setid: function( newuid ) {
         this.uid = newuid
@@ -18,6 +18,9 @@ var iface = {
         this.elemsetid.dispatchEvent( this.eventsetid )
     },
     getid: function() {
+        if ( (this.uid == null) || (this.uid === '') )
+            return
+        this.clearFlag()
         return this.uid
     },
     setFlag: function( elemid, request ) {

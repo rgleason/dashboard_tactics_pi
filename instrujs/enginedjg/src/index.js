@@ -6,21 +6,13 @@
 import '../sass/style.scss'
 import { loadConf, saveConf } from '../../src/persistence'
 import { createStateMachine } from './statemachine'
-import getLocInfo from '../../src/location'
-import { createGauge } from './gauge'
 import { setSkPathFontResizingStyle } from './css'
-import confObj from './confObj'
 
 // we could access it with window.iface but this is needed once to get it in...
 var iface = require('exports-loader?iface!../../src/iface.js')
 
-// const sPubConf = require('exports-loader?pubConf!./setConf.js');
-import sPubConf from './setConf'
-console.log('the sPubConf: ', sPubConf)
-
-var gauge = [] // from 1...n gauges, here only [0]!
-
 // State Machine Service
+console.log('EngineDJG - creating statemachine')
 var fsm = createStateMachine();
 console.log('EngineDJG - state: ', fsm.state)
 try {
@@ -30,17 +22,50 @@ catch( error ) {
     console.error('index.js: fsm.fetch() transition failed, errror: ', error)
 }
 
-// Persistent configuration
-var uid = ''
-var conf = confObj()
-// Functional and environmental
-var locInfo = getLocInfo();
-
 // Run-time
 var skpath = ''
 var titlepath = ''
 var unit = ''
 var conversion = 100000
+
+// Create the transitional events (IE way, sorry) for clieant messages
+var bottom = document.getElementById ('bottom' )
+var event = document.createEvent('Event')
+event.initEvent('setid', true, true);
+bottom.addEventListener('setid', function (e) {
+    try {
+        fsm.setid()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  setid: fsm.setid() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, false);
+window.iface.regeventsetid( bottom, event )
+
+/* Since now no other events apart the window load(), we need to await here until
+   until it has been executed, before continuing to event driven operation */
+function pollinitga () {
+    console.log('pollinitga() - waiting for initga, now: ', fsm.state)
+    if ( fsm.is('initga') ) {
+        try {
+            fsm.initok()
+        }
+        catch( error ) {
+            console.error(
+                'index.js:  fsm.initok() transition failed, errror: ', error,
+                ' current state: ', fsm.state)
+        }
+    } else {
+        setTimeout(pollinitga, 100);
+    }
+}
+
+pollinitga(); // do _everything_ in the routing once condition met
+
+
+ /* *********
 
 function setval(newval) {
     var conval = newval / conversion
@@ -196,6 +221,8 @@ function setMenu( sortedpath ) {
     menu = document.querySelector('.menu')
 }
 
+****** */
+
 var unloadScrollBars = function() {
     document.documentElement.style.overflow = 'hidden' // webkit
     document.body.scroll = "no" // ie
@@ -205,43 +232,15 @@ window.addEventListener('load',
     function() {
         console.log('EngineDJG - state: ', fsm.state)
 
-        locInfo = getLocInfo()
-
-        gauge.push (createGauge('gauge0', 0, 1, '[init]') )
-
-        setSkPathFontResizingStyle()
-        
         unloadScrollBars()
 
-        /// TESTING /////
-        sPubConf( 'from load' )
-        setval(50 * 100000)
-
-        // Create the transitional events (IE way) for clieant messages
-        var bottom = document.getElementById ('bottom' )
-        var event = document.createEvent('Event')
-        event.initEvent('setid', true, true);
-        bottom.addEventListener('setid', function (e) {
-            try {
-                fsm.getid()
-            }
-            catch( error ) {
-                console.error(
-                    'Event:  setid: fsm.getid() transition failed, errror: ', error,
-                    ' current state: ', fsm.state)
-            }
-        }, false);
-        window.iface.regevent( bottom, event )
-        
-        setMenu( emptypath )
-
+        // Loading state done
         try {
             fsm.loaded()
         }
         catch( error ) {
             console.error('loading: fsm.loaded() transition failed, errror: ', error)
         }
-        
     }, false)
 
 

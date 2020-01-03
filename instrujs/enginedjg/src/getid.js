@@ -9,7 +9,6 @@ export function getidAskClient() {
     window.iface.setFlag('bottom', 'getid')
 }
 
-export function getidClientAnswer() {
-    window.iface.clearFlag()
-    return window.iface.getid()
+export function getidClientAnswer( that ) {
+    that.uid = window.iface.getid()
 }

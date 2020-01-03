@@ -52,21 +52,29 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids ) :
-          DashboardInstrument( pparent, id, "---", 0LL, true )
+InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
+                    PI_ColorScheme cs ) :
+                    DashboardInstrument( pparent, id, "---", 0LL, true )
 {
+    m_pparent = pparent;
+    m_istate = JSI_UNDEFINED;
+    m_handshake = JSI_HDS_NO_REQUEST;
     m_id = id;
     m_ids = ids;
+    m_substyle = "day";
+    if ( cs == PI_GLOBAL_COLOR_SCHEME_DUSK )
+        m_substyle = "dusk";
+    if ( cs == PI_GLOBAL_COLOR_SCHEME_NIGHT )
+        m_substyle = "night";
+    m_newsubstyle = m_substyle;
+    m_title = L"InstruJS";
     m_data = L"0.0";
     m_dataout = L"";
-    m_title = L"InstruJS";
-    m_pparent = pparent;
-    m_id = id;
     m_threadRunning = false;
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
-    m_webpanelInitiated  = false;
+    m_webPanelSuspended  = false;
     m_webpanelStopped = false;
 
     // Create the WebKit (type of - implementation varies) view
@@ -74,6 +82,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids ) :
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
+    m_istate = JSI_NO_WINDOW;
     m_pThreadInstruJSTimer = NULL;
     m_lastSize = wxControl::GetSize();
 }
@@ -140,6 +149,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
     if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
         m_pWebPanel->Create(
             this, wxID_ANY, fullPath );
+        m_istate = JSI_WINDOW;
         wxSizer *thisSizer = GetSizer();
         m_pWebPanel->SetSizer( thisSizer ); 
         m_pWebPanel->SetAutoLayout( true );
@@ -176,7 +186,7 @@ void InstruJS::suspendInstrument()
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     if ( instrIsRunning() ) {
         m_pThreadInstruJSTimer->Stop();
-        m_webpanelInitiated = false;
+        m_webPanelSuspended = true;
         wxMilliSleep( GetRandomNumber( 100,199 ) ); // avoid running all updates at the same time
         m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
     } // then running, can be suspended but keep thread running
@@ -195,11 +205,73 @@ void InstruJS::setNewConfig( wxString newSkPath )
     RunScript( javascript );
 }
 
+void InstruJS::setColorScheme ( PI_ColorScheme cs )
+{
+    m_newsubstyle = "day";
+    if ( cs == PI_GLOBAL_COLOR_SCHEME_DUSK )
+        m_newsubstyle = "dusk";
+    if ( cs == PI_GLOBAL_COLOR_SCHEME_NIGHT )
+        m_newsubstyle = "night";
+}
+
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     m_threadRunning = true;
-    if ( m_webpanelInitiated ) {
+    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) ) {
+        // see  ../instrujs/src/iface.js for the interface,
+        // see   ../instrujs/<instrument>/src/statemachine.js for the states
+        wxString request = m_pWebPanel->GetSelectedText();
+        switch ( m_handshake ) {
+        case JSI_HDS_NO_REQUEST:
+            if ( request == wxEmptyString ) {
+                m_istate = JSI_NO_REQUEST;
+                break;
+            }
+            m_handshake = JSI_HDS_REQUEST;
+        case JSI_HDS_REQUEST:
+            if ( request == wxEmptyString ) {
+                m_handshake = JSI_HDS_NO_REQUEST;
+                break;
+            }
+            m_handshake = JSI_HDS_SERVING;
+        case JSI_HDS_SERVING:
+            if ( request == wxEmptyString ) {
+                m_handshake = JSI_HDS_ACKNOWLEDGED;
+                break;
+            }
+            if ( request.CmpNoCase("getid") == 0 ) {
+                m_istate = JSI_GETID;
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s",
+                        "window.iface.setid('",
+                        m_ids,
+                        "');");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+            }
+            else 
+                break;
+        case JSI_HDS_SERVED:
+            if ( request == wxEmptyString ) {
+                m_handshake = JSI_HDS_ACKNOWLEDGED;
+                m_istate = JSI_NO_REQUEST;
+                break;
+            }
+            break;
+        case JSI_HDS_ACKNOWLEDGED:
+            if ( request == wxEmptyString ) {
+                m_handshake = JSI_HDS_NO_REQUEST;
+                m_istate = JSI_NO_REQUEST;
+                break;
+            }
+            break;
+        default:
+            m_handshake = JSI_HDS_NO_REQUEST;
+            m_istate = JSI_NO_REQUEST;
+        }
+        /*
         if ( !m_dataout.IsSameAs( m_data ) ) {
             m_dataout = m_data;
             wxString javascript = wxString::Format(L"%s%s%s",
@@ -207,13 +279,15 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                                                    m_dataout,
                                                    ");");
             RunScript( javascript );
-        } // then worthwhile to be sent to the instrument
+            } // then the instrument is runnng and in service
+        */
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
+                m_istate = JSI_WINDOW_LOADED;
                 m_pThreadInstruJSTimer->Stop();
                 wxMilliSleep( GetRandomNumber( 100,999 ) ); // avoid running all updates at the same time
                 m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
