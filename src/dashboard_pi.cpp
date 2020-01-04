@@ -1066,6 +1066,15 @@ void dashboard_pi::SendDataToAllPathSubscribers (
     }
 }
 
+wxString dashboard_pi::getAllNMEA0183JsOrderedList()
+{
+    return mSkData->getAllNMEA0183JsOrderedList();
+}
+wxString dashboard_pi::getAllNMEA2000JsOrderedList()
+{
+    return mSkData->getAllNMEA2000JsOrderedList();
+}
+
 #else
 
 void dashboard_pi::SendSentenceToAllInstruments(

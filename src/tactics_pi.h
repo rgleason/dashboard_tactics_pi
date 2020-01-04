@@ -158,6 +158,8 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL ) = 0;
     virtual void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
+    virtual wxString getAllNMEA0183JsOrderedList(void) = 0;
+    virtual wxString getAllNMEA2000JsOrderedList(void) = 0;
     virtual void SendPerfSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
@@ -463,7 +465,8 @@ public:
     void unsubscribeFrom ( wxString callbackUUID );
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
-
+    wxString getAllNMEA0183JsOrderedList(void);
+    wxString getAllNMEA2000JsOrderedList(void);
 protected:
     std::mutex          m_mtxCallBackContainer;
     callback_map       *m_callbacks;

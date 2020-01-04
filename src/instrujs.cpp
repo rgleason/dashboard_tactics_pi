@@ -57,10 +57,13 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
                     DashboardInstrument( pparent, id, "---", 0LL, true )
 {
     m_pparent = pparent;
+
     m_istate = JSI_UNDEFINED;
     m_handshake = JSI_HDS_NO_REQUEST;
     m_requestServed = wxEmptyString;
     m_hasRequestedId = false;
+    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+
     m_id = id;
     m_ids = ids;
     m_substyle = "day";
@@ -277,8 +280,34 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 RunScript( javascript );
                 m_handshake = JSI_HDS_SERVED;
                 m_hasRequestedId = true;
+                break;
             }
-            else 
+            else if ( request.CmpNoCase("getall") == 0 ) {
+                wxString allPathsJsList = m_pparent->getAllNMEA2000JsOrderedList();
+                if ( allPathsJsList != wxEmptyString ) {
+                    if ( m_setAllPathGraceCount == 0 ) {
+                        m_istate = JSI_GETALL;
+                        wxString javascript =
+                            wxString::Format(
+                                L"%s%s%s",
+                                "window.iface.setall('",
+                                allPathsJsList,
+                                "');");
+                        RunScript( javascript );
+                        m_handshake = JSI_HDS_SERVED;
+                        m_hasRequestedId = true;
+                        m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+                    }
+                    else {
+                        m_setAllPathGraceCount--;
+                    }
+                } // then we are connected to a NMEA2000 source
+                else {
+                    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+                } // else there is no data paths available, better give some grace
+                break;
+            }
+            else
                 break;
         default:
             m_handshake = JSI_HDS_NO_REQUEST;

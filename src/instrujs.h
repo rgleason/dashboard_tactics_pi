@@ -77,7 +77,8 @@ enum instruHandShake {
     JSI_HDS_SERVED,
     JSI_HDS_ACKNOWLEDGED
 };
-    
+
+#define JSI_GETALL_GRACETIME 5 // seconds
 
 //+------------------------------------------------------------------------------
 //|
@@ -122,6 +123,7 @@ protected:
     instruHandShake      m_handshake;
     wxString             m_requestServed;
     bool                 m_hasRequestedId;
+    int                  m_setAllPathGraceCount;
     wxWindowID           m_id;
     wxString             m_ids;
     wxString             m_substyle;

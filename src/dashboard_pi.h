@@ -225,6 +225,8 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
+    wxString getAllNMEA0183JsOrderedList(void);
+    wxString getAllNMEA2000JsOrderedList(void);
 #else
     void SendSentenceToAllInstruments(
         int st, double value, wxString unit);

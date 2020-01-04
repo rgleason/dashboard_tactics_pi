@@ -46,17 +46,12 @@ bottom.addEventListener('setid', function (e) {
     function pollgetid () {
         console.log('pollgetid() - waiting for getid, now: ', fsm.state)
         if ( fsm.is('getid') ) {
-            if ( fsm.conf == null ) {
-                try {
-                    fsm.nocfg()
-                }
-                catch( error ) {
-                    console.error(
-                        'index.js:  fsm.nocfg() transition failed, errror: ', error,
-                        ' current state: ', fsm.state)
-                }
-            }
-            else {
+            var hascfg = true
+            if ( fsm.conf == null )
+                hascfg = false
+            else if ( (fsm.conf.skpath == null) || (fsm.conf.skpath === '') )
+                hascfg = false
+            if ( hascfg ) {
                 try {
                     fsm.hascfg()
                 }
@@ -66,7 +61,18 @@ bottom.addEventListener('setid', function (e) {
                         ' current state: ', fsm.state)
                 }
             }
-        } else {
+            else {
+                try {
+                    fsm.nocfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.js:  fsm.nocfg() transition failed, errror: ', error,
+                        ' current state: ', fsm.state)
+                }
+            }
+        }
+        else {
             setTimeout(pollgetid, 100);
         }
     }
@@ -324,6 +330,8 @@ window.addEventListener('load',
 /* Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
    Modified for OpenCPN gauge / display usage */
 
+/* ****
+
 function showMenu(){
     menu.classList.add('menu-show')
 }
@@ -373,4 +381,4 @@ function onMouseDown(e){
 }
 
 document.addEventListener('contextmenu', onContextMenu, false)
-
+ **** */

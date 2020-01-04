@@ -50,12 +50,15 @@ public:
     ~SkData();
     void UpdateNMEA2000PathList( wxString* path, wxString* key );
     void UpdateNMEA0183PathList( wxString* path, wxString* key );
+    wxString getAllNMEA2000JsOrderedList(void);
+    wxString getAllNMEA0183JsOrderedList(void);
 protected:
     SkDataPathList       *m_pathlist;
     SkDataPathList       *m_nmea0183pathlist;
     SkDataPathList       *m_nmea2000pathlist;
 private:
     void UpdatePathList ( SkDataPathList* pathlist, wxString* path, wxString* key );
+    wxString getAllJsOrderedList( SkDataPathList* pathlist );
 }; // class SkData
 
 

@@ -14,6 +14,7 @@ import getLocInfo from '../../src/location'
 import { initLoad } from './init'
 import { getidAskClient, getidClientAnswer, getidConf } from './getid'
 import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
+import { setMenuAllPaths } from './menu'
 import { showData } from './data'
 import { getNewLuminosity } from './css'
 
@@ -34,7 +35,8 @@ export function createStateMachine() {
             glastvalue : [0],
             // Signal K Paths
             path       : '',
-            allpaths   : []
+            allpaths   : [],
+            menu       : null
         },
         transitions: [
             { name: 'fetch',    from: 'window',   to: 'loading' },
@@ -89,10 +91,11 @@ export function createStateMachine() {
                 if ( dbglevel > 0 ) console.log('onGetall()')
                 getallAskClient()
             },
-            onAllavlb:  function() {
-                if ( dbglevel > 0 ) console.log('onAllavlb()')
-                getiallClientAnswer( this )
+            onShowmenu:  function() {
+                if ( dbglevel > 0 ) console.log('onShowmenu()')
+                getallClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
+                setMenuAllPaths( this )
             },
             onGetpath:  function() {
                 if ( dbglevel > 0 ) console.log('onGetpath()')

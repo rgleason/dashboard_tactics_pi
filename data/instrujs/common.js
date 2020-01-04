@@ -109,7 +109,7 @@ const instrustatconf = {
     },
     instruconf: [
         {
-            uid: "3ba69918-d391-4483-8f97-a323631063d7",
+            uid: "3ba69928-d392-4583-8f9a-a323641063d7",
             conf: function () {
                 return {
                     skpath: '',

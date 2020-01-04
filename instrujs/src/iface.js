@@ -25,22 +25,45 @@ var iface = {
     },
     eventsetall    : null,
     elemsetall     : null,
-    all            : [],
+    allpaths       : [],
     regeventsetall: function ( newelem, newevent ) {
         this.elemsetall = newelem
         this.eventsetall = newevent
     },
-    setall: function( newuid ) {
-        this.uid = newuid
+    setall: function( alist ) {
+        var emptylist = []
+        this.allpaths = emptylist
+        var varlistitems = alist.split(',')
+        for ( var i = 0; i < varlistitems.length; i++ ) {
+            this.allpaths.push( varlistitems[ i ] )
+        }
+        var testpaths = [
+            'environment.wind.angleApparent',
+            'environment.wind.speedApparent',
+            'navigation.courseOverGroundTrue',
+            'navigation.speedOverGround',
+            'navigation.position.latitude',
+            'navigation.position.longitude',
+            'propulsion.port.oilPressure',
+            'propulsion.port.revolutions',
+            'propulsion.port.temperature',
+            'propulsion.starboard.oilPressure',
+            'propulsion.starboard.revolutions',
+            'propulsion.starboard.temperature',
+            'battery.empty',
+        ]
+        console.log('this.allpaths ', this.allpaths)
+        console.log('testpaths ', testpaths)
+
         if ( (this.eventsetall == null) || (this.elemsetall == null) )
             return
         this.elemsetall.dispatchEvent( this.eventsetall )
     },
     getall: function() {
-        if ( this.all.length == 0 )
+        if ( this.allpaths.length == 0 )
             return []
         this.clearFlag()
-        return this.all
+        return this.allpaths
     },
     eventnewdata    : null,
     elemnewdata     : null,

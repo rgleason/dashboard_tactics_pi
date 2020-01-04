@@ -3494,3 +3494,11 @@ void TacticsWindow::SendDataToAllPathSubscribers(
         ++it;
     }
 }
+wxString TacticsWindow::getAllNMEA0183JsOrderedList()
+{
+    return m_plugin->getAllNMEA0183JsOrderedList();
+}
+wxString TacticsWindow::getAllNMEA2000JsOrderedList()
+{
+    return m_plugin->getAllNMEA2000JsOrderedList();
+}

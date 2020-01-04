@@ -45,9 +45,9 @@ export function loadConf( cid, locProtocol, emptyConf ) {
     if ( !bLocalStorage && !bCookies ) {
         if ( dbglevel > 0 ) console.error(
             'persistence.js: loadConf(): no local storage support available,')
-        if ( dbglevel > 1 ) console.error(
+        if ( dbglevel > 1 ) console.log(
             'probably a back-end (IE or WebKit) policy prevents the usage ',
-            'for the used protocol: ', protocol)
+            'for the used protocol: ', locProtocol)
         if ( alertsenabled )
             alert('Saving of settings not available!\n' +
                   'System policy prevents local storage\n' +

@@ -22,7 +22,7 @@ export function createGauge(name, value, decimals, label) {
             stroke_width: 3,
             stroke_linecap: 'round'
         },
-        gaugeColor      : '#cdcbcb',
+        gaugeColor      : '#bcb9b9',
         labelFontColor  : '#262626',
         valueFontColor  : '#232b99',
         valueFontFamily : "Courier",
