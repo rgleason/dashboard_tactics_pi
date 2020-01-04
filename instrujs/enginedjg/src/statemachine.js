@@ -7,13 +7,17 @@
   (not implementable with 'xstate', it is not working on IE :( )
   Note: with javascript-state-machine, avoid keyword 'init' in state/transition!
 */
+var dbglevel = window.instrustat.debuglevel
+
 import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
 import { initLoad } from './init'
-import { getidAskClient, getidClientAnswer } from './getid'
+import { getidAskClient, getidClientAnswer, getidConf } from './getid'
 import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
 import { showData } from './data'
 import { getNewLuminosity } from './css'
+
+// import { loadConf } from '../../src/persistence'
 
 export function createStateMachine() {
     return new StateMachine({
@@ -51,44 +55,58 @@ export function createStateMachine() {
             { name: 'luminsty', from: 'showdata', to: 'showdata' }
         ],
         methods: {
-            onWindow:   function() { console.log('onWindow()')    },
-            onLoading:  function() { console.log('onLoading()')
-                                     console.log('uid: ', this.uid )
-                                     console.log('locInfo: ', this.locInfo )
-                                     console.log('gauge[', this.gauge.length, ']')
-                                     console.log('conf: ', this.conf)
-                                   },
-            onInitga:   function() { console.log('onInitga()')
-                                     initLoad( this )
-                                     console.log('uid: ', this.uid )
-                                     console.log('locInfo: ', this.locInfo )
-                                     console.log('gauge[', this.gauge.length, ']')
-                                     console.log('conf: ', this.conf)
-                                   },
-            onGetid:    function() { console.log('onInit()')
-                                     getidAskClient()
-                                   },
-            onSetid:    function() { console.log('onSetid()')
-                                     getidClientAnswer( this )
-                                     console.log('uid: ', this.uid )
-                                   },
-            onGetall:   function() { console.log('onGetall()')
-                                     getallAskClient()
-                                   },
-            onAllavlb:  function() { console.log('onAllavlb()')
-                                     getiallClientAnswer( this )
-                                     console.log('allpaths: ', this.allpaths )
-                                   },
-            onGetpath:  function() { console.log('onGetpath()')
-                                     getpathAskClient( this )
-                                   },
-            onShowdata: function() { console.log('onShowData()')
-                                     showData( this )
-                                   },
-            onLuminsty: function() { console.log('onLuminsty()')
-                                     getNewLuminosity( this )
-                                     console.log('luminosity: ', this.luminosity )
-                                   }
+            onWindow:   function() {
+                if ( dbglevel > 0 ) console.log('onWindow()')
+            },
+            onLoading:  function() {
+                if ( dbglevel > 0 ) console.log('onLoading()')
+                if ( dbglevel > 1 ) console.log('uid: ', this.uid )
+                if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
+                if ( dbglevel > 1 ) console.log('gauge[', this.gauge.length, ']')
+                if ( dbglevel > 1 ) console.log('conf: ', this.conf)
+            },
+            onInitga:   function() {
+                if ( dbglevel > 0 ) console.log('onInitga()')
+                initLoad( this )
+                if ( dbglevel > 1 ) console.log('uid: ', this.uid )
+                if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
+                if ( dbglevel > 1 ) console.log('gauge[', this.gauge.length, ']')
+                if ( dbglevel > 1 ) console.log('conf: ', this.conf)
+            },
+            onGetid:    function() {
+                if ( dbglevel > 0 ) console.log('onGetid()')
+                getidAskClient()
+            },
+            onSetid:    function() {
+                if ( dbglevel > 0 ) console.log('onSetid()')
+                getidClientAnswer( this )
+                if ( dbglevel > 1 ) console.log('uid : ', this.uid )
+                getidConf( this )
+                // this.conf = loadConf( this.uid, this.locInfo.protocol )
+                if ( dbglevel > 1 ) console.log('conf: ', this.conf )
+            },
+            onGetall:   function() {
+                if ( dbglevel > 0 ) console.log('onGetall()')
+                getallAskClient()
+            },
+            onAllavlb:  function() {
+                if ( dbglevel > 0 ) console.log('onAllavlb()')
+                getiallClientAnswer( this )
+                if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
+            },
+            onGetpath:  function() {
+                if ( dbglevel > 0 ) console.log('onGetpath()')
+                getpathAskClient( this )
+            },
+            onShowdata: function() {
+                if ( dbglevel > 0 ) console.log('onShowData()')
+                showData( this )
+            },
+            onLuminsty: function() {
+                if ( dbglevel > 0 ) console.log('onLuminsty()')
+                getNewLuminosity( this )
+                if ( dbglevel > 1 ) console.log('luminosity: ', this.luminosity )
+            }
         }
     })
 }

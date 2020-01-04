@@ -2,9 +2,12 @@
  * OpenCPN dashboard_tactics plug-in / WebKit based instruments
  * Licensed under MIT - see distribution.
  */
+/* >>>> If you plan to modify this file, please make a backup first! <<<< */
 
 const instrustat = {
-    skin : 'default',
+    theme : 'default',
+    debuglevel : 3,
+    alerts : true,
     skpathlookup: function ( skpath ) {
         for ( var i = 0; i < this.knownskpaths.length; i++  ) {
             if ( skpath === this.knownskpaths[ i ] ) {
@@ -92,3 +95,35 @@ const instrustat = {
     ]
 }
 window.instrustat = instrustat
+
+/* Overriding persistent configuration - usefull if file:// does not save
+   and http:// cannot be used, otherwise do not define anything here */
+const instrustatconf = {
+    getObj : function( instruid ) {
+        for ( var i = 0; i < this.instruconf.length; i++  ) {
+            if ( instruid === this.instruconf[ i ].uid ) {
+                return this.instruconf[ i ].conf()
+            }
+        }
+        return null
+    },
+    instruconf: [
+        {
+            uid: "3ba69918-d391-4483-8f97-a323631063d7",
+            conf: function () {
+                return {
+                    skpath: '',
+                    title: '',
+                    unit: '',
+                    decimals: 1,
+                    minval: 0,
+                    maxval: 100,
+                    theme: '',
+                    opt1: '',
+                    opt2: ''
+                }
+            }
+        }
+    ]
+}
+window.instrustatconf = instrustatconf
