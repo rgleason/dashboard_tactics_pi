@@ -13,7 +13,7 @@ html {
 }
 
 .instrument.night {
-  background: radial-gradient(circle, #4d4d4d 0%, #000 100%) no-repeat;
+  background: radial-gradient(circle, #665d5d 0%, #000 100%) no-repeat;
 }
 
 /* Menu */
@@ -37,6 +37,7 @@ html {
   -webkit-transform: translate(0, 15px) scale(0.95);
   transform: translate(0, 15px) scale(0.95);
   transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  pointer-events: none;
 }
 
 .menu-item {
