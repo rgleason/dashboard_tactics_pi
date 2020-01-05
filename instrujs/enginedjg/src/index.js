@@ -123,7 +123,22 @@ bottom.addEventListener('newdata', function (e) {
             ' current state: ', fsm.state)
     }
 }, true);
-window.iface.regeventnewdata( bottom, eventnewdata )
+window.iface.regeventnewdata( bottom, eventnewdata 
+                            )
+// Change of configuration has been requested
+var eventchgconf = document.createEvent('Event')
+eventchgconf.initEvent('chgconf', false, false);
+bottom.addEventListener('chgconf', function (e) {
+    try {
+        fsm.chgconf()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  chgconf: fsm.chgconf() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventchgconf( bottom, eventchgconf )
 
 // Luminosity
 var eventluminsty = document.createEvent('Event')
