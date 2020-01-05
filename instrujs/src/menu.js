@@ -6,17 +6,30 @@
 // An actor for a state machine to build user menu strucures
 
 var menu = document.querySelector('.menu')
-var emptypath = {
+var waitmsg = {
     allpaths: ['loading.wait']
 }
+var runmsg = {
+    allpaths: ['running.reconfigure']
+}
 var isOnLoad = false
+var isRunTime = false
 
 var setemptypath = function() {
-    setMenuAllPaths( emptypath, true )
+    setMenuAllPaths( waitmsg, true, false )
 }()
 
-export function setMenuAllPaths( that, onload ) {
+export function setMenuRunTime( that ) {
+    setMenuAllPaths( runmsg, false, true )
+}
+
+export function setMenuBackToLoading( that ) {
+    setMenuAllPaths( waitmsg, true, false )
+}
+
+export function setMenuAllPaths( that, onload, runtime ) {
     isOnLoad = onload || false
+    isRunTime = runtime || false
     var menuul = '<ul id="mi1-u-0" class="menu">'
     var submenustart = 0
     var topics = ['','','','','','','','','']
@@ -61,9 +74,15 @@ export function setMenuAllPaths( that, onload ) {
     document.getElementById('pathMenu').overflow = 'hidden'
     menu = document.querySelector('.menu')
     that.menu = menu
-    if ( !isOnLoad )
+    if ( !(isOnLoad || isRunTime) )
         document.getElementById('skPath').innerHTML =
         '<-- right click here to subscribe'
+    if ( isOnLoad )
+        document.getElementById('skPath').innerHTML =
+        'Loading...'
+    if ( isRunTime )
+        document.getElementById('skPath').innerHTML =
+        '&nbsp'
 }
 
 /* Menu */
@@ -91,8 +110,12 @@ function onMouseDown(e){
         if ( e.id !== '' ) {
             var ids = e.id.split( '-' )
             if ( ids[0] == 'mif' ) {
-                if ( !isOnLoad )
-                    window.iface.setselected( ids[2] )
+                if ( !isOnLoad ) {
+                    if ( isRunTime )
+                        window.iface.setchgconf( ids[2] )
+                    else
+                        window.iface.setselected( ids[2] )
+                }
                 hideMenu()
             }
             else {
