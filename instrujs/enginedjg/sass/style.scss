@@ -2,11 +2,6 @@
 @use '../sass/menu';
 
 /* Path - in ../src/gauge there are *FontColore, but no CSS so consider it as well */
-$skpathcolorday   : #232b99;
-$skpathcolordusk  : #eeeef0;
-$skpathcolornight : #6168c2;
-
-$skbotmcolor : #2E3940;
 
 .skpath {
     top: 1%;
@@ -36,12 +31,12 @@ $skfiin : 100px;
 @media screen and (min-width: $skfist + 3*$skfiin) { .skpath.fixed { font-size: $skffssz + 4*$skfffin; } }
 @media screen and (min-width: $skfist + 4*$skfiin) { .skpath.fixed { font-size: $skffssz + 5*$skfffin; } }
 
-.skpath.propl.day   { color: $skpathcolorday; }
-.skpath.propl.dusk  { color: $skpathcolordusk; }
-.skpath.propl.night { color: $skpathcolornight; }
-.skpath.fixed.day   { color: $skpathcolorday; }
-.skpath.fixed.dusk  { color: $skpathcolordusk; }
-.skpath.fixed.night { color: $skpathcolornight; }
+.skpath.propl.day   { color: instrujs.$skpathcolorday; }
+.skpath.propl.dusk  { color: instrujs.$skpathcolordusk; }
+.skpath.propl.night { color: instrujs.$skpathcolornight; }
+.skpath.fixed.day   { color: instrujs.$skpathcolorday; }
+.skpath.fixed.dusk  { color: instrujs.$skpathcolordusk; }
+.skpath.fixed.night { color: instrujs.$skpathcolornight; }
 
 /* Gauge */
 .gaugeface {
@@ -58,8 +53,10 @@ $skfiin : 100px;
     margin-left: 1%;
     width: 98%;
     height: 3%;
-    color: instrujs.$skbotmcolor;
     font-size: instrujs.$skbotfsize;
     text-align: instrujs.$skbottalign;
     font-family: instrujs.$ifontfamily;
 }
+.bottom.day   { color: instrujs.$skbotmcolorday; }
+.bottom.dusk  { color: instrujs.$skbotmcolordusk; }
+.bottom.night { color: instrujs.$skbotmcolornight; }

@@ -6,8 +6,14 @@ $radgradstopdusk: #4d4d4d;
 $radgradstartnight: #665d5d;
 $radgradstopnight: #000;
 
-$skbotmcolor: blue;
-$skbotfsize: 18px;
+$skpathcolorday   : #232b99;
+$skpathcolordusk  : #e0e0e4;
+$skpathcolornight : #6168c2;
+
+$skbotmcolorday: $skpathcolorday;
+$skbotmcolordusk: $skpathcolordusk;
+$skbotmcolornight: $skpathcolornight;
+$skbotfsize: 14px;
 $skbottalign: left;
 $ifontfamily : "Helvetica", sans-serif;
 

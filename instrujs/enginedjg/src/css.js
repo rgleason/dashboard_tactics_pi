@@ -60,6 +60,8 @@ export function getNewLuminosity( that ) {
         oldclass = elem.className
         if ( !(newclass === oldclass) )
             elem.className = newclass
+
+        document.getElementById('bottom').className = 'bottom ' + that.luminosity
     }
     return
 }
