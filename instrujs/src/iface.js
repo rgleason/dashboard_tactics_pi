@@ -2,6 +2,7 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
+var ifacedbglevel = window.instrustat.debuglevel
 
 var iface = {
     eventsetid    : null,
@@ -20,7 +21,7 @@ var iface = {
     getid: function() {
         if ( (this.uid == null) || (this.uid === '') )
             return ''
-        this.clearFlag()
+        this.clearFlag( this.elemsetid )
         return this.uid
     },
     eventsetall    : null,
@@ -37,24 +38,6 @@ var iface = {
         for ( var i = 0; i < varlistitems.length; i++ ) {
             this.allpaths.push( varlistitems[ i ] )
         }
-        var testpaths = [
-            'environment.wind.angleApparent',
-            'environment.wind.speedApparent',
-            'navigation.courseOverGroundTrue',
-            'navigation.speedOverGround',
-            'navigation.position.latitude',
-            'navigation.position.longitude',
-            'propulsion.port.oilPressure',
-            'propulsion.port.revolutions',
-            'propulsion.port.temperature',
-            'propulsion.starboard.oilPressure',
-            'propulsion.starboard.revolutions',
-            'propulsion.starboard.temperature',
-            'battery.empty',
-        ]
-        console.log('this.allpaths ', this.allpaths)
-        console.log('testpaths ', testpaths)
-
         if ( (this.eventsetall == null) || (this.elemsetall == null) )
             return
         this.elemsetall.dispatchEvent( this.eventsetall )
@@ -62,8 +45,42 @@ var iface = {
     getall: function() {
         if ( this.allpaths.length == 0 )
             return []
-        this.clearFlag()
+        this.clearFlag( this.elemsetall )
         return this.allpaths
+    },
+    eventselected    : null,
+    elemselected     : null,
+    selectedpath     : '',
+    regeventselected: function ( newelem, newevent ) {
+        this.elemselected = newelem
+        this.eventselected = newevent
+    },
+    setselected: function( newpath ) {
+        try {
+            if ( (this.eventselected == null) || (this.elemselected == null) )
+                return
+            this.selectedpath = newpath
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setselected - selectedpath: ', this.selectedpath)
+            this.elemselected.dispatchEvent( this.eventselected )
+        }
+        catch (error) {
+            this.selectedpath = ''
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setselected - state machine error',
+                            error)
+            return
+        }
+    },
+    getselected: function() {
+        if ( (this.selectedpath == null) || (this.selectedpath === '') )
+            return ''
+        return this.selectedpath
+    },
+    acksubs: function( ) {
+        if ( (this.eventselected != null) && (this.elemselected != null) )
+            this.clearFlag( this.elemselected )
+        return
     },
     eventnewdata    : null,
     elemnewdata     : null,
@@ -81,7 +98,6 @@ var iface = {
     getdata: function() {
         if ( this.value == null )
             return 0.0
-        this.clearFlag()
         return this.value
     },
     eventluminsty : null,
@@ -100,12 +116,13 @@ var iface = {
     getluminsty: function() {
         if ( (this.luminsty == null) || (this.luminsty === '') )
             return
-        this.clearFlag()
         return this.luminsty
     },
     setFlag: function( elemid, request ) {
+        if ( ifacedbglevel > 1 ) console.log(
+            'setFlag() elemid: ', elemid, ' request: ', request)
         var el = document.getElementById(elemid)
-        el.innerHTML = request
+        el.innerHTML = 'instrujs:' + request + '!'
         var doc = window.document, sel, range;
         if (window.getSelection && doc.createRange) {
             sel = window.getSelection()
@@ -120,13 +137,16 @@ var iface = {
             range.select()
         }
     },
-    clearFlag: function( ) {
+    clearFlag: function( elemid  ) {
+        if ( ifacedbglevel > 1 ) console.log(
+            'clearFlag(): elemid content: ', elemid.innerHTML)
         if (window.getSelection) { 
             window.getSelection().removeAllRanges()
         }
         else if (document.selection) {
             document.selection.empty()
         }
+        elemid.innerHTML = ''
     }
 }
 window.iface = iface

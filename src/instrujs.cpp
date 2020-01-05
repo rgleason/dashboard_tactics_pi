@@ -63,6 +63,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_requestServed = wxEmptyString;
     m_hasRequestedId = false;
     m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+    m_pushHereUUID = wxEmptyString;
 
     m_id = id;
     m_ids = ids;
@@ -73,7 +74,8 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
         m_substyle = "night";
     m_newsubstyle = wxEmptyString;
     m_title = L"InstruJS";
-    m_data = L"0.0";
+    m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format
+    m_data = wxString::Format( m_format, 0.0 );
     m_dataout = L"";
     m_threadRunning = false;
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
@@ -98,6 +100,9 @@ InstruJS::~InstruJS(void)
         this->m_pThreadInstruJSTimer->Stop();
         delete this->m_pThreadInstruJSTimer;
     }
+    if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
+        this->m_pparent->unsubscribeFrom( m_pushHereUUID );
+
     if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
          && !this->m_webpanelStopped ) {
         this->m_pWebPanel->Stop();
@@ -123,6 +128,10 @@ void InstruJS::OnClose( wxCloseEvent &event )
     if ( this->m_pThreadInstruJSTimer != NULL ) {
         this->m_pThreadInstruJSTimer->Stop();
     }
+    if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
+        m_pparent->unsubscribeFrom( m_pushHereUUID );
+        m_pushHereUUID = wxEmptyString;
+    }
     if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
          && !this->m_webpanelStopped ) {
         this->m_pWebPanel->Stop();
@@ -134,6 +143,14 @@ void InstruJS::OnClose( wxCloseEvent &event )
 void InstruJS::timeoutEvent()
 {
     derivedTimeoutEvent();
+}
+
+void InstruJS::PushData(double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) ) {
+        setTimestamp( timestamp );  // Triggers also base class' watchdog
+        m_data = wxString::Format( m_format, data );
+    } // then valid data 
 }
 
 wxString InstruJS::RunScript( const wxString &javascript )
@@ -226,30 +243,42 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) ) {
         // see  ../instrujs/src/iface.js for the interface,
         // see  ../instrujs/<instrument>/src/statemachine.js for the states
-        wxString request = m_pWebPanel->GetSelectedText();
+        wxString request = wxEmptyString;
+        wxString pgtext  = m_pWebPanel->GetPageText();
+        int pos = pgtext.Find("instrujs:");
+        if ( pos != wxNOT_FOUND ) {
+            wxString restOfTxt = pgtext.Mid( (pos + 9) );
+            wxUniChar termination = 0x21; // !
+            wxString cmdTxt = restOfTxt.BeforeFirst(termination);
+            request = cmdTxt;
+        }
         switch ( m_handshake ) {
         case JSI_HDS_NO_REQUEST:
             if ( request == wxEmptyString ) {
-                m_istate = JSI_NO_REQUEST;
+                if ( m_istate != JSI_SHOWDATA )
+                    m_istate = JSI_NO_REQUEST;
                 break;
             }
             m_handshake = JSI_HDS_SERVED;
         case JSI_HDS_SERVED:
             if ( (request == wxEmptyString) ) {
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
-                m_istate = JSI_NO_REQUEST;
+                if ( m_istate != JSI_SHOWDATA )
+                    m_istate = JSI_NO_REQUEST;
                 break;
             }
             if ( request != m_requestServed ) {
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
-                m_istate = JSI_NO_REQUEST;
+                if ( m_istate != JSI_SHOWDATA )
+                    m_istate = JSI_NO_REQUEST;
             } // then another request, let's pass by acknwowledge, nevertheless
             else
                 break;
         case JSI_HDS_ACKNOWLEDGED:
             if ( request == wxEmptyString ) {
                 m_handshake = JSI_HDS_NO_REQUEST;
-                m_istate = JSI_NO_REQUEST;
+                if ( m_istate != JSI_SHOWDATA )
+                    m_istate = JSI_NO_REQUEST;
                 break;
             }
             if ( request != m_requestServed ) {
@@ -302,17 +331,34 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         m_setAllPathGraceCount--;
                     }
                 } // then we are connected to a NMEA2000 source
-                else {
-                    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
-                } // else there is no data paths available, better give some grace
+                break;
+            }
+            else if ( request.Find(".") != wxNOT_FOUND ) {
+                m_istate = JSI_GETPATH;
+                m_pushHere = std::bind(&InstruJS::PushData,
+                                       this, _1, _2, _3 );
+                m_pushHereUUID = m_pparent->subscribeTo ( request, m_pushHere );
+                wxString javascript = wxString::Format(L"%s",
+                                                       "window.iface.acksubs();");
+                RunScript( javascript );
+                m_istate = JSI_SHOWDATA;
+                m_handshake = JSI_HDS_SERVED;
                 break;
             }
             else
                 break;
         default:
             m_handshake = JSI_HDS_NO_REQUEST;
-            m_istate = JSI_NO_REQUEST;
+            if ( m_istate != JSI_SHOWDATA )
+                m_istate = JSI_NO_REQUEST;
         }
+        if ( m_istate == JSI_SHOWDATA ) {
+            wxString javascript = wxString::Format(L"%s%s%s",
+                                                   "window.iface.newdata(",
+                                                   m_data,
+                                                   ");");
+            RunScript( javascript );
+        } // the instrument is ready for data
         if ( m_hasRequestedId ) {
             bool sendNewValue = false;
             if ( m_newsubstyle.IsEmpty() ) {

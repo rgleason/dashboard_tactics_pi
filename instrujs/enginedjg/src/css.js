@@ -63,4 +63,3 @@ export function getNewLuminosity( that ) {
     }
     return
 }
-

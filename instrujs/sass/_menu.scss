@@ -21,7 +21,7 @@ $mnsubmnhover  : #fff;
     position: absolute;
     top: 1%;
     left: 1%;
-    width: 140px;
+    width: 135px;
     padding: 1px;
     margin: 0;
     border: 1px solid $mnbrdcolor;
@@ -35,7 +35,6 @@ $mnsubmnhover  : #fff;
     -webkit-transform: translate(0, 15px) scale(.95);
     transform: translate(0, 15px) scale(.95);
     transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-    pointer-events: none;
 }
 
 .menu-item {

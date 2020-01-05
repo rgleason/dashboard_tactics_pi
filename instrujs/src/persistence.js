@@ -14,6 +14,7 @@ var dbglevel = window.instrustat.debuglevel
 var bSelfTest = false
 var bLocalStorage = false
 var bCookies = false
+var bStatic = false
 
 export function loadConf( cid, locProtocol, emptyConf ) {
 
@@ -22,8 +23,10 @@ export function loadConf( cid, locProtocol, emptyConf ) {
     // Priority for static confiruation even if we do not encourage for it
     try {
         var statConf = window.instrustatconf.getObj( cid )
-        if ( statConf != null )
+        if ( statConf != null ) {
+            bStatic = true
             return statConf
+        }
         if ( dbglevel > 1 )
             console.log('persistence.js loadConf(): no static config found')
     }
@@ -74,11 +77,14 @@ export function loadConf( cid, locProtocol, emptyConf ) {
 }
 
 export function saveConf( cid, confObj ) {
+    if ( bStatic )
+        return; // nothing to save
     if ( !bSelfTest ) {
         SelfTest( locProtocol )
     }
     if ( !bLocalStorage && !bCookies ) {
-        if ( dbglevel > 0 ) console.error('persistence.js saveConf(): no storage available')
+        if ( dbglevel > 0 )
+            console.error('persistence.js saveConf(): no storage available')
         return false
     }
     if ( bLocalStorage )

@@ -8,7 +8,7 @@
 
 export function showData( that ) {
     that.glastvalue = window.iface.getdata()
-    if ( (gauge.length > 0) && (that.glastvalue != null) )
-        gauge[0].refresh( that.glastvalue)
+    if ( (that.gauge.length > 0) && (that.glastvalue != null) )
+        that.gauge[0].refresh( that.glastvalue)
 }
 

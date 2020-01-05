@@ -14,7 +14,7 @@ import getLocInfo from '../../src/location'
 import { initLoad } from './init'
 import { getidAskClient, getidClientAnswer, getidConf } from './getid'
 import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
-import { setMenuAllPaths } from './menu'
+import { setMenuAllPaths } from '../../src/menu'
 import { showData } from './data'
 import { getNewLuminosity } from './css'
 
@@ -46,7 +46,7 @@ export function createStateMachine() {
             { name: 'nocfg',    from: 'getid',    to: 'getall' },
             { name: 'hascfg',   from: 'getid',    to: 'getpath' },
             { name: 'setall',   from: 'getall',   to: 'showmenu' },
-            { name: 'selected', from: 'showmenu', to: 'askpath' },
+            { name: 'selected', from: 'showmenu', to: 'getpath' },
             { name: 'newdata',  from: 'getpath',  to: 'showdata' },
             { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'newdata',  from: 'showdata', to: 'showdata' },

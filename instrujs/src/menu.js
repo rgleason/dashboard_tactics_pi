@@ -3,11 +3,20 @@
  * Licensed under MIT - see distribution.
  */
 
-// An actor to build user menu strucures
+// An actor for a state machine to build user menu strucures
 
 var menu = document.querySelector('.menu')
+var emptypath = {
+    allpaths: ['loading.wait']
+}
+var isOnLoad = false
 
-export function setMenuAllPaths( that ) {
+var setemptypath = function() {
+    setMenuAllPaths( emptypath, true )
+}()
+
+export function setMenuAllPaths( that, onload ) {
+    isOnLoad = onload || false
     var menuul = '<ul id="mi1-u-0" class="menu">'
     var submenustart = 0
     var topics = ['','','','','','','','','']
@@ -52,6 +61,9 @@ export function setMenuAllPaths( that ) {
     document.getElementById('pathMenu').overflow = 'hidden'
     menu = document.querySelector('.menu')
     that.menu = menu
+    if ( !isOnLoad )
+        document.getElementById('skPath').innerHTML =
+        '<-- right click here to subscribe'
 }
 
 /* Menu */
@@ -79,12 +91,13 @@ function onMouseDown(e){
         if ( e.id !== '' ) {
             var ids = e.id.split( '-' )
             if ( ids[0] == 'mif' ) {
-                regPath(ids[2])
+                if ( !isOnLoad )
+                    window.iface.setselected( ids[2] )
                 hideMenu()
             }
             else {
                 if ( ids[0] == 'mi1' )
-                        document.addEventListener('mousedown', onMouseDown )
+                    document.addEventListener('mousedown', onMouseDown )
                 else
                     hideMenu()
             }

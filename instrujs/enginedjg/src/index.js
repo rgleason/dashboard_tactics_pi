@@ -95,6 +95,21 @@ bottom.addEventListener('setall', function (e) {
 }, true);
 window.iface.regeventsetall( bottom, eventsetall )
 
+// Selection of a path has been made
+var eventselected = document.createEvent('Event')
+eventselected.initEvent('selected', false, false);
+bottom.addEventListener('selected', function (e) {
+    try {
+        fsm.selected()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  selected: fsm.selected() transition failed, errror: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventselected( bottom, eventselected )
+
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false);

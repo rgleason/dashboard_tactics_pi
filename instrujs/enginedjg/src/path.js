@@ -15,6 +15,7 @@ export function getallClientAnswer( that ) {
 }
 
 export function getpathAskClient( that ) {
+    that.path = window.iface.getselected()
     if ( that.path != '' )
         window.iface.setFlag('bottom', that.path )
 }

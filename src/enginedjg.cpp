@@ -62,12 +62,8 @@ DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
 {
     m_pparent = pparent;
     previousTimestamp = 0LL; // dashboard instru base class
-    m_path = wxEmptyString;
-    m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format
-    m_data = wxString::Format( m_format, 0.0 );
     m_orient = wxVERTICAL;
     m_pSigPathLangVector = sigPaths;
-    m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
     m_pconfig = GetOCPNConfigObject();
 
@@ -81,8 +77,6 @@ DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
     this->m_pThreadEngineDJGTimer->Stop();
     delete this->m_pThreadEngineDJGTimer;
-    if ( !m_pushHereUUID.IsEmpty() ) // if parent window itself is going away
-        this->m_pparent->unsubscribeFrom( m_pushHereUUID );
     SaveConfig();
     return;
 }
@@ -90,10 +84,6 @@ void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
 {
     this->m_pThreadEngineDJGTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
-    if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
-        m_pparent->unsubscribeFrom( m_pushHereUUID );
-        m_pushHereUUID = wxEmptyString;
-    }
     event.Skip(); // Destroy() must be called
 }
 
@@ -109,24 +99,14 @@ void DashboardInstrument_EngineDJG::SetData(
     return; // this derived class gets its data from the multiplexer through a callback PushData()
 }
 
-void DashboardInstrument_EngineDJG::PushData( // subscribed data is pushed here, communication thread driven
-    double data, wxString unit, long long timestamp)
-{
-    if ( !std::isnan(data) ) {
-        setTimestamp( timestamp );  // Triggers also base class' watchdog
-        m_data = wxString::Format( m_format, data );
-    } // then valid data 
-}
-
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
+    /*
     if ( m_threadRunning ) {
         if ( m_path.IsEmpty() ) {
-            /*
               We will emulate in this event the right click event for a selection a signal path from a list,
               given by the hosting application in the constructor (see below how to use). We'll
               make a simple random simulator (not to implement any GUI features for now)
-            */
             wxString sTestingOnly[3];
             sTestingOnly[0] = L"propulsion.port.revolutions";
             sTestingOnly[1] = L"propulsion.port.oilPressure";
@@ -134,9 +114,9 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
             // m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
             // m_path = sTestingOnly[1]; // Let's test with the oil pressure!
             // Subscribe to the signal path data with this object's method to call back
-            m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
-                                   this, _1, _2, _3 );
-            m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
+            // m_pushHere = std::bind(&DashboardInstrument_EngineDJG::PushData,
+            //                       this, _1, _2, _3 );
+            // m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
         }
         if ( instrIsReadyForConfig() && !instrIsRunning() ) {
             setNewConfig ( m_path );
@@ -144,6 +124,8 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         }
     }
     else {
+    */
+    if ( !m_threadRunning ) {
         wxSize thisSize = wxControl::GetSize();
         wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
         SetInitialSize ( thisFrameInitSize );

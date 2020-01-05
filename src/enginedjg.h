@@ -91,7 +91,6 @@ public:
         wxString ids, PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
-    void PushData(double, wxString, long long timestamp=0LL );
 #ifndef __ENGINEDJG_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derived2TimeoutEvent(void){};
 #else
@@ -104,18 +103,13 @@ public:
     
 protected:
     TacticsWindow       *m_pparent;
-    wxString             m_path;
-    wxString             m_format;
     int                  m_orient;
     sigPathLangVector   *m_pSigPathLangVector;
-    wxString             m_pushHereUUID;
     bool                 m_threadRunning;
     wxTimer             *m_pThreadEngineDJGTimer;
     int                  m_threadRunCount;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
-    
-    callbackFunction     m_pushHere;
     
     wxDECLARE_EVENT_TABLE();
 

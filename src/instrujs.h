@@ -28,6 +28,7 @@
 #ifndef __INSTRUJS_H__
 #define __INSTRUJS_H__
 using namespace std;
+using namespace std::placeholders;
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
@@ -105,6 +106,7 @@ public:
     virtual void setColorScheme ( PI_ColorScheme cs ) override;
     virtual void restartInstrument(void) { m_webPanelSuspended = false; };
     virtual void stopScript(void); // if overriding OnClose(), call this
+    virtual void PushData(double data, wxString unit, long long timestamp=0LL);
 
     void timeoutEvent(void) override;
 #ifndef __DERIVEDTIMEOUTJS_OVERRIDE__
@@ -124,12 +126,14 @@ protected:
     wxString             m_requestServed;
     bool                 m_hasRequestedId;
     int                  m_setAllPathGraceCount;
+    wxString             m_pushHereUUID;
     wxWindowID           m_id;
     wxString             m_ids;
     wxString             m_substyle;
     wxString             m_newsubstyle;
     wxString             m_title;
     wxString             m_data;
+    wxString             m_format;
     wxString             m_dataout;
     std::mutex           m_mtxScriptRun;
     bool                 m_threadRunning;
@@ -140,6 +144,8 @@ protected:
     wxWebView           *m_pWebPanel;
     wxTimer             *m_pThreadInstruJSTimer;
     wxSize               m_lastSize;
+
+    callbackFunction     m_pushHere;
 
     wxDECLARE_EVENT_TABLE();
 
