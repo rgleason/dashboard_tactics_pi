@@ -82,6 +82,35 @@ var iface = {
             this.clearFlag( this.elemselected )
         return
     },
+    eventchgconf    : null,
+    elemchgconf     : null,
+    chgconfpath     : '',
+    regeventchgconf: function ( newelem, newevent ) {
+        this.elemchgconf = newelem
+        this.eventchgconf = newevent
+    },
+    setchgconf: function( newpath ) {
+        try {
+            if ( (this.eventchgconf == null) || (this.elemchgconf == null) )
+                return
+            this.chgconfpath = newpath
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setchgconf - chgconfpath: ', this.chgconfpath)
+            this.elemchgconf.dispatchEvent( this.eventchgconf )
+        }
+        catch (error) {
+            this.chgconfpath = ''
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setchgconf - state machine error',
+                            error)
+            return
+        }
+    },
+    getchgconf: function() {
+        if ( (this.chgconfpath == null) || (this.chgconfpath === '') )
+            return ''
+        return this.chgconfpath
+    },
     eventnewdata    : null,
     elemnewdata     : null,
     value           : 0.0,
