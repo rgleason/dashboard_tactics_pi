@@ -255,6 +255,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         switch ( m_handshake ) {
         case JSI_HDS_NO_REQUEST:
             if ( request == wxEmptyString ) {
+                m_requestServed = wxEmptyString;
                 if ( m_istate != JSI_SHOWDATA )
                     m_istate = JSI_NO_REQUEST;
                 break;
@@ -262,6 +263,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             m_handshake = JSI_HDS_SERVED;
         case JSI_HDS_SERVED:
             if ( (request == wxEmptyString) ) {
+                m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
                 if ( m_istate != JSI_SHOWDATA )
                     m_istate = JSI_NO_REQUEST;
@@ -276,6 +278,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
         case JSI_HDS_ACKNOWLEDGED:
             if ( request == wxEmptyString ) {
+                m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_NO_REQUEST;
                 if ( m_istate != JSI_SHOWDATA )
                     m_istate = JSI_NO_REQUEST;
@@ -288,12 +291,14 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
         case JSI_HDS_REQUEST:
             if ( request == wxEmptyString ) {
+                m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_NO_REQUEST;
                 break;
             }
             m_handshake = JSI_HDS_SERVING;
         case JSI_HDS_SERVING:
             if ( request == wxEmptyString ) {
+                m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
                 break;
             }
@@ -335,8 +340,12 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
                 m_istate = JSI_GETPATH;
-                m_pushHere = std::bind(&InstruJS::PushData,
-                                       this, _1, _2, _3 );
+                if ( m_pushHere == NULL )
+                    m_pushHere = std::bind(&InstruJS::PushData,
+                                           this, _1, _2, _3 );
+                if ( !m_pushHereUUID.IsEmpty() )
+                    m_pparent->unsubscribeFrom ( m_pushHereUUID );
+                m_data = wxString::Format( m_format, 0.0 );
                 m_pushHereUUID = m_pparent->subscribeTo ( request, m_pushHere );
                 wxString javascript = wxString::Format(L"%s",
                                                        "window.iface.acksubs();");
@@ -383,16 +392,6 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             } // then there is a reason to ask the instrument to change style
         } // then instru state machine allows luminosity changes
         
-        /*
-        if ( !m_dataout.IsSameAs( m_data ) ) {
-            m_dataout = m_data;
-            wxString javascript = wxString::Format(L"%s%s%s",
-                                                   "setval(",
-                                                   m_dataout,
-                                                   ");");
-            RunScript( javascript );
-            } // then the instrument is runnng and in service
-        */
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
@@ -401,7 +400,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_webpanelCreated = true;
                 m_istate = JSI_WINDOW_LOADED;
                 m_pThreadInstruJSTimer->Stop();
-                wxMilliSleep( GetRandomNumber( 100,999 ) ); // avoid running all updates at the same time
+                wxMilliSleep( GetRandomNumber( 100,499 ) ); // avoid running all updates at the same time
                 m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
