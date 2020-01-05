@@ -194,7 +194,7 @@ a.menu-btn {
 }
 
 .skpath.propl.dusk {
-  color: #eeeef0;
+  color: #e0e0e4;
 }
 
 .skpath.propl.night {
@@ -206,7 +206,7 @@ a.menu-btn {
 }
 
 .skpath.fixed.dusk {
-  color: #eeeef0;
+  color: #e0e0e4;
 }
 
 .skpath.fixed.night {
@@ -227,8 +227,19 @@ a.menu-btn {
   margin-left: 1%;
   width: 98%;
   height: 3%;
-  color: blue;
-  font-size: 18px;
+  font-size: 14px;
   text-align: left;
   font-family: "Helvetica", sans-serif;
+}
+
+.bottom.day {
+  color: #232b99;
+}
+
+.bottom.dusk {
+  color: #e0e0e4;
+}
+
+.bottom.night {
+  color: #6168c2;
 }
