@@ -95,35 +95,3 @@ const instrustat = {
     ]
 }
 window.instrustat = instrustat
-
-/* Overriding persistent configuration - usefull if file:// does not save
-   and http:// cannot be used, otherwise do not define anything here */
-const instrustatconf = {
-    getObj : function( instruid ) {
-        for ( var i = 0; i < this.instruconf.length; i++  ) {
-            if ( instruid === this.instruconf[ i ].uid ) {
-                return this.instruconf[ i ].conf()
-            }
-        }
-        return null
-    },
-    instruconf: [
-        {
-            uid: "3ba69928-d392-4583-8f9a-a323641063d7",
-            conf: function () {
-                return {
-                    skpath: '',
-                    title: '',
-                    unit: '',
-                    decimals: 1,
-                    minval: 0,
-                    maxval: 100,
-                    theme: '',
-                    opt1: '',
-                    opt2: ''
-                }
-            }
-        }
-    ]
-}
-window.instrustatconf = instrustatconf
