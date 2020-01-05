@@ -87,8 +87,8 @@ class DashboardInstrument_EngineDJG : public InstruJS
 {
 public:
     DashboardInstrument_EngineDJG(
-        TacticsWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths,
-        wxString ids, PI_ColorScheme cs, wxString format = "" );
+        TacticsWindow *pparent, wxWindowID id, wxString ids,
+        PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
 #ifndef __ENGINEDJG_DERIVEDTIMEOUT_OVERRIDE__
@@ -104,10 +104,8 @@ public:
 protected:
     TacticsWindow       *m_pparent;
     int                  m_orient;
-    sigPathLangVector   *m_pSigPathLangVector;
-    bool                 m_threadRunning;
+    bool                 m_htmlLoaded;
     wxTimer             *m_pThreadEngineDJGTimer;
-    int                  m_threadRunCount;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
     

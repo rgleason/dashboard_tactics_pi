@@ -534,16 +534,6 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     std::unique_lock<std::mutex> init_m_mtxNofStreamInSk( m_mtxNofStreamInSk, std::defer_lock );
     m_echoStreamerInSkShow = wxEmptyString;
 
-    // Signal path keys available for subcscriptions and the corresponding language strings
-    sigPathLangTuple newPathDescr;
-    newPathDescr = std::make_tuple(L"propulsion.port.revolutions",_(L"\u2191 Eng1 RPM"),_(L"Engine speed - main or port side"));
-    m_sigPathLangVector.push_back(newPathDescr);
-    newPathDescr = std::make_tuple(L"propulsion.port.oilPressure",_(L"\u2191 Eng1 Oil P"),_(L"Engine oil pressure - main or port side"));
-    m_sigPathLangVector.push_back(newPathDescr);
-    newPathDescr = std::make_tuple(L"propulsion.port.temperature",_(L"\u2191 Eng1 Temp"),_(L"Engine cooling water temperature - main or port side"));
-    m_sigPathLangVector.push_back(newPathDescr);
-    m_colorScheme = PI_GLOBAL_COLOR_SCHEME_DAY;
-
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
     m_pluginFrame = NULL;
@@ -4780,8 +4770,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPRPM,
             //     _T("%4.0f rpm"));
             instrument = new DashboardInstrument_EngineI( // numerical instrument
-                this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector );         // describes available data w/ user language
+                this, wxID_ANY);
             break;
         case ID_DBP_I_ENGPTEMP:
             instrument = new DashboardInstrument_Single(
@@ -4797,8 +4786,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             if ( ids.IsEmpty() )
                 ids = GetUUID();
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
-                this, wxID_ANY,
-                &m_plugin->m_sigPathLangVector, ids, m_plugin->m_colorScheme );
+                this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
 #endif // _TACTICSPI_H_
         }

@@ -53,7 +53,7 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 DashboardInstrument_EngineI::DashboardInstrument_EngineI(
-                             DashboardWindow *pparent, wxWindowID id, sigPathLangVector *sigPaths, wxString format ) :
+                             DashboardWindow *pparent, wxWindowID id, wxString format ) :
 DashboardInstrument_Single(pparent, id, "---", 0LL, format )
 {
     SetDrawSoloInPane(false);
@@ -61,7 +61,6 @@ DashboardInstrument_Single(pparent, id, "---", 0LL, format )
     m_data = L"---";
     m_pparent = pparent;
     m_path = wxEmptyString;
-    m_sigPathLangVector = sigPaths;
     m_pushHereUUID = wxEmptyString;
     m_threadRunning = false;
     // Start the instrument thread
@@ -119,20 +118,8 @@ void DashboardInstrument_EngineI::OnThreadTimerTick( wxTimerEvent &event )
         sTestingOnly[1] = L"propulsion.port.oilPressure";
         sTestingOnly[2] = L"propulsion.port.temperature";
         m_path = sTestingOnly[ GetRandomNumber(0,2) ]; // let Mme Fortuna to be the user, for testing!!!!!!!
-        /*
-          Get the titles, descriptions and user's language for his selection from the hosting application
-        */
-        sigPathLangVector::iterator it = std::find_if(
-            m_sigPathLangVector->begin(), m_sigPathLangVector->end(),
-            [this](const sigPathLangTuple& e){return std::get<0>(e) == m_path;});
-        if ( it != m_sigPathLangVector->end() ) {
-            sigPathLangTuple sigPathWithLangFeatures = *it;
-            // the window title is changed in the base class, see instrument.h
-            m_title = std::get<1>(sigPathWithLangFeatures);
-            // Subscribe to the signal path data with this object's method to call back
-            m_pushHere = std::bind(&DashboardInstrument_EngineI::PushData,
-                                   this, _1, _2, _3 );
-            m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
-        } // then found user selection from the available signal paths for subsribtion
+        m_pushHere = std::bind(&DashboardInstrument_EngineI::PushData,
+                               this, _1, _2, _3 );
+        m_pushHereUUID = m_pparent->subscribeTo ( m_path, m_pushHere );
     } // then no subscription to a signal path
 }

@@ -60,7 +60,7 @@ class DashboardInstrument_EngineI : public DashboardInstrument_Single
 {
 public:
     DashboardInstrument_EngineI(
-        DashboardWindow *pparent, wxWindowID id, sigPathLangVector* sigPaths, wxString format = "%4.0f" );
+        DashboardWindow *pparent, wxWindowID id, wxString format = "%4.0f" );
     ~DashboardInstrument_EngineI(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void PushData(double, wxString, long long timestamp=0LL );
@@ -70,7 +70,6 @@ protected:
     int                  m_soloInPane;
     DashboardWindow     *m_pparent;
     wxString             m_path;
-    sigPathLangVector   *m_sigPathLangVector;
     wxTimer             *m_threadEngineITimer;
     bool                 m_threadRunning;
     callbackFunction     m_pushHere;
