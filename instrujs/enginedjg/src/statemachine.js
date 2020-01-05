@@ -14,8 +14,8 @@ import getLocInfo from '../../src/location'
 import { initLoad } from './init'
 import { getidAskClient, getidClientAnswer, getidConf } from './getid'
 import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
-import { setMenuAllPaths } from '../../src/menu'
-import { showData } from './data'
+import { setMenuAllPaths, setMenuRunTime, setMenuBackToLoading } from '../../src/menu'
+import { showData, clearData } from './data'
 import { getNewLuminosity } from './css'
 
 // import { loadConf } from '../../src/persistence'
@@ -48,8 +48,8 @@ export function createStateMachine() {
             { name: 'setall',   from: 'getall',   to: 'showmenu' },
             { name: 'selected', from: 'showmenu', to: 'getpath' },
             { name: 'newdata',  from: 'getpath',  to: 'showdata' },
-            { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'newdata',  from: 'showdata', to: 'showdata' },
+            { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'luminsty', from: 'getid',    to: 'getid' },
             { name: 'luminsty', from: 'getpath',  to: 'getpath' },
             { name: 'luminsty', from: 'getall',   to: 'getall' },
@@ -58,17 +58,17 @@ export function createStateMachine() {
         ],
         methods: {
             onWindow:   function() {
-                if ( dbglevel > 0 ) console.log('onWindow()')
+                if ( dbglevel > 0 ) console.log('onWindow() - state')
             },
             onLoading:  function() {
-                if ( dbglevel > 0 ) console.log('onLoading()')
+                if ( dbglevel > 0 ) console.log('onLoading() - state')
                 if ( dbglevel > 1 ) console.log('uid: ', this.uid )
                 if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
                 if ( dbglevel > 1 ) console.log('gauge[', this.gauge.length, ']')
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf)
             },
             onInitga:   function() {
-                if ( dbglevel > 0 ) console.log('onInitga()')
+                if ( dbglevel > 0 ) console.log('onInitga() - state')
                 initLoad( this )
                 if ( dbglevel > 1 ) console.log('uid: ', this.uid )
                 if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
@@ -76,11 +76,11 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf)
             },
             onGetid:    function() {
-                if ( dbglevel > 0 ) console.log('onGetid()')
+                if ( dbglevel > 0 ) console.log('onGetid() - state')
                 getidAskClient()
             },
             onSetid:    function() {
-                if ( dbglevel > 0 ) console.log('onSetid()')
+                if ( dbglevel > 0 ) console.log('onSetid() - transition')
                 getidClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
                 getidConf( this )
@@ -88,25 +88,37 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
             },
             onGetall:   function() {
-                if ( dbglevel > 0 ) console.log('onGetall()')
+                if ( dbglevel > 0 ) console.log('onGetall() - state')
                 getallAskClient()
             },
             onShowmenu:  function() {
-                if ( dbglevel > 0 ) console.log('onShowmenu()')
+                if ( dbglevel > 0 ) console.log('onShowmenu() - state')
                 getallClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
                 setMenuAllPaths( this )
             },
+            onSelected: function() {
+                if ( dbglevel > 0 ) console.log('onSelected() - transition')
+                setMenuRunTime( this )
+            },
+            onChgconf: function() {
+                if ( dbglevel > 0 ) console.log('onChgconf() - transition')
+                setMenuBackToLoading( this )
+                clearData( this )
+            },
             onGetpath:  function() {
-                if ( dbglevel > 0 ) console.log('onGetpath()')
+                if ( dbglevel > 0 ) console.log('onGetpath() - state')
                 getpathAskClient( this )
             },
-            onShowdata: function() {
-                if ( dbglevel > 0 ) console.log('onShowData()')
+            onNewdata: function() {
+                if ( dbglevel > 0 ) console.log('onNewdata() - transition')
                 showData( this )
             },
+            onShowdata: function() {
+                if ( dbglevel > 0 ) console.log('onShowData() - state')
+            },
             onLuminsty: function() {
-                if ( dbglevel > 0 ) console.log('onLuminsty()')
+                if ( dbglevel > 0 ) console.log('onLuminsty() - transition')
                 getNewLuminosity( this )
                 if ( dbglevel > 1 ) console.log('luminosity: ', this.luminosity )
             }
