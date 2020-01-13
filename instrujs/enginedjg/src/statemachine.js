@@ -3,8 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 /*
-  Visualize with https://xstate.js.org/viz/ current schema https://git.io/JexUj
-  (not implementable with 'xstate', it is not working on IE :( )
+  Visualize with GraphViz, see iface.getgraphvizout()
   Note: with javascript-state-machine, avoid keyword 'init' in state/transition!
 */
 var dbglevel = window.instrustat.debuglevel
@@ -12,10 +11,11 @@ var dbglevel = window.instrustat.debuglevel
 import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
 import { initLoad } from './init'
-import { getidAskClient, getidClientAnswer, getidConf } from './getid'
-import { getallAskClient, getallClientAnswer, getpathAskClient } from './path'
+import { getidAskClient, getidClientAnswer } from './getid'
+import { getConf, getPathDefaultsIfNew, prepareConfHalt } from '../../src/conf'
+import { getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged } from './path'
 import { setMenuAllPaths, setMenuRunTime, setMenuBackToLoading } from '../../src/menu'
-import { showData, clearData } from './data'
+import { onWaitdataFinalCheck, showData, clearData, prepareDataHalt } from './data'
 import { getNewLuminosity } from './css'
 
 // import { loadConf } from '../../src/persistence'
@@ -27,6 +27,7 @@ export function createStateMachine() {
             // Static
             uid        : '',
             conf       : null,
+            perspath   : false,
             // Environmental
             luminosity : 'day',
             locInfo    : getLocInfo(),
@@ -39,22 +40,26 @@ export function createStateMachine() {
             menu       : null
         },
         transitions: [
-            { name: 'fetch',    from: 'window',   to: 'loading' },
+            { name: 'init',     from: 'window',   to: 'loading' },
             { name: 'loaded',   from: 'loading',  to: 'initga' },
             { name: 'initok',   from: 'initga',   to: 'getid' },
-            { name: 'setid',    from: 'getid',    to: 'getid' },
-            { name: 'nocfg',    from: 'getid',    to: 'getall' },
-            { name: 'hascfg',   from: 'getid',    to: 'getpath' },
+            { name: 'setid',    from: 'getid',    to: 'hasid' },
+            { name: 'nocfg',    from: 'hasid',    to: 'getall' },
+            { name: 'hascfg',   from: 'hasid',    to: 'getpath' },
             { name: 'setall',   from: 'getall',   to: 'showmenu' },
             { name: 'selected', from: 'showmenu', to: 'getpath' },
-            { name: 'newdata',  from: 'getpath',  to: 'showdata' },
+            { name: 'acksubs',  from: 'getpath',  to: 'waitdata' },
+            { name: 'newdata',  from: 'waitdata', to: 'showdata' },
             { name: 'newdata',  from: 'showdata', to: 'showdata' },
             { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'luminsty', from: 'getid',    to: 'getid' },
+            { name: 'luminsty', from: 'hasid',    to: 'hasid' },
             { name: 'luminsty', from: 'getpath',  to: 'getpath' },
+            { name: 'luminsty', from: 'waitdata', to: 'waitdata' },
             { name: 'luminsty', from: 'getall',   to: 'getall' },
             { name: 'luminsty', from: 'showmenu', to: 'showmenu' },
-            { name: 'luminsty', from: 'showdata', to: 'showdata' }
+            { name: 'luminsty', from: 'showdata', to: 'showdata' },
+            { name: 'closing',  from: 'showdata', to: 'halt' }
         ],
         methods: {
             onWindow:   function() {
@@ -79,13 +84,24 @@ export function createStateMachine() {
                 if ( dbglevel > 0 ) console.log('onGetid() - state')
                 getidAskClient()
             },
-            onSetid:    function() {
-                if ( dbglevel > 0 ) console.log('onSetid() - transition')
+            onBeforeSetid:    function() {
+                if ( dbglevel > 0 ) console.log('onSetid() - before transition')
                 getidClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
-                getidConf( this )
-                // this.conf = loadConf( this.uid, this.locInfo.protocol )
+                getConf( this )
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
+            },
+            onHasid:    function() {
+                if ( dbglevel > 0 ) console.log('onHasid() - state')
+            },
+            onBeforeNocfg: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onNocfg() - before transition')
+                if ( dbglevel > 2) {
+                    console.log('- transition: ', lifecycle.transition)
+                    console.log('- from      : ', lifecycle.from)
+                    console.log('- to        : ', lifecycle.to) 
+                }
+                this.perspath = false
             },
             onGetall:   function() {
                 if ( dbglevel > 0 ) console.log('onGetall() - state')
@@ -97,30 +113,61 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
                 setMenuAllPaths( this )
             },
-            onSelected: function() {
-                if ( dbglevel > 0 ) console.log('onSelected() - transition')
+            onBeforeHascfg: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onHascfg() - before transition')
+                if ( dbglevel > 2) {
+                    console.log('- transition: ', lifecycle.transition)
+                    console.log('- from      : ', lifecycle.from)
+                    console.log('- to        : ', lifecycle.to) 
+                }
+                this.perspath = true
                 setMenuRunTime( this )
             },
-            onChgconf: function() {
-                if ( dbglevel > 0 ) console.log('onChgconf() - transition')
+            onBeforeSelected: function() {
+                if ( dbglevel > 0 ) console.log('onSelected() - before transition')
+                setMenuRunTime( this )
+                getPathDefaultsIfNew ( this )
+            },
+            onBeforeChgconf: function() {
+                if ( dbglevel > 0 ) console.log('onChgconf() - before transition')
                 setMenuBackToLoading( this )
                 clearData( this )
             },
-            onGetpath:  function() {
+            onGetpath:  function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onGetpath() - state')
+                if ( dbglevel > 2) {
+                    console.log('- transition: ', lifecycle.transition)
+                    console.log('- from      : ', lifecycle.from)
+                    console.log('- to        : ', lifecycle.to) 
+                }
                 getpathAskClient( this )
             },
-            onNewdata: function() {
-                if ( dbglevel > 0 ) console.log('onNewdata() - transition')
+            onBeforeAcksubs:   function() {
+                if ( dbglevel > 0 ) console.log('onAcksubs() - before transition')
+                clearData( this )
+                gotAckCheckPath( this )
+                getpathAcknowledged( this )
+            },
+            onWaitdata: function() {
+                if ( dbglevel > 0 ) console.log('onWaitdata() - state')
+                onWaitdataFinalCheck( this )
+            },
+            onBeforeNewdata: function() {
+                if ( dbglevel > 0 ) console.log('onNewdata() - before transition')
                 showData( this )
             },
             onShowdata: function() {
                 if ( dbglevel > 0 ) console.log('onShowData() - state')
             },
-            onLuminsty: function() {
-                if ( dbglevel > 0 ) console.log('onLuminsty() - transition')
+            onBeforeLuminsty: function() {
+                if ( dbglevel > 0 ) console.log('onLuminsty() - before transition')
                 getNewLuminosity( this )
                 if ( dbglevel > 1 ) console.log('luminosity: ', this.luminosity )
+            },
+            onBeforeClosing: function() {
+                if ( dbglevel > 0 ) console.log('onClosing() - before transition') 
+                prepareDataHalt( this )
+                prepareConfHalt( this )
             }
         }
     })

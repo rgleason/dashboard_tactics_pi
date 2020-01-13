@@ -76,10 +76,10 @@ export function setMenuAllPaths( that, onload, runtime ) {
     that.menu = menu
     if ( !(isOnLoad || isRunTime) )
         document.getElementById('skPath').innerHTML =
-        '<-- right click here to subscribe'
+        window.instrulang.rightClickHereToSubscribe
     if ( isOnLoad )
         document.getElementById('skPath').innerHTML =
-        'Loading...'
+        window.instrulang.loading
     if ( isRunTime )
         document.getElementById('skPath').innerHTML =
         '&nbsp'

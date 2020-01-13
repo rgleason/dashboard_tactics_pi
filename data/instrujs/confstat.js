@@ -28,15 +28,37 @@ const instrustatconf = {
             uid: "3ba69928-d392-4583-8f9a-a323641063d7",
             conf: function () {
                 return {
-                    skpath: '',
-                    title: '',
-                    unit: '',
-                    decimals: 1,
-                    minval: 0,
-                    maxval: 100,
-                    theme: '',
-                    opt1: '',
-                    opt2: ''
+                    version    : 1,
+                    path       : '',
+                    title      : '',
+                    unit       : '',
+                    decimals   : 1,
+                    minval     : 0,
+                    loalert    : 0,
+                    hialert    : 0,
+                    maxval     : 100,
+                    multiplier : 1,
+                    divider    : 100000,
+                    offset     : 0
+                }
+            }
+        },
+        {
+            uid: "4abb6928-e311-5583-8f9b-c32d641da3e8",
+            conf: function () {
+                return {
+                    version    : 1,
+                    path       : '',
+                    title      : '',
+                    unit       : '',
+                    decimals   : 1,
+                    minval     : 0,
+                    loalert    : 0,
+                    hialert    : 0,
+                    maxval     : 100,
+                    multiplier : 1,
+                    divider    : 100000,
+                    offset     : 0
                 }
             }
         }

@@ -16,7 +16,7 @@ var bLocalStorage = false
 var bCookies = false
 var bStatic = false
 
-export function loadConf( cid, locProtocol, emptyConf ) {
+export function loadConf( cid, locProtocol ) {
 
     if ( dbglevel > 0 ) console.log('persistence.js loadConf() ', cid, locProtocol)
 
@@ -35,8 +35,8 @@ export function loadConf( cid, locProtocol, emptyConf ) {
             console.error(
                 'persistence.js loadConf() - instrustatconf.getObj() error: ',
                 error)
-        if ( alertsenabed )
-            alert('ERROR in common.js!\n' + error )
+        if ( alertsenabled )
+            alert( window.instrulang.errCommonJs + '\n' + error )
         return null
     } // then tis exception is worthwhile to tell the user
     
@@ -52,31 +52,32 @@ export function loadConf( cid, locProtocol, emptyConf ) {
             'probably a back-end (IE or WebKit) policy prevents the usage ',
             'for the used protocol: ', locProtocol)
         if ( alertsenabled )
-            alert('Saving of settings not available!\n' +
-                  'System policy prevents local storage\n' +
-                  'The protocol (ini/conf) for instrument is "' + locProtocol +
-                  '//"\n' +
-                  'Try another protocol or static configuration.\n')
+            alert( window.instrulang.savingNotAvailable + '\n' +
+                   window.instrulang.systemPolicyPrevents + '\n' +
+                   window.instrulang.theProtocolIs + ' "' + locProtocol +
+                   '//"\n' +
+                   window.instrulang.tryAnotherProtocol + '\n' )
         return null
     }
+
     if ( bLocalStorage )
         return getObj( cid )
-    // cookies are available as our final hope!
-    if ( emptyConf == null ) {
-        if ( dbglevel > 0 ) console.error(
-            'persistence.js: loadConf(): no emptyConf structure given')
-        return null
-    } // then we do not have a model to fetch the elements for
-    var loadObj = emptyConf
-    Object.keys( emptyConf ).forEach( function( key, index ) {
-        var lparam = getParam ( key, cid )
-        if ( lparam != null )
-            loadObj[key] = lparam
-    })
-    return loadObj
+
+    return getCookieObj( cid )
 }
 
 export function saveConf( cid, confObj ) {
+    var inCid = cid || null
+    if ( (inCid == null) || (inCid == '') ) {
+        if ( dbglevel > 1 ) console.log('persistence.js saveConf(): there is no valid UID, cannot save.')
+        return
+    }
+    var inConfObj = confObj || null
+    if ( inConfObj == null ) {
+        if ( dbglevel > 0 ) console.error(
+            'persistence.js: saveConf(): no configuration object provided to save!')
+        return
+    }
     if ( bStatic )
         return; // nothing to save
     if ( !bSelfTest ) {
@@ -88,13 +89,9 @@ export function saveConf( cid, confObj ) {
         return false
     }
     if ( bLocalStorage )
-        return saveObj( cid )
+        return saveObj( cid, inConfObj )
     // cookies are available!
-    Object.keys(loadObj).forEach(function(key,index) {
-        if ( !saveParam( key, cid, confObj[key]) )
-            return false
-    })
-    return true
+    return saveCookieObj( cid, inConfObj )
 }
 
 function saveObj( cid, cobj ) {
@@ -151,6 +148,64 @@ function deleteObj( cid ) {
     }
     catch (error) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteObj(): error: ', error)
+        return false
+    }
+}
+
+function saveCookieObj( cid, cobj ) {
+    if ( dbglevel > 0 ) console.log('saveCookieObj(): ', cid, cobj )
+    // let's avoid mess
+    var nCid = cid || null
+    if ( (nCid == null) || (nCid == '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): no cid')
+        return false
+    }
+    var nCobj = cobj || null
+    if ( nCobj == null ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): cobj is null')
+        return false
+    }
+    try {
+        saveParam( 'confObj', cid, JSON.stringify( cobj ) )
+        return true
+    }
+    catch ( error ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): error: ', error )
+        return false
+    }
+}
+
+function getCookieObj( cid ) {
+    if ( dbglevel > 0 ) console.log('getCookieObj(): ', cid)
+    // let's avoid chasing phantom data
+    var nCid = cid || null
+    if ( (nCid == null) || (nCid == '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): no cid')
+        return null
+    }
+    try {
+        return JSON.parse( getParam( 'confObj', cid ) )
+    }
+    catch (error) {
+        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): error: ', error)
+        return null
+    }
+}
+
+function deleteCookieObj( cid ) {
+    if ( dbglevel > 0 ) console.log('deleteCookieObj(): ', cid)
+    // deleting phantom data would be useless
+    var nCid = cid || null
+    if ( (nCid == null) || (nCid == '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): no cid')
+        return false
+    }
+    try {
+        deleteParam( 'confObj', cid )
+        return true
+    }
+    catch (error) {
+        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): error: ', error)
         return false
     }
 }
@@ -214,26 +269,33 @@ function getParam( cname, cid ) {
     var piparit = allpiparit.split(';')
     var firstelemname = cid + '-' + cname
     var elemname = ' ' + firstelemname
-    for ( var i = 0; i < piparit.length; i++ ) {
-        var pipari = piparit[ i ].split('=')
-        if ( pipari.length == 2 ) {
-            if ( dbglevel > 2 ) console.log(
-                'persistence.js getParam(): pipari[0] :"', pipari[0],
-                '" pipari[1]:"', pipari[1], '"')
-            var comp = elemname
-            if ( i == 0 )
-                comp = firstelemname
-            if ( pipari[0] === comp ) {
-                if ( dbglevel > 0 ) console.log(
-                    'getParam(): returning:"', pipari[1])
-                return pipari[1]
+    try {
+        for ( var i = 0; i < piparit.length; i++ ) {
+            var pipari = piparit[ i ].split('=')
+            if ( pipari.length == 2 ) {
+                if ( dbglevel > 2 ) console.log(
+                    'persistence.js getParam(): pipari[0] :"', pipari[0],
+                    '" pipari[1]:"', pipari[1], '"')
+                var comp = elemname
+                if ( i == 0 )
+                    comp = firstelemname
+                if ( pipari[0] === comp ) {
+                    if ( dbglevel > 0 ) console.log(
+                        'getParam(): returning:"', pipari[1])
+                    return pipari[1]
+                }
+            }
+            else if ( dbglevel > 2 ) {
+                console.log(
+                    'persistence.js getParam(): non-formed piparit[', i, '] :"',
+                    piparit[i])
             }
         }
-        else if ( dbglevel > 2 ) {
-            console.log(
-                'persistence.js getParam(): non-formed piparit[', i, '] :"',
-                piparit[i])
-        }
+    }
+    catch ( error ) {
+        if ( dbglevel > 2 ) console.log(
+            'persistence.js getParam(): piparit :"', piparit,
+            '" caused an exception, error: ', error)
     }
     if ( dbglevel > 0 ) console.log('getParam(): ', name, ' not found.')
     return null

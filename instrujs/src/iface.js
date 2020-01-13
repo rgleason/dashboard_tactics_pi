@@ -77,10 +77,34 @@ var iface = {
             return ''
         return this.selectedpath
     },
-    acksubs: function( ) {
-        if ( (this.eventselected != null) && (this.elemselected != null) )
-            this.clearFlag( this.elemselected )
-        return
+    eventacksubs    : null,
+    elemacksubs     : null,
+    acksubspath     : '',
+    regeventacksubs: function ( newelem, newevent ) {
+        this.elemacksubs = newelem
+        this.eventacksubs = newevent
+    },
+    acksubs: function( forpath ) {
+        try {
+            if ( (this.eventacksubs == null) || (this.elemacksubs == null) )
+                return
+            this.acksubspath = forpath
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setacksubs - acksubspath: ', this.acksubspath)
+            this.elemacksubs.dispatchEvent( this.eventacksubs )
+        }
+        catch (error) {
+            this.acksubspath = ''
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setacksubs - state machine error',
+                            error)
+            return
+        }
+    },
+    getacksubs: function() {
+        if ( (this.acksubspath == null) || (this.acksubspath === '') )
+            return ''
+        return this.acksubspath
     },
     eventchgconf    : null,
     elemchgconf     : null,
@@ -147,6 +171,36 @@ var iface = {
             return
         return this.luminsty
     },
+    eventclosing    : null,
+    elemclosing     : null,
+    regeventclosing: function ( newelem, newevent ) {
+        this.elemclosing = newelem
+        this.eventclosing = newevent
+    },
+    setclosing: function() {
+        try {
+            if ( (this.eventclosing == null) || (this.elemclosing == null) )
+                return
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setclosing - closingpath: ', this.closingpath)
+            this.elemclosing.dispatchEvent( this.eventclosing )
+        }
+        catch (error) {
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setclosing - state machine error',
+                            error)
+            return
+        }
+    },
+    graphwizdot      : '',
+    setgraphwizdot: function( newgraphwizdot ) {
+        this.graphwizdot = newgraphwizdot
+    },
+    getgraphwizdot: function() {
+        if ( (this.graphwizdot == null) || (this.graphwizdot === '') )
+            return 'not.available'
+        return this.graphwizdot
+    },
     setFlag: function( elemid, request ) {
         if ( ifacedbglevel > 1 ) console.log(
             'setFlag() elemid: ', elemid, ' request: ', request)
@@ -166,9 +220,9 @@ var iface = {
             range.select()
         }
     },
-    clearFlag: function( elemid  ) {
+    clearFlag: function( elemid ) {
         if ( ifacedbglevel > 1 ) console.log(
-            'clearFlag(): elemid content: ', elemid.innerHTML)
+            'clearFlag(): elemid content before clean: ', elemid.innerHTML)
         if (window.getSelection) { 
             window.getSelection().removeAllRanges()
         }
@@ -176,6 +230,10 @@ var iface = {
             document.selection.empty()
         }
         elemid.innerHTML = ''
+    },
+    clearFlagById: function( id ) {
+        var el = document.getElementById(id)
+        this.clearFlag( el )
     }
 }
 window.iface = iface

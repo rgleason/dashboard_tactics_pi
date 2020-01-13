@@ -134,6 +134,14 @@ void InstruJS::OnClose( wxCloseEvent &event )
     }
     if ( (this->m_webpanelCreated || this->m_webpanelCreateWait)
          && !this->m_webpanelStopped ) {
+        if ( m_istate == JSI_SHOWDATA ) {
+            wxString javascript =
+                wxString::Format(
+                    L"%s",
+                    "window.iface.setclosing();");
+            RunScript( javascript );
+            m_istate == JSI_NO_REQUEST;
+        } // then allow the instrument code to grarcefully close
         this->m_pWebPanel->Stop();
         this->m_webpanelStopped = true;
     }
@@ -347,8 +355,12 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_pparent->unsubscribeFrom ( m_pushHereUUID );
                 m_data = wxString::Format( m_format, 0.0 );
                 m_pushHereUUID = m_pparent->subscribeTo ( request, m_pushHere );
-                wxString javascript = wxString::Format(L"%s",
-                                                       "window.iface.acksubs();");
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s",
+                        "window.iface.acksubs('",
+                        request,
+                        "');");
                 RunScript( javascript );
                 m_istate = JSI_SHOWDATA;
                 m_handshake = JSI_HDS_SERVED;
@@ -362,10 +374,12 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_NO_REQUEST;
         }
         if ( m_istate == JSI_SHOWDATA ) {
-            wxString javascript = wxString::Format(L"%s%s%s",
-                                                   "window.iface.newdata(",
-                                                   m_data,
-                                                   ");");
+            wxString javascript =
+                wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.newdata(",
+                    m_data,
+                    ");");
             RunScript( javascript );
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {

@@ -3,95 +3,119 @@
  * Licensed under MIT - see distribution.
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
+/* ---- Find a path missing? Contribute/report https://git.io/JejKQ  ---- */
 
-const instrustat = {
+var  instrustat = {
     theme : 'default',
     debuglevel : 3,
     alerts : true,
-    skpathlookup: function ( skpath ) {
-        for ( var i = 0; i < this.knownskpaths.length; i++  ) {
-            if ( skpath === this.knownskpaths[ i ] ) {
+    knownpaths: [
+        {
+            version    : 1,
+            path       : 'propulsion.port.revolutions',
+            title      : 'Engine Speed',
+            unit       : 'r.p.m.',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 4000,
+            multiplier : 60,
+            divider    : 1,
+            offset     : 0
+        }, 
+        {
+            version    : 1,
+            path       : 'propulsion.starboard.revolutions',
+            title      : 'Stbd Engine Speed',
+            unit       : 'r.p.m.',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 4000,
+            multiplier : 60,
+            divider    : 1,
+            offset     : 0
+        },
+        {
+            version    : 1,
+            path       : 'propulsion.port.temperature',
+            title      : 'Engine Temperature',
+            unit       : 'Celcius',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 95,
+            maxval     : 100,
+            multiplier : 1,
+            divider    : 1,
+            offset     : -273.2
+        },
+        {
+            version    : 1,
+            path       : 'propulsion.starboard.temperature',
+            title      : 'Stbd Engine Temperature',
+            unit       : 'Celcius',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 95,
+            maxval     : 100,
+            multiplier : 1,
+            divider    : 1,
+            offset     : -273.2
+        },
+        {
+            version    : 1,
+            path       : 'propulsion.port.oilPressure',
+            title      : 'Oil Pressure',
+            unit       : 'bar',
+            decimals   : 1,
+            minval     : 0,
+            loalert    : 1,
+            hialert    : 0,
+            maxval     : 4,
+            multiplier : 1,
+            divider    : 100000,
+            offset     : 0
+        },
+        {
+            version    : 1,
+            path       : 'propulsion.starboard.oilPressure',
+            title      : 'Stbd Oil Pressure',
+            unit       : 'bar',
+            decimals   : 1,
+            minval     : 0,
+            loalert    : 1,
+            hialert    : 0,
+            maxval     : 4,
+            multiplier : 1,
+            divider    : 100000,
+            offset     : 0
+        },
+    ],
+    // --- Do not modify below this line ---
+    skpathlookup: function ( path ) {
+        for ( var i = 0; i < this.knownpaths.length; i++  ) {
+            if ( path === this.knownpaths[ i ].path ) {
                 return {
-                    path: this.knownskpaths[ i ].path,
-                    ttle: this.knownskpaths[ i ].ttle,
-                    unit: this.knownskpaths[ i ].unit,
-                    decp: this.knownskpaths[ i ].decp,
-                    minv: this.knownskpaths[ i ].minv,
-                    maxv: this.knownskpaths[ i ].maxv,
-                    mltp: this.knownskpaths[ i ].mltp,
-                    divs: this.knownskpaths[ i ].divs,
-                    offs: this.knownskpaths[ i ].offs
+                    version    : this.knownpaths[ i ].version,
+                    path       : this.knownpaths[ i ].path,
+                    title      : this.knownpaths[ i ].title,
+                    unit       : this.knownpaths[ i ].unit,
+                    decimals   : this.knownpaths[ i ].decimals,
+                    minval     : this.knownpaths[ i ].minval,
+                    loalert    : this.knownpaths[ i ].loalert,
+                    hialert    : this.knownpaths[ i ].hialert,
+                    maxval     : this.knownpaths[ i ].maxval,
+                    multiplier : this.knownpaths[ i ].multiplier,
+                    divider    : this.knownpaths[ i ].divider,
+                    offset     : this.knownpaths[ i ].offset
                 }
             }                
         }
-    },
-    knownskpaths: [
-        {
-            path: 'propulsion.port.revolutions',
-            ttle: 'Engine Speed',
-            unit: 'r.p.m.',
-            decp: 0,
-            minv: 0,
-            maxv: 4000,
-            mltp: 60,
-            divs: 1,
-            offs: 0
-        }, 
-        {
-            path: 'propulsion.starboard.revolutions',
-            ttle: 'Stbd Engine Speed',
-            unit: 'r.p.m.',
-            decp: 0,
-            minv: 0,
-            maxv: 4000,
-            mltp: 60,
-            divs: 1,
-            offs: 0
-        },
-        {
-            path: 'propulsion.port.temperature',
-            ttle: 'Engine Temperature',
-            unit: 'Celcius',
-            decp: 0,
-            minv: 0,
-            maxv: 100,
-            mltp: 1,
-            divs: 1,
-            offs: -273.2
-        },
-        {
-            path: 'propulsion.starboard.temperature',
-            ttle: 'Stbd Engine Temperature',
-            unit: 'Celcius',
-            decp: 0,
-            minv: 0,
-            maxv: 100,
-            mltp: 1,
-            divs: 1,
-            offs: -273.2
-        },
-        {
-            path: 'propulsion.port.oilPressure',
-            ttle: 'Oil Pressure',
-            unit: 'bar',
-            decp: 1,
-            minv: 0,
-            maxv: 4,
-            mltp: 1,
-            divs: 100000,
-            offs: 0
-        },
-        {
-            path: 'propulsion.starboard.oilPressure',
-            ttle: 'Stbd Oil Pressure',
-            unit: 'bar',
-            decp: 1,
-            minv: 0,
-            maxv: 4,
-            mltp: 1,
-            divs: 100000,
-            offs: 0
-        },
-    ]
+        return null
+    }
 }
 window.instrustat = instrustat

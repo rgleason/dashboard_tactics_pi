@@ -8,7 +8,7 @@
 import getLocInfo from '../../src/location'
 import { createGauge } from './gauge'
 import { setSkPathFontResizingStyle } from './css'
-import { createEmptyConf } from './conf'
+import { createEmptyConf } from '../../src/conf'
 
 export function initLoad( that ) {
     that.locInfo = getLocInfo()

@@ -3,30 +3,37 @@
  * Licensed under MIT - see distribution.
  */
 
+import { packagename, version } from '../../src/version'
+console.log('enginedjg ', packagename(), ' ', version())
+var dbglevel = window.instrustat.debuglevel
+
 import '../sass/style.scss'
-import { loadConf, saveConf } from '../../src/persistence'
+// import { loadConf, saveConf } from '../../src/persistence'
 import { createStateMachine } from './statemachine'
 import { setSkPathFontResizingStyle } from './css'
+import visualize from '../../src/state-machine-visualize'
 
 // we could access it with window.iface but this is needed once to get it in...
 var iface = require('exports-loader?iface!../../src/iface.js')
 
 // State Machine Service
-console.log('EngineDJG - creating statemachine')
+if ( dbglevel > 0 ) console.log('index.js - creating the finite state machine')
 var fsm = createStateMachine();
-console.log('EngineDJG - state: ', fsm.state)
+if ( dbglevel > 0 ) console.log('fsm created - state: ', fsm.state)
 try {
-    fsm.fetch()
+    var dot = visualize( fsm )
+    window.iface.setgraphwizdot( dot )
+    if ( dbglevel > 0 ) console.log('index.js: state machine GraphWiz presentation available through iface.js')
 }
 catch( error ) {
-    console.error('index.js: fsm.fetch() transition failed, errror: ', error)
+    console.error('index.js: state machine visualize, error: ', error)
 }
-
-// Run-time
-var skpath = ''
-var titlepath = ''
-var unit = ''
-var conversion = 100000
+try {
+    fsm.init()
+}
+catch( error ) {
+    console.error('index.js: fsm.init() transition failed, error: ', error)
+}
 
 // Create the transitional events (the IE way, sorry!) for clieant messages
 var bottom = document.getElementById ('bottom' )
@@ -35,21 +42,22 @@ var bottom = document.getElementById ('bottom' )
 var eventsetid = document.createEvent('Event')
 eventsetid.initEvent('setid', false, false);
 bottom.addEventListener('setid', function (e) {
+    if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
     try {
         fsm.setid()
     }
     catch( error ) {
         console.error(
-            'Event:  setid: fsm.setid() transition failed, errror: ', error,
+            'Event:  setid: fsm.setid() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-    function pollgetid () {
-        console.log('pollgetid() - waiting for getid, now: ', fsm.state)
-        if ( fsm.is('getid') ) {
+    var pollhascfg = function () {
+        if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
+        if ( fsm.is('hasid') ) {
             var hascfg = true
             if ( fsm.conf == null )
                 hascfg = false
-            else if ( (fsm.conf.skpath == null) || (fsm.conf.skpath === '') )
+            else if ( (fsm.conf.path == null) || (fsm.conf.path === '') )
                 hascfg = false
             if ( hascfg ) {
                 try {
@@ -57,7 +65,7 @@ bottom.addEventListener('setid', function (e) {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js:  fsm.hascfg() transition failed, errror: ', error,
+                        'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ', error,
                         ' current state: ', fsm.state)
                 }
             }
@@ -67,16 +75,15 @@ bottom.addEventListener('setid', function (e) {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js:  fsm.nocfg() transition failed, errror: ', error,
+                        'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ', error,
                         ' current state: ', fsm.state)
                 }
             }
         }
         else {
-            setTimeout(pollgetid, 100);
+            setTimeout(pllhascfg, 100);
         }
-    }
-    pollgetid(); // do _everything_ in the routing once condition met
+    }(); // do selection of the next action in the routing once ID has been set, or not
 }, true);
 window.iface.regeventsetid( bottom, eventsetid )
 
@@ -89,7 +96,7 @@ bottom.addEventListener('setall', function (e) {
     }
     catch( error ) {
         console.error(
-            'Event:  setall: fsm.setall() transition failed, errror: ', error,
+            'Event:  setall: fsm.setall() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true);
@@ -104,11 +111,26 @@ bottom.addEventListener('selected', function (e) {
     }
     catch( error ) {
         console.error(
-            'Event:  selected: fsm.selected() transition failed, errror: ', error,
+            'Event:  selected: fsm.selected() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true);
 window.iface.regeventselected( bottom, eventselected )
+
+// Selection of a path has been acknowledged
+var eventacksubs = document.createEvent('Event')
+eventacksubs.initEvent('acksubs', false, false);
+bottom.addEventListener('acksubs', function (e) {
+    try {
+        fsm.acksubs()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  acksubs: fsm.acksubs() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventacksubs( bottom, eventacksubs )
 
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
@@ -119,7 +141,7 @@ bottom.addEventListener('newdata', function (e) {
     }
     catch( error ) {
         console.error(
-            'Event:  newdata: fsm.newdata() transition failed, errror: ', error,
+            'Event:  newdata: fsm.newdata() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true);
@@ -134,7 +156,7 @@ bottom.addEventListener('chgconf', function (e) {
     }
     catch( error ) {
         console.error(
-            'Event:  chgconf: fsm.chgconf() transition failed, errror: ', error,
+            'Event:  chgconf: fsm.chgconf() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true);
@@ -149,24 +171,38 @@ bottom.addEventListener('luminsty', function (e) {
     }
     catch( error ) {
         console.error(
-            'Event:  luminsty: fsm.luminsty() transition failed, errror: ', error,
+            'Event:  luminsty: fsm.luminsty() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true);
 window.iface.regeventluminsty( bottom, eventluminsty )
 
+// The instrument has a persistent configuraiton object
+var eventclosing = document.createEvent('Event')
+eventclosing.initEvent('closing', false, false);
+bottom.addEventListener('closing', function (e) {
+    try {
+        fsm.closing()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  closing: fsm.closing() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
-   until it has been executed, before continuing to event driven operation */
+   it has been executed, before continuing to truy event driven operation */
 function pollinitga () {
-    console.log('pollinitga() - waiting for initga, now: ', fsm.state)
+    if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ', fsm.state)
     if ( fsm.is('initga') ) {
         try {
             fsm.initok()
         }
         catch( error ) {
             console.error(
-                'index.js:  fsm.initok() transition failed, errror: ', error,
+                'index.js:  fsm.initok() transition failed, error: ', error,
                 ' current state: ', fsm.state)
         }
     } else {
@@ -186,7 +222,7 @@ function setval(newval) {
 
 // Interface to C++, types needs to be set
 export function setconf(newuid, newskpath, inval, inmin, inmax ) {
-    console.log('setconf(): ', newuid, newskpath)
+    if ( dbglevel > 0 ) console.log('setconf(): ', newuid, newskpath)
     var nUid = newuid || null
     if (nUid != null)
         uid = nUid
@@ -197,10 +233,10 @@ export function setconf(newuid, newskpath, inval, inmin, inmax ) {
     }
     if ( nUid == '') {
         if ( uid == '' )
-            console.log(
+            if ( dbglevel > 0 ) console.log(
                 'setconf() - warning: empty UID, no existing')
         else
-            console.log(
+            if ( dbglevel > 0 ) console.log(
                 'setconf() - warning: empty UID, using existing: ', uid)
     }
     var nSkPath = newskpath || null
@@ -222,13 +258,13 @@ export function setconf(newuid, newskpath, inval, inmin, inmax ) {
         if ( uid != '') {
             var nConf = loadConf( uid, conf, locInfo.path )
             if ( nConf == null ) {
-                console.log(
+                if ( dbglevel > 0 ) console.log(
                     'setconf() - warning: new configuration?',
                     'No conf for: ', uid )
             }
             else {
                 conf = nConf
-                console.log('setconf() - For ', uid, ' retrieved: ', conf )
+                if ( dbglevel > 0 ) console.log('setconf() - For ', uid, ' retrieved: ', conf )
             }
             skpath = conf.skpath
         }
@@ -264,7 +300,7 @@ export function setconf(newuid, newskpath, inval, inmin, inmax ) {
 }
 
 function regPath(selectedPath) {
-    console.log('regPath ', selectedPath )
+    if ( dbglevel > 0 ) console.log('regPath ', selectedPath )
     setconf( uid, selectedPath, 60 * 100000 )
 }
 
@@ -342,7 +378,7 @@ var unloadScrollBars = function() {
 
 window.addEventListener('load',
     function() {
-        console.log('EngineDJG - state: ', fsm.state)
+        if ( dbglevel > 0 ) console.log('index.js - state: ', fsm.state)
 
         unloadScrollBars()
 
@@ -351,7 +387,7 @@ window.addEventListener('load',
             fsm.loaded()
         }
         catch( error ) {
-            console.error('loading: fsm.loaded() transition failed, errror: ', error)
+            console.error('loading: fsm.loaded() transition failed, error: ', error)
         }
     }, false)
 
