@@ -27,8 +27,6 @@
 
 #ifndef __ENGINEDJG_H__
 #define __ENGINEDJG_H__
-using namespace std;
-using namespace std::placeholders;
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>

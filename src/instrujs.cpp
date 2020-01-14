@@ -24,7 +24,6 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
 ***************************************************************************
 */
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -37,6 +36,7 @@
 #include <wx/version.h>
 #include <wx/event.h>
 
+#include <functional>
 #include "instrujs.h"
 #include "plugin_ids.h"
 
