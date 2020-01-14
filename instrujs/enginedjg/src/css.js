@@ -40,7 +40,7 @@ export function setSkPathFontResizingStyle() {
 }
 
 export function getNewLuminosity( that ) {
-    var newluminosity = window.iface.luminsty
+    var newluminosity = window.iface.getluminsty()
     if ( (newluminosity === 'day') ||
          (newluminosity === 'dusk') ||
          (newluminosity === 'night') ) {
@@ -62,6 +62,27 @@ export function getNewLuminosity( that ) {
             elem.className = newclass
 
         document.getElementById('bottom').className = 'bottom ' + that.luminosity
+
+        // Gauge, sorry no SCSS, requires justgage 1.3.4 or greater
+        if ( newluminosity == 'day') {
+            that.gauge[0].labelFontColor = '#232b99'
+            that.gauge[0].update('labelFontColor', '#232b99')
+            that.gauge[0].valueFontColor = '#232b99'
+            that.gauge[0].update('valueFontColor', '#232b99')
+        }
+        else if ( newluminosity == 'dusk') {
+            that.gauge[0].labelFontColor = '#e0e0e4'
+            that.gauge[0].update('labelFontColor', '#e0e0e4')
+            that.gauge[0].valueFontColor = '#232b99'
+            that.gauge[0].update('valueFontColor', '#232b99')
+        }
+        else if ( newluminosity == 'night') {
+            that.gauge[0].labelFontColor = '#6168c2'
+            that.gauge[0].update('labelFontColor', '#6168c2')
+            that.gauge[0].valueFontColor = '#aaaeeb'
+            that.gauge[0].update('valueFontColor', '#aaaeeb')
+        }
+
     }
     return
 }
