@@ -12,7 +12,7 @@ import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
 import { initLoad } from './init'
 import { getidAskClient, getidClientAnswer } from './getid'
-import { getConf, getPathDefaultsIfNew, prepareConfHalt } from '../../src/conf'
+import { getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt } from '../../src/conf'
 import { getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged } from './path'
 import { setMenuAllPaths, setMenuRunTime, setMenuBackToLoading } from '../../src/menu'
 import { onWaitdataFinalCheck, showData, clearData, prepareDataHalt } from './data'
@@ -132,6 +132,7 @@ export function createStateMachine() {
                 if ( dbglevel > 0 ) console.log('onChgconf() - before transition')
                 setMenuBackToLoading( this )
                 clearData( this )
+                clearConf( this )
             },
             onGetpath:  function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onGetpath() - state')

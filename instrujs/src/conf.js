@@ -8,8 +8,6 @@ var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 import { loadConf, saveConf } from './persistence'
 
-var hasPersistentOrStaticConf = false;
-
 // Polyfills, for IE back-end (!) on Windows used by WebView
 if (!Object.entries)
     Object.entries = function( obj ){
@@ -71,11 +69,6 @@ export function getConf( that ) {
 export function getPathDefaultsIfNew ( that ) {
     if ( dbglevel > 1 ) console.log(
         'getPathDefaultsIfNew()')
-    if ( hasPersistentOrStaticConf ) {
-        if ( dbglevel > 1 ) console.log(
-            'getPathDefaultsIfNew(): the object has already a persistent configuration, will not override, path: ', that.path)
-        return
-    }
     var emptyConf = createEmptyConf()
     var defConfObj
     try {
@@ -101,6 +94,12 @@ export function getPathDefaultsIfNew ( that ) {
         that.conf = emptyConf
     saveConf( that.uid, that.conf )
     return
+}
+
+export function clearConf ( that ) {
+    that.conf = null
+    that.perspath = false
+    that.path = ''
 }
 
 export function prepareConfHalt ( that ) {
