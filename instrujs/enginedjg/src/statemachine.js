@@ -103,6 +103,12 @@ export function createStateMachine() {
                 }
                 this.perspath = false
             },
+            onBeforeChgconf: function() {
+                if ( dbglevel > 0 ) console.log('onChgconf() - before transition')
+                setMenuBackToLoading( this )
+                clearData( this )
+                clearConf( this )
+            },
             onGetall:   function() {
                 if ( dbglevel > 0 ) console.log('onGetall() - state')
                 getallAskClient()
@@ -127,12 +133,6 @@ export function createStateMachine() {
                 if ( dbglevel > 0 ) console.log('onSelected() - before transition')
                 setMenuRunTime( this )
                 getPathDefaultsIfNew ( this )
-            },
-            onBeforeChgconf: function() {
-                if ( dbglevel > 0 ) console.log('onChgconf() - before transition')
-                setMenuBackToLoading( this )
-                clearData( this )
-                clearConf( this )
             },
             onGetpath:  function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onGetpath() - state')
