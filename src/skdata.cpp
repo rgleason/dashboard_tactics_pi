@@ -113,6 +113,7 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
     SkDataPathList::iterator topicit;
     int maxPathSubElements = 7; // reminder: we have also the key of a value
     wxString retval = "";
+    bool notFirstObj = false;
     for (topicit = topics.begin(); topicit != topics.end(); ++topicit) {
         std::string sTopicToCollect = *topicit;
         wxString topicToCollect = wxString( sTopicToCollect );
@@ -123,8 +124,14 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
                 wxStringTokenizer tokenizer(fullPath, ".");
                 if ( tokenizer.CountTokens() == (i + 1) ) {
                     wxString nowTopic = tokenizer.GetNextToken();
-                    if ( nowTopic == topicToCollect )
-                        retval += fullPath + ",";
+                    if ( nowTopic == topicToCollect ) {
+                        if ( notFirstObj )
+                            retval += "," + fullPath;
+                        else {
+                            retval += fullPath;
+                            notFirstObj = true;
+                        }
+                    }
                 }
             }
         }
