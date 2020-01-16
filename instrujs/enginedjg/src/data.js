@@ -14,12 +14,18 @@ export function onWaitdataFinalCheck( that ) {
             elem.innerHTML = that.conf.title
         else if ( (that.conf.path != null) && (that.conf.path != '' ) ) {
             getPathDefaultsIfNew( that )
-            elem.innerHTML = that.conf.path
+            if ( (that.conf.title != null) && (that.conf.title != '' ) )
+                elem.innerHTML = that.conf.title
+            else
+                elem.innerHTML = that.conf.path
         }
     }
     else if ( (that.path != null) && (that.path != '' ) ) {
         getPathDefaultsIfNew( that )
-        elem.innerHTML = that.conf.path
+        if ( (that.conf.title != null) && (that.conf.title != '' ) )
+            elem.innerHTML = that.conf.title
+        else
+            elem.innerHTML = that.conf.path
     }
     else {
         if ( dbglevel > 1 )
