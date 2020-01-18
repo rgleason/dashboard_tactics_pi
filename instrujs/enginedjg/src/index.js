@@ -8,7 +8,7 @@ console.log('enginedjg ', packagename(), ' ', version())
 var dbglevel = window.instrustat.debuglevel
 
 import '../sass/style.scss'
-// import { loadConf, saveConf } from '../../src/persistence'
+import { kbdInit} from '../../src/kbd'
 import { createStateMachine } from './statemachine'
 import { setSkPathFontResizingStyle } from './css'
 import visualize from '../../src/state-machine-visualize'
@@ -177,6 +177,22 @@ bottom.addEventListener('luminsty', function (e) {
     }
 }, true);
 window.iface.regeventluminsty( bottom, eventluminsty )
+
+// Keyboard event requires to swap the display format
+var eventswapdisp = document.createEvent('Event')
+eventswapdisp.initEvent('swapdisp', false, false);
+bottom.addEventListener('swapdisp', function (e) {
+    try {
+        if ( fsm.state == 'showdata')
+            fsm.swapdisp()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  swapdisp: fsm.swapdisp() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true);
+window.iface.regeventswapdisp( bottom, eventswapdisp )
 
 // The instrument has a persistent configuraiton object
 var eventclosing = document.createEvent('Event')

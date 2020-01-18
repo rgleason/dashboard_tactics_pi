@@ -7,13 +7,21 @@
 
 var dbglevel = window.instrustat.debuglevel
 
-var controlKey = false
-var arrowUpKey = false
-var arrowDownKey = false
-var notBothCtrlUp = true
-var notBothCtrlDown = true
+var controlKey
+var arrowUpKey
+var arrowDownKey
+var notBothCtrlUp
+var notBothCtrlDown
 
-window.addEventListener('keydown', function(e) {
+export function kbdInit() {
+    controlKey = false
+    arrowUpKey = false
+    arrowDownKey = false
+    notBothCtrlUp = true
+    notBothCtrlDown = true
+}
+
+document.addEventListener('keydown', function(e) {
     if (event.defaultPrevented)
         return
     if ( e.ctrlKey )
@@ -26,7 +34,7 @@ window.addEventListener('keydown', function(e) {
         if ( controlKey && arrowUpKey ) {
             if ( dbglevel > 2 )
                 console.log('kbd.js: Ctrl+Up')
-            // fire the event
+            window.iface.setswapdisp()
             notBothCtrlUp = false
         }
     }
@@ -40,7 +48,7 @@ window.addEventListener('keydown', function(e) {
     }
 });
 
-window.addEventListener('keyup', function(e) {
+document.addEventListener('keyup', function(e) {
     if (event.defaultPrevented)
         return
     if ( !e.ctrlKey )

@@ -40,6 +40,7 @@ export function createEmptyConf() {
         path       : '',
         title      : '',
         unit       : '',
+        display    : 'dial180',
         decimals   : 1,
         minval     : 0,
         loalert    : 0,
@@ -68,7 +69,7 @@ export function getConf( that ) {
 
 export function getPathDefaultsIfNew ( that ) {
     if ( dbglevel > 1 ) console.log(
-        'getPathDefaultsIfNew()')
+        'getPathDefaultsIfNew() - that.path: ', that.path)
     var emptyConf = createEmptyConf()
     var defConfObj
     try {
@@ -94,6 +95,11 @@ export function getPathDefaultsIfNew ( that ) {
         that.conf = emptyConf
     saveConf( that.uid, that.conf )
     return
+}
+
+export function memorizeSettings ( that ) {
+    if ( that.conf != null )
+        saveConf( that.uid, that.conf )
 }
 
 export function clearConf ( that ) {

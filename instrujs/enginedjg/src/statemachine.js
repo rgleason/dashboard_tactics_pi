@@ -16,6 +16,7 @@ import { getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt } from '../..
 import { getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged } from './path'
 import { setMenuAllPaths, setMenuRunTime, setMenuBackToLoading } from '../../src/menu'
 import { onWaitdataFinalCheck, showData, clearData, prepareDataHalt } from './data'
+import { swapDisplay } from './disp'
 import { getNewLuminosity } from './css'
 
 // import { loadConf } from '../../src/persistence'
@@ -51,6 +52,7 @@ export function createStateMachine() {
             { name: 'acksubs',  from: 'getpath',  to: 'waitdata' },
             { name: 'newdata',  from: 'waitdata', to: 'showdata' },
             { name: 'newdata',  from: 'showdata', to: 'showdata' },
+            { name: 'chgconf',  from: 'waitdata', to: 'getall' },
             { name: 'chgconf',  from: 'showdata', to: 'getall' },
             { name: 'luminsty', from: 'getid',    to: 'getid' },
             { name: 'luminsty', from: 'hasid',    to: 'hasid' },
@@ -59,6 +61,7 @@ export function createStateMachine() {
             { name: 'luminsty', from: 'getall',   to: 'getall' },
             { name: 'luminsty', from: 'showmenu', to: 'showmenu' },
             { name: 'luminsty', from: 'showdata', to: 'showdata' },
+            { name: 'swapdisp', from: 'showdata', to: 'showdata' },
             { name: 'closing',  from: 'showdata', to: 'halt' }
         ],
         methods: {
@@ -90,6 +93,13 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
                 getConf( this )
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
+                if ( this.conf.display != 'dial180' ) {
+                    swapDisplay( this )
+                }
+                else {
+                    swapDisplay( this, false )
+                    swapDisplay( this, false ) // re-init dial
+                }
             },
             onHasid:    function() {
                 if ( dbglevel > 0 ) console.log('onHasid() - state')
@@ -132,6 +142,7 @@ export function createStateMachine() {
             onBeforeSelected: function() {
                 if ( dbglevel > 0 ) console.log('onSelected() - before transition')
                 setMenuRunTime( this )
+                this.path = window.iface.getselected()
                 getPathDefaultsIfNew ( this )
             },
             onGetpath:  function( lifecycle ) {
@@ -159,6 +170,10 @@ export function createStateMachine() {
             },
             onShowdata: function() {
                 if ( dbglevel > 0 ) console.log('onShowData() - state')
+            },
+            onBeforeSwapdisp: function() {
+                if ( dbglevel > 0 ) console.log('onSwapdisp() - before transition')
+                swapDisplay( this )
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 ) console.log('onLuminsty() - before transition')

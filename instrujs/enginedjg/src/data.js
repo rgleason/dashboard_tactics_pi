@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 
-//An actor to ask and retrieve from a client a unique ID for this instance
+// An actor to ask and retrieve from a client a unique ID for this instance
 import { getPathDefaultsIfNew } from '../../src/conf'
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
@@ -68,7 +68,6 @@ export function showData( that ) {
                         }
                     }
                 }
-                console.log('that.conf: ', that.conf)
                 if ( that.conf.hialert != 0 ) {
                     if ( dispvalue > that.conf.hialert ) {
                         if ( alertcounter >= alertthreshold ) {
@@ -94,12 +93,24 @@ export function showData( that ) {
             }
         }
     }
-    if ( (that.gauge.length > 0) && (that.glastvalue != null) )
+    if ( (that.gauge.length > 0) && (that.glastvalue != null) ) {
         that.gauge[0].refresh(
             dispvalue,
             that.conf.maxval,
             that.conf.minval,
             that.conf.unit )
+    }
+    else {
+        var elemnum = document.getElementById('numgauge0')
+        if ( elemnum != null ) {
+            var roundedval = dispvalue.toFixed( that.conf.decimals )
+            elemnum.innerHTML = roundedval
+        }
+        var elemunit = document.getElementById('numgunit0')
+        if ( elemunit != null ) {
+            elemunit.innerHTML = that.conf.unit
+        }
+    }
 }
 
 export function clearData( that ) {

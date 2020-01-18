@@ -153,6 +153,34 @@ var iface = {
             return 0.0
         return this.value
     },
+    eventswapdisp    : null,
+    elemswapdisp     : null,
+    swapdisptoggle   : 0,
+    regeventswapdisp: function ( newelem, newevent ) {
+        this.elemswapdisp = newelem
+        this.eventswapdisp = newevent
+    },
+    setswapdisp: function() {
+        try {
+            if ( (this.eventswapdisp == null) || (this.elemswapdisp == null) )
+                return
+            this.swapdisptoggle = 1 - this.swapdisptoggle
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setswapdisp - swapdisptoggle: ', this.swapdisptoggle)
+            this.elemswapdisp.dispatchEvent( this.eventswapdisp )
+        }
+        catch (error) {
+            this.swapdisptoggle = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setswapdisp - state machine error',
+                            error)
+            return
+        }
+    },
+    getswapdisp: function() {
+        return this.swapdisptoggle
+    },
     eventluminsty : null,
     elemluminsty  : null,
     luminsty      : '',

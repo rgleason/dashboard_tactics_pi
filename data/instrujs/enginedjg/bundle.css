@@ -222,6 +222,153 @@ a.menu-btn {
   margin-bottom: 0px;
 }
 
+/* Numerical value in gauge space */
+.numgauge {
+  top: 1%;
+  margin-left: 1%;
+  width: 98%;
+  padding-top: 1px;
+  margin-bottom: 1%;
+  padding-bottom: 1px;
+  text-align: center;
+  font-family: "Helvetica", sans-serif;
+}
+
+:root {
+  --ngpproplw: 20vw;
+}
+
+.numgauge.propl {
+  font-size: 20vw;
+}
+
+.numgauge.fixed {
+  font-size: 48px;
+}
+
+@media screen and (min-width: 201px) {
+  .numgauge.fixed {
+    font-size: 50px;
+  }
+}
+@media screen and (min-width: 301px) {
+  .numgauge.fixed {
+    font-size: 52px;
+  }
+}
+@media screen and (min-width: 401px) {
+  .numgauge.fixed {
+    font-size: 54px;
+  }
+}
+@media screen and (min-width: 501px) {
+  .numgauge.fixed {
+    font-size: 56px;
+  }
+}
+@media screen and (min-width: 601px) {
+  .numgauge.fixed {
+    font-size: 58px;
+  }
+}
+.numgauge.propl.day {
+  color: #232b99;
+}
+
+.numgauge.propl.dusk {
+  color: #e0e0e4;
+}
+
+.numgauge.propl.night {
+  color: #6168c2;
+}
+
+.numgauge.fixed.day {
+  color: #232b99;
+}
+
+.numgauge.fixed.dusk {
+  color: #e0e0e4;
+}
+
+.numgauge.fixed.night {
+  color: #6168c2;
+}
+
+/* Numerical gauge's unit in gauge space */
+.numgunit {
+  top: 1%;
+  margin-left: 1%;
+  width: 98%;
+  padding-top: 1px;
+  margin-bottom: 1%;
+  padding-bottom: 1px;
+  text-align: center;
+  font-family: "Helvetica", sans-serif;
+}
+
+:root {
+  --nupproplw: 5vw;
+}
+
+.numgunit.propl {
+  font-size: 5vw;
+}
+
+.numgunit.fixed {
+  font-size: 10px;
+}
+
+@media screen and (min-width: 201px) {
+  .numgunit.fixed {
+    font-size: 12px;
+  }
+}
+@media screen and (min-width: 301px) {
+  .numgunit.fixed {
+    font-size: 14px;
+  }
+}
+@media screen and (min-width: 401px) {
+  .numgunit.fixed {
+    font-size: 16px;
+  }
+}
+@media screen and (min-width: 501px) {
+  .numgunit.fixed {
+    font-size: 18px;
+  }
+}
+@media screen and (min-width: 601px) {
+  .numgunit.fixed {
+    font-size: 20px;
+  }
+}
+.numgunit.propl.day {
+  color: #232b99;
+}
+
+.numgunit.propl.dusk {
+  color: #e0e0e4;
+}
+
+.numgunit.propl.night {
+  color: #6168c2;
+}
+
+.numgunit.fixed.day {
+  color: #232b99;
+}
+
+.numgunit.fixed.dusk {
+  color: #e0e0e4;
+}
+
+.numgunit.fixed.night {
+  color: #6168c2;
+}
+
+/* Bottom part is an interprocess communication (IPC) data field */
 .bottom {
   top: 0px;
   margin-left: 1%;
