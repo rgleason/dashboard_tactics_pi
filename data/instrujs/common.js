@@ -9,6 +9,7 @@ var  instrustat = {
     theme : 'default',
     debuglevel : 3,
     alerts : true,
+    alertdelay : 3,
     knownpaths: [
         {
             version    : 1,
@@ -19,7 +20,7 @@ var  instrustat = {
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
-            maxval     : 4000,
+            maxval     : 3000,
             multiplier : 60,
             divider    : 1,
             offset     : 0
@@ -33,7 +34,7 @@ var  instrustat = {
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
-            maxval     : 4000,
+            maxval     : 3000,
             multiplier : 60,
             divider    : 1,
             offset     : 0

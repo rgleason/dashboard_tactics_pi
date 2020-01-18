@@ -19,5 +19,8 @@ var instrulang = {
     errNofConfKeysDoNotMatch2: 'number of keys and values.',
     errNofConfKeysDoNotMatch3: 'Expecting',
     errNofConfKeysDoNotMatch4: 'got',
+    alertTitle:   '*********** ALERT ***********',
+    alertLolimit: 'passed under the lower limit with value:',
+    alertHilimit: 'passed over the high limit with value:',
 }
 window.instrulang = instrulang
