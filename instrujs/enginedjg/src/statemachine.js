@@ -93,12 +93,18 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
                 getConf( this )
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
-                if ( this.conf.display != 'dial180' ) {
-                    swapDisplay( this )
+                if ( this.conf.display == 'dial' ) {
+                    swapDisplay( this, 'down', false ) // re-init
+                    swapDisplay( this, 'down', false )
+                    swapDisplay( this, 'down', false )
+                }
+                else if ( this.conf.display == 'simple' ) {
+                    this.conf.display = 'dial'
+                    swapDisplay( this, 'down', true )
                 }
                 else {
-                    swapDisplay( this, false )
-                    swapDisplay( this, false ) // re-init dial
+                    this.conf.display = 'dial'
+                    swapDisplay( this, 'up', true )
                 }
             },
             onHasid:    function() {
@@ -173,7 +179,8 @@ export function createStateMachine() {
             },
             onBeforeSwapdisp: function() {
                 if ( dbglevel > 0 ) console.log('onSwapdisp() - before transition')
-                swapDisplay( this )
+                var kbdDir = (window.iface.getswapdisp()==1?'down':'up')
+                swapDisplay( this, kbdDir, true )
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 ) console.log('onLuminsty() - before transition')

@@ -34,7 +34,7 @@ document.addEventListener('keydown', function(e) {
         if ( controlKey && arrowUpKey ) {
             if ( dbglevel > 2 )
                 console.log('kbd.js: Ctrl+Up')
-            window.iface.setswapdisp()
+            window.iface.setswapdisp( -1 )
             notBothCtrlUp = false
         }
     }
@@ -42,7 +42,7 @@ document.addEventListener('keydown', function(e) {
         if ( controlKey && arrowDownKey ) {
             if ( dbglevel > 2 )
                 console.log('kbd.js: Ctrl+Dow')
-            // fire the event
+            window.iface.setswapdisp( 1 )
             notBothCtrlDown = false
         }
     }

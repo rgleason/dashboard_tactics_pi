@@ -4,7 +4,7 @@
  */
 import JustGage from 'justgage'
 
-export function createGauge(name, value, decimals, label) {
+export function createGauge(name, value, decimals, label, donut) {
     return new JustGage({
         id: name,
         value: value,
@@ -12,6 +12,7 @@ export function createGauge(name, value, decimals, label) {
         label: label,
         min: 0,
         max: 100,
+        donut: donut,
         pointer: true,
         pointerOptions: {
             toplength: -15,

@@ -40,7 +40,7 @@ export function createEmptyConf() {
         path       : '',
         title      : '',
         unit       : '',
-        display    : 'dial180',
+        display    : 'dial',
         decimals   : 1,
         minval     : 0,
         loalert    : 0,

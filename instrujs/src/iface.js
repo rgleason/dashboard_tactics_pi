@@ -155,23 +155,23 @@ var iface = {
     },
     eventswapdisp    : null,
     elemswapdisp     : null,
-    swapdisptoggle   : 0,
+    swapdirection    : 0,
     regeventswapdisp: function ( newelem, newevent ) {
         this.elemswapdisp = newelem
         this.eventswapdisp = newevent
     },
-    setswapdisp: function() {
+    setswapdisp: function( newswapdirection ) {
         try {
             if ( (this.eventswapdisp == null) || (this.elemswapdisp == null) )
                 return
-            this.swapdisptoggle = 1 - this.swapdisptoggle
+            this.swapdirection = newswapdirection
             if ( ifacedbglevel > 0 )
                 console.log(
-                    'iface.setswapdisp - swapdisptoggle: ', this.swapdisptoggle)
+                    'iface.setswapdisp - swapdirection: ', this.swapdirection)
             this.elemswapdisp.dispatchEvent( this.eventswapdisp )
         }
         catch (error) {
-            this.swapdisptoggle = 0
+            this.swapdirection = 0
             if ( ifacedbglevel > 1 )
                 console.log('iface.setswapdisp - state machine error',
                             error)
@@ -179,7 +179,7 @@ var iface = {
         }
     },
     getswapdisp: function() {
-        return this.swapdisptoggle
+        return this.swapdirection
     },
     eventluminsty : null,
     elemluminsty  : null,
