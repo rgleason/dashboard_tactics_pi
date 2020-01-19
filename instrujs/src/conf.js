@@ -39,6 +39,7 @@ export function createEmptyConf() {
         version    : 1,
         path       : '',
         title      : '',
+        symbol     : '',
         unit       : '',
         display    : 'dial',
         decimals   : 1,

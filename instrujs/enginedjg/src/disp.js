@@ -45,11 +45,13 @@ export function swapDisplay( that, direction, memorize ) {
         document.getElementById('gauge0').innerHTML = ''
         if (nextdisp == 'dial') {
             that.gauge.push (
-                createGauge('gauge0', 0, that.conf.decimals, that.conf.unit, false ) )
+                createGauge('gauge0', 0, that.conf.decimals,
+                            that.conf.unit, false, that.conf.symbol ) )
         }
         else {
             that.gauge.push (
-                createGauge('gauge0', 0, that.conf.decimals, that.conf.unit, true ) )
+                createGauge('gauge0', 0, that.conf.decimals,
+                            that.conf.unit, true, that.conf.symbol ) )
         }
     }
 

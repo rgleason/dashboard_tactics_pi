@@ -104,7 +104,7 @@ export function showData( that ) {
         var elemnum = document.getElementById('numgauge0')
         if ( elemnum != null ) {
             var roundedval = dispvalue.toFixed( that.conf.decimals )
-            elemnum.innerHTML = roundedval
+            elemnum.innerHTML = roundedval + that.conf.symbol
         }
         var elemunit = document.getElementById('numgunit0')
         if ( elemunit != null ) {

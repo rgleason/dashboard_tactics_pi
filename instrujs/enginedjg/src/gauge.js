@@ -4,11 +4,12 @@
  */
 import JustGage from 'justgage'
 
-export function createGauge(name, value, decimals, label, donut) {
+export function createGauge(name, value, decimals, label, donut, symbol) {
     return new JustGage({
         id: name,
         value: value,
         decimals: decimals,
+        symbol: symbol,
         label: label,
         min: 0,
         max: 100,
