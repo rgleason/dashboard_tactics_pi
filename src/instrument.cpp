@@ -39,6 +39,7 @@
 #include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (DashboardInstrument,wxControl)
     EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
+   EVT_CLOSE (DashboardInstrument::OnClose)
 wxEND_EVENT_TABLE ()
 #endif // _TACTICSPI_H_
 
@@ -48,13 +49,14 @@ wxEND_EVENT_TABLE ()
 //
 //----------------------------------------------------------------
 
-DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
+DashboardInstrument::DashboardInstrument( wxWindow *pparent, wxWindowID id, wxString title,
 #ifdef _TACTICSPI_H_
-                        unsigned long long cap_flag, bool drawSoloInPane
+                                          unsigned long long cap_flag, bool drawSoloInPane ) :
+    wxControl( pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE )
 #else
-                        int cap_flag
+                                          int cap_flag ) :
+    wxControl( pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE )
 #endif // _TACTICSPI_H_
-    ):wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
 
 #ifdef _TACTICSPI_H_
@@ -98,7 +100,17 @@ DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxStr
 #ifdef _TACTICSPI_H_
 DashboardInstrument::~DashboardInstrument()
 {
-    this->m_DPBITickTimer->Stop();
+    if ( this->m_DPBITickTimer != NULL ) {
+        this->m_DPBITickTimer->Stop();
+        delete this->m_DPBITickTimer;
+    }
+}
+void DashboardInstrument::OnClose( wxCloseEvent &event )
+{
+    if ( this->m_DPBITickTimer != NULL ) {
+        this->m_DPBITickTimer->Stop();
+    }
+    event.Skip(); // Destroy() must be called
 }
 void DashboardInstrument::setTimestamp( long long ts )
 {
@@ -382,6 +394,7 @@ void DashboardInstrument_Single::SetData(
 void DashboardInstrument_Single::timeoutEvent()
 {
     m_data = _T("---");
+    derivedTimeoutEvent();
 }
 #endif // _TACTICSPI_H_
 //----------------------------------------------------------------

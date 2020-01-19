@@ -148,7 +148,7 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerShow = m_data;
     SaveConfig();
-    if ( GetThread() ) {
+    if ( GetThread() ) { // in case if no Close() event
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
             m_socket.InterruptWait();
@@ -156,6 +156,25 @@ TacticsInstrument_StreamoutSingle::~TacticsInstrument_StreamoutSingle()
         }
     }
 }
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &event )
+{
+    if ( m_state == SSSM_STATE_DISPLAYRELAY )
+        return;
+    if ( m_verbosity > 1)
+        wxLogMessage ("dashboard_tactics_pi: streaming out : received CloseEvent, shutting down comm. thread.");
+    if ( GetThread() ) {
+        if ( m_thread->IsRunning() ) {
+            m_cmdThreadStop = true;
+            m_socket.InterruptWait();
+            m_thread->Wait();
+        }
+    }
+    event.Skip(); // let the destructor to finalize
+}
+/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/
@@ -324,25 +343,6 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     } // then the communication thread is alive and has connection with the server
 
 }
-/***********************************************************************************
-
-************************************************************************************/
-void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &evt )
-{
-    if ( m_state == SSSM_STATE_DISPLAYRELAY )
-        return;
-    if ( m_verbosity > 1)
-        wxLogMessage ("dashboard_tactics_pi: OnClose() : received CloseEvent, waiting on comm. thread.");
-    if ( GetThread() ) {
-        if ( m_thread->IsRunning() ) {
-            m_cmdThreadStop = true;
-            m_socket.InterruptWait();
-            m_thread->Wait();
-        }
-    }
-    Destroy();
-}
-/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/

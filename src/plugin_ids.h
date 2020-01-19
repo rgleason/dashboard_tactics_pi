@@ -1,5 +1,5 @@
 /***************************************************************************
- * $Id: plugin_ids.h, v1.0 2010/08/30 SethDart Exp $
+ * $Id: plugin_ids.h, v1.0 2019/11/30 VaderDarth Exp $
  *
  * Project:  OpenCPN
  * Purpose:  Dashboard Plugin
@@ -44,6 +44,9 @@ enum pluginids {
     myID_TICK_SK_IN,
     myID_THREAD_AVGWIND,
     myID_TICK_AVGWIND,
+    myID_TICK_ENGINEI,
+    myID_TICK_ENGINEDJG,
+    myID_TICK_INSTRUJS,
     // end of tacticsEvents
     myID_EDIT_LAST
 };

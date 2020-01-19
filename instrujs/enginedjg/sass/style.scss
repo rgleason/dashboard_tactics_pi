@@ -1,0 +1,137 @@
+@use '../sass/instrujs';
+@use '../sass/menu';
+
+/* Path - in ../src/gauge there are *FontColore, but no CSS so consider it as well */
+
+.skpath {
+    top: 1%;
+    margin-left: 1%;
+    width: 98%;
+    height: 5%;
+    padding-top: 1px;
+    margin-bottom: 1%;
+    padding-bottom: 1px;
+    text-align: center;
+    font-family: "Helvetica", sans-serif;
+}
+
+$skproplw : 5vw;
+:root {
+    --skpproplw: #{$skproplw};
+}
+.skpath.propl { font-size: $skproplw; }
+$skffssz : 10px;
+$skfffin :  2px;
+.skpath.fixed { font-size: $skffssz; }
+$skfist : 201px;
+$skfiin : 100px;
+@media screen and (min-width: $skfist)             { .skpath.fixed { font-size: $skffssz + $skfffin;   } }
+@media screen and (min-width: $skfist + $skfiin)   { .skpath.fixed { font-size: $skffssz + 2*$skfffin; } }
+@media screen and (min-width: $skfist + 2*$skfiin) { .skpath.fixed { font-size: $skffssz + 3*$skfffin; } }
+@media screen and (min-width: $skfist + 3*$skfiin) { .skpath.fixed { font-size: $skffssz + 4*$skfffin; } }
+@media screen and (min-width: $skfist + 4*$skfiin) { .skpath.fixed { font-size: $skffssz + 5*$skfffin; } }
+
+.skpath.propl.day   { color: instrujs.$skpathcolorday; }
+.skpath.propl.dusk  { color: instrujs.$skpathcolordusk; }
+.skpath.propl.night { color: instrujs.$skpathcolornight; }
+.skpath.fixed.day   { color: instrujs.$skpathcolorday; }
+.skpath.fixed.dusk  { color: instrujs.$skpathcolordusk; }
+.skpath.fixed.night { color: instrujs.$skpathcolornight; }
+
+/* Gauge */
+.gaugeface {
+}
+.gauge {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 90%;
+    margin-bottom: 0px;
+}
+
+/* Numerical value in gauge space */
+
+.numgauge {
+    top: 1%;
+    margin-left: 1%;
+    width: 98%;
+    padding-top: 1px;
+    margin-bottom: 1%;
+    padding-bottom: 1px;
+    text-align: center;
+    font-family: "Helvetica", sans-serif;
+}
+
+$ngproplw : 20vw;
+:root {
+    --ngpproplw: #{$ngproplw};
+}
+.numgauge.propl { font-size: $ngproplw; }
+$ngffssz : 48px;
+$ngfffin :  2px;
+.numgauge.fixed { font-size: $ngffssz; }
+$ngfist : 201px;
+$ngfiin : 100px;
+@media screen and (min-width: $ngfist)             { .numgauge.fixed { font-size: $ngffssz + $ngfffin;   } }
+@media screen and (min-width: $ngfist + $ngfiin)   { .numgauge.fixed { font-size: $ngffssz + 2*$ngfffin; } }
+@media screen and (min-width: $ngfist + 2*$ngfiin) { .numgauge.fixed { font-size: $ngffssz + 3*$ngfffin; } }
+@media screen and (min-width: $ngfist + 3*$ngfiin) { .numgauge.fixed { font-size: $ngffssz + 4*$ngfffin; } }
+@media screen and (min-width: $ngfist + 4*$ngfiin) { .numgauge.fixed { font-size: $ngffssz + 5*$ngfffin; } }
+
+.numgauge.propl.day   { color: instrujs.$skpathcolorday; }
+.numgauge.propl.dusk  { color: instrujs.$skpathcolordusk; }
+.numgauge.propl.night { color: instrujs.$skpathcolornight; }
+.numgauge.fixed.day   { color: instrujs.$skpathcolorday; }
+.numgauge.fixed.dusk  { color: instrujs.$skpathcolordusk; }
+.numgauge.fixed.night { color: instrujs.$skpathcolornight; }
+
+
+/* Numerical gauge's unit in gauge space */
+
+.numgunit {
+    top: 1%;
+    margin-left: 1%;
+    width: 98%;
+    padding-top: 1px;
+    margin-bottom: 1%;
+    padding-bottom: 1px;
+    text-align: center;
+    font-family: "Helvetica", sans-serif;
+}
+
+$nuproplw : 5vw;
+:root {
+    --nupproplw: #{$nuproplw};
+}
+.numgunit.propl { font-size: $nuproplw; }
+$nuffssz :10px;
+$nufffin :  2px;
+.numgunit.fixed { font-size: $nuffssz; }
+$nufist : 201px;
+$nufiin : 100px;
+@media screen and (min-width: $nufist)             { .numgunit.fixed { font-size: $nuffssz + $nufffin;   } }
+@media screen and (min-width: $nufist + $nufiin)   { .numgunit.fixed { font-size: $nuffssz + 2*$nufffin; } }
+@media screen and (min-width: $nufist + 2*$nufiin) { .numgunit.fixed { font-size: $nuffssz + 3*$nufffin; } }
+@media screen and (min-width: $nufist + 3*$nufiin) { .numgunit.fixed { font-size: $nuffssz + 4*$nufffin; } }
+@media screen and (min-width: $nufist + 4*$nufiin) { .numgunit.fixed { font-size: $nuffssz + 5*$nufffin; } }
+
+.numgunit.propl.day   { color: instrujs.$skpathcolorday; }
+.numgunit.propl.dusk  { color: instrujs.$skpathcolordusk; }
+.numgunit.propl.night { color: instrujs.$skpathcolornight; }
+.numgunit.fixed.day   { color: instrujs.$skpathcolorday; }
+.numgunit.fixed.dusk  { color: instrujs.$skpathcolordusk; }
+.numgunit.fixed.night { color: instrujs.$skpathcolornight; }
+
+/* Bottom part is an interprocess communication (IPC) data field */ 
+.bottom {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 3%;
+    font-size: instrujs.$skbotfsize;
+    text-align: instrujs.$skbottalign;
+    font-family: instrujs.$ifontfamily;
+}
+.bottom.day   { color: instrujs.$skbotmcolorday; }
+.bottom.dusk  { color: instrujs.$skbotmcolordusk; }
+.bottom.night { color: instrujs.$skbotmcolornight; }

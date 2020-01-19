@@ -130,6 +130,13 @@ enum eSentenceType : unsigned long long {
 };
 
 #ifdef _TACTICSPI_H_
+// These are the streaming originated, (unlimited?) mappings for signal paths
+typedef std::tuple<wxString, wxString, wxString> sigPathLangTuple; // path, title, description
+typedef std::vector<sigPathLangTuple> sigPathLangVector;
+#endif // _TACTICSPI_H_
+
+
+#ifdef _TACTICSPI_H_
 #define DBP_I_TIMER_TICK      1000 // in milliseconds
 #define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
 #endif // _TACTICSPI_H_
@@ -156,12 +163,13 @@ public:
     virtual void timeoutEvent(void) = 0;
     virtual void setTimestamp( long long ts ) final;
     virtual long long getTimestamp(void) final;
+    virtual void setColorScheme ( PI_ColorScheme cs ) {};
 #else
     int GetCapacity();
 #endif // _TACTICSPI_H_
     void OnEraseBackground(wxEraseEvent& WXUNUSED(evt));
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
-    void OnPaint(wxPaintEvent& WXUNUSED(event));
+    virtual void OnPaint(wxPaintEvent& WXUNUSED(event));
     virtual void SetData(
 #ifdef _TACTICSPI_H_
         unsigned long long st,
@@ -193,6 +201,7 @@ private:
     bool m_drawSoloInPane;
 #ifdef _TACTICSPI_H_
     wxTimer *m_DPBITickTimer;
+    void OnClose( wxCloseEvent& event );
     void OnDPBITimerTick(wxTimerEvent &event);
     wxDECLARE_EVENT_TABLE();
 #endif // _TACTICSPI_H_
@@ -224,6 +233,11 @@ public:
         );
 #ifdef _TACTICSPI_H_
     void timeoutEvent(void) override;
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+    virtual void derivedTimeoutEvent(void){};
+#else
+    virtual void derivedTimeoutEvent(void);
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #endif // _TACTICSPI_H_
 
 protected:

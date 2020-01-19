@@ -139,7 +139,7 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerInSkShow = m_data;
     SaveConfig();
-    if ( GetThread() ) {
+    if ( GetThread() ) { // in case if no Close() event
         if ( m_thread->IsRunning() ) {
             m_cmdThreadStop = true;
             m_socket.InterruptWait();
@@ -147,6 +147,25 @@ TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
         }
     }
 }
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &event )
+{
+    if ( m_state == SSKM_STATE_DISPLAYRELAY )
+        return;
+    if ( m_verbosity > 1)
+        wxLogMessage ("dashboard_tactics_pi: Streaming SK in : received CloseEvent, shutting down comm. thread.");
+    if ( GetThread() ) {
+        if ( m_thread->IsRunning() ) {
+            m_cmdThreadStop = true;
+            m_socket.InterruptWait();
+            m_thread->Wait();
+        }
+    }
+    event.Skip(); // let the destructor to finalize
+}
+/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/
@@ -206,25 +225,6 @@ void TacticsInstrument_StreamInSkSingle::Draw(wxGCDC* dc)
 #endif
 
 }
-/***********************************************************************************
-
-************************************************************************************/
-void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &evt )
-{
-    if ( m_state == SSKM_STATE_DISPLAYRELAY )
-        return;
-    if ( m_verbosity > 1)
-        wxLogMessage ("dashboard_tactics_pi: OnClose() : received CloseEvent, waiting on comm. thread.");
-    if ( GetThread() ) {
-        if ( m_thread->IsRunning() ) {
-            m_cmdThreadStop = true;
-            m_socket.InterruptWait();
-            m_thread->Wait();
-        }
-    }
-    Destroy();
-}
-/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/

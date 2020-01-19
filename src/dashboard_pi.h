@@ -78,6 +78,11 @@
 #include "baro_history.h"
 #include "from_ownship.h"
 #include "iirfilter.h"
+#ifdef _TACTICSPI_H_
+#include "skdata.h"
+#include "enginei.h"
+#include "enginedjg.h"
+#endif // _TACTICSPI_H_
 
 class DashboardWindow;
 class DashboardWindowContainer;
@@ -103,19 +108,28 @@ class DashboardInstrumentContainer;
 class DashboardWindowContainer
 {
 public:
+#ifdef _TACTICSPI_H_
+    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation,
+                             wxArrayInt inst, wxArrayString instID ) {
+        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation;
+        m_aInstrumentList = inst; m_aInstrumentIDs = instID;
+        m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
+#else
     DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; }
-
+        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
+#endif // _TACTICSPI_H_
 #ifdef _TACTICSPI_H_
     DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
             m_pDashboardWindow = sourcecont->m_pDashboardWindow;
             m_bIsVisible       = sourcecont->m_bIsVisible;
             m_bIsDeleted       = sourcecont->m_bIsDeleted;
+            m_bIsDocked        = sourcecont->m_bIsDocked;
             m_bPersVisible     = sourcecont->m_bPersVisible;
             m_sName            = sourcecont->m_sName;
             m_sCaption         = sourcecont->m_sCaption;
             m_sOrientation     = sourcecont->m_sOrientation;
             m_aInstrumentList  = sourcecont->m_aInstrumentList;
+            m_aInstrumentIDs   = sourcecont->m_aInstrumentIDs;
     }
 #endif // _TACTICSPI_H_
  
@@ -125,30 +139,37 @@ DashboardWindow              *m_pDashboardWindow;
     bool                      m_bIsVisible;
     bool                      m_bIsDeleted;
     bool                      m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
+    bool                      m_bIsDocked;
     wxString                  m_sName;
     wxString                  m_sCaption;
     wxString                  m_sOrientation;
     wxArrayInt                m_aInstrumentList;
+#ifdef _TACTICSPI_H_
+    wxArrayString             m_aInstrumentIDs;
+#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrumentContainer
 {
 public:
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
 #ifdef _TACTICSPI_H_
-    unsigned long long capa
+    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
+                                 unsigned long long capa, wxString ids = _T("") )
+        {
+            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; m_IDs = ids;
+        };
 #else
-    int capa
+    DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
+        {
+            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
+        };
 #endif // _TACTICSPI_H_
-        ) {
-        m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-    }
-    ~DashboardInstrumentContainer(){ delete m_pInstrument; }
-
+    ~DashboardInstrumentContainer(){ delete m_pInstrument; };
     DashboardInstrument    *m_pInstrument;
     int                     m_ID;
 #ifdef _TACTICSPI_H_
     unsigned long long      m_cap_flag;
+    wxString                m_IDs;
 #else
     int                     m_cap_flag;
 #endif // _TACTICSPI_H_
@@ -202,6 +223,10 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+    void SendDataToAllPathSubscribers(
+        wxString path, double value, wxString unit, long long timestamp );
+    wxString getAllNMEA0183JsOrderedList(void);
+    wxString getAllNMEA2000JsOrderedList(void);
 #else
     void SendSentenceToAllInstruments(
         int st, double value, wxString unit);
@@ -210,6 +235,7 @@ public:
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
+    void OnAuiRender( wxAuiManagerEvent& event );
 #endif // _TACTICSPI_H_
 
     //    The optional method overrides
@@ -226,7 +252,9 @@ public:
     void OnToolbarToolCallback(int id);
     void ShowPreferencesDialog( wxWindow* parent );
     void SetColorScheme(PI_ColorScheme cs);
+#ifndef _TACTICSPI_H_
     void OnPaneClose( wxAuiManagerEvent& event );
+#endif //  (not) _TACTICSPI_H_
     void UpdateAuiStatus(void);
     bool SaveConfig(void);
     void PopulateContextMenu( wxMenu* menu );
@@ -237,6 +265,12 @@ public:
 #ifdef _TACTICSPI_H_
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
+    void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
+    //#define APPLYSAVEWININIT       mApS_Watchcat=-1; // no OnAuiRender() at init (fast, but will hit later on docked items)
+#define APPLYSAVEWINREQUESTED  mApS_Watchcat==1
+#define APPLYSAVEWINRUNNING    mApS_Watchcat!=0
+#define APPLYSAVEWINSERVED     mApS_Watchcat=0
+#define APPLYSAVEWININIT       APPLYSAVEWINSERVED    // OnAuiRender() capture handled at init, slower/reliable docked items)
 #endif // _TACTICSPI_H_
 
 #ifdef _TACTICSPI_H_
@@ -246,6 +280,7 @@ public:
     int                m_nofStreamInSk;
     std::mutex         m_mtxNofStreamInSk;
     wxString           m_echoStreamerInSkShow;
+    PI_ColorScheme     m_colorScheme;
 #endif // _TACTICSPI_H_
     
 private:
@@ -302,6 +337,8 @@ private:
     int                  mSiK_Watchdog;
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
+    int                  mApS_Watchcat;
+    SkData              *mSkData;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;
@@ -431,7 +468,15 @@ public:
     void OnContextMenu( wxContextMenuEvent& evt );
     void OnContextMenuSelect( wxCommandEvent& evt );
     bool isInstrumentListEqual( const wxArrayInt& list );
+#ifdef _TACTICSPI_H_
+    void SetInstrumentList( wxArrayInt list, wxArrayString listIDs );
+#else
     void SetInstrumentList( wxArrayInt list );
+#endif // _TACTICSPI_H_
+#ifdef _TACTICSPI_H_
+    void SetMinSizes( void );
+    void RebuildPane( wxArrayInt list, wxArrayString listIDs);
+#endif // _TACTICSPI_H_
     void SendSentenceToAllInstruments(
 #ifdef _TACTICSPI_H_
         unsigned long long st,
@@ -445,10 +490,19 @@ public:
         );
     void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
     void SendUtcTimeToAllInstruments( wxDateTime value );
+#ifdef _TACTICSPI_H_
+    void SendColorSchemeToAllJSInstruments( PI_ColorScheme cs );
+#endif // _TACTICSPI_H_
     void ChangePaneOrientation( int orient, bool updateAUImgr );
     /*TODO: OnKeyPress pass event to main window or disable focus*/
 
     DashboardWindowContainer* m_Container;
+
+#ifdef _TACTICSPI_H_
+protected:
+    wxDECLARE_EVENT_TABLE();
+    void OnClose(wxCloseEvent& evt);
+#endif // _TACTICSPI_H_
 
 private:
     wxAuiManager         *m_pauimgr;
