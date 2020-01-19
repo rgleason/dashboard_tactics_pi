@@ -7,10 +7,10 @@
 
 var menu = document.querySelector('.menu')
 var waitmsg = {
-    allpaths: ['loading.wait']
+    allpaths: [window.instrulang.menuPathWaitMsg]
 }
 var runmsg = {
-    allpaths: ['running.reconfigure']
+    allpaths: [window.instrulang.menuPathRunningReconfig]
 }
 var isOnLoad = false
 var isRunTime = false
@@ -112,7 +112,7 @@ function onMouseDown(e){
             if ( ids[0] == 'mif' ) {
                 if ( !isOnLoad ) {
                     if ( isRunTime )
-                        window.iface.setchgconf( ids[2] )
+                        window.iface.setchgconf( 'chgconf' )
                     else
                         window.iface.setselected( ids[2] )
                 }

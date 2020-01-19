@@ -5,15 +5,17 @@
 import JustGage from 'justgage'
 
 export function createGauge(name, value, decimals, label, donut, symbol) {
+    var hasDonut = donut || false
+    var hasSymbol = symbol || ''
     return new JustGage({
         id: name,
         value: value,
         decimals: decimals,
-        symbol: symbol,
+        symbol: hasSymbol,
         label: label,
         min: 0,
         max: 100,
-        donut: donut,
+        donut: hasDonut,
         donutStartAngle: 270,
         pointer: true,
         pointerOptions: {

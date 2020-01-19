@@ -22,5 +22,7 @@ var instrulang = {
     alertTitle:   '*********** ALERT ***********',
     alertLolimit: 'passed under the lower limit with value:',
     alertHilimit: 'passed over the high limit with value:',
+    menuPathWaitMsg: 'loading.wait', // keep the dot
+    menuPathRunningReconfig: 'running.reconfigure' // keep the dot
 }
 window.instrulang = instrulang
