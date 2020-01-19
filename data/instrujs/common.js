@@ -7,7 +7,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 3,
+    debuglevel : 4,
     alerts : true,
     alertdelay : 5,
     knownpaths: [

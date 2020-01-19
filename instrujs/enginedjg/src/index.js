@@ -179,6 +179,7 @@ bottom.addEventListener('luminsty', function (e) {
 window.iface.regeventluminsty( bottom, eventluminsty )
 
 // Keyboard event requires to swap the display format
+kbdInit()
 var eventswapdisp = document.createEvent('Event')
 eventswapdisp.initEvent('swapdisp', false, false);
 bottom.addEventListener('swapdisp', function (e) {

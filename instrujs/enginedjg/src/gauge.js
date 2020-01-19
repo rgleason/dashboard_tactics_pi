@@ -13,6 +13,7 @@ export function createGauge(name, value, decimals, label, donut) {
         min: 0,
         max: 100,
         donut: donut,
+        donutStartAngle: 270,
         pointer: true,
         pointerOptions: {
             toplength: -15,

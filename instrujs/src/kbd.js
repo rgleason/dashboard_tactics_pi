@@ -14,6 +14,8 @@ var notBothCtrlUp
 var notBothCtrlDown
 
 export function kbdInit() {
+    if ( dbglevel > 0 )
+        console.log('kbd.js: kbdInit()')
     controlKey = false
     arrowUpKey = false
     arrowDownKey = false
@@ -21,15 +23,22 @@ export function kbdInit() {
     notBothCtrlDown = true
 }
 
-document.addEventListener('keydown', function(e) {
+function onKeyDown( e ) {
     if (event.defaultPrevented)
         return
+    var handled = false
+    if ( dbglevel > 3 )
+        console.log('kbd.js: onKeyDown(), e:', e)
     if ( e.ctrlKey )
         controlKey = true
-    if ( (e.key == 'Up') || (e.key == 'ArrowUp') )
+    if ( (e.keyIdentifier == 'Up') || (e.key == 'Up') || (e.key == 'ArrowUp') ) {
         arrowUpKey = true
-    if ( (e.key == 'Down') || (e.key == 'ArrowDown') )
+        handled = true
+    }
+    if ( (e.keyIdentifier == 'Down') || (e.key == 'Down') || (e.key == 'ArrowDown') ) {
         arrowDownKey = true
+        handled = true
+    }
     if ( notBothCtrlUp ) {
         if ( controlKey && arrowUpKey ) {
             if ( dbglevel > 2 )
@@ -46,17 +55,26 @@ document.addEventListener('keydown', function(e) {
             notBothCtrlDown = false
         }
     }
-});
+    if (handled)
+        event.preventDefault()
+}
 
-document.addEventListener('keyup', function(e) {
+function onKeyUp( e ) {
     if (event.defaultPrevented)
         return
+    var handled = false
+    if ( dbglevel > 3 )
+        console.log('kbd.js: onKeyUp(), e:', e)
     if ( !e.ctrlKey )
         controlKey = false
-    if ( (e.key == 'Up') || (e.key == 'ArrowUp') )
+    if ( (e.keyIdentifier == 'Up') || (e.key == 'Up') || (e.key == 'ArrowUp') ) {
         arrowUpKey = false
-    if ( (e.key == 'Down') || (e.key == 'ArrowDown') )
+        handled = true
+    }
+    if ( (e.keyIdentifier == 'Down') || (e.key == 'Down') || (e.key == 'ArrowDown') ) {
         arrowDownKey = false
+        handled = true
+    }
     if ( !notBothCtrlUp ) {
         if ( !controlKey || !arrowUpKey )
             notBothCtrlUp = true
@@ -65,6 +83,10 @@ document.addEventListener('keyup', function(e) {
         if ( !controlKey || !arrowDownKey )
             notBothCtrlDown = true
     }
-});
+    if (handled)
+        event.preventDefault()
+}
 
+document.addEventListener('keydown', onKeyDown, false)
+document.addEventListener('keyup', onKeyUp, false)
 
