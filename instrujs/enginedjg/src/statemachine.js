@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 /*
-  Visualize with GraphViz, see iface.getgraphvizout()
+  Visualize with GraphViz, see iface.getgraphvizout(), feed a web app
   Note: with javascript-state-machine, avoid keyword 'init' in state/transition!
 */
 var dbglevel = window.instrustat.debuglevel
