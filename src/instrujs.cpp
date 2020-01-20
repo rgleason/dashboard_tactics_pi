@@ -76,7 +76,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_title = L"InstruJS";
     m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format
     m_data = wxString::Format( m_format, 0.0 );
-    m_dataout = L"";
+    m_lastdataout = wxString::Format( m_format, 9.9 ); // just make it different
     m_threadRunning = false;
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
@@ -140,7 +140,7 @@ void InstruJS::OnClose( wxCloseEvent &event )
                     L"%s",
                     "window.iface.setclosing();");
             RunScript( javascript );
-            m_istate == JSI_NO_REQUEST;
+            m_istate = JSI_NO_REQUEST;
         } // then allow the instrument code to grarcefully close
         this->m_pWebPanel->Stop();
         this->m_webpanelStopped = true;
@@ -374,13 +374,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_NO_REQUEST;
         }
         if ( m_istate == JSI_SHOWDATA ) {
-            wxString javascript =
-                wxString::Format(
-                    L"%s%s%s",
-                    "window.iface.newdata(",
-                    m_data,
-                    ");");
-            RunScript( javascript );
+            if ( m_data != m_lastdataout ) {
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s",
+                        "window.iface.newdata(",
+                        m_data,
+                        ");");
+                RunScript( javascript );
+                m_lastdataout = m_data;
+            } // then do not load the system with the same script execution multiple times
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {
             bool sendNewValue = false;

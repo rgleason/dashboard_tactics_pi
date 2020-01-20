@@ -134,7 +134,7 @@ protected:
     wxString             m_title;
     wxString             m_data;
     wxString             m_format;
-    wxString             m_dataout;
+    wxString             m_lastdataout;
     std::mutex           m_mtxScriptRun;
     bool                 m_threadRunning;
     bool                 m_webpanelCreated;
