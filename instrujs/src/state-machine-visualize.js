@@ -6,12 +6,6 @@ var mixin = require('./mixin')
 
 //-------------------------------------------------------------------------------------------------
 
-export default function visualize(fsm, options) {
-    return dotify(dotcfg(fsm, options));
-}
-
-//-------------------------------------------------------------------------------------------------
-
 function dotcfg(fsm, options) {
 
     options = options || {}
@@ -47,25 +41,28 @@ dotcfg.fetch = function(fsm) {
 
 dotcfg.rankdir = function(orientation) {
     if (orientation === 'horizontal')
-        return 'LR';
+        return 'LR'
     else if (orientation === 'vertical')
-        return 'TB';
+        return 'TB'
 }
 
 dotcfg.states = function(config, options) {
-    var index, states = config.states;
+    var index
+    var states = config.states
     if (!options.init) { // if not showing init transition, then slice out the implied init :from state
-        index  = states.indexOf(config.init.from);
-        states = states.slice(0, index).concat(states.slice(index+1));
+        index  = states.indexOf(config.init.from)
+        states = states.slice(0, index).concat(states.slice(index+1))
     }
-    return states;
+    return states
 }
 
 dotcfg.transitions = function(config, options) {
-    var n, max, transition,
-        init        = config.init,
-        transitions = config.options.transitions || [], // easier to visualize using the ORIGINAL transition declarations rather than our run-time mapping
-        output = [];
+    var n
+    var max
+    var transition
+    var init        = config.init
+    var transitions = config.options.transitions || [] // easier to visualize using the ORIGINAL transition declarations rather than our run-time mapping
+    var output = []
     if (options.init && init.active)
         dotcfg.transition(init.name, init.from, init.to, init.dot, config, options, output)
     for (n = 0, max = transitions.length ; n < max ; n++) {
@@ -108,14 +105,15 @@ function quote(name) {
 
 function dotify(dotcfg) {
 
-    dotcfg = dotcfg || {};
+    dotcfg = dotcfg || {}
 
-    var name        = dotcfg.name || 'fsm',
-        states      = dotcfg.states || [],
-        transitions = dotcfg.transitions || [],
-        rankdir     = dotcfg.rankdir,
-        output      = [],
-        n, max;
+    var name        = dotcfg.name || 'fsm'
+    var states      = dotcfg.states || []
+    var transitions = dotcfg.transitions || []
+    var rankdir     = dotcfg.rankdir
+    var output      = []
+    var n
+    var max
 
     output.push("digraph " + quote(name) + " {")
     if (rankdir)
@@ -140,9 +138,16 @@ dotify.edge = function(edge) {
 dotify.edge.attr = function(edge) {
     var n, max, key, keys = Object.keys(edge).sort(), output = [];
     for(n = 0, max = keys.length ; n < max ; n++) {
-        key = keys[n];
+        key = keys[n]
         if (key !== 'from' && key !== 'to')
             output.push(key + "=" + quote(edge[key]))
     }
     return output.length > 0 ? " [ " + output.join(" ; ") + " ]" : ""
 }
+
+//-------------------------------------------------------------------------------------------------
+export default function visualize(fsm, options) {
+    return dotify(dotcfg(fsm, options))
+}
+//-------------------------------------------------------------------------------------------------
+
