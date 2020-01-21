@@ -136,9 +136,12 @@ dotify.edge = function(edge) {
 }
 
 dotify.edge.attr = function(edge) {
-    var n, max, key, keys = Object.keys(edge).sort(), output = [];
+    var n
+    var max
+    var keys = Object.keys(edge).sort()
+    var output = []
     for(n = 0, max = keys.length ; n < max ; n++) {
-        key = keys[n]
+        var key = keys[n]
         if (key !== 'from' && key !== 'to')
             output.push(key + "=" + quote(edge[key]))
     }
