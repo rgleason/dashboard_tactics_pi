@@ -83,15 +83,17 @@ dotcfg.transitions = function(config, options) {
 }
 
 dotcfg.transition = function(name, from, to, dot, config, options, output) {
-    var n, max, wildcard = config.defaults.wildcard
+    var n
+    var max
+    var wildcard = config.defaults.wildcard
 
     if (Array.isArray(from))
         for(n = 0, max = from.length ; n < max ; n++)
             dotcfg.transition(name, from[n], to, dot, config, options, output)
-    else if (from === wildcard || from === undefined)
+    else if (from === wildcard || (typeof from === 'undefined') )
         for(n = 0, max = config.states.length ; n < max ; n++)
             dotcfg.transition(name, config.states[n], to, dot, config, options, output)
-    else if (to === wildcard || to === undefined)
+    else if (to === wildcard || (typeof to === 'undefined') )
         dotcfg.transition(name, from, from, dot, config, options, output)
     else if (typeof to === 'function') {
         // do nothing, can't display conditional transition
@@ -139,7 +141,7 @@ dotify.edge.attr = function(edge) {
     for(n = 0, max = keys.length ; n < max ; n++) {
         var key = keys[parseInt(n)]
         if (key !== 'from' && key !== 'to')
-            output.push(key + '=' + quote(edge[key]))
+            output.push(key + '=' + quote(edge[parseInt(key)]))
     }
     return output.length > 0 ? " [ " + output.join(" ; ") + " ]" : ""
 }
