@@ -168,34 +168,42 @@ export function createStateMachine() {
                 getpathAskClient( this )
             },
             onBeforeAcksubs:   function() {
-                if ( dbglevel > 0 ) console.log('onAcksubs() - before transition')
+                if ( dbglevel > 0 )
+                    console.log('onAcksubs() - before transition')
                 clearData( this )
                 gotAckCheckPath( this )
                 getpathAcknowledged( this )
             },
             onWaitdata: function() {
-                if ( dbglevel > 0 ) console.log('onWaitdata() - state')
+                if ( dbglevel > 0 )
+                    console.log('onWaitdata() - state')
                 onWaitdataFinalCheck( this )
             },
             onBeforeNewdata: function() {
-                if ( dbglevel > 0 ) console.log('onNewdata() - before transition')
+                if ( dbglevel > 0 )
+                    console.log('onNewdata() - before transition')
                 showData( this )
             },
             onShowdata: function() {
-                if ( dbglevel > 0 ) console.log('onShowData() - state')
+                if ( dbglevel > 0 )
+                    console.log('onShowData() - state')
             },
             onBeforeSwapdisp: function() {
-                if ( dbglevel > 0 ) console.log('onSwapdisp() - before transition')
+                if ( dbglevel > 0 )
+                    console.log('onSwapdisp() - before transition')
                 var kbdDir = (window.iface.getswapdisp()===1?'down':'up')
                 swapDisplay( this, kbdDir, true )
             },
             onBeforeLuminsty: function() {
-                if ( dbglevel > 0 ) console.log('onLuminsty() - before transition')
+                if ( dbglevel > 0 )
+                    console.log('onLuminsty() - before transition')
                 getNewLuminosity( this )
-                if ( dbglevel > 1 ) console.log('luminosity: ', this.luminosity )
+                if ( dbglevel > 1 )
+                    console.log('luminosity: ', this.luminosity )
             },
             onBeforeClosing: function() {
-                if ( dbglevel > 0 ) console.log('onClosing() - before transition') 
+                if ( dbglevel > 0 )
+                    console.log('onClosing() - before transition') 
                 prepareDataHalt( this )
                 prepareConfHalt( this )
             }
