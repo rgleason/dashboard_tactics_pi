@@ -32,6 +32,15 @@ import prepareDataHalt from './data'
 import swapDisplay from './disp'
 import getNewLuminosity from './css'
 
+function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
+    if ( dbglevel > 0 ) console.log( stateOrTransStr )
+    if ( dbglevel > 2) {
+        console.log('- transition: ', lifecycle.transition)
+        console.log('- from      : ', lifecycle.from)
+        console.log('- to        : ', lifecycle.to)
+    }
+}
+
 export function createStateMachine() {
     return new StateMachine({
         init: 'window',
@@ -143,12 +152,7 @@ export function createStateMachine() {
                 setMenuAllPaths( this )
             },
             onBeforeHascfg: function( lifecycle ) {
-                if ( dbglevel > 0 ) console.log('onHascfg() - before transition')
-                if ( dbglevel > 2) {
-                    console.log('- transition: ', lifecycle.transition)
-                    console.log('- from      : ', lifecycle.from)
-                    console.log('- to        : ', lifecycle.to) 
-                }
+                dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
                 this.perspath = true
                 setMenuRunTime( this )
             },
@@ -159,12 +163,7 @@ export function createStateMachine() {
                 getPathDefaultsIfNew ( this )
             },
             onGetpath:  function( lifecycle ) {
-                if ( dbglevel > 0 ) console.log('onGetpath() - state')
-                if ( dbglevel > 2) {
-                    console.log('- transition: ', lifecycle.transition)
-                    console.log('- from      : ', lifecycle.from)
-                    console.log('- to        : ', lifecycle.to) 
-                }
+                dbgPrintFromTo( 'onGetpath() - state', lifecycle )
                 getpathAskClient( this )
             },
             onBeforeAcksubs:   function() {
