@@ -16,94 +16,18 @@ var bLocalStorage = false
 var bCookies = false
 var bStatic = false
 
-export function loadConf( cid, locProtocol ) {
-
-    if ( dbglevel > 0 ) console.log('persistence.js loadConf() ', cid, locProtocol)
-
-    // Priority for static confiruation even if we do not encourage for it
-    try {
-        var statConf = window.instrustatconf.getObj( cid )
-        if ( statConf != null ) {
-            bStatic = true
-            return statConf
-        }
-        if ( dbglevel > 1 )
-            console.log('persistence.js loadConf(): no static config found')
-    }
-    catch ( error ) {
-        if ( dbglevel > 0 )
-            console.error(
-                'persistence.js loadConf() - instrustatconf.getObj() error: ',
-                error)
-        if ( alertsenabled )
-            alert( window.instrulang.errCommonJs + '\n' + error )
-        return null
-    } // then tis exception is worthwhile to tell the user
-    
-    // Using local storage is indeed better, but is any available from backend?
-    if ( !bSelfTest ) {
-        SelfTest( locProtocol )
-    }
-    
-    if ( !bLocalStorage && !bCookies ) {
-        if ( dbglevel > 0 ) console.error(
-            'persistence.js: loadConf(): no local storage support available,')
-        if ( dbglevel > 1 ) console.log(
-            'probably a back-end (IE or WebKit) policy prevents the usage ',
-            'for the used protocol: ', locProtocol)
-        if ( alertsenabled )
-            alert( window.instrulang.savingNotAvailable + '\n' +
-                   window.instrulang.systemPolicyPrevents + '\n' +
-                   window.instrulang.theProtocolIs + ' "' + locProtocol +
-                   '//"\n' +
-                   window.instrulang.tryAnotherProtocol + '\n' )
-        return null
-    }
-
-    if ( bLocalStorage )
-        return getObj( cid )
-
-    return getCookieObj( cid )
-}
-
-export function saveConf( cid, confObj ) {
-    var inCid = cid || null
-    if ( (inCid == null) || (inCid == '') ) {
-        if ( dbglevel > 1 ) console.log('persistence.js saveConf(): there is no valid UID, cannot save.')
-        return
-    }
-    var inConfObj = confObj || null
-    if ( inConfObj == null ) {
-        if ( dbglevel > 0 ) console.error(
-            'persistence.js: saveConf(): no configuration object provided to save!')
-        return
-    }
-    if ( bStatic )
-        return; // nothing to save
-    if ( !bSelfTest ) {
-        SelfTest( locProtocol )
-    }
-    if ( !bLocalStorage && !bCookies ) {
-        if ( dbglevel > 0 )
-            console.error('persistence.js saveConf(): no storage available')
-        return false
-    }
-    if ( bLocalStorage )
-        return saveObj( cid, inConfObj )
-    // cookies are available!
-    return saveCookieObj( cid, inConfObj )
-}
+/* -------------------------------------------------------------------------------- */
 
 function saveObj( cid, cobj ) {
     if ( dbglevel > 0 ) console.log('saveObj(): ', cid, cobj )
     // let's avoid mess
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveObj(): no cid')
         return false
     }
     var nCobj = cobj || null
-    if ( nCobj == null ) {
+    if ( nCobj === null ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveObj(): cobj is null')
         return false
     }
@@ -121,7 +45,7 @@ function getObj( cid ) {
     if ( dbglevel > 0 ) console.log('getObj(): ', cid)
     // let's avoid chasing phantom data
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js getObj(): no cid')
         return null
     }
@@ -138,7 +62,7 @@ function deleteObj( cid ) {
     if ( dbglevel > 0 ) console.log('deleteObj(): ', cid)
     // deleting phantom data would be useless
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteObj(): no cid')
         return false
     }
@@ -156,12 +80,12 @@ function saveCookieObj( cid, cobj ) {
     if ( dbglevel > 0 ) console.log('saveCookieObj(): ', cid, cobj )
     // let's avoid mess
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): no cid')
         return false
     }
     var nCobj = cobj || null
-    if ( nCobj == null ) {
+    if ( nCobj === null ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): cobj is null')
         return false
     }
@@ -179,7 +103,7 @@ function getCookieObj( cid ) {
     if ( dbglevel > 0 ) console.log('getCookieObj(): ', cid)
     // let's avoid chasing phantom data
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): no cid')
         return null
     }
@@ -196,7 +120,7 @@ function deleteCookieObj( cid ) {
     if ( dbglevel > 0 ) console.log('deleteCookieObj(): ', cid)
     // deleting phantom data would be useless
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): no cid')
         return false
     }
@@ -217,24 +141,24 @@ function saveParam( cname, cid, cvalue, inexdays ) {
     if ( dbglevel > 0 ) console.log('saveParam(): ', cname, cid, cvalue, inexdays)
     // let's avoid creating useless cookies
     var nCname = cname || null
-    if ( (nCname == null) || (nCname == '') ) {
+    if ( (nCname === null) || (nCname === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveParam(): no cname')
         return false
     }
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveParam(): no cid')
         return false
     }
     var nCvalue = cvalue || null
-    if ( nCvalue == null ) {
+    if ( nCvalue === null ) {
         if ( dbglevel > 0 ) console.error('persistence.js saveParam(): cvalue is null')
         return false
     }
     var d = new Date()
     var expires = ''
     var exdays = inexdays || null
-    if ( exdays == null )
+    if ( exdays === null )
         exdays = 365 // unused will disappear after 1 year
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
     var expires = ';expires='+d.toUTCString()
@@ -254,12 +178,12 @@ function getParam( cname, cid ) {
     if ( dbglevel > 0 ) console.log('getParam(): ', cname, cid)
     // let's avoid chasing phantom cookies
     var nCname = cname || null
-    if ( (nCname == null) || (nCname == '') ) {
+    if ( (nCname === null) || (nCname === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js getParam(): no cname')
         return null
     }
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js getParam(): no cid')
         return null
     }
@@ -272,12 +196,12 @@ function getParam( cname, cid ) {
     try {
         for ( var i = 0; i < piparit.length; i++ ) {
             var pipari = piparit[ i ].split('=')
-            if ( pipari.length == 2 ) {
+            if ( pipari.length === 2 ) {
                 if ( dbglevel > 2 ) console.log(
                     'persistence.js getParam(): pipari[0] :"', pipari[0],
                     '" pipari[1]:"', pipari[1], '"')
                 var comp = elemname
-                if ( i == 0 )
+                if ( i === 0 )
                     comp = firstelemname
                 if ( pipari[0] === comp ) {
                     if ( dbglevel > 0 ) console.log(
@@ -305,12 +229,12 @@ function deleteParam( cname, cid ) {
     if ( dbglevel > 0 ) console.log('deleteParam(): ', cname, cid)
     // deleting phantom cookies would be useless
     var nCname = cname || null
-    if ( (nCname == null) || (nCname == '') ) {
+    if ( (nCname === null) || (nCname === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteParam(): no cname')
         return false
     }
     var nCid = cid || null
-    if ( (nCid == null) || (nCid == '') ) {
+    if ( (nCid === null) || (nCid === '') ) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteParam(): no cid')
         return false
     }
@@ -390,4 +314,83 @@ function SelfTest( locProtocol ) {
             protocol, ' error: ', error)
     }
     return
+}
+/* -------------------------------------------------------------------------------- */
+export function loadConf( cid, locProtocol ) {
+
+    if ( dbglevel > 0 )
+        console.log('persistence.js loadConf() ', cid, locProtocol)
+
+    // Priority for static confiruation even if we do not encourage for it
+    try
+        var statConf = window.instrustatconf.getObj( cid )
+    }
+    catch ( error ) {
+        if ( dbglevel > 0 )
+            console.error(
+                'persistence.js loadConf() - instrustatconf.getObj() error: ',
+                error)
+        if ( alertsenabled )
+            alert( window.instrulang.errCommonJs + '\n' + error )
+        return null
+    } // then tis exception is worthwhile to tell the user
+    if ( statConf !=== null ) {
+        bStatic = true
+        return statConf
+     }
+     if ( dbglevel > 1 )
+         console.log('persistence.js loadConf(): no static config found')
+    
+    // Using local storage is indeed better, but is any available from backend?
+    if ( !bSelfTest ) {
+        SelfTest( locProtocol )
+    }
+    
+    if ( !bLocalStorage && !bCookies ) {
+        if ( dbglevel > 0 ) console.error(
+            'persistence.js: loadConf(): no local storage support available,')
+        if ( dbglevel > 1 ) console.log(
+            'probably a back-end (IE or WebKit) policy prevents the usage ',
+            'for the used protocol: ', locProtocol)
+        if ( alertsenabled )
+            alert( window.instrulang.savingNotAvailable + '\n' +
+                   window.instrulang.systemPolicyPrevents + '\n' +
+                   window.instrulang.theProtocolIs + ' "' + locProtocol +
+                   '//"\n' +
+                   window.instrulang.tryAnotherProtocol + '\n' )
+        return null
+    }
+
+    if ( bLocalStorage )
+        return getObj( cid )
+
+    return getCookieObj( cid )
+}
+
+export function saveConf( cid, confObj ) {
+    var inCid = cid || null
+    if ( (inCid === null) || (inCid === '') ) {
+        if ( dbglevel > 1 ) console.log('persistence.js saveConf(): there is no valid UID, cannot save.')
+        return
+    }
+    var inConfObj = confObj || null
+    if ( inConfObj === null ) {
+        if ( dbglevel > 0 ) console.error(
+            'persistence.js: saveConf(): no configuration object provided to save!')
+        return false
+    }
+    if ( bStatic )
+        return false // nothing to save
+    if ( !bSelfTest )
+        SelfTest( locProtocol )
+    
+    if ( !bLocalStorage && !bCookies ) {
+        if ( dbglevel > 0 )
+            console.error('persistence.js saveConf(): no storage available')
+        return false
+    }
+    if ( bLocalStorage )
+        return saveObj( cid, inConfObj )
+    // cookies are available!
+    return saveCookieObj( cid, inConfObj )
 }
