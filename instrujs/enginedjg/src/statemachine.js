@@ -10,16 +10,27 @@ var dbglevel = window.instrustat.debuglevel
 
 import StateMachine from 'javascript-state-machine';
 import getLocInfo from '../../src/location'
-import { initLoad } from './init'
-import { getidAskClient, getidClientAnswer } from './getid'
-import { getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt } from '../../src/conf'
-import { getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged } from './path'
-import { setMenuAllPaths, setMenuRunTime, setMenuBackToLoading } from '../../src/menu'
-import { onWaitdataFinalCheck, showData, clearData, prepareDataHalt } from './data'
-import { swapDisplay } from './disp'
-import { getNewLuminosity } from './css'
-
-// import { loadConf } from '../../src/persistence'
+import initLoad from './init'
+import getidAskClient from './getid'
+import getidClientAnswer from './getid'
+import getConf from '../../src/conf'
+import getPathDefaultsIfNew from '../../src/conf'
+import clearConf from '../../src/conf'
+import prepareConfHalt from '../../src/conf'
+import getallAskClient from './path'
+import getallClientAnswer from './path'
+import getpathAskClient from './path'
+import gotAckCheckPath from './path'
+import getpathAcknowledged from './path'
+import setMenuAllPaths from '../../src/menu'
+import setMenuRunTime from '../../src/menu'
+import setMenuBackToLoading from '../../src/menu'
+import onWaitdataFinalCheck from './data'
+import showData from './data'
+import clearData from './data'
+import prepareDataHalt from './data'
+import swapDisplay from './disp'
+import getNewLuminosity from './css'
 
 export function createStateMachine() {
     return new StateMachine({
@@ -78,10 +89,6 @@ export function createStateMachine() {
             onInitga:   function() {
                 if ( dbglevel > 0 ) console.log('onInitga() - state')
                 initLoad( this )
-                if ( dbglevel > 1 ) console.log('uid: ', this.uid )
-                if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
-                if ( dbglevel > 1 ) console.log('gauge[', this.gauge.length, ']')
-                if ( dbglevel > 1 ) console.log('conf: ', this.conf)
             },
             onGetid:    function() {
                 if ( dbglevel > 0 ) console.log('onGetid() - state')
