@@ -8,7 +8,7 @@
 */
 var dbglevel = window.instrustat.debuglevel
 
-import StateMachine from 'javascript-state-machine';
+import StateMachine from 'javascript-state-machine'
 import getLocInfo from '../../src/location'
 import initLoad from './init'
 import getidAskClient from './getid'
