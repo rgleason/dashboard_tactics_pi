@@ -100,12 +100,12 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
                 getConf( this )
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
-                if ( this.conf.display == 'dial' ) {
+                if ( this.conf.display === 'dial' ) {
                     swapDisplay( this, 'down', false ) // re-init
                     swapDisplay( this, 'down', false )
                     swapDisplay( this, 'down', false )
                 }
-                else if ( this.conf.display == 'simple' ) {
+                else if ( this.conf.display === 'simple' ) {
                     this.conf.display = 'dial'
                     swapDisplay( this, 'down', true )
                 }
@@ -186,7 +186,7 @@ export function createStateMachine() {
             },
             onBeforeSwapdisp: function() {
                 if ( dbglevel > 0 ) console.log('onSwapdisp() - before transition')
-                var kbdDir = (window.iface.getswapdisp()==1?'down':'up')
+                var kbdDir = (window.iface.getswapdisp()===1?'down':'up')
                 swapDisplay( this, kbdDir, true )
             },
             onBeforeLuminsty: function() {
