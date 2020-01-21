@@ -6,6 +6,16 @@ var mixin = require('./mixin')
 
 //-------------------------------------------------------------------------------------------------
 
+function pad(name) {
+  return ' ' + name + ' '
+}
+
+function quote(name) {
+  return '"' + name + '"'
+}
+
+//-------------------------------------------------------------------------------------------------
+
 function dotcfg(fsm, options) {
 
     options = options || {}
@@ -66,7 +76,7 @@ dotcfg.transitions = function(config, options) {
     if (options.init && init.active)
         dotcfg.transition(init.name, init.from, init.to, init.dot, config, options, output)
     for (n = 0, max = transitions.length ; n < max ; n++) {
-        transition = config.options.transitions[n]
+        transition = config.options.transitions[parseInt(n)]
         dotcfg.transition(transition.name, transition.from, transition.to, transition.dot, config, options, output)
     }
     return output
@@ -75,34 +85,20 @@ dotcfg.transitions = function(config, options) {
 dotcfg.transition = function(name, from, to, dot, config, options, output) {
     var n, max, wildcard = config.defaults.wildcard
 
-    if (Array.isArray(from)) {
+    if (Array.isArray(from))
         for(n = 0, max = from.length ; n < max ; n++)
             dotcfg.transition(name, from[n], to, dot, config, options, output)
-    }
-    else if (from === wildcard || from === undefined) {
+    else if (from === wildcard || from === undefined)
         for(n = 0, max = config.states.length ; n < max ; n++)
             dotcfg.transition(name, config.states[n], to, dot, config, options, output)
-    }
-    else if (to === wildcard || to === undefined) {
+    else if (to === wildcard || to === undefined)
         dotcfg.transition(name, from, from, dot, config, options, output)
-    }
     else if (typeof to === 'function') {
         // do nothing, can't display conditional transition
     }
-    else {
+    else
         output.push(mixin({}, { from: from, to: to, label: pad(name) }, dot || {}))
-    }
 }
-//-------------------------------------------------------------------------------------------------
-
-function pad(name) {
-  return " " + name + " "
-}
-
-function quote(name) {
-  return "\"" + name + "\""
-}
-
 function dotify(dotcfg) {
 
     dotcfg = dotcfg || {}
@@ -115,15 +111,15 @@ function dotify(dotcfg) {
     var n
     var max
 
-    output.push("digraph " + quote(name) + " {")
+    output.push('digraph ' + quote(name) + ' {')
     if (rankdir)
-        output.push("  rankdir=" + rankdir + ";")
+        output.push('  rankdir=' + rankdir + ';')
     for(n = 0, max = states.length ; n < max ; n++)
-        output.push(dotify.state(states[n]))
+        output.push(dotify.state(states[parseInt(n)]))
     for(n = 0, max = transitions.length ; n < max ; n++)
-        output.push(dotify.edge(transitions[n]))
-    output.push("}")
-    return output.join("\n")
+        output.push(dotify.edge(transitions[parseInt(n)]))
+    output.push('}')
+    return output.join('\n')
 
 }
 
@@ -141,9 +137,9 @@ dotify.edge.attr = function(edge) {
     var keys = Object.keys(edge).sort()
     var output = []
     for(n = 0, max = keys.length ; n < max ; n++) {
-        var key = keys[n]
+        var key = keys[parseInt(n)]
         if (key !== 'from' && key !== 'to')
-            output.push(key + "=" + quote(edge[key]))
+            output.push(key + '=' + quote(edge[key]))
     }
     return output.length > 0 ? " [ " + output.join(" ; ") + " ]" : ""
 }
