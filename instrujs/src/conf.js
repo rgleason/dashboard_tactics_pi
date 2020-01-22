@@ -6,34 +6,8 @@
 //An actor to load, find and store configuration
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
-import {loadConf, saveConf} from './persistence'
-import {checkConf} from './confvalid'
-
-// Polyfills, for IE back-end (!) on Windows used by WebView
-if (!Object.entries)
-    Object.entries = function( obj ){
-        var ownProps = Object.keys( obj ),
-            i = ownProps.length,
-            resArray = new Array(i); // preallocate the Array
-        while (i--)
-            resArray[i] = [ownProps[i], obj[ownProps[i]]]
-        return resArray
-    }
-if (!Object.keys) Object.keys = function(o) {
-   var k=[],p
-    for (p in o)
-        if (Object.prototype.hasOwnProperty.call(o,p))
-            k.push(p)
-  return k
-}
-function areEqualShallowKeys( a, b ) {
-    for ( var key in a ) {
-        if ( !(key in b) ) {
-            return false
-        }
-    }
-    return true;
-}
+import { loadConf, saveConf } from './persistence'
+import  {checkConf } from './confvalid'
 
 export function createEmptyConf() {
     return {
