@@ -7,14 +7,41 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
-import {upgradeConfVersion} from './confupgrade'
+import { upgradeConfVersion } from './confupgrade'
+
+// Polyfills, for IE back-end (!) on Windows used by WebView
+if (!Object.entries)
+    Object.entries = function( obj ){
+        var ownProps = Object.keys( obj ),
+            i = ownProps.length,
+            resArray = new Array(i); // preallocate the Array
+        while (i--)
+            resArray[i] = [ownProps[i], obj[ownProps[i]]]
+        return resArray
+    }
+if (!Object.keys) Object.keys = function(o) {
+   var k=[],p
+    for (p in o)
+        if (Object.prototype.hasOwnProperty.call(o,p))
+            k.push(p)
+  return k
+}
+function areEqualShallowKeys( a, b ) {
+    for ( var key in a ) {
+        if ( !(key in b) ) {
+            return false
+        }
+    }
+    return true;
+}
+
 
 function getVersionNumber( ofConf ) {
     var retval = 0
     try {
         if ( dbglevel > 2 )
             console.log('getVersionNumber(): searching for a version number:')
-        Object.entries( loadedConf ).forEach( function( key, value ) {
+        Object.entries( ofConf ).forEach( function( key, value ) {
         if ( dbglevel > 2 )
             console.log('getVersionNUmber(): key ', key, ' key.length ', key.length, ' value ', value)
         if ( key.length > 1 )
