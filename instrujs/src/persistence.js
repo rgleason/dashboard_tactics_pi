@@ -254,7 +254,7 @@ function deleteParam( cname, cid ) {
 function SelfTest( locProtocol ) {
 
     if ( bSelfTest )
-        return true
+        return
     bSelfTest = true
     if( dbglevel > 0 ) console.log('perstince.js SelfTest()')
 
@@ -371,7 +371,7 @@ export function saveConf( cid, confObj ) {
     var inCid = cid || null
     if ( (inCid === null) || (inCid === '') ) {
         if ( dbglevel > 1 ) console.log('persistence.js saveConf(): there is no valid UID, cannot save.')
-        return
+        return false
     }
     var inConfObj = confObj || null
     if ( inConfObj === null ) {
