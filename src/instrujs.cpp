@@ -188,7 +188,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-        m_pThreadInstruJSTimer->Start(100, wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ) , wxTIMER_CONTINUOUS);
     }
 }
 
@@ -217,8 +217,7 @@ void InstruJS::suspendInstrument()
     if ( instrIsRunning() ) {
         m_pThreadInstruJSTimer->Stop();
         m_webPanelSuspended = true;
-        wxMilliSleep( GetRandomNumber( 100,199 ) ); // avoid running all updates at the same time
-        m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
     } // then running, can be suspended but keep thread running
 }
 
@@ -417,8 +416,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_webpanelCreated = true;
                 m_istate = JSI_WINDOW_LOADED;
                 m_pThreadInstruJSTimer->Stop();
-                wxMilliSleep( GetRandomNumber( 100,499 ) ); // avoid running all updates at the same time
-                m_pThreadInstruJSTimer->Start(1000, wxTIMER_CONTINUOUS);
+                m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
     } // else the webpanel is not yet loaded / scripts are not running
