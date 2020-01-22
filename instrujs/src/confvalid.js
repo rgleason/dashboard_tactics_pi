@@ -7,7 +7,7 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
-import upgradeConfVersion from './confupgrade'
+import {upgradeConfVersion} from './confupgrade'
 
 function getVersionNumber( ofConf ) {
     var retval = 0
@@ -108,12 +108,14 @@ export function checkConf ( loadedConf, refConf ) {
     }
 
     // Make a shallow comparison for the same keys
-    try if ( !areEqualShallowKeys( refConf, loadedConf ) ) {
-        if ( dbglevel > 1 )
-           console.log(
-                'checkConf(): Objects do not have the same keys (EqualyShallow test).',
-                ' Cannot continue.')
-        return null
+    try {
+        if ( !areEqualShallowKeys( refConf, loadedConf ) ) {
+            if ( dbglevel > 1 )
+                console.log(
+                    'checkConf(): Objects do not have the same keys (EqualyShallow test).',
+                    ' Cannot continue.')
+            return null
+        }
     }
     catch ( error ) {
         if ( dbglevel > 1 )

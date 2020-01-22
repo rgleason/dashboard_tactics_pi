@@ -6,9 +6,8 @@
 //An actor to load, find and store configuration
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
-import loadConf from './persistence'
-import saveConf from './persistence'
-import checkConf from './confvalid'
+import {loadConf, saveConf} from './persistence'
+import {checkConf} from './confvalid'
 
 // Polyfills, for IE back-end (!) on Windows used by WebView
 if (!Object.entries)

@@ -3,14 +3,14 @@
  * Licensed under MIT - see distribution.
  */
 
-import { packagename, version } from '../../src/version'
+import {packagename, version} from '../../src/version'
 console.log('enginedjg ', packagename(), ' ', version())
 var dbglevel = window.instrustat.debuglevel
 
 import '../sass/style.scss'
-import { kbdInit} from '../../src/kbd'
-import { createStateMachine } from './statemachine'
-import { setSkPathFontResizingStyle } from './css'
+import {kbdInit} from '../../src/kbd'
+import {createStateMachine} from './statemachine'
+import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
 
 // we could access it with window.iface but this is needed once to get it in...

@@ -322,7 +322,7 @@ export function loadConf( cid, locProtocol ) {
         console.log('persistence.js loadConf() ', cid, locProtocol)
 
     // Priority for static confiruation even if we do not encourage for it
-    try
+    try {
         var statConf = window.instrustatconf.getObj( cid )
     }
     catch ( error ) {
@@ -334,7 +334,7 @@ export function loadConf( cid, locProtocol ) {
             alert( window.instrulang.errCommonJs + '\n' + error )
         return null
     } // then tis exception is worthwhile to tell the user
-    if ( statConf !=== null ) {
+    if ( statConf !== null ) {
         bStatic = true
         return statConf
      }
