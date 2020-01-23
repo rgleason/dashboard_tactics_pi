@@ -6,7 +6,7 @@
 // Implementation originally Mozilla
 // https://github.com/mozilla-b2g/gaia/commit/5bd5ac20771a76a2f359cfbd14875c8fab86c247
 
-export default function Tagged() {
+export default function sanitizer() {
     var Tagged = {
         _entity: /[&<>"'/]/g,
     
@@ -20,7 +20,7 @@ export default function Tagged() {
         },
         
         getEntity: function (s) {
-            return Tagged._entities[s]
+            return Tagged._entities[String(s)]
         },
         
         /**
@@ -30,10 +30,9 @@ export default function Tagged() {
             var result = ''
             
             for (var i = 0; i < strings.length; i++) {
-                result += strings[i]
-                if (i < values.length) {
-                    result += String(values[i]).replace(Tagged._entity, Tagged.getEntity)
-                }
+                result += strings[parseInt(i)]
+                if (i < values.length)
+                    result += String(values[parseInt(i)]).replace(Tagged._entity, Tagged.getEntity)
             }
             
             return result
@@ -59,6 +58,6 @@ export default function Tagged() {
         unwrapSafeHTML: function (htmlObject) {
             return htmlObject.__html
         }
-    };
+    }
     return Tagged
 }

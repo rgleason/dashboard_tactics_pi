@@ -4,8 +4,8 @@
  */
 
 // An actor for a state machine to build user menu strucures
-import Tagged from './escapeHTML'
-var Sanitizer = Tagged()
+import sanitizer from './escapeHTML'
+var Sanitizer = sanitizer()
 
 var menu = document.querySelector('.menu')
 var waitmsg = {
@@ -38,11 +38,12 @@ export function setMenuAllPaths( that, onload, runtime ) {
     var menuul = '<ul id="mi1-u-0" class="menu">'
     var submenustart = 0
     var topics = ['','','','','','','','','']
+    var htmlObj
     for ( var i = 0; i < that.allpaths.length; i++ ) {
         var pathel = that.allpaths[ parseInt(i) ].split('.')
         var j
         for ( j = 0; j < ( pathel.length - 1); j++ )
-            if ( pathel[parseInt(j)] != topics[parseInt(j)] ) {
+            if ( pathel[parseInt(j)] !== topics[parseInt(j)] ) {
                 topics[parseInt(j)] = pathel[parseInt(j)]
                 if ( j === 0 )
                     for ( var z = 1; z < topics.length; z++ )
@@ -75,7 +76,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
         menuul += '</span></button></li>'
     }
     menuul += '</li></ul>'
-    var htmlObj = Sanitizer.createSafeHTML(menuul)
+    htmlObj = Sanitizer.createSafeHTML(menuul)
     document.getElementById('pathMenu').innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
     document.getElementById('pathMenu').overflow = 'hidden'
     menu = document.querySelector('.menu')
@@ -84,11 +85,11 @@ export function setMenuAllPaths( that, onload, runtime ) {
     if ( isRunTime )
         document.getElementById('skPath').innerHTML = '&nbsp'
     else if ( isOnLoad ) {
-        var htmlObj = Sanitizer.createSafeHTML(window.instrulang.loading)
+        htmlObj = Sanitizer.createSafeHTML(window.instrulang.loading)
         document.getElementById('skPath').innerHTML =  Sanitizer.unwrapSafeHTML(htmlObj)
     }
     else {
-        var htmlObj = Sanitizer.createSafeHTML(window.instrulang.rightClickHereToSubscribe)
+        htmlObj = Sanitizer.createSafeHTML(window.instrulang.rightClickHereToSubscribe)
         document.getElementById('skPath').innerHTML =  Sanitizer.unwrapSafeHTML(htmlObj)
     }
 }
@@ -107,10 +108,11 @@ function hideMenu(){
 
 function onMouseDown(e){
     document.removeEventListener('mousedown', onMouseDown)
-    e= e.srcElement
+    e = e.srcElement
+    var ids
     if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') )
         if ( e.id !== '' ) {
-            var ids = e.id.split( '-' )
+            ids = e.id.split( '-' )
             if ( ids[0] === 'mif' ) {
                 if ( !isOnLoad ) {
                     if ( isRunTime )
@@ -131,7 +133,7 @@ function onMouseDown(e){
             hideMenu()
         }
     else if ( e.id !== '' ) {
-        var ids = e.id.split( '-' )
+        ids = e.id.split( '-' )
         if ( ids[0] === 'mi1' )
             document.addEventListener('mousedown', onMouseDown )
         else
