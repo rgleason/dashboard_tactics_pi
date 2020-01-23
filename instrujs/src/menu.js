@@ -82,7 +82,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
 var setemptypath = (function() {
     setMenuAllPaths( waitmsg, true, false )
     return
-})()
+}())
 
 export function setMenuRunTime( that ) {
     setMenuAllPaths( runmsg, false, true )
@@ -109,21 +109,21 @@ function hideMenu(){
 function onMouseDown(e){
     document.removeEventListener('mousedown', onMouseDown)
     e = e.srcElement
-    var ids
+    var idsplit
     if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
         if ( e.id !== '' ) {
-            ids = e.id.split( '-' )
-            if ( ids[0] == 'mif' ) {
+            idsplit = e.id.split( '-' )
+            if ( idsplit[0] === 'mif' ) {
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
                     else
-                        window.iface.setselected( ids[2] )
+                        window.iface.setselected( idsplit[2] )
                 }
                 hideMenu()
             }
             else {
-                if ( ids[0] == 'mi1' )
+                if ( idsplit[0] === 'mi1' )
                     document.addEventListener('mousedown', onMouseDown )
                 else
                     hideMenu()
@@ -135,8 +135,8 @@ function onMouseDown(e){
     }
     else {
         if ( e.id !== '' ) {
-            var ids = e.id.split( '-' )
-            if ( ids[0] == 'mi1' )
+            idsplit = e.id.split( '-' )
+            if ( idsplit[0] === 'mi1' )
                 document.addEventListener('mousedown', onMouseDown )
             else
                 hideMenu()
