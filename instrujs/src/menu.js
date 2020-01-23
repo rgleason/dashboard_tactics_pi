@@ -17,21 +17,6 @@ var runmsg = {
 var isOnLoad = false
 var isRunTime = false
 
-var setemptypath = function() {
-    setMenuAllPaths( waitmsg, true, false )
-    return
-}()
-
-export function setMenuRunTime( that ) {
-    setMenuAllPaths( runmsg, false, true )
-    return
-}
-
-export function setMenuBackToLoading( that ) {
-    setMenuAllPaths( waitmsg, true, false )
-    return
-}
-
 export function setMenuAllPaths( that, onload, runtime ) {
     isOnLoad = onload || false
     isRunTime = runtime || false
@@ -60,7 +45,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
                 menuul += '" type="button" class="menu-btn">'
                 menuul += '<span id="mi1-s-' + i + '-' + j
                 menuul += '" class="menu-text">'
-                menuul += pathel[j]
+                menuul += pathel[parseInt(j)]
                 menuul += '</span></button>'
                 menuul += '<ul id="mi1-u-' + i + '-' + j
                 menuul += '" class="menu">'           
@@ -94,6 +79,21 @@ export function setMenuAllPaths( that, onload, runtime ) {
     }
 }
 
+var setemptypath = (function() {
+    setMenuAllPaths( waitmsg, true, false )
+    return
+})()
+
+export function setMenuRunTime( that ) {
+    setMenuAllPaths( runmsg, false, true )
+    return
+}
+
+export function setMenuBackToLoading( that ) {
+    setMenuAllPaths( waitmsg, true, false )
+    return
+}
+
 /* Menu */
 /* Original Copyright (c) 2019 by Ryan Morr (https://codepen.io/ryanmorr/pen/JdOvYR)
    Modified for OpenCPN gauge / display usage */
@@ -110,10 +110,10 @@ function onMouseDown(e){
     document.removeEventListener('mousedown', onMouseDown)
     e = e.srcElement
     var ids
-    if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') )
+    if ( (e.nodeName) === 'BUTTON' || (e.nodeName === 'SPAN') ) {
         if ( e.id !== '' ) {
             ids = e.id.split( '-' )
-            if ( ids[0] === 'mif' ) {
+            if ( ids[0] == 'mif' ) {
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
@@ -123,7 +123,7 @@ function onMouseDown(e){
                 hideMenu()
             }
             else {
-                if ( ids[0] === 'mi1' )
+                if ( ids[0] == 'mi1' )
                     document.addEventListener('mousedown', onMouseDown )
                 else
                     hideMenu()
@@ -132,15 +132,18 @@ function onMouseDown(e){
         else {
             hideMenu()
         }
-    else if ( e.id !== '' ) {
-        ids = e.id.split( '-' )
-        if ( ids[0] === 'mi1' )
-            document.addEventListener('mousedown', onMouseDown )
+    }
+    else {
+        if ( e.id !== '' ) {
+            var ids = e.id.split( '-' )
+            if ( ids[0] == 'mi1' )
+                document.addEventListener('mousedown', onMouseDown )
+            else
+                hideMenu()
+        }
         else
             hideMenu()
     }
-    else
-        hideMenu()
 }
 
 function onContextMenu(e){
