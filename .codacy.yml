@@ -6,4 +6,4 @@
 exclude_paths:
      - 'data/instrujs/**/bundle.js'
      - 'data/instrujs/**/bundle.css'
-     - 'data/docs/**/**.md'
+     - 'docs/**/**.md'
