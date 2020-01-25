@@ -52,3 +52,5 @@ Common automatic QA requirements (mandatory to pass) for all branches are
 The below diagram depicts the branch schema starting from this holdpoint and provides a roadmap for future versions - without a time axis due to the lack of that information from the OpenCPN main project.
 
 ![v1.5.11_holdpoint_threads.png](v1.5.11_holdpoint_threads.png) [(zoom)](img/v1.5.11_holdpoint_threads.png)
+
+
