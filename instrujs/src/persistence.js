@@ -76,65 +76,6 @@ function deleteObj( cid ) {
     }
 }
 
-function saveCookieObj( cid, cobj ) {
-    if ( dbglevel > 0 ) console.log('saveCookieObj(): ', cid, cobj )
-    // let's avoid mess
-    var nCid = cid || null
-    if ( (nCid === null) || (nCid === '') ) {
-        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): no cid')
-        return false
-    }
-    var nCobj = cobj || null
-    if ( nCobj === null ) {
-        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): cobj is null')
-        return false
-    }
-    try {
-        saveParam( 'confObj', cid, JSON.stringify( cobj ) )
-        return true
-    }
-    catch ( error ) {
-        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): error: ', error )
-        return false
-    }
-}
-
-function getCookieObj( cid ) {
-    if ( dbglevel > 0 ) console.log('getCookieObj(): ', cid)
-    // let's avoid chasing phantom data
-    var nCid = cid || null
-    if ( (nCid === null) || (nCid === '') ) {
-        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): no cid')
-        return null
-    }
-    try {
-        return JSON.parse( getParam( 'confObj', cid ) )
-    }
-    catch (error) {
-        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): error: ', error)
-        return null
-    }
-}
-
-function deleteCookieObj( cid ) {
-    if ( dbglevel > 0 ) console.log('deleteCookieObj(): ', cid)
-    // deleting phantom data would be useless
-    var nCid = cid || null
-    if ( (nCid === null) || (nCid === '') ) {
-        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): no cid')
-        return false
-    }
-    try {
-        deleteParam( 'confObj', cid )
-        return true
-    }
-    catch (error) {
-        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): error: ', error)
-        return false
-    }
-}
-
-
 // Cookies (do not use w/ file:// URIs, only http:// or https::// )
 
 function saveParam( cname, cid, cvalue, inexdays ) {
@@ -247,6 +188,64 @@ function deleteParam( cname, cid ) {
     }
     catch( error ) {
         if ( dbglevel > 0 ) console.error('persistence.js deleteParam(): cvalue is document.cookie exception: ', error)
+        return false
+    }
+}
+
+function saveCookieObj( cid, cobj ) {
+    if ( dbglevel > 0 ) console.log('saveCookieObj(): ', cid, cobj )
+    // let's avoid mess
+    var nCid = cid || null
+    if ( (nCid === null) || (nCid === '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): no cid')
+        return false
+    }
+    var nCobj = cobj || null
+    if ( nCobj === null ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): cobj is null')
+        return false
+    }
+    try {
+        saveParam( 'confObj', cid, JSON.stringify( cobj ) )
+        return true
+    }
+    catch ( error ) {
+        if ( dbglevel > 0 ) console.error('persistence.js saveCookieObj(): error: ', error )
+        return false
+    }
+}
+
+function getCookieObj( cid ) {
+    if ( dbglevel > 0 ) console.log('getCookieObj(): ', cid)
+    // let's avoid chasing phantom data
+    var nCid = cid || null
+    if ( (nCid === null) || (nCid === '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): no cid')
+        return null
+    }
+    try {
+        return JSON.parse( getParam( 'confObj', cid ) )
+    }
+    catch (error) {
+        if ( dbglevel > 0 ) console.error('persistence.js getCookieObj(): error: ', error)
+        return null
+    }
+}
+
+function deleteCookieObj( cid ) {
+    if ( dbglevel > 0 ) console.log('deleteCookieObj(): ', cid)
+    // deleting phantom data would be useless
+    var nCid = cid || null
+    if ( (nCid === null) || (nCid === '') ) {
+        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): no cid')
+        return false
+    }
+    try {
+        deleteParam( 'confObj', cid )
+        return true
+    }
+    catch (error) {
+        if ( dbglevel > 0 ) console.error('persistence.js deleteCookieObj(): error: ', error)
         return false
     }
 }

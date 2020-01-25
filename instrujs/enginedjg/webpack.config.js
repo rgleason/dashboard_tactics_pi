@@ -1,8 +1,8 @@
 //Webpack requires this to work with directories
-const path =  require('path');
-const extract = require("mini-css-extract-plugin");
-const compresseur = require('terser-webpack-plugin');
-const htmlinstaller = require('html-webpack-plugin');
+const path =  require('path')
+const Extract = require('mini-css-extract-plugin')
+const Compresseur = require('terser-webpack-plugin')
+const HtmlInstaller = require('html-webpack-plugin')
 
 // This is main configuration object that tells Webpackw what to do. 
 module.exports = {
@@ -17,8 +17,8 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                include: [path.resolve(__dirname, "./src"),
-                          path.resolve(__dirname, "../src")
+                include: [path.resolve(__dirname, './src'),
+                          path.resolve(__dirname, '../src')
                          ],
                 exclude: /(node_modules)/,
                 use: {
@@ -31,12 +31,12 @@ module.exports = {
             },
             {
                 test:/\.(sa|sc|c)ss$/,
-                include: [path.resolve(__dirname, "./sass"),
-                          path.resolve(__dirname, "../sass")],
+                include: [path.resolve(__dirname, './sass'),
+                          path.resolve(__dirname, '../sass')],
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: extract.loader
+                        loader: Extract.loader
                     },
                     {
                         loader: 'css-loader'
@@ -51,7 +51,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)$/,
-                include: [path.resolve(__dirname, "../image")],
+                include: [path.resolve(__dirname, '../image')],
                 exclude: /(node_modules)/,
                 use: [
                     {
@@ -64,7 +64,7 @@ module.exports = {
             },
             {
                 test: /iface\.js$/,
-                include: [path.resolve(__dirname, "../src")],
+                include: [path.resolve(__dirname, '../src')],
                 exclude: /(node_modules)/,
                 use: [
                     {
@@ -76,7 +76,7 @@ module.exports = {
     },
     optimization: {
         minimizer: [
-            new compresseur({
+            new Compresseur({
                 cache: true,
                 parallel: true,
                 sourceMap: true
@@ -92,10 +92,10 @@ module.exports = {
         hints: false
     },
     plugins: [
-        new extract({
+        new Extract({
             filename: 'bundle.css'
         }),
-        new htmlinstaller({
+        new HtmlInstaller({
             template: './html/index.html',
             filename: 'index.html'
         })
