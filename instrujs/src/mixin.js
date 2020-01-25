@@ -5,10 +5,10 @@ module.exports = function(target, sources) {
     var source
     var key
     for( n = 1 ; n < arguments.length ; n++ ) {
-        source = arguments[ parseInt(n) ];
+        source = arguments[ parseInt(n) ]
         for ( key in source ) {
             if ( source.hasOwnProperty(key) )
-                target[ String(key) ] = source[ String(key) ];
+                target[ String(key) ] = source[ String(key) ]
         }
     }
     return target
