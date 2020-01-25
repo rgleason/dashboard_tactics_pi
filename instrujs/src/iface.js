@@ -4,6 +4,10 @@
  */
 var ifacedbglevel = window.instrustat.debuglevel
 
+// import sanitizer from './escapeHTML'
+var escapeHTML = require('./escapeHTML')
+var Sanitizer = escapeHTML.default()
+
 var iface = {
     eventsetid    : null,
     elemsetid     : null,
@@ -14,12 +18,12 @@ var iface = {
     },
     setid: function( newuid ) {
         this.uid = newuid
-        if ( (this.eventsetid == null) || (this.elemsetid == null) )
+        if ( (this.eventsetid === null) || (this.elemsetid === null) )
             return
         this.elemsetid.dispatchEvent( this.eventsetid )
     },
     getid: function() {
-        if ( (this.uid == null) || (this.uid === '') )
+        if ( (this.uid === null) || (this.uid === '') )
             return ''
         this.clearFlag( this.elemsetid )
         return this.uid
@@ -38,12 +42,12 @@ var iface = {
         for ( var i = 0; i < varlistitems.length; i++ ) {
             this.allpaths.push( varlistitems[ i ] )
         }
-        if ( (this.eventsetall == null) || (this.elemsetall == null) )
+        if ( (this.eventsetall === null) || (this.elemsetall === null) )
             return
         this.elemsetall.dispatchEvent( this.eventsetall )
     },
     getall: function() {
-        if ( this.allpaths.length == 0 )
+        if ( this.allpaths.length === 0 )
             return []
         this.clearFlag( this.elemsetall )
         return this.allpaths
@@ -57,7 +61,7 @@ var iface = {
     },
     setselected: function( newpath ) {
         try {
-            if ( (this.eventselected == null) || (this.elemselected == null) )
+            if ( (this.eventselected === null) || (this.elemselected === null) )
                 return
             this.selectedpath = newpath
             if ( ifacedbglevel > 0 )
@@ -73,7 +77,7 @@ var iface = {
         }
     },
     getselected: function() {
-        if ( (this.selectedpath == null) || (this.selectedpath === '') )
+        if ( (this.selectedpath === null) || (this.selectedpath === '') )
             return ''
         return this.selectedpath
     },
@@ -86,7 +90,7 @@ var iface = {
     },
     acksubs: function( forpath ) {
         try {
-            if ( (this.eventacksubs == null) || (this.elemacksubs == null) )
+            if ( (this.eventacksubs === null) || (this.elemacksubs === null) )
                 return
             this.acksubspath = forpath
             if ( ifacedbglevel > 0 )
@@ -102,7 +106,7 @@ var iface = {
         }
     },
     getacksubs: function() {
-        if ( (this.acksubspath == null) || (this.acksubspath === '') )
+        if ( (this.acksubspath === null) || (this.acksubspath === '') )
             return ''
         return this.acksubspath
     },
@@ -115,7 +119,7 @@ var iface = {
     },
     setchgconf: function( newpath ) {
         try {
-            if ( (this.eventchgconf == null) || (this.elemchgconf == null) )
+            if ( (this.eventchgconf === null) || (this.elemchgconf === null) )
                 return
             this.chgconfpath = newpath
             if ( ifacedbglevel > 0 )
@@ -131,7 +135,7 @@ var iface = {
         }
     },
     getchgconf: function() {
-        if ( (this.chgconfpath == null) || (this.chgconfpath === '') )
+        if ( (this.chgconfpath === null) || (this.chgconfpath === '') )
             return ''
         return this.chgconfpath
     },
@@ -144,12 +148,12 @@ var iface = {
     },
     newdata: function( newvalue ) {
         this.value = newvalue
-        if ( (this.eventnewdata == null) || (this.elemnewdata == null) )
+        if ( (this.eventnewdata === null) || (this.elemnewdata === null) )
             return
         this.elemnewdata.dispatchEvent( this.eventnewdata )
     },
     getdata: function() {
-        if ( this.value == null )
+        if ( this.value === null )
             return 0.0
         return this.value
     },
@@ -162,7 +166,7 @@ var iface = {
     },
     setswapdisp: function( newswapdirection ) {
         try {
-            if ( (this.eventswapdisp == null) || (this.elemswapdisp == null) )
+            if ( (this.eventswapdisp === null) || (this.elemswapdisp === null) )
                 return
             this.swapdirection = newswapdirection
             if ( ifacedbglevel > 0 )
@@ -190,13 +194,13 @@ var iface = {
     },
     setluminsty: function( newluminsty ) {
         this.luminsty = newluminsty
-        if ( (this.eventluminsty == null) || (this.elemluminsty == null) )
+        if ( (this.eventluminsty === null) || (this.elemluminsty === null) )
             return
         this.elemluminsty.dispatchEvent( this.eventluminsty )
     },
     getluminsty: function() {
-        if ( (this.luminsty == null) || (this.luminsty === '') )
-            return
+        if ( (this.luminsty === null) || (this.luminsty === '') )
+            return ''
         return this.luminsty
     },
     eventclosing    : null,
@@ -207,7 +211,7 @@ var iface = {
     },
     setclosing: function() {
         try {
-            if ( (this.eventclosing == null) || (this.elemclosing == null) )
+            if ( (this.eventclosing === null) || (this.elemclosing === null) )
                 return
             if ( ifacedbglevel > 0 )
                 console.log('iface.setclosing - closingpath: ', this.closingpath)
@@ -225,7 +229,7 @@ var iface = {
         this.graphwizdot = newgraphwizdot
     },
     getgraphwizdot: function() {
-        if ( (this.graphwizdot == null) || (this.graphwizdot === '') )
+        if ( (this.graphwizdot === null) || (this.graphwizdot === '') )
             return 'not.available'
         return this.graphwizdot
     },
@@ -233,8 +237,12 @@ var iface = {
         if ( ifacedbglevel > 1 ) console.log(
             'setFlag() elemid: ', elemid, ' request: ', request)
         var el = document.getElementById(elemid)
-        el.innerHTML = 'instrujs:' + request + '!'
-        var doc = window.document, sel, range;
+        var htmlCandidate = 'instrujs:' + request + '!'
+        var htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
+        el.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
+        var doc = window.document
+        var sel
+        var range
         if (window.getSelection && doc.createRange) {
             sel = window.getSelection()
             range = doc.createRange()
@@ -265,4 +273,3 @@ var iface = {
     }
 }
 window.iface = iface
-
