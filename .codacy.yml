@@ -1,0 +1,8 @@
+---
+ duplication:
+   exclude_paths:
+     - data/instrujs/common.js
+     - data/instrujs/confstat.js
+exclude_paths:
+     - data/instrujs/**/bundle.js
+     - data/instrujs/**/bundle.css
