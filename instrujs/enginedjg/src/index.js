@@ -81,7 +81,7 @@ bottom.addEventListener('setid', function (e) {
             }
         }
         else {
-            setTimeout(pllhascfg, 100)
+            setTimeout(pollhascfg, 100)
         }
     }()) // do selection of the next action in the routing once ID has been set, or not
 }, true)

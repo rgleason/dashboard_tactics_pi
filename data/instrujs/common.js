@@ -111,22 +111,22 @@ var  instrustat = {
     // --- Do not modify below this line ---
     skpathlookup: function ( path ) {
         for ( var i = 0; i < this.knownpaths.length; i++  ) {
-            if ( path === this.knownpaths[ i ].path ) {
+            if ( path === this.knownpaths[ parseInt(i) ].path ) {
                 return {
-                    version    : this.knownpaths[ i ].version,
-                    path       : this.knownpaths[ i ].path,
-                    title      : this.knownpaths[ i ].title,
-                    symbol     : this.knownpaths[ i ].symbol,
-                    unit       : this.knownpaths[ i ].unit,
-                    display    : this.knownpaths[ i ].display,
-                    decimals   : this.knownpaths[ i ].decimals,
-                    minval     : this.knownpaths[ i ].minval,
-                    loalert    : this.knownpaths[ i ].loalert,
-                    hialert    : this.knownpaths[ i ].hialert,
-                    maxval     : this.knownpaths[ i ].maxval,
-                    multiplier : this.knownpaths[ i ].multiplier,
-                    divider    : this.knownpaths[ i ].divider,
-                    offset     : this.knownpaths[ i ].offset
+                    version    : this.knownpaths[ parseInt(i) ].version,
+                    path       : this.knownpaths[ parseInt(i) ].path,
+                    title      : this.knownpaths[ parseInt(i) ].title,
+                    symbol     : this.knownpaths[ parseInt(i) ].symbol,
+                    unit       : this.knownpaths[ parseInt(i) ].unit,
+                    display    : this.knownpaths[ parseInt(i) ].display,
+                    decimals   : this.knownpaths[ parseInt(i) ].decimals,
+                    minval     : this.knownpaths[ parseInt(i) ].minval,
+                    loalert    : this.knownpaths[ parseInt(i) ].loalert,
+                    hialert    : this.knownpaths[ parseInt(i) ].hialert,
+                    maxval     : this.knownpaths[ parseInt(i) ].maxval,
+                    multiplier : this.knownpaths[ parseInt(i) ].multiplier,
+                    divider    : this.knownpaths[ parseInt(i) ].divider,
+                    offset     : this.knownpaths[ parseInt(i) ].offset
                 }
             }                
         }
