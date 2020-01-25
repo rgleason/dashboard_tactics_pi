@@ -26,7 +26,7 @@ of the algorithms. Below some key features.
 * preferably True Heading from an electronic compass. --> if not available, magnetic heading will do, as long as you have magnetic variance available (either from the GPS RMC sentence or from the wmm_pi plugin)
 * Boat speed through water from a log / “paddlewheel” sensor
 * Apparent wind angle and apparent wind speed
-* Heel sensor which supplies your boat heel angle to O as XDR sentence --> If not available, there is a workaround with manual input
+* Heel sensor which supplies your boat heel angle to O as XDR sentence - if not available, there is a workaround with a manual input
 * \>\>\>\> You need a **polar file of your boat** to use any polar based performance calculation <<<<
   - If you do not have a polar file for your boat, see the data of weather_plugin_pi to find a closest one.
 * Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible. Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
