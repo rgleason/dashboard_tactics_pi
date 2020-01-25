@@ -101,6 +101,8 @@ dotcfg.transition = function(name, from, to, dot, config, options, output) {
     else
         output.push(mixin({}, { from: from, to: to, label: pad(name) }, dot || {}))
 }
+
+
 function dotify(dotcfg) {
 
     dotcfg = dotcfg || {}
@@ -138,10 +140,10 @@ dotify.edge.attr = function(edge) {
     var max
     var keys = Object.keys(edge).sort()
     var output = []
-    for(n = 0, max = keys.length ; n < max ; n++) {
+    for( n = 0, max = keys.length ; n < max ; n++ ) {
         var key = keys[parseInt(n)]
         if (key !== 'from' && key !== 'to')
-            output.push(key + '=' + quote(edge[parseInt(key)]))
+            output.push(key + '=' + quote(edge[ String(key) ]))
     }
     return output.length > 0 ? " [ " + output.join(" ; ") + " ]" : ""
 }

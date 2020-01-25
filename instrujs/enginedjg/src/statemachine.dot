@@ -1,7 +1,4 @@
-digraph "fsm" {
-  "window";
-  "loading";
-  "initga";
+
   "getid";
   "hasid";
   "getall";
@@ -21,6 +18,7 @@ digraph "fsm" {
   "getpath" -> "waitdata" [ label=" acksubs " ];
   "waitdata" -> "showdata" [ label=" newdata " ];
   "showdata" -> "showdata" [ label=" newdata " ];
+  "waitdata" -> "getall" [ label=" chgconf " ];
   "showdata" -> "getall" [ label=" chgconf " ];
   "getid" -> "getid" [ label=" luminsty " ];
   "hasid" -> "hasid" [ label=" luminsty " ];
@@ -29,5 +27,6 @@ digraph "fsm" {
   "getall" -> "getall" [ label=" luminsty " ];
   "showmenu" -> "showmenu" [ label=" luminsty " ];
   "showdata" -> "showdata" [ label=" luminsty " ];
+  "showdata" -> "showdata" [ label=" swapdisp " ];
   "showdata" -> "halt" [ label=" closing " ];
 }
