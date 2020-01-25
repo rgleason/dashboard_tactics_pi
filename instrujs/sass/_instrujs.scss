@@ -27,10 +27,13 @@ html {
 }
 .instrument.day {
     background: radial-gradient(circle,$radgradstart 0%, $radgradstop 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstart 0%, $radgradstop 100%) no-repeat;
 }
 .instrument.dusk {
     background: radial-gradient(circle,$radgradstartdusk 0%, $radgradstopdusk 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstartdusk 0%, $radgradstopdusk 100%) no-repeat;
 }
 .instrument.night {
     background: radial-gradient(circle,$radgradstartnight 0%, $radgradstopnight 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstartnight 0%, $radgradstopnight 100%) no-repeat;
 }
