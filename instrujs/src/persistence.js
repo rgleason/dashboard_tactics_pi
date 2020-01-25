@@ -12,6 +12,7 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 var bSelfTest = false
+var sLocProtocol = ''
 var bLocalStorage = false
 var bCookies = false
 var bStatic = false
@@ -320,6 +321,8 @@ export function loadConf( cid, locProtocol ) {
     if ( dbglevel > 0 )
         console.log('persistence.js loadConf() ', cid, locProtocol)
 
+    sLocProtocol = locProtocol || ''
+
     // Priority for static confiruation even if we do not encourage for it
     var statConf = null
     try {
@@ -382,7 +385,7 @@ export function saveConf( cid, confObj ) {
     if ( bStatic )
         return false // nothing to save
     if ( !bSelfTest )
-        selfTest( locProtocol )
+        selfTest( sLocProtocol )
     
     if ( !bLocalStorage && !bCookies ) {
         if ( dbglevel > 0 )
