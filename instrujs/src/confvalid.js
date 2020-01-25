@@ -12,11 +12,13 @@ import { upgradeConfVersion } from './confupgrade'
 // Polyfills, for IE back-end (!) on Windows used by WebView
 if (!Object.entries)
     Object.entries = function( obj ){
-        var ownProps = Object.keys( obj ),
-            i = ownProps.length,
-            resArray = new Array(i); // preallocate the Array
-        while (i--)
-            resArray[i] = [ownProps[i], obj[ownProps[i]]]
+        var ownProps = Object.keys( obj )
+        var i = ownProps.length
+        var resArray = new Array(i) // preallocate the Array
+        while ( i > 0 ) {
+            i--
+            resArray[ parseInt(i) ] = [ownProps[ parseInt(i) ], obj[ownProps[ parseInt(i) ]]]
+        }
         return resArray
     }
 if (!Object.keys) Object.keys = function(o) {
@@ -32,7 +34,7 @@ function areEqualShallowKeys( a, b ) {
             return false
         }
     }
-    return true;
+    return true
 }
 
 
@@ -52,7 +54,7 @@ function getVersionNumber( ofConf ) {
                 if ( typeof vers === 'number' )
                     if ( dbglevel > 2 )
                         console.log('getVersionNUmber(): vers is a typeof "number"')
-                if ( (key[1] != null) && (typeof key[1] === 'number') ) {
+                if ( (key[1] !== null) && (typeof key[1] === 'number') ) {
                     if ( dbglevel > 2 )
                         console.log('getVersionNUmber(): version key and number value found')
                     retval = key[1]
@@ -82,7 +84,7 @@ export function checkConf ( loadedConf, refConf ) {
     try {
         var refConfKeys    = Object.keys( refConf )
         var loadedConfKeys = Object.keys( loadedConf )
-        if ( refConfKeys.length != loadedConfKeys ) {
+        if ( refConfKeys.length !== loadedConfKeys ) {
             var loadedConfVersion = getVersionNumber( loadedConf )
             if ( loadedConfVersion === 0 ) {
                 if ( dbglevel > 1 )
@@ -100,7 +102,7 @@ export function checkConf ( loadedConf, refConf ) {
                     return null
                 }
             }
-            else if ( loadedConfKeys.length != refConfKeys.length ) {
+            else if ( loadedConfKeys.length !== refConfKeys.length ) {
                 if ( dbglevel > 1 )
                     console.log(
                        'checkConf(): the object has different number of keys, ', loadedConfKeys.length,
@@ -120,17 +122,15 @@ export function checkConf ( loadedConf, refConf ) {
             return null
     }
 
-    try {
-        if ( (loadedConf.path === null) || (loadedConf.path === '') ) {
-            if ( dbglevel > 1 )
-                console.log('checkConf(): the object does not have a path-key or it is empty.',
-                            ' Cannot continue.')
-            return null
-        }
-    }
-    catch ( error ) {
+    if ( typeof loadedConf.path === 'undefined' ) {
         if ( dbglevel > 1 )
-            console.log('checkConf(): exception while inspecting the object (path), error: ', error)
+            console.log('checkConf(): the object has no defined memeber "path".')
+        return null
+    }
+
+    if ( (loadedConf.path === null) || (loadedConf.path === '') ) {
+        if ( dbglevel > 1 )
+            console.log('checkConf(): the object has a member "path" but it is empty.')
         return null
     }
 
