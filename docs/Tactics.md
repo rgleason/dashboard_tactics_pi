@@ -16,7 +16,7 @@ of the algorithms. Below some key features.
 * The plug-in has a “dial instruments” called “Bearing compass”. Boat true heading (HDT)  points “up”, it shows the boat laylines as well, the surface current, a pointer to the waypoint (either set manually as the temporary Tactics waypoint or read from a NMEA RMB sentence), a needle both for AWA and TWA, and markers for the Target-VMG/CMG angles.
 * The “Polar compass” instrument is graphically displaying the actual polar ring and markers for Bearing to WP, Target-VMG angles and Target-CMG angles.
 * The “Average Wind” instrument with an adjustable averaging time, which displays graphically the average wind and its deviations to port / starboard
-* The plug-in can create specific NMEA performance records with the purpose to export them to the displays of your instruments. One can now, e.g. calculate the polar target speed in the plugin and send it to your instrument display outside in the cockpit. *** Currently only available for NKE, but may be enhanced in the future ***
+* The plug-in can create specific NMEA performance records with the purpose to export them to the displays of your instruments. One can now, e.g. calculate the polar target speed in the plugin and send it to your instrument display outside in the cockpit. \*\*\* Currently only available for NKE, but may be enhanced in the future \ *\*\*
 * There are various settings, which has been grouped in a separate tab. To access the preferences screen, right mouse click on the tactics_pi window, then select “Preferences ...”
 
 ### Prerequisites
@@ -26,7 +26,7 @@ of the algorithms. Below some key features.
 * preferably True Heading from an electronic compass. --> if not available, magnetic heading will do, as long as you have magnetic variance available (either from the GPS RMC sentence or from the wmm_pi plugin)
 * Boat speed through water from a log / “paddlewheel” sensor
 * Apparent wind angle and apparent wind speed
-* Heel sensor which supplies your boat heel angle to O as XDR sentence --> If not available, there's a workaround with manual input
+* Heel sensor which supplies your boat heel angle to O as XDR sentence --> If not available, there is a workaround with manual input
 * \>\>\>\> You need a **polar file of your boat** to use any polar based performance calculation <<<<
   - If you do not have a polar file for your boat, see the data of weather_plugin_pi to find a closest one.
 * Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible. Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
