@@ -81,45 +81,48 @@ export function checkConf ( loadedConf, refConf ) {
         return null
     }
     // Inspect the returned object against incompatibility or older version number
+    var refConfKeys = null
+    var loadedConfKeys = null
     try {
-        var refConfKeys    = Object.keys( refConf )
-        var loadedConfKeys = Object.keys( loadedConf )
-        if ( refConfKeys.length !== loadedConfKeys ) {
-            var loadedConfVersion = getVersionNumber( loadedConf )
-            if ( loadedConfVersion === 0 ) {
-                if ( dbglevel > 1 )
-                    console.log('checkConf(): the object has unkwon or zero version number - ignoring!')
-                return null
-            }
-            else if ( loadedConfVersion < refConf.version ) {
-                if ( dbglevel > 1 )
-                    console.log('checkConf(): Object with lower version number, ', loadedConfVersion,
-                                ' compared to current version number, ', refConf.version, ' - upgrading.')
-                loadedConf = upgradeConfVersion( loadedConfVersion, loadedConf )
-                if ( loadedConf === null ) {
-                    if ( dbglevel > 1 )
-                        console.log('checkConf(): upgradeConfVersion() fails in upgrade, returns null, ignoring all.')
-                    return null
-                }
-            }
-            else if ( loadedConfKeys.length !== refConfKeys.length ) {
-                if ( dbglevel > 1 )
-                    console.log(
-                       'checkConf(): the object has different number of keys, ', loadedConfKeys.length,
-                       ' compared to thr reference object\'s number of keys, ', refConfKeys.length, ' - cannot continue.')
-                if ( alertsenabled )
-                    alert ( window.instrulang.errNofConfKeysDoNotMatch1 + '\n' +
-                            window.instrulang.errNofConfKeysDoNotMatch2 + '\n' +
-                            window.instrulang.errNofConfKeysDoNotMatch3 + ' ' + refConfKeys.length, + ' ' +
-                            window.instrulang.errNofConfKeysDoNotMatch4 + ' ' + loadedConfKeys.length )
-                return null
-            }
-        }
+        refConfKeys    = Object.keys( refConf )
+        loadedConfKeys = Object.keys( loadedConf )
     }
     catch ( error ) {
         if ( dbglevel > 1 )
-            console.log('checkConf(): exception while inspecting the object (keys), error: ', error)
+            console.log('checkConf(): exception while inspecting the object keys, error: ', error)
+        return null
+    }
+
+    var loadedConfVersion = getVersionNumber( loadedConf )
+
+    if ( loadedConfVersion === 0 ) {
+        if ( dbglevel > 1 )
+            console.log('checkConf(): the object has unkwon or zero version number - ignoring!')
+        return null
+    }
+
+    if ( loadedConfVersion < refConf.version ) {
+        if ( dbglevel > 1 )
+            console.log('checkConf(): Object with lower version number, ', loadedConfVersion,
+                        ' compared to current version number, ', refConf.version, ' - upgrading.')
+        loadedConf = upgradeConfVersion( loadedConfVersion, loadedConf )
+        if ( loadedConf === null ) {
+            if ( dbglevel > 1 )
+                console.log('checkConf(): upgradeConfVersion() fails in upgrade, returns null, ignoring all.')
             return null
+        }
+    }
+    else if ( loadedConfKeys.length !== refConfKeys.length ) {
+        if ( dbglevel > 1 )
+            console.log(
+                'checkConf(): the object has different number of keys, ', loadedConfKeys.length,
+                ' compared to thr reference object\'s number of keys, ', refConfKeys.length, ' - cannot continue.')
+        if ( alertsenabled )
+            alert ( window.instrulang.errNofConfKeysDoNotMatch1 + '\n' +
+                    window.instrulang.errNofConfKeysDoNotMatch2 + '\n' +
+                    window.instrulang.errNofConfKeysDoNotMatch3 + ' ' + refConfKeys.length, + ' ' +
+                    window.instrulang.errNofConfKeysDoNotMatch4 + ' ' + loadedConfKeys.length )
+        return null
     }
 
     if ( typeof loadedConf.path === 'undefined' ) {
