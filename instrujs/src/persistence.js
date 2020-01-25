@@ -102,7 +102,7 @@ function saveParam( cname, cid, cvalue, inexdays ) {
     if ( exdays === null )
         exdays = 365 // unused will disappear after 1 year
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
-    var expires = ';expires='+d.toUTCString()
+    expires = ';expires='+d.toUTCString()
     var cookiestr = cid + '-' + cname + '=' + cvalue + expires + ';path=/'
     if ( dbglevel > 0 ) console.log('saveParam():', cookiestr)
     try {
@@ -136,7 +136,7 @@ function getParam( cname, cid ) {
     var elemname = ' ' + firstelemname
     try {
         for ( var i = 0; i < piparit.length; i++ ) {
-            var pipari = piparit[ i ].split('=')
+            var pipari = piparit[ parseInt(i) ].split('=')
             if ( pipari.length === 2 ) {
                 if ( dbglevel > 2 ) console.log(
                     'persistence.js getParam(): pipari[0] :"', pipari[0],
@@ -152,8 +152,8 @@ function getParam( cname, cid ) {
             }
             else if ( dbglevel > 2 ) {
                 console.log(
-                    'persistence.js getParam(): non-formed piparit[', i, '] :"',
-                    piparit[i])
+                    'persistence.js getParam(): ill-formed piparit[', i, '] :"',
+                    piparit[ parseInt(i) ])
             }
         }
     }
@@ -250,7 +250,7 @@ function deleteCookieObj( cid ) {
     }
 }
 
-function SelfTest( locProtocol ) {
+function selfTest( locProtocol ) {
 
     if ( bSelfTest )
         return
@@ -321,8 +321,9 @@ export function loadConf( cid, locProtocol ) {
         console.log('persistence.js loadConf() ', cid, locProtocol)
 
     // Priority for static confiruation even if we do not encourage for it
+    var statConf = null
     try {
-        var statConf = window.instrustatconf.getObj( cid )
+        statConf = window.instrustatconf.getObj( cid )
     }
     catch ( error ) {
         if ( dbglevel > 0 )
@@ -342,7 +343,7 @@ export function loadConf( cid, locProtocol ) {
     
     // Using local storage is indeed better, but is any available from backend?
     if ( !bSelfTest ) {
-        SelfTest( locProtocol )
+        selfTest( locProtocol )
     }
     
     if ( !bLocalStorage && !bCookies ) {
@@ -381,7 +382,7 @@ export function saveConf( cid, confObj ) {
     if ( bStatic )
         return false // nothing to save
     if ( !bSelfTest )
-        SelfTest( locProtocol )
+        selfTest( locProtocol )
     
     if ( !bLocalStorage && !bCookies ) {
         if ( dbglevel > 0 )
