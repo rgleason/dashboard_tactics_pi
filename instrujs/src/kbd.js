@@ -31,11 +31,11 @@ function onKeyDown( e ) {
         console.log('kbd.js: onKeyDown(), e:', e)
     if ( e.ctrlKey )
         controlKey = true
-    if ( (e.keyIdentifier == 'Up') || (e.key == 'Up') || (e.key == 'ArrowUp') ) {
+    if ( (e.keyIdentifier === 'Up') || (e.key === 'Up') || (e.key === 'ArrowUp') ) {
         arrowUpKey = true
         handled = true
     }
-    if ( (e.keyIdentifier == 'Down') || (e.key == 'Down') || (e.key == 'ArrowDown') ) {
+    if ( (e.keyIdentifier === 'Down') || (e.key === 'Down') || (e.key === 'ArrowDown') ) {
         arrowDownKey = true
         handled = true
     }
@@ -67,11 +67,11 @@ function onKeyUp( e ) {
         console.log('kbd.js: onKeyUp(), e:', e)
     if ( !e.ctrlKey )
         controlKey = false
-    if ( (e.keyIdentifier == 'Up') || (e.key == 'Up') || (e.key == 'ArrowUp') ) {
+    if ( (e.keyIdentifier === 'Up') || (e.key === 'Up') || (e.key === 'ArrowUp') ) {
         arrowUpKey = false
         handled = true
     }
-    if ( (e.keyIdentifier == 'Down') || (e.key == 'Down') || (e.key == 'ArrowDown') ) {
+    if ( (e.keyIdentifier === 'Down') || (e.key === 'Down') || (e.key === 'ArrowDown') ) {
         arrowDownKey = false
         handled = true
     }

@@ -40,7 +40,7 @@ var iface = {
         this.allpaths = emptylist
         var varlistitems = alist.split(',')
         for ( var i = 0; i < varlistitems.length; i++ ) {
-            this.allpaths.push( varlistitems[ i ] )
+            this.allpaths.push( varlistitems[ parseInt(i) ] )
         }
         if ( (this.eventsetall === null) || (this.elemsetall === null) )
             return
