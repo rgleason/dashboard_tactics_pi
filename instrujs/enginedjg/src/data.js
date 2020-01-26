@@ -17,28 +17,24 @@ export function onWaitdataFinalCheck( that ) {
     var elem = document.getElementById('skPath')
     var htmlObj = null
     var htmlCandidate = null
-    if ( that.conf !== null ) {
-        if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
-            htmlCandidate = that.conf.title
-        else if ( (that.conf.path !== null) && (that.conf.path !== '' ) ) {
-            getPathDefaultsIfNew( that )
-            if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
-                htmlCandidate = that.conf.title
-            else
-                htmlCandidate = that.conf.path
-        }
-    }
-    else if ( (that.path !== null) && (that.path !== '' ) ) {
+    var getSetDefTitle = (function () {
         getPathDefaultsIfNew( that )
         if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
             htmlCandidate = that.conf.title
         else
             htmlCandidate = that.conf.path
+    })
+    if ( that.conf !== null ) {
+        if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
+            htmlCandidate = that.conf.title
+        else if ( (that.conf.path !== null) && (that.conf.path !== '' ) )
+            getSetDefTitle()
     }
-    else {
-        if ( dbglevel > 1 )
-            console.error('onWaitdataFinalCheck(): no path, no conf!')
-    }
+    else if ( (that.path !== null) && (that.path !== '' ) )
+        getSetDefTitle()
+    else if ( dbglevel > 1 )
+        console.error('onWaitdataFinalCheck(): no path, no conf!')
+
     if ( htmlCandidate !== null ) {
         htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
         elem.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
