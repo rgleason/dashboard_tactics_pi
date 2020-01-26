@@ -297,12 +297,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             else
                 break;
         case JSI_HDS_REQUEST:
-            m_handshake = JSI_HDS_SERVING;
             if ( request == wxEmptyString ) {
                 m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_NO_REQUEST;
                 break;
             }
+            if ( request != m_requestServed ) {
+                m_handshake = JSI_HDS_SERVING;
+            } // then another request, let's pass to execution, nevertheless
+            else
+                break;
         case JSI_HDS_SERVING:
             if ( request == wxEmptyString ) {
                 m_requestServed = wxEmptyString;
