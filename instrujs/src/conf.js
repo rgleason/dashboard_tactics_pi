@@ -31,14 +31,14 @@ export function createEmptyConf() {
 export function getConf( that ) {
     if ( dbglevel > 1 )
         console.log('getConf()')
-    if ( (that.uid == '') || (that.uid == null) ) {
+    if ( (that.uid === '') || (that.uid === null) ) {
         if ( dbglevel > 1 ) console.log('getConf(): no that.uid.')
         return
     }
     var emptyConf = createEmptyConf()
     var loadedConf = loadConf( that.uid, that.locInfo.protocol )
     that.conf = checkConf( loadedConf, emptyConf )
-    if ( that.conf == null )
+    if ( that.conf === null )
         that.conf = emptyConf
     return
 }
@@ -59,7 +59,7 @@ export function getPathDefaultsIfNew ( that ) {
             alert( window.instrulang.errCommonJs + '\n' + that.path + '\n' + error )
         return
     }
-    if ( defConfObj == null ) {
+    if ( defConfObj === null ) {
         if ( dbglevel > 1 ) console.log(
             'getPathDefaultsIfNew(): could not get default object with the selected path, ', that.path)
         return
@@ -67,14 +67,14 @@ export function getPathDefaultsIfNew ( that ) {
     if ( dbglevel > 1 ) console.log(
         'getPathDefaultsIfNew(): got following static object for path (', that.path, ') : ', defConfObj)
     that.conf = checkConf( defConfObj, emptyConf )
-    if ( that.conf == null )
+    if ( that.conf === null )
         that.conf = emptyConf
     saveConf( that.uid, that.conf )
     return
 }
 
 export function memorizeSettings ( that ) {
-    if ( that.conf != null )
+    if ( that.conf !== null )
         saveConf( that.uid, that.conf )
 }
 
@@ -86,11 +86,11 @@ export function clearConf ( that ) {
 
 export function prepareConfHalt ( that ) {
     if ( dbglevel > 0 ) console.log('prepareConfHalt()')
-    if ( that.conf == null ) {
+    if ( that.conf === null ) {
         if ( dbglevel > 1 ) console.log('checkConf(): configuration object is null, nothing to do.')
         return
     }
-    if ( (that.uid == null) || (that.uid == '') ) {
+    if ( (that.uid === null) || (that.uid === '') ) {
         if ( dbglevel > 1 ) console.log('checkConf(): there is no valid UID, nothing to do.')
         return
     }
