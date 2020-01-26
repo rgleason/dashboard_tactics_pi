@@ -153,7 +153,7 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
     m_pExportmenu = new wxMenu();
     btn1Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_1, _("Export rate 1 Second"));
     btn5Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_5, _("Export rate 5 Seconds"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Expor trate 10 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Export rate 10 Seconds"));
     btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
     btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
     
