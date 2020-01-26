@@ -39,7 +39,7 @@ export function onWaitdataFinalCheck( that ) {
         if ( dbglevel > 1 )
             console.error('onWaitdataFinalCheck(): no path, no conf!')
     }
-    if ( htmCandidate !== null ) {
+    if ( htmlCandidate !== null ) {
         htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
         elem.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
     }
