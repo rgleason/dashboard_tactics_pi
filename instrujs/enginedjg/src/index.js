@@ -207,7 +207,7 @@ bottom.addEventListener('closing', function (e) {
             'Event:  closing: fsm.closing() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true);
+}, true)
 window.iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
