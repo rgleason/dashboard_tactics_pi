@@ -62,7 +62,7 @@ const instrustatconf = {
     getObj : function( instruid ) {
         for ( var i = 0; i < this.instruconf.length; i++  ) {
             if ( instruid === this.instruconf[ parseInt(i) ].uid ) {
-                return this.instruconf[ parrseInt(i) ].conf()
+                return this.instruconf[ parseInt(i) ].conf()
             }
         }
         return null

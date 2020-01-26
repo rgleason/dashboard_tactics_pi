@@ -2,6 +2,8 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
+
+/*eslint camelcase: ['error', {'properties': 'never'}]*/
 import JustGage from 'justgage'
 
 export function createGauge(name, value, decimals, label, donut, symbol) {
