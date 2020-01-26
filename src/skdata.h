@@ -47,6 +47,7 @@ class SkData
 {
 public:
     SkData(void);
+    SkData(const SkData& sourceSkData);
     ~SkData();
     void UpdateNMEA2000PathList( wxString* path, wxString* key );
     void UpdateNMEA0183PathList( wxString* path, wxString* key );

@@ -51,6 +51,13 @@ SkData::SkData()
     return;
 }
 
+SkData::SkData(const SkData& sourceSkData) {
+    m_pathlist         = new SkDataPathList(*sourceSkData.m_pathlist);
+    m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
+    m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
+    return;
+}
+
 SkData::~SkData()
 {
     delete m_pathlist;
