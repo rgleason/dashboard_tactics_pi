@@ -6,14 +6,17 @@ html {
 
 .instrument.day {
   background: radial-gradient(circle, #fff 0%, #858383 100%) no-repeat;
+  background: -webkit-radial-gradient(circle, #fff 0%, #858383 100%) no-repeat;
 }
 
 .instrument.dusk {
   background: radial-gradient(circle, #858383 0%, #4d4d4d 100%) no-repeat;
+  background: -webkit-radial-gradient(circle, #858383 0%, #4d4d4d 100%) no-repeat;
 }
 
 .instrument.night {
   background: radial-gradient(circle, #665d5d 0%, #000 100%) no-repeat;
+  background: -webkit-radial-gradient(circle, #665d5d 0%, #000 100%) no-repeat;
 }
 
 /* Menu */

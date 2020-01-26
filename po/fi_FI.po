@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-19 18:57+0100\n"
-"PO-Revision-Date: 2019-03-18 02:52\n"
+"PO-Revision-Date: 2020-01-26 01:39+0100\n"
 "Last-Translator: nohal <pavel@kalian.cz>\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
@@ -11,104 +11,137 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
+"X-Generator: Poedit 2.2.4\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: fi\n"
 "X-Crowdin-File: /plugins/dashboard_pi/po/dashboard_pi.pot\n"
+
 #
 msgid ""
 "\n"
 "(↑Tactics at the end of the list)"
 msgstr ""
+"\n"
+"(↑Tactics listan loppuosassa)"
+
 #
 #, fuzzy
 msgid " Preferences"
 msgstr "Asetukset..."
+
 #
 msgid " mag"
 msgstr " magneettinen"
+
 #
 msgid " true"
 msgstr " tosi"
+
 #
 msgid ""
-"'>' starts data export and creates a new or appends to an existing file,\n"
+"'>' starts data export and creates a new or appends to an existing "
+"file,\n"
 "'X' stops data export"
 msgstr ""
+
 #
 msgid "--"
 msgstr "--"
+
 #
 #, c-format
 msgid "--- %s"
 msgstr "--- %s"
+
 #
 msgid "-Angle"
 msgstr ""
+
 #
 msgid ">"
 msgstr ""
+
 #
 msgid "Add"
 msgstr "Lisää"
+
 #
 msgid "Add instrument"
 msgstr "Lisää mittari"
+
 #
 msgid "Air Temp."
 msgstr "Ilman lämpötila"
+
 #
 msgid "App & True Wind Angle"
 msgstr "Suht. ja tosituulikulma"
+
 #
 msgid "App. Wind Angle"
 msgstr "Suht. tuulikulma"
+
 #
 msgid "App. Wind Angle & Speed"
 msgstr "Suht. tuulikulma ja tuulen nopeus"
+
 #
 msgid "App. Wind Speed"
 msgstr "Suht. tuulen nopeus"
+
 #
 msgid "Appearance"
 msgstr "Ulkonäkö"
+
 #
 msgid "Barometric history"
 msgstr "Ilmanpaineen historia"
+
 #
 msgid "Barometric pressure"
 msgstr "Ilmanpaine"
+
 #
 msgid "Boat speed units:"
 msgstr "Veneen nopeuden yksiköt:"
+
 #
 msgid "COG"
 msgstr "COG"
+
 #
 msgid "COG Damping Factor:"
 msgstr "COG vaimennuskerroin:"
+
 #
 msgid "Caption:"
 msgstr "Kuvateksti:"
+
 #
 msgid "Celsius"
 msgstr ""
+
 #
 msgid "Centimeters"
 msgstr "Senttimetriä"
+
 #
 msgid "Choose a new or existing file"
 msgstr ""
+
 #
 #, c-format
 msgid "ClockTicks%s"
 msgstr ""
+
 #
 msgid "Cursor"
 msgstr "Kursori"
+
 #
 msgid "Dashboard"
 msgstr "Mittaritaulu"
+
 #
 msgid ""
 "Dashboard PlugIn for OpenCPN\n"
@@ -116,6 +149,7 @@ msgid ""
 msgstr ""
 "Mittaritaulu OpenCPN:lle\n"
 "Näyttää mittarit NMEA-tuloille."
+
 #
 #, fuzzy
 msgid ""
@@ -125,365 +159,481 @@ msgid ""
 msgstr ""
 "Mittaritaulu OpenCPN:lle\n"
 "Näyttää mittarit NMEA-tuloille."
+
 #
 #, fuzzy
 msgid "Dashboard and Tactics"
 msgstr "Mittaripaneelin asetukset"
+
 #
 msgid "Dashboard preferences"
 msgstr "Mittaripaneelin asetukset"
+
 #
 #, fuzzy
 msgid "Dashboard_Tactics"
 msgstr "Mittaritaulu"
+
 #
 msgid "Data:"
 msgstr "Tiedot:"
+
 #
 msgid "Delete"
 msgstr "&Poista"
+
 #
 msgid "Depth"
 msgstr "Syvyys"
+
 #
 #, c-format
 msgid "Depth Offset (%s):"
 msgstr "Syvyyden poikkeama (%s):"
+
 #
 msgid "Depth units:"
 msgstr "Syvyyden yksiköt:"
+
 #
 msgid "Distance units:"
 msgstr "Välimatkan yksiköt:"
+
 #
 msgid "Down"
 msgstr "Alas"
+
 #
 msgid "E"
 msgstr "Itä"
+
 #
 msgid "ENE"
 msgstr "ENE"
+
 #
 msgid "ESE"
 msgstr "ESE"
+
 #
 msgid "Expor trate 10 Seconds"
 msgstr ""
+
 #
 msgid "Export rate 1 Second"
 msgstr ""
+
 #
 msgid "Export rate 20 Seconds"
 msgstr ""
+
 #
 msgid "Export rate 5 Seconds"
 msgstr ""
+
 #
 msgid "Export rate 60 Seconds"
 msgstr ""
+
 #
 msgid "Fahrenheit"
 msgstr ""
+
 #
 msgid "Fathoms"
-msgstr "Sylet"
+msgstr "Syleä"
+
 #
 msgid "Feet"
-msgstr "Jalat"
+msgstr "Jalkaa"
+
 #
 msgid "Fonts"
 msgstr "Kirjasimet"
+
 #
 msgid "From Ownship"
 msgstr "Omasta aluksesta"
+
 #
 msgid "GPS Clock"
 msgstr "GPS kello"
+
 #
 msgid "GPS Compass"
 msgstr "GPS kompassi"
+
 #
 msgid "GPS Status"
 msgstr "GPS tilanne"
+
 #
 msgid "GPS in View"
 msgstr "Näkyvät satelliitit"
+
 #
 msgid "Heel"
 msgstr "Kallistus"
+
 #
 msgid "Honor OpenCPN settings"
 msgstr "OpenCPN pääasetukset"
+
 #
 msgid "Horizontal"
 msgstr "Vaakasuora"
+
 #
 msgid "Inches"
 msgstr "Tuumaa"
+
 #
 msgid "Instruments"
 msgstr "Mittarit"
+
 #
 msgid "Kilometers"
 msgstr "&kilometriä"
+
 #
 msgid "Kts"
 msgstr "kn"
+
 #
 msgid "Label:"
 msgstr "Otsikko:"
+
 #
 msgid "Local CPU Clock"
 msgstr "Paikallinen CPU kello"
+
 #
 msgid "Local GPS Clock"
 msgstr "Paikallinen GPS-kello"
+
 #
 msgid "Local Sunrise/Sunset"
 msgstr "Auringon nousu- ja laskuaika"
+
 #
 msgid "Local Time Offset From UTC:"
 msgstr "Paikallisen ajan ja UTC-ajan ero:"
+
 #
 msgid "Mag COG"
 msgstr "Magn COG"
+
 #
 msgid "Mag HDG"
 msgstr "Magneettinen HDG"
+
 #
 msgid "Max"
 msgstr ""
+
 #
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
 msgstr "Max %.1f %s jälkeen %02d:%02d yhteensä %.1f %s"
+
 #
 msgid "Meters"
 msgstr "Metrit"
+
 #
 msgid "Moon phase"
 msgstr "Kuun vaihe"
+
 #
 msgid "N"
 msgstr "N"
+
 #
 msgid "NE"
 msgstr "Koillinen"
+
 #
 msgid "NNE"
 msgstr "NNE"
+
 #
 msgid "NNW"
 msgstr "NNW"
+
 #
 msgid "NW"
 msgstr "Luode"
+
 #
 msgid "Nautical miles"
 msgstr "&meripeninkulmaa"
+
 #
 msgid "Orientation:"
 msgstr "Näytön asento:"
+
 #
 msgid "Overall"
 msgstr ""
+
 #
 msgid "Pitch"
 msgstr "Nyökintä"
+
 #
 msgid "Position"
 msgstr "Sijainti"
+
 #
 #, fuzzy
 msgid "Preferences"
 msgstr "Asetukset..."
+
 #
 msgid "Rudder Angle"
 msgstr "Peräsinkulma"
+
 #
 msgid "S"
 msgstr "Etelä"
+
 #
 msgid "SE"
 msgstr "Kaakko"
+
 #
 msgid "SOG"
 msgstr "SOG"
+
 #
 msgid "SSE"
 msgstr "SSE"
+
 #
 msgid "SSW"
 msgstr "SSW"
+
 #
 msgid "STW"
 msgstr "STW"
+
 #
 msgid "SW"
 msgstr "Lounas"
+
 #
 msgid "Select instrument to add:"
 msgstr "Valitse lisättävä mittari:"
+
 #
 msgid "Small:"
 msgstr "Pieni:"
+
 #
 msgid "Speed Over Ground Damping Factor:"
 msgstr "Nopeus pohjan suhteen vaimennuskerroin:"
+
 #
 msgid "Speedometer"
 msgstr "Nopeusmittari"
+
 #
 msgid "Speedometer max value:"
 msgstr "Nopeusmittarin maksimiarvo:"
+
 #
 msgid "Statute miles"
 msgstr "Maamailia"
+
 #
 msgid "Sum Log"
 msgstr "Kokonaismatka"
+
 #
 msgid "Sunrise/Sunset"
 msgstr "Auringon nousu- ja laskuaika, UTC"
+
 #
 #, fuzzy
 msgid "Temperature units:"
 msgstr "Syvyyden yksiköt:"
+
 #
 msgid "Title:"
 msgstr "Otsikko:"
+
 #
 msgid "Trip Log"
 msgstr "Osamatka"
+
 #
 msgid "True Compass"
 msgstr "Kompassi"
+
 #
 msgid "True HDG"
 msgstr "Tosi HDG"
+
 #
 msgid "True Wind Angle"
 msgstr "Tosituulikulma"
+
 #
 msgid "True Wind Angle & Speed"
 msgstr "Tosituulikulma ja -tuulen nopeus"
+
 #
 msgid "True Wind Dir. & Speed"
 msgstr "Tosituulen suunta ja nopeus"
+
 #
 msgid "True Wind Direction"
 msgstr "Tosituulen suunta"
+
 #
 msgid "True Wind Speed"
 msgstr "Tosituulen nopeus"
+
 #
 #, c-format
 msgid "UTC-ISO8601%s"
 msgstr ""
+
 #
 msgid "Undock"
 msgstr "Irrota"
+
 #
 msgid "Units, Ranges, Formats"
 msgstr "Yksiköt, alueet, formaatit"
+
 #
 msgid "Up"
 msgstr "Ylös"
+
 #
 msgid "VMG"
 msgstr "VMG"
+
 #
 msgid "Vertical"
 msgstr "Pystysuora"
+
 #
 msgid "W"
 msgstr "Länsi"
+
 #
 msgid "WNW"
 msgstr "WNW"
+
 #
 msgid "WSW"
 msgstr "WSW"
+
 #
 msgid "Water Temp."
 msgstr "Veden lämpötila"
+
 #
 msgid "Wind history"
 msgstr "Tuulihistoria"
+
 #
 msgid "Wind speed units:"
 msgstr "Tuulen nopeuden yksiköt:"
+
 #
 msgid "X"
 msgstr ""
+
 #
 msgid "km/h"
 msgstr "km/h"
+
 #
 msgid "m/s"
 msgstr "m/s"
+
 #
 msgid "mph"
 msgstr "mph"
+
 #
 msgid "show this dashboard"
 msgstr "Näytä tämä mittaritaulu"
+
 #
 msgid "since"
 msgstr ""
+
 #
 msgid "↑Actual "
 msgstr ""
+
 #
 #, fuzzy
 msgid "↑Average Wind Direction"
 msgstr "Tosituulen suunta"
+
 #
-#, fuzzy
 msgid "↑Bearing Compass"
-msgstr "Kompassi"
+msgstr "↑Suuntimakompassi"
+
 #
 #, fuzzy
 msgid "↑Current Direction"
 msgstr "Tosituulen suunta"
+
 #
 msgid "↑Current Speed"
 msgstr ""
+
 #
 msgid "↑InfluxDB Out"
 msgstr ""
+
 #
 msgid "↑Leeway"
 msgstr ""
+
 #
 #, fuzzy
 msgid "↑Polar Compass"
 msgstr "GPS kompassi"
+
 #
 msgid "↑Polar Performance"
 msgstr ""
+
 #
 msgid "↑Polar Speed"
 msgstr ""
+
 #
 msgid "↑Signal K In"
 msgstr ""
+
 #
 msgid "↑TWA to Waypoint"
 msgstr ""
+
 #
 msgid "↑Target "
 msgstr ""
+
 #
 msgid "↑z Eng1 Oil P"
-msgstr ""
+msgstr "↑z  Kone1 öljynp."
+
 #
 msgid "↑z Eng1 RPM"
 msgstr ""
+
 #
 msgid "↑z Eng1 Temp"
 msgstr ""
+
 #
 #~ msgid "Dashboard PlugIn for OpenCPN"
 #~ msgstr "Mittaripaneeli OpenCPN:lle"
