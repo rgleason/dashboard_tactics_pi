@@ -20,17 +20,14 @@ of the algorithms. Below some key features.
 * There are various settings, which has been grouped in a separate tab. To access the preferences screen, right mouse click on the tactics_pi window, then select “Preferences ...”
 
 ### Prerequisites
-
-* You will  need to activate OpenGL, if you want to use the chart based functions.
-* SOG, COG from the GPS
+* You will  need to activate OpenGL, if you want to use the chart based functions
+* SOG and COG from the GPS
 * preferably True Heading from an electronic compass. --> if not available, magnetic heading will do, as long as you have magnetic variance available (either from the GPS RMC sentence or from the wmm_pi plugin)
 * Boat speed through water from a log / “paddlewheel” sensor
 * Apparent wind angle and apparent wind speed
 * Heel sensor which supplies your boat heel angle to O as XDR sentence - if not available, there is a workaround with a manual input
-* \>\>\>\> You need a **polar file of your boat** to use any polar based performance calculation <<<<
-  - If you do not have a polar file for your boat, see the data of weather_plugin_pi to find a closest one.
-* Calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible. Especially the compass heading calibration tends to be neglected. But this is vital for proper surface current calculation.
-
+* \>\>\>\> You need a **polar file of your boat** to use any polar based performance calculation <<<< - If you do not have a polar file for your boat, see the data of weather_plugin_pi to find a closest one.
+* Please calibrate AWA, Compass HDG/HDT,  STW (Speed through water), and AWS (apparent wind speed) as good as possible. Especially the compass heading calibration tends to be neglected. It is vital for the proper surface current calculation.
 
 ### License
 

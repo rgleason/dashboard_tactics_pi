@@ -18,12 +18,12 @@ export function getallClientAnswer( that ) {
 
 export function getpathAskClient( that ) {
     if ( that.perspath ) {
-        if ( that.conf == null ) {
+        if ( that.conf === null ) {
             if ( dbglevel > 0 )
                 console.log('path.js getpathAskClient() - static path suggested but conf object is null!')
             return
         }
-        if ( (that.conf.path == null) || (that.conf.path === '') ) {
+        if ( (that.conf.path === null) || (that.conf.path ==== '') ) {
             if ( dbglevel > 0 )
                 console.log('path.js getpathAskClient() - static path suggested but conf.path is empty or null!')
             return
@@ -32,7 +32,7 @@ export function getpathAskClient( that ) {
     }
     else {
         that.path = window.iface.getselected()
-        if ( that.path != '' )
+        if ( that.path !== '' )
             window.iface.setFlag( 'bottom', that.path )
     }
 }
@@ -46,11 +46,11 @@ export function gotAckCheckPath( that ) {
         console.log('path.js gotAckCheckPath()')
     var expectedpath = that.path
     if ( that.perspath ) {
-        if ( that.conf == null ) {
+        if ( that.conf === null ) {
             if ( dbglevel > 0 )
                 console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
         }
-        if ( (that.conf.path == null) || (that.conf.path === '') ) {
+        if ( (that.conf.path === null) || (that.conf.path === '') ) {
             if ( dbglevel > 0 )
                 console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
         }
@@ -59,7 +59,7 @@ export function gotAckCheckPath( that ) {
     var acknowledgedpath = window.iface.getacksubs()
     if ( dbglevel > 1 )
         console.log('path.js gotAckCheckPath() - acknowledgedpath: ', acknowledgedpath)
-    if ( (acknowledgedpath != null) && (acknowledgedpath != '') ) {
+    if ( (acknowledgedpath !== null) && (acknowledgedpath !== '') ) {
         if ( acknowledgedpath === expectedpath ) {
             if ( dbglevel > 0 )
                 console.log('path.js gotAckCheckPath() - acknowledgedpath matches: ', expectedpath)

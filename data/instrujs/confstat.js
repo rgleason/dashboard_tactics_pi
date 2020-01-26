@@ -4,10 +4,9 @@
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
 
-
 /* Overriding the persistent configuration - useful if file:// does not save
    and http:// cannot be used or you want to absolutely override default values per
-   each instrument, otherwise do not define anything here. Read the documentation: */
+   each instrument. Otherwise do not define anything here. */
 
 /* >>>> JavaScript syntax error(s) will prevent instruments to start <<<< */
 
@@ -15,53 +14,58 @@
    the instrument HTLM-page (named index.html). Observe messages in the Console. */
 
 const instrustatconf = {
-    getObj : function( instruid ) {
-        for ( var i = 0; i < this.instruconf.length; i++  ) {
-            if ( instruid === this.instruconf[ i ].uid ) {
-                return this.instruconf[ i ].conf()
-            }
-        }
-        return null
-    },
     instruconf: [
         {
-            uid: "3ba69928-d392-4583-8f9a-a323641063d7",
+            uid: '3ba69928-d392-4583-8f9a-a323641063d7',
             conf: function () {
                 return {
                     version    : 1,
                     path       : '',
                     title      : '',
+                    symbol     : '',
                     unit       : '',
-                    decimals   : 1,
+                    display    : '',
+                    decimals   : 0,
                     minval     : 0,
                     loalert    : 0,
                     hialert    : 0,
-                    maxval     : 100,
+                    maxval     : 0,
                     multiplier : 1,
-                    divider    : 100000,
+                    divider    : 1,
                     offset     : 0
                 }
             }
         },
         {
-            uid: "4abb6928-e311-5583-8f9b-c32d641da3e8",
+            uid: '4abb6928-e311-5583-8f9b-c32d641da3e8',
             conf: function () {
                 return {
                     version    : 1,
                     path       : '',
                     title      : '',
+                    symbol     : '',
                     unit       : '',
-                    decimals   : 1,
+                    display    : '',
+                    decimals   : 0,
                     minval     : 0,
                     loalert    : 0,
                     hialert    : 0,
-                    maxval     : 100,
+                    maxval     : 0,
                     multiplier : 1,
-                    divider    : 100000,
+                    divider    : 1,
                     offset     : 0
                 }
             }
         }
-    ]
+    ],
+    /* No changes below this line please */
+    getObj : function( instruid ) {
+        for ( var i = 0; i < this.instruconf.length; i++  ) {
+            if ( instruid === this.instruconf[ parseInt(i) ].uid ) {
+                return this.instruconf[ parrseInt(i) ].conf()
+            }
+        }
+        return null
+    }
 }
 window.instrustatconf = instrustatconf

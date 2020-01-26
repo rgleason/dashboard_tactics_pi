@@ -89,10 +89,10 @@ dotcfg.transition = function(name, from, to, dot, config, options, output) {
 
     if (Array.isArray(from))
         for(n = 0, max = from.length ; n < max ; n++)
-            dotcfg.transition(name, from[n], to, dot, config, options, output)
+            dotcfg.transition(name, from[parseInt(n)], to, dot, config, options, output)
     else if (from === wildcard || (typeof from === 'undefined') )
         for(n = 0, max = config.states.length ; n < max ; n++)
-            dotcfg.transition(name, config.states[n], to, dot, config, options, output)
+            dotcfg.transition(name, config.states[parseInt(n)], to, dot, config, options, output)
     else if (to === wildcard || (typeof to === 'undefined') )
         dotcfg.transition(name, from, from, dot, config, options, output)
     else if (typeof to === 'function') {
@@ -128,11 +128,11 @@ function dotify(dotcfg) {
 }
 
 dotify.state = function(state) {
-    return "  " + quote(state) + ";"
+    return '  ' + quote(state) + ';'
 }
 
 dotify.edge = function(edge) {
-    return "  " + quote(edge.from) + " -> " + quote(edge.to) + dotify.edge.attr(edge) + ";"
+    return '  ' + quote(edge.from) + ' -> ' + quote(edge.to) + dotify.edge.attr(edge) + ';'
 }
 
 dotify.edge.attr = function(edge) {
@@ -145,7 +145,7 @@ dotify.edge.attr = function(edge) {
         if (key !== 'from' && key !== 'to')
             output.push(key + '=' + quote(edge[ String(key) ]))
     }
-    return output.length > 0 ? " [ " + output.join(" ; ") + " ]" : ""
+    return output.length > 0 ? ' [ ' + output.join(' ; ') + ' ]' : ''
 }
 
 //-------------------------------------------------------------------------------------------------

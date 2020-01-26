@@ -32,20 +32,19 @@ If you are a user of tactics_pi, its settings are imported at first startup of t
 Under windows, you must find the file "opencpn.lib" (Visual Studio) located in the build directory after compiling opencpn. 
 This file must be copied to the plugins build directory.
 
-### Windows build :
+### Windows build
 
 * cd build
 * cmake  -T v140_xp ..
 * cmake --build . --target package --config release
 
-### Unix style build :
+### Unix style build
 
 * cd build
 * cmake ..
 * make
 * make package
 * sudo make install
-
 
 ### License
 
