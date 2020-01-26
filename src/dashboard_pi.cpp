@@ -588,7 +588,7 @@ dashboard_pi::~dashboard_pi( void )
 int dashboard_pi::Init( void )
 {
 #ifdef _TACTICSPI_H_
-    AddLocaleCatalog( _T("opencpn-dashboard-tactics_pi") );
+    AddLocaleCatalog( _T("opencpn-dashboard_tactics_pi") );
 #else
     AddLocaleCatalog( _T("opencpn-dashboard_pi") );
 #endif // _TACTICSPI_H_
