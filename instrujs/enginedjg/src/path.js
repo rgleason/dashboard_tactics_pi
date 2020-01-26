@@ -23,7 +23,7 @@ export function getpathAskClient( that ) {
                 console.log('path.js getpathAskClient() - static path suggested but conf object is null!')
             return
         }
-        if ( (that.conf.path === null) || (that.conf.path ==== '') ) {
+        if ( (that.conf.path === null) || (that.conf.path === '') ) {
             if ( dbglevel > 0 )
                 console.log('path.js getpathAskClient() - static path suggested but conf.path is empty or null!')
             return

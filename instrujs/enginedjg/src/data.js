@@ -15,17 +15,17 @@ var alertdelay = window.instrustat.alertdelay
 
 export function onWaitdataFinalCheck( that ) {
     var elem = document.getElementById('skPath')
-    var htmlObj
-    var htmlCandidate
+    var htmlObj = null
+    var htmlCandidate = null
     if ( that.conf !== null ) {
         if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
-            elem.innerHTML = that.conf.title
+            htmlCandidate = that.conf.title
         else if ( (that.conf.path !== null) && (that.conf.path !== '' ) ) {
             getPathDefaultsIfNew( that )
             if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
-                elem.innerHTML = that.conf.title
+                htmlCandidate = that.conf.title
             else
-                elem.innerHTML = that.conf.path
+                htmlCandidate = that.conf.path
         }
     }
     else if ( (that.path !== null) && (that.path !== '' ) ) {
@@ -34,12 +34,14 @@ export function onWaitdataFinalCheck( that ) {
             htmlCandidate = that.conf.title
         else
             htmlCandidate = that.conf.path
-        htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
-        elem.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
     }
     else {
         if ( dbglevel > 1 )
             console.error('onWaitdataFinalCheck(): no path, no conf!')
+    }
+    if ( htmCandidate !== null ) {
+        htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
+        elem.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
     }
 }
 

@@ -32,7 +32,7 @@ export function createGauge(name, value, decimals, label, donut, symbol) {
         gaugeColor      : '#bcb9b9',
         labelFontColor  : '#262626',
         valueFontColor  : '#232b99',
-        valueFontFamily : "Courier",
+        valueFontFamily : 'Courier',
         relativeGaugeSize: true
     })
 }
