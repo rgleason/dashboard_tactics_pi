@@ -131,6 +131,12 @@ var  instrustat = {
             }                
         }
         return null
+    },
+    hasPathEntry: function ( path ) {
+        for ( var i = 0; i < this.knownpaths.length; i++  )
+            if ( path === this.knownpaths[ parseInt(i) ].path )
+                return true
+        return false
     }
 }
 window.instrustat = instrustat

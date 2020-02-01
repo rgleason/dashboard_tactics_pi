@@ -141,10 +141,8 @@ enum eInstruments {
     /* More room between the sails and engines to allow sails to expand... */
     ID_DBP_R_EAAA, ID_DBP_R_EAAB, ID_DBP_R_EAAC, ID_DBP_R_EAAD, ID_DBP_R_EAAE, ID_DBP_R_EAAF,
     ID_DBP_R_EABA, ID_DBP_R_EABB, ID_DBP_R_EABC, ID_DBP_R_EABD, ID_DBP_R_EABE, ID_DBP_R_EABF,
-    /* Let's reserve this part for motoring (maybe it need to evolve to its own section) */
-    ID_DBP_I_ENGPRPM,
-    ID_DBP_I_ENGPTEMP,
-    ID_DBP_I_ENGPOILP,
+    /* Let's reserve this part for engine, propulsion, energy (likely from SignalK streamer) */
+    ID_DBP_D_ENGDJG,
     /* the section end marker, do not remove */
     ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
@@ -333,12 +331,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191InfluxDB Out");
     case ID_DBP_V_INSK:
 		return _(L"\u2191Signal K In");
-    case ID_DBP_I_ENGPRPM: 
-		return _(L"\u2191z Eng1 RPM");
-    case ID_DBP_I_ENGPTEMP: 
-		return _(L"\u2191z Eng1 Temp");
-    case ID_DBP_I_ENGPOILP: 
-		return _(L"\u2191z Eng1 Oil P");
+    case ID_DBP_D_ENGDJG: 
+		return _(L"\u2b24 DashT E-Dial");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -396,9 +390,6 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLTCMGANGLE:
     case ID_DBP_V_IFLX:
     case ID_DBP_V_INSK:
-    case ID_DBP_I_ENGPRPM:
-    case ID_DBP_I_ENGPTEMP:
-    case ID_DBP_I_ENGPOILP:
 #endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
@@ -424,6 +415,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_D_POLPERF:
 	case ID_DBP_D_AVGWIND:
 	case ID_DBP_D_POLCOMP:
+    case ID_DBP_D_ENGDJG:
 #endif // _TACTICSPI_H_
         item.SetImage( 1 );
         break;
@@ -2450,49 +2442,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 ( key == NULL ? *path : (*path + _T(".") + *key) ),
                 ( std::isnan( value ) ? 0.0 : value), L"", timestamp );
 
-            // if ( pgn == PGN_ENG_PARAM_RAP ) {
-            //     if ( path->CmpNoCase(_T("propulsion.port.revolutions")) == 0 ) {
-            //     //     SendSentenceToAllInstruments(
-            //     //         OCPN_DBP_STC_ENGPRPM,
-            //     //         ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
-            //     //         L"",
-            //     //         timestamp );
-            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-            //             L"propulsion.port.revolutions",
-            //             ( std::isnan( value ) ? 0.0 : value * 60), // r.p.m.
-            //             L"",
-            //             timestamp );
-            //     }
-            // }
-            // else if ( pgn == PGN_ENG_PARAM_DYN ) {
-            //     if ( path->CmpNoCase(_T("propulsion.port.temperature")) == 0 ) {
-            //         // SendSentenceToAllInstruments(
-            //         //     OCPN_DBP_STC_ENGPTEMP,
-            //         //     ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
-            //         //     L"",
-            //         //     timestamp );
-            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-            //             L"propulsion.port.temperature",
-            //             ( std::isnan( value ) ? 0.0 : value - CELCIUS_IN_KELVIN),
-            //             L"",
-            //             timestamp );
-            //     }
-            //     else if ( path->CmpNoCase(_T("propulsion.port.oilPressure")) == 0 ) {
-            //         // SendSentenceToAllInstruments(
-            //         //     OCPN_DBP_STC_ENGPOILP,
-            //         //     ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
-            //         //     L"",
-            //         //     timestamp );
-            //         this->SendDataToAllPathSubscribers( // served by the base class, which is here tactics_pi
-            //             L"propulsion.port.oilPressure",
-            //             ( std::isnan( value ) ? 0.0 : value / PA_IN_BAR ),
-            //             L"",
-            //             timestamp );
-            //     }
-
-            // }
-            
-        } // then NMEA-2000 delta from Signal K
+        } // then NMEA-2000 delta from Signal K - send to subscribers if any
                 
     } // else Signal K
 
@@ -4764,25 +4714,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             instrument = new TacticsInstrument_AvgWindDir(
                 this, wxID_ANY, getInstrumentCaption(id));
             break;
-        case ID_DBP_I_ENGPRPM:
-            // instrument = new DashboardInstrument_Single(
-            //     this, wxID_ANY,
-            //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPRPM,
-            //     _T("%4.0f rpm"));
-            instrument = new DashboardInstrument_EngineI( // numerical instrument
-                this, wxID_ANY);
-            break;
-        case ID_DBP_I_ENGPTEMP:
-            instrument = new DashboardInstrument_Single(
-                this, wxID_ANY,
-                getInstrumentCaption(id), OCPN_DBP_STC_ENGPTEMP,
-                _T("%3.0f \u00B0C"));
-            break;
-        case ID_DBP_I_ENGPOILP:
-            // instrument = new DashboardInstrument_Single(
-            //     this, wxID_ANY,
-            //     getInstrumentCaption(id), OCPN_DBP_STC_ENGPOILP,
-            //     _T("%3.1f bar"));
+        case ID_DBP_D_ENGDJG:
             if ( ids.IsEmpty() )
                 ids = GetUUID();
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
