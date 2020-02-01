@@ -682,6 +682,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     // wxSocketBase::Shutdown();  // note: for eventual unit test, not for production
     delete address;
 
+    if ( m_verbosity > 2) {
+        wxLogMessage ("dashboard_tactics_pi: NOTICE: Signal K Stream In: thread closing, exiting.");
+        wxQueueEvent( m_frame, event.Clone() ); 
+        wxMilliSleep( 20 );
+   }
+
     return (wxThread::ExitCode)0;
     
 }
