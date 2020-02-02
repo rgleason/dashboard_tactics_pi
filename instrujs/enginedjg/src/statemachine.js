@@ -16,7 +16,7 @@ import {getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt} from '../../s
 import {getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged} from './path'
 import {setMenuAllPaths, setMenuRunTime, setMenuBackToLoading} from '../../src/menu'
 import {onWaitdataFinalCheck, showData, clearData, prepareDataHalt} from './data'
-import {swapDisplay} from './disp'
+import {swapDisplay, rollDisplayToSelection} from './disp'
 import {getNewLuminosity} from './css'
 
 function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
@@ -96,19 +96,7 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('uid : ', this.uid )
                 getConf( this )
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf )
-                if ( this.conf.display === 'dial' ) {
-                    swapDisplay( this, 'down', false ) // re-init
-                    swapDisplay( this, 'down', false )
-                    swapDisplay( this, 'down', false )
-                }
-                else if ( this.conf.display === 'simple' ) {
-                    this.conf.display = 'dial'
-                    swapDisplay( this, 'down', true )
-                }
-                else {
-                    this.conf.display = 'dial'
-                    swapDisplay( this, 'up', true )
-                }
+                rollDisplayToSelection( this )
             },
             onHasid:    function() {
                 if ( dbglevel > 0 ) console.log('onHasid() - state')

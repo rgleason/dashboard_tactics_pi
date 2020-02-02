@@ -8,7 +8,9 @@
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = sanitizer()
 
+import {rollDisplayToSelection} from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
+
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
 var alertdelay = window.instrustat.alertdelay
@@ -44,8 +46,11 @@ export function onWaitdataFinalCheck( that ) {
 var alertcondition = false
 var alertcounter = 0
 var alertthreshold = alertdelay
+var suppressShowData = false
 
 export function showData( that ) {
+    if ( suppressShowData )
+        return
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue
     if ( that.conf !== null ) {
@@ -127,8 +132,17 @@ export function showData( that ) {
 
 export function clearData( that ) {
     that.glastvalue = 0
-    if ( (that.gauge.length > 0) && (that.glastvalue !== null) )
-        that.gauge[0].refresh( that.glastvalue )
+    if ( that.gauge.length > 0 ) {
+        that.gauge[0].symbol = ''
+        that.gauge[0].refresh( 0, 100, 0, '' )
+    }
+    else {
+        document.getElementById('numgauge0').innerHTML = '&nbsp;'
+        document.getElementById('numgunit0').innerHTML = '&nbsp;'
+    }
+    suppressShowData = true // otherwise the rolling dial will check for value
+    rollDisplayToSelection( that )
+    suppressShowData = false
 }
 
 export function prepareDataHalt( that ) {

@@ -68,3 +68,19 @@ export function swapDisplay( that, direction, memorize ) {
         memorizeSettings( that )
     return
 }
+
+export function rollDisplayToSelection( that ) {
+    if ( that.conf.display === 'dial' ) {
+        swapDisplay( that, 'down', false ) // re-init
+        swapDisplay( that, 'down', false )
+        swapDisplay( that, 'down', false )
+    }
+    else if ( that.conf.display === 'simple' ) {
+        that.conf.display = 'dial'
+        swapDisplay( that, 'down', true )
+    }
+    else {
+        that.conf.display = 'dial'
+        swapDisplay( that, 'up', true )
+    }
+}
