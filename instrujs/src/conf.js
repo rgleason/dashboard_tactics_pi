@@ -50,6 +50,7 @@ export function getPathDefaultsIfNew ( that ) {
     var defConfObj
     try {
         defConfObj = window.instrustat.skpathlookup( that.path )
+        defConfObj.path = that.path // override eventual wildcards
     }
     catch ( error ) {
         if ( dbglevel > 0 ) console.error(

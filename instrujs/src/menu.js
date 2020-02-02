@@ -57,7 +57,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
         menuul += '<button id="mif-b-'
         menuul += that.allpaths[parseInt(i)]
         if ( !isRunTime && !isOnLoad ) {
-            if ( window.instrustat.hasPathEntry( pathe ) )
+            if ( window.instrustat.hasPathEntry( pathe ) >= 0 )
                 menuul += '" type="button" class="menu-btn hasdef">'
             else
                 menuul += '" type="button" class="menu-btn">'
@@ -127,7 +127,7 @@ function onMouseDown(e){
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
-                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) )
+                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) >=0 )
                         window.iface.setselected( idsplit[2] )
                     else if ( alertsenabled )
                         alert ( idsplit[2] + '\n' +
