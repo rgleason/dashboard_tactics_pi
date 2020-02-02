@@ -6,6 +6,7 @@ engines:
      - data/instrujs/common.min.js
      - data/instrujs/confstat.js
 exclude_paths:
+  - 'data/instrujs/*.min.js'
   - 'data/instrujs/**/bundle.js'
   - 'data/instrujs/**/bundle.css'
   - 'docs/**/*.md'
