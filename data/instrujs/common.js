@@ -3,7 +3,14 @@
  * Licensed under MIT - see distribution.
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
-/* ---- Find a path missing? Contribute/report https://git.io/JejKQ  ---- */
+/* ---- Find a path missing? 
+ Contribute/report https://git.io/JejKQ
+ - with a screenshot and a short description of your installation, please!
+ SignalK Path keys: https://git.io/JvsYw
+ The Signal K values are always in SI units (like m/s, not knots).
+ Conversion to a wanted unit is made with multipier/division/offset.
+ (Avoid using floating point values like 0.000000003 in JavaScript!)
+*/
 
 var  instrustat = {
     theme : 'default',

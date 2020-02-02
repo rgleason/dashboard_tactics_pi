@@ -3,6 +3,8 @@
  * Licensed under MIT - see distribution.
  */
 
+var alertsenabled = window.instrustat.alerts
+
 // An actor for a state machine to build user menu strucures
 import sanitizer from './escapeHTML'
 var Sanitizer = sanitizer()
@@ -55,7 +57,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
         menuul += '<button id="mif-b-'
         menuul += that.allpaths[parseInt(i)]
         if ( !isRunTime && !isOnLoad ) {
-            if ( instrustat.hasPathEntry( pathe ) )
+            if ( window.instrustat.hasPathEntry( pathe ) )
                 menuul += '" type="button" class="menu-btn hasdef">'
             else
                 menuul += '" type="button" class="menu-btn">'
@@ -125,8 +127,13 @@ function onMouseDown(e){
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
-                    else
+                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) )
                         window.iface.setselected( idsplit[2] )
+                    else if ( alertsenabled )
+                        alert ( idsplit[2] + '\n' +
+                                window.instrulang.pathHasNoDescription1 + '\n' +
+                                window.instrulang.pathHasNoDescription2 + '\n' +
+                                window.instrulang.pathHasNoDescription3 )
                 }
                 hideMenu()
             }
