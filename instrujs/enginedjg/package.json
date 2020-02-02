@@ -1,10 +1,12 @@
 {
     "name": "enginedjg",
-    "version": "0.0.1",
+    "version": "1.98.2",
     "description": "HTML/CSS/JS based WebView dial instruments for OpenCPN Dashboard-Tactics plug-in",
     "main": "index.js",
     "scripts": {
-        "build": "webpack -p --progress",
+        "enginedjg": "webpack -p --progress",
+        "common": "babel-minify ../../data/instrujs/common.js --out-file ../../data/instrujs/common.min.js --mangle.keepClassName",
+        "build": "npm run enginedjg && npm run common",
         "debug": "webpack -d --display-modules",
         "watch": "webpack -d --display-modules --watch",
         "serve": "cd ../../data/instrujs/; http-server",
@@ -41,6 +43,7 @@
         "@babel/preset-env": "^7.7.7",
         "autoprefixer": "^9.7.3",
         "babel-loader": "^8.0.6",
+        "babel-minify": "^0.5.1",
         "css-loader": "^3.4.0",
         "cssnano": "^4.1.10",
         "exports-loader": "^0.7.0",
