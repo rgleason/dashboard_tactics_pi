@@ -4,12 +4,18 @@
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
 /* ---- Find a path missing? 
- Contribute/report https://git.io/JejKQ
- - with a screenshot and a short description of your installation, please!
+ Contribute/report here, please: https://git.io/JejKQ
+ - with a screenshot and a short description of your installation, thanks!
  SignalK Path keys: https://git.io/JvsYw
  The Signal K values are always in SI units (like m/s, not knots).
  Conversion to a wanted unit is made with multipier/division/offset.
  (Avoid using floating point values like 0.000000003 in JavaScript!)
+ Usage: for example, enginedjg/index.html loads a minimized version, common.min.js
+        - make a copy of common.min.js and replace it with this one;
+        - or, modify enginedjg/index.html to load your own file, no problem!
+        - issues? open the index.html in a browser, hit Shift+Ctrl+I and reload;
+                  * Console gives you the reason why it does not load anymore
+        - note: next update/reinstallation overrides your changes, keep backups!
 */
 
 var  instrustat = {
