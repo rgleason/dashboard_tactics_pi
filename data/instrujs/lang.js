@@ -23,6 +23,9 @@ var instrulang = {
     alertLolimit: 'passed under the lower limit with value:',
     alertHilimit: 'passed over the high limit with value:',
     menuPathWaitMsg: 'loading.wait', // keep the dot
-    menuPathRunningReconfig: 'running.reconfigure' // keep the dot
+    menuPathRunningReconfig: 'running.reconfigure', // keep the dot
+    pathHasNoDescription1: 'has no configuration, will not subscribe without one.',
+    pathHasNoDescription2: 'See data/instrujs/common.js to add your own definition.',
+    pathHasNoDescription3: 'Please contribute it back here: https://git.io/JejKQ'
 }
 window.instrulang = instrulang

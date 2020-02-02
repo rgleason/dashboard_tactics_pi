@@ -119,13 +119,9 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLCMG       = 1ULL << 42, // Actual (towards WP) CMG
     OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
     OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44,  // Target CMG Angle
-    // Reservation for the engine and propulsion
-    OCPN_DBP_STC_ENGPRPM      = 1ULL << 58,  // Port side or main engine RPM
-    OCPN_DBP_STC_ENGSRPM      = 1ULL << 59,  // Starboard side engine RPM
-    OCPN_DBP_STC_ENGPTEMP     = 1ULL << 60,  // Port side or main engine temperature
-    OCPN_DBP_STC_ENGSTEMP     = 1ULL << 61,  // Starboard side engine temperature
-    OCPN_DBP_STC_ENGPOILP     = 1ULL << 62,  // Port side or main engine oil pressure
-    OCPN_DBP_STC_ENGSOILP     = 1ULL << 63   // Starboard side engine oil pressure
+    // Reservation for Signal K subcription based instruments (no push)
+    OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // Reservation only (pull)
+
 #endif // _TACTICSPI_H_
 };
 

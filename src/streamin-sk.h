@@ -40,6 +40,8 @@ using namespace std;
 #include <wx/thread.h>
 #include <wx/socket.h>
 
+#include "wx/jsonval.h"
+
 #include "instrument.h"
 class DashboardWindow;
 
@@ -102,9 +104,14 @@ protected:
     wxSocketClient    m_socket;
     wxString          m_threadMsg;
 
+    wxJSONValue       m_subscribeAll;
+
     // From configuration file
     wxString          m_source;
     wxString          m_api;
+    int               m_sksnVersionMajor;
+    int               m_sksnVersionMinor;
+    int               m_sksnVersionPatch;
     int               m_connectionRetry;
     wxString          m_timestamps;
     bool              m_stamp;
@@ -116,6 +123,7 @@ protected:
     void OnClose(wxCloseEvent& evt);
     wxThread::ExitCode Entry(void);
     void OnThreadUpdate(wxThreadEvent& evt);
+    void UpdateSkSnVersion(wxString vString);
     
 private :
 

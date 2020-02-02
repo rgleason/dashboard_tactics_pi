@@ -31,8 +31,10 @@
 #include <wx/fileconf.h>
 #include <wx/socket.h>
 #include <wx/sckstrm.h>
+#include <wx/tokenzr.h>
 
 #include "wx/jsonreader.h"
+#include "wx/jsonwriter.h"
 #include "plugin_ids.h"
 
 #include "dashboard_pi.h"
@@ -93,6 +95,9 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_timestamps = emptyStr;
     m_stamp = true;
     m_verbosity = 0;
+    m_sksnVersionMajor = 1;
+    m_sksnVersionMinor = 0;
+    m_sksnVersionPatch = 0;
 
     m_configured = LoadConfig();
 
@@ -105,6 +110,10 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_updatesSent = 0;
     m_startGraceCnt = 0;
     m_threadMsg = emptyStr;
+
+    m_subscribeAll["context"] = L"vessels.self";   // Data from all vessels wanted? Replace with "*".
+    m_subscribeAll["subscribe"][0]["path"] = L"*";
+
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
             wxLogMessage ("dashboard_tactics_pi: Delta Streamer FAILED : Signal K Delta Streamer : could not create communication thread.");
@@ -263,22 +272,21 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
-    header += "GET ";
-    header += " HTTP/1.1\r\n";
-
-    header += "Host: ";
-    header += m_source;
-    header += "\r\n";	
-
-    header += "User-Agent: OpenCPN/5.0\r\n";
-    header += "Accept: */*\r\n";
-
-    header += "Content-Type: application/x-www-form-urlencoded";
-    header += "\r\n";
-    header += "Connection: keep-alive";
-    header += "\r\n";
-    header += "Content-Length: "; // from this starts the dynamic part
-
+    if ( (m_sksnVersionMajor < 2) && (m_sksnVersionMinor < 19) ) {
+        header += "GET ";
+        header += " HTTP/1.1\r\n";
+        header += "Host: ";
+        header += m_source;
+        header += "\r\n";	
+        header += "User-Agent: OpenCPN/5.0\r\n";
+        header += "Accept: */*\r\n";
+        header += "Content-Type: application/x-www-form-urlencoded";
+        header += "\r\n";
+        header += "Connection: keep-alive";
+        header += "\r\n";
+        header += "Content-Length: "; // from this starts the dynamic part
+    } // then a non-subscription based TCP delta channel (new design can ignore)
+    
     m_stateComm = SKTM_STATE_CONNECTING;
     int prevStateComm = m_stateComm;
 
@@ -333,19 +341,92 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             m_data = sCnxPrg[iCnxPrg];
             *m_echoStreamerInSkShow = m_data;
             
-            wxString sData = wxEmptyString; // no payload this time
-
             if (__STOP_THREAD__)
                         break;
-                
+
+            wxString sData = wxEmptyString;
             wxString sHdrOut = header;
-            sHdrOut += wxString::Format("%d", sData.Len() );
-            sHdrOut += "\r\n";
-            sHdrOut += "\r\n";
-            sHdrOut += sData;
+            wxSocketInputStream streamin( (wxSocketBase &)m_socket );
+
+            if ( (m_sksnVersionMajor == 1) && (m_sksnVersionMinor >= 19) ) {
+                // Read out the Hello message from signalk-serve-node after a new connection
+                wxJSONValue  root;
+                wxJSONReader reader;
+                try {
+                    int numErrors = reader.Parse( (wxInputStream &) streamin, &root );
+                    if ( numErrors > 0 )  {
+                        if ( m_verbosity > 1 ) {
+                            const wxArrayString& errors = reader.GetErrors();
+                            for (int i = 0; ((i < numErrors) && ( i < 10 ) ); i++) {
+                                m_threadMsg = wxString::Format(
+                                    "dashboard_tactics_pi: ERROR - parsing errors in the delta server "
+                                    "Hello-message (%d):\n%s\n",
+                                    i, errors[i] );
+                                wxQueueEvent( m_frame, event.Clone() );
+                                wxMilliSleep(20);
+                            }
+                        }
+                        throw 1; // lost sync, it is quite useless to continue
+                    } // then issues in the parsing of he Hello message
+                    if ( m_verbosity > 1 ) {
+                        wxString helloMsg = wxEmptyString;
+                        wxJSONWriter humanWriter;
+                        humanWriter.Write( root, helloMsg );
+                        m_threadMsg = wxString::Format(
+                            "dashboard_tactics_pi: Signal K JSON update server received Hello-message:\n%s\n",
+                            helloMsg);
+                        wxQueueEvent( m_frame, event.Clone() );
+                        if ( root.HasMember("version") ) {
+                            int setMajor = m_sksnVersionMajor;
+                            int setMinor = m_sksnVersionMinor;
+                            int setPatch = m_sksnVersionPatch;
+                            wxString sApi = root["version"].AsString();
+                            UpdateSkSnVersion( sApi );
+                            if ( m_verbosity > 1 ) {
+                                if ( (setMajor != m_sksnVersionMajor) ||
+                                     (setMinor != m_sksnVersionMinor) ||
+                                     (setPatch != m_sksnVersionPatch) ) {
+                                    wxMilliSleep( 100 );
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: NOTICE: Signal K JSON - API mismatch, please check:\n"
+                                        "configuration: %s\n"
+                                        "server: %s\n",
+                                        m_api, sApi);
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                }
+                            }
+                        } // then we can check the actual server version
+                    }
+                }
+                catch (int x) {
+                    m_stateComm = SKTM_STATE_ERROR;
+                    m_socket.Close();
+                    if ( m_verbosity > 1 ) {
+                        m_threadMsg = wxString::Format(
+                            "dashboard_tactics_pi: ERROR Signal K JSON updates: sync lost waiting for Hello message (error %d), trying again...",
+                            x);
+                        wxQueueEvent( m_frame, event.Clone() );
+                    }
+                    wxMilliSleep( 100 );
+                    break;
+                } // the first hello message read failed
+
+                wxJSONWriter writer(wxJSONWRITER_NONE); // note: the JSON out must be "non-human-readable"
+                writer.Write( m_subscribeAll, sData );
+
+                sHdrOut += sData;
+                sHdrOut += "\r\n"; // quite necessary to make the signalk-server-node to read the socket
+            } // then Signal K standard respecting, subscription based TCP delta channel
+            else {
+                sHdrOut += wxString::Format("%d", sData.Len() );
+                sHdrOut += "\r\n";
+                sHdrOut += "\r\n";
+                sHdrOut += sData;
+            } // else an older server, with no subscription scheme for TCP delta channel
+            
             wxScopedCharBuffer scb = sHdrOut.mb_str();
             size_t len = scb.length();
-            
+
             m_socket.Write( scb.data(), len );
 
             if ( m_verbosity > 4) {
@@ -380,7 +461,6 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 
                     if ( readAvailable ) {
 
-                        wxSocketInputStream streamin( (wxSocketBase &)m_socket );
                         wxLongLong wxllNowMs;
                         long long  msNow;
                         bool syncerror = false;
@@ -411,6 +491,17 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     }
                                     throw 1; // lost sync, it is quite useless to continue
                                 } // then issues in the parsing
+                                if ( m_verbosity > 5 ) {
+                                    wxString msgToParseForDbg = wxEmptyString;
+                                    wxJSONWriter humanWriter;
+                                    humanWriter.Write( root, msgToParseForDbg );
+                                    m_threadMsg = wxString::Format(
+                                        "dashboard_tactics_pi: DEBUG: Signal K JSON update server received delta-message:\n%s\n",
+                                        msgToParseForDbg);
+                                    wxQueueEvent( m_frame, event.Clone() );
+                                    wxMilliSleep(20);
+                                } // then need to assist user in the debugging, this can help but is _slow_
+                                
                                 bool hasUpdates = root.HasMember( "updates" );
                                 if ( hasUpdates) {
                                     wxJSONValue updates = root["updates"];
@@ -418,27 +509,37 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     int asize = updates.Size();
                                     if ( asize == 0 ) throw 105;
                                     for ( int i = 0; i < asize; i++ ) {
-                                        if ( !updates[i].HasMember( "source" ) ) throw (i+1)*100000 + 110;
-                                        wxJSONValue source = updates[i]["source"];
-                                        if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
-                                        wxString type = source["type"].AsString();
+
+                                        wxJSONValue source;
+                                        wxString type = wxEmptyString;
                                         wxString sentence = wxEmptyString;
                                         wxString talker = wxEmptyString;
                                         wxString src = wxEmptyString;
                                         int pgn = 0;
-                                        if ( type.IsSameAs("NMEA0183", false) ) {
-                                            if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
-                                            sentence = source["sentence"].AsString();
-                                            if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
-                                            talker = source["talker"].AsString();
+                                        if ( updates[i].HasMember( "source" ) ) {
+                                            source = updates[i]["source"];
+                                            if ( !source.HasMember( "type" ) ) throw (i+1)*100000 + 115;
+                                            type = source["type"].AsString();
+                                            if ( type.IsSameAs("NMEA0183", false) ) {
+                                                if ( !source.HasMember( "sentence" ) ) throw (i+1)*100000 + 1000;
+                                                sentence = source["sentence"].AsString();
+                                                if ( !source.HasMember( "talker" ) ) throw (i+1)*100000 + 1005;
+                                                talker = source["talker"].AsString();
+                                            }
+                                            else if ( type.IsSameAs("NMEA2000", false) ) {
+                                                if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
+                                                src = source["src"].AsString();
+                                                if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
+                                                pgn = source["pgn"].AsInt();
+                                            }
+                                            else throw (i+1)*10000 + 3000;
                                         }
-                                        else if ( type.IsSameAs("NMEA2000", false) ) {
-                                            if ( !source.HasMember( "src" ) ) throw (i+1)*100000 + 2000;
-                                            src = source["src"].AsString();
-                                            if ( !source.HasMember( "pgn" ) ) throw (i+1)*100000 + 2005;
-                                            pgn = source["pgn"].AsInt();
+                                        else if ( updates[i].HasMember( "$source" ) ) {
+                                            source = updates[i]["$source"];
                                         }
-                                        else throw (i+1)*10000 + 3000;
+                                        else
+                                            throw (i+1)*100000 + 110;
+
                                         if ( !updates[i].HasMember( "timestamp" ) ) throw (i+1)*100000 + 4000;
                                         wxString timestamp = updates[i]["timestamp"].AsString();
                                         if ( !m_stamp ) {
@@ -470,6 +571,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                 } // then a serious problem but let's throttle a bit
                                             } // else a problem which may be recurrant and filling log quickly
                                         } // then use server's timestamp
+
                                         if ( !updates[i].HasMember( "values" ) ) throw (i+1)*100000 + 5000;
                                         wxJSONValue values = updates[i]["values"];
                                         if ( !values.IsArray() ) throw (i+1)*100000 + 5005;
@@ -494,13 +596,13 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                 valStr = valueset.AsString();
                                                 m_pparent->SetUpdateSignalK (
                                                     &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow );
-                                                if ( m_verbosity > 3) {
+                                                if ( m_verbosity > 5 ) {
                                                     m_threadMsg = wxString::Format(
                                                         "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
                                                         "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f), valStr (%s)",
                                                         type, sentence, talker, src, pgn, timestamp, path, value, valStr);
                                                     wxQueueEvent( m_frame, event.Clone() );
-                                                } // then slowing down with the indirect debug log
+                                                } // then slowing down seriously with the indirect debug log
                                             }
                                             else {
                                                 wxArrayString names = valueset.GetMemberNames();
@@ -531,7 +633,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                     }
                                                     m_pparent->SetUpdateSignalK (
                                                         &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow, &key );
-                                                    if ( m_verbosity > 3) {
+                                                    if ( m_verbosity > 5 ) {
                                                         m_threadMsg = wxString::Format(
                                                             "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
                                                             "src (%s) pgn (%d) timestamp (%s) path (%s) key (%s) value (%f), valStr (%s)",
@@ -555,7 +657,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     if ( m_verbosity > 1 ) {
                                         m_threadMsg = wxString::Format(
                                             "dashboard_tactics_pi: ERROR Signal K JSON updates: sync lost, waiting...");
-                                        wxQueueEvent( m_frame, event.Clone() );
+                                            wxQueueEvent( m_frame, event.Clone() );
                                     }
                                     wxMilliSleep( 100 );
                                     break;
@@ -571,7 +673,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         } // while continuously parsing from the socket input stream
                     } // then poked that a read() is possible
                 } // while waiting on the socket for read()
-            } // else socket is not in error after writing HTTP header into it
+            } // else socket is not in error after writing subscription and/or HTTP header into it
         } // then connected to the socket, waiting for transaction
     } // while not to be stopped / destroyed
         
@@ -579,6 +681,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     m_socket.Close();
     // wxSocketBase::Shutdown();  // note: for eventual unit test, not for production
     delete address;
+
+    if ( m_verbosity > 2) {
+        wxLogMessage ("dashboard_tactics_pi: NOTICE: Signal K Stream In: thread closing, exiting.");
+        wxQueueEvent( m_frame, event.Clone() ); 
+        wxMilliSleep( 20 );
+   }
 
     return (wxThread::ExitCode)0;
     
@@ -625,6 +733,38 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
         }
     }
     m_updatesSent = 0;
+}
+/***********************************************************************************
+
+************************************************************************************/
+void TacticsInstrument_StreamInSkSingle::UpdateSkSnVersion( wxString vString )
+{
+    wxStringTokenizer tokenizer(m_api, ".");
+    wxString sMajor = tokenizer.GetNextToken();
+    if ( sMajor == wxEmptyString ) {
+        m_sksnVersionMajor = 1;
+        m_sksnVersionMinor = 0;
+        m_sksnVersionPatch = 0;
+    } // then nothing given, default is v1
+    else {
+        if ( (sMajor.CmpNoCase("v1") == 0) || (sMajor.Cmp("1") == 0 ) )
+            m_sksnVersionMajor = 1;
+        else
+            m_sksnVersionMajor = 2; // it is coming...
+        wxString sMinor = tokenizer.GetNextToken();
+        if ( sMinor == wxEmptyString ) {
+            m_sksnVersionMinor = 0;
+            m_sksnVersionPatch = 0;
+        } // then nothing given, default is zero
+        else {
+            m_sksnVersionMinor = wxAtoi( sMinor );
+            wxString sPatch = tokenizer.GetNextToken();
+            if ( sPatch == wxEmptyString )
+                m_sksnVersionPatch = 0;
+            else
+                m_sksnVersionPatch = wxAtoi( sPatch );
+        }
+    }
 }
 /***********************************************************************************
 
@@ -686,8 +826,11 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
                 "dashboard_tactics_pi: ERROR - Signal K source config file missing ':' in 'source', now : %s", m_source);
             return false;
         }
+
         if ( !root["streaminsk"].HasMember("api") ) throw 102;
         m_api += root["streaminsk"]["api"].AsString();
+        UpdateSkSnVersion( m_api );
+
         if ( !root["streaminsk"].HasMember("connectionretry") ) throw 103;
         m_connectionRetry = root["streaminsk"]["connectionretry"].AsInt();
         if ( m_connectionRetry <=0)

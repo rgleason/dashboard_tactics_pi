@@ -7,6 +7,7 @@ $mnbrdcolor    : #bbb;
 $mnbgdcolor    : #eee;
 $mnboxshadow   : rgba(0,0,0,.2);
 $mnbtncolor    : #444;
+$mnbtncolordef : #232b99;
 $mnbtnhover    : #fff;
 $mnbtnbkgd     : #2E3940;
 $mnbtnbord     : #2E3940;
@@ -56,6 +57,11 @@ $mnsubmnhover  : #fff;
     white-space: nowrap;
     padding: 3px 4px;
     border-radius: 2px;
+}
+
+.menu-btn.hasdef { 
+    font-size: 12px;
+    color: $mnbtncolordef;
 }
 
 button.menu-btn {

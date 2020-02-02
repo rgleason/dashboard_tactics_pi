@@ -63,6 +63,11 @@ html {
   border-radius: 2px;
 }
 
+.menu-btn.hasdef {
+  font-size: 12px;
+  color: #232b99;
+}
+
 button.menu-btn {
   background: none;
   line-height: normal;

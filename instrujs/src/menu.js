@@ -3,6 +3,8 @@
  * Licensed under MIT - see distribution.
  */
 
+var alertsenabled = window.instrustat.alerts
+
 // An actor for a state machine to build user menu strucures
 import sanitizer from './escapeHTML'
 var Sanitizer = sanitizer()
@@ -25,7 +27,8 @@ export function setMenuAllPaths( that, onload, runtime ) {
     var topics = ['','','','','','','','','']
     var htmlObj
     for ( var i = 0; i < that.allpaths.length; i++ ) {
-        var pathel = that.allpaths[ parseInt(i) ].split('.')
+        var pathe = that.allpaths[ parseInt(i) ]
+        var pathel = pathe.split('.')
         var j
         for ( j = 0; j < ( pathel.length - 1); j++ )
             if ( pathel[parseInt(j)] !== topics[parseInt(j)] ) {
@@ -53,7 +56,14 @@ export function setMenuAllPaths( that, onload, runtime ) {
         menuul += '<li id="mi1-l-' + i + '-' + j + '" class="menu-item">'
         menuul += '<button id="mif-b-'
         menuul += that.allpaths[parseInt(i)]
-        menuul += '" type="button" class="menu-btn">'
+        if ( !isRunTime && !isOnLoad ) {
+            if ( window.instrustat.hasPathEntry( pathe ) )
+                menuul += '" type="button" class="menu-btn hasdef">'
+            else
+                menuul += '" type="button" class="menu-btn">'
+        }
+        else
+            menuul += '" type="button" class="menu-btn">'
         menuul += '<span id="mif-s-'
         menuul += that.allpaths[parseInt(i)]
         menuul += '" class="menu-text">'
@@ -117,8 +127,13 @@ function onMouseDown(e){
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
-                    else
+                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) )
                         window.iface.setselected( idsplit[2] )
+                    else if ( alertsenabled )
+                        alert ( idsplit[2] + '\n' +
+                                window.instrulang.pathHasNoDescription1 + '\n' +
+                                window.instrulang.pathHasNoDescription2 + '\n' +
+                                window.instrulang.pathHasNoDescription3 )
                 }
                 hideMenu()
             }
