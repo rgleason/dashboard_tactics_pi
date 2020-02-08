@@ -53,11 +53,19 @@ export function showData( that ) {
         return
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue
+    console.log('dispvalue : ', dispvalue)
     if ( that.conf !== null ) {
         dispvalue *= that.conf.multiplier
+        if ( dbglevel > 2 )
+            console.log('dispvalue x: ', dispvalue, 'multiplier: ', that.conf.multiplier)
         if ( that.conf.divider >0 )
             dispvalue /= that.conf.divider
-        dispvalue += that.conf.offset
+        if ( dbglevel > 2 )
+            console.log('dispvalue /: ', dispvalue, 'divider: ', that.conf.divider)
+        if ( that.conf.offset !== 0)
+            dispvalue += that.conf.offset
+        if ( dbglevel > 2 )
+            console.log('dispvalue +: ', dispvalue, 'offset: ', that.conf.offset)
         if ( alerts ) {
             if ( !alertcondition ) {
                 var alertSource

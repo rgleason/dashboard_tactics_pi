@@ -64,6 +64,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_hasRequestedId = false;
     m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
     m_pushHereUUID = wxEmptyString;
+    m_subscribedPath = wxEmptyString;
 
     m_id = id;
     m_ids = ids;
@@ -74,7 +75,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
         m_substyle = "night";
     m_newsubstyle = wxEmptyString;
     m_title = L"InstruJS";
-    m_format = L"%.1f"; // unlike trad. Dashboard instrument, we manage the format
+    m_format = L"%.2e"; // unlike trad. Dashboard instrument, class manages the format
     m_data = wxString::Format( m_format, 0.0 );
     m_lastdataout = wxString::Format( m_format, 9.9 ); // just make it different
     m_threadRunning = false;
@@ -157,6 +158,14 @@ void InstruJS::PushData(double data, wxString unit, long long timestamp)
 {
     if ( !std::isnan(data) ) {
         setTimestamp( timestamp );  // Triggers also base class' watchdog
+        /* Suspected bugs in Signal K conversions and their corrections (if not possible to fix in JS) */
+        // Signal K v1.21.0 suspected not to scale to 0.01 % negative trim position values, debug shows this:
+        if ( data < 0.0 ) {
+            if ( m_subscribedPath.Find( ".drive.trimState" ) != wxNOT_FOUND ) {
+                data *= 0.01;
+            }
+        } // else detected issues with negative value conversions
+        // wxString temp = wxString::Format( m_format, data ); // needed only for debugging
         m_data = wxString::Format( m_format, data );
     } // then valid data 
 }
@@ -357,12 +366,13 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 if ( !m_pushHereUUID.IsEmpty() )
                     m_pparent->unsubscribeFrom ( m_pushHereUUID );
                 m_data = wxString::Format( m_format, 0.0 );
-                m_pushHereUUID = m_pparent->subscribeTo ( request, m_pushHere );
+                m_subscribedPath = request;
+                m_pushHereUUID = m_pparent->subscribeTo ( m_subscribedPath, m_pushHere );
                 wxString javascript =
                     wxString::Format(
                         L"%s%s%s",
                         "window.iface.acksubs('",
-                        request,
+                        m_subscribedPath,
                         "');");
                 RunScript( javascript );
                 m_istate = JSI_SHOWDATA;

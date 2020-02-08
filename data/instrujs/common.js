@@ -9,8 +9,9 @@
  SignalK Path keys: https://git.io/JvsYw
  The Signal K values are always in SI units (like m/s, not knots).
  Conversion to a wanted unit is made with multipier/division/offset.
- (Avoid using floating point values like 0.000000003 in JavaScript!)
- Usage: for example, enginedjg/index.html loads a minimized version, common.min.js
+ Avoid using floating point values like 0.000000003 in JavaScript!
+ UTF8 - do _not_ change encoding, cf. degree character. Notepad++ recommended.
+ Usage example: enginedjg/index.html loads a minimized version, common.min.js
         - make a copy of common.min.js by renaming it;
         - make a copy of this one with name common.min.js and modify it;
         - (no need for compression with this non-executing file!)
@@ -18,7 +19,7 @@
         - issues? open the index.html in a browser, hit Shift+Ctrl+I and reload;
                   * Console gives you the reason why it does not load anymore:
                   * Look for messages in red, a typo, missing comma?
-        - note: next update/reinstallation overrides your changes, keep backups!
+        - note: next update/reinstallation overrides this file, keep backups!
 */
 
 var  instrustat = {
@@ -56,7 +57,7 @@ var  instrustat = {
             hialert    : 0,
             maxval     : 100,
             multiplier : 1,
-            divider    : 1000,
+            divider    : 100000,
             offset     : 0
         },
         {
@@ -72,9 +73,16 @@ var  instrustat = {
             hialert    : 0,
             maxval     : 100,
             multiplier : 1,
-            divider    : 1000,
+            divider    : 1000000,
             offset     : 0
         },
+/*  ***
+    Testing revealed an anomaly between negative and postive values:
+    - 0.01 scaled positive, no scaling negative
+    - fixed in instrujs.cpp data callback by scaling also negative
+      values by 0.01, consequently below multiplier is 100
+    If you observe wrong behaviour, report to https://git.io/JejKQ
+    *** */
         {            
             version    : 1,
             path       : 'propulsion.*.drive.trimState',
@@ -83,13 +91,13 @@ var  instrustat = {
             unit       : 'ratio',
             display    : 'dial',
             decimals   : 0,
-            minval     : 0,
+            minval     : -100,
             loalert    : 0,
             hialert    : 0,
-            maxval     : 1,
-            multiplier : 1,
+            maxval     : 100,
+            multiplier : 100,
             divider    : 1,
-            offset     : 1
+            offset     : 0
         },
         {
             version    : 1,
@@ -102,7 +110,7 @@ var  instrustat = {
             minval     : 0,
             loalert    : 0,
             hialert    : 95,
-            maxval     : 100,
+            maxval     : 110,
             multiplier : 1,
             divider    : 1,
             offset     : -273.2
@@ -119,7 +127,7 @@ var  instrustat = {
             loalert    : 0,
             hialert    : 0,
             maxval     : 100,
-            multiplier : 1,
+            multiplier : 100,
             divider    : 1,
             offset     : 0
         },
@@ -235,6 +243,9 @@ var  instrustat = {
             divider    : 1,
             offset     : 0
         },
+/*  ***
+    Did not pass tests for distribution, please feel free to test
+    and report if you get this path working to https://git.io/JejKQ
         {            
             version    : 1,
             path       : 'propulsion.*.runTime',
@@ -251,6 +262,7 @@ var  instrustat = {
             divider    : 1,
             offset     : 0
         },
+ *** */
         {
             version    : 1,
             path       : 'propulsion.*.temperature',
