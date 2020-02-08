@@ -127,6 +127,7 @@ protected:
     bool                 m_hasRequestedId;
     int                  m_setAllPathGraceCount;
     wxString             m_pushHereUUID;
+    wxString             m_subscribedPath;
     wxWindowID           m_id;
     wxString             m_ids;
     wxString             m_substyle;
