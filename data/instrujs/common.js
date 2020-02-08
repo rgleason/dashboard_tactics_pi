@@ -11,10 +11,13 @@
  Conversion to a wanted unit is made with multipier/division/offset.
  (Avoid using floating point values like 0.000000003 in JavaScript!)
  Usage: for example, enginedjg/index.html loads a minimized version, common.min.js
-        - make a copy of common.min.js and replace it with this one;
+        - make a copy of common.min.js by renaming it;
+        - make a copy of this one with name common.min.js and modify it;
+        - (no need for compression with this non-executing file!)
         - or, modify enginedjg/index.html to load your own file, no problem!
         - issues? open the index.html in a browser, hit Shift+Ctrl+I and reload;
-                  * Console gives you the reason why it does not load anymore
+                  * Console gives you the reason why it does not load anymore:
+                  * Look for messages in red, a typo, missing comma?
         - note: next update/reinstallation overrides your changes, keep backups!
 */
 
@@ -131,7 +134,7 @@ var  instrustat = {
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
-            maxval     : 100,
+            maxval     : 125,
             multiplier : 100,
             divider    : 1,
             offset     : 0
@@ -146,7 +149,7 @@ var  instrustat = {
             decimals   : 0,
             minval     : 200,
             loalert    : 0,
-            hialert    : 95,
+            hialert    : 0,
             maxval     : 800,
             multiplier : 1,
             divider    : 1,
@@ -159,11 +162,11 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kPa',
             display    : 'dial',
-            decimals   : 1,
+            decimals   : 0,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
-            maxval     : 300,
+            maxval     : 100,
             multiplier : 1,
             divider    : 1000,
             offset     : 0
@@ -178,7 +181,7 @@ var  instrustat = {
             decimals   : 1,
             minval     : 0,
             loalert    : 0,
-            hialert    : 95,
+            hialert    : 0,
             maxval     : 50,
             multiplier : 3600000,
             divider    : 1,
@@ -191,7 +194,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kPa',
             display    : 'dial',
-            decimals   : 1,
+            decimals   : 0,
             minval     : 0,
             loalert    : 100,
             hialert    : 0,
