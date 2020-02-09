@@ -138,13 +138,8 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
     if (!pConf)
         return false;
     
-    // Make a proposal for the defaul path _and_ the protocool, which use can then override in the file:
-    wxString sFullPathHTML = "file://"; // preferably 'http://' or 'https://' but this is easier for people to start with
-    sFullPathHTML += *GetpSharedDataLocation(); // provide by the plug-in API
-    wxString s = wxFileName::GetPathSeparator();
-    sFullPathHTML +=
-        _T("plugins")  + s + _T("dashboard_tactics_pi") + s + _T("data")+ s +
-        _T("instrujs") + s + _T("enginedjg") + s + _T("index.html");
+    // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
+    wxString sFullPathHTML = "http://localhost:8088/enginedjg/";
 
     pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );

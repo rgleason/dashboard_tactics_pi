@@ -1,6 +1,6 @@
 {
     "name": "enginedjg",
-    "version": "1.98.2",
+    "version": "1.98.102",
     "description": "HTML/CSS/JS based WebView dial instruments for OpenCPN Dashboard-Tactics plug-in",
     "main": "index.js",
     "scripts": {
