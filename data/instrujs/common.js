@@ -30,8 +30,56 @@ var  instrustat = {
     knownpaths: [
         {
             version    : 1,
+            path       : 'electrical.batteries.*.current',
+            title      : 'Battery Current',
+            symbol     : '',
+            unit       : 'Amps',
+            display    : 'dial',
+            decimals   : 1,
+            minval     : -20,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 20,
+            multiplier : 1,
+            divider    : 1,
+            offset     : 0
+        },
+        {
+            version    : 1,
+            path       : 'electrical.batteries.*.temperature',
+            title      : 'Battery Temperature',
+            symbol     : '°',
+            unit       : 'Celsius',
+            display    : 'dial',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 100,
+            multiplier : 1,
+            divider    : 1,
+            offset     : -273.2
+        },
+        {
+            version    : 1,
+            path       : 'electrical.batteries.*.voltage',
+            title      : 'Battery Voltage',
+            symbol     : '',
+            unit       : 'Volts',
+            display    : 'dial',
+            decimals   : 1,
+            minval     : 0,
+            loalert    : 11,
+            hialert    : 0,
+            maxval     : 16,
+            multiplier : 1,
+            divider    : 1,
+            offset     : 0
+        },
+        {
+            version    : 1,
             path       : 'propulsion.*.alternatorVoltage',
-            title      : 'Alternator',
+            title      : 'Alternator Voltage',
             symbol     : '',
             unit       : 'Volts',
             display    : 'dial',
@@ -77,10 +125,11 @@ var  instrustat = {
             offset     : 0
         },
 /*  ***
-    Testing revealed an anomaly between negative and postive values:
-    - 0.01 scaled positive, no scaling negative
+    Testing revealed an anomaly between negative and postive values
+    in propulsion.*.drive.trimState path:
+    - 0.01 scaled when positive, but no scaling when negative
     - fixed in instrujs.cpp data callback by scaling also negative
-      values by 0.01, consequently below multiplier is 100
+      values by 0.01, consequently below multiplier 100 works both
     If you observe wrong behaviour, report to https://git.io/JejKQ
     *** */
         {            
@@ -278,6 +327,22 @@ var  instrustat = {
             multiplier : 1,
             divider    : 1,
             offset     : -273.2
+        },
+        {            
+            version    : 1,
+            path       : 'tanks.fuel.*.currentLevel',
+            title      : 'Fuel Level',
+            symbol     : '%',
+            unit       : 'ratio',
+            display    : 'dial',
+            decimals   : 0,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 100,
+            multiplier : 100,
+            divider    : 1,
+            offset     : 0
         },
     ],
     // --- Do not modify below this line ---
