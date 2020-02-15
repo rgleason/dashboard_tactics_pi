@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>SignalKInputStreamer</title>
+<title>README</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13099,15 +13099,17 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Signal-K-input-streamer---System-Design-Description">Signal K input streamer - System Design Description<a class="anchor-link" href="#Signal-K-input-streamer---System-Design-Description">&#182;</a></h1>
+<h1 id="Developer's-guide-to-DashT-wxWebView-based-instruments">Developer's guide to DashT wxWebView based instruments<a class="anchor-link" href="#Developer's-guide-to-DashT-wxWebView-based-instruments">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>You have probably already used or got interested in <a href="https://signalk.org/overview.html">Signal K</a>, the free and open source marine data exchange format. If not, let's hope that that the Signal K input streamer in Dashboard-Tactics plug-in of OpenCPN gets you motivated to start moving your boat's instrumentation from 1990's to 2020's!</p>
-<p>You may want to skip the theory and move directly to the <em>Signal K input streamer usage</em> document (<a href="SignalKInputStreamerUsage.ipynb">ipynb</a> | <a href="SignalKInputStreamerUsage.html">html</a> | <a href="SignalKInputStreamerUsage.pdf">pdf</a>).</p>
+<p>All the suffering started from this unfortunate question: what in the earth can we do with this? :</p>
+
+<pre><code>    wxWebView           *m_pWebPanel;
+`</code></pre>
 
 </div>
 </div>
@@ -13115,14 +13117,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Signal K input streamer of Dashboard Tactics plug-in has been designed to meet the following three requirements:</p>
+<p>The requirement to be able to show engine and energy system data on Dash came first into mind where a browser techniques could be useful and fast (or slow) enough for that type of data. The usage of web techniques would allow to jail break from wxWidget's bit aging GUI and move to the other end of the GUI development paradigm, <em>i.e.</em> no limits! After short R&amp;D prototyping and proof-of-concept the limitations of the run-time environment became known as well as the potential communication issues. Robustness and simplicity was put in front and a bit old fashioned web techniques were used because of the simple fact that the wxWebView itself and the back-ends it is using are not necessarily even from this decade!</p>
 
 </div>
 </div>
@@ -13130,11 +13132,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>Read data in NMEA-0183, NMEA-2000 and Signal K data sources</li>
-<li>Provide data with millisecond resolution timestamps closest to the data source possible</li>
-<li>Reduce the jitter and latency from the data source to the instruments</li>
-</ol>
+<p>More modern Signal K data format and especially one of the implementations for it, Signal K server node were chosen to provide the data for the instruments running on a wxWebView platform. In order to avoid multitude of network connections, DashT's Signal K streamer was chosen to feed the instruments by subscription and by a C++ call-back function. That is definitely a modern touch while it allows both to limit number of network connections towards the Signal K server node (which has certainly no problem to deal with those even if that would have been the case, it looks to me) and to continue to feed Tactics derived active calculations instruments from the same source of data.</p>
 
 </div>
 </div>
@@ -13142,7 +13140,17 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Increasing of performance is out of scope - neither the Signal K input streamer nor Dashboard Tactics pretend to miraculously increase the throughput or multiply the update frequency of your boat's instrumentation.</p>
+<h1 id="Scope">Scope<a class="anchor-link" href="#Scope">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Scope is in data which is originating from NMEA-2000 data bus.</p>
+<p>Excluded data sources are NMEA-2000 navigational information, NMEA-2000 status information, NMEA-0183 all, IoT, GPIO and Bluetooth LE.</p>
+<p>Data type scope is in data which can be presented as floating number, in scientific exponential format when converted to string format.</p>
+<p>Excluded data type are that of string type of status and other messages and binary status bits (0/1).</p>
 
 </div>
 </div>
@@ -13150,14 +13158,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Example-system-configuration">Example system configuration<a class="anchor-link" href="#Example-system-configuration">&#182;</a></h2>
+<h1 id="Target-environment">Target environment<a class="anchor-link" href="#Target-environment">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The below diagram illustrates an example configuration which does not require to invest on any new hardware if one already is using TCP/IP (network) or USB to get the NMEA-0183 data into the OpenCPN chartplotter.</p>
+<p>Multi-computer networked boat instrumentation system where computer interconnections takes place over wired or wireless using TCP/IP protocol.</p>
 
 </div>
 </div>
@@ -13165,7 +13173,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="signalkin-instrudiagram-1.png" alt="signalkin-instrudiagram-1.png"> <a href="img/signalkin-instrudiagram-1.png">(zoom)</a></p>
+<h2 id="Operating-System">Operating System<a class="anchor-link" href="#Operating-System">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Priority operating system support is Windows 10, Linux Debian 18+ LTS and Raspian on Raspberry Pi 4 or greater (armv7l).</p>
 
 </div>
 </div>
@@ -13173,7 +13188,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Raspberry Pi 4 4G running Raspian is configured as a WiFi hotspot while underway. A cockpit tablet (not illustrated) is used to connect to it using a browser. Raspberry has a local screen and keyboard/trackball on the chart table.</p>
+<p>Secondary operating system targets are MacOS and Android.</p>
 
 </div>
 </div>
@@ -13181,7 +13196,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Windows 10 laptop is used as backup navigation computer and to collect and visualize meteorological data.</p>
+<h2 id="OpenCPN">OpenCPN<a class="anchor-link" href="#OpenCPN">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong><em>O</em></strong>penCPN v5 series is the compatibility required.</p>
 
 </div>
 </div>
@@ -13189,7 +13211,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Both systems are having OpenCPN v5 with Dashboard-Tactics plug-in.</p>
+<h2 id="Signal-K-server-node">Signal K server node<a class="anchor-link" href="#Signal-K-server-node">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Signal K server node v1.19.0 or greater is required (subscription to data imposed starting from this version).</p>
 
 </div>
 </div>
@@ -13197,7 +13226,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Other such configurations exists - Signal K provides <a href="https://signalk.org/installation.html">more examples</a>; <a href="http://www.sailoog.com/openplotter">OpenPlotter</a> project provides entire packages containing all the necessary software components for Debian based computers.</p>
+<h3 id="Dashboard-Tactics-plug-in">Dashboard-Tactics plug-in<a class="anchor-link" href="#Dashboard-Tactics-plug-in">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Dashboard-Tactics v2 alpha 1 (1.98.001) or superior.</p>
 
 </div>
 </div>
@@ -13205,285 +13241,80 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Jitter-and-latency-in-OpenCPN-/-Dashboard-data-distribution">Jitter and latency in OpenCPN / Dashboard data distribution<a class="anchor-link" href="#Jitter-and-latency-in-OpenCPN-/-Dashboard-data-distribution">&#182;</a></h2>
+<h3 id="Plug-in-framework-services">Plug-in framework services<a class="anchor-link" href="#Plug-in-framework-services">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The third requirement, reduction in jitter and latency in the data distribution is the hardest to meet. In this section we will analyze the data signal path in OpenCPN with plug-ins and, of course in Dashboard plug-in.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Typically, one would need a two channel oscilloscope or accurate timestamps from different phases of the data acquisition chain to determine the inaccuracies in timing caused by signal chain. However, the data in boat systems is sometime coming from systems which are so old or based on old technologies that one can actually see the jitter with the naked eye; values in instruments are jumping back and forth and, very well visible in the dial instrument's needle, the frequency of the jumping is not constant.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>It is to be reminded that it is not normal for any system which attempts to give information about the analog world to give feedback to the user with an indicator which is not following the real-life signal as accurately as possible.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Taking the example of the dial instrument's needle, it shall move so smoothly that the eventual micro-movements are not visible to the human eye. Furthermore, this movement shall be as accurate as possible reflecting in real-time the actual, measured signal. Filters shall be applied only at user's demand so that the observer is always in control. Even if the filters are applied, it should be possible to keep both the original data and the resulting filtered data for off-line analysis - blind faith is not an instrumentation paradigm.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>OpenCPN / Dashboard cannot do anything for the data update frequency, it is for the owner to update boat's instrumentation keeping in mind that for any algorithm it is essential to have as much as possible information about the boat's movements, its heading and wind condition it is facing. Logically, one should seek to increase the frequency and reduce the latency.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>OpenCPN chartplotter, Dashboard plug-in and the other plug-ins create an extremely complicated system what comes to its dynamic behaviour. It is not a surprise that it introduces jitter and latency in the signal chain by its location between the user and his or her data sources, i.e. the boat's sensors. Of course, the boat's own electronics play an equally important role in this, but since we cannot present an universal model for those, let's study the signal chain from the point onwards where it enters OpenCPN, <em>i.e.</em> from USB serial line or WiFi/Ethernet TCP/IP communication in our case.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Below diagram illustrates the signal chain from the point of view of Dashboard plug-in, which is the module we plan to modify.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="signalkin-instrudiagram-2.png" alt="signalkin-instrudiagram-2.png"> <a href="img/signalkin-instrudiagram-2.png">(zoom)</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>OpenCPN is based on <a href="https://www.wxwidgets.org/">wxWidgets</a> Graphical User Interface (GUI) framework, and like many of them it is event driven: clicking a button is an event; moving a window over another creates events which need to be handled in both windows - an excellent and well established principle for such a software framework. But it is less useful for a data acquisition system unless there is a priority scheme which allows the data event dealt with a high priority interrupt mechanism. It should allow a continuous transport of the arrived data all the way through the system. But if we would follow such as principle in a graphical application, the actual GUI operation could become sluggish and, in general the priority is given to the graphical elements visible to user.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>OpenCPN is not a real multi-threaded in application - in the POSIX sense of view. It is threaded using the <a href="https://docs.wxwidgets.org/trunk/classwx_thread.html">wxWidgets thread model</a> which is not POSIX compliant. It is by default serving graphical events with what they call detached behavior. Detached threads delete themselves once they have completed which is, of course really useful feature in a GUI since you do not have to make call-backs or otherwise manage the thread.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>But it is not necessarily the best adapted way to deal with socket based communication since it can be considered to be overkilling in a multisocket environment to launch a thread - even lightweight - for every arriving frame in a socket, and this for every socket (<em>i.e.</em> one thread to deal with any socket "event"). In the current user state multi-socket server paradigm there is rather a POSIX thread per socket. It can be specialized - a protocol handler, for example -, it is seen in the process tables, it can have an adjustable priority, its affinity and can be set to manage the load between the CPUs and their cores.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Next we check that this is not the case in OpenCPN already. For the test we use the above configuration with the exception that the Raspberry Pi 4GB running Rasbian 2019-07-10 (Buster) is serving as WiFi hotspot for the boat's installation and the Windows 10 laptop and its OpenCPN is obtaining both its NMEA data and AIS information from it over a wireless TCP/IP connection with the Signal K server, running on the Raspberry device.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The below screenshot illustrates the threads in the Raspberry. There is none for OpenCPN so it must be running entirely in the wxWidgets "detached" thread mode.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_181939_rasbian_ov50_def_config_TCP_input_no_posix_threads.png" alt="2019-10-12_181939_rasbian_ov50_def_config_TCP_input_no_posix_threads.png"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>On the Windows 10 system, the notion of POSIX threads does not exist but the thread information can be observed with SDK tools. Like above, also in this case we have a standard OpenCPN - Dashboard plug-in datapath for NMEA.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211524_w10_ov50_def_config_TCP_threads.png" alt="2019-10-12_211524_w10_ov50_def_config_TCP_threads.png"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>On the Windows 10 system we can see that there is plenty of capacity available, the WiFi based NMEA / AIS information does not create any big load to the system. The I/O load is almost insignifiant compared to the load which occur when one mimimize/maximize the OpenCPN window, or when it chimes the ship's bells!</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211525_w10_ov50_def_config_TCP_perfgraph.png" alt="2019-10-12_211525_w10_ov50_def_config_TCP_perfgraph.png"> <a href="img/2019-10-12_211525_w10_ov50_def_config_TCP_perfgraph.png">(zoom)</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Threaded-model-of-the-Influx-DB-output-stream-service">Threaded model of the Influx DB output stream service<a class="anchor-link" href="#Threaded-model-of-the-Influx-DB-output-stream-service">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We use the Influx DB output stream to store the results in a file with a timestamp, generated locally. Otherwise we would have no way to define the jitter. For the latency we cannot make the measurement since the OpenCPN does not timestamp the data at its arrival. Therefore we will observe the overall throughput only.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The collected data and the results are reported later in this document. Here we take the opportunity to study the impact of the Dashboard-Tactics' thread model for  Influx DB output in view of its usage in the data input socket. Albeit we do not use its direct HTTP-socket streaming capability but only the file writing, the possibility to stream out to a HTTP-socket  of the Influx DB server makes the implementation as an attractive candidate to the input socket as well.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The Dashboard-Tactics' Influx DB output stream service thread, which is implemented with wxWidgets thread model <em>joinable</em> is clearly visible in the Raspberry device, so wxWidgets has implemented it quite probably with Linux POSIX threads:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_182337_rasbian_ov50_Influxdbout_TCP_input_1_posix_thread.png" alt="2019-10-12_182337_rasbian_ov50_Influxdbout_TCP_input_1_posix_thread.png"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>It is less visible in the Windows 10 thread model but one can count one more CPU time consuming thread, clearly a wxWidgets DLL:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211425_w10_ov50_influxdbout_TCP_threads.png" alt="2019-10-12_211425_w10_ov50_influxdbout_TCP_threads.png"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The I/O system load now shows also clearly the flush-mechanism which is built-in into the file writing part of the threaded service. The load of the I/O operations is in the disk writes not in the network sockets.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211425_w10_ov50_influxdbout_TCP_perfgraph.png" alt="2019-10-12_211425_w10_ov50_influxdbout_TCP_perfgraph.png">
-<a href="img/2019-10-12_211425_w10_ov50_influxdbout_TCP_perfgraph.png">(zoom)</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="System-design-of-the-Signal-K-input-streamer">System design of the Signal K input streamer<a class="anchor-link" href="#System-design-of-the-Signal-K-input-streamer">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The below diagram illustrates the system architecture with the Signal K input streamer extension.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="signalkin-instrudiagram-3.png" alt="signalkin-instrudiagram-3.png"> <a href="img/signalkin-instrudiagram-3.png">(zoom)</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We could have written our own socket server if the requirement would have been only to have timestamps at the arrival of data. However, when we add the requirement to support not only NMEA-0183 but also NMEA-2000, the choice of a Signal K server node is clear. The ligtweight and robust server based on <em>Node.js</em> is fast and stable. In addition it provides additional services which we skip in this study. We use it to feed the OpenCPN application which remains the distributor of NMEA-0183 sentences to plug-ins.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In addition it feeds a <em>joinable</em> wxWidgets thread which is available continuously to serve the socket. This is advantageous compared to the OpenCPN distribution model, since we are detached from it and therefore independent from other plug-ins which may have been subscribed to NMEA-0183 data.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The thread contains a built-in parser of the Signal K data: the socket is listening the so-called <a href="https://signalk.org/specification/1.3.0/doc/data_model.html#delta-format">delta format</a> channel of Signal K which transmits a lightweight (relatively speaking) data, or changes in it. The data is converted to simple expression of C++ data types or wxWidgets string objects so that its handling after this step will be extremely fast.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>After the parsing, we pass to a step by step structure, similar to the one that already exists in Dashboard - the only difference is that now the notion of NMEA-0183 specific sentences has disappeared - the data can be either of NMEA-0183 or NMEA-2000 origin, the chain decides based on Signal K schema to which instruments the data should be distributed.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p><strong>Note</strong>: this allows to add relatively easily (coding still needed) new instruments which are dedicated to the engine control. As a proof of concept, three such a engine control instruments have been added into Dashboard-Tactics for engine speed, cooling water temperature and oil pressure.</p>
+<p>There are many issues with various configurations present in selected targets. It is clear that preferred protocol would be <em>http://</em> or even <em>https://</em>, but if <em>file://</em> is to be used because people do not want to use a HTTP server or they do not know how to set it up, the limitations and somewhat erratic way of interpreting the RFCs of the various backends is causing serious issues, now and certainly in the future!</p>
+<blockquote><p>Some catastrophe scenarios could be, for example: Windows dropping IE being available for back-end, cf. note(1); Linux moving a the same time to wxWidgets 3.1 (which is good) but also to WebKit 2.x; there must be others threads...</p>
+</blockquote>
+<p>Result observed without no tweaking in the policies of the out-of-the-box installation:</p>
+<table>
+<thead><tr>
+<th>Platform</th>
+<th>wxWidgets</th>
+<th>back-end</th>
+<th>file://</th>
+<th>http://</th>
+<th style="text-align:center">viewport prop. font sizing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows</td>
+<td>3.1</td>
+<td>IE(<em>max: 8</em>)</td>
+<td>cookie: Y(1)</td>
+<td>cookie: Y</td>
+<td style="text-align:center">Y</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>localStorage: N</td>
+<td>localStorage: Y</td>
+<td style="text-align:center"><em>CSS.supports()</em>: N (but <strong>works</strong>!)</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>3.0</td>
+<td>WebKit1x</td>
+<td>cookie: N</td>
+<td>cookie: Y</td>
+<td style="text-align:center">Y</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>localStorage: Y</td>
+<td>localStorage: Y</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td>Mac</td>
+<td>3.1(?)</td>
+<td>(Mac?)WebKit(?)x</td>
+<td>cookie: ?</td>
+<td>cookie: ?</td>
+<td style="text-align:center">?</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>localStorage: ?</td>
+<td>localStorage: ?</td>
+</tr>
+</tbody>
+</table>
+<p>(1) After <a href="https://support.microsoft.com/en-us/help/4534251/cumulative-security-update-for-internet-explorer">security update of 2020-01-14</a> = N</p>
+<p>Where there is no issues to obtain persistency when the protocol is <em>http://</em> it looks like that one needs to use cookies in Windows and <em>localStorage()</em> elsewhere with <em>file://</em> protocol. For Mac, we do not know enough yet. This, of course is a bit shaky for the future, even if it works now. It is better to make a parameter storage which automatically adapts ot use <em>localStorage()</em> if it is available. This way, plan B can be that people just install that HTTP server and they get the persistent parameters back in case there is an issue with their back-end, which can change.</p>
+<blockquote><p>Of course, one can imagine to integrate some <a href="https://dev.to/rumkin/how-to-create-js-webserver-without-node-js-1hic">hefty javascript code</a> to make a standalone server <em>and</em> the page, but it seems, for now, overkilling. Let's start with <em>file://</em>, plan B being using <em>http://</em> with an external HTTP server and, finally, plan C being to use a local configuration file for static configuration.</p>
 </blockquote>
 
 </div>
@@ -13492,7 +13323,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>There is a software switch with a timeout: if the data is not available from the Signal K input socket thread, or if there is no equivalent data than in the Signal K delta data for a NMEA-0183 sentence, the software switch closes and let the NMEA-0183 sentence to be passed to the instruments.</p>
+<p>Managing the above diversity is the main burden in this project and the risk taking should be minimized by selecting only solutions and techniques which are several years old (seeing the back-ends on each supported system). Even then, every implementation needs to be quickly tested on both supported priority platforms, Windows and Linux.</p>
 
 </div>
 </div>
@@ -13500,7 +13331,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>One of these instruments receiving the data can be - if user so wish - Influx DB output stream. Now the data has the timestamp of when it arrives into the system, not the time of when it was received by the instrument.</p>
+<h1 id="Development-Paradigm">Development Paradigm<a class="anchor-link" href="#Development-Paradigm">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The resulting instrument shall be tightly integrated in the Dashboard-Tactics plug-in, albeit it has dependencies on one new external data system, Signal K server node for this particular implementation.</p>
 
 </div>
 </div>
@@ -13508,7 +13346,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The timestamp is distributed to all instruments which are subscribed to a given data and they can use it for new purposes which did not exist before. For example, all instrument base classes contain now a default behavior what shall happen if no new data is received within a timeout period. This goes beyond Dasboard plug-in's own timeout with data invalidation which is only applicable for some data classes, like GPS data.</p>
+<p>Therefore the instrument's functions shall be fulfilled by a hybrid methods: C++ for functions and call-backs for the Dashboard-Tactics plug-in integration and for performance, HTML/JavaScript to provide the GUI functions of the particular, developed instrument.</p>
 
 </div>
 </div>
@@ -13516,7 +13354,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's observe the new thread both in the Raspberry (Linux) and Windows 10 systems:</p>
+<h1 id="Implementation">Implementation<a class="anchor-link" href="#Implementation">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Implementation shall be compatible with the development tool chains used in two of the important dependencies: C++ 14 / CMake for plug-in classed and node.js / npm as development platform for modules needed as in Signal K server node.</p>
 
 </div>
 </div>
@@ -13524,7 +13369,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_182800_rasbian_ov50_Influxdbout_signalkin_TCP_input_2_posix_threads.png" alt="2019-10-12_182800_rasbian_ov50_Influxdbout_signalkin_TCP_input_2_posix_threads.png"></p>
+<h3 id="Base-class">Base class<a class="anchor-link" href="#Base-class">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In order to allow compatibility with the existing Dashboard instruments and their window handling the base class shall be existing <em>DashboardInstrument</em>.</p>
 
 </div>
 </div>
@@ -13532,7 +13384,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211324_w10_ov50_influxdbout_signalkin_TCP_threads.png" alt="2019-10-12_211324_w10_ov50_influxdbout_signalkin_TCP_threads.png"></p>
+<h2 id="Abstraction-layer-class">Abstraction layer class<a class="anchor-link" href="#Abstraction-layer-class">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The class creating and using wxWebView window and communicating with the JavaScript application part of the instrument shall be an abstract class called <em>InstruJS</em>.</p>
 
 </div>
 </div>
@@ -13540,7 +13399,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can observe above the increased CPU load. This socket thread is doing something! Let's observe does it translate as increased number of I/O operations:</p>
+<h3 id="Implementation-class">Implementation class<a class="anchor-link" href="#Implementation-class">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The class implementing the instrument is implementing an <em>InstruJS</em> type of object is managing the interface toward the Dashboard-Tactics plug-in is called <em>EngineDJG</em>.</p>
 
 </div>
 </div>
@@ -13548,7 +13414,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="2019-10-12_211323_w10_ov50_influxdbout_signalkin_TCP_perfgraph.png" alt="2019-10-12_211323_w10_ov50_influxdbout_signalkin_TCP_perfgraph.png"> <a href="img/2019-10-12_211323_w10_ov50_influxdbout_signalkin_TCP_perfgraph.png">(zoom)</a></p>
+<h3 id="Implementation-application">Implementation application<a class="anchor-link" href="#Implementation-application">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Albeit there is no base class for the implementation JavaScript application the implementation shall be called <em>enginedjg</em> with all possible modules with no direct dependencies to the implementation itself collected in a super structure above it, called <em>instujs</em> - this in view of in the future develop other instrument types similar to the <em>EngineDJG</em> implementation, such as status displays.</p>
 
 </div>
 </div>
@@ -13556,7 +13429,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Yes! Please zoom in and you can see that there is clear increase in the overall I/O operations, about 500 kB delta/s caused by the new channel of data, Signal K delta data.</p>
+<h1 id="HTML/CSS/JS-application-development">HTML/CSS/JS application development<a class="anchor-link" href="#HTML/CSS/JS-application-development">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The development cycle is a typical one for such an application. However, from the <a href="#Development+Paradigm">development paradigm</a> follows that one needs always think and continously test on the final target, <em>i.e.</em> the worst case real-life environment and - if possible - make the application to automatically adapt to the conditions found on the target system and the intended usage on it.</p>
 
 </div>
 </div>
@@ -13564,7 +13444,137 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p><strong>Note</strong>: the payload of the Signal K delta data is by no means containing strictly and only the data which the instruments need: it is the delta of all data Signal K has got and therefore contains data which is certainly not used by any instrument. The Signal K data format in JSON is compact but still human readable and as such it is much longer than the cryptic but compact NMEA-0183 data. However, this has not much impact of today's fast communication channels since we are talking about TCP/IP sockets here and not some RS-232-C 4800 baud line which, for all practical purposes NMEA-0183 is.</p>
+<h2 id="Snippets-and-ideas">Snippets and ideas<a class="anchor-link" href="#Snippets-and-ideas">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You may have your own cloud based favorite to develop your HTML/CSS/JS snippets. If not, why not try <a href="https://codepen.io">https://codepen.io</a>, some <a href="https://codepen.io/petrim">snippets from the author</a> are public, of course, and can be forked. Do not hesitate to browse the featured projects of this or any other similar site!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Of course, if you are more discrete and/or hate the cloud, you can use workspaces provided by the browser based tools (see below). Not sure, though about the obtained level of secrecy and the need to have it in this case... Use what you like the best!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Browser-based-development-and-testing">Browser based development and testing<a class="anchor-link" href="#Browser-based-development-and-testing">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using modern browser's <code>Ctrl+Shift+I</code> which opens the integrated tools for the web developers remains the ideal tool to debug your HTML/CSS/JS application. Nothing beats the possibility to set breakpoints, study the document structure, and to see what CSS sentences are, actually ignored by the browser and which one are doing what you expected them to do.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Because the "<em>browser</em>" compatibility - or rather the incompatibility is a real issue in this development, you can see that the <code>onload</code> event handler takes the usage of the <code>CSS.support()</code> function - when it is available! (Which we first need to detect.)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Verifying-(often)-on-the-target-system">Verifying (often) on the target system<a class="anchor-link" href="#Verifying-(often)-on-the-target-system">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Careful out there! Fancy design may work on you browser but does it work on <code>wxWidgets</code> <code>WebView</code> on WebKit/IE back-end?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is a good idea to keep open and <strong>regularly</strong> reload your project on the <code>WebView</code> based simple browser, called - surprisingly - <strong><em>webview</em></strong>. If that browser is located on the most modest of the targeted platforms, like Raspberry Pi, that's even better.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Modular-development-and-packaging">Modular development and packaging<a class="anchor-link" href="#Modular-development-and-packaging">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>node.js</code>, <code>npm</code> and <code>webpack</code> - well, consider <code>webpack</code> being the <code>CMake</code> equivalent of HTML/CSS/JS world! (Or worse...)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In case you wonder why there are so many folders and files in the development area, tt is better to read a <a href="https://medium.com/dev-bits/everything-i-know-about-writing-modular-javascript-applications-37c125d8eddf">nice tutorial like this</a> about this dodgy subject with many opinions; the discussion is quite demanding in number of paragraphs...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Multi-language-support">Multi-language support<a class="anchor-link" href="#Multi-language-support">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Complicated in JavaScript in general and <code>webpack</code> does not help in that. I found this example project: <a href="https://github.com/donaldpipowitch/webpack-i18n-example">https://github.com/donaldpipowitch/webpack-i18n-example</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For now, simple <code>lang.js</code> file which is to be replaced with, say <code>lang-fr.js</code> file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Character-set-specific-issues">Character-set specific issues<a class="anchor-link" href="#Character-set-specific-issues">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>git</code> under different systems may change the encoding which can create an issue in the following case:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Special characters as symbols must match the target systems - Javascript does not particularly know about the UTF-8, it just puts out the characters to the browser. For example, degree character ° in <code>common.js</code> is nerve-racking! This is how I managed to get it work in <code>justgage</code> <code>symbol</code> character: I used <code>emacs</code> on a Linux machine and entered the character with <code>C-x 8 RET B0 RET</code> which enters an UTF-8 encoded character. Tested OK. Now, syncing the Windows machine with GitHub Desktop. Surprise, the file is now encoded ANSI - one can verify this with <code>Notepad++</code> and the degree sign looks funny. <strong>Do not touch it!</strong>. As such, it actually works in IE based WebKit backend. You can test it with IE and it works both in <code>justgage</code> but also in the plain HTML (<em>i.e.</em> "simple") display.</p>
 </blockquote>
 
 </div>
@@ -13573,14 +13583,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Detailed-performance-analysis-of-the-implementation">Detailed performance analysis of the implementation<a class="anchor-link" href="#Detailed-performance-analysis-of-the-implementation">&#182;</a></h3>
+<h2 id="Static-code-check-ESLint-etc.">Static code check ESLint etc.<a class="anchor-link" href="#Static-code-check-ESLint-etc.">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>A set of example data was collected in real-life condition (in a boat with the above configuration) for three use cases, both in a USB connected Raspberry system and in a USB connected Window 10 system. No WiFi was used but all TCP/IP connections were internal TCP/IP which, in Linux means that the message is not passing through the device driver stack.</p>
+<p>The static code check for pull request - or any commit whatsover - is done witch <code>Codacy.com</code> and not continous build checks with integrated <code>ESlint</code> in the <code>webpack</code> - I do not see the need to have both. Also, there is a problem to get the <code>ESlinit</code> configuration imported every time it changes into <code>Codacy.com</code> so I have given up and I use its on-line tool to set up the rule. You are invited to learn those chosen for this project from <a href="https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/patterns/list">https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/patterns/list</a> - they cannot be exported, unfortunately.</p>
 
 </div>
 </div>
@@ -13588,7 +13598,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The detailed reports can be read using the below links.</p>
+<p>One can discuss about the meaningfulness of any rule, of course but in general, I expect grade <code>A</code> code, that means <em>zero</em> static check error - with the given rules, of course. I will seriously hesitate if I get a grade <code>B</code> pull request reports from <code>Codacy.com</code>. So please iterate a few times to get the <code>A</code> grade so that time consuming discussions and work can be avoided.</p>
 
 </div>
 </div>
@@ -13596,7 +13606,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><em>Raspberry Pi results</em> (<a href="analysis\Three-way_timestamps/Three-way_timestamps_Rpi.ipynb">ipynb</a> | <a href="analysis\Three-way_timestamps/Three-way_timestamps_Rpi.html">html</a> | <a href="analysis\Three-way_timestamps/Three-way_timestamps_Rpi.pdf">pdf</a>)</p>
+<h3 id="The-innerHTML-rule">The innerHTML rule<a class="anchor-link" href="#The-innerHTML-rule">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We follow the (somewhat old, in purpose since we are working an older back-ends) <a href="https://developer.mozilla.org/en-US/docs/Archive/B2G_OS/Security/Security_Automation">https://developer.mozilla.org/en-US/docs/Archive/B2G_OS/Security/Security_Automation</a></p>
 
 </div>
 </div>
@@ -13604,7 +13621,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><em>Windows 10 results</em> (<a href="analysis\Three-way_timestamps/Three-way_timestamps_win10.ipynb">ipynb</a> | <a href="analysis\Three-way_timestamps/Three-way_timestamps_win10.html">html</a> | <a href="analysis\Three-way_timestamps/Three-way_timestamps_win10.pdf">pdf</a>)</p>
+<p>I have ported Firefox's class mentioned in the above instructions in <code>../src/escapeHTML.js</code> - use the class as <code>Sanitizer</code> - there are plenty of examples of its suggested usage in the code, <code>grep</code> them with <code>innerHTML</code>.</p>
 
 </div>
 </div>
@@ -13612,14 +13629,14 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2>
+<h1 id="WebView-specific-issues">WebView specific issues<a class="anchor-link" href="#WebView-specific-issues">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The implementation meets the requirements. The obtained improvements in the stability and in the reduction of the jitter are significant.</p>
+<p>Please find and collect also your findings about the wonderfully complex world of the WebView - on differen platforms having different back-ends!</p>
 
 </div>
 </div>
@@ -13627,7 +13644,17 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>There is performance margin which allows the boat owner to take advantage of the modern socket based communication by increasing the sampling rate of his or her sensors and instruments (by replacing them).</p>
+<h2 id="WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW_WEBKIT">WebView specific on Linux <code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW_WEBKIT</code><a class="anchor-link" href="#WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW_WEBKIT">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You will find that the on Raspberry Pi, or on any other Linux based system the <code>wxWidgets</code> environment is not the same than on your fancy laptop. You can find the <em>webview</em> sample from the source distribution, here:</p>
+
+<pre><code>/usr/share/doc/wx3.0-examples/examples/</code></pre>
+<p>Use the unpack script to unpack the <em>webview</em> example, run <code>make</code> and then run the application. Load your page on it and see if it works the same. If it does not, see below for debug instructions.</p>
 
 </div>
 </div>
@@ -13635,7 +13662,1329 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The implementation enables the shortest possible data path to instruments and, also importantly to Tactics "regatta computer" or other algorithms, it enables greater data throughput with accurate timestamps.</p>
+<p>I tried to put TRUE these <a href="https://webkitgtk.org/reference/webkitgtk/2.4.10/webkitgtk-webkitwebview.html">settings</a>: <code>enable-file-access-from-file-uris</code> and <code>enable-universal-access-from-file-uris</code>, unfortunately they do not have any effect on the handling of <code>file://</code> URIs <strong>if there are cookie-saving involved</strong>: it does not work.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's try with this browser: <code>/usr/lib/arm-linux-gnueabihf/webkit2gtk-4.0 $ ./MiniBrowser --cookies-policy=always</code> : Proof of Concept (POC) which confirms that while the OpenCPN and wxWidgets still use WebKit1 on Linux, it would not be any better with WebKit2Gtk! (I was planning to try this parameter.)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Both WebKit1x and WebKit2Gtk silently refuse to save cookies, if the URI is not <code>http://</code>  or <code>https://</code>, respecting the <a href="https://tools.ietf.org/html/rfc6265">RFC6265</a>. To maintain porting compatibility, use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">LocalStorage</a> instead, perhaps with JSON parsing.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="WebView-specific-on-Mac-__WXGTK__">WebView specific on Mac <code>__WXGTK__</code><a class="anchor-link" href="#WebView-specific-on-Mac-__WXGTK__">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>contribution welcome</code>: likel, is it <code>wxUSE_WEBVIEW_WEBKIT</code> or <code>wxUSE_WEBVIEW_WEBKIT2</code>?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW__IE">WebView specific on Linux <code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW__IE</code><a class="anchor-link" href="#WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW__IE">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>On Windows: <code>C:\wxWidgets-3.1.2\samples\webview\vc_mswud</code> (after the build). Compiled with default settings it works for the development purposes in this project without problem.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="WebView-specific-on-Linux-WXGTK">WebView specific on Linux <strong>WXGTK</strong><a class="anchor-link" href="#WebView-specific-on-Linux-WXGTK">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>/usr/share/doc/wx3.0-examples/examples/</code> Used makefile OK.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Debugging-on-the-target-system">Debugging on the target system<a class="anchor-link" href="#Debugging-on-the-target-system">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First of all, make symbolic links from the OpenCPN plug-in installation folders into your development folder: you are going to need it since modifications by trial and error are needed when all you have is a blank screen on <strong><em>webview</em></strong> when you open your application which works damn fine on your fancy browser! You do not want to spend your life to reinstall the plug-in after every modification.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Performance-issues">Performance issues<a class="anchor-link" href="#Performance-issues">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Executing in a tight loop scripts on multiple windows soon brings up the CPU load!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Tools to observe this are the usual process tools, in Windows <code>procexp.exe</code> and on Linux <code>htop</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Small things to details can make a big difference! In the design paradigm we expect the data coming from engine, not from wind vane, for example. The CPU load should be not big since the dial is not moving so often, like the wind direction dial which is jumping back and forth. But we should not send the useless data to the dial: if it has the value, do not use heavy script execution to send the same value again! Remember, we do not send float values but strings. We make sure that we do not have more than one decimal. And if the value is the same, do not send it to the instrument!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The below process image details is from Windows when there is no filtering of repetitive data with twelve (12!) JS instruments, fed by the NMEA Simulator via Signal K delta channels via Signal K input streamer about 130 floats per second but with static data set (the peaks are InfluxDB Out flusing to a file):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_01.png" alt="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_01.png"> <a href="img/2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_01.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>That is huge waste of the CPU power since the dials are not moving at all. Let's make the following change in the script sending code and then observe again:</p>
+
+<pre><code>        if ( m_istate == JSI_SHOWDATA ) {
+            if ( m_data != m_lastdataout ) {
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s",
+                        "window.iface.newdata(",
+                        m_data,
+                        ");");
+                RunScript( javascript );
+                m_lastdataout = m_data;
+            } // then do not load the system with the same script execution multiple times
+        } // the instrument is ready for data</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02.png" alt="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02.png"> <a href="img/2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The CPU-load looks quite reasonable around 7 percent w/ i7 CPU and the number of I/O operations is less than half of what it used to be!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Of course, when one creates heavy oscillation in the r.p.m. values, for example, the CPU load goes up, since the SVG-rendering of several dials in this case is entering into the game - there is always a price to pay for jumping dials! But it is noteworthy that the number of I/O operations remain low, nevertheless.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02_cont_changes.png" alt="2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02_cont_changes.png"> <a href="img/2020-01-20_dgb_procexp_12_instrucjs_clients_alpha_02_cont_changes.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The background load can be further reduced by <strong>randomizing the threads</strong> which are driving the JS instruments:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-01-22_dgb_procexp_12_instrucjs_clients_alpha_02_randomized_threads.png" alt="2020-01-22_dgb_procexp_12_instrucjs_clients_alpha_02_randomized_threads.png"> <a href="img/2020-01-22_dgb_procexp_12_instrucjs_clients_alpha_02_randomized_threads.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Overall-performance-in-hosting-system(s)">Overall performance in hosting system(s)<a class="anchor-link" href="#Overall-performance-in-hosting-system(s)">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The paradigm of subscription of the JS instruments into the single datasource which is provided by the <code>streamin-sk.cpp</code> is efficient by the speed of tha call-backs and their little overhead. It also limits the number of connections to the Signal K server node.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The subscription paradigm probably (but not necessarily) needs to be expanded to that steamer/parser itself. Starting from <em>SignalK server node v1.19.0</em> the subscription policy is made mandatory also for the TCP socket data read. This can be used to our advantage regarding the CPU load. The streamer is centralizing the data connection which is good, but once we have set up of what we need to subscribe for, we could reduce the CPU load of that streamer by asking it to subscribe only for the values we are interested in.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With NMEA Simulator we can reach quite considerable amount of messages, which leads the <code>streamin-sk.cpp</code> thread to process about 290 - 300 floats per second resulting about 10 - 12 % of constant CPU load (Win20/i7), at the same time <code>npm</code> process, hosting the Signal K server node has 7 - 8 % CPU load.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-02-09_dgb_procexp_01_instrucjs_clients_alpha_02_sk1-21-0_max_nof_NMEA-2000_msgs.png" alt="2020-02-09_dgb_procexp_01_instrucjs_clients_alpha_02_sk1-21-0_max_nof_NMEA-2000_msgs.png"> <a href="img/2020-02-09_dgb_procexp_01_instrucjs_clients_alpha_02_sk1-21-0_max_nof_NMEA-2000_msgs.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is no doubt that the network distributed data producing and consuming is a better configuration scheme: the Signal K server on a RPI and the data consumer on another computer, like on Windows laptop or a tablet. Here we make the other way around (because of the NMEA Simulator being a Windows program) but it shows the idea of consuming one CPU core on a RPI 4 for communication tasks:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-02-09_dgb_htop_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png" alt="2020-02-09_dgb_htop_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png"> <a href="img/2020-02-09_dgb_htop_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Resulting network traffic on the TCP port 8375, over WiFi:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-02-09_wireshark_wifi_rate_8375TCP_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png" alt="2020-02-09_wireshark_wifi_rate_8375TCP_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png"> <a href="2020-02-09_wireshark_wifi_rate_8375TCP_procexp_01_instrujs_clients_alpha_02_sk1-21-0_RPIclient_WinSKsrv.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Help!-My-fancy-application-looks-rotten-/-does-not-work-on-RPI">Help! My fancy application looks rotten / does not work on RPI<a class="anchor-link" href="#Help!-My-fancy-application-looks-rotten-/-does-not-work-on-RPI">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's consider our design constraints first: we are developing for cross-platform, limited or old-fashioned web application run-time support environment with very small screen or canvas area.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Sounds familiar? Yes, it is like developing a HTML/CSS/JS application for a telephone back in the day!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You need to have the patience - and more importantly - the possibility to carefully check and adjust at pixel level CSS files and debug stubborningly failing JavaScript which worked fine on your browser.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Unfortunately the <em>iOS</em> or <em>Android</em> USB-based development tool connections to your <em>Safari</em> or <em>Chrome</em> will not be any good in this case.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is, however a solution. It is not developed any more (since 2017) but it still exists and <strong>it still works</strong>: <a href="https://people.apache.org/~pmuellr/weinre/docs/latest/">WEINRE</a>. Let's hope it is not going away, or that other tools for <code>wxWidgets</code> <code>WebView</code> would emerge!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p><strong>Attention vulnerabilities</strong> - <em>weinre</em> module has its development stopped and it is as such a very vulnerable product. Use <code>npm audit</code> to see the details of those. Make sure to use --save-dev switch when installing to use it only for occasional debugging during the development phase.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>While waiting the new tools, I archived <a href="pdf/debugging_mobile_javascript_with_WEINRE_ibm_blog_2011.pdf">this paper</a> (<a href="https://www.ibm.com/developerworks/community/blogs/94e7fded-7162-445e-8ceb-97a2140866a9/entry/debugging_mobile_javascript_with_weinre?lang=en">2011</a>) which nicely explains the remote portable device debugging concept and what you can expect and what you cannot expect from WEINRE.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Installating-WEINRE-on-RPI">Installating WEINRE on RPI<a class="anchor-link" href="#Installating-WEINRE-on-RPI">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To use WEINRE, one needs to have web server. Luckily, on RPI this is easy:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h6 id="Installing-http-server-on-RPI">Installing http-server on RPI<a class="anchor-link" href="#Installing-http-server-on-RPI">&#182;</a></h6>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you are reading this, it is highly likely that you are using the excellent <a href="https://github.com/SignalK/signalk-server-node/blob/master/raspberry_pi_installation.md">SignalK node server</a> on your RPI. That means that you have <code>node.js</code> and, with it <code>npm</code> package manager.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Install <a href="https://www.npmjs.com/package/http-server">http-server</a> with command <code>sudo npm install http-server -g</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using the command line, move to the directory where your application file root is located and give command <code>http-server</code>. Leave it running <em>et voilà</em>, you have a web server!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Get-WEINRE">Get WEINRE<a class="anchor-link" href="#Get-WEINRE">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>sudo npm intall --save-dev weinre</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Configuring-WEINRE">Configuring WEINRE<a class="anchor-link" href="#Configuring-WEINRE">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In your home folder, create a file <code>~/.weinre/server.properties</code> with the following contents:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>boundHost:    -all-
+httpPort:     8081
+reuseAddr:    true
+readTimeout:  1
+deathTimeout: 5</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Launching-WEINRE-server">Launching WEINRE server<a class="anchor-link" href="#Launching-WEINRE-server">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using (another shell) command line, type <code>weinre</code> and leave it running.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now you should have two servers, <code>http-server</code> and <code>weinre</code> running.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Opening-the-WEINRE-debugger">Opening the WEINRE debugger<a class="anchor-link" href="#Opening-the-WEINRE-debugger">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Start the RPI's browser, probably <em>Chromium</em> (but I am using <em>Vivaldi</em>) and navigate to <code>localhost:8081</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The server's welcome page, <em>weinre - web inspector remote</em> will open. It will give you interesting information and even demos you may want to try first opening them on a <strong>separate</strong> screen or tab.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Likewise, you would open the debugger service, <code>localhost:8081/client/#anonymous</code> on a separate screen or tab. This window is now waiting for a connection from your remote (or local) <code>wxWidgets</code> <code>WebView</code> based application.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Preparing-your-application-for-remote-debugging">Preparing your application for remote debugging<a class="anchor-link" href="#Preparing-your-application-for-remote-debugging">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With "<em>remote</em>" we understand your debug server running on the Raspberry Pi, and either a <em>webview</em> browser or OpenCPN with its <code>WebView</code> class based instruments running on your Windows, Mac or Linux development system</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Of course, it is not so "<em>remote</em>" if the main debugging target being the <em>webview</em> browser or OpenCPN running on Raspberry Pi. But since WEINRE access event those applications through the http-server, it does not make any difference, in fact:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One can have multiple hosts used at the same time, for testing and debugging the same application on different run-time platforms.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Each instance of the application must know where WEINRE server is located. So you need to know your Raspberry Pi's IP-address in your network. Let's say it is 192.168.8.103 : In really "<em>remote</em>" test environments you would add the following line in your HTML:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>&lt;!--script src="http://192.168.8.103:8081/target/target-script-min.js#anonymous"&gt;&lt;/script--&gt;</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is not mandatory to use it in exclusively "<em>local</em>" development, you can set:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>&lt;!--script src="http://127.0.0.1:8081/target/target-script-min.js#anonymous"&gt;&lt;/script--&gt;</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Open the your application's HTML-file in <em>webview</em> browser - drag and drop works.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As you can see above, this makes the application to download a javascript module from the WEINRE server. It connects you the WEINRE server's debug environment. If you not see the connection under the <em>Remote</em> tab, reload the page:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-12-25_weinre_server_connected_to_local_host_client.png" alt="2019-12-25_weinre_server_connected_to_local_host_client.png"> <a href="pdf/2019-12-25_weinre_server_connected_to_local_host_client.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Debugging-with-WEINRE">Debugging with WEINRE<a class="anchor-link" href="#Debugging-with-WEINRE">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Please remember that this is <strong>not</strong> full blown JavaScript debugger like the one which you can find from your browser. Before coming here you have debugged your algorithms and you will use WEINRE only to find and sort out the snagging incompatibility issues between the various run-time environments.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>What can one do with WEINRE, then?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Inspect-the-document-structure">Inspect the document structure<a class="anchor-link" href="#Inspect-the-document-structure">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the case of it is your JavaScript which dynamically constructs your document structure contents, it would be a good omen for the rest of the session if you can find actually the intended identifiers in the structure:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-12-25_weinre_server_element_inspection.png" alt="2019-12-25_weinre_server_element_inspection.png"> <a href="img/2019-12-25_weinre_server_element_inspection.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Like with the modern browsers, you can select a structure in the "<em>Elements</em>" window and it will be highlighted in the <em>webview</em> browser, which is quite handy sometimes.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>"<em>Resources</em>", "<em>Network</em>" and "<em>Timeline</em>" tabs are quite useless and you should not expect to see anything interesting there.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>"<em>Console</em>", as the name implies allows you to inspect the variables and show the <code>console.log()</code> output.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-12-25_weinre_server_consolelog_code.png" alt="2019-12-25_weinre_server_consolelog_code.png"> <a href="img/2019-12-25_weinre_server_consolelog_code.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, the answer to the question "<em>what to do?</em>" if your screen remains blank or if the mouse event does not work as you expect is the following: Use the good old "<em>comment out suspicious code blocks until your application loads</em>"-method!. Then put <code>console.log()</code> calls in critical points.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-12-25_weinre_server_console_mouse_event.png" alt="2019-12-25_weinre_server_console_mouse_event.png"> <a href="img/2019-12-25_weinre_server_console_mouse_event.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p><strong>NOTE</strong> An older browser with developers tools is often enough to resolve startup problems related to typos in variable names and such (you do not need Weinre for that). Blow the dust out from your obsolete Internet Explorer and hit key <strong>F12</strong>!</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2019-12-25_weinre_server_console_mouse_event_log.png" alt="2019-12-25_weinre_server_console_mouse_event_log.png"> <a href="img/2019-12-25_weinre_server_console_mouse_event_log.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Rudimentary? Yes, but supposing that your algorithms are already tested elsewhere, WEINRE allows you to have the necessary tools to avoid guesswork based development!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Debugging-Data">Debugging Data<a class="anchor-link" href="#Debugging-Data">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First of all, our interface is Signal K node server which puts out Signal K. But it does not hurt to know how does it get the data from the NMEA-2000 bus</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Since nobody can count the number of NMEA-2000 adaptations out there, we use the excellent <a href="https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a6#how_to_use_a_nmea-simulator_to_stream_nmea-0183_and_nmea-2000_data">NMEA-0183/2000 Simulator</a></p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="NMEA-2000-data-analysis">NMEA-2000 data analysis<a class="anchor-link" href="#NMEA-2000-data-analysis">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>By far the easiest way is to use the log files provided by a proven Signal K server node device support. It is unlikely that one will find a bug here, but it is good practice to start the signal path debugging as close to the source as possible.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Turn on the log file usage for the connection, let the NMEA-2000 data flow and check the result. You should find something like this:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>1580932802754;A;2020-02-05T20:00:02.735Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802758;A;2020-02-05T20:00:02.755Z,6,126996,18,255,134,14,05,9a,02,4e,4d,45,41,32,30,30,30,20,
+73,69,6d,75,6c,61,74,6f,72,20,65,6e,67,69,6e,65,00,00,00,00,00,00,00,31,2e,
+32,2e,30,2e,31,30,39,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,
+00,00,00,00,00,31,2e,32,2e,30,2e,30,00,00,00,00,00,00,00,00,00,00,00,00,00,
+00,00,00,00,00,00,00,00,00,00,00,00,32,30,39,37,31,34,37,00,00,00,00,00,00,
+00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,01,01
+1580932802812;A;2020-02-05T20:00:02.811Z,6,60928,18,255,8,fb,ff,bf,ff,00,a0,64,c0
+1580932802813;A;2020-02-05T20:00:02.812Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802813;A;2020-02-05T20:00:02.813Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802813;A;2020-02-05T20:00:02.813Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802814;A;2020-02-05T20:00:02.813Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,83,01,e1,d9,
+a7,00,01,00,1f,00,ff,00,00,00,00,43,3d
+1580932802889;A;2020-02-05T20:00:02.889Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+1580932802890;A;2020-02-05T20:00:02.889Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff
+...</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first line <code>1580932802754;A;2020-02-05T20:00:02.735Z,2,127488,18,255,8,00,ac,0c,d6,02,02,ff,ff</code> is 127488 Engine Parameters, Rapid Update</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From <a href="http://www.nmea.org/Assets/july%202010%20nmea2000_v1-301_app_b_pgn_field_list.pdf">nmea2000_v1-301_app_b_pgn_field_list.pdf</a></p>
+
+<pre><code>Field # Field Description
+Provides data with a high update rate for a specific engine in a single frame message. The first field provides information as to
+which engine.
+1 Engine Instance
+2 Engine Speed
+3 Engine Boost Pressure
+4 Engine tilt/trim
+5 Reserved Bits</code></pre>
+<p>See also (there are some contradictory information, probably vendor dependencies!):</p>
+<ul>
+<li><a href="https://www.nmea.org/Assets/20090423%20rtcm%20white%20paper%20nmea%202000.pdf">NMEA2000-explained-white-paper.pdf</a></li>
+<li><a href="http://continuouswave.com/whaler/reference/PGN.html">http://continuouswave.com/whaler/reference/PGN.html</a></li>
+<li><a href="http://data.over-blog-kiwi.com/0/54/01/67/20151122/ob_f92436_nmea2k-network-design-v2.pdf">NMEA2K_Network_Design_v2.pdf</a>) :</li>
+</ul>
+
+<pre><code>6.9 PGN 127488 – Engine Parameters, Rapid Update
+Field 1: Engine Instance – This field indicates the particular engine for which this
+data applies. A single engine will have an instance of 0. Engines in multi-engine
+boats will be numbered starting at 0 at the bow of the boat incrementing to n going
+in towards the stern of the boat. For engines at the same distance from the bow are
+stern, the engines are numbered starting from the port side and proceeding towards
+the starboard side.
+2: Engine Speed – This field indicates the rotational speed of the engine in units of ¼
+RPM.
+3: Engine Boost Pressure – This field indicates the turbocharger boost pressure in
+units of 100 Pa.
+4: Engine tilt/trim – This field indicates the tilt or trim (positive or negative) of the
+engine in units of 1 percent.
+5: Reserved – This field is reserved by NMEA</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>1: Engine instance = 00</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>2: Engine speed: AC/0C = 0xCAC = 3244 =&gt; $3244 \div 4 = 811 r.p.m.$ (NMEA Simulator shows 811 OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>3: Engine Boost Pressure: D6/02 = 0x2D6 = 726 =&gt; $726*100Pa=72.6kPa$ (NMEA simulator was showing 72.6kPa at this moment OK!)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>4: Engine Tilt/trim: 02 =&gt; $2\%$ (NMEA simulator was showing $+2\%$ OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's try with a negative value, with the simulator we set trim to -24$^{\circ}$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read now: 1581197536148;A;2020-02-08T21:32:16.139Z,2,127488,18,255,8,00,60,12,d6,02,<strong>e8</strong>,ff,ff</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>e8 =&gt; 100 - E8 = ‭0x18 = 24</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Suspected anomaly in Signal K server node v1.21.0 conversion (maybe that the driver is working correctly with intended hardware? In this case, the hardware is screwed...): $\pm$ values are converted in Signal K in an incoherent manner: like +2 becomes 2.0E-2 but -24 remains -12.0 and not -1.2E-1 as expected. I am fixing this in the subcscription callback of <code>instrujs.cpp</code> now.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="127489-sentence">127489-sentence<a class="anchor-link" href="#127489-sentence">&#182;</a></h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read: <code>1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,
+83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
+
+<pre><code>6.10 PGN 127489 – Engine Parameters, Dynamic
+Field 1: Engine Instance – This field indicates the particular engine for which this</code></pre>
+<p>(see above, engine data is same)</p>
+
+<pre><code>2: Engine Oil Pressure – This field indicates the oil pressure of the engine in units of
+100 Pa.</code></pre>
+<p>4C/0A = 0xA4C = 2636 =&gt; $2636 * 100Pa = 263.6kPa$ (NMEA simulator was showing $263.2kPa$ ? $\equiv$ A48 =&gt; 48/0A ? also Instrujs shows 264 kPa - looks like a rounding error!)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>3: Engine Oil Temperature – This field indicates the oil temperature of the engine in
+units of 0.1°K.</code></pre>
+<p>66/0E = 0xE66 = 3686 =&gt; $368.6^{\circ}K \approx 95.6^{\circ}C$ (NMEA simulator was showing $95.6^{\circ}C$ = OK!)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read: <code>1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,
+83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
+
+<pre><code>4: Engine Temperature – This field indicates the temperature of the engine coolant in
+units of 0.1°K.</code></pre>
+<p>5D/75 = 0x755D = 30045 =&gt; $300.45^{\circ}K \equiv 27.3^{\circ}C$ (NMEA simulator was showing $27.3^{\circ}C$ OK, so does the <em>instrujs</em>)</p>
+<p>Therefore : the units are <code>0.01°K</code> and <strong>not</strong> <code>0.1°K</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read: <code>1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,
+83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
+
+<pre><code>5: Alternator Potential – This field indicates the alternator voltage in units of 0.01V.</code></pre>
+<p>32/05 = 0x532 = 1330 =&gt; %13.3V% (NMEA simulator was showing the same OK).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>6: Fuel Rate – This field indicates the fuel consumption rate of the engine in units of
+0.0001 cubic meters / hour.</code></pre>
+<p>83/01 = 0x183 = 387 =&gt; $387m^{3}/h * 0.0001 \equiv 38.7l/h$ which is the value NMEA simulator is showing OK</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>7: Total Engine Hours – This field indicates the cumulative runtime of the engine in
+units of 1 second.</code></pre>
+<p>We need to take another example than the rest what is discussed above and below, since the hour counter is running all the time!</p>
+<p>1581024474143;A;2020-02-06T21:27:54.141Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,83,01,<strong>59,3a,b0,00</strong>,01,00,1f,00,ff,00,00,00,00,43,3d</p>
+<p>59/3a/b0/00 = 0x00b03a59 = ‭11000289‬ =&gt; $‭‭11549273‬‬s \equiv ‭192487.88‬m \equiv ‭3208.13h$ (NMEA Simulator is showing 3212.8 hours right now, so the data is simply a bit old from the log file)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read: <code>1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,
+83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
+
+<pre><code>8: Engine Coolant Pressure – This field indicates the pressure of the engine coolant
+in units of 100 Pa.</code></pre>
+<p>01/00 = 0001 =&gt; 100Pa = 0.1kPa (NMEA simulator is showing exactly this value OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>9: Fuel Pressure – This field indicates the pressure of the engine fuel in units of 1000
+Pa.</code></pre>
+<p>1F/00 = 0x001F = 31 =&gt; $31*1000Pa\equiv31kPa$ (NMEA Simulator was showing 30.7kPa OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We read: <code>1580932802889;A;2020-02-05T20:00:02.814Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,
+83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
+
+<pre><code>13: Percent Engine Load – This field indicates the percent load of the engine in units
+of 1 percent.</code></pre>
+<p>43 = 67 =&gt; $67\%$ (NMEA Simulator was showing 67% OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>14: Percent Engine Torque – This field indicates the percent torque of the engine in
+units of 1 percent.</code></pre>
+<p>3D = 61 =&gt; $67\%$ (NMEA Simulator was showing 61% OK)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Debugging-using-Python-CAN-and-Serial-Python">Debugging using Python CAN and Serial Python<a class="anchor-link" href="#Debugging-using-Python-CAN-and-Serial-Python">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There are as many alternatives for debugging NMEA-2000 bus - which is essentially an enhanced CAN-bus - as there are adapters to connect into it. You are welcome enhance this section with your knowledge about those. Meanwhile, in order to have an idea how the NMEA-2000 device support of Signal K server nodes sees the data, let's study a serial line connected NMEA-2000</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>import serial
+ser = serial.Serial('COM30')
+s = ser.read(100)
+print(s)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One gets something like this:</p>
+
+<pre><code>b'\xf2\x01\xff\x12\x00\x00\x00\x00\x08\x00&lt;\x08\xd6\x02\x02\xff\xff0\x10\x03
+\x10\x02\x93%\x02\x01\xf2\x01\xff\x12\x00\x00\x00\x00\x1a\x00L\nf\x0e]u2\x05
+\x83\x01\x10\x10\xb4\xb5\x00\x01\x00\x1f\x00\xff\x00\x00\x00\x00C=\xb8\x10
+\x03\x10\x02\x93\x13\x02\x00\xf2\x01\xff\x12\x00\x00\x00\x00\x08\x00&lt;\x08
+\xd6\x02\x02\xff\xff0\x10\x03\x10\x02\x93\x91\x06\x14\xf0\x01\xff'</code></pre>
+<p>Which is not that good, since one has both hex value and - when the interpretation is possible - ASCII values mixed.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This should, theoretically at least, work but does not show anything, probaly because of the protocol differences between CAN and enhancing NMEA-2000. We keep it here in case somebody has an idea how to get it work.</p>
+
+<pre><code>import can
+
+bus = can.interface.Bus(bustype='serial', channel='COM30', bitrate=115200)
+for msg in bus:
+    print(msg)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One can find attempts to print structured data without the aboev class, but they are not apated to NMEA-2000:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>import serial
+import struct
+
+ser = serial.Serial('COM30')
+
+fmt = "&lt;IB3x8s"
+
+while True:
+   can_pkt = ser.read(16)
+   can_id, length, data = struct.unpack(fmt, can_pkt)
+   data = data[:length]
+   print(data, can_id , can_pkt)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We get something like this:</p>
+
+<pre><code>b'\xff\x12' 328401424 b'\x10\x02\x93\x13\x02\x00\xf2\x01\xff\x12\x00\x00\x00\x00\x10\x02'
+b'\x00\x00\x00\x00\x86\x14\x05\x9a' 335974803 b'\x93\x91\x06\x14\xf0\x01\xff\x12\x00\x00\x00\x00\x86\x14\x05\x9a'
+b'0 simula' 1162694146 b'\x02NMEA2000 simula'
+b'ne\x00\x00\x00\x00\x00\x00' 544370548 b'tor engine\x00\x00\x00\x00\x00\x00'
+b'09\x00\x00\x00\x00\x00\x00' 841888000
+...</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Pure hex is the best</strong>, finally, one can search for <code>F201</code> which is hex signature of PGN  <code>127489</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>import serial
+import struct
+import binascii
+
+ser = serial.Serial('COM30')
+
+while True:
+   can_pkt = ser.read(4)
+   print(binascii.hexlify(can_pkt))</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, let's look from this data, for example, PGN 127489, Field, 3: Engine Oil Temperature.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>b'10029325'
+b'0201<strong>f201</strong>'
+b'ff120000'
+b'00001a00'
+b'4c0a<strong>660e</strong>'
+b'5d753205'
+b'8301802e'
+b'b8000100'
+b'1f00ff00'
+b'00000043'</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yes, it is still there, value 0x0e66 (see above for the interpretation).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I reckon that now we can just trust the Signal K driver's author what comes to the debug printing!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Observing-the-data-coming-from-Signal-K-server-node-delta-channel">Observing the data coming from Signal K server node delta channel<a class="anchor-link" href="#Observing-the-data-coming-from-Signal-K-server-node-delta-channel">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Starting from v1.19.0 the TCP delta channel requires also subscription without exception. Good for the standard and overall charge of the server but bad for debugging with an standard browser. One needs to be able to send the subscription in non-human readable JSON-format and - strangely - no headers are accepted before that, only the JSON structure! That makes the usage of the developer tools a bit awkward in the browser since how to compose such a message using the developer tools?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In case you manage to get the Signal K input streamer streaming something (by default, it asks for everything), you can increase its debug level in its JSON-configuration file <strong>above reasonable</strong> (<em>the thread will fail in its real-time parsing job because it needs to interrupt its running to call for the log file writing from the plugin process, also the log-file gets really quick really full, be warned</em>):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From <code>streamin-sk.cpp</code>:</p>
+
+<pre><code>if ( m_verbosity &gt; 5 ) {
+   m_threadMsg = wxString::Format(
+      "dashboard_tactics_pi: Signal K type (%s) sentence (%s) talker (%s) "
+       "src (%s) pgn (%d) timestamp (%s) path (%s) value (%f), valStr (%s)",
+       type, sentence, talker, src, pgn, timestamp, path, value, valStr);
+       wxQueueEvent( m_frame, event.Clone() );
+} // then slowing down seriously with the indirect debug log</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From <code>streamin-sk.json</code> (in data directory):</p>
+
+<pre><code>"streaminsk" : {
+   "source"          : "localhost:8375", // not limited to localhost
+   "api"             : "v1.19.0",        // version of Signal K server
+   "connectionretry" : 5,                // [s] (min.=1s to reduce CPU load)
+   "timestamps"      : "server",         // Signal K "server" or "local"
+   "verbosity"       : 6                 //0=no,1=events,2=verbose,3+=debug</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You will be well served:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>7:53:48 PM: dashboard_tactics_pi: DEBUG: Signal K JSON update server received delta-message:
+{
+   "context" : "vessels.urn:mrn:signalk:uuid:e5a702ea-0cb8-42cd-8f06-08c43bb5a4b6",
+   "updates" : [
+      {
+         "source" : {
+            "src" : "18",
+            "label" : "Emu2000",
+            "pgn" : 127489,
+            "type" : "NMEA2000"
+         },
+         "$source" : "Emu2000.18",
+         "timestamp" : "2020-02-08T18:53:47.921Z",
+         "values" : [
+            {
+               "path" : "propulsion.port.temperature",
+               "value" : 300.45
+            }
+         ]
+      }
+   ]
+}
+
+7:53:48 PM: dashboard_tactics_pi: Signal K type (NMEA2000) sentence () talker () src (18) pgn (127489) timestamp (2020-02-08T18:53:47.921Z) path (propulsion.port.temperature) value (300.450000), valStr (300.45)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="C++-debugging-for-the-subscribed-value">C++ debugging for the subscribed value<a class="anchor-link" href="#C++-debugging-for-the-subscribed-value">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>The key point is to have only <strong>one</strong> <em>instrujs</em> instrument subcribed to data under inspection, in our example the <code>propulsion.port.temperature</code> path. Please remind that we have C++ object, subscription based data - it s getting pretty complex pretty quickly from the debugging point of view!</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With your (single) subcribed instrument active and working and hopefully even showing some value, put your breakpoint here in <code>instrujs.cpp</code>:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>void InstruJS::PushData(double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) ) {
+        setTimestamp( timestamp );  // Triggers also base class' watchdog
+...</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using the above, example debugging data, you should see the same value, <em>i.e.</em> 300.45.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Javascript-data-debugging">Javascript data debugging<a class="anchor-link" href="#Javascript-data-debugging">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For performance reasons, <code>data.js</code> is not constantly printing debug information to the <code>console.log()</code>. But nothing prevents you to add such a statement in there. But since you will be running within the OpenCPN, you would probably need to use <code>weinre</code>-tool as discussed above to see the log output.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Instead, I have used slow but more verbose method of using a browser and its developer's tools. On can give the same commands through the window.iface.* methods than the <code>instrujs.cpp</code> is doing (much faster). With few such commands (with fake ID string but keep it always the same, like <code>555-666</code> to profit the persistence), one can then issue <code>iface.newdata()</code> commands.</p>
 
 </div>
 </div>
