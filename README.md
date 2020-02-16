@@ -9,7 +9,7 @@ _dashboard_tactics_pi_ in your OpenCPN plug-in catalog.
 
 _DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure.
 
-With the arrival of the next OpenCPN version it embraces [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since this is hopefully encouraging you to enable a fast and reliable Signal K data format source in your boat's infrastructure, [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by _DashT_ allowing it to present enhancements not present in the traditional OpenCPN Dashboard:
+With the arrival of the next OpenCPN version it embraces the open [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since it is hopefully encouraging you to install a fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by _DashT_ allowing it to create enhancements not present in the traditional OpenCPN Dashboard:
 
 * OpenCPN's Dashboard integrated
 
@@ -23,18 +23,18 @@ With the arrival of the next OpenCPN version it embraces [Signal K data format](
 
 * [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
 
-  * Provides Signal K engine and energy data on latest web technique instruments integrated in OpenCPN Dashboard
+  * Provides Signal K engine and energy data on dials built using latest web techniques but fully integrated in OpenCPN Dashboard
   * Best explained by this [short video](https://vimeo.com/391601955)
 
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
 
-  * Time series based databases are essential with the data volumes and rates of Signal K enabled servers
+  * Time series based databases are essential with the data volumes and rates created by Signal K enabled servers
   
   * Real-time storage and retrieval allows monitoring and historical data browsing using tools such as Grafana
   
   * An all-received-data dump-file can be registered to feed off-line InfluxDB v2.0 time series database
   
-    * Enhances post-race analysis and off-line polar calculations with high-frequency sampled data
+    * Enhances post-race analysis and off-line polar calculations with high sampling rate data
 
 * [Signal K data input streaming](https://canne.github.io/dashboard_tactics_pi/docs/signalk/SignalKInputStreamerUsage.html)
 
@@ -42,8 +42,8 @@ With the arrival of the next OpenCPN version it embraces [Signal K data format](
 
     * Maximum volume of data ;
     * Lowest possible latency ;
-    * Time stamps of all data at source ;
-    * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interfce.
+    * Time stamps at source ;
+    * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interface.
 
 * [Comprehensive documentation](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
 
