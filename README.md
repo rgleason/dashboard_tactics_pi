@@ -24,7 +24,7 @@ With the arrival of the next OpenCPN version we will see it embracing the open m
 * [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
 
   * Provides Signal K engine and energy data on dials built using latest web techniques but fully integrated in OpenCPN Dashboard
-  * Best explained by this [short video](https://vimeo.com/391601955)
+  * Best explained by this [short video](https://vimeo.com/391601955) (on a very small display)
 
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
 
