@@ -45,7 +45,7 @@ With the arrival of the next OpenCPN version it embraces the open [Signal K data
     * Time stamps at source ;
     * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interface.
 
-* [Comprehensive documentation](https://canne.github.io/#:%5B%5BDashT - plug-in for OpenCPN%5D%5D)
+* [Comprehensive documentation](https://canne.github.io/#DashT%20-%20plug-in%20for%20OpenCPN)
 
   * Detailed User's Manuals
   * Developer's information with performance analysis and debugging tips
@@ -56,7 +56,7 @@ See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages
 
 ## Configuration
 
-Please refer to User's Guides accessible from the [documentation pages](https://canne.github.io/#:%5B%5BDashT - plug-in for OpenCPN%5D%5D)
+Please refer to User's Guides accessible from the [documentation pages](https://canne.github.io/#DashT%20-%20plug-in%20for%20OpenCPN)
 
 ## Compiling
 
