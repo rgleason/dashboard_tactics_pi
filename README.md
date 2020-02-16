@@ -1,38 +1,52 @@
 <a href="docs/developers/README.md"><img src="docs/developers/img/message.svg" /></a><br />
-# Dashboard/Tactics Plugin for OpenCPN
+# DashT - and OpenCPN plug-in with Dashboard, Tactics, Engine/Energy dials and Time Series DB functions
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings)
 
-dashboard_pi with integrated tactics_pi performance enhancements.
+_dashboard_tactics_pi_ in your **_O_**penCPN plug-in catalog.
 
 ## Introduction
 
-If you are using both the built-in Dashboard and the Tactics plug-ins in OpenCPN v5 or greater, you may want to have but just one plug-in instead of two. All available instruments will be in one place. Even if you are not interested in Tactics functions, Dashboard has also improved and has new functions, like export/import and input/output streaming. This version comes with more resources allowing it to be expandandable. It can host even more (!) instruments, also those talking NMEA-2000, such as engine monitoring, mast rotation, etc.
+**_DashT_** [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a **_O_**penCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure, both for input and output of data.
 
-Tactics functions provide information to help you sail better - ranging from true wind data to advanced functions which allows a selection of the best head sail for the next tack. Please read further about it and other advanced features here:
-* [Tactics and performance functions](docs/Tactics.md)
+With the arrival of the next **_O_**penCPN version it embrases [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since this is  likely to encourage you to enable a fast and reliable Signal K data format source in your boat's infrastructure, [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by **_DashT_** allowing new enhancements to the traditional dashboard functions to be presented:
+
+* OpenCPN's Dashboard integrated
+  * You do not need to swap between the two!
+* [Tactics and performance functions intergrated](docs/Tactics.md)
+  * Also integrated, profits from the faster, timestamped wind data
+* [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
+  * Provides Signal K engine and energy data on latest web technique instruments integrated in OpenCPN Dashboard
+  * Best explained by this [short video](https://vimeo.com/391601955)
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
+  * Time series based databases are essential with the data volumes and rates of Signal K servers
+  * Real-time storage and retrieval allows monitoring and historical data and tools such as Grafana
+  * DastT provides also an all-data dump file feed off-line to InfluxDB v2.0 to enable post-race analysis and polar adjustments with high-frequency sampled data
 * [Signal K data input streaming](https://canne.github.io/dashboard_tactics_pi/docs/signalk/SignalKInputStreamerUsage.html)
-* [all docs](docs/README.md) - [(HTML/PDF formats)](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
+  * Direct connection to the delta channel of a Signal K server node providing shortes possible path for:
+    * Maximum volume of data
+    * Lowest possible latency
+    * Time stamps of all data at source
+    * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interfce
+* [Extensive documentation](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
+  * Detailed User's Manuals
+  * Detailed developer's information with performance analysis and 
 
 ## Installation
 
-You can start without a polar file and just use the basic functions to start with. Go to [dashboard_tactics_pi Releases pages](https://github.com/canne/dashboard_tactics_pi/releases) and grab an installation file which matches your platform - OpenCPN v5 on Windows, Linux or Mac is supported.
+See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages: you will find pre-build packages for platforms Windows, Mac, Linux Ubununtu/Debian, Raspberry Pi 4.
 
 ## Configuration
 
-Although not mandatory, it is recommended to disable the Dashboard coming with the OpenCPN (this plug-in is using the same parameters), standalone Tactics plug-in and WMM_pi plug-in (unless you do not get the magnetic variation from your instruments).
-
-If you are a user of tactics_pi, its settings are imported at first startup of this plug-in. Tactics plug-in's settings are not modified so that you can switch back to it. The original Dashboard will also work with the modified parameters - if you have used Tactics instruments or enhanced instruments not in the original Dashboard, they would appear empty and you need to delete them manually and restart OpenCPN to get back to Dashboard-only configuration. For this reason, saving of your ini- or config-file is recommended for this reason if you just want to try out this plug-in.
+Please refer to User's Guides accessible from the [documentation pages](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
 
 ## Compiling
 
 * git clone git://github.com/canne/dashboard_tactics_pi.git
 
-Under windows, you must find the file "opencpn.lib" (Visual Studio) located in the build directory after compiling opencpn. 
-This file must be copied to the plugins build directory.
-
 ### Windows build
+
+Under Windows, you must find the library file "_opencpn.lib_" (Visual Studio). It is located in the build directory of [OpenCPN](https://github.com/OpenCPN/OpenCPN) after having build it; or your search it from the various process of CI (continuous integration) of this plug-in. Copy the library file matching the target OpenCPN version into the build directory before launching the following:
 
 * cd build
 * cmake  -T v140_xp ..
@@ -48,4 +62,4 @@ This file must be copied to the plugins build directory.
 
 ### License
 
-The code is licensed under the terms of the GPL v3.
+The project is licensed under the terms of the GPL v3. Parts of the project is derived from and licensed under MIT license.

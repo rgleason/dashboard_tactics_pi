@@ -1,0 +1,13 @@
+*~
+*#
+.#*
+.ipynb_checkpoints
+*.log
+*.aux
+*.out
+*.synctex
+*.synctex.gz
+build/
+node_modules
+*.swp
+npm-debug.log
