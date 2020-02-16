@@ -14,23 +14,28 @@ With the arrival of the next OpenCPN version it embraces [Signal K data format](
 * OpenCPN's Dashboard integrated
   * You do not need to swap between the two!
   * No need for Signal K for these instruments, NMEA-0183 is enough
+
 * [Tactics and performance functions intergrated](docs/Tactics.md)
   * Also integrated, no need to swap
   * Works fine with NMEA-0183 but will profit from the faster, timestamped wind data provided by Signal K
+
 * [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
   * Provides Signal K engine and energy data on latest web technique instruments integrated in OpenCPN Dashboard
   * Best explained by this [short video](https://vimeo.com/391601955)
+
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
   * Time series based databases are essential with the data volumes and rates of Signal K enabled servers
   * Real-time storage and retrieval allows monitoring and historical data browsing using tools such as Grafana
   * An all-received-data dump-file can be registered to feed off-line InfluxDB v2.0 time series database
     * Enhances post-race analysis and off-line polar calculations with high-frequency sampled data
+
 * [Signal K data input streaming](https://canne.github.io/dashboard_tactics_pi/docs/signalk/SignalKInputStreamerUsage.html)
   * Direct connection to the delta channel of a Signal K server node providing shortest possible path for:
     * Maximum volume of data ;
     * Lowest possible latency ;
     * Time stamps of all data at source ;
     * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interfce.
+
 * [Comprehensive documentation](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
   * Detailed User's Manuals
   * Developer's information with performance analysis and debugging tips
