@@ -24,7 +24,6 @@ With the arrival of the next OpenCPN version it embraces [Signal K data format](
 * [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
 
   * Provides Signal K engine and energy data on latest web technique instruments integrated in OpenCPN Dashboard
-
   * Best explained by this [short video](https://vimeo.com/391601955)
 
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
