@@ -24,7 +24,9 @@ With the arrival of the next OpenCPN version it embraces [Signal K data format](
   * Best explained by this [short video](https://vimeo.com/391601955)
 
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
+
   * Time series based databases are essential with the data volumes and rates of Signal K enabled servers
+  
   * Real-time storage and retrieval allows monitoring and historical data browsing using tools such as Grafana
   * An all-received-data dump-file can be registered to feed off-line InfluxDB v2.0 time series database
     * Enhances post-race analysis and off-line polar calculations with high-frequency sampled data
