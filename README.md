@@ -13,24 +13,27 @@ With the arrival of the next OpenCPN version it embrases [Signal K data format](
 
 * OpenCPN's Dashboard integrated
   * You do not need to swap between the two!
+  * No need for Signal K for these instruments, NMEA-0183 is enough
 * [Tactics and performance functions intergrated](docs/Tactics.md)
-  * Also integrated, profits from the faster, timestamped wind data
+  * Also integrated, no need to swap
+  * Works fine with NMEA-0183 but will profit from the faster, timestamped wind data provided by Signal K
 * [Engine and Energy dials](https://canne.github.io/dashboard_tactics_pi/docs/webview/README.html)
   * Provides Signal K engine and energy data on latest web technique instruments integrated in OpenCPN Dashboard
   * Best explained by this [short video](https://vimeo.com/391601955)
 * [Influx DB 2.0 ouput streaming and export](https://canne.github.io/dashboard_tactics_pi/docs/influxdb/InfluxDBStreamer.html)
-  * Time series based databases are essential with the data volumes and rates of Signal K servers
-  * Real-time storage and retrieval allows monitoring and historical data and tools such as Grafana
-  * DastT provides also an all-data dump file feed off-line to InfluxDB v2.0 to enable post-race analysis and polar adjustments with high-frequency sampled data
+  * Time series based databases are essential with the data volumes and rates of Signal K enabled servers
+  * Real-time storage and retrieval allows monitoring and historical data browsing using tools such as Grafana
+  * DastT provides also an all-received-data dump-file to feed off-line InfluxDB v2.0 time series database
+    * Enhances post-race analysis and polar adjustments with high-frequency sampled data
 * [Signal K data input streaming](https://canne.github.io/dashboard_tactics_pi/docs/signalk/SignalKInputStreamerUsage.html)
-  * Direct connection to the delta channel of a Signal K server node providing shortes possible path for:
-    * Maximum volume of data
-    * Lowest possible latency
-    * Time stamps of all data at source
-    * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interfce
-* [Extensive documentation](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
+  * Direct connection to the delta channel of a Signal K server node providing shortest possible path for:
+    * Maximum volume of data ;
+    * Lowest possible latency ;
+    * Time stamps of all data at source ;
+    * Access to Engine, Energy and Status data from NMEA-2000, Bluetooth LE, GPIO over a single interfce.
+* [Comprehensive documentation](https://canne.github.io/#:%5B%5BDashboard%2FTactics%20Plugin%20for%20OpenCPN%5D%5D)
   * Detailed User's Manuals
-  * Detailed developer's information with performance analysis and 
+  * Developer's information with performance analysis and debugging tips
 
 ## Installation
 
@@ -46,7 +49,7 @@ Please refer to User's Guides accessible from the [documentation pages](https://
 
 ### Windows build
 
-Under Windows, you must find the library file "_opencpn.lib_" (Visual Studio). It is located in the build directory of [OpenCPN](https://github.com/OpenCPN/OpenCPN) after having build it; or your search it from the various process of CI (continuous integration) of this plug-in. Copy the library file matching the target OpenCPN version into the build directory before launching the following:
+>Under Windows, please get first the library file "_opencpn.lib_" (Visual Studio). It is located in the build directory of [OpenCPN](https://github.com/OpenCPN/OpenCPN) after having built it; or your can search it from the various processes of CI (continuous integration) of this plug-in. Copy the library file matching the target OpenCPN version into the build directory before launching the following:
 
 * cd build
 * cmake  -T v140_xp ..
@@ -62,4 +65,4 @@ Under Windows, you must find the library file "_opencpn.lib_" (Visual Studio). I
 
 ### License
 
-The project is licensed under the terms of the GPL v3. Parts of the project is derived from and licensed under MIT license.
+The project is licensed under the terms of the GPL v3. The networked parts of the project are derived from and licensed under MIT license.
