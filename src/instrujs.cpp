@@ -77,6 +77,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_title = L"InstruJS";
     m_format = L"%.2e"; // unlike trad. Dashboard instrument, class manages the format
     m_data = wxString::Format( m_format, 0.0 );
+    m_fData = 0.0;
     m_lastdataout = wxString::Format( m_format, 9.9 ); // just make it different
     m_threadRunning = false;
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
@@ -166,6 +167,7 @@ void InstruJS::PushData(double data, wxString unit, long long timestamp)
             }
         } // else detected issues with negative value conversions
         // wxString temp = wxString::Format( m_format, data ); // needed only for debugging
+        m_fData = data;
         m_data = wxString::Format( m_format, data );
     } // then valid data 
 }
@@ -396,6 +398,11 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         ");");
                 RunScript( javascript );
                 m_lastdataout = m_data;
+                m_pparent->SendPerfSentenceToAllInstruments(
+                    OCPN_DBP_STC_SKSUBSCRIBE,
+                    m_fData,
+                    m_subscribedPath,
+                    getTimestamp() );
             } // then do not load the system with the same script execution multiple times
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {

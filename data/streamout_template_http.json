@@ -625,6 +625,19 @@
             "field1"      : "courseAngle",
             "field2"      : "",
             "field3"      : ""
+        },
+        {
+            "sentence"    : "OCPN_DBP_STC_SKSUBSCRIBE",
+            "mask"        : 63,
+            "store"       : true,
+            "interval"    : 1,
+            "measurement" : "measurement",
+            "prop1"       : "prop1",
+            "prop2"       : "prop2",
+            "prop3"       : "prop3",
+            "field1"      : "field1",
+            "field2"      : "",
+            "field3"      : ""
         }
     ]
 }

@@ -134,6 +134,7 @@ protected:
     wxString             m_newsubstyle;
     wxString             m_title;
     wxString             m_data;
+    double               m_fData;
     wxString             m_format;
     wxString             m_lastdataout;
     std::mutex           m_mtxScriptRun;

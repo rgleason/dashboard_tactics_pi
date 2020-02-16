@@ -4688,7 +4688,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 OCPN_DBP_STC_POLTVMGANGLE |
                 OCPN_DBP_STC_POLCMG       |
                 OCPN_DBP_STC_POLTCMG      |
-                OCPN_DBP_STC_POLTCMGANGLE,
+                OCPN_DBP_STC_POLTCMGANGLE |
+                OCPN_DBP_STC_SKSUBSCRIBE,
                 _T("%s"),
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,

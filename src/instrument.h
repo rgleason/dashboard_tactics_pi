@@ -120,7 +120,7 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
     OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44,  // Target CMG Angle
     // Reservation for Signal K subcription based instruments (no push)
-    OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // Reservation only (pull)
+    OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // data subcription from SK srv
 
 #endif // _TACTICSPI_H_
 };

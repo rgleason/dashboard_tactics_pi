@@ -30,6 +30,7 @@
 #include <wx/wfstream.h> 
 #include <wx/fileconf.h>
 #include <wx/socket.h>
+#include <wx/tokenzr.h>
 
 #include "streamout.h"
 #include "ocpn_plugin.h"
@@ -229,13 +230,43 @@ void TacticsInstrument_StreamoutSingle::Draw(wxGCDC* dc)
 
 ************************************************************************************/
 bool TacticsInstrument_StreamoutSingle::GetSchema(
-    unsigned long long st, long long msNow, sentenceSchema &schema)
+    unsigned long long st, wxString UnitOrSkPath, long long msNow, sentenceSchema &schema)
 {
     for ( unsigned int i = 0; i < vSchema.size(); i++ ) {
         if ( vSchema[i].st == st ) {
             schema = vSchema[i];
             if ( !schema.bStore )
                 return false;
+            if ( st == OCPN_DBP_STC_SKSUBSCRIBE ) { // Signal K instrument gives full path
+                if ( !UnitOrSkPath.IsEmpty() ) {
+                    wxStringTokenizer tokenizer( UnitOrSkPath, "." );
+                    int t = 0;
+                    schema.sProp1 = wxEmptyString;
+                    schema.sProp2 = wxEmptyString;
+                    schema.sProp3 = wxEmptyString;
+                    while ( tokenizer.HasMoreTokens() ) {
+                        wxString token = tokenizer.GetNextToken();
+                        if ( !token.IsEmpty() ) {
+                            if ( t == 0 )
+                                schema.sMeasurement = token;
+                            else {
+                                if ( tokenizer.HasMoreTokens() ) {
+                                    if ( t == 1 )
+                                        schema.sProp1 = token;
+                                    else if ( t == 2 )
+                                        schema.sProp2 = token;
+                                    else if ( t == 3 )
+                                        schema.sProp3 = token;
+                                }
+                                else {
+                                    schema.sField1 = token;
+                                }
+                            }
+                        }
+                        t = t + 1;
+                    }
+                }
+            }
             if ( schema.iInterval == 0 ) {
                 schema.lastTimeStamp = msNow;
                 vSchema[i].lastTimeStamp = msNow;
@@ -280,7 +311,7 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     
     sentenceSchema schema;
     long long msNow = ( timestamp == 0 ? wxllNowMs.GetValue() : timestamp );
-    if ( !GetSchema( st, msNow, schema ) )
+    if ( !GetSchema( st, unit, msNow, schema ) )
         return;
     
     lineProtocol line;

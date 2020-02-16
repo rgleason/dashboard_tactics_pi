@@ -218,7 +218,7 @@ protected:
     bool              m_stamp;
     int               m_verbosity;
 
-    bool GetSchema(unsigned long long st, long long msNow, sentenceSchema& schema);
+    bool GetSchema(unsigned long long st, wxString UnitOrSkPath, long long msNow, sentenceSchema& schema);
     void sLL(long long cnt, wxString& retString);
     bool LoadConfig(void);
     void SaveConfig(void);
