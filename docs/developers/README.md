@@ -10,7 +10,7 @@ One of the main development paradigms of the v1.5.11 was to maintain compatibili
 
 ## v1.5.11 roadmap
 
-_v1.5.11_ enters into a minimum maintenance mode which means that only real show-stoppers will be fixed if they concern v5.0. That statement does not concern the upcoming versions of OpenCPN with eventual changes in the plug-in API.
+_v1.5.11_ enters into a minimum maintenance mode which means that only real show-stoppers will be fixed if they concern OpenCPN v5.0. That statement does not concern the upcoming versions of OpenCPN with eventual changes in the plug-in API.
 
 ### v1.5.111 - an i18n version
 
@@ -29,7 +29,7 @@ Each part above is divided into its own thread structure, presented by two `git`
 * Development and testing branch for the project owner(s)
 * Staging branch for the solicited and unsolicited pull requests
 
-> **Pull requests to master branch (trunk) are, for now, until project reached an advanced beta stage** Please submit any PR here:
+> **Pull requests to master branch (trunk) are not accepted until dev200 project reaches an advanced beta stage** Please submit any PR here, instead:
 
 * `pr151` - Staging branch for pull requests for bug fixes in v1.5.11 - **no new features will be accepted in this branch**
 
