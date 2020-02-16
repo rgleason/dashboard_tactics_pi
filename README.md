@@ -3,13 +3,13 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings)
 
-_dashboard_tactics_pi_ in your **_O_**penCPN plug-in catalog.
+_dashboard_tactics_pi_ in your _O_penCPN plug-in catalog.
 
 ## Introduction
 
-**_DashT_** [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a **_O_**penCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure, both for input and output of data.
+_DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a _O_penCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure, both for input and output of data.
 
-With the arrival of the next **_O_**penCPN version it embrases [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since this is  likely to encourage you to enable a fast and reliable Signal K data format source in your boat's infrastructure, [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by **_DashT_** allowing new enhancements to the traditional dashboard functions to be presented:
+With the arrival of the next _O_penCPN version it embrases [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since this is  likely to encourage you to enable a fast and reliable Signal K data format source in your boat's infrastructure, [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by _DashT_ allowing new enhancements to the traditional dashboard functions to be presented:
 
 * OpenCPN's Dashboard integrated
   * You do not need to swap between the two!
@@ -34,7 +34,7 @@ With the arrival of the next **_O_**penCPN version it embrases [Signal K data fo
 
 ## Installation
 
-See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages: you will find pre-build packages for platforms Windows, Mac, Linux Ubununtu/Debian, Raspberry Pi 4.
+See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages: pre-build packages for platforms Windows, Mac, Linux Ubununtu/Debian, Raspberry Pi 4.
 
 ## Configuration
 
