@@ -11,3 +11,5 @@ build/
 node_modules
 *.swp
 npm-debug.log
+package-lock.json
+
