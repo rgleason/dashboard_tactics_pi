@@ -1,56 +1,58 @@
 # Information for developers, contributors and collaborators
 
-## v1.5.11 and onwards
+## Project's situation awareness report February 2020
 
-On release of v1.5.11 in the 30th of November, 2019 the project contained
-* 37 [closed requirements](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
-* 0 [open requirement](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
+>[Previous report and roadmap after publication of v1.5.11](https://github.com/canne/dashboard_tactics_pi/blob/c7656142b49c6bb38b3d1c681db9b2426f22193a/docs/developers/README.md)
 
-Starting from this holdpoint **the project enters into long term maintenance phase** for its main product, Dashboard-Tactics plug-in for OpenCPN v5.0.
+v2.0 alpha has made a successful POC (proof of concept) which allows to integrate webpack development within the project, enabling instruments similar but not equivalent to the SignalK full-blown browser based instruments. InfluxDB 2.0 open source version entered beta phase in the beginning of 2020. OpenCPN has embraced Signal K (finally) and is actively developing a Signal K data interface and an event based distribution of that data to plug-ins.
 
-The long term maintenance may continue to cover other minor versions of the OpenCPN v5.
+One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from. There is no observed attempt to pull any of the findings and improvements of this project into that code base.
 
-The maintenance patch releases will be numbered v1.5.111, v1.5.112,...,v1.5.119.
+## v1.5.11 roadmap
 
-Due to non-existing - or non-published - roadmap for OpenCPN v5 there is no possibility to define or predict additional requirements which could justify the continuous development phase.
+_v1.5.11_ enters into a minimum maintenance mode which means that only real show-stoppers will be fixed if they concern v5.0. That statement does not concern the upcoming versions of OpenCPN with eventual changes in the plug-in API.
 
-Therefore the project is divided in three parts at this holdpoint:
+### v1.5.111 - an i18n version
 
-1. **Long term maintenance**
-2. **R&D based on v1.6 hypothesis**
-  * Presuming that OpenCPN and plug-in API continues without any major changes or new plug-in supporting data retrieval and process intercommunicatio features are not introduced outside the API
-  * In this hypothesis, data originating from a NMEA-2000 bus is not available
-3. **R&D based on v2.0 hypothesis**
-  * Presuming that OpenCPN and plug-in API evolve moderately in order to provide support for currently undefined data retrieval and process intercommunicatio features outside the API
-  * In this hypothesis, data originating from a NMEA-2000 bus will be available
+Volunteers are apparently working on providing i18n .po files for the project. Their work will be respected by implementing the pull requests in `pr151` branch and with a publication of eventual v1.5.111 version, and successively v1.5.112, etc. if needed.
+
+## v1.6
+
+From the conclusions above follows that v1.6 hypothesis discussed in the [previous report](https://github.com/canne/dashboard_tactics_pi/blob/c7656142b49c6bb38b3d1c681db9b2426f22193a/docs/developers/README.md) is abandoned and the reserved development branches are deleted.
+
+## v2.0 alpha (v1.98.101) and onwards
+
+Development site's main branch switches to `dev200` branch. `mnt151` branch remains for maintenance work of _v1.5.11_.
 
 Each part above is divided into its own thread structure, presented by two `git` branches:
 
 * Development and testing branch for the project owner(s)
 * Staging branch for the solicited and unsolicited pull requests
 
-> **Pull requests to master branch (trunk) are, for now, rejected**:
+> **Pull requests to master branch (trunk) are, for now, until project reached an advanced beta stage** Please submit any PR here:
 
 * `pr151` - Staging branch for pull requests for bug fixes in v1.5.11 - **no new features will be accepted in this branch**
-  * Mandatory to be joined with a test use case and a test report, preferably in [canne.testquality.com](https://canne.testquality.com) - other formats accepted, of course
-* `pr160` - v1.6 hypothesis staging branch for pull requests for major bug fixes changing the functionality or introducing new functions or suggesting major code reorganization
-   * Mapping to an existing requirement (see above) or proposal for a new requirement is mandatory for any new feature proposed
-   * Test use case and test report are optional but welcome
-* `pr200` - v2.0 hypothesis staging branch for R&D any guessed or announced data retrieval and process intercommunication feature from OpenCPN or over it
-   * **Free spirit R&D and new ideas goes here**
-   * It would be appreciated that the ideas, however would become with some use case allowing the assembly of a test use case in the stage area if the pull request is accepted:
-   * please do not get offended if the pull request will not get accepted - comments not guaranteed but an attempt will be made
 
->_Flying Fish_ branches can be created on simple demand for pull requests not meeting the above, or even below requirements:
+  * Suitable for small changes like new language files
+
+* `pr200` - For those who wish to contribute to new features, even unstable ones in `dev200` R&D branch
+
+   * **Free spirit R&D and new ideas goes here**
+   
+   * It would be appreciated if the ideas would be presented with some use case, allowing an assembly of a test use case:
+   
+     * Please do not get offended if the pull request will not get accepted - this is a hobby project and time is a limited resource ;
+     
+     * I'll try to comment back to at least thank you for your ideas!
+
+>You may notice occasional _Flying Fish_ branches appear in the repository. They are for not break the development build by some test-only ideas. However, they can be created on simple demand for pull requests not meeting the below requirements of the CI (continuous integration and QA applied in commits and PRs):
 
 Common automatic QA requirements (mandatory to pass) for all branches are
 * [Codacy static code analysis](https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/dashboard)
 * [Travis CI for pull requests](https://travis-ci.org/canne/dashboard_tactics_pi)
-* [AppVeyor CI for Windows build](https://ci.appveyor.com/project/canne/dashboard-tactics-pi)
-* [Travis CI for Linux and Mac builds](https://travis-ci.org/canne/dashboard_tactics_pi)
+* [AppVeyor CI for Windows build of commits](https://ci.appveyor.com/project/canne/dashboard-tactics-pi)
+* [Travis CI for Linux and Mac builds of commits](https://travis-ci.org/canne/dashboard_tactics_pi)
 
 The below diagram depicts the branch schema starting from this holdpoint and provides a roadmap for future versions - without a time axis due to the lack of that information from the OpenCPN main project.
 
-![v1.5.11_holdpoint_threads.png](v1.5.11_holdpoint_threads.png) [(zoom)](img/v1.5.11_holdpoint_threads.png)
-
-
+![v1.98.103_holdpoint_threads.png](v1.98.103_holdpoint_threads.png) [(zoom)](img/v1.98.103_holdpoint_threads.png)
