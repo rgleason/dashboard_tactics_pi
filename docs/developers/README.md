@@ -6,7 +6,9 @@
 
 v2.0 alpha has made a successful POC (proof of concept) which allows to integrate webpack development within the project, enabling instruments similar but not equivalent to the SignalK full-blown browser based instruments. But despite the limitations of wxWebView and its back-ends, they come very close to make them attractive. InfluxDB 2.0 open source version entered beta phase in the beginning of 2020. OpenCPN has embraced Signal K (finally) and is actively developing a Signal K data interface and an event based distribution of that data to plug-ins.
 
-One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from. There is no observed attempt to pull any of the findings and improvements of this project into that code base.
+One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from.
+
+This project contains many improvements into that code but clearly it is too late to prepare an excerpt using the numerous compilation switches to mark the changes made so that pull requests into the Dashboard code base could be formulated. The derivation is too important and the moment is now gone. Therefore, there is no need to keep Dashboard's original code base within this project anymore and the code can be refactored to get rid off numerous conditional compilation statements. Also, the original heavy loaded .cpp files can be split during that process. The two actions will significantly ease the future maintenance effort.
 
 ## v1.5.11 roadmap
 
