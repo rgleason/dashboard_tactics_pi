@@ -9,7 +9,7 @@ _dashboard_tactics_pi_ in your OpenCPN plug-in catalog.
 
 _DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure.
 
-With the arrival of the next OpenCPN version it embraces the open [Signal K data format](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news since it is hopefully encouraging you to install a fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by _DashT_ allowing it to create enhancements not present in the traditional OpenCPN Dashboard:
+With the arrival of the next OpenCPN version we will see it embracing the open marine data format [Signal K](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This is excellent news and hopefully encouraging you to install a fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). It has been supported since day zero by _DashT_ allowing the creation of enhancements which are not present in the traditional OpenCPN Dashboard:
 
 * OpenCPN's Dashboard integrated
 

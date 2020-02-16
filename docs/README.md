@@ -3,11 +3,15 @@
 
 ## Available documentation
 
-See [canne.github.io](https://canne.github.io/) for HTML and PDF files in more readable format.
+See also [canne.github.io](https://canne.github.io/#DashT%20-%20plug-in%20for%20OpenCPN) where HTML and PDF files are rendered in more readable way.
 
 ### Tactics performance instruments and functions
 * [Introduction](Tactics.md)
 * [Tactics User's Guide](tactics_pi.pdf)
+
+### DashT EngineDJG Engine and Energy dials
+* User's Guide ([ipynb](webview/README.ipynb) | [html](webview/README.html) | [pdf](webview/README.pdf))
+  * Developer's Guide ([ipynb](webview/developers/README.ipynb) | [html](webview/developers/README.html) | [pdf](webview/developers/README.pdf))
 
 ### InfluxDB output streamer
 * User's Guide ([ipynb](influxdb/InfluxDBStreamer.ipynb) | [html](influxdb/InfluxDBStreamer.html) | [pdf](influxdb/InfluxDBStreamer.pdf))
