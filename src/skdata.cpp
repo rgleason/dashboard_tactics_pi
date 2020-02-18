@@ -4,7 +4,7 @@
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
 * Author:   Jean-Eudes Onfray
-* 
+*
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register   *
 *                                                                         *
@@ -48,6 +48,7 @@ SkData::SkData()
     m_pathlist         = new SkDataPathList();
     m_nmea0183pathlist = new SkDataPathList();
     m_nmea2000pathlist = new SkDataPathList();
+    m_subscriptionlist = new SkDataPathList();
     return;
 }
 
@@ -55,6 +56,7 @@ SkData::SkData(const SkData& sourceSkData) {
     m_pathlist         = new SkDataPathList(*sourceSkData.m_pathlist);
     m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
     m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
+    m_subscriptionlist = new SkDataPathList(*sourceSkData.m_subscriptionlist);
     return;
 }
 
@@ -63,6 +65,22 @@ SkData::~SkData()
     delete m_pathlist;
     delete m_nmea0183pathlist;
     delete m_nmea2000pathlist;
+    delete m_subscriptionlist;
+    return;
+}
+
+void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
+{
+    std::string stdPathFull = std::string( path->mb_str() );
+    if ( key != NULL ) {
+        std::string stdKey  = std::string( key->mb_str() );
+        stdPathFull = stdPathFull + "." + stdKey;
+    }
+    SkDataPathList::iterator it = std::find(
+        m_subscriptionlist->begin(), m_subscriptionlist->end(), stdPathFull);
+    if ( it != m_subscriptionlist->end() )
+        return;
+    m_subscriptionlist->push_back( stdPathFull );
     return;
 }
 
@@ -124,7 +142,7 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
     for (topicit = topics.begin(); topicit != topics.end(); ++topicit) {
         std::string sTopicToCollect = *topicit;
         wxString topicToCollect = wxString( sTopicToCollect );
-        for (int i = 1; i < maxPathSubElements; i++ ) { 
+        for (int i = 1; i < maxPathSubElements; i++ ) {
             for (it = sortedList.begin(); it != sortedList.end(); ++it) {
                 std::string sFullPath = *it;
                 wxString fullPath = wxString( sFullPath );
@@ -154,4 +172,9 @@ wxString SkData::getAllNMEA2000JsOrderedList()
 wxString SkData::getAllNMEA0183JsOrderedList()
 {
     return getAllJsOrderedList( m_nmea0183pathlist );
+}
+
+wxString SkData::getAllSubscriptionsJsOrderedList()
+{
+    return getAllJsOrderedList( m_subscriptionlist );
 }
