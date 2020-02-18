@@ -4,7 +4,7 @@
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
 * Author:   Jean-Eudes Onfray
-* 
+*
 ***************************************************************************
 *   Copyright (C) 2010 by David S. Register   *
 *                                                                         *
@@ -111,7 +111,7 @@ InstruJS::~InstruJS(void)
     }
     if ( this->m_webpanelCreated || this->m_webpanelCreateWait ) {
         delete this->m_pWebPanel;
-    } 
+    }
 }
 
 void InstruJS::stopScript( )
@@ -169,7 +169,7 @@ void InstruJS::PushData(double data, wxString unit, long long timestamp)
         // wxString temp = wxString::Format( m_format, data ); // needed only for debugging
         m_fData = data;
         m_data = wxString::Format( m_format, data );
-    } // then valid data 
+    } // then valid data
 }
 
 wxString InstruJS::RunScript( const wxString &javascript )
@@ -192,7 +192,7 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
             this, wxID_ANY, fullPath );
         m_istate = JSI_WINDOW;
         wxSizer *thisSizer = GetSizer();
-        m_pWebPanel->SetSizer( thisSizer ); 
+        m_pWebPanel->SetSizer( thisSizer );
         m_pWebPanel->SetAutoLayout( true );
         m_pWebPanel->SetInitialSize( initialSize );
         FitIn();
@@ -257,6 +257,7 @@ void InstruJS::setColorScheme ( PI_ColorScheme cs )
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    m_pThreadInstruJSTimer->Stop();
     m_threadRunning = true;
     if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) ) {
         // see  ../instrujs/src/iface.js for the interface,
@@ -428,7 +429,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 RunScript( javascript );
             } // then there is a reason to ask the instrument to change style
         } // then instru state machine allows luminosity changes
-        
+
     } // then all code loaded
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
@@ -436,11 +437,10 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
                 m_istate = JSI_WINDOW_LOADED;
-                m_pThreadInstruJSTimer->Stop();
-                m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
     } // else the webpanel is not yet loaded / scripts are not running
+    m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
 }
 
 void InstruJS::Draw(wxGCDC* dc)
@@ -452,5 +452,3 @@ void InstruJS::OnPaint(wxPaintEvent &WXUNUSED(event))
 {
     return;
 }
-
-
