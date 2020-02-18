@@ -110,7 +110,7 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
         wxSize webViewInitSize = thisFrameInitSize;
         this->loadHTML( m_fullPathHTML, webViewInitSize );
         m_pThreadEngineDJGTimer->Stop();
-        m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
+        // No more threaded jobs by now m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
         m_htmlLoaded= true;
     } // else thread is not running (no JS instrument created in this frame, create one)
 
