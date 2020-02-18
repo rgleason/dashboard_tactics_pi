@@ -69,21 +69,6 @@ SkData::~SkData()
     return;
 }
 
-void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
-{
-    std::string stdPathFull = std::string( path->mb_str() );
-    if ( key != NULL ) {
-        std::string stdKey  = std::string( key->mb_str() );
-        stdPathFull = stdPathFull + "." + stdKey;
-    }
-    SkDataPathList::iterator it = std::find(
-        m_subscriptionlist->begin(), m_subscriptionlist->end(), stdPathFull);
-    if ( it != m_subscriptionlist->end() )
-        return;
-    m_subscriptionlist->push_back( stdPathFull );
-    return;
-}
-
 void SkData::UpdatePathList( SkDataPathList *pathlist, wxString *path, wxString *key )
 {
     std::string stdPathFull = std::string( path->mb_str() );
@@ -113,6 +98,14 @@ void SkData::UpdateNMEA0183PathList( wxString *path, wxString *key )
     UpdatePathList( m_nmea0183pathlist, path, key );
     UpdatePathList( m_pathlist, path, key );
 }
+
+void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
+{
+    if ( path == NULL )
+        return;
+    UpdatePathList( m_subscriptionlist, path, key );
+}
+
 wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
 {
     SkDataPathList sortedList = *pathlist;
