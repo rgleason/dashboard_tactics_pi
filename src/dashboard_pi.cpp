@@ -933,6 +933,9 @@ wxString dashboard_pi::GetStandardPath()
 void dashboard_pi::pSendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp  )
 {
+    if ( APPLYSAVEWINRUNNING )
+        return;
+
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
