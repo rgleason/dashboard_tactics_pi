@@ -8,7 +8,7 @@ v2.0 alpha has made a successful POC (proof of concept) which allows to integrat
 
 One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from.
 
-This project contains many improvements into that code but clearly it is too late to prepare an excerpt using the numerous compilation switches to mark the changes made so that pull requests into the Dashboard code base could be formulated. The derivation is too important and the moment is now gone. Therefore, there is no need to keep Dashboard's original code base within this project anymore and the code can be refactored to get rid off numerous conditional compilation statements. Also, the original heavy loaded .cpp files can be split during that process. The two actions will significantly ease the future maintenance effort.
+This project cannot contribute the corrections done for v1.5.11 in Dashboard back to the main project - the overall deviation is now too large. Dashboard's original code base carried over from the Dashboard project will be removed to ease the maintenance effort.
 
 ## v1.5.11 roadmap
 
