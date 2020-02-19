@@ -57,6 +57,7 @@ SkData::SkData(const SkData& sourceSkData) {
     m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
     m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
     m_subscriptionlist = new SkDataPathList(*sourceSkData.m_subscriptionlist);
+    m_subscribedToAllPaths = false;
     return;
 }
 
@@ -106,7 +107,9 @@ void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
     UpdatePathList( m_subscriptionlist, path, key );
 }
 
-wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
+wxString SkData::getAllJsOrderedList(
+    SkDataPathList *pathlist,
+    wxJSONValue &pRetJSON)
 {
     SkDataPathList sortedList = *pathlist;
     sortedList.sort();
@@ -131,7 +134,9 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
     SkDataPathList::iterator topicit;
     int maxPathSubElements = 7; // reminder: we have also the key of a value
     wxString retval = "";
+    int itemIdx = 0;
     bool notFirstObj = false;
+    wxJSONType jsonType = pRetJSON.GetType();
     for (topicit = topics.begin(); topicit != topics.end(); ++topicit) {
         std::string sTopicToCollect = *topicit;
         wxString topicToCollect = wxString( sTopicToCollect );
@@ -143,12 +148,15 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
                 if ( tokenizer.CountTokens() == (i + 1) ) {
                     wxString nowTopic = tokenizer.GetNextToken();
                     if ( nowTopic == topicToCollect ) {
+                        if ( jsonType != wxJSONTYPE_NULL )
+                            pRetJSON["subscribe"][itemIdx]["path"] = fullPath;
                         if ( notFirstObj )
                             retval += "," + fullPath;
                         else {
                             retval += fullPath;
                             notFirstObj = true;
                         }
+                    itemIdx++;
                     }
                 }
             }
@@ -159,15 +167,17 @@ wxString SkData::getAllJsOrderedList( SkDataPathList *pathlist )
 
 wxString SkData::getAllNMEA2000JsOrderedList()
 {
-    return getAllJsOrderedList( m_nmea2000pathlist );
+    wxJSONValue noJSON( wxJSONTYPE_NULL );
+    return getAllJsOrderedList( m_nmea2000pathlist, noJSON );
 }
 
 wxString SkData::getAllNMEA0183JsOrderedList()
 {
-    return getAllJsOrderedList( m_nmea0183pathlist );
+    wxJSONValue noJSON( wxJSONTYPE_NULL );
+    return getAllJsOrderedList( m_nmea0183pathlist, noJSON );
 }
 
-wxString SkData::getAllSubscriptionsJsOrderedList()
+wxString SkData::getAllSubscriptionsJSON(wxJSONValue &pRetJSON)
 {
-    return getAllJsOrderedList( m_subscriptionlist );
+    return getAllJsOrderedList( m_subscriptionlist, pRetJSON );
 }

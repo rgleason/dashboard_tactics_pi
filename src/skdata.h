@@ -41,6 +41,8 @@ using namespace std;
 #include <wx/wx.h>
 #endif
 
+#include "wx/jsonval.h"
+
 // Signal K originated data handling / containers / C++/HTML/CSS/JS
 typedef std::list<std::string> SkDataPathList;
 class SkData
@@ -54,15 +56,21 @@ public:
     void UpdateSubscriptionList( wxString *path, wxString *key );
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllNMEA0183JsOrderedList(void);
-    wxString getAllSubscriptionsJsOrderedList(void);
+    wxString getAllSubscriptionsJSON(wxJSONValue& pRetJSON);
+    bool setSubscribedToAllPaths(bool newval) {m_subscribedToAllPaths = newval;};
+    bool isSubscribedToAllPaths(void) {return m_subscribedToAllPaths;};
 protected:
     SkDataPathList       *m_pathlist;
     SkDataPathList       *m_nmea0183pathlist;
     SkDataPathList       *m_nmea2000pathlist;
     SkDataPathList       *m_subscriptionlist;
+
 private:
     void UpdatePathList ( SkDataPathList* pathlist, wxString* path, wxString* key );
-    wxString getAllJsOrderedList( SkDataPathList* pathlist );
+    wxString getAllJsOrderedList(
+        SkDataPathList* pathlist,
+        wxJSONValue& pRetJSON);
+    bool                  m_subscribedToAllPaths;
 }; // class SkData
 
 
