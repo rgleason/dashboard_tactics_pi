@@ -27,7 +27,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
-#include <wx/wfstream.h> 
+#include <wx/wfstream.h>
 #include <wx/fileconf.h>
 #include <wx/socket.h>
 #include <wx/sckstrm.h>
@@ -98,7 +98,6 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_sksnVersionMajor = 1;
     m_sksnVersionMinor = 0;
     m_sksnVersionPatch = 0;
-
     m_configured = LoadConfig();
 
     if ( !m_configured )
@@ -277,7 +276,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         header += " HTTP/1.1\r\n";
         header += "Host: ";
         header += m_source;
-        header += "\r\n";	
+        header += "\r\n";
         header += "User-Agent: OpenCPN/5.0\r\n";
         header += "Accept: */*\r\n";
         header += "Content-Type: application/x-www-form-urlencoded";
@@ -286,7 +285,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         header += "\r\n";
         header += "Content-Length: "; // from this starts the dynamic part
     } // then a non-subscription based TCP delta channel (new design can ignore)
-    
+
     m_stateComm = SKTM_STATE_CONNECTING;
     int prevStateComm = m_stateComm;
 
@@ -335,12 +334,12 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 } // then thread does not need to terminate
             } // then thread does not need to terminate
         } // then need to attempt to connect()
-        
+
         if ( m_stateComm == SKTM_STATE_WAITING ) {
 
             m_data = sCnxPrg[iCnxPrg];
             *m_echoStreamerInSkShow = m_data;
-            
+
             if (__STOP_THREAD__)
                         break;
 
@@ -423,7 +422,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 sHdrOut += "\r\n";
                 sHdrOut += sData;
             } // else an older server, with no subscription scheme for TCP delta channel
-            
+
             wxScopedCharBuffer scb = sHdrOut.mb_str();
             size_t len = scb.length();
 
@@ -433,7 +432,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 m_threadMsg = wxString::Format("dashboard_tactics_pi: streamin-sk: written to socket:\n%s", sHdrOut);
                 wxQueueEvent( m_frame, event.Clone() );
             } // for big time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
-            
+
             if ( m_socket.Error() ) {
                 m_stateComm = SKTM_STATE_ERROR;
             }
@@ -501,7 +500,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                     wxQueueEvent( m_frame, event.Clone() );
                                     wxMilliSleep(20);
                                 } // then need to assist user in the debugging, this can help but is _slow_
-                                
+
                                 bool hasUpdates = root.HasMember( "updates" );
                                 if ( hasUpdates) {
                                     wxJSONValue updates = root["updates"];
@@ -629,7 +628,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                                 value = static_cast<double>(valInt);
                                                             }
                                                             valStr = valueset[ key ][0].AsString();
-                                                        } 
+                                                        }
                                                     }
                                                     m_pparent->SetUpdateSignalK (
                                                         &type, &sentence, &talker, &src, pgn, &path, value, &valStr, msNow, &key );
@@ -640,11 +639,11 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                             type, sentence, talker, src, pgn, timestamp, path, key, value, valStr);
                                                         wxQueueEvent( m_frame, event.Clone() );
                                                     } // then slowing down with the indirect debug log
-                                                } 
+                                                }
                                             }
-                                        
+
                                             m_updatesSent += 1;
-                                        
+
                                         } // for items in the array of values
                                     } // for items in the array of updates
                                 } // then has updates
@@ -676,20 +675,20 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
             } // else socket is not in error after writing subscription and/or HTTP header into it
         } // then connected to the socket, waiting for transaction
     } // while not to be stopped / destroyed
-        
-    
+
+
     m_socket.Close();
     // wxSocketBase::Shutdown();  // note: for eventual unit test, not for production
     delete address;
 
     if ( m_verbosity > 2) {
         wxLogMessage ("dashboard_tactics_pi: NOTICE: Signal K Stream In: thread closing, exiting.");
-        wxQueueEvent( m_frame, event.Clone() ); 
+        wxQueueEvent( m_frame, event.Clone() );
         wxMilliSleep( 20 );
    }
 
     return (wxThread::ExitCode)0;
-    
+
 }
 /***********************************************************************************
 
@@ -773,9 +772,9 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
 {
     if ( *m_nofStreamInSk > 1 )
         return true;
-    
+
     wxFileConfig *pConf = m_pconfig;
-    
+
     if (!pConf)
         return false;
     pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/SteaminSk/"));
@@ -791,7 +790,7 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
             *m_echoStreamerInSkShow = m_data;
             return false;
         }
-        bool ret = wxCopyFile ( tmplPath, confPath ); 
+        bool ret = wxCopyFile ( tmplPath, confPath );
         if ( !ret ) {
             wxLogMessage ("dashboard_tactics_pi: ERROR - cannot copy template %s to %s", tmplPath, confPath);
             m_data = L"\u2013 ConfigFile? \u2013";
@@ -859,7 +858,7 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
         wxMessageBox(_("Signal K Steamer configuration file parsing error, see log file."));
 
         return false;
-        
+
     } // A JSON file can have errors which make this old JSON code to break
 
     return true;
@@ -871,9 +870,9 @@ void TacticsInstrument_StreamInSkSingle::SaveConfig()
 {
     if ( *m_nofStreamInSk > 1 )
         return;
-    
+
     wxFileConfig *pConf = m_pconfig;
-    
+
     if (!pConf)
         return;
 
