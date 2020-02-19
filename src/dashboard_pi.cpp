@@ -1987,7 +1987,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
         if ( type->IsSameAs( "NMEA0183", false ) ) {
 
-            // mSkData->UpdateNMEA0183PathList( path, key );
+            if ( mSkData->isSubscribedToAllPaths() )
+                mSkData->UpdateNMEA0183PathList( path, key );
             
             if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
@@ -2280,7 +2281,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     } // selected by (low) priority
                 }
                 else if ( ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
-                          ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
+                          ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) ||
                           ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) ) {
                     if ( mPriCOGSOG >= 3 ) {
                         if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
@@ -2439,7 +2440,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         } // then NMEA-0183 delta from Signal K
         else if ( type->IsSameAs( "NMEA2000", false ) ) {
 
-            mSkData->UpdateNMEA2000PathList( path, key );
+            if ( mSkData->isSubscribedToAllPaths() )
+                mSkData->UpdateNMEA2000PathList( path, key );
 
             this->SendDataToAllPathSubscribers(
                 ( key == NULL ? *path : (*path + _T(".") + *key) ),

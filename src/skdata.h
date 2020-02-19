@@ -53,7 +53,7 @@ public:
     ~SkData();
     void UpdateNMEA2000PathList( wxString* path, wxString* key );
     void UpdateNMEA0183PathList( wxString* path, wxString* key );
-    void UpdateSubscriptionList( wxString *path, wxString *key );
+    void UpdateSubscriptionList( wxString* path, wxString* key );
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllNMEA0183JsOrderedList(void);
     wxString getAllSubscriptionsJSON(wxJSONValue& pRetJSON);
