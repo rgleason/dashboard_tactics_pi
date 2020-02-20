@@ -279,6 +279,7 @@ public:
     wxString           m_echoStreamerShow;
     int                m_nofStreamInSk;
     std::mutex         m_mtxNofStreamInSk;
+    SkData            *m_pSkData;
     wxString           m_echoStreamerInSkShow;
     PI_ColorScheme     m_colorScheme;
 #endif // _TACTICSPI_H_
@@ -338,7 +339,6 @@ private:
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
-    SkData              *mSkData;
 #endif // _TACTICSPI_H_
 
     iirfilter            mSOGFilter;

@@ -554,7 +554,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
-    mSkData = new SkData();
+    m_pSkData = new SkData();
 #endif // _TACTICSPI_H_
 
     // Create the PlugIn icons
@@ -566,7 +566,7 @@ dashboard_pi::~dashboard_pi( void )
 #ifdef _TACTICSPI_H_
     delete _img_dashboard_tactics_pi;
     delete _img_dashboard_tactics;
-    delete mSkData;
+    delete m_pSkData;
 #else
     delete _img_dashboard_pi;
     delete _img_dashboard;
@@ -1053,11 +1053,11 @@ void dashboard_pi::SendDataToAllPathSubscribers (
 
 wxString dashboard_pi::getAllNMEA0183JsOrderedList()
 {
-    return mSkData->getAllNMEA0183JsOrderedList();
+    return m_pSkData->getAllNMEA0183JsOrderedList();
 }
 wxString dashboard_pi::getAllNMEA2000JsOrderedList()
 {
-    return mSkData->getAllNMEA2000JsOrderedList();
+    return m_pSkData->getAllNMEA2000JsOrderedList();
 }
 
 #else
@@ -1987,8 +1987,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
         if ( type->IsSameAs( "NMEA0183", false ) ) {
 
-            if ( mSkData->isSubscribedToAllPaths() )
-                mSkData->UpdateNMEA0183PathList( path, key );
+            if ( m_pSkData->isSubscribedToAllPaths() )
+                m_pSkData->UpdateNMEA0183PathList( path, key );
             
             if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
@@ -2440,8 +2440,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         } // then NMEA-0183 delta from Signal K
         else if ( type->IsSameAs( "NMEA2000", false ) ) {
 
-            if ( mSkData->isSubscribedToAllPaths() )
-                mSkData->UpdateNMEA2000PathList( path, key );
+            if ( m_pSkData->isSubscribedToAllPaths() )
+                m_pSkData->UpdateNMEA2000PathList( path, key );
 
             this->SendDataToAllPathSubscribers(
                 ( key == NULL ? *path : (*path + _T(".") + *key) ),
@@ -4710,7 +4710,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 m_plugin->m_mtxNofStreamInSk,
                 m_plugin->m_nofStreamInSk,
                 m_plugin->m_echoStreamerInSkShow,
-                m_plugin->GetStandardPath() );
+                m_plugin->GetStandardPath(),
+                m_plugin->m_pSkData );
             break;
         case ID_DBP_D_POLPERF:
             instrument = new TacticsInstrument_PolarPerformance(

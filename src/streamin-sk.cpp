@@ -57,11 +57,13 @@ wxEND_EVENT_TABLE ()
 //----------------------------------------------------------------
 TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
-    std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir)
+    std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir,
+    SkData *skdata)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
     m_frame = this;
     m_pparent = pparent;
+    m_pskdata = skdata;
     std::unique_lock<std::mutex> lck_mtxNofStreamInSk( mtxNofStreamInSk);
     nofStreamInSk++;
     m_mtxNofStreamInSk = &mtxNofStreamInSk;
@@ -92,6 +94,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
 
     m_source = emptyStr;
     m_connectionRetry = 0;
+    m_subscribedToAll = false;
     m_timestamps = emptyStr;
     m_stamp = true;
     m_verbosity = 0;
@@ -110,8 +113,10 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_startGraceCnt = 0;
     m_threadMsg = emptyStr;
 
-    m_subscribeAll["context"] = L"vessels.self";   // Data from all vessels wanted? Replace with "*".
+    m_subscribeAll["context"] = SSKM_SUBSCRIBE_CONTEXT;
     m_subscribeAll["subscribe"][0]["path"] = L"*";
+    m_subscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
+    wxString defSubscriptions = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
 
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
@@ -411,7 +416,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 } // the first hello message read failed
 
                 wxJSONWriter writer(wxJSONWRITER_NONE); // note: the JSON out must be "non-human-readable"
-                writer.Write( m_subscribeAll, sData );
+                writer.Write( m_subscribeTo, sData );
 
                 sHdrOut += sData;
                 sHdrOut += "\r\n"; // quite necessary to make the signalk-server-node to read the socket
@@ -732,6 +737,14 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
         }
     }
     m_updatesSent = 0;
+    // Check if there a new subscriptions requested
+    wxJSONValue peekSubscribeTo;
+    peekSubscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
+    wxString defSubscriptions = m_pskdata->getAllSubscriptionsJSON( peekSubscribeTo );
+    if ( !peekSubscribeTo.IsSameAs( m_subscribeTo ) ) {
+         defSubscriptions = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
+    }
+
 }
 /***********************************************************************************
 

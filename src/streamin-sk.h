@@ -43,6 +43,7 @@ using namespace std;
 #include "wx/jsonval.h"
 
 #include "instrument.h"
+#include "skdata.h"
 class DashboardWindow;
 
 enum StreamInSkSingleStateMachine {
@@ -53,8 +54,10 @@ enum SocketInSkThreadStateMachine {
     SKTM_STATE_UNKNOWN, SKTM_STATE_INIT, SKTM_STATE_ERROR, SKTM_STATE_CONNECTING,
     SKTM_STATE_WAITING, SKTM_STATE_READY };
 
+#define SSKM_SUBSCRIBE_CONTEXT L"vessels.self" // Data from all vessels? Replace with "*".
 #define SSKM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
-#define SSKM_START_GRACE_COUNT 15 // tick is not accurate at startup
+#define SSKM_START_GRACE_COUNT 15 // tick is not accurate at startup for stats
+#define SSKM_ALLPATHS_COUNT 5 // How long time we can be asked to subscribe to all paths
 
 //+------------------------------------------------------------------------------
 //|
@@ -69,8 +72,9 @@ class TacticsInstrument_StreamInSkSingle : public DashboardInstrument, public wx
 {
 public:
 	TacticsInstrument_StreamInSkSingle(
-        DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
-        std::mutex &mtxNofStreamInSk, int &nofStreamInSk, wxString &echoStreamerInSkShow, wxString confdir);
+        DashboardWindow* pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
+        std::mutex& mtxNofStreamInSk, int& nofStreamInSk, wxString& echoStreamerInSkShow, wxString confdir,
+        SkData* skdata);
 	~TacticsInstrument_StreamInSkSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
@@ -105,6 +109,7 @@ protected:
     wxString          m_threadMsg;
 
     wxJSONValue       m_subscribeAll;
+    wxJSONValue       m_subscribeTo;
 
     // From configuration file
     wxString          m_source;
@@ -113,6 +118,7 @@ protected:
     int               m_sksnVersionMinor;
     int               m_sksnVersionPatch;
     int               m_connectionRetry;
+    bool              m_subscribedToAll;
     wxString          m_timestamps;
     bool              m_stamp;
     int               m_verbosity;
@@ -129,6 +135,7 @@ private :
 
     wxFileConfig     *m_pconfig;
     DashboardWindow  *m_pparent;
+    SkData           *m_pskdata;
 
     wxDECLARE_EVENT_TABLE();
 

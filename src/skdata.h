@@ -57,7 +57,8 @@ public:
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllNMEA0183JsOrderedList(void);
     wxString getAllSubscriptionsJSON(wxJSONValue& pRetJSON);
-    bool setSubscribedToAllPaths(bool newval) {m_subscribedToAllPaths = newval;};
+    bool subscribeToAllPaths(void) {m_subscribedToAllPaths = true;};
+    bool subscribeToSubscriptionList(void) {m_subscribedToAllPaths = false;};
     bool isSubscribedToAllPaths(void) {return m_subscribedToAllPaths;};
 protected:
     SkDataPathList       *m_pathlist;
@@ -66,6 +67,7 @@ protected:
     SkDataPathList       *m_subscriptionlist;
 
 private:
+    void pushDefaultSubscriptions(void);
     void UpdatePathList ( SkDataPathList* pathlist, wxString* path, wxString* key );
     wxString getAllJsOrderedList(
         SkDataPathList* pathlist,

@@ -49,6 +49,7 @@ SkData::SkData()
     m_nmea0183pathlist = new SkDataPathList();
     m_nmea2000pathlist = new SkDataPathList();
     m_subscriptionlist = new SkDataPathList();
+    pushDefaultSubscriptions();
     return;
 }
 
@@ -57,31 +58,6 @@ SkData::SkData(const SkData& sourceSkData) {
     m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
     m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
     m_subscriptionlist = new SkDataPathList(*sourceSkData.m_subscriptionlist);
-    // Signal K paths to be subscribed for by default and without learning/selection
-    m_subscriptionlist->push_back( "environment.depth.belowTransducer" );
-    m_subscriptionlist->push_back( "environment.depth.belowKeel" );
-    m_subscriptionlist->push_back( "environment.outside.pressure" );
-    m_subscriptionlist->push_back( "environment.water.temperature" );
-    m_subscriptionlist->push_back( "environment.wind.angleApparent" );
-    m_subscriptionlist->push_back( "environment.wind.angleTrueWater" );
-    m_subscriptionlist->push_back( "environment.wind.speedApparent" );
-    m_subscriptionlist->push_back( "environment.wind.speedTrue" );
-    m_subscriptionlist->push_back( "navigation.courseOverGroundTrue" );
-    m_subscriptionlist->push_back( "navigation.courseRhumbline.nextPoint.bearingTrue" );
-    m_subscriptionlist->push_back( "navigation.courseRhumbline.nextPoint.velocityMadeGood" );
-    m_subscriptionlist->push_back( "navigation.courseRhumbline.nextPoint.distance" );
-    m_subscriptionlist->push_back( "navigation.datetime" );
-    m_subscriptionlist->push_back( "navigation.gnss.methodQuality" );
-    m_subscriptionlist->push_back( "navigation.gnss.satellites" );
-    m_subscriptionlist->push_back( "navigation.headingMagnetic" );
-    m_subscriptionlist->push_back( "navigation.headingTrue" );
-    m_subscriptionlist->push_back( "navigation.magneticVariation" );
-    m_subscriptionlist->push_back( "navigation.position" );
-    m_subscriptionlist->push_back( "navigation.speedOverGround" );
-    m_subscriptionlist->push_back( "navigation.speedThroughWater" );
-    m_subscriptionlist->push_back( "navigation.trip.log" );
-    m_subscriptionlist->push_back( "navigation.log" );
-    m_subscriptionlist->push_back( "steering.rudderAngle" );
     m_subscribedToAllPaths = false;
     return;
 }
@@ -93,6 +69,36 @@ SkData::~SkData()
     delete m_nmea2000pathlist;
     delete m_subscriptionlist;
     return;
+}
+
+void SkData::pushDefaultSubscriptions()
+{
+    // Signal K paths to be subscribed for by default and without learning/selection
+    m_subscriptionlist->push_back( std::string( "environment.depth.belowTransducer" ) );
+    m_subscriptionlist->push_back( std::string( "environment.depth.belowKeel" ) );
+    m_subscriptionlist->push_back( std::string( "environment.outside.pressure" ) );
+    m_subscriptionlist->push_back( std::string( "environment.water.temperature" ) );
+    m_subscriptionlist->push_back( std::string( "environment.wind.angleApparent" ) );
+    m_subscriptionlist->push_back( std::string( "environment.wind.angleTrueWater" ) );
+    m_subscriptionlist->push_back( std::string( "environment.wind.speedApparent" ) );
+    m_subscriptionlist->push_back( std::string( "environment.wind.speedTrue" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.courseOverGroundTrue" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.courseRhumbline.nextPoint.bearingTrue" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.courseRhumbline.nextPoint.velocityMadeGood" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.courseRhumbline.nextPoint.distance" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.datetime" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.gnss.methodQuality" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.gnss.satellites" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.headingMagnetic" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.headingTrue" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.magneticVariation" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.position" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.speedOverGround" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.speedThroughWater" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.trip.log" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.log" ) );
+    m_subscriptionlist->push_back( std::string( "steering.rudderAngle" ) );
+    m_subscribedToAllPaths = false;
 }
 
 void SkData::UpdatePathList( SkDataPathList *pathlist, wxString *path, wxString *key )
