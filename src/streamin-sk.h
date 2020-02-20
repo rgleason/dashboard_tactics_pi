@@ -110,6 +110,7 @@ protected:
 
     wxJSONValue       m_subscribeAll;
     wxJSONValue       m_subscribeTo;
+    wxString          m_subscribeToJS;
 
     // From configuration file
     wxString          m_source;

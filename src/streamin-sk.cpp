@@ -116,7 +116,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_subscribeAll["context"] = SSKM_SUBSCRIBE_CONTEXT;
     m_subscribeAll["subscribe"][0]["path"] = L"*";
     m_subscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
-    wxString defSubscriptions = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
+    m_subscribeToJS = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
 
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
@@ -740,9 +740,9 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
     // Check if there a new subscriptions requested
     wxJSONValue peekSubscribeTo;
     peekSubscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
-    wxString defSubscriptions = m_pskdata->getAllSubscriptionsJSON( peekSubscribeTo );
-    if ( !peekSubscribeTo.IsSameAs( m_subscribeTo ) ) {
-         defSubscriptions = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
+    wxString peekSubscribeToJS = m_pskdata->getAllSubscriptionsJSON( peekSubscribeTo );
+    if ( !peekSubscribeToJS.IsSameAs( m_subscribeToJS ) ) {
+         m_subscribeToJS = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
     }
 
 }
