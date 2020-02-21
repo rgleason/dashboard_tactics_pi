@@ -738,9 +738,8 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
     }
     m_updatesSent = 0;
     // Check if there a new subscriptions requested
-    wxJSONValue peekSubscribeTo;
-    peekSubscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
-    wxString peekSubscribeToJS = m_pskdata->getAllSubscriptionsJSON( peekSubscribeTo );
+    wxJSONValue noJSON( wxJSONTYPE_NULL );
+    wxString peekSubscribeToJS = m_pskdata->getAllSubscriptionsJSON( noJSON );
     if ( !peekSubscribeToJS.IsSameAs( m_subscribeToJS ) ) {
          m_subscribeToJS = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
     }
