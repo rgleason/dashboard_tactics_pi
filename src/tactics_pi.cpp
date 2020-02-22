@@ -38,7 +38,6 @@ extern int g_iDashDepthUnit;
 extern int g_iDashDistanceUnit;  //0="Nautical miles", 1="Statute miles", 2="Kilometers", 3="Meters"
 extern int g_iDashWindSpeedUnit; //0="Kts", 1="mph", 2="km/h", 3="m/s"
 extern int g_iUTCOffset;
-extern wxString GetUUID(void);
 
 bool g_bTacticsImportChecked;
 double g_dalphaDeltCoG;
@@ -98,6 +97,7 @@ tactics_pi::tactics_pi( void )
 {
     m_hostplugin = NULL;
     m_hostplugin_pconfig = NULL;
+    m_pSkData = new SkData();
     b_tactics_dc_message_shown = false;
 
     // please keep the below in same order than in class definition to ease the maintenance
@@ -234,6 +234,7 @@ tactics_pi::tactics_pi( void )
 
 tactics_pi::~tactics_pi( void )
 {
+    delete m_pSkData;
     return;
 }
 
@@ -3359,146 +3360,4 @@ void TacticsPreferencesDialog::SaveTacticsConfig()
     g_bDataExportClockticks= m_ExpFileData01->GetValue();
     g_bDataExportUTC =  m_ExpFileData02->GetValue();
     g_sDataExportSeparator = m_pDataExportSeparator->GetValue();
-}
-
-//----------------------------------------------------------------
-//    Tactics Window Implementation
-//    porting note: as virtual parent for child window class
-//----------------------------------------------------------------
-
-TacticsWindow::TacticsWindow (
-    wxWindow *pparent, wxWindowID id,
-    tactics_pi *tactics, const wxString derivtitle ) :
-    wxWindow(
-        pparent, id, wxDefaultPosition, wxDefaultSize,
-        wxBORDER_NONE || wxFULL_REPAINT_ON_RESIZE, derivtitle )
-{
-    m_plugin = tactics;
-    m_callbacks = new callback_map();
-    std::unique_lock<std::mutex> init_m_mtxCallBackContainer( m_mtxCallBackContainer, std::defer_lock );
-    return;
-}
-
-TacticsWindow::~TacticsWindow()
-{
-    delete m_callbacks;
-    return;
-}
-
-void TacticsWindow::InsertTacticsIntoContextMenu ( wxMenu *contextMenu )
-{
-    wxMenuItem* btnShowLaylines = contextMenu->AppendCheckItem(
-        ID_DASH_LAYLINE, _(L"\u2191Show Laylines"));
-    btnShowLaylines->Check(m_plugin->GetLaylineVisibility());
-
-    wxMenuItem* btnShowCurrent = contextMenu->AppendCheckItem(
-        ID_DASH_CURRENT, _(L"\u2191Show Current"));
-    btnShowCurrent->Check(m_plugin->GetCurrentVisibility());
-
-	wxMenuItem* btnShowWindbarb = contextMenu->AppendCheckItem(
-        ID_DASH_WINDBARB, _(L"\u2191Show Windbarb"));
-	btnShowWindbarb->Check(m_plugin->GetWindbarbVisibility());
-
-	wxMenuItem* btnShowPolar = contextMenu->AppendCheckItem(
-        ID_DASH_POLAR, _(L"\u2191Show Polar"));
-	btnShowPolar->Check(m_plugin->GetPolarVisibility());
-
-    return;
-}
-
-void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
-{
-    bool toggled = false;
-	switch (eventId){
-	case ID_DASH_LAYLINE: {
-		m_plugin->ToggleLaylineRender();
-        toggled = true;
-        break;
-	}
-	case ID_DASH_CURRENT: {
-		m_plugin->ToggleCurrentRender();
-        toggled = true;
-        break;
-	}
-	case ID_DASH_POLAR: {
-		m_plugin->TogglePolarRender();
-        toggled = true;
-        break;
-	}
-	case ID_DASH_WINDBARB: {
-		m_plugin->ToggleWindbarbRender();
-        toggled = true;
-        break;
-	}
-	}
-    /* Port note: Parent cannot save for child,
-       child cannot save for parent. */
-    if ( toggled )
-       m_plugin->SaveConfig();
-
-	return;
-
-}
-void TacticsWindow::SendPerfSentenceToAllInstruments(
-    unsigned long long st, double value, wxString unit, long long timestamp )
-{
-    m_plugin->SendSentenceToAllInstruments( st, value, unit, timestamp );
-}
-void TacticsWindow::SetUpdateSignalK(
-        wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,
-        wxString *path, double value, wxString *valStr, long long timestamp, wxString *key )
-{
-    m_plugin->SetUpdateSignalK( type, sentenceId, talker, src, pgn, path, value, valStr, timestamp, key );
-}
-
-wxString TacticsWindow::subscribeTo ( wxString path, callbackFunction callback)
-{
-    wxString retUUID = GetUUID();
-    std::string keyID = std::string( retUUID.mb_str() );
-    callbackFunctionTuple newEntry = std::make_tuple(path, callback);
-    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
-    m_callbacks->insert ( make_pair(keyID, newEntry) );
-    return retUUID;
-}
-
-void TacticsWindow::unsubscribeFrom ( wxString callbackUUID )
-{
-    std::string keyID = std::string( callbackUUID.mb_str() );
-    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
-    callback_map::iterator it = m_callbacks->find( keyID );
-    if ( it != m_callbacks->end() ) {
-            m_callbacks->erase( it );
-    } // key found, delete
-}
-void TacticsWindow::SendDataToAllPathSubscribers(
-    wxString path, double value, wxString unit, long long timestamp )
-{
-    std::unique_lock<std::mutex> lckmCallBack( m_mtxCallBackContainer );
-    callback_map::iterator it = m_callbacks->begin();
-    callbackFunctionPair  thisEntry;
-    callbackFunctionTuple thisSubscriber;
-    std::string keyID;
-    wxString subscribedPath;
-    callbackFunction callThis;
-    while ( it != m_callbacks->end() ) {
-        thisEntry = *it;
-        keyID = std::get<0>(thisEntry);
-        if ( !keyID.empty() ) {
-            thisSubscriber = std::get<1>(thisEntry);
-            subscribedPath = std::get<0>(thisSubscriber);
-            if ( subscribedPath == path ) {
-                    callThis = std::get<1>(thisSubscriber);
-                    callThis ( value, unit, timestamp );
-            }
-        }
-        ++it;
-    }
-}
-wxString TacticsWindow::getAllNMEA0183JsOrderedList()
-{
-    return m_plugin->getAllNMEA0183JsOrderedList();
-}
-wxString TacticsWindow::getAllNMEA2000JsOrderedList()
-{
-    return m_plugin->getAllNMEA2000JsOrderedList();
 }

@@ -42,28 +42,15 @@
 #include <wx/aui/aui.h>
 #include <wx/fontpicker.h>
 #include <wx/unichar.h>
-//wx2.9 #include <wx/wrapsizer.h>
+
 #include "ocpn_plugin.h"
 
-#ifdef _INCLUDE_TACTICS_PI_
-#ifndef _TACTICSPI_H_
 #include "tactics_pi.h"
-#endif // _TACTICSPI_H_
-#endif // _INCLUDE_TACTICS_PI_
 
-#ifdef _TACTICSPI_H_
 #include "version.h"
-#else
-#define     PLUGIN_VERSION_MAJOR    1
-#define     PLUGIN_VERSION_MINOR    5
-#endif // _TACTICSPI_H_
 
 #define     MY_API_VERSION_MAJOR    1
-#ifdef _TACTICSPI_H_
 #define     MY_API_VERSION_MINOR    12
-#else
-#define     MY_API_VERSION_MINOR    6
-#endif // _TACTICSPI_H_
 
 #include "nmea0183/nmea0183.h"
 #include "instrument.h"
@@ -78,12 +65,10 @@
 #include "baro_history.h"
 #include "from_ownship.h"
 #include "iirfilter.h"
-#ifdef _TACTICSPI_H_
-#include "skdata.h"
-#include "enginei.h"
+#include "DashBoardWindow.h"
 #include "enginedjg.h"
-#endif // _TACTICSPI_H_
 
+class tactics_pi;
 class DashboardWindow;
 class DashboardWindowContainer;
 class DashboardInstrumentContainer;
@@ -92,109 +77,13 @@ class DashboardInstrumentContainer;
 
 #define gps_watchdog_timeout_ticks  10
 
-#ifdef _TACTICSPI_H_
-// Incoming NMEA-2000 PGNs Dashboard inspects
-#define PGN_ENG_PARAM_RAP 127488
-#define PGN_ENG_PARAM_DYN 127489 
-// Signal K conversions, see https://git.io/JeYry
-#define DEG_IN_RAD 0.0174532925
-#define RAD_IN_DEG 57.2957795
-#define CELCIUS_IN_KELVIN 273.15
-#define MS_IN_KNOTS 1.943844
-#define KM_IN_NM 0.539956803
-#define PA_IN_BAR 100000
-#endif // _TACTICSPI_H_
-
-class DashboardWindowContainer
-{
-public:
-#ifdef _TACTICSPI_H_
-    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation,
-                             wxArrayInt inst, wxArrayString instID ) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation;
-        m_aInstrumentList = inst; m_aInstrumentIDs = instID;
-        m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
-#else
-    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
-    DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
-            m_pDashboardWindow = sourcecont->m_pDashboardWindow;
-            m_bIsVisible       = sourcecont->m_bIsVisible;
-            m_bIsDeleted       = sourcecont->m_bIsDeleted;
-            m_bIsDocked        = sourcecont->m_bIsDocked;
-            m_bPersVisible     = sourcecont->m_bPersVisible;
-            m_sName            = sourcecont->m_sName;
-            m_sCaption         = sourcecont->m_sCaption;
-            m_sOrientation     = sourcecont->m_sOrientation;
-            m_aInstrumentList  = sourcecont->m_aInstrumentList;
-            m_aInstrumentIDs   = sourcecont->m_aInstrumentIDs;
-    }
-#endif // _TACTICSPI_H_
- 
-    ~DashboardWindowContainer(){}
-
-DashboardWindow              *m_pDashboardWindow;
-    bool                      m_bIsVisible;
-    bool                      m_bIsDeleted;
-    bool                      m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
-    bool                      m_bIsDocked;
-    wxString                  m_sName;
-    wxString                  m_sCaption;
-    wxString                  m_sOrientation;
-    wxArrayInt                m_aInstrumentList;
-#ifdef _TACTICSPI_H_
-    wxArrayString             m_aInstrumentIDs;
-#endif // _TACTICSPI_H_
-};
-
-class DashboardInstrumentContainer
-{
-public:
-#ifdef _TACTICSPI_H_
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
-                                 unsigned long long capa, wxString ids = _T("") )
-        {
-            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; m_IDs = ids;
-        };
-#else
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
-        {
-            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-        };
-#endif // _TACTICSPI_H_
-    ~DashboardInstrumentContainer(){ delete m_pInstrument; };
-    DashboardInstrument    *m_pInstrument;
-    int                     m_ID;
-#ifdef _TACTICSPI_H_
-    unsigned long long      m_cap_flag;
-    wxString                m_IDs;
-#else
-    int                     m_cap_flag;
-#endif // _TACTICSPI_H_
-};
-
-//    Dynamic arrays of pointers need explicit macros in wx261
-#ifdef __WX261
-WX_DEFINE_ARRAY_PTR(DashboardWindowContainer *, wxArrayOfDashboard);
-WX_DEFINE_ARRAY_PTR(DashboardInstrumentContainer *, wxArrayOfInstrument);
-#else
-WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);
-WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
-#endif
 
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
 
-class dashboard_pi : public
-#ifdef _TACTICSPI_H_
-    tactics_pi, wxTimer, opencpn_plugin_112
-#else
-    wxTimer, opencpn_plugin_16
-#endif // _TACTICSPI_H_
+class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_112
 {
 public:
     dashboard_pi(void *ppimgr);
@@ -225,8 +114,6 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
-    wxString getAllNMEA0183JsOrderedList(void);
-    wxString getAllNMEA2000JsOrderedList(void);
 #else
     void SendSentenceToAllInstruments(
         int st, double value, wxString unit);
@@ -279,7 +166,6 @@ public:
     wxString           m_echoStreamerShow;
     int                m_nofStreamInSk;
     std::mutex         m_mtxNofStreamInSk;
-    SkData            *m_pSkData;
     wxString           m_echoStreamerInSkShow;
     PI_ColorScheme     m_colorScheme;
 #endif // _TACTICSPI_H_
@@ -441,76 +327,6 @@ enum
     ID_DASH_VERTICAL,
     ID_DASH_HORIZONTAL,
     ID_DASH_UNDOCK
-};
-
-class DashboardWindow : public
-#ifdef _TACTICSPI_H_
-    TacticsWindow
-#else
-    wxWindow
-#endif // _TACTICSPI_H_
-{
-public:
-    DashboardWindow(
-        wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
-        dashboard_pi* plugin,
-        int orient, DashboardWindowContainer* mycont
-#ifdef _TACTICSPI_H_
-        , wxString commonName
-#endif // _TACTICSPI_H_
-        );
-    ~DashboardWindow();
-
-    void SetColorScheme( PI_ColorScheme cs );
-    void SetSizerOrientation( int orient );
-    int GetSizerOrientation();
-    void OnSize( wxSizeEvent& evt );
-    void OnContextMenu( wxContextMenuEvent& evt );
-    void OnContextMenuSelect( wxCommandEvent& evt );
-    bool isInstrumentListEqual( const wxArrayInt& list );
-#ifdef _TACTICSPI_H_
-    void SetInstrumentList( wxArrayInt list, wxArrayString listIDs );
-#else
-    void SetInstrumentList( wxArrayInt list );
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
-    void SetMinSizes( void );
-    void RebuildPane( wxArrayInt list, wxArrayString listIDs);
-#endif // _TACTICSPI_H_
-    void SendSentenceToAllInstruments(
-#ifdef _TACTICSPI_H_
-        unsigned long long st,
-#else
-        int st,
-#endif // _TACTICSPI_H_
-       double value, wxString unit
-#ifdef _TACTICSPI_H_
-        , long long timestamp=0LL
-#endif // _TACTICSPI_H_
-        );
-    void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
-    void SendUtcTimeToAllInstruments( wxDateTime value );
-#ifdef _TACTICSPI_H_
-    void SendColorSchemeToAllJSInstruments( PI_ColorScheme cs );
-#endif // _TACTICSPI_H_
-    void ChangePaneOrientation( int orient, bool updateAUImgr );
-    /*TODO: OnKeyPress pass event to main window or disable focus*/
-
-    DashboardWindowContainer* m_Container;
-
-#ifdef _TACTICSPI_H_
-protected:
-    wxDECLARE_EVENT_TABLE();
-    void OnClose(wxCloseEvent& evt);
-#endif // _TACTICSPI_H_
-
-private:
-    wxAuiManager         *m_pauimgr;
-    dashboard_pi*         m_plugin;
-
-    //wx2.9      wxWrapSizer*          itemBoxSizer;
-    wxBoxSizer*          itemBoxSizer;
-    wxArrayOfInstrument  m_ArrayOfInstrument;
 };
 
 #endif

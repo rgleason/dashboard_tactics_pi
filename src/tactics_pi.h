@@ -53,7 +53,10 @@
 #include "avg_wind.h"
 #include "polarcompass.h"
 #include "streamout.h"
-#include "streamin-sk.h"
+#include "skdata.h"
+#include "StreamInSkSingle.h"
+#include "TacticsWindow.h"
+
 
 class Polar;
 class AvgWind;
@@ -79,9 +82,6 @@ enum dbgTrueWindExecStat {
 enum dbgPolarStat {
     DBGRES_POLAR_UNKNOWN, DBGRES_POLAR_INVALID, DBGRES_POLAR_VALID };
 
-//----------------------------------------------------------------------------------------------------------
-//    The PlugIn Class Definition
-//----------------------------------------------------------------------------------------------------------
 
 class tactics_pi
 {
@@ -158,8 +158,6 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL ) = 0;
     virtual void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
-    virtual wxString getAllNMEA0183JsOrderedList(void) = 0;
-    virtual wxString getAllNMEA2000JsOrderedList(void) = 0;
     virtual void SendPerfSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
@@ -189,8 +187,10 @@ public:
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
 
+protected:
+    SkData              *m_pSkData;
+    
 private:
-
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
@@ -434,46 +434,6 @@ enum eIdDashTacticsContextMenu {
     ID_DASH_POLAR,
     ID_DASH_WINDBARB,
     ID_DASH_TACTICS_PREFS_END
-};
-
-// helpers for the call-back methods in instruments subsribing to signal paths
-typedef std::function<void  (double, wxString, long long)> callbackFunction;
-typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
-typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
-//typedef std::unordered_multimap<wxString, callbackFunctionTuple> callback_map;
-typedef std::unordered_multimap<std::string, callbackFunctionTuple> callback_map;
-
-class TacticsWindow : public wxWindow
-{
-public:
-    TacticsWindow(
-        wxWindow *pparent, wxWindowID id,
-        tactics_pi *tactics, const wxString derivtitle );
-    ~TacticsWindow();
-
-    virtual void InsertTacticsIntoContextMenu (
-        wxMenu *contextMenu ) final;
-    virtual void TacticsInContextMenuAction (
-        const int eventId ) final;
-
-    void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit, long long timestamp );
-    void SetUpdateSignalK(
-        wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
-        wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
-    wxString subscribeTo ( wxString path, callbackFunction callback);
-    void unsubscribeFrom ( wxString callbackUUID );
-    void SendDataToAllPathSubscribers(
-        wxString path, double value, wxString unit, long long timestamp );
-    wxString getAllNMEA0183JsOrderedList(void);
-    wxString getAllNMEA2000JsOrderedList(void);
-protected:
-    std::mutex          m_mtxCallBackContainer;
-    callback_map       *m_callbacks;
-
-private:
-    tactics_pi*         m_plugin;
-
 };
 
 #endif

@@ -554,7 +554,6 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
-    m_pSkData = new SkData();
 #endif // _TACTICSPI_H_
 
     // Create the PlugIn icons
@@ -563,14 +562,8 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 
 dashboard_pi::~dashboard_pi( void )
 {
-#ifdef _TACTICSPI_H_
     delete _img_dashboard_tactics_pi;
     delete _img_dashboard_tactics;
-    delete m_pSkData;
-#else
-    delete _img_dashboard_pi;
-    delete _img_dashboard;
-#endif // _TACTICSPI_H_
     delete _img_dial;
     delete _img_instrument;
     delete _img_minus;
@@ -1049,15 +1042,6 @@ void dashboard_pi::SendDataToAllPathSubscribers (
             dashboard_window->SendDataToAllPathSubscribers(
                 path, value, unit, timestamp);
     }
-}
-
-wxString dashboard_pi::getAllNMEA0183JsOrderedList()
-{
-    return m_pSkData->getAllNMEA0183JsOrderedList();
-}
-wxString dashboard_pi::getAllNMEA2000JsOrderedList()
-{
-    return m_pSkData->getAllNMEA2000JsOrderedList();
 }
 
 #else
@@ -1987,8 +1971,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
         if ( type->IsSameAs( "NMEA0183", false ) ) {
 
-            if ( m_pSkData->isSubscribedToAllPaths() )
-                m_pSkData->UpdateNMEA0183PathList( path, key );
+            if ( this->m_pSkData->isSubscribedToAllPaths() )
+                this->m_pSkData->UpdateNMEA0183PathList( path, key );
             
             if ( sentenceId->CmpNoCase(_T("DBT")) == 0 ) { // https://git.io/JeYfB
                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
@@ -2440,8 +2424,8 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         } // then NMEA-0183 delta from Signal K
         else if ( type->IsSameAs( "NMEA2000", false ) ) {
 
-            if ( m_pSkData->isSubscribedToAllPaths() )
-                m_pSkData->UpdateNMEA2000PathList( path, key );
+            if ( this->m_pSkData->isSubscribedToAllPaths() )
+                this->m_pSkData->UpdateNMEA2000PathList( path, key );
 
             this->SendDataToAllPathSubscribers(
                 ( key == NULL ? *path : (*path + _T(".") + *key) ),
@@ -3052,7 +3036,8 @@ void dashboard_pi::ApplyConfig(
             if ( addpane ) {
                 newcont->m_pDashboardWindow = new DashboardWindow(
                     GetOCPNCanvasWindow(), wxID_ANY,
-                    m_pauimgr, this, orient, (init ? cont : newcont), GetCommonName() );
+                    m_pauimgr, this, orient, (init ? cont : newcont),
+                    GetCommonName(), this->m_pSkData );
                 newcont->m_pDashboardWindow->Show( false );
                 newcont->m_pDashboardWindow->SetInstrumentList(
                     newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );
@@ -3154,7 +3139,7 @@ void dashboard_pi::ApplyConfig(
             // A new dashboard is created
             cont->m_pDashboardWindow = new DashboardWindow(
                 GetOCPNCanvasWindow(), wxID_ANY,
-                m_pauimgr, this, orient, cont
+                m_pauimgr, this, orient, cont, this->m_pSkData
                 );
             cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList, cont->m_aInstrumentIDs );
             bool vertical = orient == wxVERTICAL;
@@ -3938,26 +3923,16 @@ unsigned int AddInstrumentDlg::GetInstrumentAdded()
 //    Dashboard Window Implementation
 //
 //----------------------------------------------------------------
-#ifdef _TACTICSPI_H_
 wxBEGIN_EVENT_TABLE (DashboardWindow, TacticsWindow)
    EVT_CLOSE (DashboardWindow::OnClose)
 wxEND_EVENT_TABLE ()
-#endif // _TACTICSPI_H_
-// wxWS_EX_VALIDATE_RECURSIVELY required to push events to parents
+
 DashboardWindow::DashboardWindow(
     wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
-    dashboard_pi* plugin, int orient,
-    DashboardWindowContainer* mycont
-#ifdef _TACTICSPI_H_
-    , wxString commonName ) :
-    TacticsWindow ( pparent, id, (tactics_pi *) plugin, commonName )
+    dashboard_pi *plugin, int orient,
+    DashboardWindowContainer *mycont, wxString commonName, SkData *pSkData ) :
+    TacticsWindow ( pparent, id, (tactics_pi *) plugin, commonName, pSkData )
     // please see wxWindow contructor parameters, defined by TacticsWindow class implementation
-#else
-    ) :
-    wxWindow(
-        pparent, id, wxDefaultPosition, wxDefaultSize,
-        wxBORDER_NONE, _T("Dashboard") )
-#endif // _TACTICSPI_H_
 {
     m_pauimgr = auimgr;
     m_plugin = plugin;
@@ -4711,7 +4686,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 m_plugin->m_nofStreamInSk,
                 m_plugin->m_echoStreamerInSkShow,
                 m_plugin->GetStandardPath(),
-                m_plugin->m_pSkData );
+                this->m_pSkData );
             break;
         case ID_DBP_D_POLPERF:
             instrument = new TacticsInstrument_PolarPerformance(
