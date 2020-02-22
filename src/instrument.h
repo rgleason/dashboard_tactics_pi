@@ -41,11 +41,9 @@
 // Required GetGlobalColor
 #include "ocpn_plugin.h"
 
-#ifdef _INCLUDE_TACTICS_PI_
 #ifndef _TACTICSPI_H_
 #define _TACTICSPI_H_ // compatibility adjustements: more instruments - extended capacity flags (64-bit)
 #endif // _TACTICSPI_H_
-#endif // _INCLUDE_TACTICS_PI_
 
 #include <wx/dcbuffer.h>
 #include <wx/dcgraph.h>         // supplemental, for Mac
