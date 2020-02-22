@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: instrujs.cpp, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: InstruJS.cpp, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
@@ -24,6 +24,9 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
 ***************************************************************************
 */
+
+using namespace std;
+
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -37,7 +40,9 @@
 #include <wx/event.h>
 
 #include <functional>
-#include "instrujs.h"
+#include <mutex>
+#include "InstruJS.h"
+using namespace std::placeholders;
 #include "plugin_ids.h"
 
 extern int GetRandomNumber(int, int);
@@ -62,7 +67,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_handshake = JSI_HDS_NO_REQUEST;
     m_requestServed = wxEmptyString;
     m_hasRequestedId = false;
-    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+    m_setAllPathGraceCount = -1;
     m_pushHereUUID = wxEmptyString;
     m_subscribedPath = wxEmptyString;
 
@@ -340,9 +345,13 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
             }
             else if ( request.CmpNoCase("getall") == 0 ) {
-                wxString allPathsJsList = m_pparent->getAllNMEA2000JsOrderedList();
-                if ( allPathsJsList != wxEmptyString ) {
-                    if ( m_setAllPathGraceCount == 0 ) {
+                if ( m_setAllPathGraceCount == -1 ) {
+                    m_pparent->collectAllSignalKDeltaPaths();
+                    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+                }
+                else if ( m_setAllPathGraceCount == 0 ) {
+                    wxString allPathsJsList = m_pparent->getAllNMEA2000JsOrderedList();
+                    if ( allPathsJsList != wxEmptyString ) {
                         m_istate = JSI_GETALL;
                         wxString javascript =
                             wxString::Format(
@@ -352,13 +361,9 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                                 "');");
                         RunScript( javascript );
                         m_handshake = JSI_HDS_SERVED;
-                        m_hasRequestedId = true;
-                        m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
                     }
-                    else {
-                        m_setAllPathGraceCount--;
-                    }
-                } // then we are connected to a NMEA2000 source
+                }
+                m_setAllPathGraceCount--;
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
