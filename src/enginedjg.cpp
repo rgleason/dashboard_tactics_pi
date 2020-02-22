@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: enginedjg.cpp, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: EngineDJG.cpp, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahboard_tactics_pi plug-in
@@ -41,7 +41,7 @@ using namespace std;
 #include <functional>
 
 #include "dashboard_pi.h"
-#include "enginedjg.h"
+#include "EngineDJG.h"
 #include "plugin_ids.h"
 
 // --- the following is probably needed only for demonstration and testing! ---

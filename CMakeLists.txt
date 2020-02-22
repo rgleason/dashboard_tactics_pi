@@ -23,32 +23,21 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
 CMAKE_POLICY(SET CMP0043 NEW)
 
-# ON = performance instruments, OFF = exclude all tactics_pi originated code from compilation _and_ build
-SET(TACTICS_INSTRUMENTS ON)
-
-IF (TACTICS_INSTRUMENTS)
-   PROJECT(dashboard_tactics_pi)
-   SET(PACKAGE_NAME dashboard_tactics_pi)
-   SET(VERBOSE_NAME DashboardTactics)
-   SET(TITLE_NAME DashboardTactics)
-ELSE (TACTICS_INSTRUMENTS)
-   PROJECT(dashboard_pi)
-   SET(PACKAGE_NAME dashboard_pi)
-   SET(VERBOSE_NAME Dashboard)
-   SET(TITLE_NAME Dashboard)
-ENDIF (TACTICS_INSTRUMENTS)
-SET(CPACK_PACKAGE_CONTACT "TBD")
+PROJECT(dashboard_tactics_pi)
+SET(PACKAGE_NAME dashboard_tactics_pi)
+SET(VERBOSE_NAME DashT)
+SET(TITLE_NAME DashT)
+SET(CPACK_PACKAGE_CONTACT "petri38-github@yahoo.com")
 
 # SET (CMAKE_BUILD_TYPE Debug)
 
-IF (TACTICS_INSTRUMENTS)
-  ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
-ENDIF (TACTICS_INSTRUMENTS)
-
 INCLUDE("cmake/PluginConfigure.cmake")
 
-SET(SRC_DASHBOARD
+SET(SRC_DASHT
     src/dashboard_pi.h
+    src/DashboardWindow.h
+    src/DashboardWindowContainer.h
+    src/DashboardInstrumentContainer.h
     src/dashboard_pi.cpp
     src/instrument.cpp
     src/instrument.h
@@ -84,36 +73,31 @@ SET(SRC_DASHBOARD
     include/wx/jsonreader.h
     include/wx/jsonval.h
     include/wx/jsonwriter.h
+    src/tactics_pi.h
+    src/tactics_pi.cpp
+    src/TacticsWindow.h
+    src/TacticsWindow.cpp
+    src/performance.h
+    src/performance.cpp
+    src/StreamInSkSingle.h
+    src/StreamInSkSingle.cpp
+    src/wxJSON/jsonwriter.cpp
+    src/streamout.h
+    src/streamout.cpp
+    src/plugin_ids.h
+    src/bearingcompass.h
+    src/bearingcompass.cpp
+    src/polarcompass.h
+    src/polarcompass.cpp
+    src/avg_wind.h
+    src/avg_wind.cpp
+    src/EngineDJG.h
+    src/EngineDJG.cpp
+    src/InstruJS.h
+    src/InstruJS.cpp
+    src/SkData.h
+    src/SkData.cpp
 )
-
-IF (TACTICS_INSTRUMENTS)
-  SET(SRC_TACTICS
-      src/tactics_pi.h
-      src/tactics_pi.cpp
-      src/performance.h
-      src/performance.cpp
-      src/streamin-sk.h
-      src/streamin-sk.cpp
-      src/wxJSON/jsonwriter.cpp
-      src/streamout.h
-      src/streamout.cpp
-      src/plugin_ids.h
-      src/bearingcompass.h
-      src/bearingcompass.cpp
-      src/polarcompass.h
-      src/polarcompass.cpp
-      src/avg_wind.h
-      src/avg_wind.cpp
-      src/enginei.h
-      src/enginei.cpp
-      src/enginedjg.h
-      src/enginedjg.cpp
-      src/instrujs.h
-      src/instrujs.cpp
-      src/skdata.h
-      src/skdata.cpp
-  )
-ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -184,11 +168,7 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
-IF (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
-ELSE (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
-ENDIF (TACTICS_INSTRUMENTS)
+SET(SRC ${SRC_DASHT} ${SRC_NMEA0183})
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 
 INCLUDE("cmake/PluginInstall.cmake")

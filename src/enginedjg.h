@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: enginedjg.h, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: EngineDJG.h, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahboard_tactics_pi plug-in
@@ -31,16 +31,12 @@
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
-
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 
 #define __DERIVEDTIMEOUTJS_OVERRIDE__
-#include "instrujs.h"
+#include "InstruJS.h"
 
 /*
   The default window size value are depending both of the HTML-file

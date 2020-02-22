@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: instrujs.h, v1.0 2019/11/30 VaderDarth Exp $
+* $Id: InstruJS.h, v1.0 2019/11/30 VaderDarth Exp $
 *
 * Project:  OpenCPN
 * Purpose:  dahbooard_tactics_pi plug-in
@@ -27,15 +27,9 @@
 
 #ifndef __INSTRUJS_H__
 #define __INSTRUJS_H__
-using namespace std;
-using namespace std::placeholders;
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -55,7 +49,7 @@ using namespace std::placeholders;
 #error "A wxWebView backend is required by InstruJS"
 #endif
 
-#include "tactics_pi.h"
+#include "TacticsWindow.h"
 #include "instrument.h"
 #include "ocpn_plugin.h"
 
