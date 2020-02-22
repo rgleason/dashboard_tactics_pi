@@ -37,8 +37,8 @@
 #include <wx/aui/aui.h>
 
 #include "TacticsWindow.h"
-#include "DashBoardInstrumentContainer.h"
-#include "DashBoardWindowContainer.h"
+#include "DashboardInstrumentContainer.h"
+#include "DashboardWindowContainer.h"
 #include "dashboard_pi.h"
 #include "nmea0183/SatInfo.h"
 

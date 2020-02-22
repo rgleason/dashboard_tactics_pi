@@ -43,7 +43,7 @@ using namespace std;
 #include "wx/jsonval.h"
 
 #include "instrument.h"
-#include "skdata.h"
+#include "SkData.h"
 class DashboardWindow;
 
 enum StreamInSkSingleStateMachine {

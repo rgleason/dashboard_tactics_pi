@@ -65,8 +65,8 @@
 #include "baro_history.h"
 #include "from_ownship.h"
 #include "iirfilter.h"
-#include "DashBoardWindow.h"
-#include "enginedjg.h"
+#include "DashboardWindow.h"
+#include "EngineDJG.h"
 
 class tactics_pi;
 class DashboardWindow;

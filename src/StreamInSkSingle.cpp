@@ -279,7 +279,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     int iCnxPrg = 2;
 
     wxString header = wxEmptyString;
-    bool skOnTheFlySubscriptions = true;
+    bool skOnTheFlySubscriptions;
     if ( (m_sksnVersionMajor < 2) && (m_sksnVersionMinor < 19) ) {
         skOnTheFlySubscriptions = false;
         header += "GET ";
@@ -295,6 +295,9 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         header += "\r\n";
         header += "Content-Length: "; // from this starts the dynamic part
     } // then a non-subscription based TCP delta channel (new design can ignore)
+    else {
+        skOnTheFlySubscriptions = true; // let's see for the header, none.
+    }
 
     m_stateComm = SKTM_STATE_CONNECTING;
     int prevStateComm = m_stateComm;

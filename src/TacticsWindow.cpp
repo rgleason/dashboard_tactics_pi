@@ -31,7 +31,7 @@ using namespace std;
 
 #include "TacticsWindow.h"
 #include "tactics_pi.h"
-#include "skdata.h"
+#include "SkData.h"
 
 extern wxString GetUUID(void);
 

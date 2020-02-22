@@ -35,6 +35,7 @@
 #endif //precompiled headers
 
 #include <unordered_map>
+#include <functional>
 #include <mutex>
 
 class tactics_pi;
