@@ -872,6 +872,30 @@ really a lot of data paths of all sort, such as status data. A way to
 define your own configuration for data paths is discussed
 Section \ref{adding-new-data-paths-of-your-own}.
 
+    \hypertarget{search-again-for-the-available-data-paths}{%
+\paragraph{Search again for the available data
+paths}\label{search-again-for-the-available-data-paths}}
+
+    If you cannot find a data path you are expecting to find from the menu,
+you can ask for a quick rescan by selecting any of the grayed-out items
+from the menu, \emph{i.e.} a menu item which is not in blue color. You
+may get an alert of a non-existing path, depending of the common
+configuration file settings. Resulting action is, anyway the same as in
+Section \ref{changing-enginedjg-instruments-data-path-subscription} and
+the data sources are scanned again for new paths.
+
+    \begin{quote}
+NOTE: The available data scanning is cumulative and if the data path you
+are expecting was not available from your data bus within the previous
+scan's time window frame (in less than 10 seconds), it may have been
+omitted. Rescan may help. Once the path is recongnized and configured,
+the subsription to it will be persistent.
+\end{quote}
+
+    \hypertarget{select-different-display-type}{%
+\paragraph{Select different display
+type}\label{select-different-display-type}}
+
     You can scroll the display types with Ctrl+\(\uparrow\) and
 Ctrl+\(\downarrow\) (Ctrl-key kept down and press arrow keys up or
 down): apart the default 180-degree dial type, there is also a

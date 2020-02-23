@@ -13423,7 +13423,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>NOTE: one may be tempted to use <em>file://</em> protocol. Please note that in Windows, starting from  <a href="https://support.microsoft.com/en-us/help/4534251/cumulative-security-update-for-internet-explorer">security update of 2020-01-14</a> local storage capability, including cookies is disabled for <em>file://</em> protocol in the back-end the wxWidgets is using on Windows (IE). Therefore we address below only the usage of _<a href="http://__">http://__</a> protocol to retrieve files from your files infrastructure to enable persistent EngineDJG configuration settings across platforms.</p>
+<blockquote><p>NOTE: one may be tempted to use <em>file://</em> protocol. Please note that in Windows, starting from  <a href="https://support.microsoft.com/en-us/help/4534251/cumulative-security-update-for-internet-explorer">security update of 2020-01-14</a> local storage capability, including cookies is disabled for <em>file://</em> protocol in the back-end the wxWidgets is using on Windows (IE). Therefore we address below only the usage of <em>http://</em> protocol to retrieve files from your files infrastructure to enable persistent EngineDJG configuration settings across platforms.</p>
 </blockquote>
 
 </div>
@@ -13841,6 +13841,37 @@ instrujsURL=http://localhost:8088/enginedjg/</code></pre>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Most common data path values have been included in the DashT installation by default for engine and some most obvious data paths for the energy. If the data path is grayed out, it means that it cannot be selected since no data path rule has been defined. This does not mean that the value cannot be shown, it is just that the development and testing has not been able to test it or are not aware of it - there is really a lot of data paths of all sort, such as status data. A way to define your own configuration for data paths is discussed <a href="#Adding-new-data-paths-of-your-own">later in this document</a>.</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Search-again-for-the-available-data-paths">Search again for the available data paths<a class="anchor-link" href="#Search-again-for-the-available-data-paths">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you cannot find a data path you are expecting to find from the menu, you can ask for a quick rescan by selecting any of the grayed-out items from the menu, <em>i.e.</em> a menu item which is not in blue color. You may get an alert of  a non-existing path, depending of the common configuration file settings. Resulting action is, anyway the same as in <a href="#Changing-EngineDJG-instrument&#39;s-data-path-subscription">Changing EngineDJG instrument's data path subscription</a> and the data sources are scanned again for new paths.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>NOTE: The available data scanning is cumulative and if the data path you are expecting was not available from your data bus within the previous scan's time window frame (in less than 10 seconds), it may have been omitted. Rescan may help. Once the path is recongnized and configured, the subsription to it will be persistent.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Select-different-display-type">Select different display type<a class="anchor-link" href="#Select-different-display-type">&#182;</a></h4>
 </div>
 </div>
 </div>
