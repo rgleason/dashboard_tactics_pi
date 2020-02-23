@@ -1,4 +1,7 @@
-
+digraph "fsm" {
+  "window";
+  "loading";
+  "initga";
   "getid";
   "hasid";
   "getall";
@@ -14,6 +17,7 @@
   "hasid" -> "getall" [ label=" nocfg " ];
   "hasid" -> "getpath" [ label=" hascfg " ];
   "getall" -> "showmenu" [ label=" setall " ];
+  "showmenu" -> "getall" [ label=" rescan " ];
   "showmenu" -> "getpath" [ label=" selected " ];
   "getpath" -> "waitdata" [ label=" acksubs " ];
   "waitdata" -> "showdata" [ label=" newdata " ];

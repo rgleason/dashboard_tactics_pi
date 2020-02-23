@@ -55,6 +55,7 @@ export function createStateMachine() {
             { name: 'nocfg',    from: 'hasid',    to: 'getall' },
             { name: 'hascfg',   from: 'hasid',    to: 'getpath' },
             { name: 'setall',   from: 'getall',   to: 'showmenu' },
+            { name: 'rescan',   from: 'showmenu', to: 'getall' },
             { name: 'selected', from: 'showmenu', to: 'getpath' },
             { name: 'acksubs',  from: 'getpath',  to: 'waitdata' },
             { name: 'newdata',  from: 'waitdata', to: 'showdata' },
@@ -106,7 +107,7 @@ export function createStateMachine() {
                 if ( dbglevel > 2) {
                     console.log('- transition: ', lifecycle.transition)
                     console.log('- from      : ', lifecycle.from)
-                    console.log('- to        : ', lifecycle.to) 
+                    console.log('- to        : ', lifecycle.to)
                 }
                 this.perspath = false
             },
@@ -125,6 +126,15 @@ export function createStateMachine() {
                 getallClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
                 setMenuAllPaths( this )
+            },
+            onBeforeRescan: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onRescan() - before transition')
+                if ( dbglevel > 2) {
+                    console.log('- from      : ', lifecycle.from)
+                    console.log('- transition: ', lifecycle.transition)
+                    console.log('- to        : ', lifecycle.to)
+                }
+                setMenuBackToLoading( this )
             },
             onBeforeHascfg: function( lifecycle ) {
                 dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
@@ -177,7 +187,7 @@ export function createStateMachine() {
             },
             onBeforeClosing: function() {
                 if ( dbglevel > 0 )
-                    console.log('onClosing() - before transition') 
+                    console.log('onClosing() - before transition')
                 prepareDataHalt( this )
                 prepareConfHalt( this )
             }

@@ -55,7 +55,7 @@
 <text text-anchor="middle" x="61.9842" y="-679.8" font-family="Times,serif" font-size="14.00" fill="#000000"> initok </text>
 </g>
 <!-- getid&#45;&gt;getid -->
-<g id="edge14" class="edge">
+<g id="edge15" class="edge">
 <title>getid&#45;&gt;getid</title>
 <path fill="none" stroke="#000000" d="M69.4845,-647.7775C80.8562,-648.3415 90.4958,-645.6156 90.4958,-639.6 90.4958,-635.5583 86.1443,-633.0016 79.8397,-631.93"/>
 <polygon fill="#000000" stroke="#000000" points="79.6438,-628.4162 69.4845,-631.4225 79.3012,-635.4079 79.6438,-628.4162"/>
@@ -75,7 +75,7 @@
 <text text-anchor="middle" x="58.8685" y="-591" font-family="Times,serif" font-size="14.00" fill="#000000"> setid </text>
 </g>
 <!-- hasid&#45;&gt;hasid -->
-<g id="edge15" class="edge">
+<g id="edge16" class="edge">
 <title>hasid&#45;&gt;hasid</title>
 <path fill="none" stroke="#000000" d="M70.5876,-558.9996C81.9939,-559.4629 91.5677,-556.7297 91.5677,-550.8 91.5677,-546.816 87.2459,-544.2749 80.9503,-543.1768"/>
 <polygon fill="#000000" stroke="#000000" points="80.7666,-539.6612 70.5876,-542.6004 80.3778,-546.6504 80.7666,-539.6612"/>
@@ -84,15 +84,15 @@
 <!-- getall -->
 <g id="node6" class="node">
 <title>getall</title>
-<ellipse fill="none" stroke="#000000" cx="223.1483" cy="-462" rx="32.4788" ry="18"/>
-<text text-anchor="middle" x="223.1483" y="-457.8" font-family="Times,serif" font-size="14.00" fill="#000000">getall</text>
+<ellipse fill="none" stroke="#000000" cx="167.1483" cy="-462" rx="32.4788" ry="18"/>
+<text text-anchor="middle" x="167.1483" y="-457.8" font-family="Times,serif" font-size="14.00" fill="#000000">getall</text>
 </g>
 <!-- hasid&#45;&gt;getall -->
 <g id="edge5" class="edge">
 <title>hasid&#45;&gt;getall</title>
-<path fill="none" stroke="#000000" d="M66.1837,-539.008C97.8743,-523.4604 153.7983,-496.0236 189.6307,-478.444"/>
-<polygon fill="#000000" stroke="#000000" points="191.2877,-481.5296 198.7239,-473.9828 188.2045,-475.2452 191.2877,-481.5296"/>
-<text text-anchor="middle" x="167.5859" y="-502.2" font-family="Times,serif" font-size="14.00" fill="#000000"> nocfg </text>
+<path fill="none" stroke="#000000" d="M61.9549,-536.7294C82.6782,-522.0075 115.3969,-498.7642 138.8418,-482.1089"/>
+<polygon fill="#000000" stroke="#000000" points="140.8951,-484.9436 147.0204,-476.2988 136.8411,-479.237 140.8951,-484.9436"/>
+<text text-anchor="middle" x="134.5859" y="-502.2" font-family="Times,serif" font-size="14.00" fill="#000000"> nocfg </text>
 </g>
 <!-- getpath -->
 <g id="node7" class="node">
@@ -105,14 +105,14 @@
 <title>hasid&#45;&gt;getpath</title>
 <path fill="none" stroke="#000000" d="M38.4279,-532.7591C31.9657,-497.3146 21.4895,-416.6927 45.1483,-355.2 52.3086,-336.5893 66.7334,-319.6319 79.8686,-306.9813"/>
 <polygon fill="#000000" stroke="#000000" points="82.4073,-309.4013 87.3887,-300.0505 77.6633,-304.2539 82.4073,-309.4013"/>
-<text text-anchor="middle" x="54.9155" y="-413.4" font-family="Times,serif" font-size="14.00" fill="#000000"> hascfg </text>
+<text text-anchor="middle" x="53.9155" y="-413.4" font-family="Times,serif" font-size="14.00" fill="#000000"> hascfg </text>
 </g>
 <!-- getall&#45;&gt;getall -->
-<g id="edge18" class="edge">
+<g id="edge19" class="edge">
 <title>getall&#45;&gt;getall</title>
-<path fill="none" stroke="#000000" d="M252.2034,-470.1996C263.8566,-470.6629 273.6377,-467.9297 273.6377,-462 273.6377,-457.9233 269.0146,-455.3575 262.3384,-454.3025"/>
-<polygon fill="#000000" stroke="#000000" points="262.3643,-450.7996 252.2034,-453.8004 262.0179,-457.791 262.3643,-450.7996"/>
-<text text-anchor="middle" x="301.6412" y="-457.8" font-family="Times,serif" font-size="14.00" fill="#000000"> luminsty </text>
+<path fill="none" stroke="#000000" d="M196.2034,-470.1996C207.8566,-470.6629 217.6377,-467.9297 217.6377,-462 217.6377,-457.9233 213.0146,-455.3575 206.3384,-454.3025"/>
+<polygon fill="#000000" stroke="#000000" points="206.3643,-450.7996 196.2034,-453.8004 206.0179,-457.791 206.3643,-450.7996"/>
+<text text-anchor="middle" x="245.6412" y="-457.8" font-family="Times,serif" font-size="14.00" fill="#000000"> luminsty </text>
 </g>
 <!-- showmenu -->
 <g id="node8" class="node">
@@ -123,12 +123,12 @@
 <!-- getall&#45;&gt;showmenu -->
 <g id="edge7" class="edge">
 <title>getall&#45;&gt;showmenu</title>
-<path fill="none" stroke="#000000" d="M203.9932,-447.3365C185.7007,-433.3332 157.8676,-412.0265 136.7266,-395.8427"/>
-<polygon fill="#000000" stroke="#000000" points="138.7674,-392.9972 128.6994,-389.6977 134.5124,-398.5555 138.7674,-392.9972"/>
-<text text-anchor="middle" x="193.4211" y="-413.4" font-family="Times,serif" font-size="14.00" fill="#000000"> setall </text>
+<path fill="none" stroke="#000000" d="M139.6743,-452.0826C127.9736,-446.3557 115.4626,-437.884 108.6027,-426 104.4123,-418.7405 103.0288,-409.9337 102.9822,-401.6101"/>
+<polygon fill="#000000" stroke="#000000" points="106.4849,-401.6516 103.5272,-391.478 99.495,-401.2755 106.4849,-401.6516"/>
+<text text-anchor="middle" x="126.4211" y="-413.4" font-family="Times,serif" font-size="14.00" fill="#000000"> setall </text>
 </g>
 <!-- getpath&#45;&gt;getpath -->
-<g id="edge16" class="edge">
+<g id="edge17" class="edge">
 <title>getpath&#45;&gt;getpath</title>
 <path fill="none" stroke="#000000" d="M142.4996,-292.648C154.7322,-292.7353 164.611,-289.9859 164.611,-284.4 164.611,-280.4724 159.7271,-277.9472 152.575,-276.8243"/>
 <polygon fill="#000000" stroke="#000000" points="152.7104,-273.3256 142.4996,-276.152 152.2443,-280.3101 152.7104,-273.3256"/>
@@ -141,35 +141,42 @@
 <text text-anchor="middle" x="183.1483" y="-191.4" font-family="Times,serif" font-size="14.00" fill="#000000">waitdata</text>
 </g>
 <!-- getpath&#45;&gt;waitdata -->
-<g id="edge9" class="edge">
+<g id="edge10" class="edge">
 <title>getpath&#45;&gt;waitdata</title>
 <path fill="none" stroke="#000000" d="M121.8019,-267.2785C133.1569,-254.011 149.0529,-235.4377 161.8185,-220.5222"/>
 <polygon fill="#000000" stroke="#000000" points="164.6965,-222.5422 168.5397,-212.669 159.3783,-217.9906 164.6965,-222.5422"/>
 <text text-anchor="middle" x="176.8075" y="-235.8" font-family="Times,serif" font-size="14.00" fill="#000000"> acksubs </text>
 </g>
-<!-- showmenu&#45;&gt;getpath -->
+<!-- showmenu&#45;&gt;getall -->
 <g id="edge8" class="edge">
+<title>showmenu&#45;&gt;getall</title>
+<path fill="none" stroke="#000000" d="M128.1097,-390.1188C134.1602,-395.7314 140.4027,-402.3167 145.1483,-409.2 150.4151,-416.8392 154.768,-425.9359 158.1726,-434.4084"/>
+<polygon fill="#000000" stroke="#000000" points="154.9554,-435.7983 161.7315,-443.9429 161.5135,-433.3503 154.9554,-435.7983"/>
+<text text-anchor="middle" x="175.5228" y="-413.4" font-family="Times,serif" font-size="14.00" fill="#000000"> rescan </text>
+</g>
+<!-- showmenu&#45;&gt;getpath -->
+<g id="edge9" class="edge">
 <title>showmenu&#45;&gt;getpath</title>
 <path fill="none" stroke="#000000" d="M107.1483,-354.8006C107.1483,-342.6949 107.1483,-326.6076 107.1483,-312.8674"/>
 <polygon fill="#000000" stroke="#000000" points="110.6484,-312.472 107.1483,-302.472 103.6484,-312.4721 110.6484,-312.472"/>
 <text text-anchor="middle" x="133.1904" y="-324.6" font-family="Times,serif" font-size="14.00" fill="#000000"> selected </text>
 </g>
 <!-- showmenu&#45;&gt;showmenu -->
-<g id="edge19" class="edge">
+<g id="edge20" class="edge">
 <title>showmenu&#45;&gt;showmenu</title>
 <path fill="none" stroke="#000000" d="M154.5137,-381.4092C167.8145,-381.0497 178.0245,-378.3133 178.0245,-373.2 178.0245,-369.4849 172.6347,-367.0245 164.5857,-365.8189"/>
 <polygon fill="#000000" stroke="#000000" points="164.7669,-362.322 154.5137,-364.9908 164.1933,-369.2985 164.7669,-362.322"/>
 <text text-anchor="middle" x="206.028" y="-369" font-family="Times,serif" font-size="14.00" fill="#000000"> luminsty </text>
 </g>
 <!-- waitdata&#45;&gt;getall -->
-<g id="edge12" class="edge">
+<g id="edge13" class="edge">
 <title>waitdata&#45;&gt;getall</title>
-<path fill="none" stroke="#000000" d="M197.2999,-212.7966C207.7897,-226.4773 221.5363,-246.5554 229.1483,-266.4 249.1376,-318.5123 250.8073,-335.9134 243.1483,-391.2 241.1291,-405.7753 236.877,-421.5703 232.8106,-434.5355"/>
-<polygon fill="#000000" stroke="#000000" points="229.4157,-433.6568 229.6354,-444.2493 236.0692,-435.8317 229.4157,-433.6568"/>
-<text text-anchor="middle" x="273.1932" y="-324.6" font-family="Times,serif" font-size="14.00" fill="#000000"> chgconf </text>
+<path fill="none" stroke="#000000" d="M197.2999,-212.7966C207.7897,-226.4773 221.5363,-246.5554 229.1483,-266.4 236.6506,-285.9585 254.6257,-364.8218 243.1483,-391.2 233.897,-412.462 214.765,-430.2271 198.0122,-442.6439"/>
+<polygon fill="#000000" stroke="#000000" points="195.6774,-440.0083 189.5335,-448.6398 199.7191,-445.7236 195.6774,-440.0083"/>
+<text text-anchor="middle" x="270.1932" y="-324.6" font-family="Times,serif" font-size="14.00" fill="#000000"> chgconf </text>
 </g>
 <!-- waitdata&#45;&gt;waitdata -->
-<g id="edge17" class="edge">
+<g id="edge18" class="edge">
 <title>waitdata&#45;&gt;waitdata</title>
 <path fill="none" stroke="#000000" d="M222.0415,-203.8495C234.7647,-203.8069 244.8958,-201.057 244.8958,-195.6 244.8958,-191.763 239.8871,-189.2644 232.4905,-188.1043"/>
 <polygon fill="#000000" stroke="#000000" points="232.2674,-184.5792 222.0415,-187.3505 231.7637,-191.561 232.2674,-184.5792"/>
@@ -182,35 +189,35 @@
 <text text-anchor="middle" x="256.1483" y="-102.6" font-family="Times,serif" font-size="14.00" fill="#000000">showdata</text>
 </g>
 <!-- waitdata&#45;&gt;showdata -->
-<g id="edge10" class="edge">
+<g id="edge11" class="edge">
 <title>waitdata&#45;&gt;showdata</title>
 <path fill="none" stroke="#000000" d="M197.2234,-178.4785C208.0604,-165.296 223.2032,-146.8756 235.4243,-132.0095"/>
 <polygon fill="#000000" stroke="#000000" points="238.2206,-134.1194 241.8673,-124.172 232.8132,-129.6742 238.2206,-134.1194"/>
 <text text-anchor="middle" x="252.9688" y="-147" font-family="Times,serif" font-size="14.00" fill="#000000"> newdata </text>
 </g>
 <!-- showdata&#45;&gt;getall -->
-<g id="edge13" class="edge">
+<g id="edge14" class="edge">
 <title>showdata&#45;&gt;getall</title>
-<path fill="none" stroke="#000000" d="M280.4562,-122.3114C301.692,-137.967 329.1483,-164.267 329.1483,-195.6 329.1483,-373.2 329.1483,-373.2 329.1483,-373.2 329.1483,-410.0264 291.0884,-434.6032 260.5805,-448.388"/>
-<polygon fill="#000000" stroke="#000000" points="258.8165,-445.3357 250.9985,-452.4862 261.5693,-451.7717 258.8165,-445.3357"/>
+<path fill="none" stroke="#000000" d="M280.4562,-122.3114C301.692,-137.967 329.1483,-164.267 329.1483,-195.6 329.1483,-373.2 329.1483,-373.2 329.1483,-373.2 329.1483,-427.8816 257.2971,-449.1149 209.2972,-457.1988"/>
+<polygon fill="#000000" stroke="#000000" points="208.4987,-453.7808 199.1543,-458.7739 209.5729,-460.6979 208.4987,-453.7808"/>
 <text text-anchor="middle" x="355.1932" y="-280.2" font-family="Times,serif" font-size="14.00" fill="#000000"> chgconf </text>
 </g>
 <!-- showdata&#45;&gt;showdata -->
-<g id="edge11" class="edge">
+<g id="edge12" class="edge">
 <title>showdata&#45;&gt;showdata</title>
 <path fill="none" stroke="#000000" d="M303.2554,-109.4829C313.8818,-109.2412 321.6542,-108.3469 321.6542,-106.8 321.6542,-105.809 318.4644,-105.0859 313.3779,-104.6306"/>
 <polygon fill="#000000" stroke="#000000" points="313.4199,-101.1283 303.2554,-104.1171 313.0653,-108.1193 313.4199,-101.1283"/>
 <text text-anchor="middle" x="348.4747" y="-102.6" font-family="Times,serif" font-size="14.00" fill="#000000"> newdata </text>
 </g>
 <!-- showdata&#45;&gt;showdata -->
-<g id="edge20" class="edge">
+<g id="edge21" class="edge">
 <title>showdata&#45;&gt;showdata</title>
 <path fill="none" stroke="#000000" d="M302.0039,-111.8024C336.6697,-113.237 375.2952,-111.5695 375.2952,-106.8 375.2952,-102.4962 343.8454,-100.7183 312.2335,-101.466"/>
 <polygon fill="#000000" stroke="#000000" points="311.8853,-97.9754 302.0039,-101.7976 312.1121,-104.9717 311.8853,-97.9754"/>
 <text text-anchor="middle" x="403.2987" y="-102.6" font-family="Times,serif" font-size="14.00" fill="#000000"> luminsty </text>
 </g>
 <!-- showdata&#45;&gt;showdata -->
-<g id="edge21" class="edge">
+<g id="edge22" class="edge">
 <title>showdata&#45;&gt;showdata</title>
 <path fill="none" stroke="#000000" d="M300.7694,-113.2069C354.6822,-117.0352 431.3022,-114.8996 431.3022,-106.8 431.3022,-99.1908 363.6796,-96.8452 310.7898,-99.7633"/>
 <polygon fill="#000000" stroke="#000000" points="310.5301,-96.2726 300.7694,-100.3931 310.9692,-103.2588 310.5301,-96.2726"/>
@@ -223,7 +230,7 @@
 <text text-anchor="middle" x="256.1483" y="-13.8" font-family="Times,serif" font-size="14.00" fill="#000000">halt</text>
 </g>
 <!-- showdata&#45;&gt;halt -->
-<g id="edge22" class="edge">
+<g id="edge23" class="edge">
 <title>showdata&#45;&gt;halt</title>
 <path fill="none" stroke="#000000" d="M256.1483,-88.4006C256.1483,-76.2949 256.1483,-60.2076 256.1483,-46.4674"/>
 <polygon fill="#000000" stroke="#000000" points="259.6484,-46.072 256.1483,-36.072 252.6484,-46.0721 259.6484,-46.072"/>
