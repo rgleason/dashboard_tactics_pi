@@ -73,7 +73,7 @@ enum instruHandShake {
     JSI_HDS_ACKNOWLEDGED
 };
 
-#define JSI_GETALL_GRACETIME 5 // seconds
+#define JSI_GETALL_GRACETIME 8 // ticks (roughly = seconds)
 
 //+------------------------------------------------------------------------------
 //|

@@ -57,7 +57,7 @@ enum SocketInSkThreadStateMachine {
 #define SSKM_SUBSCRIBE_CONTEXT L"vessels.self" // Data from all vessels? Replace with "*".
 #define SSKM_TICK_COUNT 1000 // tick for streamout class periodical jobs = 1s
 #define SSKM_START_GRACE_COUNT 15 // tick is not accurate at startup for stats
-#define SSKM_ALLPATHS_COUNT 5 // How long time we can be asked to subscribe to all paths
+#define SSKM_ALLPATHS_COUNT 7 // How long time in ticks we can be asked to subscribe to all paths
 
 //+------------------------------------------------------------------------------
 //|
