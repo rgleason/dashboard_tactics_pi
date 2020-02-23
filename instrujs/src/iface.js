@@ -81,6 +81,25 @@ var iface = {
             return ''
         return this.selectedpath
     },
+    eventrescan    : null,
+    elemrescan     : null,
+    regeventrescan: function ( newelem, newevent ) {
+        this.elemrescan = newelem
+        this.eventrescan = newevent
+    },
+    setrescan: function() {
+        try {
+            if ( (this.eventrescan === null) || (this.elemrescan === null) )
+                return
+            this.elemrescan.dispatchEvent( this.eventrescan )
+        }
+        catch (error) {
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setrescan - state machine error',
+                            error)
+            return
+        }
+    },
     eventacksubs    : null,
     elemacksubs     : null,
     acksubspath     : '',
@@ -259,7 +278,7 @@ var iface = {
     clearFlag: function( elemid ) {
         if ( ifacedbglevel > 1 ) console.log(
             'clearFlag(): elemid content before clean: ', elemid.innerHTML)
-        if (window.getSelection) { 
+        if (window.getSelection) {
             window.getSelection().removeAllRanges()
         }
         else if (document.selection) {

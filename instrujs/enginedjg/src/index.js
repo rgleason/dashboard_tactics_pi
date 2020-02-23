@@ -117,6 +117,21 @@ bottom.addEventListener('selected', function (e) {
 }, true)
 window.iface.regeventselected( bottom, eventselected )
 
+// Selection of a path requires reload
+var eventrescan = document.createEvent('Event')
+eventrescan.initEvent('rescan', false, false)
+bottom.addEventListener('rescan', function (e) {
+    try {
+        fsm.rescan()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  rescan: fsm.rescan() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}, true)
+window.iface.regeventrescan( bottom, eventrescan )
+
 // Selection of a path has been acknowledged
 var eventacksubs = document.createEvent('Event')
 eventacksubs.initEvent('acksubs', false, false)
@@ -146,7 +161,7 @@ bottom.addEventListener('newdata', function (e) {
             ' current state: ', fsm.state)
     }
 }, true)
-window.iface.regeventnewdata( bottom, eventnewdata 
+window.iface.regeventnewdata( bottom, eventnewdata
                             )
 // Change of configuration has been requested
 var eventchgconf = document.createEvent('Event')
