@@ -39,7 +39,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
                 while ( submenustart > j ){
                     menuul += '</ul>'
                     menuul += '</li>'
-                    submenustart--         
+                    submenustart--
                 }
                 submenustart++
                 menuul += '<li id="mi1-l-' + i + '-' + j
@@ -51,7 +51,7 @@ export function setMenuAllPaths( that, onload, runtime ) {
                 menuul += pathel[parseInt(j)]
                 menuul += '</span></button>'
                 menuul += '<ul id="mi1-u-' + i + '-' + j
-                menuul += '" class="menu">'           
+                menuul += '" class="menu">'
             }
         menuul += '<li id="mi1-l-' + i + '-' + j + '" class="menu-item">'
         menuul += '<button id="mif-b-'
@@ -127,13 +127,15 @@ function onMouseDown(e){
                 if ( !isOnLoad ) {
                     if ( isRunTime )
                         window.iface.setchgconf( 'chgconf' )
-                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) >=0 )
+                    else if ( window.instrustat.hasPathEntry( idsplit[2] ) >= 0 )
                         window.iface.setselected( idsplit[2] )
-                    else if ( alertsenabled )
-                        alert ( idsplit[2] + '\n' +
-                                window.instrulang.pathHasNoDescription1 + '\n' +
-                                window.instrulang.pathHasNoDescription2 + '\n' +
-                                window.instrulang.pathHasNoDescription3 )
+                    else {
+                        if ( alertsenabled ) alert ( idsplit[2] + '\n' +
+                            window.instrulang.pathHasNoDescription1 + '\n' +
+                            window.instrulang.pathHasNoDescription2 + '\n' +
+                            window.instrulang.pathHasNoDescription3 )
+                        window.iface.setrescan()
+                    }
                 }
                 hideMenu()
             }
