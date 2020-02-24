@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
-/* ---- Find a path missing? 
+/* ---- Find a path missing?
  Contribute/report here, please: https://git.io/JejKQ
  - with a screenshot and a short description of your installation, thanks!
  SignalK Path keys: https://git.io/JvsYw
@@ -24,7 +24,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 1,
+    debuglevel : 4,
     alerts : true,
     alertdelay : 5,
     knownpaths: [
@@ -132,7 +132,7 @@ var  instrustat = {
       values by 0.01, consequently below multiplier 100 works both
     If you observe wrong behaviour, report to https://git.io/JejKQ
     *** */
-        {            
+        {
             version    : 1,
             path       : 'propulsion.*.drive.trimState',
             title      : 'Engine Drive Trim',
@@ -164,7 +164,7 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2
         },
-        {            
+        {
             version    : 1,
             path       : 'propulsion.*.engineLoad',
             title      : 'Engine Load',
@@ -180,7 +180,7 @@ var  instrustat = {
             divider    : 1,
             offset     : 0
         },
-        {            
+        {
             version    : 1,
             path       : 'propulsion.*.engineTorque',
             title      : 'Engine Torque',
@@ -276,7 +276,7 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2
         },
-        {            
+        {
             version    : 1,
             path       : 'propulsion.*.revolutions',
             title      : 'Engine Speed',
@@ -295,7 +295,7 @@ var  instrustat = {
 /*  ***
     Did not pass tests for distribution, please feel free to test
     and report if you get this path working to https://git.io/JejKQ
-        {            
+        {
             version    : 1,
             path       : 'propulsion.*.runTime',
             title      : 'Engine Run Time',
@@ -328,7 +328,7 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2
         },
-        {            
+        {
             version    : 1,
             path       : 'tanks.fuel.*.currentLevel',
             title      : 'Fuel Level',
