@@ -95,6 +95,8 @@ SET(SRC_DASHT
     src/EngineDJG.cpp
     src/InstruJS.h
     src/InstruJS.cpp
+    src/TimesTUI.h
+    src/TimesTUI.cpp
     src/SkData.h
     src/SkData.cpp
 )

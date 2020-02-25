@@ -46,6 +46,7 @@ enum pluginids {
     myID_TICK_AVGWIND,
     myID_TICK_ENGINEI,
     myID_TICK_ENGINEDJG,
+    myID_TICK_TIMESTUI,
     myID_TICK_INSTRUJS,
     // end of tacticsEvents
     myID_EDIT_LAST
