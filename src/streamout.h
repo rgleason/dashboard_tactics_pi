@@ -97,13 +97,14 @@ protected:
             sField1 = wxEmptyString;
             sField2 = wxEmptyString;
             sField3 = wxEmptyString;
+            sSkpathe = wxEmptyString;
         };
         sentenceSchema( const sentenceSchema& source) {
 #define sentenceSchemaCopy(__SS_SOURCE__)  stc = __SS_SOURCE__.stc; st = __SS_SOURCE__.st; bStore = __SS_SOURCE__.bStore; \
             iInterval = __SS_SOURCE__.iInterval; lastTimeStamp = __SS_SOURCE__.lastTimeStamp; \
             sMeasurement = __SS_SOURCE__.sMeasurement; sProp1 = __SS_SOURCE__.sProp1; sProp2 = __SS_SOURCE__.sProp2; \
             sProp3 = __SS_SOURCE__.sProp3; sField1 = __SS_SOURCE__.sField1; sField2 = __SS_SOURCE__.sField2; \
-            sField3 = __SS_SOURCE__.sField3
+            sField3 = __SS_SOURCE__.sField3; sSkpathe = __SS_SOURCE__.sSkpathe
             sentenceSchemaCopy(source);
         };
         const sentenceSchema& operator = (const sentenceSchema &source) {
@@ -124,6 +125,7 @@ protected:
         wxString sField1;
         wxString sField2;
         wxString sField3;
+        wxString sSkpathe;
     }; // This class presents the elements of the configuration file
     
     class lineProtocol

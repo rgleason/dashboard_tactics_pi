@@ -924,6 +924,9 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
             if ( !dbSchemas[i].HasMember("field3") ) throw ( 10000 + (i * 100) + 11 );
             schema.sField3 = dbSchemas[i]["field3"].AsString();
 
+            if ( !dbSchemas[i].HasMember("skpathe") ) throw ( 10000 + (i * 100) + 12 );
+            schema.sSkpathe = dbSchemas[i]["skpathe"].AsString();
+
             vSchema.push_back ( schema );
             
         } // while array has sentence schemas defined
