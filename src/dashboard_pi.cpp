@@ -4677,7 +4677,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,
                 m_plugin->m_echoStreamerShow,
-                m_plugin->GetStandardPath() );
+                m_plugin->GetStandardPath(),
+                this->m_pSkData );
             break;
         case ID_DBP_V_INSK:
             instrument = new TacticsInstrument_StreamInSkSingle(

@@ -82,8 +82,8 @@ SET(SRC_DASHT
     src/StreamInSkSingle.h
     src/StreamInSkSingle.cpp
     src/wxJSON/jsonwriter.cpp
-    src/streamout.h
-    src/streamout.cpp
+    src/StreamoutSingle.h
+    src/StreamoutSingle.cpp
     src/plugin_ids.h
     src/bearingcompass.h
     src/bearingcompass.cpp

@@ -1,5 +1,5 @@
 /***************************************************************************
-* $Id: streamout.h, v1.0 2019/08/08 DarthVader $
+* $Id: StreamoutSingle.h, v1.0 2019/08/08 DarthVader $
 *
 * Project:  OpenCPN
 * Purpose:  dashboard_tactics_pi plug-in streaming out
@@ -41,6 +41,7 @@ using namespace std;
 #include <wx/socket.h>
 
 #include "instrument.h"
+#include "SkData.h"
 
 enum StreamoutSingleStateMachine {
     SSSM_STATE_UNKNOWN, SSSM_STATE_DISPLAYRELAY, SSSM_STATE_INIT, SSSM_STATE_CONFIGURED,
@@ -71,7 +72,8 @@ class TacticsInstrument_StreamoutSingle : public DashboardInstrument, public wxT
 public:
 	TacticsInstrument_StreamoutSingle(
         wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format,
-        std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir);
+        std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir,
+        SkData* skdata);
 	~TacticsInstrument_StreamoutSingle();
 
 	wxSize GetSize(int orient, wxSize hint);
@@ -230,6 +232,8 @@ protected:
     void OnThreadUpdate(wxThreadEvent& evt);
     
 private :
+
+    SkData           *m_pskdata;
 
     wxDECLARE_EVENT_TABLE();
 

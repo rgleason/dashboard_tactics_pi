@@ -1,5 +1,5 @@
 /**************************************************************************
-* $Id: streamout.cpp, v1.0 2019/08/08 DarthVader Exp $
+* $Id: StreamoutSingle.cpp, v1.0 2019/08/08 DarthVader Exp $
 *
 * Project:  OpenCPN
 * Purpose:  Tactics Plugin
@@ -32,7 +32,7 @@
 #include <wx/socket.h>
 #include <wx/tokenzr.h>
 
-#include "streamout.h"
+#include "StreamoutSingle.h"
 #include "ocpn_plugin.h"
 #include "wx/jsonreader.h"
 #include "plugin_ids.h"
@@ -54,10 +54,12 @@ wxEND_EVENT_TABLE ()
 //----------------------------------------------------------------
 TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     wxWindow *pparent, wxWindowID id, wxString title, unsigned long long cap_flag, wxString format,
-    std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir)
+    std::mutex &mtxNofStreamOut, int &nofStreamOut, wxString &echoStreamerShow, wxString confdir,
+    SkData *skdata)
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
     m_frame = this;
+    m_pskdata = skdata;
     std::unique_lock<std::mutex> lck_mtxNofStreamOut( mtxNofStreamOut);
     nofStreamOut++;
     m_mtxNofStreamOut = &mtxNofStreamOut;

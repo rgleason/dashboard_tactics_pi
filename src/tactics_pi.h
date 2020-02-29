@@ -52,7 +52,7 @@
 #include "bearingcompass.h"
 #include "avg_wind.h"
 #include "polarcompass.h"
-#include "streamout.h"
+#include "StreamoutSingle.h"
 #include "SkData.h"
 #include "StreamInSkSingle.h"
 #include "TacticsWindow.h"
