@@ -27,8 +27,10 @@
 
 #ifndef __SKDATA_H__
 #define __SKDATA_H__
-using namespace std;
+
 #include <list>
+#include <unordered_map>
+#include <functional>
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
@@ -56,6 +58,8 @@ using namespace std;
 
 // Signal K originated data handling / containers / C++/HTML/CSS/JS
 typedef std::list<std::string> SkDataPathList;
+typedef std::unordered_multimap<std::string, std::string> influxdb_query_map;
+
 class SkData
 {
 public:
@@ -76,6 +80,7 @@ protected:
     SkDataPathList       *m_nmea0183pathlist;
     SkDataPathList       *m_nmea2000pathlist;
     SkDataPathList       *m_subscriptionlist;
+    influxdb_query_map   *m_influxDBqueryMap;
 
 private:
     void pushDefaultSubscriptions(void);

@@ -25,6 +25,8 @@
 ***************************************************************************
 */
 
+using namespace std;
+
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -49,6 +51,7 @@ SkData::SkData()
     m_nmea0183pathlist = new SkDataPathList();
     m_nmea2000pathlist = new SkDataPathList();
     m_subscriptionlist = new SkDataPathList();
+    m_influxDBqueryMap = new influxdb_query_map();
     pushDefaultSubscriptions();
     return;
 }
@@ -58,6 +61,7 @@ SkData::SkData(const SkData& sourceSkData) {
     m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
     m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
     m_subscriptionlist = new SkDataPathList(*sourceSkData.m_subscriptionlist);
+    m_influxDBqueryMap = new influxdb_query_map(*sourceSkData.m_influxDBqueryMap);
     m_subscribedToAllPaths = false;
     return;
 }
@@ -68,6 +72,7 @@ SkData::~SkData()
     delete m_nmea0183pathlist;
     delete m_nmea2000pathlist;
     delete m_subscriptionlist;
+    delete m_influxDBqueryMap;
     return;
 }
 
