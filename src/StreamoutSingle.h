@@ -41,6 +41,8 @@ using namespace std;
 #include <wx/socket.h>
 
 #include "instrument.h"
+#include "StreamoutSchema.h"
+#include "LineProtocol.h"
 #include "SkData.h"
 
 enum StreamoutSingleStateMachine {
@@ -83,103 +85,6 @@ public:
     
 protected:
 
-    class sentenceSchema
-    {
-    public:
-        sentenceSchema(void) {
-            stc = wxEmptyString;
-            st = 0ULL;
-            bStore = false;
-            iInterval = 0;
-            lastTimeStamp = 0LL;
-            sMeasurement = wxEmptyString;
-            sProp1 = wxEmptyString;
-            sProp2 = wxEmptyString;
-            sProp3 = wxEmptyString;
-            sField1 = wxEmptyString;
-            sField2 = wxEmptyString;
-            sField3 = wxEmptyString;
-            sSkpathe = wxEmptyString;
-        };
-        sentenceSchema( const sentenceSchema& source) {
-#define sentenceSchemaCopy(__SS_SOURCE__)  stc = __SS_SOURCE__.stc; st = __SS_SOURCE__.st; bStore = __SS_SOURCE__.bStore; \
-            iInterval = __SS_SOURCE__.iInterval; lastTimeStamp = __SS_SOURCE__.lastTimeStamp; \
-            sMeasurement = __SS_SOURCE__.sMeasurement; sProp1 = __SS_SOURCE__.sProp1; sProp2 = __SS_SOURCE__.sProp2; \
-            sProp3 = __SS_SOURCE__.sProp3; sField1 = __SS_SOURCE__.sField1; sField2 = __SS_SOURCE__.sField2; \
-            sField3 = __SS_SOURCE__.sField3; sSkpathe = __SS_SOURCE__.sSkpathe
-            sentenceSchemaCopy(source);
-        };
-        const sentenceSchema& operator = (const sentenceSchema &source) {
-            if ( this != &source) {
-                sentenceSchemaCopy(source);
-            }
-            return *this;
-        };
-        wxString stc;
-        unsigned long long st;
-        bool bStore;
-        int iInterval;
-        long long lastTimeStamp;
-        wxString sMeasurement;
-        wxString sProp1;
-        wxString sProp2;
-        wxString sProp3;
-        wxString sField1;
-        wxString sField2;
-        wxString sField3;
-        wxString sSkpathe;
-    }; // This class presents the elements of the configuration file
-    
-    class lineProtocol
-    {
-    public:
-        lineProtocol(void) {
-            measurement = wxEmptyString;
-            tag_key1 = wxEmptyString;
-            tag_value1 = wxEmptyString;
-            tag_key2 = wxEmptyString;
-            tag_value2 = wxEmptyString;
-            tag_key3 = wxEmptyString;
-            tag_value3 = wxEmptyString;
-            field_key1 = wxEmptyString;
-            field_value1 = wxEmptyString;
-            field_key2 = wxEmptyString;
-            field_value2 = wxEmptyString;
-            field_key3 = wxEmptyString;
-            field_value3 = wxEmptyString;
-            timestamp = wxEmptyString;
-        };
-        lineProtocol( const lineProtocol& source) {
-#define lineProtocolCopy(__LP_SOURCE__) measurement = __LP_SOURCE__.measurement; tag_key1 = __LP_SOURCE__.tag_key1; \
-            tag_value1 = __LP_SOURCE__.tag_value1; tag_key2 = __LP_SOURCE__.tag_key2; tag_value2 = __LP_SOURCE__.tag_value2; \
-            tag_key3 = __LP_SOURCE__.tag_key3; tag_value3 = __LP_SOURCE__.tag_value3; field_key1 = __LP_SOURCE__.field_key1; \
-            field_value1 = __LP_SOURCE__.field_value1; field_key2 = __LP_SOURCE__.field_key2; \
-            field_value2 = __LP_SOURCE__.field_value2; field_key3 = __LP_SOURCE__.field_key3; \
-            field_value3 = __LP_SOURCE__.field_value3;timestamp = __LP_SOURCE__.timestamp
-            lineProtocolCopy(source);
-        };
-        const lineProtocol& operator = (const lineProtocol &source) {
-            if ( this != &source) {
-                lineProtocolCopy(source);
-            }
-            return *this;
-        };
-        wxString measurement;
-        wxString tag_key1;
-        wxString tag_value1;
-        wxString tag_key2;
-        wxString tag_value2;
-        wxString tag_key3;
-        wxString tag_value3;
-        wxString field_key1;
-        wxString field_value1;
-        wxString field_key2;
-        wxString field_value2;
-        wxString field_key3;
-        wxString field_value3;
-        wxString timestamp;
-    }; // This class presents the line propotocol elements in the data FIFO queue 
-
     TacticsInstrument_StreamoutSingle *m_frame;
     
     int               m_state;
@@ -196,12 +101,12 @@ protected:
     wxFileConfig     *m_pconfig;
     bool              m_configured;
 
-    std::vector<sentenceSchema> vSchema;
+    std::vector<StreamoutSchema> vSchema;
     long long         m_pushedInFifo;
     long long         m_poppedFromFifo;
     long long         m_writtenToOutput;
     int               m_stateFifoOverFlow;
-    std::queue<lineProtocol> qLine;
+    std::queue<LineProtocol> qLine;
     std::mutex        m_mtxQLine;
     int               m_stateComm;
     bool              m_cmdThreadStop;
@@ -222,7 +127,7 @@ protected:
     bool              m_stamp;
     int               m_verbosity;
 
-    bool GetSchema(unsigned long long st, wxString UnitOrSkPath, long long msNow, sentenceSchema& schema);
+    bool GetSchema(unsigned long long st, wxString UnitOrSkPath, long long msNow, StreamoutSchema& schema);
     void sLL(long long cnt, wxString& retString);
     bool LoadConfig(void);
     void SaveConfig(void);

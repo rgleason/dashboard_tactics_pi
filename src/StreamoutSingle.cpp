@@ -232,7 +232,7 @@ void TacticsInstrument_StreamoutSingle::Draw(wxGCDC* dc)
 
 ************************************************************************************/
 bool TacticsInstrument_StreamoutSingle::GetSchema(
-    unsigned long long st, wxString UnitOrSkPath, long long msNow, sentenceSchema &schema)
+    unsigned long long st, wxString UnitOrSkPath, long long msNow, StreamoutSchema &schema)
 {
     for ( unsigned int i = 0; i < vSchema.size(); i++ ) {
         if ( vSchema[i].st == st ) {
@@ -311,12 +311,12 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     if ( !( (m_state == SSSM_STATE_READY) && m_configured ) )
         return;
     
-    sentenceSchema schema;
+    StreamoutSchema schema;
     long long msNow = ( timestamp == 0 ? wxllNowMs.GetValue() : timestamp );
     if ( !GetSchema( st, unit, msNow, schema ) )
         return;
     
-    lineProtocol line;
+    LineProtocol line;
     
     line.measurement = schema.sMeasurement;
     if ( !schema.sProp1.IsEmpty() ) {
@@ -541,7 +541,7 @@ wxThread::ExitCode TacticsInstrument_StreamoutSingle::Entry( )
                     }
                 } // no data to be sent
                 else {
-                    lineProtocol lineOut = qLine.front();
+                    LineProtocol lineOut = qLine.front();
                     qLine.pop();
                     m_poppedFromFifo = m_poppedFromFifo + 1LL;
                     mtxQLine.unlock();
@@ -885,7 +885,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
         }
         for ( int i = 0; i < asize; i++ ) {
 
-            sentenceSchema schema;
+            StreamoutSchema schema;
 
             if ( !dbSchemas[i].HasMember("sentence") ) throw ( 10000 + (i * 100) + 1 );
             schema.stc = dbSchemas[i]["sentence"].AsString();
