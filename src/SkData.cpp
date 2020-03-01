@@ -51,7 +51,7 @@ SkData::SkData()
     m_nmea0183pathlist = new SkDataPathList();
     m_nmea2000pathlist = new SkDataPathList();
     m_subscriptionlist = new SkDataPathList();
-    m_influxDBqueryMap = new influxdb_query_map();
+    m_dbQueryMap       = new db_query_map();
     pushDefaultSubscriptions();
     return;
 }
@@ -61,8 +61,9 @@ SkData::SkData(const SkData& sourceSkData) {
     m_nmea0183pathlist = new SkDataPathList(*sourceSkData.m_nmea0183pathlist);
     m_nmea2000pathlist = new SkDataPathList(*sourceSkData.m_nmea2000pathlist);
     m_subscriptionlist = new SkDataPathList(*sourceSkData.m_subscriptionlist);
-    m_influxDBqueryMap = new influxdb_query_map(*sourceSkData.m_influxDBqueryMap);
+    m_dbQueryMap       = new db_query_map(*sourceSkData.m_dbQueryMap);
     m_subscribedToAllPaths = false;
+    m_recordAllDbSchemas = false;
     return;
 }
 
@@ -72,7 +73,7 @@ SkData::~SkData()
     delete m_nmea0183pathlist;
     delete m_nmea2000pathlist;
     delete m_subscriptionlist;
-    delete m_influxDBqueryMap;
+    delete m_dbQueryMap;
     return;
 }
 
@@ -104,6 +105,7 @@ void SkData::pushDefaultSubscriptions()
     m_subscriptionlist->push_back( std::string( "navigation.log" ) );
     m_subscriptionlist->push_back( std::string( "steering.rudderAngle" ) );
     m_subscribedToAllPaths = false;
+    m_recordAllDbSchemas = false;
 }
 
 void SkData::UpdatePathList( SkDataPathList *pathlist, wxString *path, wxString *key )
@@ -141,6 +143,35 @@ void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
     if ( path == NULL )
         return;
     UpdatePathList( m_subscriptionlist, path, key );
+}
+
+void SkData::UpdateStreamoutSchemaList(
+    wxString *path, wxString *url,wxString *token,
+    wxString *bucket, StreamoutSchema *schema )
+{
+   std::string keyID = std::string( path->mb_str() );
+   db_query_map::iterator it = m_dbQueryMap->find( keyID );
+   if ( it != m_dbQueryMap->end() ) {
+            return;
+    } // key (path) found, already there, return
+   // Build a JS structure for the given schema
+   wxString js = wxEmptyString;
+   js += "{";
+   js += "path:'" + *path + "',";
+   js += "url:'" + *url + "',";
+   js += "token:'" + *token + "',";
+   js += "bucket:'" + *bucket + "',";
+   js += "sMeasurement:'" + schema->sMeasurement + "',";
+   js += "sProp1:'" + schema->sProp1 + "',";
+   js += "sProp2:'" + schema->sProp2 + "',";
+   js += "sProp3:'" + schema->sProp3 + "',";
+   js += "sField1:'" + schema->sField1 + "',";
+   js += "sField2:'" + schema->sField2 + "',";
+   js += "sField3:'" + schema->sField3 + "'"; // last
+   js += "}";
+   std::string jsObject = std::string( js.mb_str() );
+   m_dbQueryMap->insert( make_pair(keyID, jsObject) );
+   return;
 }
 
 wxString SkData::getAllJsOrderedList(
@@ -216,4 +247,41 @@ wxString SkData::getAllNMEA0183JsOrderedList()
 wxString SkData::getAllSubscriptionsJSON(wxJSONValue &pRetJSON)
 {
     return getAllJsOrderedList( m_subscriptionlist, pRetJSON );
+}
+
+wxString SkData::getAllDbSchemasJsOrderedList()
+{
+    std::string keyID;
+    dbQueryMapPair thisEntry;
+    SkDataPathList *tmpPathList = new SkDataPathList();
+    db_query_map::iterator it = m_dbQueryMap->begin();
+    while ( it != m_dbQueryMap->end() ) {
+        thisEntry = *it;
+        keyID = std::get<0>(thisEntry);
+        if ( !keyID.empty() ) {
+            tmpPathList->push_back( keyID );
+        } // then path, add it to list
+    } // while items in the query schema map
+    wxJSONValue noJSON( wxJSONTYPE_NULL );
+    return getAllJsOrderedList( tmpPathList, noJSON );
+}
+
+wxString SkData::getDbSchemaJs( wxString *path )
+{
+    std::string searchID = std::string( path->mb_str() );
+    std::string foundID;
+    dbQueryMapPair idxEntry;
+    db_query_map::iterator itr = m_dbQueryMap->begin();
+    while ( itr != m_dbQueryMap->end() ) {
+        idxEntry = *itr;
+        foundID = std::get<0>(idxEntry);
+        if ( !foundID.empty() ) {
+            if ( foundID == searchID ) {
+                std::string elem1 = std::get<1>(idxEntry);
+                wxString jsSchema( elem1 );
+                return jsSchema;
+            } // then a hit, return
+        } 
+    } // while items in the query schema map
+    return wxEmptyString;
 }

@@ -45,6 +45,8 @@
 
 #include "wx/jsonval.h"
 
+#include "StreamoutSchema.h"
+
 // Incoming NMEA-2000 PGNs Dashboard inspects
 #define PGN_ENG_PARAM_RAP 127488
 #define PGN_ENG_PARAM_DYN 127489 
@@ -58,7 +60,8 @@
 
 // Signal K originated data handling / containers / C++/HTML/CSS/JS
 typedef std::list<std::string> SkDataPathList;
-typedef std::unordered_multimap<std::string, std::string> influxdb_query_map;
+typedef std::pair<std::string, std::string> dbQueryMapPair;
+typedef std::unordered_multimap<std::string, std::string> db_query_map;
 
 class SkData
 {
@@ -69,18 +72,27 @@ public:
     void UpdateNMEA2000PathList( wxString* path, wxString* key );
     void UpdateNMEA0183PathList( wxString* path, wxString* key );
     void UpdateSubscriptionList( wxString* path, wxString* key );
+    void UpdateStreamoutSchemaList( wxString* path, wxString* url,
+                                    wxString* token, wxString* bucket,
+                                    StreamoutSchema* schema );
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllNMEA0183JsOrderedList(void);
     wxString getAllSubscriptionsJSON(wxJSONValue& pRetJSON);
+    wxString getAllDbSchemasJsOrderedList(void);
+    wxString getDbSchemaJs( wxString* path );
     void subscribeToAllPaths(void) {m_subscribedToAllPaths = true;};
     void subscribeToSubscriptionList(void) {m_subscribedToAllPaths = false;};
     bool isSubscribedToAllPaths(void) {return m_subscribedToAllPaths;};
+    void recordAllDbSchemas(void) {m_recordAllDbSchemas = true;};
+    void stopRecordingAllDbSchemas(void) {m_recordAllDbSchemas = false;};
+    bool isRecordingAllDbSchemas(void) {return m_recordAllDbSchemas;};
+    
 protected:
     SkDataPathList       *m_pathlist;
     SkDataPathList       *m_nmea0183pathlist;
     SkDataPathList       *m_nmea2000pathlist;
     SkDataPathList       *m_subscriptionlist;
-    influxdb_query_map   *m_influxDBqueryMap;
+    db_query_map         *m_dbQueryMap;
 
 private:
     void pushDefaultSubscriptions(void);
@@ -89,6 +101,7 @@ private:
         SkDataPathList* pathlist,
         wxJSONValue& pRetJSON);
     bool                  m_subscribedToAllPaths;
+    bool                  m_recordAllDbSchemas;
 }; // class SkData
 
 
