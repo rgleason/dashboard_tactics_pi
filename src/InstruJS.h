@@ -63,6 +63,8 @@ enum instruState {
     JSI_GETALL,
     JSI_GETPATH,
     JSI_SHOWDATA,
+    JSI_GETDBOUT,
+    JSI_GETSCHEMA,
     JSI_NOF_STATES
 };
 enum instruHandShake {

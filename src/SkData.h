@@ -72,7 +72,7 @@ public:
     void UpdateNMEA2000PathList( wxString* path, wxString* key );
     void UpdateNMEA0183PathList( wxString* path, wxString* key );
     void UpdateSubscriptionList( wxString* path, wxString* key );
-    void UpdateStreamoutSchemaList( wxString* path, wxString* url,
+    void UpdateStreamoutSchemaList( wxString* url, wxString* org,
                                     wxString* token, wxString* bucket,
                                     StreamoutSchema* schema );
     wxString getAllNMEA2000JsOrderedList(void);

@@ -59,7 +59,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
 	:DashboardInstrument(pparent, id, title, cap_flag)
 {
     m_frame = this;
-    m_pskdata = skdata;
+    m_pSkData = skdata;
     std::unique_lock<std::mutex> lck_mtxNofStreamOut( mtxNofStreamOut);
     nofStreamOut++;
     m_mtxNofStreamOut = &mtxNofStreamOut;
@@ -117,6 +117,7 @@ TacticsInstrument_StreamoutSingle::TacticsInstrument_StreamoutSingle(
     m_stateComm = STSM_STATE_UNKNOWN;
     m_cmdThreadStop = false;
     m_threadMsg = emptyStr;
+    m_cntSchemaRegisterAll = 0;
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
             wxLogMessage ("dashboard_tactics_pi: DB Streamer FAILED : Influx DB Streamer : could not create communication thread.");
@@ -315,6 +316,14 @@ void TacticsInstrument_StreamoutSingle::SetData(unsigned long long st, double da
     long long msNow = ( timestamp == 0 ? wxllNowMs.GetValue() : timestamp );
     if ( !GetSchema( st, unit, msNow, schema ) )
         return;
+
+    if ( this->m_pSkData->isRecordingAllDbSchemas() )
+        this->m_pSkData->UpdateStreamoutSchemaList(
+            &m_target,
+            &m_org,
+            &m_token,
+            &m_bucket,
+            &schema);
     
     LineProtocol line;
     
@@ -760,6 +769,14 @@ void TacticsInstrument_StreamoutSingle::OnStreamOutUpdTimer( wxTimerEvent &evt )
             "dashboard_tactics_pi: DEBUG : OnStreamOutUpdTime : FIFO : (In %s Out %s Delta %s Block %s Unblock %s)",
             sPushedInFifo, sPoppedFromFifo, sPushDelta, sBlockingLimit, sUnblockingLimit );
     } // for BIG time debugging only, use tail -f opencpn.log | grep dashboard_tactics_pi
+    // Check against forgotten Schema registration which may slow down operation
+    if ( (m_cntSchemaRegisterAll < STSM_ALLPATHS_COUNT) &&
+         this->m_pSkData->isRecordingAllDbSchemas() )
+        m_cntSchemaRegisterAll++;
+    if ( (m_cntSchemaRegisterAll >= STSM_ALLPATHS_COUNT) ) {
+        this->m_pSkData->stopRecordingAllDbSchemas();
+        m_cntSchemaRegisterAll = 0;
+    } // then timeout
 }
 /***********************************************************************************
 

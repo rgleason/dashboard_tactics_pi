@@ -60,6 +60,9 @@ enum SocketThreadStateMachine {
 enum stateFifoOverFlow {
     STSM_FIFO_OFW_UNKNOWN, STSM_FIFO_OFW_NOT_BLOCKING, STSM_FIFO_OFW_BLOCKING };
 
+#define STSM_ALLPATHS_COUNT 65 // How long time in ticks we can be asked to subscribe to all paths (long time to allow slow paths, like barometer)
+
+
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -112,6 +115,7 @@ protected:
     bool              m_cmdThreadStop;
     wxSocketClient    m_socket;
     wxString          m_threadMsg;
+    int               m_cntSchemaRegisterAll;
 
     // From configuration file
     wxString          m_target;
@@ -138,7 +142,7 @@ protected:
     
 private :
 
-    SkData           *m_pskdata;
+    SkData           *m_pSkData;
 
     wxDECLARE_EVENT_TABLE();
 

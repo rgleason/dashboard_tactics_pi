@@ -72,7 +72,10 @@ public:
         wxString path, double value, wxString unit, long long timestamp );
     wxString getAllNMEA0183JsOrderedList(void);
     wxString getAllNMEA2000JsOrderedList(void);
+    wxString getAllDbSchemasJsOrderedList(void);
+    wxString getDbSchemaJs( wxString* path );
     void collectAllSignalKDeltaPaths(void); 
+    void collectAllDbSchemaPaths(void); 
 protected:
     std::mutex          m_mtxCallBackContainer;
     callback_map       *m_callbacks;

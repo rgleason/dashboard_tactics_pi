@@ -146,10 +146,10 @@ void SkData::UpdateSubscriptionList( wxString *path, wxString *key )
 }
 
 void SkData::UpdateStreamoutSchemaList(
-    wxString *path, wxString *url,wxString *token,
+    wxString *url, wxString *org, wxString *token,
     wxString *bucket, StreamoutSchema *schema )
 {
-   std::string keyID = std::string( path->mb_str() );
+   std::string keyID = std::string( schema->sSkpathe.mb_str() );
    db_query_map::iterator it = m_dbQueryMap->find( keyID );
    if ( it != m_dbQueryMap->end() ) {
             return;
@@ -157,8 +157,9 @@ void SkData::UpdateStreamoutSchemaList(
    // Build a JS structure for the given schema
    wxString js = wxEmptyString;
    js += "{";
-   js += "path:'" + *path + "',";
+   js += "path:'" + schema->sSkpathe + "',";
    js += "url:'" + *url + "',";
+   js += "org:'" + *org + "',";
    js += "token:'" + *token + "',";
    js += "bucket:'" + *bucket + "',";
    js += "sMeasurement:'" + schema->sMeasurement + "',";
