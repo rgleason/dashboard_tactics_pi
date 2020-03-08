@@ -10,7 +10,8 @@
         "debug": "webpack -d --display-modules",
         "watch": "webpack -d --display-modules --watch",
         "serve": "cd ../../data/instrujs/; http-server",
-        "test": "weinre"
+        "test" : "weinre",
+        "tsc"  : "tsc"
     },
     "repository": {
         "type": "git",
@@ -33,6 +34,7 @@
     "homepage": "https://github.com/canne/dashboard_tactics_pi#readme",
     "dependencies": {
         "@babel/runtime": "^7.7.7",
+        "@influxdata/influx": "^0.5.5",
         "javascript-state-machine": "3.1.0",
         "tui-chart": "3.10.0"
     },
@@ -54,6 +56,7 @@
         "sass": "^1.24.0",
         "sass-loader": "^8.0.0",
         "terser-webpack-plugin": "^2.3.1",
+        "typescript": "^3.8.3",
         "webpack": "^4.41.5",
         "webpack-cli": "^3.3.10",
         "weinre": "^2.0.0-pre-I0Z7U9OV"

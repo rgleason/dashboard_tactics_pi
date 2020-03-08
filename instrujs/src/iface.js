@@ -4,7 +4,7 @@
  */
 var ifacedbglevel = window.instrustat.debuglevel
 
-// import sanitizer from './escapeHTML'
+// import sanitizer code port
 var escapeHTML = require('./escapeHTML')
 var Sanitizer = escapeHTML.default()
 
@@ -51,6 +51,30 @@ var iface = {
             return []
         this.clearFlag( this.elemsetall )
         return this.allpaths
+    },
+    eventsetalldb : null,
+    elemsetalldb  : null,
+    allpathsdb    : [],
+    regeventsetalldb: function ( newelem, newevent ) {
+        this.elemsetalldb = newelem
+        this.eventsetalldb = newevent
+    },
+    setalldb: function( alist ) {
+        var emptylist = []
+        this.allpathsdb = emptylist
+        var varlistitems = alist.split(',')
+        for ( var i = 0; i < varlistitems.length; i++ ) {
+            this.allpathsdb.push( varlistitems[ parseInt(i) ] )
+        }
+        if ( (this.eventsetalldb === null) || (this.elemsetalldb === null) )
+            return
+        this.elemsetalldb.dispatchEvent( this.eventsetalldb )
+    },
+    getalldb: function() {
+        if ( this.allpathsdb.length === 0 )
+            return []
+        this.clearFlag( this.elemsetalldb )
+        return this.allpathsdb
     },
     eventselected    : null,
     elemselected     : null,
@@ -128,6 +152,35 @@ var iface = {
         if ( (this.acksubspath === null) || (this.acksubspath === '') )
             return ''
         return this.acksubspath
+    },
+    eventackschema    : null,
+    elemackschema     : null,
+    dbschema          : '',
+    regeventackschema: function ( newelem, newevent ) {
+        this.elemackschema = newelem
+        this.eventackschema = newevent
+    },
+    ackschema: function( newschema ) {
+        try {
+            if ( (this.eventackschema === null) || (this.elemackschema === null) )
+                return
+            this.dbschema = newschema
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setackschema - ackschema: ', this.dbschema)
+            this.elemackschema.dispatchEvent( this.eventackschema )
+        }
+        catch (error) {
+            this.dbschema = ''
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setackschema - state machine error',
+                            error)
+            return
+        }
+    },
+    getdbschema: function() {
+        if ( (this.dbschema === null) || (this.dbschema === '') )
+            return ''
+        return this.dbschema
     },
     eventchgconf    : null,
     elemchgconf     : null,

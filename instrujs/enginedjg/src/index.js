@@ -13,7 +13,7 @@ import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
 
-// we could access it with window.iface but this is needed once to get it in...
+// we access it with window.iface but this is needed once, to get it in...
 var iface = require('exports-loader?iface!../../src/iface.js')
 
 // State Machine Service
@@ -102,6 +102,15 @@ bottom.addEventListener('setall', function (e) {
 }, true)
 window.iface.regeventsetall( bottom, eventsetall )
 
+// All available DB schema paths have been set
+var eventsetalldb = document.createEvent('Event')
+eventsetalldb.initEvent('setalldb', false, false)
+bottom.addEventListener('setalldb', function (e) {
+    console.error(
+        'Event:  setalldb: error: enginedjg does not require DB paths')
+}, true)
+window.iface.regeventsetalldb( bottom, eventsetalldb )
+
 // Selection of a path has been made
 var eventselected = document.createEvent('Event')
 eventselected.initEvent('selected', false, false)
@@ -146,6 +155,15 @@ bottom.addEventListener('acksubs', function (e) {
     }
 }, true)
 window.iface.regeventacksubs( bottom, eventacksubs )
+
+// Requested database schema is now available
+var eventackschema = document.createEvent('Event')
+eventackschema.initEvent('ackschema', false, false)
+bottom.addEventListener('ackschema', function (e) {
+    console.error(
+        'Event:  ackschema: error: enginedjg does not ask for DB schema')
+}, true)
+window.iface.regeventackschema( bottom, eventackschema )
 
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
@@ -210,7 +228,7 @@ bottom.addEventListener('swapdisp', function (e) {
 }, true)
 window.iface.regeventswapdisp( bottom, eventswapdisp )
 
-// The instrument has a persistent configuraiton object
+// The instrument has a persistent configuration object, close gracefully
 var eventclosing = document.createEvent('Event')
 eventclosing.initEvent('closing', false, false)
 bottom.addEventListener('closing', function (e) {

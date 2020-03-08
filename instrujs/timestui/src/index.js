@@ -3,6 +3,10 @@
  * Licensed under MIT - see distribution.
  */
 
+// window.global = window
+// import { Client } from '@influxdata/influx'
+// const client = new Client('basepath', 'token')
+
 import {packagename, version} from '../../src/version'
 console.log('enginedjg ', packagename(), ' ', version())
 var dbglevel = window.instrustat.debuglevel
@@ -13,7 +17,7 @@ import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
 
-// we could access it with window.iface but this is needed once to get it in...
+// we access it with window.iface but this is needed once, to get it in...
 var iface = require('exports-loader?iface!../../src/iface.js')
 
 // State Machine Service
@@ -91,16 +95,25 @@ window.iface.regeventsetid( bottom, eventsetid )
 var eventsetall = document.createEvent('Event')
 eventsetall.initEvent('setall', false, false)
 bottom.addEventListener('setall', function (e) {
+    console.error(
+        'Event:  setall: error: timestui does not require all paths')
+}, true)
+window.iface.regeventsetall( bottom, eventsetall )
+
+// All available DB schema paths have been set
+var eventsetalldb = document.createEvent('Event')
+eventsetalldb.initEvent('setalldb', false, false)
+bottom.addEventListener('setalldb', function (e) {
     try {
-        fsm.setall()
+        fsm.setalldb()
     }
     catch( error ) {
         console.error(
-            'Event:  setall: fsm.setall() transition failed, error: ', error,
+            'Event:  setall: fsm.setalldb() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true)
-window.iface.regeventsetall( bottom, eventsetall )
+window.iface.regeventsetalldb( bottom, eventsetalldb )
 
 // Selection of a path has been made
 var eventselected = document.createEvent('Event')
@@ -136,30 +149,32 @@ window.iface.regeventrescan( bottom, eventrescan )
 var eventacksubs = document.createEvent('Event')
 eventacksubs.initEvent('acksubs', false, false)
 bottom.addEventListener('acksubs', function (e) {
+    console.error(
+        'Event:  ackschema: error: timestui does not ask for path subscription')
+}, true)
+window.iface.regeventacksubs( bottom, eventacksubs )
+
+// Requested database schema is now available
+var eventackschema = document.createEvent('Event')
+eventackschema.initEvent('ackschema', false, false)
+bottom.addEventListener('ackschema', function (e) {
     try {
-        fsm.acksubs()
+        fsm.ackschema()
     }
     catch( error ) {
         console.error(
-            'Event:  acksubs: fsm.acksubs() transition failed, error: ', error,
+            'Event:  acksubs: fsm.ackschema() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }, true)
-window.iface.regeventacksubs( bottom, eventacksubs )
+window.iface.regeventackschema( bottom, eventackschema )
 
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
 bottom.addEventListener('newdata', function (e) {
-    try {
-        if ( (fsm.state === 'waitdata') || (fsm.state === 'showdata') )
-            fsm.newdata()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  newdata: fsm.newdata() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
+    console.error(
+        'Event:  newdata: error: timestui does not ask data from a path subscription')
 }, true)
 window.iface.regeventnewdata( bottom, eventnewdata
                             )
@@ -210,7 +225,7 @@ bottom.addEventListener('swapdisp', function (e) {
 }, true)
 window.iface.regeventswapdisp( bottom, eventswapdisp )
 
-// The instrument has a persistent configuraiton object
+// The instrument has a persistent configuration object, close gracefully
 var eventclosing = document.createEvent('Event')
 eventclosing.initEvent('closing', false, false)
 bottom.addEventListener('closing', function (e) {
