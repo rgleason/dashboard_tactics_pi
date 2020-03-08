@@ -7,7 +7,9 @@ const HtmlInstaller = require('html-webpack-plugin')
 // This is main configuration object that tells Webpackw what to do.
 module.exports = {
     //path to entry paint
-    entry: './src/index.js',
+    entry: {
+        main: path.resolve(__dirname, './src/index.tsx')
+    },
     //path and filename of the final output
     output: {
         path: path.resolve(__dirname, '../../data/instrujs/timestui'),
@@ -15,6 +17,11 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+                test: /\.tsx?$/,
+                loader: ['awesome-typescript-loader?module=es6'],
+                exclude: [/node_modules/]
+            },
             {
                 test: /\.js$/,
                 include: [path.resolve(__dirname, './src'),
@@ -73,6 +80,9 @@ module.exports = {
                 ]
             },
         ],
+    },
+    resolve: {
+      extensions: ['.js', '.ts', '.tsx']
     },
     optimization: {
         minimizer: [
