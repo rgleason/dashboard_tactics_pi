@@ -1,5 +1,10 @@
 {
-
+    "compilerOptions": {
+        "strict": true
+    },
+    "exclude": ["node_modules", "webpack.*.js"]
+        
+/* From some magic web-site, works better with defaults
     "compilerOptions": {
       "outDir": "./dist",
       "target": "es5",
@@ -18,7 +23,7 @@
       "isolatedModules": true
     },
     "exclude": ["node_modules", "webpack.*.js"]
-
+*/
 
   //"compilerOptions": {
     /* Basic Options */
@@ -83,5 +88,5 @@
 
     /* Advanced Options */
     //"forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
-  }
+  // }
 }

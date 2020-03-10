@@ -17,6 +17,7 @@ import {kbdInit} from '../../src/kbd'
 import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
+import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 
 // we access it with window.iface but this is needed once, to get it in...
 // var iface = require('exports-loader?iface!../../src/iface.js')
@@ -48,68 +49,68 @@ if (!bottom) {
 }
 
 // UID and configuration file
-var eventsetid = document.createEvent('Event')
-// eventsetid.initEvent('setid', false, false)
-// bottom.addEventListener('setid', ((event: CustomEvent) => {
-//     if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
-//     try {
-//         fsm.setid()
-//     }
-//     catch( error ) {
-//         console.error(
-//             'Event:  setid: fsm.setid() transition failed, error: ', error,
-//             ' current state: ', fsm.state)
-//     }
-//     var pollhascfg = (function () {
-//         if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
-//         if ( fsm.is('hasid') ) {
-//             var hascfg = true
-//             if ( fsm.conf === null )
-//                 hascfg = false
-//             else if ( (fsm.conf.path === null) || (fsm.conf.path === '') )
-//                 hascfg = false
-//             if ( hascfg ) {
-//                 try {
-//                     fsm.hascfg()
-//                 }
-//                 catch( error ) {
-//                     console.error(
-//                         'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ', error,
-//                         ' current state: ', fsm.state)
-//                 }
-//             }
-//             else {
-//                 try {
-//                     fsm.nocfg()
-//                 }
-//                 catch( error ) {
-//                     console.error(
-//                         'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ', error,
-//                         ' current state: ', fsm.state)
-//                 }
-//             }
-//         }
-//         else {
-//             var n: number
-//             n = window.setTimeout(() => pollhascfg, 100)
-//         }
-//     }()) // do selection of the next action in the routing once ID has been set, or not
-// }) as EventListener)
+var eventsetid: Event = document.createEvent('Event')
+eventsetid.initEvent('setid', false, false)
+bottom.addEventListener('setid', ((event: CustomEvent) => {
+    if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
+    try {
+        fsm.setid()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  setid: fsm.setid() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+    var pollhascfg = (function () {
+        if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
+        if ( fsm.is('hasid') ) {
+            var hascfg = true
+            if ( fsm.conf === null )
+                hascfg = false
+            else if ( (fsm.conf.path === null) || (fsm.conf.path === '') )
+                hascfg = false
+            if ( hascfg ) {
+                try {
+                    fsm.hascfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ', error,
+                        ' current state: ', fsm.state)
+                }
+            }
+            else {
+                try {
+                    fsm.nocfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ', error,
+                        ' current state: ', fsm.state)
+                }
+            }
+        }
+        else {
+            var n: number
+            n = window.setTimeout(() => pollhascfg, 100)
+        }
+    }()) // do selection of the next action in the routing once ID has been set, or not
+}) as EventListener);
 (window as any).iface.regeventsetid( bottom, eventsetid )
 
 // All available paths have been set
-var eventsetall = document.createEvent('Event')
+var eventsetall: Event = document.createEvent('Event')
 eventsetall.initEvent('setall', false, false)
-bottom.addEventListener('setall', ((event: CustomEvent) => {
+bottom.addEventListener('setall', ((event: Event) => {
     console.error(
         'Event:  setall: error: timestui does not require all paths')
-}) as EventListener)
+}) as EventListener);
 (window as any).iface.regeventsetall( bottom, eventsetall )
 
 // All available DB schema paths have been set
-var eventsetalldb = document.createEvent('Event')
+var eventsetalldb: Event = document.createEvent('Event')
 eventsetalldb.initEvent('setalldb', false, false)
-bottom.addEventListener('setalldb', function (e) {
+bottom.addEventListener('setalldb', ((event: Event) => {
     try {
         fsm.setalldb()
     }
@@ -118,13 +119,13 @@ bottom.addEventListener('setalldb', function (e) {
             'Event:  setall: fsm.setalldb() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventsetalldb( bottom, eventsetalldb )
 
 // Selection of a path has been made
-var eventselected = document.createEvent('Event')
+var eventselected: Event = document.createEvent('Event')
 eventselected.initEvent('selected', false, false)
-bottom.addEventListener('selected', function (e) {
+bottom.addEventListener('selected', ((event: Event) => {
     try {
         fsm.selected()
     }
@@ -133,13 +134,13 @@ bottom.addEventListener('selected', function (e) {
             'Event:  selected: fsm.selected() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventselected( bottom, eventselected )
 
 // Selection of a path requires reload
-var eventrescan = document.createEvent('Event')
+var eventrescan: Event = document.createEvent('Event')
 eventrescan.initEvent('rescan', false, false)
-bottom.addEventListener('rescan', function (e) {
+bottom.addEventListener('rescan', ((event: Event) => {
     try {
         fsm.rescan()
     }
@@ -148,22 +149,22 @@ bottom.addEventListener('rescan', function (e) {
             'Event:  rescan: fsm.rescan() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventrescan( bottom, eventrescan )
 
 // Selection of a path has been acknowledged
-var eventacksubs = document.createEvent('Event')
+var eventacksubs: Event = document.createEvent('Event')
 eventacksubs.initEvent('acksubs', false, false)
-bottom.addEventListener('acksubs', function (e) {
+bottom.addEventListener('acksubs', ((event: Event) => {
     console.error(
         'Event:  ackschema: error: timestui does not ask for path subscription')
-}, true)
+}) as EventListener);
 (window as any).iface.regeventacksubs( bottom, eventacksubs )
 
 // Requested database schema is now available
-var eventackschema = document.createEvent('Event')
+var eventackschema: Event = document.createEvent('Event')
 eventackschema.initEvent('ackschema', false, false)
-bottom.addEventListener('ackschema', function (e) {
+bottom.addEventListener('ackschema', ((event: Event) => {
     try {
         fsm.ackschema()
     }
@@ -172,22 +173,22 @@ bottom.addEventListener('ackschema', function (e) {
             'Event:  acksubs: fsm.ackschema() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventackschema( bottom, eventackschema )
 
 // New data is coming in
-var eventnewdata = document.createEvent('Event')
+var eventnewdata: Event = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
-bottom.addEventListener('newdata', function (e) {
+bottom.addEventListener('newdata', ((event: Event) => {
     console.error(
         'Event:  newdata: error: timestui does not ask data from a path subscription')
-}, true)
-(window as any).iface.regeventnewdata( bottom, eventnewdata
-                            )
+}) as EventListener);
+(window as any).iface.regeventnewdata( bottom, eventnewdata )
+
 // Change of configuration has been requested
-var eventchgconf = document.createEvent('Event')
+var eventchgconf: Event = document.createEvent('Event')
 eventchgconf.initEvent('chgconf', false, false)
-bottom.addEventListener('chgconf', function (e) {
+bottom.addEventListener('chgconf', ((event: Event) => {
     try {
         fsm.chgconf()
     }
@@ -196,13 +197,13 @@ bottom.addEventListener('chgconf', function (e) {
             'Event:  chgconf: fsm.chgconf() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventchgconf( bottom, eventchgconf )
 
 // Luminosity
-var eventluminsty = document.createEvent('Event')
+var eventluminsty: Event = document.createEvent('Event')
 eventluminsty.initEvent('luminsty', false, false)
-bottom.addEventListener('luminsty', function (e) {
+bottom.addEventListener('luminsty', ((event: Event) => {
     try {
         fsm.luminsty()
     }
@@ -211,14 +212,14 @@ bottom.addEventListener('luminsty', function (e) {
             'Event:  luminsty: fsm.luminsty() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventluminsty( bottom, eventluminsty )
 
 // Keyboard event requires to swap the display format
 kbdInit()
-var eventswapdisp = document.createEvent('Event')
+var eventswapdisp: Event = document.createEvent('Event')
 eventswapdisp.initEvent('swapdisp', false, false)
-bottom.addEventListener('swapdisp', function (e) {
+bottom.addEventListener('swapdisp', ((event: Event) => {
     try {
         if ( fsm.state === 'showdata')
             fsm.swapdisp()
@@ -228,13 +229,13 @@ bottom.addEventListener('swapdisp', function (e) {
             'Event:  swapdisp: fsm.swapdisp() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventswapdisp( bottom, eventswapdisp )
 
 // The instrument has a persistent configuration object, close gracefully
-var eventclosing = document.createEvent('Event')
+var eventclosing: Event = document.createEvent('Event')
 eventclosing.initEvent('closing', false, false)
-bottom.addEventListener('closing', function (e) {
+bottom.addEventListener('closing', ((event: Event) => {
     try {
         fsm.closing()
     }
@@ -243,7 +244,7 @@ bottom.addEventListener('closing', function (e) {
             'Event:  closing: fsm.closing() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-}, true)
+}) as EventListener);
 (window as any).iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
@@ -269,8 +270,7 @@ pollinitga() // do _everything_ in the routing once condition met
 /* ------------------------------------------ */
 
 var unloadScrollBars = function() {
-    document.documentElement.style.overflow = 'hidden' // webkit
-    document.body.scroll = 'no' // ie
+    unloadWebKitIEScrollBars()
 }
 
 window.addEventListener('load',
