@@ -3,10 +3,6 @@
  * Licensed under MIT - see distribution.
  */
 
-// window.global = window
-// import { Client } from '@influxdata/influx'
-// const client = new Client('basepath', 'token')
-
 import {packagename, version} from '../../src/version'
 console.log('enginedjg ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
@@ -95,7 +91,7 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
             n = window.setTimeout(() => pollhascfg, 100)
         }
     }()) // do selection of the next action in the routing once ID has been set, or not
-}) as EventListener);
+}) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 (window as any).iface.regeventsetid( bottom, eventsetid )
 
 // All available paths have been set
@@ -104,7 +100,7 @@ eventsetall.initEvent('setall', false, false)
 bottom.addEventListener('setall', ((event: Event) => {
     console.error(
         'Event:  setall: error: timestui does not require all paths')
-}) as EventListener);
+}) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 (window as any).iface.regeventsetall( bottom, eventsetall )
 
 // All available DB schema paths have been set

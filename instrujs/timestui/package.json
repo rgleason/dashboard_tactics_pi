@@ -34,7 +34,7 @@
     "homepage": "https://github.com/canne/dashboard_tactics_pi#readme",
     "dependencies": {
         "@babel/runtime": "^7.7.7",
-        "@influxdata/influx": "^0.5.5",
+        "@influxdata/influxdb-client": "1.0.0",
         "javascript-state-machine": "3.1.0",
         "tui-chart": "3.10.0"
     },
