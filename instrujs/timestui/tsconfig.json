@@ -2,8 +2,13 @@
     "compilerOptions": {
         "strict": true
     },
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true,
+        "babelCore": "@babel/core",
+        "useCache": true
+    }
     "exclude": ["node_modules", "webpack.*.js"]
-        
+
 /* From some magic web-site, works better with defaults
     "compilerOptions": {
       "outDir": "./dist",

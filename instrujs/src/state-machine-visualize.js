@@ -153,4 +153,3 @@ export default function visualize(fsm, options) {
     return dotify(dotcfg(fsm, options))
 }
 //-------------------------------------------------------------------------------------------------
-

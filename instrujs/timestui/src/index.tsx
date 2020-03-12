@@ -4,7 +4,7 @@
  */
 
 import {packagename, version} from '../../src/version'
-console.log('enginedjg ', packagename(), ' ', version())
+console.log('timestui ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
 
 import '../../src/iface.js'
@@ -14,6 +14,12 @@ import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
+
+import querytest from './idbclient'
+
+console.log('making a DB querytest()')
+querytest()
+console.log('out of DB querytest()')
 
 // we access it with window.iface but this is needed once, to get it in...
 // var iface = require('exports-loader?iface!../../src/iface.js')

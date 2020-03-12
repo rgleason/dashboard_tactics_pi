@@ -7,8 +7,9 @@ import {InfluxDB, FluxTableMetaData} from '@influxdata/influxdb-client'
 import {url, token, org} from './env'
 
 export default function querytest() {
-    const queryApi = new InfluxDB({url, token}).getQueryApi(org)
-    const fluxQuery =
+    console.log('querytest')
+    var queryApi = new InfluxDB({url, token}).getQueryApi(org)
+    var fluxQuery =
       'from(bucket:"my-bucket") |> range(start: 0) |> filter(fn: (r) => r._measurement == "temperature")'
 
     console.log('*** QUERY ROWS ***')
@@ -46,5 +47,5 @@ export default function querytest() {
     //     complete() {
     //       console.log('\nFinished SUCCESS')
     //     },
-    //   }    
+    //   }
 }
