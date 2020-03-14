@@ -59,7 +59,7 @@ msgstr "Min"
 #: src\baro_history.cpp:507
 #, c-format
 msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
-msgstr " Max %.1f depuis  %02d:%02d Max absolu %.1f "
+msgstr " Max %.1f depuis  %02d:%02d Max absolu %.1f Min %.1f "
 
 #: src\baro_history.cpp:617 src\performance.cpp:1823 src\wind_history.cpp:931
 msgid "Choose a new or existing file"
@@ -1016,5 +1016,5 @@ msgstr "Absolu"
 #: src\wind_history.cpp:847
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
-msgstr "Max %.1f depuis  %02d:%02d Absolu %.1f"
+msgstr "Max %.1f %s depuis  %02d:%02d Absolu %.1f %s"
 
