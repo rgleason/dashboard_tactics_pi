@@ -3,6 +3,8 @@
  * Licensed under MIT - see distribution.
  */
 
+import "core-js/stable"
+
 import {packagename, version} from '../../src/version'
 console.log('timestui ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
@@ -12,11 +14,11 @@ import '../sass/style.scss'
 import {kbdInit} from '../../src/kbd'
 import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
+
 import visualize from '../../src/state-machine-visualize'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 
 import querytest from './idbclient'
-
 console.log('making a DB querytest()')
 querytest()
 console.log('out of DB querytest()')
@@ -30,7 +32,7 @@ if ( dbglevel > 0 ) console.log('index.js - creating the finite state machine')
 var fsm = createStateMachine()
 if ( dbglevel > 0 ) console.log('fsm created - state: ', fsm.state)
 try {
-    var dot: any = visualize( fsm )
+    var dot: any = visualize( fsm );
     (window as any).iface.setgraphwizdot( dot )
     if ( dbglevel > 0 ) console.log('index.js: state machine GraphWiz presentation available through iface.js')
 }

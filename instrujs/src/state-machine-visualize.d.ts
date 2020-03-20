@@ -1,1 +1,4 @@
-export default function visualize(a: any,b?: any): any
+export interface StateMachine {
+    state: string
+}
+export default function visualize(a: StateMachine,b?: any): string

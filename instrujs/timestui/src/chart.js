@@ -5,7 +5,8 @@
 
 /*eslint camelcase: ['error', {'properties': 'never'}]*/
 
-import tui from '../node_modules/tui-chart/dist/tui-chart-polyfill'
+// import tui from '../node_modules/tui-chart/dist/tui-chart-polyfill'
+// import tui from '../node_modules/tui-chart/dist/tui-chart'
 
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
@@ -15,6 +16,9 @@ var rawData
 var options
 
 export function startTimesTuiChart() {
+}
+
+/*
 
     container = document.getElementById('chart0');
 
@@ -56,3 +60,4 @@ export function startTimesTuiChart() {
         }, 1000)
     });
 }
+*/

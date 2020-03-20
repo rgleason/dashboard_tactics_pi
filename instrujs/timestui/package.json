@@ -34,14 +34,17 @@
     "homepage": "https://github.com/canne/dashboard_tactics_pi#readme",
     "dependencies": {
         "@babel/runtime": "^7.7.7",
-        "@influxdata/influxdb-client": "1.0.0",
+        "core-js": "^3.6.4",
         "javascript-state-machine": "3.1.0",
+        "regenerator-runtime": "^0.13.5",
         "tui-chart": "3.10.0"
     },
     "devDependencies": {
         "@babel/core": "^7.7.2",
         "@babel/plugin-transform-runtime": "^7.7.6",
         "@babel/preset-env": "^7.7.7",
+        "@influxdata/influxdb-client": "^1.0.0",
+        "@types/node": "^13.9.2",
         "autoprefixer": "^9.7.3",
         "awesome-typescript-loader": "^5.2.1",
         "babel-loader": "^8.0.6",

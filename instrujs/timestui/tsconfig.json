@@ -1,16 +1,35 @@
 {
     "compilerOptions": {
-        "strict": true
+        "strict": true,
+        "target": "es2015",
+        "resolveJsonModule": false,
+        "strictPropertyInitialization": false,
+        "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
+        "types": ["node"]
     },
     "awesomeTypescriptLoaderOptions": {
         "useBabel": true,
+        "babelOptions": {
+            "presets": [
+              ["@babel/preset-env", {
+                  "useBuiltIns": "entry",
+                  "corejs": {"version": 3, "proposals": true},
+                  "debug": true,
+                  "targets": {
+                      "ie": "11"
+                  }
+              }]
+            ],
+            plugins: ['@babel/plugin-transform-runtime']
+        },
         "babelCore": "@babel/core",
-        "useCache": true
+        "useCache": false
     }
-    "exclude": ["node_modules", "webpack.*.js"]
+    "include": ["src/**/*.ts"]
+    "exclude": ["node_modules","*.js"]
 
 /* From some magic web-site, works better with defaults
-    "compilerOptions": {
+/    "compilerOptions": {
       "outDir": "./dist",
       "target": "es5",
       "lib": ["dom", "dom.iterable", "esnext"],

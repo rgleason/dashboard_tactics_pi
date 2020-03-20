@@ -8,7 +8,7 @@ const HtmlInstaller = require('html-webpack-plugin')
 module.exports = {
     //path to entry paint
     entry: {
-        main: path.resolve(__dirname, './src/index.tsx')
+        main: path.resolve(__dirname, './src/index.ts')
     },
     //path and filename of the final output
     output: {
@@ -18,23 +18,38 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.ts?$/,
                 loader: ['awesome-typescript-loader'],
-                exclude: /(node_modules)/
+                include: [path.resolve(__dirname, './src'),
+                          path.resolve(__dirname, '../src'),
+                          path.resolve(__dirname, './influxdb-client/packages/core/src'),
+                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl'),
+                          path.resolve(__dirname, './influxdb-client/packages/core/src/query'),
+                          path.resolve(__dirname, './influxdb-client/packages/core/src/util'),
+                         ],
+                exclude: [/(node_modules)/]
             },
             {
                 test: /\.js$/,
+                loader: 'babel-loader',
+                options: {
+                    "presets": [
+                      ["@babel/preset-env", {
+                          "useBuiltIns": "entry",
+                          "corejs": {"version": 3, "proposals": true},
+                          "debug": true,
+                          "targets": {
+                              "ie": "11"
+                          }
+                      }]
+                    ],
+                    plugins: ['@babel/plugin-transform-runtime'],
+                    cacheDirectory: false
+                },
                 include: [path.resolve(__dirname, './src'),
                           path.resolve(__dirname, '../src')
                          ],
-                exclude: /(node_modules)/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
-                        plugins: ['@babel/plugin-transform-runtime']
-                    }
-                }
+                exclude: [/(node_modules)/],
             },
             {
                 test:/\.(sa|sc|c)ss$/,
