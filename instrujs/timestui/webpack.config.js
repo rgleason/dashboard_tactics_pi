@@ -39,7 +39,8 @@ module.exports = {
                           "corejs": {"version": 3, "proposals": true},
                           "debug": true,
                           "targets": {
-                              "ie": "11"
+                              "ie": "11",
+                              "safari": "6"
                           }
                       }]
                     ],
