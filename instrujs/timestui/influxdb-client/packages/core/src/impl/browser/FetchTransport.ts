@@ -1,5 +1,5 @@
-import "core-js"
-import "regenerator-runtime/runtime.js"
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 // IE11 AbortController:
 import 'isomorphic-fetch'
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'

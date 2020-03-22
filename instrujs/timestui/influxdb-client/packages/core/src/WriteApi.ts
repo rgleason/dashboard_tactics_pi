@@ -1,5 +1,5 @@
-import "core-js"
-import "regenerator-runtime/runtime.js"
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 
 import Point from './Point'
 

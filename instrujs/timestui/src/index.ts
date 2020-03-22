@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 
-import "core-js/stable"
+// import "core-js/stable"
 
 import {packagename, version} from '../../src/version'
 console.log('timestui ', packagename(), ' ', version())

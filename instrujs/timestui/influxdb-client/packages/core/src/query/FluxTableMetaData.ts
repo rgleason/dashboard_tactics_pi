@@ -1,5 +1,5 @@
-import "core-js"
-import "regenerator-runtime/runtime.js"
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 
 import FluxTableColumn from './FluxTableColumn'
 import {IllegalArgumentError} from '../errors'

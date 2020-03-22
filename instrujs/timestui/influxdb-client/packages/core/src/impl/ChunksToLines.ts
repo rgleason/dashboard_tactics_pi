@@ -1,5 +1,5 @@
-import "core-js"
-import "regenerator-runtime/runtime.js"
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 
 import {CommunicationObserver, ChunkCombiner} from '../transport'
 import Cancellable from '../util/Cancellable'

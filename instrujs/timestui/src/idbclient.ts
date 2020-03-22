@@ -2,8 +2,8 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
-import "core-js"
-import "regenerator-runtime/runtime.js"
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 
 // import {InfluxDB, FluxTableMetaData} from '@influxdata/influxdb-client'
 // import {InfluxDB} from '../influxdata/influxdb-client'
