@@ -389,7 +389,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
-                if ( m_istate == JSI_GETALL ) {
+                if ( m_istate != JSI_GETDBOUT ) {
                     m_istate = JSI_GETPATH;
                     if ( m_pushHere == NULL )
                         m_pushHere = std::bind(&InstruJS::PushData,
@@ -409,7 +409,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_istate = JSI_SHOWDATA;
                     m_handshake = JSI_HDS_SERVED;
                     break;
-                } // then knows path wants to subscribe
+                } // then knows path wants to subscribe to data
                 else {
                     m_istate = JSI_GETSCHEMA;
                     m_subscribedPath = request;
@@ -425,7 +425,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_istate = JSI_SHOWDATA;
                     m_handshake = JSI_HDS_SERVED;
                     break;
-                } // else knows path wants the DB schema
+                } // else got all DB'd paths, now wants a DB schema of one of those
             }
             else
                 break;
