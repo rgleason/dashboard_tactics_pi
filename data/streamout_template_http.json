@@ -289,7 +289,8 @@
             "prop3"       : "",
             "field1"      : "velocityMadeGood",
             "field2"      : "",
-            "field3"      : "performance.velocityMadeGood"
+            "field3"      : "",
+            "skpathe"     : "performance.velocityMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_RSA",
