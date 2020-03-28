@@ -9,13 +9,15 @@
 // import {InfluxDB} from '../influxdata/influxdb-client'
 import InfluxDB from '../influxdb-client/packages/core/src/InfluxDB'
 import FluxTableMetaData from '../influxdb-client/packages/core/src/query/FluxTableMetaData'
-import {url, token, org} from './env'
+import {url, token, org, bucket} from './env'
 
 export default function querytest() {
     console.log('querytest')
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
-    var fluxQuery =
-      'from(bucket:"my-bucket") |> range(start: 0) |> filter(fn: (r) => r._measurement == "temperature")'
+    var fluxQuery = 'from(bucket:"'+ bucket + '")'
+    fluxQuery += '|> range(start: 0)'
+    fluxQuery += '|> filter(fn: (r) => r._measurement == "environment")'
+    fluxQuery += '|> filter(fn: (r) => r._field == "speedTrueGround")'
 
     console.log('*** QUERY ROWS ***')
     // performs query and receive line table metadata and rows
@@ -25,7 +27,7 @@ export default function querytest() {
         const o = tableMeta.toObject(row)
         // console.log(JSON.stringify(o, null, 2))
         console.log(
-          `${o._time} ${o._measurement} in '${o.location}' (${o.example}): ${o._field}=${o._value}`
+          `${o._time} ${o._measurement}.${o._field}=${o._value}`
         )
       },
       error(error: Error) {

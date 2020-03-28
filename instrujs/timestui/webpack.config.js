@@ -37,7 +37,7 @@ module.exports = {
                       ["@babel/preset-env", {
                           "useBuiltIns": "entry",
                           "corejs": {"version": 3, "proposals": true},
-                          "debug": true,
+                          "debug": false,
                           "targets": {
                               "ie": "11",
                               "safari": "6"
@@ -45,7 +45,7 @@ module.exports = {
                       }]
                     ],
                     plugins: ['@babel/plugin-transform-runtime'],
-                    cacheDirectory: false
+                    cacheDirectory: true
                 },
                 include: [path.resolve(__dirname, './src'),
                           path.resolve(__dirname, '../src')
