@@ -1,461 +1,1009 @@
+#: src\baro_history.cpp:626 src\baro_history.cpp:627 src\performance.cpp:1832
+#: src\performance.cpp:1833 src\tactics_pi.cpp:3006 src\tactics_pi.cpp:3027
+#: src\tactics_pi.cpp:3212 src\wind_history.cpp:940 src\wind_history.cpp:941
 msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-12 22:19-0400\n"
-"PO-Revision-Date: 2019-03-18 02:52\n"
-"Last-Translator: nohal <pavel@kalian.cz>\n"
+"POT-Creation-Date: 2020-01-22 21:40+0100\n"
+"PO-Revision-Date: 2020-03-09 15:27\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: fi\n"
-"X-Crowdin-File: /plugins/dashboard_pi/po/dashboard_pi.pot\n"
+"X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
 
-#: src/clock.cpp:164 src/dial.cpp:526 src/gps.cpp:142 src/wind.cpp:66
-#: src/wind_history.cpp:433
+#: src\baro_history.cpp:139 src\baro_history.cpp:639 src\performance.cpp:1326
+#: src\performance.cpp:1846 src\wind_history.cpp:140 src\wind_history.cpp:954
+msgid ">"
+msgstr ">"
+
+#: src\baro_history.cpp:141 src\performance.cpp:1328 src\wind_history.cpp:142
+msgid "'>' starts data export and creates a new or appends to an existing file,\n"
+"'X' stops data export"
+msgstr "'>' käynnistää datan viennin ja muodostaa uuden tai lisää olevaan tiedostoon.\n"
+"'X' pysäyttää datan viennin"
+
+#: src\baro_history.cpp:154 src\performance.cpp:1342
+msgid "Export rate 10 Seconds"
+msgstr "Viennin tiheys 10 sekunttia"
+
+#: src\baro_history.cpp:155 src\performance.cpp:1343 src\wind_history.cpp:157
+msgid "Export rate 20 Seconds"
+msgstr "Viennin tiheys 20 sekunttia"
+
+#: src\baro_history.cpp:156 src\performance.cpp:1344 src\wind_history.cpp:158
+msgid "Export rate 60 Seconds"
+msgstr "Viennin tiheys 60 sekunttia"
+
+#: src\baro_history.cpp:499 src\performance.cpp:1718 src\wind_history.cpp:842
+msgid "Max"
+msgstr "Korkein"
+
+#: src\baro_history.cpp:500 src\performance.cpp:1719 src\wind_history.cpp:843
+msgid "since"
+msgstr "alkaen"
+
+#: src\baro_history.cpp:501
+msgid "Overall Max"
+msgstr "Kokonais Max"
+
+#: src\baro_history.cpp:502
+msgid "Min"
+msgstr "Min"
+
+#: src\baro_history.cpp:507
+#, c-format
+msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
+msgstr " Max %.1f since %02d:%02d  saakka %.1f Min %.1f "
+
+#: src\baro_history.cpp:617 src\performance.cpp:1823 src\wind_history.cpp:931
+msgid "Choose a new or existing file"
+msgstr "Valitse uusi tai olemassa oleva tiedosto"
+
+#: src\baro_history.cpp:626 src\performance.cpp:1832 src\wind_history.cpp:940
+#, c-format
+msgid "ClockTicks%s"
+msgstr "KellonKäynti%s"
+
+#: src\baro_history.cpp:627 src\performance.cpp:1833 src\wind_history.cpp:941
+#, c-format
+msgid "UTC-ISO8601%s"
+msgstr "UTC-ISO8601%s"
+
+#: src\baro_history.cpp:633 src\performance.cpp:1839 src\wind_history.cpp:948
+msgid "X"
+msgstr "X"
+
+#: src\bearingcompass.cpp:830 src\polarcompass.cpp:776
+msgid "R"
+msgstr "R"
+
+#: src\bearingcompass.cpp:835 src\polarcompass.cpp:781
+msgid "L"
+msgstr "L"
+
+#: src\clock.cpp:200 src\dial.cpp:606 src\gps.cpp:142 src\wind.cpp:78
+#: src\wind_history.cpp:694
 msgid "N"
 msgstr "N"
 
-#: src/dashboard_pi.cpp:107
+#: src\dashboard_pi.cpp:87 src\dashboard_pi.cpp:2760 src\dashboard_pi.cpp:2779
+#: src\dashboard_pi.cpp:3597
+msgid "Dashboard_Tactics"
+msgstr "Dashboard_Tactics"
+
+#: src\dashboard_pi.cpp:205
 msgid "Position"
 msgstr "Sijainti"
 
-#: src/dashboard_pi.cpp:109
+#: src\dashboard_pi.cpp:207
 msgid "SOG"
 msgstr "SOG"
 
-#: src/dashboard_pi.cpp:111
+#: src\dashboard_pi.cpp:209
 msgid "Speedometer"
 msgstr "Nopeusmittari"
 
-#: src/dashboard_pi.cpp:113
+#: src\dashboard_pi.cpp:211
 msgid "COG"
 msgstr "COG"
 
-#: src/dashboard_pi.cpp:115
+#: src\dashboard_pi.cpp:213
 msgid "Mag COG"
 msgstr "Magn COG"
 
-#: src/dashboard_pi.cpp:117
+#: src\dashboard_pi.cpp:215
 msgid "GPS Compass"
 msgstr "GPS kompassi"
 
-#: src/dashboard_pi.cpp:119
+#: src\dashboard_pi.cpp:217
 msgid "True Compass"
 msgstr "Kompassi"
 
-#: src/dashboard_pi.cpp:121
+#: src\dashboard_pi.cpp:219
 msgid "STW"
 msgstr "STW"
 
-#: src/dashboard_pi.cpp:123
+#: src\dashboard_pi.cpp:221
 msgid "True HDG"
 msgstr "Tosi HDG"
 
-#: src/dashboard_pi.cpp:125
+#: src\dashboard_pi.cpp:223
 msgid "Mag HDG"
-msgstr "Magneettinen HDG"
+msgstr "Magn COG"
 
-#: src/dashboard_pi.cpp:128
+#: src\dashboard_pi.cpp:226
 msgid "App. Wind Angle & Speed"
-msgstr "Suht. tuulikulma ja tuulen nopeus"
+msgstr "Suht. Tuulen kulma & nopeus"
 
-#: src/dashboard_pi.cpp:130
+#: src\dashboard_pi.cpp:228
 msgid "App & True Wind Angle"
-msgstr "Suht. ja tosituulikulma"
+msgstr "Suhteellinen & todellinen tuulikulma"
 
-#: src/dashboard_pi.cpp:132 src/dashboard_pi.cpp:134
+#: src\dashboard_pi.cpp:230 src\dashboard_pi.cpp:232
 msgid "App. Wind Speed"
 msgstr "Suht. tuulen nopeus"
 
-#: src/dashboard_pi.cpp:136
+#: src\dashboard_pi.cpp:234
 msgid "True Wind Angle & Speed"
 msgstr "Tosituulikulma ja -tuulen nopeus"
 
-#: src/dashboard_pi.cpp:138 src/dashboard_pi.cpp:140
+#: src\dashboard_pi.cpp:236 src\dashboard_pi.cpp:238
 msgid "Depth"
 msgstr "Syvyys"
 
-#: src/dashboard_pi.cpp:142 src/dashboard_pi.cpp:144
+#: src\dashboard_pi.cpp:240 src\dashboard_pi.cpp:242
 msgid "Barometric pressure"
 msgstr "Ilmanpaine"
 
-#: src/dashboard_pi.cpp:146
+#: src\dashboard_pi.cpp:244
 msgid "Water Temp."
-msgstr "Veden lämpötila"
+msgstr "Veden lämpötila."
 
-#: src/dashboard_pi.cpp:148
+#: src\dashboard_pi.cpp:246
 msgid "Air Temp."
-msgstr "Ilman lämpötila"
+msgstr "Ilman lämpötila."
 
-#: src/dashboard_pi.cpp:150
+#: src\dashboard_pi.cpp:248
 msgid "App. Wind Angle"
 msgstr "Suht. tuulikulma"
 
-#: src/dashboard_pi.cpp:152
+#: src\dashboard_pi.cpp:250
 msgid "True Wind Angle"
 msgstr "Tosituulikulma"
 
-#: src/dashboard_pi.cpp:154
+#: src\dashboard_pi.cpp:252
 msgid "True Wind Direction"
-msgstr "Tosituulen suunta"
+msgstr "Tosi tuulensuunta"
 
-#: src/dashboard_pi.cpp:156
+#: src\dashboard_pi.cpp:254
 msgid "True Wind Speed"
-msgstr "Tosituulen nopeus"
+msgstr "Tosi tuulennopeus"
 
-#: src/dashboard_pi.cpp:158
+#: src\dashboard_pi.cpp:256
 msgid "True Wind Dir. & Speed"
-msgstr "Tosituulen suunta ja nopeus"
+msgstr "Tosi tuulen suunta & nopeus"
 
-#: src/dashboard_pi.cpp:160 src/dashboard_pi.cpp:162
+#: src\dashboard_pi.cpp:258 src\dashboard_pi.cpp:260
 msgid "VMG"
 msgstr "VMG"
 
-#: src/dashboard_pi.cpp:164 src/dashboard_pi.cpp:166
+#: src\dashboard_pi.cpp:262 src\dashboard_pi.cpp:264
 msgid "Rudder Angle"
 msgstr "Peräsinkulma"
 
-#: src/dashboard_pi.cpp:168
+#: src\dashboard_pi.cpp:266
 msgid "GPS in View"
 msgstr "Näkyvät satelliitit"
 
-#: src/dashboard_pi.cpp:170
+#: src\dashboard_pi.cpp:268
 msgid "GPS Status"
-msgstr "GPS tilanne"
+msgstr "GPS-tila"
 
-#: src/dashboard_pi.cpp:172
+#: src\dashboard_pi.cpp:270
 msgid "Cursor"
-msgstr "Kursori"
+msgstr "Kohdistin"
 
-#: src/dashboard_pi.cpp:174
+#: src\dashboard_pi.cpp:272
 msgid "GPS Clock"
 msgstr "GPS kello"
 
-#: src/dashboard_pi.cpp:176
+#: src\dashboard_pi.cpp:274
 msgid "Sunrise/Sunset"
-msgstr "Auringon nousu- ja laskuaika, UTC"
+msgstr "Auringon nousu/lasku"
 
-#: src/dashboard_pi.cpp:178
+#: src\dashboard_pi.cpp:276
 msgid "Moon phase"
 msgstr "Kuun vaihe"
 
-#: src/dashboard_pi.cpp:180
+#: src\dashboard_pi.cpp:278
 msgid "Wind history"
-msgstr "Tuulihistoria"
+msgstr "Tuuli historia"
 
-#: src/dashboard_pi.cpp:182
+#: src\dashboard_pi.cpp:280
 msgid "Barometric history"
 msgstr "Ilmanpaineen historia"
 
-#: src/dashboard_pi.cpp:184
+#: src\dashboard_pi.cpp:282
 msgid "Trip Log"
-msgstr "Osamatka"
+msgstr "Matka loki"
 
-#: src/dashboard_pi.cpp:186
+#: src\dashboard_pi.cpp:284
 msgid "Sum Log"
-msgstr "Kokonaismatka"
+msgstr "Summa loki"
 
-#: src/dashboard_pi.cpp:188
+#: src\dashboard_pi.cpp:286
 msgid "From Ownship"
 msgstr "Omasta aluksesta"
 
-#: src/dashboard_pi.cpp:190
+#: src\dashboard_pi.cpp:288
 msgid "Pitch"
 msgstr "Nyökintä"
 
-#: src/dashboard_pi.cpp:192
+#: src\dashboard_pi.cpp:290 src\tactics_pi.cpp:3030
 msgid "Heel"
 msgstr "Kallistus"
 
-#: src/dashboard_pi.cpp:194
+#: src\dashboard_pi.cpp:292
 msgid "Local GPS Clock"
 msgstr "Paikallinen GPS-kello"
 
-#: src/dashboard_pi.cpp:196
+#: src\dashboard_pi.cpp:294
 msgid "Local CPU Clock"
 msgstr "Paikallinen CPU kello"
 
-#: src/dashboard_pi.cpp:198
+#: src\dashboard_pi.cpp:296
 msgid "Local Sunrise/Sunset"
 msgstr "Auringon nousu- ja laskuaika"
 
-#: src/dashboard_pi.cpp:395 src/dashboard_pi.cpp:510 src/dashboard_pi.cpp:1494
-#: src/dashboard_pi.cpp:1507 src/dashboard_pi.cpp:1693 src/dashboard_pi.cpp:1732
-#: src/dashboard_pi.cpp:2071
+#: src\dashboard_pi.cpp:299
+msgid "↑Leeway"
+msgstr "↑Sorto"
+
+#: src\dashboard_pi.cpp:301
+msgid "↑TWA to Waypoint"
+msgstr "↑TWA reittipisteeseen"
+
+#: src\dashboard_pi.cpp:303
+msgid "↑Current Direction"
+msgstr "↑Pintavirran suunta"
+
+#: src\dashboard_pi.cpp:305
+msgid "↑Current Speed"
+msgstr "↑Virta, Nopeus"
+
+#: src\dashboard_pi.cpp:307
+msgid "↑Bearing Compass"
+msgstr "↑Kompassi suunta"
+
+#: src\dashboard_pi.cpp:309
+msgid "↑Polar Speed"
+msgstr "↑Polar nopeus"
+
+#: src\dashboard_pi.cpp:311 src\dashboard_pi.cpp:318
+msgid "↑Actual "
+msgstr "↑Todellinen "
+
+#: src\dashboard_pi.cpp:313 src\dashboard_pi.cpp:315 src\dashboard_pi.cpp:320
+#: src\dashboard_pi.cpp:322
+msgid "↑Target "
+msgstr "↑Kohde "
+
+#: src\dashboard_pi.cpp:316 src\dashboard_pi.cpp:323
+msgid "-Angle"
+msgstr "-Kulma"
+
+#: src\dashboard_pi.cpp:325
+msgid "↑Polar Performance"
+msgstr "↑Polar suorituskyky"
+
+#: src\dashboard_pi.cpp:327
+msgid "↑Average Wind Direction"
+msgstr "↑Suhteellinen tuulensuunta"
+
+#: src\dashboard_pi.cpp:329
+msgid "↑Polar Compass"
+msgstr "↑Polar kompassi"
+
+#: src\dashboard_pi.cpp:331
+msgid "↑InfluxDB Out"
+msgstr "↑InfluxDB ulos"
+
+#: src\dashboard_pi.cpp:333
+msgid "↑Signal K In"
+msgstr "↑Signal K sisään"
+
+#: src\dashboard_pi.cpp:335
+msgid "↑z Eng1 RPM"
+msgstr "↑z Kone1 RPM"
+
+#: src\dashboard_pi.cpp:337
+msgid "↑z Eng1 Temp"
+msgstr "↑z Kone1 Lämpö"
+
+#: src\dashboard_pi.cpp:339
+msgid "↑z Eng1 Oil P"
+msgstr "↑z Kone1 Öljy P"
+
+#: src\dashboard_pi.cpp:648 src\dashboard_pi.cpp:841 src\dashboard_pi.cpp:851
+#: src\dashboard_pi.cpp:2762 src\dashboard_pi.cpp:2781 src\dashboard_pi.cpp:3149
+#: src\dashboard_pi.cpp:3202 src\dashboard_pi.cpp:3599
 msgid "Dashboard"
 msgstr "Mittaritaulu"
 
-#: src/dashboard_pi.cpp:515
-msgid "Dashboard PlugIn for OpenCPN"
-msgstr "Mittaripaneeli OpenCPN:lle"
+#: src\dashboard_pi.cpp:849
+msgid "Dashboard and Tactics"
+msgstr "Mittaritaulu ja taktiikka"
 
-#: src/dashboard_pi.cpp:520
+#: src\dashboard_pi.cpp:859
+msgid "Dashboard PlugIn with Tactics for OpenCPN\n"
+"Provides navigation instruments enhanced with performance functions and alternative input/output functions."
+msgstr "Dashboard PlugIn Taktiikan kera OpenCPN:ään\n"
+"Lisää navigointi-instrumenttien tehostuksia toimintoihin ja vaihtoehtoisia syöttö/tulostus toimintoja."
+
+#: src\dashboard_pi.cpp:862
 msgid "Dashboard PlugIn for OpenCPN\n"
 "Provides navigation instrument display from NMEA source."
-msgstr "Mittaritaulu OpenCPN:lle\n"
-"Näyttää mittarit NMEA-tuloille."
+msgstr "Mittaritaulu Plugin OpenCPN:lle\n"
+"Tuottaa navigointimittarien näytöt NMEA tiedoista."
 
-#: src/dashboard_pi.cpp:1670
+#: src\dashboard_pi.cpp:3114
+msgid " Preferences"
+msgstr " Asetukset"
+
+#: src\dashboard_pi.cpp:3116
 msgid "Dashboard preferences"
 msgstr "Mittaripaneelin asetukset"
 
-#: src/dashboard_pi.cpp:1739
+#: src\dashboard_pi.cpp:3211
 msgid "show this dashboard"
-msgstr "Näytä tämä mittaritaulu"
+msgstr "näytä tämä mittaritaulu"
 
-#: src/dashboard_pi.cpp:1745
+#: src\dashboard_pi.cpp:3217
 msgid "Caption:"
 msgstr "Kuvateksti:"
 
-#: src/dashboard_pi.cpp:1753
+#: src\dashboard_pi.cpp:3225
 msgid "Orientation:"
 msgstr "Näytön asento:"
 
-#: src/dashboard_pi.cpp:1757 src/dashboard_pi.cpp:2268
+#: src\dashboard_pi.cpp:3229 src\dashboard_pi.cpp:3848
 msgid "Vertical"
 msgstr "Pystysuora"
 
-#: src/dashboard_pi.cpp:1758 src/dashboard_pi.cpp:2270
+#: src\dashboard_pi.cpp:3230 src\dashboard_pi.cpp:3850
 msgid "Horizontal"
 msgstr "Vaakasuora"
 
-#: src/dashboard_pi.cpp:1765 src/dashboard_pi.cpp:1773 src/dashboard_pi.cpp:2190
+#: src\dashboard_pi.cpp:3237 src\dashboard_pi.cpp:3245 src\dashboard_pi.cpp:3744
 msgid "Instruments"
 msgstr "Mittarit"
 
-#: src/dashboard_pi.cpp:1781
+#: src\dashboard_pi.cpp:3253
 msgid "Add"
 msgstr "Lisää"
 
-#: src/dashboard_pi.cpp:1794
+#: src\dashboard_pi.cpp:3266
 msgid "Delete"
-msgstr "&Poista"
+msgstr "Poista"
 
-#: src/dashboard_pi.cpp:1800
+#: src\dashboard_pi.cpp:3272
 msgid "Up"
 msgstr "Ylös"
 
-#: src/dashboard_pi.cpp:1805
+#: src\dashboard_pi.cpp:3277
 msgid "Down"
 msgstr "Alas"
 
-#: src/dashboard_pi.cpp:1815
+#: src\dashboard_pi.cpp:3287
 msgid "Appearance"
-msgstr "Ulkonäkö"
+msgstr "Ulkoasu"
 
-#: src/dashboard_pi.cpp:1817
+#: src\dashboard_pi.cpp:3289
 msgid "Fonts"
-msgstr "Kirjasimet"
+msgstr "Fontit"
 
-#: src/dashboard_pi.cpp:1823
+#: src\dashboard_pi.cpp:3295
 msgid "Title:"
 msgstr "Otsikko:"
 
-#: src/dashboard_pi.cpp:1829
+#: src\dashboard_pi.cpp:3301
 msgid "Data:"
 msgstr "Tiedot:"
 
-#: src/dashboard_pi.cpp:1835
+#: src\dashboard_pi.cpp:3307
 msgid "Label:"
-msgstr "Otsikko:"
+msgstr "Tunniste:"
 
-#: src/dashboard_pi.cpp:1841
+#: src\dashboard_pi.cpp:3313
 msgid "Small:"
 msgstr "Pieni:"
 
-#: src/dashboard_pi.cpp:1849
+#: src\dashboard_pi.cpp:3321
 msgid "Units, Ranges, Formats"
 msgstr "Yksiköt, alueet, formaatit"
 
-#: src/dashboard_pi.cpp:1855
+#: src\dashboard_pi.cpp:3327
 msgid "Speedometer max value:"
-msgstr "Nopeusmittarin maksimiarvo:"
+msgstr "Nopeusmittarin max arvo:"
 
-#: src/dashboard_pi.cpp:1861
+#: src\dashboard_pi.cpp:3333
 msgid "Speed Over Ground Damping Factor:"
 msgstr "Nopeus pohjan suhteen vaimennuskerroin:"
 
-#: src/dashboard_pi.cpp:1867
+#: src\dashboard_pi.cpp:3339
 msgid "COG Damping Factor:"
 msgstr "COG vaimennuskerroin:"
 
-#: src/dashboard_pi.cpp:1873
+#: src\dashboard_pi.cpp:3345
 msgid "Local Time Offset From UTC:"
 msgstr "Paikallisen ajan ja UTC-ajan ero:"
 
-#: src/dashboard_pi.cpp:1892
+#: src\dashboard_pi.cpp:3364
 msgid "Boat speed units:"
-msgstr "Veneen nopeuden yksiköt:"
+msgstr "Veneen nopeus yksiköt:"
 
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1936
+#: src\dashboard_pi.cpp:3367 src\dashboard_pi.cpp:3408
 msgid "Honor OpenCPN settings"
 msgstr "OpenCPN pääasetukset"
 
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
+#: src\dashboard_pi.cpp:3367 src\dashboard_pi.cpp:3417
 msgid "Kts"
-msgstr "kn"
+msgstr "Kts"
 
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
+#: src\dashboard_pi.cpp:3367 src\dashboard_pi.cpp:3417
 msgid "mph"
 msgstr "mph"
 
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
+#: src\dashboard_pi.cpp:3367 src\dashboard_pi.cpp:3417
 msgid "km/h"
 msgstr "km/h"
 
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
+#: src\dashboard_pi.cpp:3367 src\dashboard_pi.cpp:3417
 msgid "m/s"
 msgstr "m/s"
 
-#: src/dashboard_pi.cpp:1901
+#: src\dashboard_pi.cpp:3373
 msgid "Depth units:"
-msgstr "Syvyyden yksiköt:"
+msgstr "Syvyys yksiköt:"
 
-#: src/dashboard_pi.cpp:1904 src/dashboard_pi.cpp:1936
+#: src\dashboard_pi.cpp:3376 src\dashboard_pi.cpp:3408
 msgid "Meters"
-msgstr "Metrit"
+msgstr "Metriä"
 
-#: src/dashboard_pi.cpp:1904
+#: src\dashboard_pi.cpp:3376
 msgid "Feet"
-msgstr "Jalat"
+msgstr "Jalkaa"
 
-#: src/dashboard_pi.cpp:1904
+#: src\dashboard_pi.cpp:3376
 msgid "Fathoms"
-msgstr "Sylet"
+msgstr "Syltä"
 
-#: src/dashboard_pi.cpp:1904
+#: src\dashboard_pi.cpp:3376
 msgid "Inches"
 msgstr "Tuumaa"
 
-#: src/dashboard_pi.cpp:1904
+#: src\dashboard_pi.cpp:3376
 msgid "Centimeters"
 msgstr "Senttimetriä"
 
-#: src/dashboard_pi.cpp:1909
+#: src\dashboard_pi.cpp:3381
 #, c-format
 msgid "Depth Offset (%s):"
 msgstr "Syvyyden poikkeama (%s):"
 
-#: src/dashboard_pi.cpp:1933
+#: src\dashboard_pi.cpp:3405
 msgid "Distance units:"
 msgstr "Välimatkan yksiköt:"
 
-#: src/dashboard_pi.cpp:1936
+#: src\dashboard_pi.cpp:3408
 msgid "Nautical miles"
-msgstr "&meripeninkulmaa"
+msgstr "Meripeninkulmaa"
 
-#: src/dashboard_pi.cpp:1936
+#: src\dashboard_pi.cpp:3408
 msgid "Statute miles"
 msgstr "Maamailia"
 
-#: src/dashboard_pi.cpp:1936
+#: src\dashboard_pi.cpp:3408
 msgid "Kilometers"
-msgstr "&kilometriä"
+msgstr "Kilometriä"
 
-#: src/dashboard_pi.cpp:1942
+#: src\dashboard_pi.cpp:3414
 msgid "Wind speed units:"
-msgstr "Tuulen nopeuden yksiköt:"
+msgstr "Tuulen nopeus yksiköt:"
 
-#: src/dashboard_pi.cpp:2173
+#: src\dashboard_pi.cpp:3424
+msgid "Temperature units:"
+msgstr "Lämpötilayksikköt:"
+
+#: src\dashboard_pi.cpp:3427
+msgid "Celsius"
+msgstr "Celsius"
+
+#: src\dashboard_pi.cpp:3427
+msgid "Fahrenheit"
+msgstr "Fahrenheit"
+
+#: src\dashboard_pi.cpp:3723
 msgid "Add instrument"
 msgstr "Lisää mittari"
 
-#: src/dashboard_pi.cpp:2179
+#: src\dashboard_pi.cpp:3729
 msgid "Select instrument to add:"
 msgstr "Valitse lisättävä mittari:"
 
-#: src/dashboard_pi.cpp:2266
+#: src\dashboard_pi.cpp:3731
+msgid "\n"
+"(↑Tactics at the end of the list)"
+msgstr "\n"
+"(↑Taktiikka luettelon lopussa)"
+
+#: src\dashboard_pi.cpp:3846
 msgid "Undock"
 msgstr "Irrota"
 
-#: src/dashboard_pi.cpp:2277
+#: src\dashboard_pi.cpp:3862
 msgid "Preferences..."
 msgstr "Asetukset..."
 
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:439
+#: src\dial.cpp:606 src\wind.cpp:78 src\wind_history.cpp:700
 msgid "NE"
-msgstr "Koillinen"
+msgstr "NE"
 
-#: src/dial.cpp:526 src/gps.cpp:146 src/wind.cpp:66 src/wind_history.cpp:445
+#: src\dial.cpp:606 src\gps.cpp:146 src\wind.cpp:78 src\wind_history.cpp:706
 msgid "E"
-msgstr "Itä"
+msgstr "E"
 
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:451
+#: src\dial.cpp:606 src\wind.cpp:78 src\wind_history.cpp:712
 msgid "SE"
-msgstr "Kaakko"
+msgstr "SE"
 
-#: src/dial.cpp:526 src/gps.cpp:150 src/wind.cpp:66 src/wind_history.cpp:457
+#: src\dial.cpp:606 src\gps.cpp:150 src\wind.cpp:78 src\wind_history.cpp:718
 msgid "S"
-msgstr "Etelä"
+msgstr "S"
 
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:463
+#: src\dial.cpp:606 src\wind.cpp:78 src\wind_history.cpp:724
 msgid "SW"
-msgstr "Lounas"
+msgstr "SW"
 
-#: src/dial.cpp:526 src/gps.cpp:154 src/wind.cpp:66 src/wind_history.cpp:469
+#: src\dial.cpp:606 src\gps.cpp:154 src\wind.cpp:78 src\wind_history.cpp:730
 msgid "W"
-msgstr "Länsi"
+msgstr "W"
 
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:475
+#: src\dial.cpp:606 src\wind.cpp:78 src\wind_history.cpp:736
 msgid "NW"
-msgstr "Luode"
+msgstr "NW"
 
-#: src/instrument.cpp:238
+#: src\instrument.cpp:325
 msgid " true"
 msgstr " tosi"
 
-#: src/instrument.cpp:240
+#: src\instrument.cpp:327
 msgid " mag"
 msgstr " magneettinen"
 
-#: src/wind_history.cpp:56 src/wind_history.cpp:107
+#: src\performance.cpp:523
+msgid "^Tactics Performance Parameters: Select a polar file"
+msgstr "^Taktiikan tehokkuus parametrit: Valitse polar tiedosto"
+
+#: src\performance.cpp:591
+msgid "Format in this file not recognised"
+msgstr "Tämän tiedoston muotoa ei ole tunnistettu"
+
+#: src\performance.cpp:1340 src\wind_history.cpp:154
+msgid "Export rate 1 Second"
+msgstr "Viennin tiheys 1 sekunttia"
+
+#: src\performance.cpp:1341 src\wind_history.cpp:155
+msgid "Export rate 5 Seconds"
+msgstr "Viennin tiheys 5 sekunttia"
+
+#: src\performance.cpp:1720
+msgid "avg."
+msgstr "keskiarvo."
+
+#: src\streamin-sk.cpp:672 src\streamin-sk.cpp:716
+msgid "Signal K Steamer configuration file parsing error, see log file."
+msgstr "Signal K Steamer asetustiedoston jäsennys virhe, katso lokitiedostosta."
+
+#: src\streamout.cpp:773 src\streamout.cpp:917
+msgid "InfluxDB Steamer configuration file parsing error, see log file."
+msgstr "InfluxDB Steamer asetustiedoston jäsennys virhe, katso lokitiedostosta."
+
+#: src\tactics_pi.cpp:454
+msgid "Import existing Tactics plugin settings into Dashboard's integrated Tactics settings? (Cancel=later)"
+msgstr "Tuo olemassa olevat Tactics lisäosan asetukset Dashboeardin sisällytettyihin Tactics asetuksiin? (Cancel=myöhemmin)"
+
+#: src\tactics_pi.cpp:509
+msgid ";"
+msgstr ";"
+
+#: src\tactics_pi.cpp:863
+msgid "You have to turn on OpenGL to use chart overlay "
+msgstr "Sinun täytyy käynnistää OpenGL jotta voit käyttää kartan peitettä "
+
+#: src\tactics_pi.cpp:2926
+msgid "↑Tactics Performance Parameters"
+msgstr "↑Taktiikan tehokkuus parametrit"
+
+#: src\tactics_pi.cpp:2928
+msgid "Laylines"
+msgstr "Asetuslinjat"
+
+#: src\tactics_pi.cpp:2937
+msgid "Layline damping factor [0.025-1]:  "
+msgstr "Asetuslinjan vaimennuskerroin [0.025-1]:  "
+
+#: src\tactics_pi.cpp:2939 src\tactics_pi.cpp:2944
+msgid "The layline damping factor determines how fast the  laylines react on your course changes, i.e. your COG changes.\n"
+" Low values mean high damping."
+msgstr ""
+
+#: src\tactics_pi.cpp:2947
+msgid "Layline width damping factor [0.025-1]:  "
+msgstr ""
+
+#: src\tactics_pi.cpp:2949
+msgid "The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\n"
+"The idea is to display the COG range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+
+#: src\tactics_pi.cpp:2954
+msgid "Width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\n"
+"The idea is to display the range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+
+#: src\tactics_pi.cpp:2957
+msgid "Layline length on Chart [nm]:  "
+msgstr ""
+
+#: src\tactics_pi.cpp:2959 src\tactics_pi.cpp:2965
+msgid "Length of the boat laylines in [nm]"
+msgstr ""
+
+#: src\tactics_pi.cpp:2967
+msgid "Min. Layline Width [°]:"
+msgstr ""
+
+#: src\tactics_pi.cpp:2969 src\tactics_pi.cpp:2972
+msgid "Min. width of boat laylines in degrees."
+msgstr ""
+
+#: src\tactics_pi.cpp:2976
+msgid "Max. Layline Width [°]:"
+msgstr ""
+
+#: src\tactics_pi.cpp:2978 src\tactics_pi.cpp:2981
+msgid "Max. width of boat laylines in degrees."
+msgstr ""
+
+#: src\tactics_pi.cpp:2984
+msgid "Leeway"
+msgstr ""
+
+#: src\tactics_pi.cpp:2993
+msgid "Boat's Leeway factor [0-20]:  "
+msgstr ""
+
+#: src\tactics_pi.cpp:2994 src\tactics_pi.cpp:2997
+msgid "Leeway='Drift' of boat due to heel/wind influence\n"
+"Low values mean high performance of hull\n"
+"Leeway = (LeewayFactor * Heel) / STW²;"
+msgstr ""
+
+#: src\tactics_pi.cpp:3002
+msgid "Use Heel Sensor"
+msgstr "Käytä kallistus anturia"
+
+#: src\tactics_pi.cpp:3005
+msgid "Use the internal heel sensor if available\n"
+"Important for the correct calculation of the surface current."
+msgstr "Käytä sisäistä kallistusanturia, jos käytettävissä\n"
+"tärkeä virheettömän pintavirtauksen laskennassa."
+
+#: src\tactics_pi.cpp:3009
+msgid "fixed/max Leeway [°]:"
+msgstr ""
+
+#: src\tactics_pi.cpp:3012
+msgid "Dual purpose !\n"
+"If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
+" If Radiobutton is set, then it fixes Leeway to this constant value."
+msgstr ""
+
+#: src\tactics_pi.cpp:3020
+msgid "manual Heel input:"
+msgstr "käsin kallistus syöttö:"
+
+#: src\tactics_pi.cpp:3023
+msgid "If no heel sensor is available, you can create a manual 'heel polar' here.\n"
+"Just read/enter the data from a mechanical heel sensor (e.g. on compass).\n"
+"Use True Wind Speed & Angle only !\n"
+"Take care: motoring w/o sails&heel will show wrong current data !!!"
+msgstr "Jos ei kallistusanturi ei ole käytettävissä, voit asettaa manuaalisen kallistuspolarin täällä.\n"
+"Lue/kirjoita tiedot mekaanisesta kallistusanturista (esimerkiksi kompassi).\n"
+"Käytä vain todellisia tuulen nopeuksia & kulmia!\n"
+"Huolehdi: moottoriajo ilman purjeita & kallistusta näyttää väärin nykyiset tiedot !!!"
+
+#: src\tactics_pi.cpp:3037
+msgid "TWS/TWA "
+msgstr "TWS/TWA "
+
+#: src\tactics_pi.cpp:3039
+msgid " 45°"
+msgstr " 45°"
+
+#: src\tactics_pi.cpp:3041
+msgid " 90°"
+msgstr " 90°"
+
+#: src\tactics_pi.cpp:3043
+msgid "135°"
+msgstr "135°"
+
+#: src\tactics_pi.cpp:3046
+msgid "5 kn"
+msgstr "5 kn"
+
+#: src\tactics_pi.cpp:3060
+msgid "10 kn"
+msgstr "10 kn"
+
+#: src\tactics_pi.cpp:3074
+msgid "15 kn"
+msgstr "15 kn"
+
+#: src\tactics_pi.cpp:3089
+msgid "20 kn"
+msgstr "20 kn"
+
+#: src\tactics_pi.cpp:3103
+msgid "25 kn"
+msgstr "25 kn"
+
+#: src\tactics_pi.cpp:3118
+msgid "Current"
+msgstr "Nykyinen"
+
+#: src\tactics_pi.cpp:3127
+msgid "Current damping factor [1-400]:  "
+msgstr "Nykyinen vaimennus tekijä [1-400]:  "
+
+#: src\tactics_pi.cpp:3128 src\tactics_pi.cpp:3133
+msgid "Stabilizes the surface current 'arrow' in the chart overlay, bearing compass and also the numerical instruments\n"
+"Low values mean high damping"
+msgstr "Stabiloi 'pintavirtausnuolen' karttapeitekuvassa, suuntimakompassin ja numeeriset mittaristot\n"
+"Alhaiset arvot tarkoittavat suurta vaimennusta"
+
+#: src\tactics_pi.cpp:3135
+msgid "Display Current on Chart (OpenGL)"
+msgstr "Näyttä virtaus karttalla (OpenGL)"
+
+#: src\tactics_pi.cpp:3138 src\tactics_pi.cpp:3174 src\tactics_pi.cpp:3198
+msgid "The default on program startup"
+msgstr "Oletukset ohjelmaa käynnistettäessä"
+
+#: src\tactics_pi.cpp:3140
+msgid "True Wind"
+msgstr "Tosituuli"
+
+#: src\tactics_pi.cpp:3148
+msgid "Correct STW with Leeway"
+msgstr "Korjaa STW sorrolla"
+
+#: src\tactics_pi.cpp:3151
+msgid "Apply a correction to your log speed throughout the plugin based on the calculated Leeway and Current.\n"
+"Only makes sense with a real heel sensor.\n"
+"Make sure your instruments do not already apply this correction !"
+msgstr ""
+
+#: src\tactics_pi.cpp:3153
+msgid "Correct AWS/AWA with Heel"
+msgstr "Korjaa AWS/AWA kallistuksella"
+
+#: src\tactics_pi.cpp:3156
+msgid "Use with care, this is normally done by the instruments themselves as soon as you have an integrated, original equipment heel sensor"
+msgstr "Käytä harkiten, mittaristo hoitaa nämä itsenäisesti, jos sinulla on integroitu, alkuperäinen laitteiston kallistusanturi"
+
+#: src\tactics_pi.cpp:3160
+msgid "Force True Wind Calculation"
+msgstr "Pakota tosituulilaskenta"
+
+#: src\tactics_pi.cpp:3163
+msgid "Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the whole plugin even if there is True Wind data available via NMEA."
+msgstr "Sisäisesti lasketaan tosi tuuli tiedot (TWA, TWS TWD) ja niitä käytetään pluginin sisäisesti, jos tosi tuulitietoja saadaan NMEAn kautta."
+
+#: src\tactics_pi.cpp:3166
+msgid "Use SOG instead of STW for True Wind Calc."
+msgstr "Käytä SOG STW:n sijaan tosituulen laskennassa."
+
+#: src\tactics_pi.cpp:3169
+msgid "Recommended. As True Wind blows over the earth surface, we should calc. it with Speed Over Ground.\n"
+"Eliminates the influence of currents."
+msgstr "Suositeltavaa. Kun tosi tuuli puhaltaa maan pinnalla, meidän olisi laskettava se nopeutena pohjan suhteen.\n"
+"Eliminoi virtausten vaikutuksen."
+
+#: src\tactics_pi.cpp:3171
+msgid "Show Wind Barb on Chart (OpenGL)"
+msgstr "Näytä tuuli väkäset kartalla (OpenGL)"
+
+#: src\tactics_pi.cpp:3177
+msgid "Polar - NOTE: ↑Tactics instruments need your boat's polars!"
+msgstr "Polar - NOTE: ↑Tactics instrumentit tarvitsevat veneesi polarit!"
+
+#: src\tactics_pi.cpp:3184
+msgid "Polar file:"
+msgstr "Polar tiedosto:"
+
+#: src\tactics_pi.cpp:3190
+msgid "Load"
+msgstr "Lataa"
+
+#: src\tactics_pi.cpp:3195
+msgid "Show Polar on Chart (OpenGL)"
+msgstr "Näytä Polar kartalla (OpenGL)"
+
+#: src\tactics_pi.cpp:3200
+msgid "Export NMEA Performance Data"
+msgstr "Vie NMEA suorituskyky tiedot"
+
+#: src\tactics_pi.cpp:3207
+msgid "NKE format ($PNKEP)"
+msgstr "NKE muodossa ($PNKEP)"
+
+#: src\tactics_pi.cpp:3210
+msgid "Currently only set up for NKE instruments. Exports a predefined set of up to 5 NMEA records which are 'known' by NKE instruments and can be displayed there.\n"
+"Read the manual how to set up the interface connection !"
+msgstr "Tällä hetkellä asetukset vain NKE mittaristoille. Vie ennalta asetetun joukon, jopa 5 NMEA tidostoa, jotka ovat ”tunnettu” NKE mittareissa ja voidaan näyttää niissä. \n"
+"Lue käsikirjasta liityntärajapinnan asetukset!"
+
+#: src\tactics_pi.cpp:3216
+msgid "Target Polar Speed"
+msgstr "Kohde Polar Speed"
+
+#: src\tactics_pi.cpp:3220
+msgid "CoG on other Tack"
+msgstr "CoG toisella halssilla"
+
+#: src\tactics_pi.cpp:3224
+msgid "Target-"
+msgstr "Kohde-"
+
+#: src\tactics_pi.cpp:3224
+msgid " angle + Perf. %"
+msgstr " kulma + Perf. %"
+
+#: src\tactics_pi.cpp:3228
+msgid "Diff. angle to Target-"
+msgstr "Ero kulma kohteeseen-"
+
+#: src\tactics_pi.cpp:3228
+msgid " + corresp.gain"
+msgstr " + vastaohjaus"
+
+#: src\tactics_pi.cpp:3232
+msgid "Current Direction + Speed"
+msgstr "Nykyinen suunta + nopeus"
+
+#: src\tactics_pi.cpp:3238
+msgid "Export Data to File"
+msgstr "Vie tiedot tiedostoon"
+
+#: src\tactics_pi.cpp:3248
+msgid "Prepend Clockticks"
+msgstr ""
+
+#: src\tactics_pi.cpp:3251
+msgid "Adds Clockticks to the data exports of BaroHistory, PolarPerformance and WindHistory"
+msgstr ""
+
+#: src\tactics_pi.cpp:3254
+msgid "Prepend UTC Timestamp"
+msgstr ""
+
+#: src\tactics_pi.cpp:3257
+msgid "Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, PolarPerformance and WindHistory"
+msgstr "Lisää ISO8601 UTC-päiväyksen&ajan PaineHistorian, PolarSuorituskykyvyn ja TuuliHistorian datavientiin"
+
+#: src\tactics_pi.cpp:3259
+msgid "Data Separator :"
+msgstr "Erotin :"
+
+#: src\tactics_pi.cpp:3263
+msgid "Sets the separator for the data exports of BaroHistory, PolarPerformance and WindHistory;"
+msgstr "Asettaa erottimen PaineHistorian, PolarSuorituskykyvyn ja TuuliHistorian datavientiin;"
+
+#: src\tactics_pi.cpp:3266
+msgid "Persistent Chart Perf. Animations"
+msgstr "Olemassa olevat Chart. Perf. animaatiot"
+
+#: src\tactics_pi.cpp:3277
+msgid "This will also disable the AWA/AWS correction."
+msgstr "Tämä myös estää AWA/AWS korjauksen."
+
+#: src\tactics_pi.cpp:3287
+msgid "This option makes only sense with a real heel sensor."
+msgstr "Tämä on vaihtoehto vain aidolla kallistussensorilla."
+
+#: src\tactics_pi.cpp:3293
+msgid "Make sure your instruments do not internally correct AWS / AWA with heel.\n"
+"This may result in wrong wind data."
+msgstr "Varmista, että mittarit eivät sisäisesti korjaa AWS / AWA kallistuksella.\n"
+"Tämä voi johtaa väärään tuuli tietoon."
+
+#: src\tactics_pi.cpp:3301
+msgid "Select a Polar-File"
+msgstr "Valitse Polar tiedosto"
+
+#: src\tactics_pi.cpp:3385
+msgid "↑Show Laylines"
+msgstr "↑Näytä asetuslinjat"
+
+#: src\tactics_pi.cpp:3389
+msgid "↑Show Current"
+msgstr "↑Näytä virrta"
+
+#: src\tactics_pi.cpp:3393
+msgid "↑Show Windbarb"
+msgstr "↑Näytä tuuliväkäset"
+
+#: src\tactics_pi.cpp:3397
+msgid "↑Show Polar"
+msgstr "↑Näytä Polar"
+
+#: src\wind_history.cpp:112
 msgid "--"
 msgstr "--"
 
-#: src/wind_history.cpp:331
-#, c-format
-msgid "--- %s"
-msgstr "--- %s"
+#: src\wind_history.cpp:156
+msgid "Expor trate 10 Seconds"
+msgstr "Viennin tiheys 10 sekunttia"
 
-#: src/wind_history.cpp:436
+#: src\wind_history.cpp:697
 msgid "NNE"
 msgstr "NNE"
 
-#: src/wind_history.cpp:442
+#: src\wind_history.cpp:703
 msgid "ENE"
 msgstr "ENE"
 
-#: src/wind_history.cpp:448
+#: src\wind_history.cpp:709
 msgid "ESE"
 msgstr "ESE"
 
-#: src/wind_history.cpp:454
+#: src\wind_history.cpp:715
 msgid "SSE"
 msgstr "SSE"
 
-#: src/wind_history.cpp:460
+#: src\wind_history.cpp:721
 msgid "SSW"
 msgstr "SSW"
 
-#: src/wind_history.cpp:466
+#: src\wind_history.cpp:727
 msgid "WSW"
 msgstr "WSW"
 
-#: src/wind_history.cpp:472
+#: src\wind_history.cpp:733
 msgid "WNW"
 msgstr "WNW"
 
-#: src/wind_history.cpp:478
+#: src\wind_history.cpp:739
 msgid "NNW"
 msgstr "NNW"
 
-#: src/wind_history.cpp:575
+#: src\wind_history.cpp:844
+msgid "Overall"
+msgstr "Yleistä"
+
+#: src\wind_history.cpp:847
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
 msgstr "Max %.1f %s jälkeen %02d:%02d yhteensä %.1f %s"
