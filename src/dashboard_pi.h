@@ -67,6 +67,7 @@
 #include "iirfilter.h"
 #include "DashboardWindow.h"
 #include "EngineDJG.h"
+#include "TimesTUI.h"
 
 class tactics_pi;
 class DashboardWindow;

@@ -174,7 +174,19 @@ wxString TacticsWindow::getAllNMEA2000JsOrderedList()
 {
     return m_pSkData->getAllNMEA2000JsOrderedList();
 }
+wxString TacticsWindow::getAllDbSchemasJsOrderedList()
+{
+    return m_pSkData->getAllDbSchemasJsOrderedList();
+}
+wxString TacticsWindow::getDbSchemaJs( wxString *path )
+{
+    return m_pSkData->getDbSchemaJs( path );
+}
 void TacticsWindow::collectAllSignalKDeltaPaths()
 {
     m_pSkData->subscribeToAllPaths();
+}
+void TacticsWindow::collectAllDbSchemaPaths()
+{
+    m_pSkData->recordAllDbSchemas();
 }

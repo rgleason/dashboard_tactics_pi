@@ -1,0 +1,42 @@
+{
+  "private": true,
+  "name": "@influxdata/influx",
+  "description": "InfluxDB 2.0 client",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "preinstall": "node ./scripts/require-yarn.js",
+    "clean": "yarn workspaces run clean",
+    "build": "cd packages/core && yarn build && cd ../apis && yarn build",
+    "test": "cd packages/core && yarn test && cd ../apis && yarn test",
+    "coverage": "cd packages/core && yarn coverage",
+    "coverage:send": "cd packages/core && yarn coverage:send",
+    "typedoc": "cd packages/core && yarn typedoc && cd ../apis && yarn typedoc"
+  },
+  "homepage": "https://github.com/influxdata/influxdb-client-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/influxdata/influxdb-client-js"
+  },
+  "keywords": [
+    "influxdb",
+    "influxdata"
+  ],
+  "author": {
+    "name": "InfluxData"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "lerna": "^3.20.2",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
+  },
+  "devDependencies": {
+    "generate-changelog": "^1.8.0"
+  }
+}

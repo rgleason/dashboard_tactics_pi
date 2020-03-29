@@ -366,26 +366,66 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_setAllPathGraceCount--;
                 break;
             }
-            else if ( request.Find(".") != wxNOT_FOUND ) {
-                m_istate = JSI_GETPATH;
-                if ( m_pushHere == NULL )
-                    m_pushHere = std::bind(&InstruJS::PushData,
-                                           this, _1, _2, _3 );
-                if ( !m_pushHereUUID.IsEmpty() )
-                    m_pparent->unsubscribeFrom ( m_pushHereUUID );
-                m_data = wxString::Format( m_format, 0.0 );
-                m_subscribedPath = request;
-                m_pushHereUUID = m_pparent->subscribeTo ( m_subscribedPath, m_pushHere );
-                wxString javascript =
-                    wxString::Format(
-                        L"%s%s%s",
-                        "window.iface.acksubs('",
-                        m_subscribedPath,
-                        "');");
-                RunScript( javascript );
-                m_istate = JSI_SHOWDATA;
-                m_handshake = JSI_HDS_SERVED;
+            else if ( request.CmpNoCase("getalldb") == 0 ) {
+                if ( m_setAllPathGraceCount == -1 ) {
+                    m_pparent->collectAllDbSchemaPaths();
+                    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+                }
+                else if ( m_setAllPathGraceCount == 0 ) {
+                    wxString allDBSchemasPathsJsList = m_pparent->getAllDbSchemasJsOrderedList();
+                    if ( allDBSchemasPathsJsList != wxEmptyString ) {
+                        m_istate = JSI_GETDBOUT;
+                        wxString javascript =
+                            wxString::Format(
+                                L"%s%s%s",
+                                "window.iface.setalldb('",
+                                allDBSchemasPathsJsList,
+                                "');");
+                        RunScript( javascript );
+                        m_handshake = JSI_HDS_SERVED;
+                    }
+                }
+                m_setAllPathGraceCount--;
                 break;
+            }
+            else if ( request.Find(".") != wxNOT_FOUND ) {
+                if ( m_istate != JSI_GETDBOUT ) {
+                    m_istate = JSI_GETPATH;
+                    if ( m_pushHere == NULL )
+                        m_pushHere = std::bind(&InstruJS::PushData,
+                                               this, _1, _2, _3 );
+                    if ( !m_pushHereUUID.IsEmpty() )
+                        m_pparent->unsubscribeFrom ( m_pushHereUUID );
+                    m_data = wxString::Format( m_format, 0.0 );
+                    m_subscribedPath = request;
+                    m_pushHereUUID = m_pparent->subscribeTo ( m_subscribedPath, m_pushHere );
+                    wxString javascript =
+                        wxString::Format(
+                            L"%s%s%s",
+                            "window.iface.acksubs('",
+                            m_subscribedPath,
+                            "');");
+                    RunScript( javascript );
+                    m_istate = JSI_SHOWDATA;
+                    m_handshake = JSI_HDS_SERVED;
+                    break;
+                } // then knows path wants to subscribe to data
+                else {
+                    m_istate = JSI_GETSCHEMA;
+                    m_subscribedPath = request;
+                    wxString schemaJSclass =
+                        m_pparent->getDbSchemaJs( &this->m_subscribedPath );
+                    wxString javascript =
+                        wxString::Format(
+                            L"%s%s%s",
+                            "window.iface.ackschema('",
+                            schemaJSclass,
+                            "');");
+                    RunScript( javascript );
+                    m_istate = JSI_SHOWDATA;
+                    m_handshake = JSI_HDS_SERVED;
+                    break;
+                } // else got all DB'd paths, now wants a DB schema of one of those
             }
             else
                 break;

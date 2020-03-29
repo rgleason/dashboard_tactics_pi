@@ -82,8 +82,10 @@ SET(SRC_DASHT
     src/StreamInSkSingle.h
     src/StreamInSkSingle.cpp
     src/wxJSON/jsonwriter.cpp
-    src/streamout.h
-    src/streamout.cpp
+    src/StreamoutSchema.h
+    src/LineProtocol.h
+    src/StreamoutSingle.h
+    src/StreamoutSingle.cpp
     src/plugin_ids.h
     src/bearingcompass.h
     src/bearingcompass.cpp
@@ -95,6 +97,8 @@ SET(SRC_DASHT
     src/EngineDJG.cpp
     src/InstruJS.h
     src/InstruJS.cpp
+    src/TimesTUI.h
+    src/TimesTUI.cpp
     src/SkData.h
     src/SkData.cpp
 )

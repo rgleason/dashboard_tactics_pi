@@ -2,11 +2,8 @@
     /* /////////////////////////////////////////////////////////////////////////
       Purpose: Database schema and configuration options for InfluxDB.
     ---------------------------------------------------------------------------
-      Edit the copy of the *_template-file, streamout.json, located in the
-      program's data directory for plug-ins, in dashboard_tactics_pi folder.
-      This template get copied at first launch. The name of the file to use
-      can be changed in ini-/conf-file, see Streamout/ConfigFile, allowing
-      multiple configurations (but only one used at a time).
+      Edit the copy of the *_template-file, located in the program's data
+      directory (copied at first launch, name can be changed in ini-/conf-file)
     ///////////////////////////////////////////////////////////////////////// */
 
     /*
@@ -16,10 +13,10 @@
     "influxdb" : {
         "target"    : "localhost:9999", // set to InfluxDB HTTP (no https) API
         "api"       : "v2",             // HTTP: currently only v2 is supported
-        "org"       : "myorg",          // HTTP: Influx DB organization name
-        "bucket"    : "mybucket",       // HTTP: Influx DB bucket to write to
+        "org"       : "myboat",         // HTTP: Influx DB organization name
+        "bucket"    : "nmea",           // HTTP: Influx DB bucket to write to
         "precision" : "ms",             // HTTP: timestamps "local" -> "ms"
-        "token"     : "ToLdk3DNs3PqbKNS2hdZMureuGpk4IR1xSvo__VOYPNmPEnaM9bFc8SRmuZ5BkyKYcNEewiE0eu4lE0OUWRt8w=="
+        "token"     : "piQjV9_89oU70xv8SauIP4CZlFqnUYDrgX5BHdWIS7ahlzAncrFWpJhqAv2ELdrvYMSmFWci9p-pnvSY8gZ4AA=="
     }, // "token" only HTTP: InfluxAPI UI generates, allows writing in "bucket"
 
     // Data streamer configuration
@@ -58,7 +55,8 @@
             "prop3"       : "",
             "field1"      : "latitude",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.position.latitude"
         },
         {
             "sentence"    : "OCPN_DBP_STC_LON",
@@ -71,7 +69,8 @@
             "prop3"       : "",
             "field1"      : "longitude",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.position.longitude"
         },
         {
             "sentence"    : "OCPN_DBP_STC_SOG",
@@ -84,7 +83,8 @@
             "prop3"       : "",
             "field1"      : "speedOverGround",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.speedOverGround"
         },
         {
             "sentence"    : "OCPN_DBP_STC_COG",
@@ -97,7 +97,8 @@
             "prop3"       : "",
             "field1"      : "courseOverGroundTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.courseOverGroundTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_STW",
@@ -110,7 +111,8 @@
             "prop3"       : "",
             "field1"      : "speedThroughWater",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.speedThroughWater"
         },
         {
             "sentence"    : "OCPN_DBP_STC_HDM",
@@ -123,7 +125,8 @@
             "prop3"       : "",
             "field1"      : "headingMagnetic",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.headingMagnetic"
         },
         {
             "sentence"    : "OCPN_DBP_STC_HDT",
@@ -136,7 +139,8 @@
             "prop3"       : "",
             "field1"      : "headingTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.headingTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_HMV",
@@ -149,7 +153,8 @@
             "prop3"       : "",
             "field1"      : "magneticVariation",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.magneticVariation"
         },
         {
             "sentence"    : "OCPN_DBP_STC_BRG",
@@ -162,7 +167,8 @@
             "prop3"       : "",
             "field1"      : "bearingTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.courseRhumbline.nextPoint.bearingTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_AWA",
@@ -175,7 +181,8 @@
             "prop3"       : "",
             "field1"      : "angleApparent",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.angleApparent"
         },
         {
             "sentence"    : "OCPN_DBP_STC_AWS",
@@ -188,7 +195,8 @@
             "prop3"       : "",
             "field1"      : "speedApparent",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.speedApparent"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TWA",
@@ -201,7 +209,8 @@
             "prop3"       : "",
             "field1"      : "angleTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.angleTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TWS",
@@ -215,7 +224,8 @@
             "field1"      : "speedTrueGround",   // SOG based
 //            "field1"      : "speedTrueWater", // STW based
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.speedTrueGround"
         },
         {
             "sentence"    : "OCPN_DBP_STC_DPT",
@@ -230,7 +240,8 @@
 //            "field1"      : "belowKeel",
 //            "field1"      : "belowSurface",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.depth.belowTransducer"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TMP",
@@ -243,7 +254,8 @@
             "prop3"       : "",
             "field1"      : "temperature",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.water.temperature"
         },
         /*
           Select below VMG meaning in your case,
@@ -262,7 +274,8 @@
             "prop3"       : "",
             "field1"      : "velocityMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.courseRhumbline.nextPoint.velocityMadeGood"
         },
         ---- OUT ENDS */
         {
@@ -276,7 +289,8 @@
             "prop3"       : "",
             "field1"      : "velocityMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.velocityMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_RSA",
@@ -289,7 +303,8 @@
             "prop3"       : "",
             "field1"      : "rudderAngle",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "steering.rudderAngle"
         },
         {
             "sentence"   : "OCPN_DBP_STC_SAT",
@@ -302,7 +317,8 @@
             "prop3"       : "",
             "field1"      : "satellites",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.gnss.satellites"
         },
         /*
           OCPN_DBP_STC_GPS (18) not sent to to InfluxDB "instrument"
@@ -318,7 +334,8 @@
             "prop3"       : "",
             "field1"      : "latitude",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "chart.position.cursor.latitude"
         },
         {
             "sentence"    : "OCPN_DBP_STC_PLO",
@@ -331,7 +348,8 @@
             "prop3"       : "",
             "field1"      : "longitude",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "chart.position.cursor.longitude"
         },
         /*
           OCPN_DBP_STC_CLK (21) not sent to to InfluxDB "instrument"
@@ -350,7 +368,8 @@
             "prop3"       : "",
             "field1"      : "temperature",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.outside.temperature"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TWD",
@@ -363,7 +382,8 @@
             "prop3"       : "",
             "field1"      : "directionTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.directionTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TWS2", // MWV and MWD
@@ -373,11 +393,12 @@
             "measurement" : "environment",
             "prop1"       : "wind",
             "prop2"       : "mwv",
-            "prop3"       : "mwd",
-            "field1"      : "angleTrueGround",   // SOG based
-//            "field1"      : "angleTrueWater", // STW based
+            "prop3"       : "",
+            "field1"      : "speedTrueGround",   // SOG based
+//            "field1"      : "speedTrueWater", // STW based
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.wind.mwv.speedTrueGround"
         },
         {
             "sentence"    : "OCPN_DBP_STC_VLW1",
@@ -390,7 +411,8 @@
             "prop3"       : "",
             "field1"      : "logTrip",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.logTrip"
         },
         {
             "sentence"    : "OCPN_DBP_STC_VLW2",
@@ -403,7 +425,8 @@
             "prop3"       : "",
             "field1"      : "log",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.log"
         },
         {
             "sentence"    : "OCPN_DBP_STC_MDA",
@@ -416,7 +439,8 @@
             "prop3"       : "",
             "field1"      : "pressure",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.outside.pressure"
         },
         {
             "sentence"    : "OCPN_DBP_STC_MCOG",
@@ -429,7 +453,8 @@
             "prop3"       : "",
             "field1"      : "courseOverGroundMagnetic",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.courseOverGroundMagnetic"
         },
         {
             "sentence"    : "OCPN_DBP_STC_PITCH",
@@ -442,7 +467,8 @@
             "prop3"       : "",
             "field1"      : "pitch",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.attitude.pitch"
         },
         {
             "sentence"    : "OCPN_DBP_STC_HEEL",
@@ -455,7 +481,8 @@
             "prop3"       : "",
             "field1"      : "roll",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.attitude.roll"
         },
         {
             "sentence"    : "OCPN_DBP_STC_LEEWAY",
@@ -468,7 +495,8 @@
             "prop3"       : "",
             "field1"      : "leeway",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.leeway"
         },
         {
             "sentence"    : "OCPN_DBP_STC_CURRDIR",
@@ -481,7 +509,8 @@
             "prop3"       : "",
             "field1"      : "setTrue",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.current.setTrue"
         },
         {
             "sentence"    : "OCPN_DBP_STC_CURRSPD",
@@ -494,7 +523,8 @@
             "prop3"       : "",
             "field1"      : "drift",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "environment.current.drift"
         },
         {
             "sentence"    : "OCPN_DBP_STC_DTW",
@@ -507,7 +537,8 @@
             "prop3"       : "",
             "field1"      : "distance",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "navigation.courseRhumbline.nextPoint.distance"
         },
         {
             "sentence"    : "OCPN_DBP_STC_TWAMARK",
@@ -520,7 +551,8 @@
             "prop3"       : "",
             "field1"      : "targetAngle",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.targetAngle"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLPERF",
@@ -533,7 +565,8 @@
             "prop3"       : "",
             "field1"      : "polarSpeedRatio",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.polarSpeedRatio"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLSPD",
@@ -546,7 +579,8 @@
             "prop3"       : "",
             "field1"      : "polarSpeed",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.polarSpeed"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLVMG",
@@ -559,7 +593,8 @@
             "prop3"       : "",
             "field1"      : "velocityMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.actual.velocityMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLTVMG",
@@ -572,7 +607,8 @@
             "prop3"       : "",
             "field1"      : "velocityMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.target.velocityMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLTVMGANGLE",
@@ -585,7 +621,8 @@
             "prop3"       : "",
             "field1"      : "targetAngle",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.target.targetAngle"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLCMG",
@@ -598,7 +635,8 @@
             "prop3"       : "",
             "field1"      : "courseMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.actual.courseMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLTCMG",
@@ -611,7 +649,8 @@
             "prop3"       : "",
             "field1"      : "courseMadeGood",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.target.courseMadeGood"
         },
         {
             "sentence"    : "OCPN_DBP_STC_POLTCMGANGLE",
@@ -624,7 +663,8 @@
             "prop3"       : "",
             "field1"      : "courseAngle",
             "field2"      : "",
-            "field3"      : ""
+            "field3"      : "",
+            "skpathe"     : "performance.polar.target.courseAngle"
         },
         {
             "sentence"    : "OCPN_DBP_STC_SKSUBSCRIBE",
@@ -633,11 +673,13 @@
             "interval"    : 1,
             "measurement" : "measurement",
             "prop1"       : "prop1",
-            "prop2"       : "prop2",
-            "prop3"       : "prop3",
+            "prop2"       : "",
+            "prop3"       : "",
             "field1"      : "field1",
             "field2"      : "",
-            "field3"      : ""
-        }
+            "field3"      : "",
+            "skpathe"     : ""
+        },
     ]
+
 }

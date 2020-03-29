@@ -45,7 +45,6 @@ class SkData;
 typedef std::function<void  (double, wxString, long long)> callbackFunction;
 typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
 typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
-//typedef std::unordered_multimap<wxString, callbackFunctionTuple> callback_map;
 typedef std::unordered_multimap<std::string, callbackFunctionTuple> callback_map;
 
 class TacticsWindow : public wxWindow
@@ -73,7 +72,10 @@ public:
         wxString path, double value, wxString unit, long long timestamp );
     wxString getAllNMEA0183JsOrderedList(void);
     wxString getAllNMEA2000JsOrderedList(void);
+    wxString getAllDbSchemasJsOrderedList(void);
+    wxString getDbSchemaJs( wxString* path );
     void collectAllSignalKDeltaPaths(void); 
+    void collectAllDbSchemaPaths(void); 
 protected:
     std::mutex          m_mtxCallBackContainer;
     callback_map       *m_callbacks;

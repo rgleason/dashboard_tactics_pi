@@ -141,8 +141,8 @@ enum eInstruments {
     /* More room between the sails and engines to allow sails to expand... */
     ID_DBP_R_EAAA, ID_DBP_R_EAAB, ID_DBP_R_EAAC, ID_DBP_R_EAAD, ID_DBP_R_EAAE, ID_DBP_R_EAAF,
     ID_DBP_R_EABA, ID_DBP_R_EABB, ID_DBP_R_EABC, ID_DBP_R_EABD, ID_DBP_R_EABE, ID_DBP_R_EABF,
-    /* Let's reserve this part for engine, propulsion, energy (likely from SignalK streamer) */
-    ID_DBP_D_ENGDJG,
+    /* JavaScript/WebView based instruments, energy, engine, database and other utilities */
+    ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,
     /* the section end marker, do not remove */
     ID_DPB_PERF_LAST,
 #endif // _TACTICSPI_H_
@@ -333,6 +333,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191Signal K In");
     case ID_DBP_D_ENGDJG: 
 		return _(L"\u2b24 DashT E-Dial");
+    case ID_DBP_D_TSETUI: 
+		return _(L"\u2b24 DashT Line Chart");
 #endif // _TACTICSPI_H_
     }
     return _T("");
@@ -416,6 +418,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_D_AVGWIND:
 	case ID_DBP_D_POLCOMP:
     case ID_DBP_D_ENGDJG:
+    case ID_DBP_D_TSETUI:
 #endif // _TACTICSPI_H_
         item.SetImage( 1 );
         break;
@@ -4674,7 +4677,8 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                 m_plugin->m_mtxNofStreamOut,
                 m_plugin->m_nofStreamOut,
                 m_plugin->m_echoStreamerShow,
-                m_plugin->GetStandardPath() );
+                m_plugin->GetStandardPath(),
+                this->m_pSkData );
             break;
         case ID_DBP_V_INSK:
             instrument = new TacticsInstrument_StreamInSkSingle(
@@ -4700,6 +4704,12 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             if ( ids.IsEmpty() )
                 ids = GetUUID();
             instrument = new DashboardInstrument_EngineDJG( // Dial instrument
+                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+            break;
+        case ID_DBP_D_TSETUI:
+            if ( ids.IsEmpty() )
+                ids = GetUUID();
+            instrument = new DashboardInstrument_TimesTUI( // Time-series DB graph
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
 #endif // _TACTICSPI_H_

@@ -14324,7 +14324,7 @@ deathTimeout: 5</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p><strong>NOTE</strong> An older browser with developers tools is often enough to resolve startup problems related to typos in variable names and such (you do not need Weinre for that). Blow the dust out from your obsolete Internet Explorer and hit key <strong>F12</strong>!</p>
+<blockquote><p><strong>NOTE</strong> An older browser with developers tools is often enough to resolve startup problems related to typos in variable names and such (you do not need Weinre for that). Blow the dust out from your obsolete Internet Explorer and hit key <strong>F12</strong>! See <a href="https://vimeo.com/396195423">this how-to video</a>.</p>
 </blockquote>
 
 </div>
@@ -14475,7 +14475,7 @@ engine in units of 1 percent.
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>2: Engine speed: AC/0C = 0xCAC = 3244 =&gt; $3244 \div 4 = 811 r.p.m.$ (NMEA Simulator shows 811 OK)</p>
+<p>2: Engine speed: AC/0C = 0xCAC = 3244 . . . $3244 \div 4 = 811 r.p.m.$ (NMEA Simulator shows 811 OK)</p>
 
 </div>
 </div>
@@ -14483,7 +14483,7 @@ engine in units of 1 percent.
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>3: Engine Boost Pressure: D6/02 = 0x2D6 = 726 =&gt; $726*100Pa=72.6kPa$ (NMEA simulator was showing 72.6kPa at this moment OK!)</p>
+<p>3: Engine Boost Pressure: D6/02 = 0x2D6 = 726 . . . $726*100Pa=72.6kPa$ (NMEA simulator was showing 72.6kPa at this moment OK!)</p>
 
 </div>
 </div>
@@ -14491,7 +14491,7 @@ engine in units of 1 percent.
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>4: Engine Tilt/trim: 02 =&gt; $2\%$ (NMEA simulator was showing $+2\%$ OK)</p>
+<p>4: Engine Tilt/trim: 02 . . . $2\%$ (NMEA simulator was showing $+2\%$ OK)</p>
 
 </div>
 </div>
@@ -14515,7 +14515,7 @@ engine in units of 1 percent.
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>e8 =&gt; 100 - E8 = ‭0x18 = 24</p>
+<p>e8 . . . 100 - e8 = 0x18 = 24</p>
 
 </div>
 </div>
@@ -14548,7 +14548,7 @@ Field 1: Engine Instance – This field indicates the particular engine for whic
 
 <pre><code>2: Engine Oil Pressure – This field indicates the oil pressure of the engine in units of
 100 Pa.</code></pre>
-<p>4C/0A = 0xA4C = 2636 =&gt; $2636 * 100Pa = 263.6kPa$ (NMEA simulator was showing $263.2kPa$ ? $\equiv$ A48 =&gt; 48/0A ? also Instrujs shows 264 kPa - looks like a rounding error!)</p>
+<p>4C/0A = 0xA4C = 2636 . . . $2636 * 100Pa = 263.6kPa$ (NMEA simulator was showing $263.2kPa$ ? $\equiv$ A48 . . . 48/0A ? also Instrujs shows 264 kPa - looks like a rounding error!)</p>
 
 </div>
 </div>
@@ -14559,7 +14559,7 @@ Field 1: Engine Instance – This field indicates the particular engine for whic
 
 <pre><code>3: Engine Oil Temperature – This field indicates the oil temperature of the engine in
 units of 0.1°K.</code></pre>
-<p>66/0E = 0xE66 = 3686 =&gt; $368.6^{\circ}K \approx 95.6^{\circ}C$ (NMEA simulator was showing $95.6^{\circ}C$ = OK!)</p>
+<p>66/0E = 0xE66 = 3686 . . . $368.6^{\circ}K \approx 95.6^{\circ}C$ (NMEA simulator was showing $95.6^{\circ}C$ = OK!)</p>
 
 </div>
 </div>
@@ -14572,7 +14572,7 @@ units of 0.1°K.</code></pre>
 
 <pre><code>4: Engine Temperature – This field indicates the temperature of the engine coolant in
 units of 0.1°K.</code></pre>
-<p>5D/75 = 0x755D = 30045 =&gt; $300.45^{\circ}K \equiv 27.3^{\circ}C$ (NMEA simulator was showing $27.3^{\circ}C$ OK, so does the <em>instrujs</em>)</p>
+<p>5D/75 = 0x755D = 30045 . . . $300.45^{\circ}K \equiv 27.3^{\circ}C$ (NMEA simulator was showing $27.3^{\circ}C$ OK, so does the <em>instrujs</em>)</p>
 <p>Therefore : the units are <code>0.01°K</code> and <strong>not</strong> <code>0.1°K</code></p>
 
 </div>
@@ -14585,7 +14585,7 @@ units of 0.1°K.</code></pre>
 83,01,e1,d9,a7,00,01,00,1f,00,ff,00,00,00,00,43,3d</code></p>
 
 <pre><code>5: Alternator Potential – This field indicates the alternator voltage in units of 0.01V.</code></pre>
-<p>32/05 = 0x532 = 1330 =&gt; %13.3V% (NMEA simulator was showing the same OK).</p>
+<p>32/05 = 0x532 = 1330 . . . %13.3V% (NMEA simulator was showing the same OK).</p>
 
 </div>
 </div>
@@ -14596,7 +14596,7 @@ units of 0.1°K.</code></pre>
 
 <pre><code>6: Fuel Rate – This field indicates the fuel consumption rate of the engine in units of
 0.0001 cubic meters / hour.</code></pre>
-<p>83/01 = 0x183 = 387 =&gt; $387m^{3}/h * 0.0001 \equiv 38.7l/h$ which is the value NMEA simulator is showing OK</p>
+<p>83/01 = 0x183 = 387 . . . $387m^{3}/h * 0.0001 \equiv 38.7l/h$ which is the value NMEA simulator is showing OK</p>
 
 </div>
 </div>
@@ -14609,7 +14609,9 @@ units of 0.1°K.</code></pre>
 units of 1 second.</code></pre>
 <p>We need to take another example than the rest what is discussed above and below, since the hour counter is running all the time!</p>
 <p>1581024474143;A;2020-02-06T21:27:54.141Z,2,127489,18,255,26,00,4c,0a,66,0e,5d,75,32,05,83,01,<strong>59,3a,b0,00</strong>,01,00,1f,00,ff,00,00,00,00,43,3d</p>
-<p>59/3a/b0/00 = 0x00b03a59 = ‭11000289‬ =&gt; $‭‭11549273‬‬s \equiv ‭192487.88‬m \equiv ‭3208.13h$ (NMEA Simulator is showing 3212.8 hours right now, so the data is simply a bit old from the log file)</p>
+<p>59 / 3a / b0 / 00 = 0x 00 b0 3a 59 = 11000289</p>
+<p>$11549273s \equiv 192487.88m \equiv 3208.13h$</p>
+<p>(NMEA simulator is showing 3213.8 hours right now, so the data is simply a bit old, from the log file)</p>
 
 </div>
 </div>
@@ -14622,7 +14624,7 @@ units of 1 second.</code></pre>
 
 <pre><code>8: Engine Coolant Pressure – This field indicates the pressure of the engine coolant
 in units of 100 Pa.</code></pre>
-<p>01/00 = 0001 =&gt; 100Pa = 0.1kPa (NMEA simulator is showing exactly this value OK)</p>
+<p>01/00 = 0001 . . . 100Pa = 0.1kPa (NMEA simulator is showing exactly this value OK)</p>
 
 </div>
 </div>
@@ -14633,7 +14635,7 @@ in units of 100 Pa.</code></pre>
 
 <pre><code>9: Fuel Pressure – This field indicates the pressure of the engine fuel in units of 1000
 Pa.</code></pre>
-<p>1F/00 = 0x001F = 31 =&gt; $31*1000Pa\equiv31kPa$ (NMEA Simulator was showing 30.7kPa OK)</p>
+<p>1F/00 = 0x001F = 31 . . . $31*1000Pa\equiv31kPa$ (NMEA Simulator was showing 30.7kPa OK)</p>
 
 </div>
 </div>
@@ -14646,7 +14648,7 @@ Pa.</code></pre>
 
 <pre><code>13: Percent Engine Load – This field indicates the percent load of the engine in units
 of 1 percent.</code></pre>
-<p>43 = 67 =&gt; $67\%$ (NMEA Simulator was showing 67% OK)</p>
+<p>43 = 67 . . . $67\%$ (NMEA Simulator was showing 67% OK)</p>
 
 </div>
 </div>
@@ -14657,7 +14659,7 @@ of 1 percent.</code></pre>
 
 <pre><code>14: Percent Engine Torque – This field indicates the percent torque of the engine in
 units of 1 percent.</code></pre>
-<p>3D = 61 =&gt; $67\%$ (NMEA Simulator was showing 61% OK)</p>
+<p>3D = 61 . . . $67\%$ (NMEA Simulator was showing 61% OK)</p>
 
 </div>
 </div>

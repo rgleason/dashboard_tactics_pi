@@ -1,0 +1,36 @@
+digraph "fsm" {
+  "window";
+  "loading";
+  "initga";
+  "getid";
+  "hasid";
+  "getall";
+  "getpath";
+  "showmenu";
+  "waitdata";
+  "showdata";
+  "halt";
+  "window" -> "loading" [ label=" init " ];
+  "loading" -> "initga" [ label=" loaded " ];
+  "initga" -> "getid" [ label=" initok " ];
+  "getid" -> "hasid" [ label=" setid " ];
+  "hasid" -> "getall" [ label=" nocfg " ];
+  "hasid" -> "getpath" [ label=" hascfg " ];
+  "getall" -> "showmenu" [ label=" setall " ];
+  "showmenu" -> "getall" [ label=" rescan " ];
+  "showmenu" -> "getpath" [ label=" selected " ];
+  "getpath" -> "waitdata" [ label=" acksubs " ];
+  "waitdata" -> "showdata" [ label=" newdata " ];
+  "showdata" -> "showdata" [ label=" newdata " ];
+  "waitdata" -> "getall" [ label=" chgconf " ];
+  "showdata" -> "getall" [ label=" chgconf " ];
+  "getid" -> "getid" [ label=" luminsty " ];
+  "hasid" -> "hasid" [ label=" luminsty " ];
+  "getpath" -> "getpath" [ label=" luminsty " ];
+  "waitdata" -> "waitdata" [ label=" luminsty " ];
+  "getall" -> "getall" [ label=" luminsty " ];
+  "showmenu" -> "showmenu" [ label=" luminsty " ];
+  "showdata" -> "showdata" [ label=" luminsty " ];
+  "showdata" -> "showdata" [ label=" swapdisp " ];
+  "showdata" -> "halt" [ label=" closing " ];
+}

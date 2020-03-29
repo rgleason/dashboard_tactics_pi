@@ -44,7 +44,6 @@ using namespace std;
 #include "EngineDJG.h"
 #include "plugin_ids.h"
 
-// --- the following is probably needed only for demonstration and testing! ---
 extern int GetRandomNumber(int, int);
 
 
@@ -53,7 +52,7 @@ wxBEGIN_EVENT_TABLE (DashboardInstrument_EngineDJG, InstruJS)
    EVT_CLOSE (DashboardInstrument_EngineDJG::OnClose)
 wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
-// Numerical instrument for engine monitoring data
+// Numerical+Dial instrument for engine monitoring data
 //************************************************************************************************************************
 
 DashboardInstrument_EngineDJG::DashboardInstrument_EngineDJG(
