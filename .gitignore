@@ -3,6 +3,7 @@
 .#*
 cscope.files
 tags
+build
 index.sh
 cscope.out
 CMakeFiles
@@ -12,9 +13,7 @@ po/*.rule
 *.log
 *.aux
 *.out
-*.synctex
-*.synctex.gz
-build/
+*.synctex*
 node_modules
 *.swp
 npm-debug.log
