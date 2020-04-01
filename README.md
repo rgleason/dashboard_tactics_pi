@@ -52,7 +52,7 @@ With the arrival of the next OpenCPN version we will see it embracing the open m
 
 ## Installation
 
-See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages: pre-build packages for platforms Windows, Mac, Linux Ubununtu/Debian, Raspberry Pi 4.
+See the [Releases](https://github.com/canne/dashboard_tactics_pi/releases) pages: pre-build packages for platforms Windows, Mac, Linux Ubuntu/Debian, Raspberry Pi 4.
 
 ## Configuration
 

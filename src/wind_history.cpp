@@ -293,7 +293,7 @@ void DashboardInstrument_WindDirHistory::SetData(
             m_TrueWindSpd = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
 #endif // _TACTICSPI_H_
             // if unit changes, reset everything ...
-            if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _("--")) {
+            if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _T("--")) {
 #ifdef _TACTICSPI_H_
                 if ( !m_bWindSpeedUnitResetLogged ) {
                     wxLogMessage(
@@ -549,11 +549,7 @@ void  DashboardInstrument_WindDirHistory::DrawWindSpeedScale(wxGCDC* dc)
   //round maxWindSpd up to the next full knot; nicer view ...
   m_MaxWindSpdScale=(int)m_MaxWindSpd + 1;
   if(!m_IsRunning) {
-#ifdef _TACTICSPI_H_
  	label1.Printf(_T("--- %s"), m_WindSpeedUnit.c_str());
-#else
- 	label1.Printf(_("--- %s"), m_WindSpeedUnit.c_str());
-#endif // _TACTICSPI_H_
 	label2 = label1;
 	label3 = label1;
 	label4 = label1;
@@ -937,8 +933,8 @@ void DashboardInstrument_WindDirHistory::OnLogDataButtonPressed(wxCommandEvent& 
     bool exists = m_ostreamlogfile->Exists(m_logfile);
     m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
     if (!exists) {
-        wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _("");
-        wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _("");
+        wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _T("");
+        wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _T("");
 
         wxString str = wxString::Format(_T("%s%s%s%s%s%s%s%s%s%s%s%s%s\n"), str_ticks, str_utc, "Date", g_sDataExportSeparator, "local Time", g_sDataExportSeparator, "TWD", g_sDataExportSeparator, "TWS", g_sDataExportSeparator, "smoothed TWD", g_sDataExportSeparator, "smoothed TWS");
         m_ostreamlogfile->Write(str);

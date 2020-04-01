@@ -2,28 +2,44 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-19 18:57+0100\n"
-"PO-Revision-Date: 2019-03-18 02:51\n"
-"Last-Translator: nohal <pavel@kalian.cz>\n"
+"POT-Creation-Date: 2020-04-01 19:52+0200\n"
+"PO-Revision-Date: 2020-03-09 15:26\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Greek\n"
 "Language: el_GR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: el\n"
-"X-Crowdin-File: /plugins/dashboard_pi/po/dashboard_pi.pot\n"
+"X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
 #
 msgid ""
 "\n"
 "(↑Tactics at the end of the list)"
 msgstr ""
+"\n"
+"(↑Τακτική στο τέλος της λίστας)"
 #
-#, fuzzy
+msgid " + corresp.gain"
+msgstr " + corresp.gain"
+#
+msgid " 45°"
+msgstr " 45°"
+#
+msgid " 90°"
+msgstr " 90°"
+#
+#, c-format
+msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
+msgstr " Max %.1f από %02d:%02d  Συνολικά Max %.1f Min %.1f "
+#
 msgid " Preferences"
-msgstr "Προτιμήσεις..."
+msgstr " Προτιμήσεις"
+#
+msgid " angle + Perf. %"
+msgstr " γωνία + απόδοση %"
 #
 msgid " mag"
 msgstr " μαγν."
@@ -35,25 +51,58 @@ msgid ""
 "'>' starts data export and creates a new or appends to an existing file,\n"
 "'X' stops data export"
 msgstr ""
+"Το '>' αρχίζει την εξαγωγή των δεδομένων και δημιουργεί ένα νέο αρχείο ή "
+"προσθέτει σε ένα υπάρχον· το 'X' σταματά την εξαγωγή"
 #
 msgid "--"
-msgstr "--"
-#
-#, c-format
-msgid "--- %s"
-msgstr "--- %s"
+msgstr "-"
 #
 msgid "-Angle"
-msgstr ""
+msgstr "-Γωνία"
+#
+msgid "10 kn"
+msgstr "10 κ."
+#
+msgid "135°"
+msgstr "135°"
+#
+msgid "15 kn"
+msgstr "15 κ."
+#
+msgid "20 kn"
+msgstr "20 κ."
+#
+msgid "25 kn"
+msgstr "25 κ."
+#
+msgid "5 kn"
+msgstr "5 κ."
+#
+msgid ";"
+msgstr "·"
 #
 msgid ">"
-msgstr ""
+msgstr ">"
 #
 msgid "Add"
 msgstr "Προσθήκη"
 #
 msgid "Add instrument"
 msgstr "Προσθήκη οργάνου"
+#
+msgid ""
+"Adds Clockticks to the data exports of BaroHistory, PolarPerformance and "
+"WindHistory"
+msgstr ""
+"Προσθέτει Clockticks στην εξαγωγή δεδομένων του Βαρομ. ιστορικού, της "
+"Απόδοσης ταχύτητας και του Ιστορικού ανέμου"
+#
+msgid ""
+"Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, "
+"PolarPerformance and WindHistory"
+msgstr ""
+"Προσθέτει Ώρα & Ημερομ. ISO8601 στην εξαγωγή δεδομένων του Βαρομ. ιστορικού, "
+"της Απόδοσης ταχύτητας και του Ιστορικού ανέμου"
 #
 msgid "Air Temp."
 msgstr "Θερμ/σία αέρος"
@@ -65,7 +114,7 @@ msgid "App. Wind Angle"
 msgstr "Γωνία φαιν. ανέμου"
 #
 msgid "App. Wind Angle & Speed"
-msgstr "Γωνία/ταχύτητα φαιν. ανέμου"
+msgstr "Γωνία & ταχύτητα φαιν. ανέμου"
 #
 msgid "App. Wind Speed"
 msgstr "Ταχύτητα φαιν. ανέμου"
@@ -73,8 +122,19 @@ msgstr "Ταχύτητα φαιν. ανέμου"
 msgid "Appearance"
 msgstr "Εμφάνιση"
 #
+msgid ""
+"Apply a correction to your log speed throughout the plugin based on the "
+"calculated Leeway and Current.\n"
+"Only makes sense with a real heel sensor.\n"
+"Make sure your instruments do not already apply this correction !"
+msgstr ""
+"Εφαρμογή διόρθωσης στην ταχύτητα βάσει της υπολογιζόμενης έκπτωσης και του "
+"ρεύματος. \n"
+"Έχει νόημα μόνο με ένα πραγματικό κλισιόμετρο. \n"
+"Βεβαιωθείτε ότι τα όργανα δεν κάνουν ήδη αυτή η διόρθωση!"
+#
 msgid "Barometric history"
-msgstr "Ιστορικό πιέσεων"
+msgstr "Βαρομετρικό ιστορικό"
 #
 msgid "Barometric pressure"
 msgstr "Βαρομετρική πίεση"
@@ -82,8 +142,11 @@ msgstr "Βαρομετρική πίεση"
 msgid "Boat speed units:"
 msgstr "Μονάδες ταχύτητας πλοίου:"
 #
+msgid "Boat's Leeway factor [0-20]:  "
+msgstr "Συντελεστής έκπτωσης σκάφους [0-20]:  "
+#
 msgid "COG"
-msgstr "COG (αληθής πορεία)"
+msgstr "COG"
 #
 msgid "COG Damping Factor:"
 msgstr "Συντελεστής απόσβεσης COG:"
@@ -92,20 +155,49 @@ msgid "Caption:"
 msgstr "Λεζάντα:"
 #
 msgid "Celsius"
-msgstr ""
+msgstr "Κελσίου"
 #
 msgid "Centimeters"
 msgstr "﻿Εκατοστά"
 #
 msgid "Choose a new or existing file"
-msgstr ""
+msgstr "Επιλογή νέου ή υπάρχοντος αρχείου"
 #
 #, c-format
 msgid "ClockTicks%s"
+msgstr "ClockTicks%s"
+#
+msgid "CoG on other Tack"
+msgstr "CoG στο άλλο τακ"
+#
+msgid "Correct AWS/AWA with Heel"
+msgstr "Διόρθωση AWS/AWA με την κλίση"
+#
+msgid "Correct STW with Leeway"
+msgstr "Διόρθωση του STW με την έκπτωση"
+#
+msgid "Current"
+msgstr "Ρεύμα"
+#
+msgid "Current Direction + Speed"
+msgstr "Κατεύθυνση + ταχύτητα ρεύματος"
+#
+msgid "Current damping factor [1-400]:  "
+msgstr "Συντελεστή απόσβεσης ρεύματος [1-400]:  "
+#
+msgid ""
+"Currently only set up for NKE instruments. Exports a predefined set of up to "
+"5 NMEA records which are 'known' by NKE instruments and can be displayed "
+"there.\n"
+"Read the manual how to set up the interface connection !"
 msgstr ""
+"Προς το παρόν μόνο για όργανα NKE. Εξάγει ένα προκαθορισμένο σύνολο με μέχρι "
+"5 εγγραφές NMEA που είναι «αναγνωρίσιμες» από NKE όργανα και μπορούν να "
+"εμφανιστούν εκεί. \n"
+"Διαβάστε το εγχειρίδιο χρήσης του για τις διασυνδέσεις του !"
 #
 msgid "Cursor"
-msgstr "Κέρσορας"
+msgstr "Δρομέας"
 #
 msgid "Dashboard"
 msgstr "Πίνακας Οργάνων"
@@ -114,31 +206,32 @@ msgid ""
 "Dashboard PlugIn for OpenCPN\n"
 "Provides navigation instrument display from NMEA source."
 msgstr ""
-"Πρόσθετο «Πίνακας Οργάνων»\n"
-"Παρουσιάζει τα ναυτικά όργανα στην οθόνη από πηγή NMEA."
+"Πρόσθετο πίνακα οργάνων και τακτικής για το OpenCPN\n"
+"Παρέχει όργανα ναυσιπλοΐας από πηγές NMEA."
 #
-#, fuzzy
 msgid ""
 "Dashboard PlugIn with Tactics for OpenCPN\n"
 "Provides navigation instruments enhanced with performance functions and "
 "alternative input/output functions."
 msgstr ""
-"Πρόσθετο «Πίνακας Οργάνων»\n"
-"Παρουσιάζει τα ναυτικά όργανα στην οθόνη από πηγή NMEA."
+"Πρόσθετο Πίνακα οργάνων και τακτικής για το OpenCPN\n"
+"Παρέχει όργανα ναυσιπλοΐας με επιπλέον λειτουργίες απόδοσης και εναλλακτικές "
+"λειτουργίες εισόδου/εξόδου."
 #
-#, fuzzy
 msgid "Dashboard and Tactics"
-msgstr "Επιλογές για πίνακα οργάνων"
+msgstr "Πίνακας οργάνων και τακτική"
 #
 msgid "Dashboard preferences"
 msgstr "Επιλογές για πίνακα οργάνων"
 #
-#, fuzzy
 msgid "Dashboard_Tactics"
-msgstr "Πίνακας Οργάνων"
+msgstr "Τακτική_Όργανα"
+#
+msgid "Data Separator :"
+msgstr "Διαχωριστής δεδομένων:"
 #
 msgid "Data:"
-msgstr "Δεδομένα: "
+msgstr "Δεδομένα:"
 #
 msgid "Delete"
 msgstr "Διαγραφή"
@@ -151,13 +244,29 @@ msgid "Depth Offset (%s):"
 msgstr "Αντιστάθμιση βάθους (%s):"
 #
 msgid "Depth units:"
-msgstr " Βαθυμετρικές μονάδες: "
+msgstr "Βαθυμετρικές μονάδες:"
+#
+msgid "Diff. angle to Target-"
+msgstr "Διαφ. γωνία προς στόχο-"
+#
+msgid "Display Current on Chart (OpenGL)"
+msgstr "Δείξε το ρεύμα στο χάρτη (OpenGL)"
 #
 msgid "Distance units:"
 msgstr "Μονάδες απόστασης:"
 #
 msgid "Down"
 msgstr "Κάτω"
+#
+msgid ""
+"Dual purpose !\n"
+"If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
+" If Radiobutton is set, then it fixes Leeway to this constant value."
+msgstr ""
+"Διπλός σκοπός !\n"
+"Αν δεν έχει επιλεγεί το Radiobutton, τότε χρησιμοποιείται για να περιορίσει "
+"την έκπτωση μέχρι μια μέγιστη τιμή.\n"
+" Αν το Radiobutton έχει επιλεγεί, τότε ορίζει την τιμή της έκπτωσης."
 #
 msgid "E"
 msgstr "Α"
@@ -168,32 +277,44 @@ msgstr "ΑΒΑ"
 msgid "ESE"
 msgstr "ΑΝΑ"
 #
-msgid "Expor trate 10 Seconds"
-msgstr ""
+msgid "Export Data to File"
+msgstr "Εξαγωγή δεδομένων σε αρχείο"
+#
+msgid "Export NMEA Performance Data"
+msgstr "Εξαγωγή δεδομένων επιδόσεων NMEA"
 #
 msgid "Export rate 1 Second"
-msgstr ""
+msgstr "Ρυθμός εξαγωγής 1 s"
+#
+msgid "Export rate 10 Seconds"
+msgstr "Ρυθμός εξαγωγής 10 s"
 #
 msgid "Export rate 20 Seconds"
-msgstr ""
+msgstr "Ρυθμός εξαγωγής 20 s"
 #
 msgid "Export rate 5 Seconds"
-msgstr ""
+msgstr "Ρυθμός εξαγωγής 5 s"
 #
 msgid "Export rate 60 Seconds"
-msgstr ""
+msgstr "Ρυθμός εξαγωγής 60 s"
 #
 msgid "Fahrenheit"
-msgstr ""
+msgstr "Φαρενάιτ"
 #
 msgid "Fathoms"
-msgstr "Οργιές"
+msgstr "οργιές"
 #
 msgid "Feet"
 msgstr "Πόδια"
 #
 msgid "Fonts"
 msgstr "Γραμματοσειρές"
+#
+msgid "Force True Wind Calculation"
+msgstr "Υπολογισμός αληθούς ανέμου"
+#
+msgid "Format in this file not recognised"
+msgstr "Άγνωστο φορμά αρχείου"
 #
 msgid "From Ownship"
 msgstr "Από ίδιον πλοίο"
@@ -211,7 +332,7 @@ msgid "GPS in View"
 msgstr "Εμφάνιση GPS"
 #
 msgid "Heel"
-msgstr "Γέρσιμο"
+msgstr "Κλίση"
 #
 msgid "Honor OpenCPN settings"
 msgstr "Προεπιλεγμένες ρυθμίσεις"
@@ -219,20 +340,82 @@ msgstr "Προεπιλεγμένες ρυθμίσεις"
 msgid "Horizontal"
 msgstr "Οριζόντια"
 #
+msgid ""
+"If no heel sensor is available, you can create a manual 'heel polar' here.\n"
+"Just read/enter the data from a mechanical heel sensor (e.g. on compass).\n"
+"Use True Wind Speed & Angle only !\n"
+"Take care: motoring w/o sails&heel will show wrong current data !!!"
+msgstr ""
+"Εάν δεν υπάρχει κλισιόμετρο, μπορείτε να δημιουργήσετε ένα πολικό διάγραμμα "
+"κλίσης εδώ. \n"
+"Εισάγετε τις μετρήσεις ενός μηχανικού κλισιόμετρου (π.χ. στην πυξίδα). \n"
+"Χρησιμοποιήστε μόνο αληθή ταχύτητα ανέμου & γωνία! \n"
+"Προσέξτε: με τη μηχανή και χωρίς πανιά και κλίση θα δείξει λάθος ρεύμα!!!"
+#
+msgid ""
+"Import existing Tactics plugin settings into Dashboard's integrated Tactics "
+"settings? (Cancel=later)"
+msgstr ""
+"Εισαγωγή επιλογών του προσθέτου Τακτικής στις ολοκληρωμένες προτιμήσεις του "
+"Dashboard; (Cancel=αργότερα)"
+#
 msgid "Inches"
-msgstr "ίντσες"
+msgstr "Ίντσες"
+#
+msgid "InfluxDB Steamer configuration file parsing error, see log file."
+msgstr "Σφάλμα στο αρχείο επιλογών του InfluxDB Steamer, δες το log."
 #
 msgid "Instruments"
 msgstr "Όργανα"
+#
+msgid ""
+"Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the "
+"whole plugin even if there is True Wind data available via NMEA."
+msgstr ""
+"Υπολογίζει τα δεδομένα αληθούς ανέμου (TWS, TWA, TWD) και τα χρησιμοποιεί "
+"ακόμα και αν διατίθενται δεδομένα αληθούς ανέμου μέσω NMEA."
 #
 msgid "Kilometers"
 msgstr "Χιλιόμετρα"
 #
 msgid "Kts"
-msgstr "κόμβοι"
+msgstr "Κόμβοι"
+#
+msgid "L"
+msgstr "L"
 #
 msgid "Label:"
 msgstr "Ετικέτα:"
+#
+msgid "Layline damping factor [0.025-1]:  "
+msgstr "Συντελεστής απόσβεσης layline [0.025-1]:  "
+#
+msgid "Layline length on Chart [nm]:  "
+msgstr "Μήκος της layline [νμ] στον χάρτη:  "
+#
+msgid "Layline width damping factor [0.025-1]:  "
+msgstr "Συντελεστής απόσβεσης εύρους layline [0.025-1]:  "
+#
+msgid "Laylines"
+msgstr "Laylines"
+#
+msgid "Leeway"
+msgstr "Έκπτωση"
+#
+msgid ""
+"Leeway='Drift' of boat due to heel/wind influence\n"
+"Low values mean high performance of hull\n"
+"Leeway = (LeewayFactor * Heel) / STW²;"
+msgstr ""
+"Έκπτωση=Παράσυρση του πλοίου υπό την επίδραση της κλίσης/ανέμου\n"
+"Χαμηλές τιμές σημαίνουν υψηλές επιδόσεις της γάστρας\n"
+"Έκπτωση = (ΣυντΈκπτωσης * Κλίση)/STW²˙."
+#
+msgid "Length of the boat laylines in [nm]"
+msgstr "Μήκος των laylines του σκάφους σε [νμ]"
+#
+msgid "Load"
+msgstr "Φόρτωση"
 #
 msgid "Local CPU Clock"
 msgstr "Τοπική ώρα CPU"
@@ -250,26 +433,51 @@ msgid "Mag COG"
 msgstr "Μαγν. COG"
 #
 msgid "Mag HDG"
-msgstr "Μαγνητική κατ. πορείας"
+msgstr "Μαγν. HDG"
+#
+msgid ""
+"Make sure your instruments do not internally correct AWS / AWA with heel.\n"
+"This may result in wrong wind data."
+msgstr ""
+"Βεβαιωθείτε ότι τα όργανά σας δεν διορθώνουν εσωτερικά τις AWS/AWA με την "
+"κλίση. Αυτό μπορεί να οδηγήσει σε λάθος δεδομένα ανέμου."
 #
 msgid "Max"
-msgstr ""
+msgstr "Μέγιστο"
 #
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
 msgstr "Max %.1f %s από %02d:%02d Συνολικά %.1f %s"
 #
+msgid "Max. Layline Width [°]:"
+msgstr "Μεγ. πλάτος Layline [°]:"
+#
+msgid "Max. width of boat laylines in degrees."
+msgstr "Μεγ. πλάτος των laylines του σκάφους σε μοίρες."
+#
 msgid "Meters"
-msgstr "μέτρα"
+msgstr "Μέτρα"
+#
+msgid "Min"
+msgstr "Ελάχιστο"
+#
+msgid "Min. Layline Width [°]:"
+msgstr "Ελάχ. πλάτος Layline [°]:"
+#
+msgid "Min. width of boat laylines in degrees."
+msgstr "Ελάχ. πλάτος των laylines του σκάφους σε μοίρες."
 #
 msgid "Moon phase"
 msgstr "Φάση σελήνης"
 #
 msgid "N"
-msgstr "Β"
+msgstr "N"
 #
 msgid "NE"
 msgstr "ΒΑ"
+#
+msgid "NKE format ($PNKEP)"
+msgstr "Φορμάτ NKE ($PNKEP)"
 #
 msgid "NNE"
 msgstr "ΒΒΑ"
@@ -287,17 +495,47 @@ msgid "Orientation:"
 msgstr "Προσανατολισμός:"
 #
 msgid "Overall"
-msgstr ""
+msgstr "Συνολικά"
+#
+msgid "Overall Max"
+msgstr "Ολικό μέγιστο"
+#
+msgid "Persistent Chart Perf. Animations"
+msgstr "Ζωντανό διάγραμμα απόδοσης"
 #
 msgid "Pitch"
-msgstr "Κούνημα"
+msgstr "Κλυδωνισμός"
+#
+msgid "Polar - NOTE: ↑Tactics instruments need your boat's polars!"
+msgstr "Polar - Σημείωση: ↑Τα όργανα τακτικής χρειάζονται το πολικό διάγραμμα!"
+#
+msgid "Polar file:"
+msgstr "Αρχείο πολ. διαγράμματος:"
 #
 msgid "Position"
 msgstr "Θέση"
 #
 #, fuzzy
 msgid "Preferences"
-msgstr "Προτιμήσεις..."
+msgstr " Προτιμήσεις"
+#
+msgid "Prepend Clockticks"
+msgstr "Προσθήκη Clockticks"
+#
+msgid "Prepend UTC Timestamp"
+msgstr "Προσθήκη ώρας UTC"
+#
+msgid "R"
+msgstr "R"
+#
+msgid ""
+"Recommended. As True Wind blows over the earth surface, we should calc. it "
+"with Speed Over Ground.\n"
+"Eliminates the influence of currents."
+msgstr ""
+"Συνιστάται. Καθώς ο άνεμος φυσάει πάνω από την επιφάνεια της γης, θα πρέπει "
+"να τον υπολογίσουμε από την SOG. \n"
+"Εξαφανίζει την επιρροή των ρευμάτων."
 #
 msgid "Rudder Angle"
 msgstr "Γωνία πηδαλίου"
@@ -309,7 +547,7 @@ msgid "SE"
 msgstr "ΝΑ"
 #
 msgid "SOG"
-msgstr "SOG (αληθής ταχύτητα)"
+msgstr "SOG"
 #
 msgid "SSE"
 msgstr "ΝΝΑ"
@@ -318,13 +556,32 @@ msgid "SSW"
 msgstr "ΝΝΔ"
 #
 msgid "STW"
-msgstr "Φαινόμενη ταχύτητα (δρομομέτρου)"
+msgstr "STW"
 #
 msgid "SW"
 msgstr "ΝΔ"
 #
+msgid "Select a Polar-File"
+msgstr "Επιλέξτε ένα αρχείο πολικού διαγρ."
+#
 msgid "Select instrument to add:"
 msgstr "Διάλεξε όργανο για προσθήκη:"
+#
+msgid ""
+"Sets the separator for the data exports of BaroHistory, PolarPerformance and "
+"WindHistory;"
+msgstr ""
+"Θέτει τον διαχωριστή για την εξαγωγή δεδομένων του Βαρομ. ιστορικού, της "
+"Απόδοσης ταχύτητας και του Ιστορικού του ανέμου·"
+#
+msgid "Show Polar on Chart (OpenGL)"
+msgstr "Εμφάνιση πολ. διαγράμματος στον χάρτη (OpenGL)"
+#
+msgid "Show Wind Barb on Chart (OpenGL)"
+msgstr "Εμφάνιση βέλων ανέμου στον χάρτη (OpenGL)"
+#
+msgid "Signal K Steamer configuration file parsing error, see log file."
+msgstr "Σφάλμα στο αρχείο επιλογών του Signal K Steamer, δες το log."
 #
 msgid "Small:"
 msgstr "Μικρό:"
@@ -338,8 +595,17 @@ msgstr "Δρομόμετρο"
 msgid "Speedometer max value:"
 msgstr "Μέγ. τιμή δρομομέτρου:"
 #
+msgid ""
+"Stabilizes the surface current 'arrow' in the chart overlay, bearing compass "
+"and also the numerical instruments\n"
+"Low values mean high damping"
+msgstr ""
+"Σταθεροποιεί το «βέλος» του επιφανειακού ρεύματος στον χάρτη, στην κατεύθυνση "
+"της πυξίδας, και στα ψηφιακά όργανα\n"
+"Χαμηλές τιμές σημαίνουν υψηλή απόσβεση"
+#
 msgid "Statute miles"
-msgstr "Αγγλικά μίλια"
+msgstr "Εγγλέζικα μίλια"
 #
 msgid "Sum Log"
 msgstr "Αθροιστικό Log"
@@ -347,9 +613,46 @@ msgstr "Αθροιστικό Log"
 msgid "Sunrise/Sunset"
 msgstr "Ανατολή/δύση ηλίου"
 #
-#, fuzzy
+msgid "TWS/TWA "
+msgstr "TWS/TWA "
+#
+msgid "Target Polar Speed"
+msgstr "Στόχευσε την ταχύτητα του πολ. διαγράμματος"
+#
+msgid "Target-"
+msgstr "Στόχος-"
+#
 msgid "Temperature units:"
-msgstr " Βαθυμετρικές μονάδες: "
+msgstr "Μονάδες θερμοκρασίας:"
+#
+msgid "The default on program startup"
+msgstr "Η προεπιλογή στην εκκίνηση του προγράμματος"
+#
+msgid ""
+"The layline damping factor determines how fast the  laylines react on your "
+"course changes, i.e. your COG changes.\n"
+" Low values mean high damping."
+msgstr ""
+"O Συντελεστής απόσβεσης layline καθορίζει πόσο γρήγορα αντιδρούν οι laylines "
+"με αλλαγές στην πορεία, δηλ. αλλαγές στην COG.\n"
+" Χαμηλές τιμές σημαίνουν μεγάλη απόσβεση."
+#
+msgid ""
+"The width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the COG range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+"Το εύρος των laylines του πλοίου βασίζεται στην περιστροφή του (κατακόρυφος "
+"άξονας), δηλ. στις αλλαγές του COG.\n"
+"Εδώ πρόκειται για την απεικόνιση του εύρους των τιμών του COG.\n"
+" Χαμηλές τιμές σημαίνουν υψηλή απόσβεση."
+#
+msgid "This option makes only sense with a real heel sensor."
+msgstr "Αυτή η επιλογή έχει νόημα μόνο με ένα πραγματικό κλισιόμετρο."
+#
+msgid "This will also disable the AWA/AWS correction."
+msgstr "Επίσης, αυτό θα απενεργοποιήσει τη διόρθωση AWA/AWS."
 #
 msgid "Title:"
 msgstr "Τίτλος:"
@@ -361,16 +664,19 @@ msgid "True Compass"
 msgstr "Αληθής πυξίδα"
 #
 msgid "True HDG"
-msgstr "Αληθής κατεύθυνση"
+msgstr "Αληθής HDG"
+#
+msgid "True Wind"
+msgstr "Αληθής άνεμος"
 #
 msgid "True Wind Angle"
 msgstr "Γωνία πραγμ. ανέμου"
 #
 msgid "True Wind Angle & Speed"
-msgstr "Γωνία/ταχύτητα πραγμ. ανέμου"
+msgstr "Γωνία & ταχύτητα πραγμ. ανέμου"
 #
 msgid "True Wind Dir. & Speed"
-msgstr "Κατεύθυνση/ταχύτητα πραγμ. ανέμου"
+msgstr "Κατεύθυνση & ταχύτητα πραγμ. ανέμου"
 #
 msgid "True Wind Direction"
 msgstr "Κατεύθυνση πραγμ. ανέμου"
@@ -380,19 +686,39 @@ msgstr "Ταχύτητα πραγμ. ανέμου"
 #
 #, c-format
 msgid "UTC-ISO8601%s"
-msgstr ""
+msgstr "UTC-ISO8601%s"
 #
 msgid "Undock"
 msgstr "Αποσύνδεση"
 #
 msgid "Units, Ranges, Formats"
-msgstr "Μονάδες, Όρια, Μορφή"
+msgstr "Μονάδες, Όρια, Μορφές"
 #
 msgid "Up"
 msgstr "Πάνω"
 #
+msgid "Use Heel Sensor"
+msgstr "Χρήση κλισιομέτρου"
+#
+msgid "Use SOG instead of STW for True Wind Calc."
+msgstr "Χρησιμοποιήστε SOG αντί STW για τον υπολ. αληθούς ανέμου."
+#
+msgid ""
+"Use the internal heel sensor if available\n"
+"Important for the correct calculation of the surface current."
+msgstr ""
+"Χρησιμοποιήστε το κλισιόμετρο, αν υπάρχει\n"
+"Σημαντικό για τον σωστό υπολογισμό του επιφανειακού ρεύματος."
+#
+msgid ""
+"Use with care, this is normally done by the instruments themselves as soon as "
+"you have an integrated, original equipment heel sensor"
+msgstr ""
+"Προσοχή, αυτό κανονικά το κάνουν τα ίδια τα όργανα όταν έχετε ένα ηλεκτρονικό "
+"κλισιόμετρο"
+#
 msgid "VMG"
-msgstr "VMG (ταχύτητα στη σωστή κατεύθυνση)"
+msgstr "VMG"
 #
 msgid "Vertical"
 msgstr "Κατακόρυφα"
@@ -409,6 +735,17 @@ msgstr "ΔΝΔ"
 msgid "Water Temp."
 msgstr "Θερμ/σία νερού"
 #
+msgid ""
+"Width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+"Το εύρος των laylines του πλοίου βασίζεται στην περιστροφή του (κατακόρυφος "
+"άξονας), δηλ. στις αλλαγές του COG.\n"
+"Εδώ πρόκειται για την απεικόνιση του εύρους των κατευθύνσεων της πλεύσης.\n"
+" Χαμηλές τιμές σημαίνουν υψηλή απόσβεση."
+#
 msgid "Wind history"
 msgstr "Ιστορικό Ανέμου"
 #
@@ -416,7 +753,21 @@ msgid "Wind speed units:"
 msgstr "Μονάδες ταχύτητας ανέμου:"
 #
 msgid "X"
+msgstr "X"
+#
+msgid "You have to turn on OpenGL to use chart overlay "
 msgstr ""
+"Θα πρέπει να ενεργοποιήσετε το OpenGL για να χρησιμοποιήσετε την επικάλυψη "
+"στον χάρτη "
+#
+msgid "^Tactics Performance Parameters: Select a polar file"
+msgstr "^Παράμετροι απόδοσης τακτικής: Επιλογή αρχείου πολικού διαγράμματος"
+#
+msgid "avg."
+msgstr "Μ.Ο."
+#
+msgid "fixed/max Leeway [°]:"
+msgstr "σταθ/μεγ. Έκπτωση[°]:"
 #
 msgid "km/h"
 msgstr "km/h"
@@ -424,66 +775,94 @@ msgstr "km/h"
 msgid "m/s"
 msgstr "m/s"
 #
+msgid "manual Heel input:"
+msgstr "εισάγετε την κλίση:"
+#
 msgid "mph"
 msgstr "μ.α.ώ."
 #
 msgid "show this dashboard"
-msgstr "Εμφάνιση αυτού του πίνακα οργάνων"
+msgstr "eμφάνιση αυτού του πίνακα οργάνων"
 #
 msgid "since"
-msgstr ""
+msgstr "από"
 #
 msgid "↑Actual "
-msgstr ""
+msgstr "↑Πραγματική "
 #
-#, fuzzy
 msgid "↑Average Wind Direction"
-msgstr "Κατεύθυνση πραγμ. ανέμου"
+msgstr "↑Μέση κατεύθυνση ανέμου"
 #
-#, fuzzy
 msgid "↑Bearing Compass"
-msgstr "Αληθής πυξίδα"
+msgstr "↑Κατεύθυνση πυξίδας"
 #
-#, fuzzy
 msgid "↑Current Direction"
-msgstr "Κατεύθυνση πραγμ. ανέμου"
+msgstr "↑Κατεύθυνση ρεύματος"
 #
 msgid "↑Current Speed"
-msgstr ""
+msgstr "↑Ταχύτητα ρεύματος"
 #
 msgid "↑InfluxDB Out"
-msgstr ""
+msgstr "Έξοοδος InfluxDB"
 #
 msgid "↑Leeway"
-msgstr ""
+msgstr "↑Έκπτωση"
 #
-#, fuzzy
 msgid "↑Polar Compass"
-msgstr "Πυξίδα GPS"
+msgstr "↑Θεωρητική πυξίδα"
 #
 msgid "↑Polar Performance"
-msgstr ""
+msgstr "↑Θεωρητική απόδοση"
 #
 msgid "↑Polar Speed"
-msgstr ""
+msgstr "↑Θεωρητική ταχύτητα"
+#
+msgid "↑Show Current"
+msgstr "↑Εμφάνιση ρεύματος"
+#
+msgid "↑Show Laylines"
+msgstr "↑Εμφάνιση Laylines"
+#
+msgid "↑Show Polar"
+msgstr "↑Εμφάνιση πολ. διαγράμματος"
+#
+msgid "↑Show Windbarb"
+msgstr "↑Εμφάνιση βελών ανέμου"
 #
 msgid "↑Signal K In"
-msgstr ""
+msgstr "↑Είσοδος Signal K"
 #
 msgid "↑TWA to Waypoint"
-msgstr ""
+msgstr "↑Πραγμ. γωνία ανέμου προς το σημείο πορείας"
+#
+msgid "↑Tactics Performance Parameters"
+msgstr "↑Παράμετροι επίδοσης Τακτικής"
 #
 msgid "↑Target "
+msgstr "↑Στόχος "
+#
+msgid "⬤ DashT E-Dial"
 msgstr ""
 #
-msgid "↑z Eng1 Oil P"
+msgid "⬤ DashT Line Chart"
 msgstr ""
 #
-msgid "↑z Eng1 RPM"
-msgstr ""
 #
-msgid "↑z Eng1 Temp"
-msgstr ""
+#~ msgid "Expor trate 10 Seconds"
+#~ msgstr "Ρυθμός εξαγωγής 10 s"
 #
-#~ msgid "Dashboard PlugIn for OpenCPN"
-#~ msgstr "Πίνακας οργάνων για το OpenCPN"
+#
+#~ msgid "Preferences..."
+#~ msgstr "Προτιμήσεις..."
+#
+#
+#~ msgid "↑z Eng1 Oil P"
+#~ msgstr "↑Κινητ1 Πίεση λαδιού"
+#
+#
+#~ msgid "↑z Eng1 RPM"
+#~ msgstr "↑Κινητ1 rpm"
+#
+#
+#~ msgid "↑z Eng1 Temp"
+#~ msgstr "↑Κινητ1 Θερμ."

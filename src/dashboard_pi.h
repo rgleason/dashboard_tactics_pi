@@ -199,7 +199,7 @@ private:
     int                  m_show_id;
     int                  m_hide_id;
 
-    NMEA0183             m_NMEA0183;                 // Used to parse NMEA Sentences
+    NMEA0183            *m_NMEA0183;
     short                mPriPosition;
     short                mPriCOGSOG;
     short                mPriHeadingM;

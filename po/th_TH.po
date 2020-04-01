@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-19 18:57+0100\n"
+"POT-Creation-Date: 2020-04-01 19:52+0200\n"
 "PO-Revision-Date: 2019-03-18 02:56\n"
 "Last-Translator: nohal <pavel@kalian.cz>\n"
 "Language-Team: Thai\n"
@@ -21,7 +21,23 @@ msgid ""
 "(↑Tactics at the end of the list)"
 msgstr ""
 #
+msgid " + corresp.gain"
+msgstr ""
+#
+msgid " 45°"
+msgstr ""
+#
+msgid " 90°"
+msgstr ""
+#
+#, c-format
+msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
+msgstr ""
+#
 msgid " Preferences"
+msgstr ""
+#
+msgid " angle + Perf. %"
 msgstr ""
 #
 msgid " mag"
@@ -38,11 +54,28 @@ msgstr ""
 msgid "--"
 msgstr ""
 #
-#, c-format
-msgid "--- %s"
+msgid "-Angle"
 msgstr ""
 #
-msgid "-Angle"
+msgid "10 kn"
+msgstr ""
+#
+msgid "135°"
+msgstr ""
+#
+msgid "15 kn"
+msgstr ""
+#
+msgid "20 kn"
+msgstr ""
+#
+msgid "25 kn"
+msgstr ""
+#
+msgid "5 kn"
+msgstr ""
+#
+msgid ";"
 msgstr ""
 #
 msgid ">"
@@ -52,6 +85,16 @@ msgid "Add"
 msgstr ""
 #
 msgid "Add instrument"
+msgstr ""
+#
+msgid ""
+"Adds Clockticks to the data exports of BaroHistory, PolarPerformance and "
+"WindHistory"
+msgstr ""
+#
+msgid ""
+"Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, "
+"PolarPerformance and WindHistory"
 msgstr ""
 #
 msgid "Air Temp."
@@ -72,6 +115,13 @@ msgstr ""
 msgid "Appearance"
 msgstr ""
 #
+msgid ""
+"Apply a correction to your log speed throughout the plugin based on the "
+"calculated Leeway and Current.\n"
+"Only makes sense with a real heel sensor.\n"
+"Make sure your instruments do not already apply this correction !"
+msgstr ""
+#
 msgid "Barometric history"
 msgstr ""
 #
@@ -79,6 +129,9 @@ msgid "Barometric pressure"
 msgstr ""
 #
 msgid "Boat speed units:"
+msgstr ""
+#
+msgid "Boat's Leeway factor [0-20]:  "
 msgstr ""
 #
 msgid "COG"
@@ -101,6 +154,31 @@ msgstr ""
 #
 #, c-format
 msgid "ClockTicks%s"
+msgstr ""
+#
+msgid "CoG on other Tack"
+msgstr ""
+#
+msgid "Correct AWS/AWA with Heel"
+msgstr ""
+#
+msgid "Correct STW with Leeway"
+msgstr ""
+#
+msgid "Current"
+msgstr ""
+#
+msgid "Current Direction + Speed"
+msgstr ""
+#
+msgid "Current damping factor [1-400]:  "
+msgstr ""
+#
+msgid ""
+"Currently only set up for NKE instruments. Exports a predefined set of up to "
+"5 NMEA records which are 'known' by NKE instruments and can be displayed "
+"there.\n"
+"Read the manual how to set up the interface connection !"
 msgstr ""
 #
 msgid "Cursor"
@@ -129,6 +207,9 @@ msgstr ""
 msgid "Dashboard_Tactics"
 msgstr ""
 #
+msgid "Data Separator :"
+msgstr ""
+#
 msgid "Data:"
 msgstr ""
 #
@@ -145,10 +226,22 @@ msgstr ""
 msgid "Depth units:"
 msgstr ""
 #
+msgid "Diff. angle to Target-"
+msgstr ""
+#
+msgid "Display Current on Chart (OpenGL)"
+msgstr ""
+#
 msgid "Distance units:"
 msgstr ""
 #
 msgid "Down"
+msgstr ""
+#
+msgid ""
+"Dual purpose !\n"
+"If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
+" If Radiobutton is set, then it fixes Leeway to this constant value."
 msgstr ""
 #
 msgid "E"
@@ -160,10 +253,16 @@ msgstr ""
 msgid "ESE"
 msgstr ""
 #
-msgid "Expor trate 10 Seconds"
+msgid "Export Data to File"
+msgstr ""
+#
+msgid "Export NMEA Performance Data"
 msgstr ""
 #
 msgid "Export rate 1 Second"
+msgstr ""
+#
+msgid "Export rate 10 Seconds"
 msgstr ""
 #
 msgid "Export rate 20 Seconds"
@@ -185,6 +284,12 @@ msgid "Feet"
 msgstr ""
 #
 msgid "Fonts"
+msgstr ""
+#
+msgid "Force True Wind Calculation"
+msgstr ""
+#
+msgid "Format in this file not recognised"
 msgstr ""
 #
 msgid "From Ownship"
@@ -211,10 +316,30 @@ msgstr ""
 msgid "Horizontal"
 msgstr ""
 #
+msgid ""
+"If no heel sensor is available, you can create a manual 'heel polar' here.\n"
+"Just read/enter the data from a mechanical heel sensor (e.g. on compass).\n"
+"Use True Wind Speed & Angle only !\n"
+"Take care: motoring w/o sails&heel will show wrong current data !!!"
+msgstr ""
+#
+msgid ""
+"Import existing Tactics plugin settings into Dashboard's integrated Tactics "
+"settings? (Cancel=later)"
+msgstr ""
+#
 msgid "Inches"
 msgstr ""
 #
+msgid "InfluxDB Steamer configuration file parsing error, see log file."
+msgstr ""
+#
 msgid "Instruments"
+msgstr ""
+#
+msgid ""
+"Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the "
+"whole plugin even if there is True Wind data available via NMEA."
 msgstr ""
 #
 msgid "Kilometers"
@@ -223,7 +348,37 @@ msgstr ""
 msgid "Kts"
 msgstr ""
 #
+msgid "L"
+msgstr ""
+#
 msgid "Label:"
+msgstr ""
+#
+msgid "Layline damping factor [0.025-1]:  "
+msgstr ""
+#
+msgid "Layline length on Chart [nm]:  "
+msgstr ""
+#
+msgid "Layline width damping factor [0.025-1]:  "
+msgstr ""
+#
+msgid "Laylines"
+msgstr ""
+#
+msgid "Leeway"
+msgstr ""
+#
+msgid ""
+"Leeway='Drift' of boat due to heel/wind influence\n"
+"Low values mean high performance of hull\n"
+"Leeway = (LeewayFactor * Heel) / STW²;"
+msgstr ""
+#
+msgid "Length of the boat laylines in [nm]"
+msgstr ""
+#
+msgid "Load"
 msgstr ""
 #
 msgid "Local CPU Clock"
@@ -244,6 +399,11 @@ msgstr ""
 msgid "Mag HDG"
 msgstr ""
 #
+msgid ""
+"Make sure your instruments do not internally correct AWS / AWA with heel.\n"
+"This may result in wrong wind data."
+msgstr ""
+#
 msgid "Max"
 msgstr ""
 #
@@ -251,7 +411,22 @@ msgstr ""
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
 msgstr ""
 #
+msgid "Max. Layline Width [°]:"
+msgstr ""
+#
+msgid "Max. width of boat laylines in degrees."
+msgstr ""
+#
 msgid "Meters"
+msgstr ""
+#
+msgid "Min"
+msgstr ""
+#
+msgid "Min. Layline Width [°]:"
+msgstr ""
+#
+msgid "Min. width of boat laylines in degrees."
 msgstr ""
 #
 msgid "Moon phase"
@@ -261,6 +436,9 @@ msgid "N"
 msgstr ""
 #
 msgid "NE"
+msgstr ""
+#
+msgid "NKE format ($PNKEP)"
 msgstr ""
 #
 msgid "NNE"
@@ -281,13 +459,40 @@ msgstr ""
 msgid "Overall"
 msgstr ""
 #
+msgid "Overall Max"
+msgstr ""
+#
+msgid "Persistent Chart Perf. Animations"
+msgstr ""
+#
 msgid "Pitch"
+msgstr ""
+#
+msgid "Polar - NOTE: ↑Tactics instruments need your boat's polars!"
+msgstr ""
+#
+msgid "Polar file:"
 msgstr ""
 #
 msgid "Position"
 msgstr ""
 #
 msgid "Preferences"
+msgstr ""
+#
+msgid "Prepend Clockticks"
+msgstr ""
+#
+msgid "Prepend UTC Timestamp"
+msgstr ""
+#
+msgid "R"
+msgstr ""
+#
+msgid ""
+"Recommended. As True Wind blows over the earth surface, we should calc. it "
+"with Speed Over Ground.\n"
+"Eliminates the influence of currents."
 msgstr ""
 #
 msgid "Rudder Angle"
@@ -314,7 +519,24 @@ msgstr ""
 msgid "SW"
 msgstr ""
 #
+msgid "Select a Polar-File"
+msgstr ""
+#
 msgid "Select instrument to add:"
+msgstr ""
+#
+msgid ""
+"Sets the separator for the data exports of BaroHistory, PolarPerformance and "
+"WindHistory;"
+msgstr ""
+#
+msgid "Show Polar on Chart (OpenGL)"
+msgstr ""
+#
+msgid "Show Wind Barb on Chart (OpenGL)"
+msgstr ""
+#
+msgid "Signal K Steamer configuration file parsing error, see log file."
 msgstr ""
 #
 msgid "Small:"
@@ -329,6 +551,12 @@ msgstr ""
 msgid "Speedometer max value:"
 msgstr ""
 #
+msgid ""
+"Stabilizes the surface current 'arrow' in the chart overlay, bearing compass "
+"and also the numerical instruments\n"
+"Low values mean high damping"
+msgstr ""
+#
 msgid "Statute miles"
 msgstr ""
 #
@@ -338,7 +566,38 @@ msgstr ""
 msgid "Sunrise/Sunset"
 msgstr ""
 #
+msgid "TWS/TWA "
+msgstr ""
+#
+msgid "Target Polar Speed"
+msgstr ""
+#
+msgid "Target-"
+msgstr ""
+#
 msgid "Temperature units:"
+msgstr ""
+#
+msgid "The default on program startup"
+msgstr ""
+#
+msgid ""
+"The layline damping factor determines how fast the  laylines react on your "
+"course changes, i.e. your COG changes.\n"
+" Low values mean high damping."
+msgstr ""
+#
+msgid ""
+"The width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the COG range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+#
+msgid "This option makes only sense with a real heel sensor."
+msgstr ""
+#
+msgid "This will also disable the AWA/AWS correction."
 msgstr ""
 #
 msgid "Title:"
@@ -351,6 +610,9 @@ msgid "True Compass"
 msgstr ""
 #
 msgid "True HDG"
+msgstr ""
+#
+msgid "True Wind"
 msgstr ""
 #
 msgid "True Wind Angle"
@@ -381,6 +643,22 @@ msgstr ""
 msgid "Up"
 msgstr ""
 #
+msgid "Use Heel Sensor"
+msgstr ""
+#
+msgid "Use SOG instead of STW for True Wind Calc."
+msgstr ""
+#
+msgid ""
+"Use the internal heel sensor if available\n"
+"Important for the correct calculation of the surface current."
+msgstr ""
+#
+msgid ""
+"Use with care, this is normally done by the instruments themselves as soon as "
+"you have an integrated, original equipment heel sensor"
+msgstr ""
+#
 msgid "VMG"
 msgstr ""
 #
@@ -399,6 +677,13 @@ msgstr ""
 msgid "Water Temp."
 msgstr ""
 #
+msgid ""
+"Width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+#
 msgid "Wind history"
 msgstr ""
 #
@@ -408,10 +693,25 @@ msgstr ""
 msgid "X"
 msgstr ""
 #
+msgid "You have to turn on OpenGL to use chart overlay "
+msgstr ""
+#
+msgid "^Tactics Performance Parameters: Select a polar file"
+msgstr ""
+#
+msgid "avg."
+msgstr ""
+#
+msgid "fixed/max Leeway [°]:"
+msgstr ""
+#
 msgid "km/h"
 msgstr ""
 #
 msgid "m/s"
+msgstr ""
+#
+msgid "manual Heel input:"
 msgstr ""
 #
 msgid "mph"
@@ -453,20 +753,32 @@ msgstr ""
 msgid "↑Polar Speed"
 msgstr ""
 #
+msgid "↑Show Current"
+msgstr ""
+#
+msgid "↑Show Laylines"
+msgstr ""
+#
+msgid "↑Show Polar"
+msgstr ""
+#
+msgid "↑Show Windbarb"
+msgstr ""
+#
 msgid "↑Signal K In"
 msgstr ""
 #
 msgid "↑TWA to Waypoint"
 msgstr ""
 #
+msgid "↑Tactics Performance Parameters"
+msgstr ""
+#
 msgid "↑Target "
 msgstr ""
 #
-msgid "↑z Eng1 Oil P"
+msgid "⬤ DashT E-Dial"
 msgstr ""
 #
-msgid "↑z Eng1 RPM"
-msgstr ""
-#
-msgid "↑z Eng1 Temp"
+msgid "⬤ DashT Line Chart"
 msgstr ""

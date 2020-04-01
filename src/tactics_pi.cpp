@@ -3007,7 +3007,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     itemFlexGridSizer06->Add(m_ButtonUseHeelSensor, 0, wxALL, 5);
     m_ButtonUseHeelSensor->SetValue(g_bUseHeelSensor);
     m_ButtonUseHeelSensor->SetToolTip(_("Use the internal heel sensor if available\nImportant for the correct calculation of the surface current."));
-    wxStaticText* itemStaticText23b = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
+    wxStaticText* itemStaticText23b = new wxStaticText(itemPanelNotebook03, wxID_ANY, _T(""), wxDefaultPosition, wxDefaultSize, 0);
     itemFlexGridSizer06->Add(itemStaticText23b, 0, wxEXPAND | wxALL, m_border_size);
     //--------------------
     m_ButtonFixedLeeway = new wxRadioButton(itemPanelNotebook03, wxID_ANY, _("fixed/max Leeway [\u00B0]:"), wxDefaultPosition, wxDefaultSize, 0);
@@ -3028,7 +3028,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
 
     m_ButtonHeelInput->Connect(wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler(TacticsPreferencesDialog::OnManualHeelUpdate), NULL, this);
 
-    wxStaticText* itemStaticText23c = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
+    wxStaticText* itemStaticText23c = new wxStaticText(itemPanelNotebook03, wxID_ANY, _T(""), wxDefaultPosition, wxDefaultSize, 0);
     itemFlexGridSizer06->Add(itemStaticText23c, 0, wxEXPAND | wxALL, m_border_size);
     //****************************************************************************************************
     wxStaticBox* itemStaticBox07 = new wxStaticBox(itemPanelNotebook03, wxID_ANY, _("Heel"));
@@ -3213,7 +3213,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     m_ButtonExpNKE->SetValue(true); // fixed value for now
     m_ButtonExpNKE->SetToolTip(_("Currently only set up for NKE instruments. Exports a predefined set of up to 5 NMEA records which are 'known' by NKE instruments and can be displayed there.\nRead the manual how to set up the interface connection !"));
 
-    wxStaticText* itemStaticTextDummy = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
+    wxStaticText* itemStaticTextDummy = new wxStaticText(itemPanelNotebook03, wxID_ANY, _T(""), wxDefaultPosition, wxDefaultSize, 0);
     itemFlexGridSizerExpData->Add(itemStaticTextDummy, 0, wxEXPAND | wxALL, m_border_size);
     //--------------------
     //--------------------
@@ -3245,7 +3245,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     wxFlexGridSizer *itemFlexGridSizerFileExp = new wxFlexGridSizer(2);
     itemFlexGridSizerFileExp->AddGrowableCol(1);
     itemStaticBoxSizerFileExp->Add(itemFlexGridSizerFileExp, 1, wxEXPAND | wxALL, 0);
-    //    wxStaticText* itemStaticTextDummy2 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0);
+    //    wxStaticText* itemStaticTextDummy2 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _T(""), wxDefaultPosition, wxDefaultSize, 0);
     //    itemFlexGridSizerFileExp->Add(itemStaticTextDummy2, 0, wxEXPAND | wxALL, m_border_size);
     //--------------------
     //--------------------

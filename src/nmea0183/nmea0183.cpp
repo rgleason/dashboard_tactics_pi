@@ -32,6 +32,10 @@
 
 #include "nmea0183.h"
 
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+
 /*
 ** Author: Samuel R. Blackburn
 ** CI$: 76300,326
@@ -150,7 +154,11 @@ void NMEA0183::initialize( void )
 {
 //   ASSERT_VALID( this );
 
-   ErrorMessage.Empty();
+    ErrorMessage = wxEmptyString;
+    LastSentenceIDParsed = wxEmptyString;
+    LastSentenceIDReceived = wxEmptyString;
+    TalkerID = wxEmptyString;
+    ExpandedTalkerID = wxEmptyString;
 }
 
 void NMEA0183::set_container_pointers( void )
@@ -271,6 +279,8 @@ bool NMEA0183::PreParse( void )
 
 
             LastSentenceIDReceived = mnemonic;
+            wxLogMessage(
+                "nme0183:preparse() : LastSentenceIDReceived = %s (%x)", LastSentenceIDReceived, &LastSentenceIDReceived);
 
             return true;
       }

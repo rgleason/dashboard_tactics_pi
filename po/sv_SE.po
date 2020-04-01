@@ -2,31 +2,47 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-19 18:57+0100\n"
-"PO-Revision-Date: 2019-03-18 02:54\n"
-"Last-Translator: nohal <pavel@kalian.cz>\n"
+"POT-Creation-Date: 2020-04-01 19:52+0200\n"
+"PO-Revision-Date: 2020-02-13 03:02\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: sv-SE\n"
-"X-Crowdin-File: /plugins/dashboard_pi/po/dashboard_pi.pot\n"
+"X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
 #
 msgid ""
 "\n"
 "(↑Tactics at the end of the list)"
 msgstr ""
+"\n"
+"(↑Taktik i slutet av listan)"
 #
-#, fuzzy
+msgid " + corresp.gain"
+msgstr " + motsv.först"
+#
+msgid " 45°"
+msgstr " 45°"
+#
+msgid " 90°"
+msgstr " 90°"
+#
+#, c-format
+msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
+msgstr " Max %.1f sedan %02d:%02d  Generell Max %.1f Min %.1f "
+#
 msgid " Preferences"
-msgstr "Inställningar..."
+msgstr " Inställningar"
+#
+msgid " angle + Perf. %"
+msgstr " vinkel + Prest. %"
 #
 msgid " mag"
-msgstr "mag"
+msgstr " mag"
 #
 msgid " true"
 msgstr " sann"
@@ -35,19 +51,38 @@ msgid ""
 "'>' starts data export and creates a new or appends to an existing file,\n"
 "'X' stops data export"
 msgstr ""
+"'>' Start av dataexport. Skapar ny fil eller lägger till i en befintlig. \n"
+"'X' Stoppar dataexport"
 #
 msgid "--"
 msgstr "--"
 #
-#, c-format
-msgid "--- %s"
-msgstr "---%s"
-#
 msgid "-Angle"
-msgstr ""
+msgstr "-Vinkel"
+#
+msgid "10 kn"
+msgstr "10 kn"
+#
+msgid "135°"
+msgstr "135°"
+#
+msgid "15 kn"
+msgstr "15 kn"
+#
+msgid "20 kn"
+msgstr "20 kn"
+#
+msgid "25 kn"
+msgstr "25 kn"
+#
+msgid "5 kn"
+msgstr "5 kn"
+#
+msgid ";"
+msgstr ";"
 #
 msgid ">"
-msgstr ""
+msgstr ">"
 #
 msgid "Add"
 msgstr "Lägg till"
@@ -55,23 +90,48 @@ msgstr "Lägg till"
 msgid "Add instrument"
 msgstr "Lägg till instrument"
 #
+msgid ""
+"Adds Clockticks to the data exports of BaroHistory, PolarPerformance and "
+"WindHistory"
+msgstr ""
+"Anger klockslag till dataexporten av lufttryck-, vind-historik och polar-"
+"prestanda"
+#
+msgid ""
+"Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, "
+"PolarPerformance and WindHistory"
+msgstr ""
+"Anger ISO8601 UTC Datum & klockslag till dataexporten av lufttryck-, vind-"
+"historik och polar-prestanda"
+#
 msgid "Air Temp."
 msgstr "Lufttemp."
 #
 msgid "App & True Wind Angle"
-msgstr "Upplevd&Sann Vindvinkel"
+msgstr "Uppl. & Sann vindvinkel"
 #
 msgid "App. Wind Angle"
-msgstr "Skenbar vindvinkel"
+msgstr "Uppl. vindvinkel"
 #
 msgid "App. Wind Angle & Speed"
-msgstr "Skenbar Vindvinkel & vindstyrka"
+msgstr "Uppl. vindvinkel & hastighet"
 #
 msgid "App. Wind Speed"
-msgstr "Skenbar vindstyrka"
+msgstr "Uppl. vindhastighet"
 #
 msgid "Appearance"
 msgstr "Utseende"
+#
+msgid ""
+"Apply a correction to your log speed throughout the plugin based on the "
+"calculated Leeway and Current.\n"
+"Only makes sense with a real heel sensor.\n"
+"Make sure your instruments do not already apply this correction !"
+msgstr ""
+"Korrigera loggens fartdata baserat på beräknad avdrift för uppmätt "
+"krängningsvinkel.\n"
+"Bara tillämpligt om det finns data från en krängningsmätare.\n"
+"Kontrollera också att fartmätaren inte redan gör denna korrigering!"
 #
 msgid "Barometric history"
 msgstr "Lufttryckshistorik"
@@ -81,6 +141,9 @@ msgstr "Lufttryck"
 #
 msgid "Boat speed units:"
 msgstr "Enhet för båthastighet:"
+#
+msgid "Boat's Leeway factor [0-20]:  "
+msgstr "Avdriftsfaktor [0-20]:  "
 #
 msgid "COG"
 msgstr "COG"
@@ -92,20 +155,49 @@ msgid "Caption:"
 msgstr "Titel:"
 #
 msgid "Celsius"
-msgstr ""
+msgstr "Celsius"
 #
 msgid "Centimeters"
 msgstr "Centimeter"
 #
 msgid "Choose a new or existing file"
-msgstr ""
+msgstr "Välj en ny eller existerande fil"
 #
 #, c-format
 msgid "ClockTicks%s"
+msgstr "Klockslag%s"
+#
+msgid "CoG on other Tack"
+msgstr "Kurs, COG, på nästa slag"
+#
+msgid "Correct AWS/AWA with Heel"
+msgstr "Korrigera AWS/AWA med krängning"
+#
+msgid "Correct STW with Leeway"
+msgstr "Korrigera STW med avdriften"
+#
+msgid "Current"
+msgstr "Ström"
+#
+msgid "Current Direction + Speed"
+msgstr "Strömmens riktning + fart"
+#
+msgid "Current damping factor [1-400]:  "
+msgstr "Strömdämpningsfaktor [1-400]:  "
+#
+msgid ""
+"Currently only set up for NKE instruments. Exports a predefined set of up to "
+"5 NMEA records which are 'known' by NKE instruments and can be displayed "
+"there.\n"
+"Read the manual how to set up the interface connection !"
 msgstr ""
+"För närvarande endast upprättat för NKE instrument. Exporterar en "
+"fördefinierad uppsättning med upp till 5 NMEA-poster som är 'kända' av NKE "
+"instrument och kan visas där. \n"
+"Läs instrumentmanualen hur du ställer in anslutningens gränssnitt!"
 #
 msgid "Cursor"
-msgstr "Markör"
+msgstr "Pekare"
 #
 msgid "Dashboard"
 msgstr "Instrumentpanel"
@@ -117,31 +209,32 @@ msgstr ""
 "Instrumentpanel för OpenCPN\n"
 "Visar navigationsinstrument baserade på tillgänglig NMEA-information."
 #
-#, fuzzy
 msgid ""
 "Dashboard PlugIn with Tactics for OpenCPN\n"
 "Provides navigation instruments enhanced with performance functions and "
 "alternative input/output functions."
 msgstr ""
-"Instrumentpanel för OpenCPN\n"
-"Visar navigationsinstrument baserade på tillgänglig NMEA-information."
+"Instrumentpanel PlugIn med taktik för OpenCPN\n"
+"Ger navigationsinstrument med prestandafunktioner och alternativa in- och "
+"utmatnings-funktioner."
 #
-#, fuzzy
 msgid "Dashboard and Tactics"
-msgstr "Inställningar"
+msgstr "Instrumentpanel och taktik"
 #
 msgid "Dashboard preferences"
-msgstr "Inställningar"
+msgstr "Inställningar för instrumentpanel"
 #
-#, fuzzy
 msgid "Dashboard_Tactics"
-msgstr "Instrumentpanel"
+msgstr "Instrumentpanel_Taktik"
+#
+msgid "Data Separator :"
+msgstr "Avgränsare för data:"
 #
 msgid "Data:"
 msgstr "Data:"
 #
 msgid "Delete"
-msgstr "Ta bort"
+msgstr "Radera"
 #
 msgid "Depth"
 msgstr "Djup"
@@ -151,13 +244,28 @@ msgid "Depth Offset (%s):"
 msgstr "Djupjustering (%s):"
 #
 msgid "Depth units:"
-msgstr " Djupenhet:  "
+msgstr "Djupenhet:"
+#
+msgid "Diff. angle to Target-"
+msgstr "Diff. vinkel till mål-"
+#
+msgid "Display Current on Chart (OpenGL)"
+msgstr "Visa ström på kortet (OpenGL)"
 #
 msgid "Distance units:"
 msgstr "Enhet för avstånd:"
 #
 msgid "Down"
 msgstr "Ner"
+#
+msgid ""
+"Dual purpose !\n"
+"If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
+" If Radiobutton is set, then it fixes Leeway to this constant value."
+msgstr ""
+"Antingen eller!\n"
+"Om inte markerad begränsas avdriften till detta maxvärde.\n"
+"Markerad innebär ett statiskt värde för avdriften."
 #
 msgid "E"
 msgstr "O"
@@ -168,23 +276,29 @@ msgstr "ONO"
 msgid "ESE"
 msgstr "OSO"
 #
-msgid "Expor trate 10 Seconds"
-msgstr ""
+msgid "Export Data to File"
+msgstr "Exporterar data till fil"
+#
+msgid "Export NMEA Performance Data"
+msgstr "Export av prestandadata via NMEA"
 #
 msgid "Export rate 1 Second"
-msgstr ""
+msgstr "Skrivintervall 1 sekunder"
+#
+msgid "Export rate 10 Seconds"
+msgstr "Skrivintervall 10 sekunder"
 #
 msgid "Export rate 20 Seconds"
-msgstr ""
+msgstr "Skrivintervall 20 sekunder"
 #
 msgid "Export rate 5 Seconds"
-msgstr ""
+msgstr "Skrivintervall 5 sekunder"
 #
 msgid "Export rate 60 Seconds"
-msgstr ""
+msgstr "Skrivintervall 60 sekunder"
 #
 msgid "Fahrenheit"
-msgstr ""
+msgstr "Fahrenheit"
 #
 msgid "Fathoms"
 msgstr "Famnar"
@@ -195,20 +309,26 @@ msgstr "Fot"
 msgid "Fonts"
 msgstr "Typsnitt"
 #
+msgid "Force True Wind Calculation"
+msgstr "Beräkna sann vind"
+#
+msgid "Format in this file not recognised"
+msgstr "Känner inte igen filens format"
+#
 msgid "From Ownship"
 msgstr "Från egen båt"
 #
 msgid "GPS Clock"
-msgstr "GPS-klocka"
+msgstr "GPS-Tid"
 #
 msgid "GPS Compass"
-msgstr "GPS-kompass"
+msgstr "GPS-Kurs"
 #
 msgid "GPS Status"
-msgstr "GPS-status"
+msgstr "GPS Status"
 #
 msgid "GPS in View"
-msgstr "Synliga satelliter"
+msgstr "Synliga GPS"
 #
 msgid "Heel"
 msgstr "Krängning"
@@ -219,11 +339,39 @@ msgstr "Föredra OpenCPN inställningar"
 msgid "Horizontal"
 msgstr "Horisontell"
 #
+msgid ""
+"If no heel sensor is available, you can create a manual 'heel polar' here.\n"
+"Just read/enter the data from a mechanical heel sensor (e.g. on compass).\n"
+"Use True Wind Speed & Angle only !\n"
+"Take care: motoring w/o sails&heel will show wrong current data !!!"
+msgstr ""
+"Om krängningsmätare saknas kan du ange manuella värden här.\n"
+"Läs av och ange värden från en mekanisk krängningsmätare.\n"
+"Använd bara sann vind -styrka/-vinkel\n"
+"Notera att vid motordrift utan segel blir strömvärdena fel!!!"
+#
+msgid ""
+"Import existing Tactics plugin settings into Dashboard's integrated Tactics "
+"settings? (Cancel=later)"
+msgstr ""
+"Importera befintliga Taktikplugin-inställningar till instrumentpanelens "
+"integrerade taktikinställningar? (Avbryt=senare)"
+#
 msgid "Inches"
 msgstr "Tum"
 #
+msgid "InfluxDB Steamer configuration file parsing error, see log file."
+msgstr ""
+#
 msgid "Instruments"
 msgstr "Instrument"
+#
+msgid ""
+"Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the "
+"whole plugin even if there is True Wind data available via NMEA."
+msgstr ""
+"Internt beräknar True Wind data (TWS, TWA, TWD) och använder den inom hela "
+"plugin även om det finns True Wind data tillgänglig via NMEA."
 #
 msgid "Kilometers"
 msgstr "Kilometer"
@@ -231,8 +379,42 @@ msgstr "Kilometer"
 msgid "Kts"
 msgstr "Knop"
 #
+msgid "L"
+msgstr "V"
+#
 msgid "Label:"
 msgstr "Beskrivning:"
+#
+msgid "Layline damping factor [0.025-1]:  "
+msgstr "Layline dämpningsfaktor [0.025-1]:  "
+#
+msgid "Layline length on Chart [nm]:  "
+msgstr "Layline: linjens längd på kortet [Nm]:  "
+#
+msgid "Layline width damping factor [0.025-1]:  "
+msgstr "Layline med dämpningsfaktor [0.025-1]:  "
+#
+msgid "Laylines"
+msgstr "Laylines (Taktikkurslinjer)"
+#
+msgid "Leeway"
+msgstr "Avdrift"
+#
+msgid ""
+"Leeway='Drift' of boat due to heel/wind influence\n"
+"Low values mean high performance of hull\n"
+"Leeway = (LeewayFactor * Heel) / STW²;"
+msgstr ""
+"Båtens avdrift beroende på vindkrängning.\n"
+"Lägre värde anger ett skrov med hög prestanda.\n"
+"Avdriften = (Avdriftsfaktor * krängningsvinkel) / STW²;\\n(STW = Fart genom "
+"vattnet.)"
+#
+msgid "Length of the boat laylines in [nm]"
+msgstr "Längd på båten laylines i [nm]"
+#
+msgid "Load"
+msgstr "Läs in"
 #
 msgid "Local CPU Clock"
 msgstr "Lokal datorklocka"
@@ -247,20 +429,43 @@ msgid "Local Time Offset From UTC:"
 msgstr "Lokal tidsförskjutning från UTC:"
 #
 msgid "Mag COG"
-msgstr "Magnetisk COG"
+msgstr "Kurs Mag."
 #
 msgid "Mag HDG"
-msgstr "Magnetisk HDG"
+msgstr "Mag HDG"
+#
+msgid ""
+"Make sure your instruments do not internally correct AWS / AWA with heel.\n"
+"This may result in wrong wind data."
+msgstr ""
+"Kontrollera att instrumenten inte internt korrigerar AWS / AWA med "
+"krängning. \n"
+"Det kan resultera i fel vinddata."
 #
 msgid "Max"
-msgstr ""
+msgstr "Max"
 #
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
 msgstr "Max %.1f %s sedan %02d:%02d Totalt %.1f %s"
 #
+msgid "Max. Layline Width [°]:"
+msgstr "Max bredd på Layline [°]:"
+#
+msgid "Max. width of boat laylines in degrees."
+msgstr "Max bredd på båtens layline i grader."
+#
 msgid "Meters"
 msgstr "Meter"
+#
+msgid "Min"
+msgstr "Min"
+#
+msgid "Min. Layline Width [°]:"
+msgstr "Min bredd på Layline [°]:"
+#
+msgid "Min. width of boat laylines in degrees."
+msgstr "Min. bredd på layline i grader."
 #
 msgid "Moon phase"
 msgstr "Månfas"
@@ -270,6 +475,9 @@ msgstr "N"
 #
 msgid "NE"
 msgstr "NO"
+#
+msgid "NKE format ($PNKEP)"
+msgstr "NKE-format ($PNKEP)"
 #
 msgid "NNE"
 msgstr "NNO"
@@ -281,23 +489,53 @@ msgid "NW"
 msgstr "NV"
 #
 msgid "Nautical miles"
-msgstr "Nautiska mil"
+msgstr "Nautisk mil"
 #
 msgid "Orientation:"
 msgstr "Orientering:"
 #
 msgid "Overall"
-msgstr ""
+msgstr "Totalt"
+#
+msgid "Overall Max"
+msgstr "Generell Max"
+#
+msgid "Persistent Chart Perf. Animations"
+msgstr "Beständiga animationer av prestanda"
 #
 msgid "Pitch"
 msgstr "Stigning"
+#
+msgid "Polar - NOTE: ↑Tactics instruments need your boat's polars!"
+msgstr "Polar - OBS: Taktikinstrument behöver båtens polarer!"
+#
+msgid "Polar file:"
+msgstr "Polarfil:"
 #
 msgid "Position"
 msgstr "Position"
 #
 #, fuzzy
 msgid "Preferences"
-msgstr "Inställningar..."
+msgstr " Inställningar"
+#
+msgid "Prepend Clockticks"
+msgstr "Lägg till tidstämpel"
+#
+msgid "Prepend UTC Timestamp"
+msgstr "Använd UTC tidsstämpel"
+#
+msgid "R"
+msgstr "H"
+#
+msgid ""
+"Recommended. As True Wind blows over the earth surface, we should calc. it "
+"with Speed Over Ground.\n"
+"Eliminates the influence of currents."
+msgstr ""
+"Rekommenderas. Sann vind blåser över jordens yta och därför skall vi använda "
+"fart över grund (SOG) i beräkningen.\n"
+"Det eliminerar också påverkan av strömmen."
 #
 msgid "Rudder Angle"
 msgstr "Rodervinkel"
@@ -323,8 +561,27 @@ msgstr "STW"
 msgid "SW"
 msgstr "SV"
 #
+msgid "Select a Polar-File"
+msgstr "Välj en Polar-fil"
+#
 msgid "Select instrument to add:"
 msgstr "Välj instrument att lägga till:"
+#
+msgid ""
+"Sets the separator for the data exports of BaroHistory, PolarPerformance and "
+"WindHistory;"
+msgstr ""
+"Anger separatorn för dataexport av lufttryck-, vind-historik och polar-"
+"prestanda;"
+#
+msgid "Show Polar on Chart (OpenGL)"
+msgstr "Visa polärdiagram på sjökortet (OpenGL)"
+#
+msgid "Show Wind Barb on Chart (OpenGL)"
+msgstr "Visa vindpilar på kortet (OpenGL)"
+#
+msgid "Signal K Steamer configuration file parsing error, see log file."
+msgstr "Signal K konfigurationsfil tolkningsfel, se loggfil."
 #
 msgid "Small:"
 msgstr "Liten:"
@@ -333,10 +590,19 @@ msgid "Speed Over Ground Damping Factor:"
 msgstr "Dämpningsfaktor för fart över grund, SOG:"
 #
 msgid "Speedometer"
-msgstr "Hastighetsmätare"
+msgstr "Fartmätare"
 #
 msgid "Speedometer max value:"
 msgstr "Hastighetsmätare max värde:"
+#
+msgid ""
+"Stabilizes the surface current 'arrow' in the chart overlay, bearing compass "
+"and also the numerical instruments\n"
+"Low values mean high damping"
+msgstr ""
+"Faktorn stabiliserar strömpilarna på sjökortet och kursinstrumenten\n"
+"Både kompass och data.\n"
+"Ett lågt värde ger hög dämpning"
 #
 msgid "Statute miles"
 msgstr "Eng. Mile"
@@ -347,9 +613,46 @@ msgstr "Sumlogg"
 msgid "Sunrise/Sunset"
 msgstr "Soluppgång/Solnedgång"
 #
-#, fuzzy
+msgid "TWS/TWA "
+msgstr "TWS/TWA "
+#
+msgid "Target Polar Speed"
+msgstr "Polar målhastighet"
+#
+msgid "Target-"
+msgstr "Mål-"
+#
 msgid "Temperature units:"
-msgstr " Djupenhet:  "
+msgstr "Temperaturenheter:"
+#
+msgid "The default on program startup"
+msgstr "Använd denna från start av OCPN"
+#
+msgid ""
+"The layline damping factor determines how fast the  laylines react on your "
+"course changes, i.e. your COG changes.\n"
+" Low values mean high damping."
+msgstr ""
+"Layline dämpningsfaktorn avgör hur snabbt laylines reagerar på dina "
+"kursändringar, dvs. dina COG-ändringar.\n"
+" Låga värden innebär hög dämpning."
+#
+msgid ""
+"The width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the COG range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+"Bredden på båtens layline (kurslinje) är baserad båtens girrörelse (vertikal "
+"axel), dvs din kursförändring. \n"
+"Idén är att visa kursintervallet mot målet. \n"
+" låga värden innebär hög dämpning."
+#
+msgid "This option makes only sense with a real heel sensor."
+msgstr "Detta alternativ är bara relevant med en krängningssensor."
+#
+msgid "This will also disable the AWA/AWS correction."
+msgstr "Detta kommer också att inaktivera AWA/AWS korrigeringen."
 #
 msgid "Title:"
 msgstr "Titel:"
@@ -363,33 +666,56 @@ msgstr "Sann Kompass"
 msgid "True HDG"
 msgstr "Sann HDG"
 #
+msgid "True Wind"
+msgstr "Sann vind"
+#
 msgid "True Wind Angle"
 msgstr "Sann vindvinkel"
 #
 msgid "True Wind Angle & Speed"
-msgstr "Sann vindvinkel & vindstyrka"
+msgstr "Sann vindvinkel & hastighet"
 #
 msgid "True Wind Dir. & Speed"
-msgstr "Sann vindvinkel & vindstyrka"
+msgstr "Sann vindriktning & hast."
 #
 msgid "True Wind Direction"
 msgstr "Sann vindriktning"
 #
 msgid "True Wind Speed"
-msgstr "Sann vindstyrka"
+msgstr "Sann vindhastighet"
 #
 #, c-format
 msgid "UTC-ISO8601%s"
-msgstr ""
+msgstr "UTC-ISO8601%s"
 #
 msgid "Undock"
-msgstr "Ta bort låsning"
+msgstr "Avdocka"
 #
 msgid "Units, Ranges, Formats"
 msgstr "Enheter, avstånd, format"
 #
 msgid "Up"
 msgstr "Upp"
+#
+msgid "Use Heel Sensor"
+msgstr "Använd krängningssensor"
+#
+msgid "Use SOG instead of STW for True Wind Calc."
+msgstr "Använd SOG istället för STW för sann vindberäkning."
+#
+msgid ""
+"Use the internal heel sensor if available\n"
+"Important for the correct calculation of the surface current."
+msgstr ""
+"Använd krängningsmätare om det finns\n"
+"Viktigt för att beräkna strömmen korrekt."
+#
+msgid ""
+"Use with care, this is normally done by the instruments themselves as soon as "
+"you have an integrated, original equipment heel sensor"
+msgstr ""
+"Använd med försiktighet, detta görs normalt av instrumenten själva så snart "
+"du har en integrerad, original krängningssensor"
 #
 msgid "VMG"
 msgstr "VMG"
@@ -407,7 +733,18 @@ msgid "WSW"
 msgstr "VSV"
 #
 msgid "Water Temp."
-msgstr "Vattentemperatur"
+msgstr "Vattentemp."
+#
+msgid ""
+"Width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+"Bredden på båtens layline är baserad båtens girrörelse (vertikal axel), dvs "
+"din kursförändring. \n"
+"Idén är att visa kursintervallet mot målet. \n"
+" låga värden innebär hög dämpning."
 #
 msgid "Wind history"
 msgstr "Vindhistorik"
@@ -416,74 +753,114 @@ msgid "Wind speed units:"
 msgstr "Enhet för vindstyrka:"
 #
 msgid "X"
-msgstr ""
+msgstr "X"
+#
+msgid "You have to turn on OpenGL to use chart overlay "
+msgstr "Du måste aktivera OpenGL att använda överlagrad kartbild "
+#
+msgid "^Tactics Performance Parameters: Select a polar file"
+msgstr "^Taktikprestandaparametrar: Välj en polär fil"
+#
+msgid "avg."
+msgstr "Medel"
+#
+msgid "fixed/max Leeway [°]:"
+msgstr "fast/max avdrift [°]:"
 #
 msgid "km/h"
-msgstr "km/t"
+msgstr "km/h"
 #
 msgid "m/s"
 msgstr "m/s"
+#
+msgid "manual Heel input:"
+msgstr "ange egen krängningsvinkel:"
 #
 msgid "mph"
 msgstr "mph"
 #
 msgid "show this dashboard"
-msgstr "Visa den här panelen"
+msgstr "visa den här panelen"
 #
 msgid "since"
-msgstr ""
+msgstr "sedan"
 #
 msgid "↑Actual "
-msgstr ""
+msgstr "↑Faktisk "
 #
-#, fuzzy
 msgid "↑Average Wind Direction"
-msgstr "Sann vindriktning"
+msgstr "↑Genomsnittlig vindriktning"
 #
-#, fuzzy
 msgid "↑Bearing Compass"
-msgstr "Sann Kompass"
+msgstr "↑Kompassbäring"
 #
-#, fuzzy
 msgid "↑Current Direction"
-msgstr "Sann vindriktning"
+msgstr "↑Strömmens riktning"
 #
 msgid "↑Current Speed"
-msgstr ""
+msgstr "↑Strömhastighet"
 #
 msgid "↑InfluxDB Out"
 msgstr ""
 #
 msgid "↑Leeway"
-msgstr ""
+msgstr "↑Avdrift"
 #
-#, fuzzy
 msgid "↑Polar Compass"
-msgstr "GPS-kompass"
+msgstr "↑Polar kompass"
 #
 msgid "↑Polar Performance"
-msgstr ""
+msgstr "↑Polar prestanda"
 #
 msgid "↑Polar Speed"
-msgstr ""
+msgstr "↑Polar hastighet"
+#
+msgid "↑Show Current"
+msgstr "↑Visa strömmar"
+#
+msgid "↑Show Laylines"
+msgstr "↑Visa Laylines"
+#
+msgid "↑Show Polar"
+msgstr "↑Visa Polardiagram"
+#
+msgid "↑Show Windbarb"
+msgstr "↑Visa vindpilar"
 #
 msgid "↑Signal K In"
-msgstr ""
+msgstr "↑Signal-K In"
 #
 msgid "↑TWA to Waypoint"
-msgstr ""
+msgstr "↑TWA till Waypoint"
+#
+msgid "↑Tactics Performance Parameters"
+msgstr "↑Taktik-Prestandaparametrar"
 #
 msgid "↑Target "
+msgstr "↑Mål "
+#
+msgid "⬤ DashT E-Dial"
 msgstr ""
 #
-msgid "↑z Eng1 Oil P"
+msgid "⬤ DashT Line Chart"
 msgstr ""
 #
-msgid "↑z Eng1 RPM"
-msgstr ""
 #
-msgid "↑z Eng1 Temp"
-msgstr ""
+#~ msgid "Expor trate 10 Seconds"
+#~ msgstr "Skrivintervall 10 sekunder"
 #
-#~ msgid "Dashboard PlugIn for OpenCPN"
-#~ msgstr "Instrumentpanel för OpenCPN"
+#
+#~ msgid "Preferences..."
+#~ msgstr "Inställningar..."
+#
+#
+#~ msgid "↑z Eng1 Oil P"
+#~ msgstr "↑z Motor1Oljetryck"
+#
+#
+#~ msgid "↑z Eng1 RPM"
+#~ msgstr "↑z Motor1 varv/min"
+#
+#
+#~ msgid "↑z Eng1 Temp"
+#~ msgstr "↑z Motor1Temp"

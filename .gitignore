@@ -1,6 +1,13 @@
 *~
 *#
 .#*
+cscope.files
+tags
+index.sh
+cscope.out
+CMakeFiles
+po/*.rule
+*.kdev4
 .ipynb_checkpoints
 *.log
 *.aux
@@ -12,4 +19,3 @@ node_modules
 *.swp
 npm-debug.log
 package-lock.json
-
