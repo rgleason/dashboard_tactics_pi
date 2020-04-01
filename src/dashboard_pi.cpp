@@ -1125,10 +1125,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             (*m_NMEA0183) << sentence;
             if( !m_NMEA0183->PreParse() )
                 return; // failure in NMEA sentence
-            wxLogMessage(
-                "dashboard_pi::SetNMEASentence() : LastSentenceIDReceived = %s (%x)",
-                m_NMEA0183->LastSentenceIDReceived, &(m_NMEA0183->LastSentenceIDReceived));
-            wxString idstr = m_NMEA0183->LastSentenceIDReceived;
         }  // else no Signal K, this is a normal cycle with NMEA-0183 coming from OpenCPN 
     } // else this is NMEA-0183 coming via OpenCPN
 

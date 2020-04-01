@@ -279,8 +279,6 @@ bool NMEA0183::PreParse( void )
 
 
             LastSentenceIDReceived = mnemonic;
-            wxLogMessage(
-                "nme0183:preparse() : LastSentenceIDReceived = %s (%x)", LastSentenceIDReceived, &LastSentenceIDReceived);
 
             return true;
       }
