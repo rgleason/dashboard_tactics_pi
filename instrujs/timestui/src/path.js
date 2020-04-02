@@ -8,12 +8,12 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
-export function getallAskClient() {
-    window.iface.setFlag('bottom', 'getall')
+export function getalldbAskClient() {
+    window.iface.setFlag('bottom', 'getalldb')
 }
 
-export function getallClientAnswer( that ) {
-    that.allpaths= window.iface.getall()
+export function getalldbClientAnswer( that ) {
+    that.allpaths= window.iface.getalldb()
 }
 
 export function getpathAskClient( that ) {
@@ -86,4 +86,3 @@ export function gotAckCheckPath( that ) {
     }
     return
 }
-

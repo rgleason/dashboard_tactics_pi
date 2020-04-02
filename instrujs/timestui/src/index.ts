@@ -1,9 +1,7 @@
-/* $Id: index.tsx, v1.0 2019/11/30 VaderDarth Exp $
+/* $Id: index.ts, v1.0 2019/11/30 VaderDarth Exp $
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
-
-// import "core-js/stable"
 
 import {packagename, version} from '../../src/version'
 console.log('timestui ', packagename(), ' ', version())
@@ -18,10 +16,10 @@ import {setSkPathFontResizingStyle} from './css'
 import visualize from '../../src/state-machine-visualize'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 
-import querytest from './idbclient'
-console.log('making a DB querytest()')
-querytest()
-console.log('out of DB querytest()')
+import {dataQuery} from './idbclient'
+console.log('making a DB dataQuery()')
+dataQuery()
+console.log('out of DB dataQuery(): ')
 
 // we access it with window.iface but this is needed once, to get it in...
 // var iface = require('exports-loader?iface!../../src/iface.js')

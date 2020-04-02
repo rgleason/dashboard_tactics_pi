@@ -13,7 +13,7 @@ import getLocInfo from '../../src/location'
 import {initLoad} from './init'
 import {getidAskClient, getidClientAnswer} from './getid'
 import {getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt} from '../../src/conf'
-import {getallAskClient, getallClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged} from './path'
+import {getalldbAskClient, getalldbClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged} from './path'
 import {setMenuAllPaths, setMenuRunTime, setMenuBackToLoading} from '../../src/menu'
 import {onWaitdataFinalCheck, showData, clearData, prepareDataHalt} from './data'
 import {swapDisplay, rollDisplayToSelection} from './disp'
@@ -40,37 +40,42 @@ export function createStateMachine() {
             luminosity : 'day',
             locInfo    : getLocInfo(),
             // Functional
-            gauge      : [],
-            glastvalue : [0],
+            chart      : [],
             // Signal K Paths
             path       : '',
             allpaths   : [],
             menu       : null
         },
         transitions: [
-            { name: 'init',     from: 'window',   to: 'loading' },
-            { name: 'loaded',   from: 'loading',  to: 'initga' },
-            { name: 'initok',   from: 'initga',   to: 'getid' },
-            { name: 'setid',    from: 'getid',    to: 'hasid' },
-            { name: 'nocfg',    from: 'hasid',    to: 'getall' },
-            { name: 'hascfg',   from: 'hasid',    to: 'getpath' },
-            { name: 'setall',   from: 'getall',   to: 'showmenu' },
-            { name: 'rescan',   from: 'showmenu', to: 'getall' },
-            { name: 'selected', from: 'showmenu', to: 'getpath' },
-            { name: 'acksubs',  from: 'getpath',  to: 'waitdata' },
-            { name: 'newdata',  from: 'waitdata', to: 'showdata' },
-            { name: 'newdata',  from: 'showdata', to: 'showdata' },
-            { name: 'chgconf',  from: 'waitdata', to: 'getall' },
-            { name: 'chgconf',  from: 'showdata', to: 'getall' },
-            { name: 'luminsty', from: 'getid',    to: 'getid' },
-            { name: 'luminsty', from: 'hasid',    to: 'hasid' },
-            { name: 'luminsty', from: 'getpath',  to: 'getpath' },
-            { name: 'luminsty', from: 'waitdata', to: 'waitdata' },
-            { name: 'luminsty', from: 'getall',   to: 'getall' },
-            { name: 'luminsty', from: 'showmenu', to: 'showmenu' },
-            { name: 'luminsty', from: 'showdata', to: 'showdata' },
-            { name: 'swapdisp', from: 'showdata', to: 'showdata' },
-            { name: 'closing',  from: 'showdata', to: 'halt' }
+            { name: 'init',      from: 'window',   to: 'loading' },
+            { name: 'loaded',    from: 'loading',  to: 'initga' },
+            { name: 'initok',    from: 'initga',   to: 'getid' },
+            { name: 'setid',     from: 'getid',    to: 'hasid' },
+            { name: 'nocfg',     from: 'hasid',    to: 'getalldb' },
+            { name: 'hascfg',    from: 'hasid',    to: 'getschema' },
+            { name: 'setalldb',  from: 'getalldb', to: 'showmenu' },
+            { name: 'rescan',    from: 'showmenu', to: 'getalldb' },
+            { name: 'selected',  from: 'showmenu', to: 'getschema' },
+            { name: 'ackschema', from: 'getschema',to: 'getdata' },
+            { name: 'getnew',    from: 'showdata', to: 'getdata' },
+            { name: 'getlaunch', from: 'getdata',  to: 'waitdata' },
+            { name: 'newdata',   from: 'waitdata', to: 'showdata' },
+            { name: 'errdata',   from: 'waitdata', to: 'nodata' },
+            { name: 'retryget',  from: 'nodata',   to: 'getdata' },
+            { name: 'chgconf',   from: 'waitdata', to: 'getalldb' },
+            { name: 'chgconf',   from: 'showdata', to: 'getalldb' },
+            { name: 'chgconf',   from: 'nodata',   to: 'getalldb' },
+            { name: 'luminsty',  from: 'getid',    to: 'getid' },
+            { name: 'luminsty',  from: 'hasid',    to: 'hasid' },
+            { name: 'luminsty',  from: 'getschema',to: 'getschema' },
+            { name: 'luminsty',  from: 'getalldb', to: 'getalldb' },
+            { name: 'luminsty',  from: 'getdata',  to: 'getdata' },
+            { name: 'luminsty',  from: 'waitdata', to: 'waitdata' },
+            { name: 'luminsty',  from: 'nodata',   to: 'nodata' },
+            { name: 'luminsty',  from: 'showmenu', to: 'showmenu' },
+            { name: 'luminsty',  from: 'showdata', to: 'showdata' },
+            { name: 'closing',   from: 'waitdata', to: 'halt' },
+            { name: 'closing',   from: 'showdata', to: 'halt' }
         ],
         methods: {
             onWindow:   function() {
@@ -80,7 +85,7 @@ export function createStateMachine() {
                 if ( dbglevel > 0 ) console.log('onLoading() - state')
                 if ( dbglevel > 1 ) console.log('uid: ', this.uid )
                 if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
-                if ( dbglevel > 1 ) console.log('gauge[', this.gauge.length, ']')
+                if ( dbglevel > 1 ) console.log('chart[', this.chart.length, ']')
                 if ( dbglevel > 1 ) console.log('conf: ', this.conf)
             },
             onInitga:   function() {
@@ -117,18 +122,18 @@ export function createStateMachine() {
                 clearData( this )
                 clearConf( this )
             },
-            onGetall:   function() {
-                if ( dbglevel > 0 ) console.log('onGetall() - state')
-                getallAskClient()
+            onGetalldb:   function() {
+                if ( dbglevel > 0 ) console.log('onGetalldb() - state')
+                getalldbAskClient()
             },
             onShowmenu:  function() {
                 if ( dbglevel > 0 ) console.log('onShowmenu() - state')
-                getallClientAnswer( this )
+                getalldbClientAnswer( this )
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
                 setMenuAllPaths( this )
             },
-            onBeforeRescan: function( lifecycle ) {
-                if ( dbglevel > 0 ) console.log('onRescan() - before transition')
+            onBeforeRetryget: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onRetryget() - before transition')
                 if ( dbglevel > 2) {
                     console.log('- from      : ', lifecycle.from)
                     console.log('- transition: ', lifecycle.transition)
@@ -147,36 +152,38 @@ export function createStateMachine() {
                 this.path = window.iface.getselected()
                 getPathDefaultsIfNew ( this )
             },
-            onGetpath:  function( lifecycle ) {
-                dbgPrintFromTo( 'onGetpath() - state', lifecycle )
+            onGetschema:  function( lifecycle ) {
+                dbgPrintFromTo( 'onGetschema() - state', lifecycle )
                 getpathAskClient( this )
             },
-            onBeforeAcksubs:   function() {
+            onBeforeAckschema:   function() {
                 if ( dbglevel > 0 )
-                    console.log('onAcksubs() - before transition')
+                    console.log('onAckschema() - before transition')
                 clearData( this )
                 gotAckCheckPath( this )
                 getpathAcknowledged( this )
             },
-            onWaitdata: function() {
+            onGetdata: function() {
                 if ( dbglevel > 0 )
-                    console.log('onWaitdata() - state')
+                    console.log('onGetdata() - state')
                 onWaitdataFinalCheck( this )
+            },
+            onBeforeGetlaunch: function() {
+                if ( dbglevel > 0 )
+                    console.log('onGetlaunch() - before transition')
             },
             onBeforeNewdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onNewdata() - before transition')
                 showData( this )
             },
+            onWaitdata: function() {
+                if ( dbglevel > 0 )
+                    console.log('onWaitData() - state')
+            },
             onShowdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onShowData() - state')
-            },
-            onBeforeSwapdisp: function() {
-                if ( dbglevel > 0 )
-                    console.log('onSwapdisp() - before transition')
-                var kbdDir = (window.iface.getswapdisp()===1?'down':'up')
-                swapDisplay( this, kbdDir, true )
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 )
