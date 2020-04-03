@@ -76,6 +76,17 @@ var iface = {
         this.clearFlag( this.elemsetalldb )
         return this.allpathsdb
     },
+    eventrescan : null,
+    elemrescan  : null,
+    regeventrescan: function ( newelem, newevent ) {
+        this.elemrescan = newelem
+        this.eventrescan = newevent
+    },
+    rescan: function() {
+        if ( (this.eventrescan === null) || (this.elemrescan === null) )
+            return
+        this.elemrescan.dispatchEvent( this.eventrescan )
+    },
     eventselected    : null,
     elemselected     : null,
     selectedpath     : '',
@@ -104,25 +115,6 @@ var iface = {
         if ( (this.selectedpath === null) || (this.selectedpath === '') )
             return ''
         return this.selectedpath
-    },
-    eventrescan    : null,
-    elemrescan     : null,
-    regeventrescan: function ( newelem, newevent ) {
-        this.elemrescan = newelem
-        this.eventrescan = newevent
-    },
-    setrescan: function() {
-        try {
-            if ( (this.eventrescan === null) || (this.elemrescan === null) )
-                return
-            this.elemrescan.dispatchEvent( this.eventrescan )
-        }
-        catch (error) {
-            if ( ifacedbglevel > 1 )
-                console.log('iface.setrescan - state machine error',
-                            error)
-            return
-        }
     },
     eventacksubs    : null,
     elemacksubs     : null,
@@ -182,6 +174,44 @@ var iface = {
             return ''
         return this.dbschema
     },
+    eventgetnew    : null,
+    elemgetnew     : null,
+    regeventgetnew: function ( newelem, newevent ) {
+        this.elemgetnew = newelem
+        this.eventgetnew = newevent
+    },
+    setgetnew: function() {
+        try {
+            if ( (this.eventgetnew === null) || (this.elemgetnew === null) )
+                return
+            this.elemgetnew.dispatchEvent( this.eventgetnew )
+        }
+        catch (error) {
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setgetnew - state machine error',
+                            error)
+            return
+        }
+    },
+    eventgetlaunch    : null,
+    elemgetlaunch     : null,
+    regeventgetlaunch: function ( newelem, newevent ) {
+        this.elemgetlaunch = newelem
+        this.eventgetlaunch = newevent
+    },
+    setgetlaunch: function() {
+        try {
+            if ( (this.eventgetlaunch === null) || (this.elemgetlaunch === null) )
+                return
+            this.elemgetlaunch.dispatchEvent( this.eventgetlaunch )
+        }
+        catch (error) {
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setgetlaunch - state machine error',
+                            error)
+            return
+        }
+    },
     eventchgconf    : null,
     elemchgconf     : null,
     chgconfpath     : '',
@@ -228,6 +258,28 @@ var iface = {
         if ( this.value === null )
             return 0.0
         return this.value
+    },
+    eventerrdata    : null,
+    elemerrdata     : null,
+    regeventerrdata: function ( newelem, newevent ) {
+        this.elemerrdata = newelem
+        this.eventerrdata = newevent
+    },
+    errdata: function() {
+        if ( (this.eventerrdata === null) || (this.elemerrdata === null) )
+            return
+        this.elemerrdata.dispatchEvent( this.eventerrdata )
+    },
+    eventretryget    : null,
+    elemretryget     : null,
+    regeventretryget: function ( newelem, newevent ) {
+        this.elemretryget = newelem
+        this.eventretryget = newevent
+    },
+    retryget: function() {
+        if ( (this.eventretryget === null) || (this.elemretryget === null) )
+            return
+        this.elemretryget.dispatchEvent( this.eventretryget )
     },
     eventswapdisp    : null,
     elemswapdisp     : null,

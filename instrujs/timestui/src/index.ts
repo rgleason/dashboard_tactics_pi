@@ -9,23 +9,19 @@ var dbglevel = (window as any).instrustat.debuglevel
 
 import '../../src/iface.js'
 import '../sass/style.scss'
-import {kbdInit} from '../../src/kbd'
-import {createStateMachine} from './statemachine'
 import {setSkPathFontResizingStyle} from './css'
 
-import visualize from '../../src/state-machine-visualize'
+import {kbdInit} from '../../src/kbd'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 
-import {dataQuery} from './idbclient'
-console.log('making a DB dataQuery()')
-dataQuery()
-console.log('out of DB dataQuery(): ')
+// InfluxDB client module
+import {initIdbClient} from './idbclient'
+initIdbClient()
 
-// we access it with window.iface but this is needed once, to get it in...
-// var iface = require('exports-loader?iface!../../src/iface.js')
-// var iface = (window as any).iface
+// State Machine Services
+import {createStateMachine} from './statemachine'
+import visualize from '../../src/state-machine-visualize'
 
-// State Machine Service
 if ( dbglevel > 0 ) console.log('index.js - creating the finite state machine')
 var fsm = createStateMachine()
 if ( dbglevel > 0 ) console.log('fsm created - state: ', fsm.state)
@@ -118,11 +114,26 @@ bottom.addEventListener('setalldb', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  setall: fsm.setalldb() transition failed, error: ', error,
+            'Event:  setalldb: fsm.setalldb() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventsetalldb( bottom, eventsetalldb )
+
+// DB path did not contain wanted path, rescan
+var eventrescan: Event = document.createEvent('Event')
+eventrescan.initEvent('rescan', false, false)
+bottom.addEventListener('rescan', ((event: Event) => {
+    try {
+        fsm.rescan()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  rescan: fsm.rescan() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventrescan( bottom, eventrescan )
 
 // Selection of a path has been made
 var eventselected: Event = document.createEvent('Event')
@@ -139,27 +150,12 @@ bottom.addEventListener('selected', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventselected( bottom, eventselected )
 
-// Selection of a path requires reload
-var eventrescan: Event = document.createEvent('Event')
-eventrescan.initEvent('rescan', false, false)
-bottom.addEventListener('rescan', ((event: Event) => {
-    try {
-        fsm.rescan()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  rescan: fsm.rescan() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventrescan( bottom, eventrescan )
-
 // Selection of a path has been acknowledged
 var eventacksubs: Event = document.createEvent('Event')
 eventacksubs.initEvent('acksubs', false, false)
 bottom.addEventListener('acksubs', ((event: Event) => {
     console.error(
-        'Event:  ackschema: error: timestui does not ask for path subscription')
+        'Event:  acksubs: error: timestui does not ask for path subscription')
 }) as EventListener);
 (window as any).iface.regeventacksubs( bottom, eventacksubs )
 
@@ -178,14 +174,80 @@ bottom.addEventListener('ackschema', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventackschema( bottom, eventackschema )
 
-// New data is coming in
+// Request to fetch new data from DB
+var eventgetnew: Event = document.createEvent('Event')
+eventgetnew.initEvent('getnew', false, false)
+bottom.addEventListener('getnew', ((event: Event) => {
+    try {
+        fsm.getnew()
+    }
+    catch( error ) {
+        console.error(
+            'Event: getnew: fsm.getnew() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventgetnew( bottom, eventgetnew )
+
+// New data fetch has been launched
+var eventgetlaunch: Event = document.createEvent('Event')
+eventgetlaunch.initEvent('getlaunch', false, false)
+bottom.addEventListener('getlaunch', ((event: Event) => {
+    try {
+        fsm.getlaunch()
+    }
+    catch( error ) {
+        console.error(
+            'Event: getlaunch: fsm.getlaunch() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventgetlaunch( bottom, eventgetlaunch )
+
+// New data is availale
 var eventnewdata: Event = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
 bottom.addEventListener('newdata', ((event: Event) => {
-    console.error(
-        'Event:  newdata: error: timestui does not ask data from a path subscription')
+    try {
+        fsm.newdata()
+    }
+    catch( error ) {
+        console.error(
+            'Event: newdata: fsm.newdata() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
+
+// Asynchronous data retrieval from DB has failed
+var eventerrdata: Event = document.createEvent('Event')
+eventerrdata.initEvent('errdata', false, false)
+bottom.addEventListener('errdata', ((event: Event) => {
+    try {
+        fsm.errdata()
+    }
+    catch( error ) {
+        console.error(
+            'Event: errdata: fsm.errdata() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventerrdata( bottom, eventerrdata )
+
+// Retry Asynchronous data retrieval from DB
+var eventretryget: Event = document.createEvent('Event')
+eventretryget.initEvent('retryget', false, false)
+bottom.addEventListener('retryget', ((event: Event) => {
+    try {
+        fsm.retryget()
+    }
+    catch( error ) {
+        console.error(
+            'Event: retryget: fsm.retryget() transition failed, error: ', error,
+            ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventretryget( bottom, eventretryget )
 
 // Change of configuration has been requested
 var eventchgconf: Event = document.createEvent('Event')
@@ -222,15 +284,8 @@ kbdInit()
 var eventswapdisp: Event = document.createEvent('Event')
 eventswapdisp.initEvent('swapdisp', false, false)
 bottom.addEventListener('swapdisp', ((event: Event) => {
-    try {
-        if ( fsm.state === 'showdata')
-            fsm.swapdisp()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  swapdisp: fsm.swapdisp() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
+    console.error(
+        'Event:  swapdisp: error: timestui does not deal with this event (for now)')
 }) as EventListener);
 (window as any).iface.regeventswapdisp( bottom, eventswapdisp )
 
@@ -277,7 +332,7 @@ var unloadScrollBars = function() {
 
 window.addEventListener('load',
     function() {
-        if ( dbglevel > 0 ) console.log('index.js - state: ', fsm.state)
+        if ( dbglevel > 0 ) console.log('index.ts - state: ', fsm.state)
 
         unloadScrollBars()
 

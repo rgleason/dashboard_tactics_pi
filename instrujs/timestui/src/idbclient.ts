@@ -8,8 +8,12 @@ import {url, token, org, bucket} from './env'
 
 var dbglevel: number = (window as any).instrustat.debuglevel
 
-var locstate: string = 'RDY'
+var locstate: string = ''
 var jsonCollectedData: string[] = []
+
+export function initIdbClient() {
+    locstate = 'RDY'
+}
 
 export function getIdbClientState() : string {
     return locstate

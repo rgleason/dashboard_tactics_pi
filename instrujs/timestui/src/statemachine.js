@@ -20,12 +20,10 @@ import {swapDisplay, rollDisplayToSelection} from './disp'
 import {getNewLuminosity} from './css'
 
 function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
-    if ( dbglevel > 0 ) console.log( stateOrTransStr )
-    if ( dbglevel > 2) {
-        console.log('- transition: ', lifecycle.transition)
-        console.log('- from      : ', lifecycle.from)
-        console.log('- to        : ', lifecycle.to)
-    }
+    console.log( stateOrTransStr )
+    console.log('- transition: ', lifecycle.transition)
+    console.log('- from      : ', lifecycle.from)
+    console.log('- to        : ', lifecycle.to)
 }
 
 export function createStateMachine() {
@@ -109,11 +107,8 @@ export function createStateMachine() {
             },
             onBeforeNocfg: function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onNocfg() - before transition')
-                if ( dbglevel > 2) {
-                    console.log('- transition: ', lifecycle.transition)
-                    console.log('- from      : ', lifecycle.from)
-                    console.log('- to        : ', lifecycle.to)
-                }
+                if ( dbglevel > 2)
+                    dbgPrintFromTo( 'onBeforeNocfg', lifecycle )
                 this.perspath = false
             },
             onBeforeChgconf: function() {
@@ -134,11 +129,8 @@ export function createStateMachine() {
             },
             onBeforeRetryget: function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onRetryget() - before transition')
-                if ( dbglevel > 2) {
-                    console.log('- from      : ', lifecycle.from)
-                    console.log('- transition: ', lifecycle.transition)
-                    console.log('- to        : ', lifecycle.to)
-                }
+                if ( dbglevel > 2)
+                    dbgPrintFromTo( 'onBeforeRetryget', lifecycle )
                 setMenuBackToLoading( this )
             },
             onBeforeHascfg: function( lifecycle ) {
