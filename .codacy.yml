@@ -5,6 +5,8 @@ engines:
      - data/instrujs/common.js
      - data/instrujs/common.min.js
      - data/instrujs/confstat.js
+     - instrujs/enginedjg/src/statemachine.js
+     - instrujs/timestui/src/statemachine.js
 exclude_paths:
   - 'data/instrujs/*.min.js'
   - 'data/instrujs/**/bundle.js'
