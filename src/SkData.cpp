@@ -255,13 +255,14 @@ wxString SkData::getAllDbSchemasJsOrderedList()
     std::string keyID;
     dbQueryMapPair thisEntry;
     SkDataPathList *tmpPathList = new SkDataPathList();
-    db_query_map::iterator it = m_dbQueryMap->begin();
-    while ( it != m_dbQueryMap->end() ) {
-        thisEntry = *it;
+    db_query_map::iterator itr = m_dbQueryMap->begin();
+    while ( itr != m_dbQueryMap->end() ) {
+        thisEntry = *itr;
         keyID = std::get<0>(thisEntry);
         if ( !keyID.empty() ) {
             tmpPathList->push_back( keyID );
         } // then path, add it to list
+        ++itr;
     } // while items in the query schema map
     wxJSONValue noJSON( wxJSONTYPE_NULL );
     return getAllJsOrderedList( tmpPathList, noJSON );
@@ -283,6 +284,7 @@ wxString SkData::getDbSchemaJs( wxString *path )
                 return jsSchema;
             } // then a hit, return
         } 
+        ++itr;
     } // while items in the query schema map
     return wxEmptyString;
 }
