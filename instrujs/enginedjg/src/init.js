@@ -7,7 +7,7 @@
 
 import getLocInfo from '../../src/location'
 import { createGauge } from './gauge'
-import { setSkPathFontResizingStyle } from './css'
+import { setSkPathFontResizingStyle } from '../../src/css'
 import { createEmptyConf } from '../../src/conf'
 
 export function initLoad( that ) {
@@ -17,4 +17,3 @@ export function initLoad( that ) {
     setSkPathFontResizingStyle()
     that.conf = createEmptyConf()
 }
-

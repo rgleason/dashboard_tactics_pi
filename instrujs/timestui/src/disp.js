@@ -9,7 +9,7 @@ import sanitizer from '../../src/escapeHTML'
 var Sanitizer = sanitizer()
 
 // import { createGauge } from './gauge'
-import { hasProportionalFontSupport } from './css'
+import { hasProportionalFontSupport } from '../../src/css'
 import { showData } from './data'
 import { memorizeSettings } from '../../src/conf'
 

@@ -3,45 +3,9 @@
  * Licensed under MIT - see distribution.
  */
 
-import '../sass/style.scss'
+ import { hasProportionalFontSupport } from '../../src/css'
 
-var skpathispropl = false
-
-export function setSkPathFontResizingStyle() {
-    var hasproplsupport = false
-    var hadexception = false
-    var ua = window.navigator.userAgent
-    var msie = ua.indexOf('MSIE ')
-    try { 
-        if ( CSS.supports ) {
-            if ( CSS.supports('font-size',
-                              getComputedStyle(
-                                  document.documentElement).getPropertyValue(
-                                      '--skpproplw')) ) {
-                console.log('Has viewport proportional font size support')
-                hasproplsupport = true
-            }
-            else{
-                console.log('No viewport proportional font size support, use media properties')
-            }
-        }
-    }
-    catch( error ) {
-        hadexception = true
-        console.log('No CSS.supports() - got exception, use media properties - unless this is a MSIE: use propl, anyway!')
-    }
-    if ( hasproplsupport || ( hadexception && (msie > 0) ) ) {
-        skpathispropl = true
-        document.getElementById('skPath').className = 'skpath propl day'
-    }
-    else
-        document.getElementById('skPath').className = 'skpath fixed day'
-    return
-}
-
-export function hasProportionalFontSupport() {
-    return skpathispropl
-}
+// Please refer to local ../sass/style.scss
 
 export function getNewLuminosity( that ) {
     var newluminosity = window.iface.getluminsty()
@@ -56,7 +20,7 @@ export function getNewLuminosity( that ) {
         if ( !(newclass === oldclass) )
             elem.className = newclass
 
-        if ( skpathispropl )
+        if ( hasProportionalFontSupport() )
             newclass = 'skpath propl ' + newluminosity
         else
             newclass = 'skpath fixed ' + newluminosity
@@ -68,7 +32,7 @@ export function getNewLuminosity( that ) {
         var elemnum = document.getElementById('numgauge0')
         if ( elemnum !== null ) {
             oldclass = elemnum.className
-            if ( skpathispropl )
+            if ( hasProportionalFontSupport() )
                 newclass = 'numgauge propl ' + newluminosity
             else
                 newclass = 'numgauge fixed ' + newluminosity
@@ -78,7 +42,7 @@ export function getNewLuminosity( that ) {
         var elemunit = document.getElementById('numgunit0')
         if ( elemunit !== null ) {
             oldclass = elemunit.className
-            if ( skpathispropl )
+            if ( hasProportionalFontSupport() )
                 newclass = 'numgunit propl ' + newluminosity
             else
                 newclass = 'numgunit fixed ' + newluminosity

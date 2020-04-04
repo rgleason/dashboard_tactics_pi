@@ -7,7 +7,7 @@
 
 import getLocInfo from '../../src/location'
 import { startTimesTuiChart } from './chart'
-import { setSkPathFontResizingStyle } from './css'
+import { setSkPathFontResizingStyle } from '../../src/css'
 import { createEmptyConf } from '../../src/conf'
 
 export function initLoad( that ) {
