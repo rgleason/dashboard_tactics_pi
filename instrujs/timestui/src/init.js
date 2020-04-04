@@ -13,7 +13,6 @@ import { createEmptyConf } from '../../src/conf'
 export function initLoad( that ) {
     that.locInfo = getLocInfo()
     startTimesTuiChart()
-    that.glastvalue[0] = 0
     setSkPathFontResizingStyle()
     that.conf = createEmptyConf()
 }

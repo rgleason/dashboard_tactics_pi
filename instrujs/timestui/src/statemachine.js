@@ -111,6 +111,12 @@ export function createStateMachine() {
                     dbgPrintFromTo( 'onBeforeNocfg', lifecycle )
                 this.perspath = false
             },
+            onBeforeRescan: function() {
+                if ( dbglevel > 0 ) console.log('onRescan() - before transition')
+                setMenuBackToLoading( this )
+                clearData( this )
+                clearConf( this )
+            },
             onBeforeChgconf: function() {
                 if ( dbglevel > 0 ) console.log('onChgconf() - before transition')
                 setMenuBackToLoading( this )

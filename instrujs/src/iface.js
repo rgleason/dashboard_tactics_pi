@@ -82,7 +82,7 @@ var iface = {
         this.elemrescan = newelem
         this.eventrescan = newevent
     },
-    rescan: function() {
+    setrescan: function() {
         if ( (this.eventrescan === null) || (this.elemrescan === null) )
             return
         this.elemrescan.dispatchEvent( this.eventrescan )

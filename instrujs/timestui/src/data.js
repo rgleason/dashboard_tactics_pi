@@ -51,6 +51,7 @@ var suppressShowData = false
 export function showData( that ) {
     if ( suppressShowData )
         return
+/*
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue
     console.log('dispvalue : ', dispvalue)
@@ -136,21 +137,24 @@ export function showData( that ) {
             elemunit.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
         }
     }
+*/
 }
 
 export function clearData( that ) {
-    that.glastvalue = 0
-    if ( that.gauge.length > 0 ) {
-        that.gauge[0].symbol = ''
-        that.gauge[0].refresh( 0, 100, 0, '' )
-    }
-    else {
-        document.getElementById('numgauge0').innerHTML = '&nbsp;'
-        document.getElementById('numgunit0').innerHTML = '&nbsp;'
-    }
-    suppressShowData = true // otherwise the rolling dial will check for value
-    rollDisplayToSelection( that )
-    suppressShowData = false
+
+    // that.glastvalue = 0
+    // if ( that.gauge.length > 0 ) {
+    //     that.gauge[0].symbol = ''
+    //     that.gauge[0].refresh( 0, 100, 0, '' )
+    // }
+    // else {
+    //     document.getElementById('numgauge0').innerHTML = '&nbsp;'
+    //     document.getElementById('numgunit0').innerHTML = '&nbsp;'
+    // }
+    // suppressShowData = true // otherwise the rolling dial will check for value
+    // rollDisplayToSelection( that )
+    // suppressShowData = false
+
 }
 
 export function prepareDataHalt( that ) {
