@@ -111,6 +111,15 @@ bottom.addEventListener('setalldb', function (e) {
 }, true)
 window.iface.regeventsetalldb( bottom, eventsetalldb )
 
+// DB path did not contain wanted path, rescan
+var eventrescan = document.createEvent('Event')
+eventrescan.initEvent('rescan', false, false)
+bottom.addEventListener('setalldb', function (e) {
+        console.error(
+            'Event:  eventrescan: error: enginedjg does not require DB paths')
+}, true)
+window.iface.regeventrescan( bottom, eventrescan )
+
 // Selection of a path has been made
 var eventselected = document.createEvent('Event')
 eventselected.initEvent('selected', false, false)
@@ -125,21 +134,6 @@ bottom.addEventListener('selected', function (e) {
     }
 }, true)
 window.iface.regeventselected( bottom, eventselected )
-
-// Selection of a path requires reload
-var eventrescan = document.createEvent('Event')
-eventrescan.initEvent('rescan', false, false)
-bottom.addEventListener('rescan', function (e) {
-    try {
-        fsm.rescan()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  rescan: fsm.rescan() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
-}, true)
-window.iface.regeventrescan( bottom, eventrescan )
 
 // Selection of a path has been acknowledged
 var eventacksubs = document.createEvent('Event')
@@ -165,6 +159,24 @@ bottom.addEventListener('ackschema', function (e) {
 }, true)
 window.iface.regeventackschema( bottom, eventackschema )
 
+// Request to fetch new data from DB
+var eventgetnew = document.createEvent('Event')
+eventgetnew.initEvent('getnew', false, false)
+bottom.addEventListener('getnew', function (e) {
+    console.error(
+        'Event:  getnew: error: enginedjg does not ask new data from DB')
+}, true)
+window.iface.regeventgetnew( bottom, eventgetnew )
+
+// New data fetch has been launched
+var eventgetlaunch = document.createEvent('Event')
+eventgetlaunch.initEvent('getlaunch', false, false)
+bottom.addEventListener('getlaunch', function (e) {
+    console.error(
+        'Event:  getlaunch: error: enginedjg does not ask nor wait data from DB')
+}, true)
+window.iface.regeventgetlaunch( bottom, eventgetlaunch )
+
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
@@ -179,8 +191,26 @@ bottom.addEventListener('newdata', function (e) {
             ' current state: ', fsm.state)
     }
 }, true)
-window.iface.regeventnewdata( bottom, eventnewdata
-                            )
+window.iface.regeventnewdata( bottom, eventnewdata )
+
+// Asynchronous data retrieval from DB has failed
+var eventerrdata = document.createEvent('Event')
+eventerrdata.initEvent('errdata', false, false)
+bottom.addEventListener('errdata', function (e) {
+    console.error(
+        'Event:  errdata: error: enginedjg has not asked any data from DB')
+}, true)
+window.iface.regeventerrdata( bottom, eventerrdata )
+
+// Retry Asynchronous data retrieval from DB
+var eventretryget = document.createEvent('Event')
+eventretryget.initEvent('retryget', false, false)
+bottom.addEventListener('retryget', function (e) {
+    console.error(
+        'Event:  errdata: error: enginedjg is not getting data from DB, no retry')
+}, true)
+window.iface.regeventretryget( bottom, eventretryget )
+
 // Change of configuration has been requested
 var eventchgconf = document.createEvent('Event')
 eventchgconf.initEvent('chgconf', false, false)
