@@ -369,7 +369,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             else if ( request.CmpNoCase("getalldb") == 0 ) {
                 if ( m_setAllPathGraceCount == -1 ) {
                     m_pparent->collectAllDbSchemaPaths();
-                    m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
+                    m_setAllPathGraceCount = JSI_GETALLDB_GRACETIME;
                 }
                 else if ( m_setAllPathGraceCount == 0 ) {
                     wxString allDBSchemasPathsJsList = m_pparent->getAllDbSchemasJsOrderedList();

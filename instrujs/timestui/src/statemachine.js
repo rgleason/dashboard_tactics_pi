@@ -60,6 +60,7 @@ export function createStateMachine() {
             { name: 'newdata',   from: 'waitdata', to: 'showdata' },
             { name: 'errdata',   from: 'waitdata', to: 'nodata' },
             { name: 'retryget',  from: 'nodata',   to: 'getdata' },
+            { name: 'chgconf',   from: 'getschema',to: 'getalldb' },
             { name: 'chgconf',   from: 'waitdata', to: 'getalldb' },
             { name: 'chgconf',   from: 'showdata', to: 'getalldb' },
             { name: 'chgconf',   from: 'nodata',   to: 'getalldb' },
