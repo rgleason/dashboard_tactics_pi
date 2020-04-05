@@ -265,7 +265,7 @@ var iface = {
         this.elemerrdata = newelem
         this.eventerrdata = newevent
     },
-    errdata: function() {
+    seterrdata: function() {
         if ( (this.eventerrdata === null) || (this.elemerrdata === null) )
             return
         this.elemerrdata.dispatchEvent( this.eventerrdata )
@@ -276,7 +276,7 @@ var iface = {
         this.elemretryget = newelem
         this.eventretryget = newevent
     },
-    retryget: function() {
+    setretryget: function() {
         if ( (this.eventretryget === null) || (this.elemretryget === null) )
             return
         this.elemretryget.dispatchEvent( this.eventretryget )
