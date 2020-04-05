@@ -37,52 +37,52 @@ export function getpathAskClient( that ) {
     }
 }
 
-export function getpathAcknowledged( that ) {
+export function getschemaAcknowledged( that ) {
     window.iface.clearFlagById( 'bottom' )
 }
 
-export function gotAckCheckPath( that ) {
+export function gotAckCheckSchema( that ) {
     if ( dbglevel > 0 )
-        console.log('path.js gotAckCheckPath()')
-    var expectedpath = that.path
-    if ( that.perspath ) {
-        if ( that.conf === null ) {
-            if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
-        }
-        if ( (that.conf.path === null) || (that.conf.path === '') ) {
-            if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
-        }
-        expectedpath = that.conf.path
-    }
-    var acknowledgedpath = window.iface.getacksubs()
-    if ( dbglevel > 1 )
-        console.log('path.js gotAckCheckPath() - acknowledgedpath: ', acknowledgedpath)
-    if ( (acknowledgedpath !== null) && (acknowledgedpath !== '') ) {
-        if ( acknowledgedpath === expectedpath ) {
-            if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - acknowledgedpath matches: ', expectedpath)
-        }
-        else {
-            if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - acknowledgedpath mismatch! Requested: ', expectedpath,
-                            ', got: ', acknowledgedpath)
-            if ( alertsenabled )
-                alert ( window.instrulang.errSubscriptionAck1 + '\n' +
-                        expectedpath + '\n' +
-                        window.instrulang.errSubscriptionAck2 + '\n' +
-                        acknowledgedpath )
-        }
-    }
-    else {
-        if ( dbglevel > 0 )
-            console.log('path.js gotAckCheckPath() - acknowledgedpath is empty or null! Requested: ', expectedpath)
-        if ( alertsenabled )
-            alert ( window.instrulang.errSubscriptionAck1 + '\n' +
-                    expectedpath + '\n' +
-                    window.instrulang.errSubscriptionAck2 + '\n' +
-                    '' )
-    }
-    return
+        console.log('path.js gotAckChecSchema()')
+    // var expectedpath = that.path
+    // if ( that.perspath ) {
+    //     if ( that.conf === null ) {
+    //         if ( dbglevel > 0 )
+    //             console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
+    //     }
+    //     if ( (that.conf.path === null) || (that.conf.path === '') ) {
+    //         if ( dbglevel > 0 )
+    //             console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
+    //     }
+    //     expectedpath = that.conf.path
+    // }
+    // var acknowledgedpath = window.iface.getacksubs()
+    // if ( dbglevel > 1 )
+    //     console.log('path.js gotAckCheckPath() - acknowledgedpath: ', acknowledgedpath)
+    // if ( (acknowledgedpath !== null) && (acknowledgedpath !== '') ) {
+    //     if ( acknowledgedpath === expectedpath ) {
+    //         if ( dbglevel > 0 )
+    //             console.log('path.js gotAckCheckPath() - acknowledgedpath matches: ', expectedpath)
+    //     }
+    //     else {
+    //         if ( dbglevel > 0 )
+    //             console.log('path.js gotAckCheckPath() - acknowledgedpath mismatch! Requested: ', expectedpath,
+    //                         ', got: ', acknowledgedpath)
+    //         if ( alertsenabled )
+    //             alert ( window.instrulang.errSubscriptionAck1 + '\n' +
+    //                     expectedpath + '\n' +
+    //                     window.instrulang.errSubscriptionAck2 + '\n' +
+    //                     acknowledgedpath )
+    //     }
+    // }
+    // else {
+    //     if ( dbglevel > 0 )
+    //         console.log('path.js gotAckCheckPath() - acknowledgedpath is empty or null! Requested: ', expectedpath)
+    //     if ( alertsenabled )
+    //         alert ( window.instrulang.errSubscriptionAck1 + '\n' +
+    //                 expectedpath + '\n' +
+    //                 window.instrulang.errSubscriptionAck2 + '\n' +
+    //                 '' )
+    // }
+    // return
 }

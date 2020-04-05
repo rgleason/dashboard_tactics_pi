@@ -13,7 +13,7 @@ import getLocInfo from '../../src/location'
 import {initLoad} from './init'
 import {getidAskClient, getidClientAnswer} from './getid'
 import {getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt} from '../../src/conf'
-import {getalldbAskClient, getalldbClientAnswer, getpathAskClient, gotAckCheckPath, getpathAcknowledged} from './path'
+import {getalldbAskClient, getalldbClientAnswer, getpathAskClient, gotAckCheckSchema, getschemaAcknowledged} from './path'
 import {setMenuAllPaths, setMenuRunTime, setMenuBackToLoading} from '../../src/menu'
 import {onWaitdataFinalCheck, showData, clearData, prepareDataHalt} from './data'
 import {swapDisplay, rollDisplayToSelection} from './disp'
@@ -158,9 +158,13 @@ export function createStateMachine() {
             onBeforeAckschema:   function() {
                 if ( dbglevel > 0 )
                     console.log('onAckschema() - before transition')
+                alert ('onAckschema() - before transition - next clearData()')
                 clearData( this )
-                gotAckCheckPath( this )
-                getpathAcknowledged( this )
+                alert ('onAckschema() - before transition - next gotAckChecSchema()')
+                gotAckCheckSchema( this )
+                alert ('onAckschema() - before transition - next getschemaAcknowledged()')
+                getschemaAcknowledged( this )
+                alert ('onAckschema() - before transition - done.')
             },
             onGetdata: function() {
                 if ( dbglevel > 0 )

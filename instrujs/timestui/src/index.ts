@@ -163,6 +163,7 @@ bottom.addEventListener('acksubs', ((event: Event) => {
 var eventackschema: Event = document.createEvent('Event')
 eventackschema.initEvent('ackschema', false, false)
 bottom.addEventListener('ackschema', ((event: Event) => {
+    alert ('Event: acksubs')
     try {
         fsm.ackschema()
     }
@@ -170,6 +171,8 @@ bottom.addEventListener('ackschema', ((event: Event) => {
         console.error(
             'Event:  acksubs: fsm.ackschema() transition failed, error: ', error,
             ' current state: ', fsm.state)
+        alert(
+            'Event:  acksubs: fsm.ackschema() transition failed, error: ' + error.message)
     }
 }) as EventListener);
 (window as any).iface.regeventackschema( bottom, eventackschema )
