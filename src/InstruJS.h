@@ -64,7 +64,6 @@ enum instruState {
     JSI_GETPATH,
     JSI_SHOWDATA,
     JSI_GETDBOUT,
-    JSI_GETSCHEMA,
     JSI_NOF_STATES
 };
 enum instruHandShake {
@@ -73,6 +72,10 @@ enum instruHandShake {
     JSI_HDS_SERVING,
     JSI_HDS_SERVED,
     JSI_HDS_ACKNOWLEDGED
+};
+enum instruDataSource { // can be an OR of the below for multiple sources
+    JSI_DS_INCOMING_DATA_SUBSCRIPTION   = 1 << 0,
+    JSI_DS_EXTERNAL_DATABASE            = 1 << 1
 };
 
 #define JSI_GETALL_GRACETIME    8 // ticks (roughly = seconds)
@@ -92,7 +95,7 @@ class InstruJS : public DashboardInstrument
 {
 public:
     InstruJS( TacticsWindow* pparent, wxWindowID id, wxString ids,
-              PI_ColorScheme cs );
+              PI_ColorScheme cs, unsigned long ds );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
@@ -123,8 +126,10 @@ protected:
     wxString             m_requestServed;
     bool                 m_hasRequestedId;
     int                  m_setAllPathGraceCount;
+    unsigned long        m_dsDataSource;
     wxString             m_pushHereUUID;
     wxString             m_subscribedPath;
+    bool                 m_hasSchemDataCollected;
     wxWindowID           m_id;
     wxString             m_ids;
     wxString             m_substyle;
@@ -138,6 +143,7 @@ protected:
     bool                 m_threadRunning;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
+    bool                 m_webpanelReloadWait;
     bool                 m_webPanelSuspended;
     bool                 m_webpanelStopped;
     wxWebView           *m_pWebPanel;

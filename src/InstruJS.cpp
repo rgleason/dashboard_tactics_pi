@@ -58,7 +58,7 @@ wxEND_EVENT_TABLE ()
 //************************************************************************************************************************
 
 InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
-                    PI_ColorScheme cs ) :
+                    PI_ColorScheme cs, unsigned long ds ) :
                     DashboardInstrument( pparent, id, "---", 0LL, true )
 {
     m_pparent = pparent;
@@ -68,8 +68,10 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_requestServed = wxEmptyString;
     m_hasRequestedId = false;
     m_setAllPathGraceCount = -1;
+    m_dsDataSource = ds;
     m_pushHereUUID = wxEmptyString;
     m_subscribedPath = wxEmptyString;
+    m_hasSchemDataCollected = false;
 
     m_id = id;
     m_ids = ids;
@@ -88,6 +90,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
+    m_webpanelReloadWait = false;
     m_webPanelSuspended  = false;
     m_webpanelStopped = false;
 
@@ -375,6 +378,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     wxString allDBSchemasPathsJsList = m_pparent->getAllDbSchemasJsOrderedList();
                     if ( allDBSchemasPathsJsList != wxEmptyString ) {
                         m_istate = JSI_GETDBOUT;
+                        m_hasSchemDataCollected = true;
                         wxString javascript =
                             wxString::Format(
                                 L"%s%s%s",
@@ -389,7 +393,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
-                if ( m_istate != JSI_GETDBOUT ) {
+                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
                     m_istate = JSI_GETPATH;
                     if ( m_pushHere == NULL )
                         m_pushHere = std::bind(&InstruJS::PushData,
@@ -408,24 +412,36 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     RunScript( javascript );
                     m_istate = JSI_SHOWDATA;
                     m_handshake = JSI_HDS_SERVED;
-                    break;
-                } // then knows path wants to subscribe to data
-                else {
-                    m_istate = JSI_GETSCHEMA;
-                    m_subscribedPath = request;
-                    wxString schemaJSclass =
-                        m_pparent->getDbSchemaJs( &this->m_subscribedPath );
-                    wxString javascript =
-                        wxString::Format(
-                            L"%s%s%s",
-                            "window.iface.ackschema('",
-                            schemaJSclass,
-                            "');");
-                    RunScript( javascript );
-                    m_istate = JSI_SHOWDATA;
-                    m_handshake = JSI_HDS_SERVED;
-                    break;
-                } // else got all DB'd paths, now wants a DB schema of one of those
+                } // then knows path wants to subscribe to incoming data
+                if ( (m_dsDataSource & JSI_DS_EXTERNAL_DATABASE) != 0 ) {
+                    if ( !m_hasSchemDataCollected ) {
+                        if ( m_setAllPathGraceCount == -1 ) {
+                            m_setAllPathGraceCount = JSI_GETALLDB_GRACETIME;
+                            m_pparent->collectAllDbSchemaPaths();
+                        }
+                        else if ( m_setAllPathGraceCount == 0 ) {
+                            wxString allDBSchemasPathsJsList =
+                                m_pparent->getAllDbSchemasJsOrderedList();
+                            if ( allDBSchemasPathsJsList != wxEmptyString ) {
+                                m_hasSchemDataCollected = true;
+                            } // then there are schemas
+                        } // else then gracetime passed
+                        m_setAllPathGraceCount--;
+                    } // then this is instrument with a memory of its path, needs schemas
+                    if ( m_hasSchemDataCollected ) {
+                        m_istate = JSI_GETPATH;
+                        m_subscribedPath = request;
+                        wxString schemaJSclass =
+                            m_pparent->getDbSchemaJs( &this->m_subscribedPath );
+                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema(\"" );
+                        javascript = javascript + schemaJSclass;
+                        javascript = javascript + wxString::Format( L"%s", "\");" );
+                        RunScript( javascript );
+                        m_istate = JSI_SHOWDATA;
+                        m_handshake = JSI_HDS_SERVED;
+                    } // has got all DB'd paths, now wants a DB schema of one of those
+                } // then a data source from external database, needs a schems for path
+                break;
             }
             else
                 break;
@@ -481,9 +497,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-                m_istate = JSI_WINDOW_LOADED;
+                m_pWebPanel->Reload(); // local servers w/ no time: clean cache
+                m_webpanelReloadWait = true;
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } //then poll until the initial page is loaded (load event _not_ working down here)
+        if ( m_webpanelCreated && m_webpanelReloadWait ) {
+            if ( !m_pWebPanel->IsBusy() ) {
+                m_webpanelReloadWait = false;
+                m_istate = JSI_WINDOW_LOADED;
+            } // then page is reloaded
+        } // then poll until page reloaded - to make sure to have the latest .js versions
     } // else the webpanel is not yet loaded / scripts are not running
     m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
 }
