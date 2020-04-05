@@ -229,6 +229,7 @@
             "field2"      : "",
             "field3"      : "",
             "skpathe"     : "environment.wind.speedTrueGround"
+//            "skpathe"     : "environment.wind.speedTrueWater"
         },
         {
             "sentence"    : "OCPN_DBP_STC_DPT",
@@ -402,6 +403,7 @@
             "field2"      : "",
             "field3"      : "",
             "skpathe"     : "environment.wind.mwv.speedTrueGround"
+//            "skpathe"     : "environment.wind.mwv.speedTrueWater"
         },
         {
             "sentence"    : "OCPN_DBP_STC_VLW1",
