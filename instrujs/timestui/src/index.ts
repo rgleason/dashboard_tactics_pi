@@ -159,11 +159,35 @@ bottom.addEventListener('acksubs', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventacksubs( bottom, eventacksubs )
 
+/*
+   Getdata is a transitional state - it has three posssible entries:
+   1/ ackshema - new schema received from the C++ clieant
+   2/ getnew - new data query cycle launched
+   3/ retryget - error has occurred but new data query cycle launched
+   Since FSM cannot launch its own event we need to serve transitions
+ */
+function pollgetdata () {
+    if ( dbglevel > 0 )
+        console.log('pollgetdata() - waiting for getdata, now: ', fsm.state)
+    if ( fsm.is('getdata') ) {
+        alert('pollgetdata() - getdata now, getlaunch')
+        try {
+            fsm.getlaunch()
+        }
+        catch( error ) {
+            console.error(
+                'index.js:  fsm.getlaunch() transition failed, error: ', error,
+                ' current state: ', fsm.state)
+        }
+    } else {
+        setTimeout(pollgetdata, 100)
+    }
+}
+
 // Requested database schema is now available
 var eventackschema: Event = document.createEvent('Event')
 eventackschema.initEvent('ackschema', false, false)
 bottom.addEventListener('ackschema', ((event: Event) => {
-    alert ('Event: acksubs')
     try {
         fsm.ackschema()
     }
@@ -171,9 +195,8 @@ bottom.addEventListener('ackschema', ((event: Event) => {
         console.error(
             'Event:  acksubs: fsm.ackschema() transition failed, error: ', error,
             ' current state: ', fsm.state)
-        alert(
-            'Event:  acksubs: fsm.ackschema() transition failed, error: ' + error.message)
     }
+    pollgetdata()
 }) as EventListener);
 (window as any).iface.regeventackschema( bottom, eventackschema )
 
@@ -222,6 +245,32 @@ bottom.addEventListener('newdata', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
 
+/*
+   Nodata is a transitional state - it has one entry transition
+   1/ errdata - from wait - DB query has failed
+   Two possible exits
+   2/ retryget - new data query cycle launched despite error
+   3/ chgconf - mouse event, if occurs to ask for a config change
+   Since FSM cannot launch its own event we need to serve retryget transition
+ */
+function pollerrdata () {
+    if ( dbglevel > 0 )
+        console.log('pollerrdata() - waiting for nodata, now: ', fsm.state)
+    if ( fsm.is('nodata') ) {
+        alert('pollerrdata() - nodata now, retryget')
+        try {
+            fsm.retryget()
+        }
+        catch( error ) {
+            console.error(
+                'index.js:  fsm.retryget() transition failed, error: ', error,
+                ' current state: ', fsm.state)
+        }
+    } else {
+        setTimeout(pollerrdata, 100)
+    }
+}
+
 // Asynchronous data retrieval from DB has failed
 var eventerrdata: Event = document.createEvent('Event')
 eventerrdata.initEvent('errdata', false, false)
@@ -234,6 +283,7 @@ bottom.addEventListener('errdata', ((event: Event) => {
             'Event: errdata: fsm.errdata() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
+    pollerrdata()
 }) as EventListener);
 (window as any).iface.regeventerrdata( bottom, eventerrdata )
 

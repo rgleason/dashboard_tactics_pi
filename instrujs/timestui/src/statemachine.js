@@ -14,8 +14,9 @@ import {initLoad} from './init'
 import {getidAskClient, getidClientAnswer} from './getid'
 import {getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt} from '../../src/conf'
 import {getalldbAskClient, getalldbClientAnswer, getpathAskClient, gotAckCheckSchema, getschemaAcknowledged} from './path'
+import {dataQuery} from './idbclient'
 import {setMenuAllPaths, setMenuRunTime, setMenuBackToLoading} from '../../src/menu'
-import {onWaitdataFinalCheck, showData, clearData, prepareDataHalt} from './data'
+import {onWaitdataFinalCheck, waitData, showData, clearData, noData, prepareDataHalt} from './data'
 import {swapDisplay, rollDisplayToSelection} from './disp'
 import {getNewLuminosity} from './css'
 
@@ -134,12 +135,6 @@ export function createStateMachine() {
                 if ( dbglevel > 1 ) console.log('allpaths: ', this.allpaths )
                 setMenuAllPaths( this )
             },
-            onBeforeRetryget: function( lifecycle ) {
-                if ( dbglevel > 0 ) console.log('onRetryget() - before transition')
-                if ( dbglevel > 2)
-                    dbgPrintFromTo( 'onBeforeRetryget', lifecycle )
-                setMenuBackToLoading( this )
-            },
             onBeforeHascfg: function( lifecycle ) {
                 dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
                 this.perspath = true
@@ -158,18 +153,19 @@ export function createStateMachine() {
             onBeforeAckschema:   function() {
                 if ( dbglevel > 0 )
                     console.log('onAckschema() - before transition')
-                alert ('onAckschema() - before transition - next clearData()')
                 clearData( this )
-                alert ('onAckschema() - before transition - next gotAckChecSchema()')
                 gotAckCheckSchema( this )
-                alert ('onAckschema() - before transition - next getschemaAcknowledged()')
                 getschemaAcknowledged( this )
-                alert ('onAckschema() - before transition - done.')
+            },
+            onAfterAckschema:   function() {
+                if ( dbglevel > 0 )
+                    console.log('onAckschema() - after transition')
+                onWaitdataFinalCheck( this )
+                dataQuery()
             },
             onGetdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onGetdata() - state')
-                onWaitdataFinalCheck( this )
             },
             onBeforeGetlaunch: function() {
                 if ( dbglevel > 0 )
@@ -178,15 +174,27 @@ export function createStateMachine() {
             onBeforeNewdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onNewdata() - before transition')
-                showData( this )
             },
             onWaitdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onWaitData() - state')
+                waitData( this )
             },
             onShowdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onShowData() - state')
+                showData( this )
+            },
+            onNodata: function() {
+                if ( dbglevel > 0 )
+                    console.log('onNoData() - state')
+                noData( this )
+            },
+            onBeforeRetryget: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onRetryget() - before transition')
+                if ( dbglevel > 2)
+                    dbgPrintFromTo( 'onBeforeRetryget', lifecycle )
+                setMenuBackToLoading( this )
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 )

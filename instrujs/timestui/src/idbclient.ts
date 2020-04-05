@@ -7,6 +7,7 @@ import FluxTableMetaData from '../influxdb-client/packages/core/src/query/FluxTa
 import {url, token, org, bucket} from './env'
 
 var dbglevel: number = (window as any).instrustat.debuglevel
+var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
 var jsonCollectedData: string[] = []
@@ -56,7 +57,7 @@ export function dataQuery() {
     fluxQuery += '|> filter(fn: (r) => r.prop2 == "mwv")'
 
     if ( dbglevel > 2 )
-        console.log('*** QUERY ROWS ***')
+        console.log('*** QUERY ROWS ***');
     // performs query and receive line table metadata and rows
     // https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/
     queryApi.queryRows(fluxQuery, {
@@ -68,16 +69,23 @@ export function dataQuery() {
             // console.log( `${o._time} ${o._measurement}.${o._field}=${o._value}` )
         },
         error(error: Error) {
-            locstate = 'ERR'
-            if ( dbglevel > 2 ) {
+            locstate = 'ERR';
+            alert('DB error' + error.message);
+            (window as any).iface.seterrdata()
+            if ( dbglevel > 0 ) {
+                console.log('\nDB Query finished ERROR')
+            }
+            if ( dbglevel > 1 ) {
                 console.error(error)
-                console.log('\nFinished ERROR')
+                if ( alerts )
+                    alert('DB error' + error.message);
             }
         },
         complete() {
-            locstate = 'RES'
-            if ( dbglevel > 3 )
-                console.log('\nFinished SUCCESS')
+            locstate = 'RES';
+            (window as any).iface.newdata(0)
+            if ( dbglevel > 2 )
+                console.log('\nDB Query finished SUCCESS')
         },
     })
 }

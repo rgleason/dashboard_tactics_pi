@@ -10,10 +10,16 @@ var Sanitizer = sanitizer()
 
 import {rollDisplayToSelection} from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
+import {setIdbClientForRetry,getCollectedDataJSON} from './idbclient'
 
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
 var alertdelay = window.instrustat.alertdelay
+
+var alertcondition = false
+var alertcounter = 0
+var alertthreshold = alertdelay
+var suppressShowData = false
 
 export function onWaitdataFinalCheck( that ) {
     var elem = document.getElementById('skPath')
@@ -43,14 +49,15 @@ export function onWaitdataFinalCheck( that ) {
     }
 }
 
-var alertcondition = false
-var alertcounter = 0
-var alertthreshold = alertdelay
-var suppressShowData = false
+export function waitData( that ) {
+    return
+}
 
 export function showData( that ) {
     if ( suppressShowData )
         return
+    var retJsonStrArr = getCollectedDataJSON()
+    alert (retJsonStrArr)
 /*
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue
@@ -155,6 +162,11 @@ export function clearData( that ) {
     // rollDisplayToSelection( that )
     // suppressShowData = false
 
+}
+
+export function noData( that ) {
+    setIdbClientForRetry()
+    window.iface.setretyget()
 }
 
 export function prepareDataHalt( that ) {
