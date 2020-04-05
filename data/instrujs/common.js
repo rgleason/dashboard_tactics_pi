@@ -7,7 +7,7 @@
  Contribute/report here, please: https://git.io/JejKQ
  - with a screenshot and a short description of your installation, thanks!
  SignalK Path keys: https://git.io/JvsYw
- The Signal K values are always in SI units (like m/s, not knots).
+ Note that Signal K values are always in SI units (like m/s, not knots).
  Conversion to a wanted unit is made with multipier/division/offset.
  Avoid using floating point values like 0.000000003 in JavaScript!
  UTF8 - do _not_ change encoding, cf. degree character. Notepad++ recommended.
@@ -28,6 +28,12 @@ var  instrustat = {
     alerts : true,
     alertdelay : 5,
     knownpaths: [
+/*
+        ----- Engine and Energy -----
+        These are coming always coming from Signal K node server
+        - SI units, such as Kelvin not Celsius or Fahrenheit
+        - usable in EngineDJG dial instruments
+ */
         {
             version    : 1,
             path       : 'electrical.batteries.*.current',
@@ -344,8 +350,34 @@ var  instrustat = {
             divider    : 1,
             offset     : 0
         },
+/*
+        ----- Dashboard instrument records from InfluxDB -----
+        For instruments reading time series (historical) data,like timesTUI
+        These records are WYGIWYG (what you get is what you get):
+        - the units are not recorded in InfluxDB, only values
+        - the values are those coming into the plug-in
+        - typically, the NMEA-0183 sentences coming from OpenCPN
+        - thus consider, for example wind speed being in knots, not m/s
+        - this may be different in your boat, of course
+ */
+        {
+            version    : 1,
+            path       : 'environment.wind.speedTrueGround',
+            title      : 'TWS',
+            symbol     : '',
+            unit       : 'kn',
+            display    : 'dial',
+            decimals   : 1,
+            minval     : 0,
+            loalert    : 0,
+            hialert    : 0,
+            maxval     : 30,
+            multiplier : 1,
+            divider    : 1,
+            offset     : 0
+        },
+/* *********** Do not modify below this line *********** */
     ],
-    // --- Do not modify below this line ---
     hasPathEntry: function ( path ) {
         var paths  = path.split('.')
         for ( var i = 0; i < this.knownpaths.length; i++  ) {
