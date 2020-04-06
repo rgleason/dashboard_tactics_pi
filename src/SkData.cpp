@@ -154,22 +154,22 @@ void SkData::UpdateStreamoutSchemaList(
    if ( it != m_dbQueryMap->end() ) {
             return;
     } // key (path) found, already there, return
-   // Build a JS structure for the given schema
+   // Build a JSON object for the given schema
    wxString js = wxEmptyString;
-   js += "{";
-   js += "path:'" + schema->sSkpathe + "',";
-   js += "url:'" + *url + "',";
-   js += "org:'" + *org + "',";
-   js += "token:'" + *token + "',";
-   js += "bucket:'" + *bucket + "',";
-   js += "sMeasurement:'" + schema->sMeasurement + "',";
-   js += "sProp1:'" + schema->sProp1 + "',";
-   js += "sProp2:'" + schema->sProp2 + "',";
-   js += "sProp3:'" + schema->sProp3 + "',";
-   js += "sField1:'" + schema->sField1 + "',";
-   js += "sField2:'" + schema->sField2 + "',";
-   js += "sField3:'" + schema->sField3 + "'"; // last
-   js += "}";
+   js += "({";
+   js += '"' + "path" + '"' + ':' + '"' + schema->sSkpathe + '"' + ',';
+   js += '"' + "url" + '"' + ':' + '"' + *url + '"' + ',';
+   js += '"' + "org" + '"' + ':' + '"' + *org + '"' + ',';
+   js += '"' + "token" + '"' + ':' + '"' + *token + '"' + ',';
+   js += '"' + "bucket" + '"' + ':' + '"' + *bucket + '"' + ',';
+   js += '"' + "sMeasurement" + '"' + ':' + '"' + schema->sMeasurement + '"' + ',';
+   js += '"' + "sProp1" + '"' + ':' + '"' + schema->sProp1 + '"' + ',';
+   js += '"' + "sProp2" + '"' + ':' + '"' + schema->sProp2 + '"' + ',';
+   js += '"' + "sProp3" + '"' + ':' + '"' + schema->sProp3 + '"' + ',';
+   js += '"' + "sField1" + '"' + ':' + '"' + schema->sField1 + '"' + ',';
+   js += '"' + "sField2" + '"' + ':' + '"' + schema->sField2 + '"' + ',';
+   js += '"' + "sField3" + '"' + ':' + '"' + schema->sField3 + '"';
+   js += "})";
    std::string jsObject = std::string( js.mb_str() );
    m_dbQueryMap->insert( make_pair(keyID, jsObject) );
    return;
