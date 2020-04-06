@@ -43,7 +43,9 @@ export function createStateMachine() {
             // Signal K Paths
             path       : '',
             allpaths   : [],
-            menu       : null
+            menu       : null,
+            //
+            schema     : []
         },
         transitions: [
             { name: 'init',      from: 'window',   to: 'loading' },

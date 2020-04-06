@@ -8,6 +8,28 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
+export function initPaths( that ) {
+    var emptySchema = {
+        path: '',
+        url: '',
+        org: '',
+        token: '',
+        bucket: '',
+        sMeasurement: '',
+        sProp1: '',
+        sProp2: '',
+        sProp3: '',
+        sField1: '',
+        sField2: '',
+        sField3: ''
+    }
+    that.schema = emptySchema
+}
+
+export function getPathSchema(){
+    return that.schema
+}
+
 export function getalldbAskClient() {
     window.iface.setFlag('bottom', 'getalldb')
 }
@@ -44,45 +66,50 @@ export function getschemaAcknowledged( that ) {
 export function gotAckCheckSchema( that ) {
     if ( dbglevel > 0 )
         console.log('path.js gotAckChecSchema()')
-    // var expectedpath = that.path
-    // if ( that.perspath ) {
-    //     if ( that.conf === null ) {
-    //         if ( dbglevel > 0 )
-    //             console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
-    //     }
-    //     if ( (that.conf.path === null) || (that.conf.path === '') ) {
-    //         if ( dbglevel > 0 )
-    //             console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
-    //     }
-    //     expectedpath = that.conf.path
-    // }
-    // var acknowledgedpath = window.iface.getacksubs()
-    // if ( dbglevel > 1 )
-    //     console.log('path.js gotAckCheckPath() - acknowledgedpath: ', acknowledgedpath)
-    // if ( (acknowledgedpath !== null) && (acknowledgedpath !== '') ) {
-    //     if ( acknowledgedpath === expectedpath ) {
-    //         if ( dbglevel > 0 )
-    //             console.log('path.js gotAckCheckPath() - acknowledgedpath matches: ', expectedpath)
-    //     }
-    //     else {
-    //         if ( dbglevel > 0 )
-    //             console.log('path.js gotAckCheckPath() - acknowledgedpath mismatch! Requested: ', expectedpath,
-    //                         ', got: ', acknowledgedpath)
-    //         if ( alertsenabled )
-    //             alert ( window.instrulang.errSubscriptionAck1 + '\n' +
-    //                     expectedpath + '\n' +
-    //                     window.instrulang.errSubscriptionAck2 + '\n' +
-    //                     acknowledgedpath )
-    //     }
-    // }
-    // else {
-    //     if ( dbglevel > 0 )
-    //         console.log('path.js gotAckCheckPath() - acknowledgedpath is empty or null! Requested: ', expectedpath)
-    //     if ( alertsenabled )
-    //         alert ( window.instrulang.errSubscriptionAck1 + '\n' +
-    //                 expectedpath + '\n' +
-    //                 window.instrulang.errSubscriptionAck2 + '\n' +
-    //                 '' )
-    // }
-    // return
+    var expectedpath = that.path
+    if ( that.perspath ) {
+        if ( that.conf === null ) {
+            if ( dbglevel > 0 )
+                console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
+        }
+        if ( (that.conf.path === null) || (that.conf.path === '') ) {
+            if ( dbglevel > 0 )
+                console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
+        }
+        expectedpath = that.conf.path
+    }
+    var dbschema = window.iface.getdbschema()
+    alert (dbschema)
+    var ackSchema = JSON.parse(dbschema)
+    // var ackSchema = JSON.parse(window.iface.getdbschema())
+    alert ( ackSchema.path )
+    alert ( ackSchema )
+    if ( dbglevel > 1 )
+        console.log('path.js gotAckCheckPath() - acknowledged schema: ', ackSchema)
+    if ( (ackSchema !== null) && (ackSchema !== '') ) {
+        if ( ackSchema.path === expectedpath ) {
+            if ( dbglevel > 0 )
+                console.log('path.js gotAckCheckPath() - acknowledged schema path matches: ', expectedpath)
+        }
+        else {
+            if ( dbglevel > 0 )
+                console.log('path.js gotAckCheckPath() - acknowledged schema path mismatch! Requested: ', expectedpath,
+                            ', got: ', ackSchema.path)
+            if ( alertsenabled )
+                alert ( window.instrulang.errSubscriptionAck1 + '\n' +
+                        expectedpath + '\n' +
+                        window.instrulang.errSubscriptionAck2 + '\n' +
+                        ackSchema.path )
+        }
+    }
+    else {
+        if ( dbglevel > 0 )
+            console.log('path.js gotAckCheckPath() - acknowledged schema is empty or null! Requested: ', expectedpath)
+        if ( alertsenabled )
+            alert ( window.instrulang.errSubscriptionAck1 + '\n' +
+                    expectedpath + '\n' +
+                    window.instrulang.errSubscriptionAck2 + '\n' +
+                    '' )
+    }
+    return
 }

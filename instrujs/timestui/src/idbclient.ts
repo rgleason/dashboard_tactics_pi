@@ -4,7 +4,10 @@
  */
 import InfluxDB from '../influxdb-client/packages/core/src/InfluxDB'
 import FluxTableMetaData from '../influxdb-client/packages/core/src/query/FluxTableMetaData'
-import {url, token, org, bucket} from './env'
+// import {url, token, org, bucket} from './env'
+
+import DbSchema from '../../src/dbschema'
+import { getPathSchema } from './path'
 
 var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
@@ -41,20 +44,50 @@ export function getCollectedDataJSON():string[] {
 }
 
 export function dataQuery() {
+    if ( dbglevel > 0 )
+        console.log('dataQuery()')
     if ( locstate !== 'RDY' ) {
         if ( dbglevel > 0 )
             console.log (
                 'dataQuery(): statemachine violation, expected RDY, is ', locstate)
         return
     }
-    if ( dbglevel > 0 )
-        console.log('querytest')
+    let schma: DbSchema = getPathSchema()
+    if ( schma.path === '' ) {
+        if ( dbglevel > 0 )
+            console.log (
+                'dataQuery(): there is no database schema available for query')
+        return
+    }
+    let url: string = schma.url
+    let token: string = schma.token
+    let org: string = schma.org
+
+    alert (url + token + org)
+
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
-    var fluxQuery: string = 'from(bucket:"'+ bucket + '")'
+    var fluxQuery: string = 'from(bucket:"'+ schma.bucket + '")'
     fluxQuery += '|> range(start: -10s)'
-    fluxQuery += '|> filter(fn: (r) => r._measurement == "environment")'
-    fluxQuery += '|> filter(fn: (r) => r._field == "speedTrueGround")'
-    fluxQuery += '|> filter(fn: (r) => r.prop2 == "mwv")'
+    fluxQuery += '|> filter(fn: (r) => r._measurement == "'
+    fluxQuery + schma.sMeasurement + '")'
+    if ( schma.sField1 !== '' ) {
+        fluxQuery += '|> filter(fn: (r) => r._field == "'
+        fluxQuery += schma.sField1 + '")'
+    }
+    if ( schma.sProp1 !== '' ) {
+        fluxQuery += '|> filter(fn: (r) => r._prop1 == "'
+        fluxQuery += schma.sProp1 + '")'
+    }
+    if ( schma.sProp2 !== '' ) {
+        fluxQuery += '|> filter(fn: (r) => r._prop2 == "'
+        fluxQuery += schma.sProp2 + '")'
+    }
+    if ( schma.sProp3 !== '' ) {
+        fluxQuery += '|> filter(fn: (r) => r._prop3 == "'
+        fluxQuery += schma.sProp3 + '")'
+    }
+
+    alert( fluxQuery )
 
     if ( dbglevel > 2 )
         console.log('*** QUERY ROWS ***');
