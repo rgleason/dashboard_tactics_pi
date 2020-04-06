@@ -90,7 +90,6 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
-    m_webpanelReload = false;
     m_webpanelReloadWait = false;
     m_webPanelSuspended  = false;
     m_webpanelStopped = false;
@@ -434,9 +433,9 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         m_subscribedPath = request;
                         wxString schemaJSclass =
                             m_pparent->getDbSchemaJs( &this->m_subscribedPath );
-                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema('" );
+                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema(\"" );
                         javascript = javascript + schemaJSclass;
-                        javascript = javascript + wxString::Format( L"%s", "');" );
+                        javascript = javascript + wxString::Format( L"%s", "\");" );
                         RunScript( javascript );
                         m_istate = JSI_SHOWDATA;
                         m_handshake = JSI_HDS_SERVED;
@@ -494,24 +493,20 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 
     } // then all code loaded
     else {
-        if ( m_webpanelCreated && m_webpanelReload ) {
-            m_pWebPanel->Reload(); // local servers w/ no time: clean cache
-            m_webpanelReload = false;
-            m_webpanelReloadWait = true;
-        } // then page is to be reloaded
+        if ( !m_webpanelCreated && m_webpanelCreateWait ) {
+            if ( !m_pWebPanel->IsBusy() ) {
+                m_webpanelCreateWait = false;
+                m_webpanelCreated = true;
+                m_pWebPanel->Reload(); // local servers w/ no time: clean cache
+                m_webpanelReloadWait = true;
+            } // then, apparently (for IE), the page is loaded - handler also in JS
+        } //then poll until the initial page is loaded (load event _not_ working down here)
         if ( m_webpanelCreated && m_webpanelReloadWait ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
                 m_istate = JSI_WINDOW_LOADED;
             } // then page is reloaded
         } // then poll until page reloaded - to make sure to have the latest .js versions
-        if ( !m_webpanelCreated && m_webpanelCreateWait ) {
-            if ( !m_pWebPanel->IsBusy() ) {
-                m_webpanelCreateWait = false;
-                m_webpanelCreated = true;
-                m_webpanelReload = true;
-            } // then, apparently (for IE), the page is loaded - handler also in JS
-        } //then poll until the initial page is loaded (load event _not_ working down here)
     } // else the webpanel is not yet loaded / scripts are not running
     m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
 }

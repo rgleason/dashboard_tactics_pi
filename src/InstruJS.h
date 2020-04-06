@@ -143,7 +143,6 @@ protected:
     bool                 m_threadRunning;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;
-    bool                 m_webpanelReload;
     bool                 m_webpanelReloadWait;
     bool                 m_webPanelSuspended;
     bool                 m_webpanelStopped;
