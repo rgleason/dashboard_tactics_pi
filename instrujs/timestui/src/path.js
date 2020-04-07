@@ -8,6 +8,8 @@
 var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
+var schema
+
 export function initPaths( that ) {
     var emptySchema = {
         path: '',
@@ -23,11 +25,11 @@ export function initPaths( that ) {
         sField2: '',
         sField3: ''
     }
-    that.schema = emptySchema
+    schema = emptySchema
 }
 
 export function getPathSchema(){
-    return that.schema
+    return schema
 }
 
 export function getalldbAskClient() {
@@ -78,12 +80,8 @@ export function gotAckCheckSchema( that ) {
         }
         expectedpath = that.conf.path
     }
-    var dbschema = window.iface.getdbschema()
-    alert (dbschema)
-    var ackSchema = JSON.parse(dbschema)
-    // var ackSchema = JSON.parse(window.iface.getdbschema())
-    alert ( ackSchema.path )
-    alert ( ackSchema )
+    alert(window.iface.getdbschema())
+    var ackSchema = JSON.parse(window.iface.getdbschema())
     if ( dbglevel > 1 )
         console.log('path.js gotAckCheckPath() - acknowledged schema: ', ackSchema)
     if ( (ackSchema !== null) && (ackSchema !== '') ) {
@@ -111,5 +109,6 @@ export function gotAckCheckSchema( that ) {
                     window.instrulang.errSubscriptionAck2 + '\n' +
                     '' )
     }
+    schema = ackSchema
     return
 }

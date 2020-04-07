@@ -44,8 +44,6 @@ export function createStateMachine() {
             path       : '',
             allpaths   : [],
             menu       : null,
-            //
-            schema     : []
         },
         transitions: [
             { name: 'init',      from: 'window',   to: 'loading' },

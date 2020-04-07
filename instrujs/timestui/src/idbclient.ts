@@ -52,24 +52,36 @@ export function dataQuery() {
                 'dataQuery(): statemachine violation, expected RDY, is ', locstate)
         return
     }
+
+    // alert ('dataQuery()')
+
     let schma: DbSchema = getPathSchema()
+
+    // alert (schma)
+
     if ( schma.path === '' ) {
         if ( dbglevel > 0 )
             console.log (
                 'dataQuery(): there is no database schema available for query')
         return
     }
-    let url: string = schma.url
+
+    // let url: string = 'http://' + schma.url
+    let url:string = 'http://localhost:8089'
+
     let token: string = schma.token
     let org: string = schma.org
 
-    alert (url + token + org)
+    // alert (url + ' ' + token + ' ' + org)
+    // alert ('sMeasurement ' + schma.sMeasurement)
+    // alert ('sField1 ' + schma.sField1)
+    // alert ('sProp1 ' + schma.sProp1)
 
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
     var fluxQuery: string = 'from(bucket:"'+ schma.bucket + '")'
-    fluxQuery += '|> range(start: -10s)'
+    fluxQuery += '|> range(start: -300s)'
     fluxQuery += '|> filter(fn: (r) => r._measurement == "'
-    fluxQuery + schma.sMeasurement + '")'
+    fluxQuery += schma.sMeasurement + '")'
     if ( schma.sField1 !== '' ) {
         fluxQuery += '|> filter(fn: (r) => r._field == "'
         fluxQuery += schma.sField1 + '")'
@@ -87,7 +99,7 @@ export function dataQuery() {
         fluxQuery += schma.sProp3 + '")'
     }
 
-    alert( fluxQuery )
+    // alert( fluxQuery )
 
     if ( dbglevel > 2 )
         console.log('*** QUERY ROWS ***');
@@ -98,12 +110,17 @@ export function dataQuery() {
             const o = tableMeta.toObject(row)
             let rowdata:string = JSON.stringify(o, null, 2)
             console.log( rowdata )
+
+            alert(rowdata)
+
             jsonCollectedData.push( rowdata )
             // console.log( `${o._time} ${o._measurement}.${o._field}=${o._value}` )
         },
         error(error: Error) {
             locstate = 'ERR';
-            alert('DB error' + error.message);
+
+            alert('DB error()' + error.message);
+
             (window as any).iface.seterrdata()
             if ( dbglevel > 0 ) {
                 console.log('\nDB Query finished ERROR')
@@ -116,6 +133,9 @@ export function dataQuery() {
         },
         complete() {
             locstate = 'RES';
+
+            alert('DB complete() ' + jsonCollectedData);
+
             (window as any).iface.newdata(0)
             if ( dbglevel > 2 )
                 console.log('\nDB Query finished SUCCESS')

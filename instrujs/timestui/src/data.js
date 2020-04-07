@@ -57,7 +57,7 @@ export function showData( that ) {
     if ( suppressShowData )
         return
     var retJsonStrArr = getCollectedDataJSON()
-    alert (retJsonStrArr)
+    alert ('showData(): ' + retJsonStrArr)
 /*
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue
