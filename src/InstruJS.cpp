@@ -433,9 +433,9 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         m_subscribedPath = request;
                         wxString schemaJSclass =
                             m_pparent->getDbSchemaJs( &this->m_subscribedPath );
-                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema(\"" );
+                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema('" );
                         javascript = javascript + schemaJSclass;
-                        javascript = javascript + wxString::Format( L"%s", "\");" );
+                        javascript = javascript + wxString::Format( L"%s", "');" );
                         RunScript( javascript );
                         m_istate = JSI_SHOWDATA;
                         m_handshake = JSI_HDS_SERVED;

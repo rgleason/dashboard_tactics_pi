@@ -155,23 +155,22 @@ void SkData::UpdateStreamoutSchemaList(
             return;
     } // key (path) found, already there, return
    // Build a JSON object for the given schema
-   wxString js = wxEmptyString;
-   js += "({";
-   js += '"' + "path" + '"' + ':' + '"' + schema->sSkpathe + '"' + ',';
-   js += '"' + "url" + '"' + ':' + '"' + *url + '"' + ',';
-   js += '"' + "org" + '"' + ':' + '"' + *org + '"' + ',';
-   js += '"' + "token" + '"' + ':' + '"' + *token + '"' + ',';
-   js += '"' + "bucket" + '"' + ':' + '"' + *bucket + '"' + ',';
-   js += '"' + "sMeasurement" + '"' + ':' + '"' + schema->sMeasurement + '"' + ',';
-   js += '"' + "sProp1" + '"' + ':' + '"' + schema->sProp1 + '"' + ',';
-   js += '"' + "sProp2" + '"' + ':' + '"' + schema->sProp2 + '"' + ',';
-   js += '"' + "sProp3" + '"' + ':' + '"' + schema->sProp3 + '"' + ',';
-   js += '"' + "sField1" + '"' + ':' + '"' + schema->sField1 + '"' + ',';
-   js += '"' + "sField2" + '"' + ':' + '"' + schema->sField2 + '"' + ',';
-   js += '"' + "sField3" + '"' + ':' + '"' + schema->sField3 + '"';
-   js += "})";
-   std::string jsObject = std::string( js.mb_str() );
-   m_dbQueryMap->insert( make_pair(keyID, jsObject) );
+   std::string js;
+   js += "{";
+   js += "\"path\":\"" + std::string( schema->sSkpathe.mb_str() ) + "\",";
+   js += "\"url\":\"" + std::string( url->mb_str() ) + "\",";
+   js += "\"org\":\"" + std::string( org->mb_str() ) + "\",";
+   js += "\"token\":\"" + std::string( token->mb_str() ) + "\",";
+   js += "\"bucket\":\"" + std::string( bucket->mb_str() ) + "\",";
+   js += "\"sMeasurement\":\"" + std::string( schema->sMeasurement.mb_str() ) + "\",";
+   js += "\"sProp1\":\"" + std::string( schema->sProp1.mb_str() ) + "\",";
+   js += "\"sProp2\":\"" + std::string( schema->sProp2.mb_str() ) + "\",";
+   js += "\"sProp3\":\"" + std::string( schema->sProp3.mb_str() ) + "\",";
+   js += "\"sField1\":\"" + std::string( schema->sField1.mb_str() ) + "\",";
+   js += "\"sField2\":\"" + std::string( schema->sField2.mb_str() ) + "\",";
+   js += "\"sField3\":\"" + std::string( schema->sField3.mb_str() ) + "\""; // last
+   js += "}";
+   m_dbQueryMap->insert( make_pair(keyID, js) );
    return;
 }
 
