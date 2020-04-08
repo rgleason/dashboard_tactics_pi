@@ -27,6 +27,7 @@ var  instrustat = {
     debuglevel : 4,
     alerts : true,
     alertdelay : 5,
+    corsproxy: 'http://localhost:8089',
     knownpaths: [
 /*
         ----- Engine and Energy -----
