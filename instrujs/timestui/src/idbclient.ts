@@ -66,60 +66,61 @@ export function dataQuery() {
         return
     }
 
+    // This OK only if no simultaneous writer socket _and_ no CORS:
     // let url: string = 'http://' + schma.url
-    let url:string = 'http://localhost:8089'
+    // Otherwise we shall access through a CORS proxy
+    let url:string = (window as any).instrustat.corsproxy
 
     let token: string = schma.token
     let org: string = schma.org
 
-    // alert (url + ' ' + token + ' ' + org)
-    // alert ('sMeasurement ' + schma.sMeasurement)
-    // alert ('sField1 ' + schma.sField1)
-    // alert ('sProp1 ' + schma.sProp1)
-
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
-    var fluxQuery: string = 'from(bucket:"'+ schma.bucket + '")'
-    fluxQuery += '|> range(start: -300s)'
-    fluxQuery += '|> filter(fn: (r) => r._measurement == "'
-    fluxQuery += schma.sMeasurement + '")'
+    var fQry: string = 'from(bucket:"'+ schma.bucket + '")\n'
+    fQry += '  |> range(start: -60s)\n'
+    fQry += '  |> filter(fn: (r) => \n'
+    fQry += '    r._measurement == "'
+    fQry += schma.sMeasurement + '"'
     if ( schma.sField1 !== '' ) {
-        fluxQuery += '|> filter(fn: (r) => r._field == "'
-        fluxQuery += schma.sField1 + '")'
+        fQry += ' and\n'
+        fQry += '    r._field == "'
+        fQry += schma.sField1 + '"'
     }
     if ( schma.sProp1 !== '' ) {
-        fluxQuery += '|> filter(fn: (r) => r._prop1 == "'
-        fluxQuery += schma.sProp1 + '")'
+        fQry += ' and\n'
+        fQry += '    r.prop1 == "'
+        fQry += schma.sProp1 + '"'
     }
     if ( schma.sProp2 !== '' ) {
-        fluxQuery += '|> filter(fn: (r) => r._prop2 == "'
-        fluxQuery += schma.sProp2 + '")'
+        fQry += ' and\n'
+        fQry += '    r.prop2 == "'
+        fQry += schma.sProp2 + '"'
     }
     if ( schma.sProp3 !== '' ) {
-        fluxQuery += '|> filter(fn: (r) => r._prop3 == "'
-        fluxQuery += schma.sProp3 + '")'
+        fQry += ' and\n'
+        fQry += '    r.prop3 == "'
+        fQry += schma.sProp3 + '"'
     }
+    fQry += '\n)'
 
-    // alert( fluxQuery )
+    // Quite handy if cannot find data - attention with the delay, no query while you are looking alert!
+    // ref https://docs.influxdata.com/flux/v0.50/introduction/getting-started/query-influxdb/#3-filter-your-data
+    // alert( fQry )
 
     if ( dbglevel > 2 )
         console.log('*** QUERY ROWS ***');
     // performs query and receive line table metadata and rows
     // https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/
-    queryApi.queryRows(fluxQuery, {
+    queryApi.queryRows(fQry, {
         next(row: string[], tableMeta: FluxTableMetaData) {
             const o = tableMeta.toObject(row)
             let rowdata:string = JSON.stringify(o, null, 2)
             console.log( rowdata )
-
-            alert(rowdata)
 
             jsonCollectedData.push( rowdata )
             // console.log( `${o._time} ${o._measurement}.${o._field}=${o._value}` )
         },
         error(error: Error) {
             locstate = 'ERR';
-
-            alert('DB error()' + error.message);
 
             (window as any).iface.seterrdata()
             if ( dbglevel > 0 ) {
@@ -133,9 +134,6 @@ export function dataQuery() {
         },
         complete() {
             locstate = 'RES';
-
-            alert('DB complete() ' + jsonCollectedData);
-
             (window as any).iface.newdata(0)
             if ( dbglevel > 2 )
                 console.log('\nDB Query finished SUCCESS')
