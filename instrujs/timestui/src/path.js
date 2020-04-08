@@ -80,7 +80,6 @@ export function gotAckCheckSchema( that ) {
         }
         expectedpath = that.conf.path
     }
-    alert(window.iface.getdbschema())
     var ackSchema = JSON.parse(window.iface.getdbschema())
     if ( dbglevel > 1 )
         console.log('path.js gotAckCheckPath() - acknowledged schema: ', ackSchema)
