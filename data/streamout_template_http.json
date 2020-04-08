@@ -219,7 +219,7 @@
             "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
-            "prop2"       : "",
+            "prop2"       : "tws",
             "prop3"       : "",
             "field1"      : "speedTrueGround",   // SOG based
 //            "field1"      : "speedTrueWater", // STW based
@@ -393,7 +393,7 @@
             "interval"    : 1,
             "measurement" : "environment",
             "prop1"       : "wind",
-            "prop2"       : "mwv",
+            "prop2"       : "tws2",
             "prop3"       : "",
             "field1"      : "speedTrueGround",   // SOG based
 //            "field1"      : "speedTrueWater", // STW based
