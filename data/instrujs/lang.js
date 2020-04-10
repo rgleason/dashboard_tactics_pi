@@ -3,6 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 /* >>>> If you plan to modify this file, please make a backup first! <<<< */
+/* ----   Javascript is friendly: a smallest error here stops it!    ---- */
 /* ----     New language? Contribute/report https://git.io/JejKQ     ---- */
 
 var instrulang = {
@@ -26,6 +27,8 @@ var instrulang = {
     menuPathRunningReconfig: 'running.reconfigure', // keep the dot
     pathHasNoDescription1: 'has no configuration, will not subscribe without one.',
     pathHasNoDescription2: 'See data/instrujs/common.js to add your own definition.',
-    pathHasNoDescription3: 'Please contribute it back here: https://git.io/JejKQ'
+    pathHasNoDescription3: 'Please contribute it back here: https://git.io/JejKQ',
+    noDataFromDbQry: 'No data returned by the database query',
+    dataFromDbNoTime: 'Data returned by database query does not contain time field'
 }
 window.instrulang = instrulang

@@ -1,7 +1,0 @@
-{
-  "extends": "../../../tsconfig.json",
-  "compilerOptions": {
-    "lib": ["DOM", "es2015", "es2017"]
-  },
-  "include": ["*.ts"]
-}

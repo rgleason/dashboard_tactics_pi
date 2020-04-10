@@ -56,8 +56,30 @@ export function waitData( that ) {
 export function showData( that ) {
     if ( suppressShowData )
         return
-    var retJsonStrArr = getCollectedDataJSON()
-    alert ('showData(): ' + retJsonStrArr)
+    alert( 'showData()' )
+    let retJsonStrArr = new Array ( parseJSON( '[' + getCollectedDataJSON() + ']') )
+    alert( 'showData() - check if an array' )
+    if ( !(Array.isArray(retJsonStrArr) && retJsonStrArr.length) ) {
+        if ( dbglevel > 0 ) {
+            console.error( 'showData(): no data received' )
+            if ( alerts )
+                alert ( 'showData(): '+ window.instrulang.noDataFromDbQry )
+            return
+        }
+    }
+    alert( 'showData() - check _time ' + retJsonArray.toString( ))
+    if ( !('_time' in retJsonArray[0]) ) {
+        if ( dbglevel > 0 ) {
+            console.error( 'showData(): data returned but no _time key: ', retJsonArray )
+            if ( alerts )
+                alert ('showData(): ' + window.instrulang.dataFromDbNoTime )
+            return
+        }
+    }
+    alert( 'showData() - parse  _time' )
+    var dtms = Date.parse( retJsonArray[0]._time )
+    alert ( 'showData(): first timestamp: ' + retJsonArray[0]._time +
+            ' in ms: ' + dtms )
 /*
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue

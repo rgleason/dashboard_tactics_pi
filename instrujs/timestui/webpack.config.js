@@ -22,10 +22,10 @@ module.exports = {
                 loader: ['awesome-typescript-loader'],
                 include: [path.resolve(__dirname, './src'),
                           path.resolve(__dirname, '../src'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/query'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/util'),
+                          path.resolve(__dirname, '../src/influxdb-client/packages/core/src'),
+                          path.resolve(__dirname, '../src/influxdb-client/packages/core/src/impl'),
+                          path.resolve(__dirname, '../src/influxdb-client/packages/core/src/query'),
+                          path.resolve(__dirname, '../src/influxdb-client/packages/core/src/util')
                          ],
                 exclude: [/(node_modules)/]
             },

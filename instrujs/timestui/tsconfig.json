@@ -26,8 +26,18 @@
         "babelCore": "@babel/core",
         "useCache": true
     }
-    "include": ["src/**/*.ts"]
-    "exclude": ["node_modules","*.js"]
+    "include": [
+        "src/**/*.ts",
+        "../src/influxdb-client/packages/core/src/*.ts",
+        "../src/influxdb-client/packages/core/src/impl/*.ts",
+        "../src/influxdb-client/packages/core/src/query/*.ts",
+        "../src/influxdb-client/packages/core/src/util/*.ts"
+    ]
+    "exclude": [
+        "node_modules",
+        "*.js",
+        "../src/influxdb-client/packages/core/src/index.ts"
+    ]
 
 /* From some magic web-site, works better with defaults
 /    "compilerOptions": {
