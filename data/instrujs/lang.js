@@ -28,7 +28,9 @@ var instrulang = {
     pathHasNoDescription1: 'has no configuration, will not subscribe without one.',
     pathHasNoDescription2: 'See data/instrujs/common.js to add your own definition.',
     pathHasNoDescription3: 'Please contribute it back here: https://git.io/JejKQ',
-    noDataFromDbQry: 'No data returned by the database query',
+    noDataFromDbQry1: 'No data returned by the database query. Check:',
+    noDataFromDbQry2: '- is DashT streaming out right now',
+    noDataFromDbQry3: '- the time on the InfluxDB server',
     dataFromDbNoTime: 'Data returned by database query does not contain _time fields',
     dataFromDbNoValue: 'Data returned by database query does not contain _value fields'
 }
