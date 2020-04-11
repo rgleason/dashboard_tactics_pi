@@ -39,8 +39,6 @@ $skfiin : 100px;
 .skpath.fixed.night { color: instrujs.$skpathcolornight; }
 
 /* Gauge */
-.gaugeface {
-}
 .gauge {
     top: 0px;
     margin-left: 1%;
@@ -122,7 +120,7 @@ $nufiin : 100px;
 .numgunit.fixed.dusk  { color: instrujs.$skpathcolordusk; }
 .numgunit.fixed.night { color: instrujs.$skpathcolornight; }
 
-/* Bottom part is an interprocess communication (IPC) data field */ 
+/* Bottom part is an interprocess communication (IPC) data field */
 .bottom {
     top: 0px;
     margin-left: 1%;
