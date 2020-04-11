@@ -76,7 +76,7 @@ export function dataQuery() {
 
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
     var fQry: string = 'from(bucket:"'+ schma.bucket + '")\n'
-    fQry += '  |> range(start: -60s)\n'
+    fQry += '  |> range(start: -300s)\n'
     fQry += '  |> filter(fn: (r) => \n'
     fQry += '    r._measurement == "'
     fQry += schma.sMeasurement + '"'
@@ -113,8 +113,14 @@ export function dataQuery() {
     queryApi.queryRows(fQry, {
         next(row: string[], tableMeta: FluxTableMetaData) {
             const o = tableMeta.toObject(row)
+            /*
+             JSON stringify the returned object to simplify the type definition
+             of the collected array as collection of JSON object strings.
+             The consumer of the data shall know what it has ordered...
+             */
             let rowdata:string = JSON.stringify(o, null, 2)
-            console.log( rowdata )
+            if ( dbglevel > 0 )
+                console.log( rowdata )
 
             jsonCollectedData.push( rowdata )
             // console.log( `${o._time} ${o._measurement}.${o._field}=${o._value}` )

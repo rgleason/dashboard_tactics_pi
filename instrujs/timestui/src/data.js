@@ -21,6 +21,8 @@ var alertcounter = 0
 var alertthreshold = alertdelay
 var suppressShowData = false
 
+var dbData = []
+
 export function onWaitdataFinalCheck( that ) {
     var elem = document.getElementById('skPath')
     var htmlObj = null
@@ -57,29 +59,36 @@ export function showData( that ) {
     if ( suppressShowData )
         return
     alert( 'showData()' )
-    let retJsonStrArr = new Array ( parseJSON( '[' + getCollectedDataJSON() + ']') )
-    alert( 'showData() - check if an array' )
-    if ( !(Array.isArray(retJsonStrArr) && retJsonStrArr.length) ) {
+    let dbJsonStrArr = getCollectedDataJSON()
+    let emptyDbData = []
+    dbData = emptyDbData
+    if ( !(dbJsonStrArr.length) ) {
         if ( dbglevel > 0 ) {
             console.error( 'showData(): no data received' )
-            if ( alerts )
+            if ( (dbglevel > 1) && alerts )
                 alert ( 'showData(): '+ window.instrulang.noDataFromDbQry )
+        }
+        return
+    }
+    for ( i in dbJsonStrArr ) {
+        let iobj = JSON.parse( dbJsonStrArr[i] )
+        dbData.push( iobj )
+    }
+    if ( dbglevel > 0 ) {
+        if ( !('_time' in dbData[0]) ) {
+            console.error( 'showData(): no _time field in dbData[0]' )
+            if ( (dbglevel > 1) && alerts )
+                alert ( 'showData(): '+ window.instrulang.dataFromDbNoTime )
+            return
+        }
+        if ( !('_value' in dbData[0]) ) {
+            console.error( 'showData(): no _value field in dbData[0]' )
+            if ( (dbglevel > 1) && alerts )
+                alert ( 'showData(): '+ window.instrulang.dataFromDbNoValue )
             return
         }
     }
-    alert( 'showData() - check _time ' + retJsonArray.toString( ))
-    if ( !('_time' in retJsonArray[0]) ) {
-        if ( dbglevel > 0 ) {
-            console.error( 'showData(): data returned but no _time key: ', retJsonArray )
-            if ( alerts )
-                alert ('showData(): ' + window.instrulang.dataFromDbNoTime )
-            return
-        }
-    }
-    alert( 'showData() - parse  _time' )
-    var dtms = Date.parse( retJsonArray[0]._time )
-    alert ( 'showData(): first timestamp: ' + retJsonArray[0]._time +
-            ' in ms: ' + dtms )
+
 /*
     that.glastvalue = window.iface.getdata()
     var dispvalue = that.glastvalue

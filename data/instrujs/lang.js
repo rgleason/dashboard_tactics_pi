@@ -29,6 +29,7 @@ var instrulang = {
     pathHasNoDescription2: 'See data/instrujs/common.js to add your own definition.',
     pathHasNoDescription3: 'Please contribute it back here: https://git.io/JejKQ',
     noDataFromDbQry: 'No data returned by the database query',
-    dataFromDbNoTime: 'Data returned by database query does not contain time field'
+    dataFromDbNoTime: 'Data returned by database query does not contain _time fields',
+    dataFromDbNoValue: 'Data returned by database query does not contain _value fields'
 }
 window.instrulang = instrulang
