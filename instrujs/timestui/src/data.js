@@ -59,6 +59,10 @@ export function showData( that ) {
     if ( suppressShowData )
         return
     alert( 'showData()' )
+    /*
+     Retrieve the influxdb-client collected data, an array of
+     stringified JSON objects, cf. idbclient.ts
+     */
     let dbJsonStrArr = getCollectedDataJSON()
     let emptyDbData = []
     dbData = emptyDbData
@@ -66,7 +70,10 @@ export function showData( that ) {
         if ( dbglevel > 0 ) {
             console.error( 'showData(): no data received' )
             if ( (dbglevel > 1) && alerts )
-                alert ( 'showData(): '+ window.instrulang.noDataFromDbQry )
+                alert ( 'showData(): '+
+                        window.instrulang.noDataFromDbQry1 + '\n' +
+                        window.instrulang.noDataFromDbQry2 + '\n' +
+                        window.instrulang.noDataFromDbQry3 + '\n' )
         }
         return
     }
@@ -74,6 +81,10 @@ export function showData( that ) {
         let iobj = JSON.parse( dbJsonStrArr[i] )
         dbData.push( iobj )
     }
+    /*
+     The members of the object may vary according the DB DbSchema
+     but we must have at least the time and value fields
+     */
     if ( dbglevel > 0 ) {
         if ( !('_time' in dbData[0]) ) {
             console.error( 'showData(): no _time field in dbData[0]' )
@@ -88,6 +99,10 @@ export function showData( that ) {
             return
         }
     }
+    /*
+     The timestamp format is according https://tools.ietf.org/html/rfc3339 (5.8)
+     Date.parse() converts it OK to milliseconds
+     */
 
 /*
     that.glastvalue = window.iface.getdata()
