@@ -170,8 +170,8 @@ function pollgetdata () {
     if ( dbglevel > 0 )
         console.log('pollgetdata() - waiting for getdata, now: ', fsm.state)
     if ( fsm.is('getdata') ) {
-        alert('pollgetdata() - getdata now, getlaunch')
         try {
+            alert('pollgetdata(): getlaunch')
             fsm.getlaunch()
         }
         catch( error ) {
@@ -212,6 +212,7 @@ bottom.addEventListener('getnew', ((event: Event) => {
             'Event: getnew: fsm.getnew() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
+    pollgetdata()
 }) as EventListener);
 (window as any).iface.regeventgetnew( bottom, eventgetnew )
 
@@ -230,6 +231,33 @@ bottom.addEventListener('getlaunch', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventgetlaunch( bottom, eventgetlaunch )
 
+/*
+   Showdata is a transitional state - it has one entry transition
+   1/ newdata - from waitdata - DB query has succeeded
+   Two possible exits
+   2/ getnew - new data query cycle
+   3/ chgconf - mouse event, if occurs to ask for a config change
+   Since FSM cannot launch its own event we need to serve getnew transition
+ */
+function pollshowdata () {
+    if ( dbglevel > 0 )
+        console.log('pollshowdata() - waiting for showdata, now: ', fsm.state)
+    if ( fsm.is('showdata') && !fsm.databusy ) {
+        alert('pollnewdata() - showdata now, not busy, getnew')
+        try {
+            fsm.getnew()
+        }
+        catch( error ) {
+            alert('pollshowdata fsm.getnew() exception: error' + error.message)
+            console.error(
+                'index.js:  fsm.newget() transition failed, error: ', error,
+                ' current state: ', fsm.state)
+        }
+    } else {
+        setTimeout(pollshowdata, 100)
+    }
+}
+
 // New data is availale
 var eventnewdata: Event = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
@@ -242,12 +270,13 @@ bottom.addEventListener('newdata', ((event: Event) => {
             'Event: newdata: fsm.newdata() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
+    pollshowdata()
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
 
 /*
    Nodata is a transitional state - it has one entry transition
-   1/ errdata - from wait - DB query has failed
+   1/ errdata - from waitdata - DB query has failed
    Two possible exits
    2/ retryget - new data query cycle launched despite error
    3/ chgconf - mouse event, if occurs to ask for a config change

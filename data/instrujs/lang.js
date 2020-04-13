@@ -32,6 +32,8 @@ var instrulang = {
     noDataFromDbQry2: '- is DashT streaming out right now',
     noDataFromDbQry3: '- the time on the InfluxDB server',
     dataFromDbNoTime: 'Data returned by database query does not contain _time fields',
-    dataFromDbNoValue: 'Data returned by database query does not contain _value fields'
+    dataFromDbBadTime: 'Data returned by database query contains unknwon _time format',
+    dataFromDbNoValue: 'Data returned by database query does not contain _value fields',
+    dataFromDbBadValue: 'Data returned by database query contains a non-number _value field'
 }
 window.instrulang = instrulang

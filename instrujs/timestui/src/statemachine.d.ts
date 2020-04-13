@@ -27,6 +27,7 @@ export interface StateMachine {
     is(a:string): boolean
     is(): undefined
     state: string
+    databusy: boolean
     conf: StateMachineConf
 }
 

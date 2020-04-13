@@ -8,9 +8,10 @@
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = sanitizer()
 
-import {rollDisplayToSelection} from './disp'
+import { rollDisplayToSelection } from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
-import {setIdbClientForRetry,getCollectedDataJSON} from './idbclient'
+import { getRetrieveSeconds, setIdbClientForRetry, getCollectedDataJSON } from './idbclient'
+import { showDataTimesTuiChart } from './chart'
 
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
@@ -21,7 +22,51 @@ var alertcounter = 0
 var alertthreshold = alertdelay
 var suppressShowData = false
 
+var nofGraphPoints = 20 // initData(): max=3600 (anyway, too much!)
+var nofValDecimals = 1
+
 var dbData = []
+var firstRetrieval = true
+var sampleFrequency = 0
+
+export var chartData = {
+    categories: [],
+    series: [
+        {
+            name: 'Loading',
+            data: []
+        }
+    ]
+}
+var lastDataTimestamp = {
+    stmp: 0,
+    idx: 0
+}
+
+function strMinSecSinceEpoch( cntSec ) {
+    let d = new Date( 0 )
+    let msSinceBigBang = d.setUTCSeconds( cntSec )
+    let mSinceBigBang = d.getMinutes()
+    let sSinceBigBang = d.getSeconds()
+    var leadZeroStr = function (num) {
+       var s = "0" + num;
+       return s.substr(s.length-2);
+    }
+    let mStr = leadZeroStr(mSinceBigBang)
+    let sStr = leadZeroStr(sSinceBigBang)
+    let fStr = '00:' + mStr + ':' + sStr
+    return fStr
+}
+
+export function initData( that ) {
+
+    // X-axis (category) with '00:MM:SS' time since EPOCH
+    for ( let i = 0; i <  nofGraphPoints; i++ ) {
+        let fStr = strMinSecSinceEpoch( i )
+        chartData.categories.push( fStr )
+        chartData.series[0].data.push( 0 )
+    }
+}
 
 export function onWaitdataFinalCheck( that ) {
     var elem = document.getElementById('skPath')
@@ -56,6 +101,9 @@ export function waitData( that ) {
 }
 
 export function showData( that ) {
+    if ( dbglevel > 0 )
+        console.log('dataQuery()')
+
     if ( suppressShowData )
         return
     alert( 'showData()' )
@@ -64,8 +112,8 @@ export function showData( that ) {
      stringified JSON objects, cf. idbclient.ts
      */
     let dbJsonStrArr = getCollectedDataJSON()
-    let emptyDbData = []
-    dbData = emptyDbData
+    chartData.categories.length = 0
+    chartData.series[0].data.length = 0 // https://codepen.io/petrim/pen/yLyRQJK
     if ( !(dbJsonStrArr.length) ) {
         if ( dbglevel > 0 ) {
             console.error( 'showData(): no data received' )
@@ -77,14 +125,12 @@ export function showData( that ) {
         }
         return
     }
-    for ( i in dbJsonStrArr ) {
+    for ( let i in dbJsonStrArr ) {
         let iobj = JSON.parse( dbJsonStrArr[i] )
         dbData.push( iobj )
     }
-    /*
-     The members of the object may vary according the DB DbSchema
-     but we must have at least the time and value fields
-     */
+    // The members of the object may vary according the DB DbSchema
+    // but we must have at least the time and value fields
     if ( dbglevel > 0 ) {
         if ( !('_time' in dbData[0]) ) {
             console.error( 'showData(): no _time field in dbData[0]' )
@@ -99,98 +145,88 @@ export function showData( that ) {
             return
         }
     }
-    /*
-     The timestamp format is according https://tools.ietf.org/html/rfc3339 (5.8)
-     Date.parse() converts it OK to milliseconds
-     */
-
-/*
-    that.glastvalue = window.iface.getdata()
-    var dispvalue = that.glastvalue
-    console.log('dispvalue : ', dispvalue)
-    if ( that.conf !== null ) {
-        dispvalue *= that.conf.multiplier
-        if ( dbglevel > 2 )
-            console.log('dispvalue x: ', dispvalue, 'multiplier: ', that.conf.multiplier)
-        if ( that.conf.divider >0 )
-            dispvalue /= that.conf.divider
-        if ( dbglevel > 2 )
-            console.log('dispvalue /: ', dispvalue, 'divider: ', that.conf.divider)
-        if ( that.conf.offset !== 0)
-            dispvalue += that.conf.offset
-        if ( dbglevel > 2 )
-            console.log('dispvalue +: ', dispvalue, 'offset: ', that.conf.offset)
-        if ( alerts ) {
-            if ( !alertcondition ) {
-                var alertSource
-                if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
-                    alertSource = that.conf.title
-                else
-                    alertSource = that.conf.path
-                if ( that.conf.loalert !== 0 ) {
-                    if ( dispvalue < that.conf.loalert ) {
-                        if ( alertcounter >= alertthreshold) {
-                            alertcondition = true
-                            alert ( window.instrulang.alertTitle + '\n' +
-                                    alertSource + '\n' +
-                                    window.instrulang.alertLolimit + '\n' +
-                                    dispvalue + ' ' + that.conf.unit )
-                        }
-                        else {
-                            alertcounter += 1
-                        }
-                    }
-                }
-                if ( that.conf.hialert !== 0 ) {
-                    if ( dispvalue > that.conf.hialert ) {
-                        if ( alertcounter >= alertthreshold ) {
-                            alertcondition = true
-                            alert ( window.instrulang.alertTitle + '\n' +
-                                    alertSource + '\n' +
-                                    window.instrulang.alertHilimit + '\n' +
-                                    dispvalue + ' ' + that.conf.unit )
-                        }
-                        else {
-                            alertcounter += 1
-                        }
-                    }
-                }
-            }
+    if ( firstRetrieval ) {
+        firstRetrieval = false
+        let nofSamples = dbData.length
+        let startStamp = Date.parse( dbData[0]._time )
+        let endStamp   = Date.parse( dbData[(nofSamples - 1)]._time )
+        let sampleFrequency = ( nofSamples / (endStamp -startStamp) * 1000 )
+        if ( dbglevel > 3 )
+            console.log ( 'showData(): sampleFrequency: ', sampleFrequency,
+                          'nofSamples: ', nofSamples,
+                          'getRetrieveSeconds(): ', getRetrieveSeconds(),
+                          'startStamp: ', startStamp,
+                          'endStamp: ', endStamp )
+        if ( (dbglevel > 4) && alerts )
+            alert ( 'sampleFrequency: ' + sampleFrequency + '\n' +
+                    'nofSamples: ' + nofSamples + '\n' +
+                    'getRetrieveSeconds(): ' + getRetrieveSeconds() + '\n' +
+                    'startStamp: ' + startStamp + '\n' +
+                    'endStamp: ' + endStamp )
+    }
+    // We will show only max. number of points, reject the excess history
+    // or make undersampling if the sampling frequency is too high
+    lastDataTimestamp.idx = -1
+    for ( let i = 0; ( (i < nofGraphPoints) && (i < dbData.length) ); i++ ){
+        var getSeriesValue = (function (iobj) {
+            // The timestamp format is https://tools.ietf.org/html/rfc3339 (5.8)
+            // Date.parse() converts it OK to milliseconds
+            var retname = strMinSecSinceEpoch( i )
+            var retvalue = 0
+            var retstamp = i * 1000
+            let s1 = iobj._time.split('T')
+            if ( s1.length < 2 ) {
+                if ( dbglevel > 0 )
+                    console.error (
+                        'showData(): unknown _time field in dbData[', i,
+                        ']: ', iobj._time )
+                if ( (dbglevel > 1) && alerts )
+                    alert ( 'showData(): '+ window.instrulang.dataFromDbBadTime
+                            + '\n' + iobj._time)
+            } // then an issue, not a RFC339 or even ISO-8601 <date>T<time>
             else {
-                if ( (dispvalue > that.conf.loalert) &&
-                     ( (dispvalue < that.conf.hialert) ||
-                       ( that.conf.hialert === 0) ) ) {
-                    alertcondition = false
-                    alertcounter = 0
-                }
+                let s2 = s1[1].split('Z')
+                let s3 = s2[0].split('.') // HH:MM:SS.ms
+                retname = s3[0]           // HH:MM:SS
+                retstamp = Date.parse( iobj._time )
             }
+            if ( isNaN(iobj._value) ) {
+                if ( dbglevel > 0 )
+                    console.error (
+                        'showData(): unknown _value field in dbData[', i,
+                        ']: ', iobj._value )
+                if ( (dbglevel > 1) && alerts )
+                    alert ( 'showData(): '+ window.instrulang.dataFromDbBadValue
+                            + '\n' + iobj._value)
+            } // then no data value
+            else {
+                retvalue = iobj._value.toFixed( nofValDecimals )
+            }
+            return {
+                name: retname,
+                data: retvalue,
+                stmp: retstamp
+            }
+        }) // function seriesData()
+        var seriesData = getSeriesValue( dbData[i] )
+        if ( dbglevel > 4 )
+            console.log ( 'showData(): seriesData: ', seriesData)
+        if ( (dbglevel > 5) && alerts )
+            alert ( 'showData():'+ '\n' +
+                    'seriesData.name ' + seriesData.name + '\n' +
+                    'seriesData.data ' + seriesData.data + '\n' +
+                    'seriesData.stmp ' + seriesData.stmp )
+        if ( seriesData.stmp > lastDataTimestamp.stmp ) {
+            lastDataTimestamp.stmp = seriesData.stmp
+            lastDataTimestamp.idx = i
         }
-    }
-    if ( (that.gauge.length > 0) && (that.glastvalue !== null) ) {
-        that.gauge[0].refresh(
-            dispvalue,
-            that.conf.maxval,
-            that.conf.minval,
-            that.conf.unit )
-    }
-    else {
-        var elemnum = document.getElementById('numgauge0')
-        var htmlCandidate
-        var htmlObj
-        if ( elemnum !== null ) {
-            var roundedval = dispvalue.toFixed( that.conf.decimals )
-            htmlCandidate = roundedval + that.conf.symbol
-            htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
-            elemnum.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
-        }
-        var elemunit = document.getElementById('numgunit0')
-        if ( elemunit !== null ) {
-            htmlCandidate = that.conf.unit
-            htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
-            elemunit.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
-        }
-    }
-*/
+        chartData.categories.push( seriesData.name )
+        chartData.series[0].data.push( seriesData.data )
+    } // for received data from start to max. points
+    chartData.series[0].name = that.path
+
+    showDataTimesTuiChart( ( lastDataTimestamp.idx + 1) )
+
 }
 
 export function clearData( that ) {

@@ -39,6 +39,7 @@ export function createStateMachine() {
             luminosity : 'day',
             locInfo    : getLocInfo(),
             // Functional
+            databusy   : false,
             chart      : [],
             // Signal K Paths
             path       : '',
@@ -161,14 +162,17 @@ export function createStateMachine() {
                 if ( dbglevel > 0 )
                     console.log('onAckschema() - after transition')
                 onWaitdataFinalCheck( this )
-                dataQuery()
+            },
+            onAfterGetnew:   function() {
+                if ( dbglevel > 0 )
+                    console.log('onGetnew() - after transition')
             },
             onGetdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onGetdata() - state')
+                    dataQuery()
             },
             onBeforeGetlaunch: function() {
-                if ( dbglevel > 0 )
                     console.log('onGetlaunch() - before transition')
             },
             onBeforeNewdata: function() {
@@ -183,7 +187,9 @@ export function createStateMachine() {
             onShowdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onShowData() - state')
+                this.databusy = true
                 showData( this )
+                this.databusy = false
             },
             onNodata: function() {
                 if ( dbglevel > 0 )

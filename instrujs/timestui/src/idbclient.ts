@@ -15,6 +15,8 @@ var alerts: boolean = (window as any).instrustat.alerts
 var locstate: string = ''
 var jsonCollectedData: string[] = []
 
+var retrieveSeconds: number = 300
+
 export function initIdbClient() {
     locstate = 'RDY'
 }
@@ -24,9 +26,19 @@ export function getIdbClientState() : string {
 }
 
 export function setIdbClientForRetry() {
-    let emptyArray: string[] = []
-    jsonCollectedData = emptyArray
+    jsonCollectedData.length = 0
     locstate = 'RDY'
+}
+
+export function getRetrieveSeconds(): number {
+    return retrieveSeconds
+}
+
+export function setRetrieveSeconds( newValue: number ) {
+    var nVal = newValue || null
+    if ( (nVal === null) || (nVal == 0) )
+        return
+    retrieveSeconds = nVal
 }
 
 export function getCollectedDataJSON():string[] {
@@ -46,14 +58,13 @@ export function getCollectedDataJSON():string[] {
 export function dataQuery() {
     if ( dbglevel > 0 )
         console.log('dataQuery()')
+    alert( 'dataQuery() - locstate: ' + locstate )
     if ( locstate !== 'RDY' ) {
         if ( dbglevel > 0 )
             console.log (
                 'dataQuery(): statemachine violation, expected RDY, is ', locstate)
         return
     }
-
-    // alert ('dataQuery()')
 
     let schma: DbSchema = getPathSchema()
 
@@ -76,7 +87,7 @@ export function dataQuery() {
 
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
     var fQry: string = 'from(bucket:"'+ schma.bucket + '")\n'
-    fQry += '  |> range(start: -300s)\n'
+    fQry += '  |> range(start: -' + retrieveSeconds.toString() + 's)\n'
     fQry += '  |> filter(fn: (r) => \n'
     fQry += '    r._measurement == "'
     fQry += schma.sMeasurement + '"'
