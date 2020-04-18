@@ -11,7 +11,7 @@ var Sanitizer = sanitizer()
 import { rollDisplayToSelection } from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
 import { getRetrieveSeconds, setIdbClientForRetry, getCollectedDataJSON } from './idbclient'
-import { showDataTimesTuiChart } from './chart'
+import { showDataTimesTuiChart, getSecondsPerPointDraw } from './chart'
 
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
@@ -26,8 +26,23 @@ var nofGraphPoints = 20 // initData(): max=3600 (anyway, too much!)
 var nofValDecimals = 1
 
 var dbData = []
-var firstRetrieval = true
-var sampleFrequency = 0
+var nofEmptyResults = 0
+var limitOfEmptyResults = 10
+var nofFrequencyAnalysis = 0
+var limitOfFrequencyAnalysis = 10
+var sumOfFrequencies = 0
+var frequencyAnalysisDone = false
+var frequencyStats = {
+    lowest : 9999.99,
+    avg: 0,
+    highest: 0
+}
+var sumOfOverlapIdx = 0
+var overlapStats = {
+    lowest : 999999,
+    avg: 0,
+    highest: 0
+}
 
 export var chartData = {
     categories: [],
@@ -96,17 +111,14 @@ export function onWaitdataFinalCheck( that ) {
     }
 }
 
-export function waitData( that ) {
-    return
-}
-
 export function showData( that ) {
     if ( dbglevel > 0 )
-        console.log('dataQuery()')
+        console.log('showData()')
 
     if ( suppressShowData )
         return
-    alert( 'showData()' )
+    if ( (dbglevel > 5) && alerts )
+        alert( 'showData()' )
     /*
      Retrieve the influxdb-client collected data, an array of
      stringified JSON objects, cf. idbclient.ts
@@ -115,16 +127,22 @@ export function showData( that ) {
     chartData.categories.length = 0
     chartData.series[0].data.length = 0 // https://codepen.io/petrim/pen/yLyRQJK
     if ( !(dbJsonStrArr.length) ) {
-        if ( dbglevel > 0 ) {
-            console.error( 'showData(): no data received' )
-            if ( (dbglevel > 1) && alerts )
-                alert ( 'showData(): '+
-                        window.instrulang.noDataFromDbQry1 + '\n' +
-                        window.instrulang.noDataFromDbQry2 + '\n' +
-                        window.instrulang.noDataFromDbQry3 + '\n' )
+        nofEmptyResults++
+        if ( nofEmptyResults >= limitOfEmptyResults) {
+            if ( dbglevel > 0 ) {
+                console.error( 'showData(): no data received' )
+                if ( (dbglevel > 1) && alerts )
+                    alert ( 'showData(): '+
+                            window.instrulang.noDataFromDbQry1 + '\n' +
+                            window.instrulang.noDataFromDbQry2 + '\n' +
+                            window.instrulang.noDataFromDbQry3 + '\n' )
+            }
         }
         return
     }
+    else
+        nofEmptyResults = 0
+
     for ( let i in dbJsonStrArr ) {
         let iobj = JSON.parse( dbJsonStrArr[i] )
         dbData.push( iobj )
@@ -145,25 +163,7 @@ export function showData( that ) {
             return
         }
     }
-    if ( firstRetrieval ) {
-        firstRetrieval = false
-        let nofSamples = dbData.length
-        let startStamp = Date.parse( dbData[0]._time )
-        let endStamp   = Date.parse( dbData[(nofSamples - 1)]._time )
-        let sampleFrequency = ( nofSamples / (endStamp -startStamp) * 1000 )
-        if ( dbglevel > 3 )
-            console.log ( 'showData(): sampleFrequency: ', sampleFrequency,
-                          'nofSamples: ', nofSamples,
-                          'getRetrieveSeconds(): ', getRetrieveSeconds(),
-                          'startStamp: ', startStamp,
-                          'endStamp: ', endStamp )
-        if ( (dbglevel > 4) && alerts )
-            alert ( 'sampleFrequency: ' + sampleFrequency + '\n' +
-                    'nofSamples: ' + nofSamples + '\n' +
-                    'getRetrieveSeconds(): ' + getRetrieveSeconds() + '\n' +
-                    'startStamp: ' + startStamp + '\n' +
-                    'endStamp: ' + endStamp )
-    }
+
     // We will show only max. number of points, reject the excess history
     // or make undersampling if the sampling frequency is too high
     lastDataTimestamp.idx = -1
@@ -210,7 +210,11 @@ export function showData( that ) {
         }) // function seriesData()
         var seriesData = getSeriesValue( dbData[i] )
         if ( dbglevel > 4 )
-            console.log ( 'showData(): seriesData: ', seriesData)
+            console.log (
+                'showData(): ',
+                ' seriesData.name ', seriesData.name,
+                ' seriesData.data ', seriesData.data,
+                ' seriesData.stmp ', seriesData.stmp )
         if ( (dbglevel > 5) && alerts )
             alert ( 'showData():'+ '\n' +
                     'seriesData.name ' + seriesData.name + '\n' +
@@ -225,30 +229,85 @@ export function showData( that ) {
     } // for received data from start to max. points
     chartData.series[0].name = that.path
 
-    showDataTimesTuiChart( ( lastDataTimestamp.idx + 1) )
+    // Let's collect some statistics and adjust samplng if necessary
+    if ( !frequencyAnalysisDone ) {
 
+        let nofSamples = dbData.length
+        let startStamp = Date.parse( dbData[0]._time )
+        let endStamp   = Date.parse( dbData[(nofSamples - 1)]._time )
+        let sampleFrequency = ( nofSamples / (endStamp -startStamp) * 1000 )
+
+        if ( nofFrequencyAnalysis < limitOfFrequencyAnalysis ) {
+
+            sumOfFrequencies += sampleFrequency
+            if ( sampleFrequency < frequencyStats.lowest )
+                frequencyStats.lowest = sampleFrequency
+            if ( sampleFrequency > frequencyStats.highest )
+                frequencyStats.highest = sampleFrequency
+            let genuineNewIdx = lastDataTimestamp.idx + 1
+            sumOfOverlapIdx += genuineNewIdx
+            if ( genuineNewIdx < overlapStats.lowest )
+                overlapStats.lowest = genuineNewIdx
+            if ( genuineNewIdx > overlapStats.highest )
+                overlapStats.highest = genuineNewIdx
+            nofFrequencyAnalysis++
+        }
+        else {
+            frequencyStats.avg = ( sumOfFrequencies -
+                                   frequencyStats.lowest -
+                                   frequencyStats.highest ) /
+                                 ( nofFrequencyAnalysis - 2 )
+            overlapStats.avg   = ( sumOfOverlapIdx -
+                                   overlapStats.lowest -
+                                   overlapStats.highest ) /
+                                 ( nofFrequencyAnalysis - 2 )
+            if ( dbglevel > 5 )
+                console.log
+                ( 'showData(): latest sampleFrequency: ', sampleFrequency,
+                  'latest nofSamples: ', nofSamples,
+                  'getRetrieveSeconds(): ', getRetrieveSeconds(),
+                  'latest startStamp: ', startStamp,
+                  'latest endStamp: ', endStamp,
+                  'frequencyStats.lowest: ', frequencyStats.lowest,
+                  'frequencyStats.highest: ', frequencyStats.highest,
+                  'frequencyStats.avg: ', frequencyStats.avg,
+                  'overlapStats.lowest: ', overlapStats.lowest,
+                  'overlapStats.highest: ', overlapStats.highest,
+                  'overlapStats.avg: ', overlapStats.avg
+               )
+            if ( (dbglevel > 6) && alerts )
+                alert
+                ( 'showData(): latest sampleFrequency: ' + sampleFrequency + '\n' +
+                  'latest nofSamples: ' + nofSamples + '\n' +
+                  'getRetrieveSeconds(): ' + getRetrieveSeconds() + '\n' +
+                  'latest startStamp: ' + startStamp + '\n' +
+                  'latest endStamp: ' + endStamp + '\n' +
+                  'frequencyStats.lowest: ' + frequencyStats.lowest + '\n' +
+                  'frequencyStats.highest: ' + frequencyStats.highest + '\n' +
+                  'frequencyStats.avg: ' + frequencyStats.avg + '\n' +
+                  'overlapStats.lowest: ' + overlapStats.lowest + '\n' +
+                  'overlapStats.highest: ' + overlapStats.highest + '\n' +
+                  'overlapStats.avg: ' + overlapStats.avg
+                )
+            frequencyAnalysisDone = true
+        }
+    }
+
+    let numberOfNewPoints = lastDataTimestamp.idx + 1
+
+    showDataTimesTuiChart( numberOfNewPoints )
+
+    return
 }
 
 export function clearData( that ) {
-
-    // that.glastvalue = 0
-    // if ( that.gauge.length > 0 ) {
-    //     that.gauge[0].symbol = ''
-    //     that.gauge[0].refresh( 0, 100, 0, '' )
-    // }
-    // else {
-    //     document.getElementById('numgauge0').innerHTML = '&nbsp;'
-    //     document.getElementById('numgunit0').innerHTML = '&nbsp;'
-    // }
-    // suppressShowData = true // otherwise the rolling dial will check for value
-    // rollDisplayToSelection( that )
-    // suppressShowData = false
-
+    let emptyArray = []
+    dbData = emptyArray
+    return
 }
 
 export function noData( that ) {
     setIdbClientForRetry()
-    window.iface.setretyget()
 }
 
 export function prepareDataHalt( that ) {
