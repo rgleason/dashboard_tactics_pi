@@ -72,10 +72,33 @@ export function startTimesTuiChart() {
 }
 
 export function showDataTimesTuiChart( nofNewValues ) {
+    if ( dbglevel > 4 )
+        console.log (
+            'showDataTimesTuiChart(): nofNewValues: ', nofNewValues,
+            'chart._dynamicDataHelper.addedDataCount: ',
+            chart._dynamicDataHelper.addedDataCount )
     var nVal = nofNewValues || null
     if ( (nVal === null) || (nVal == 0) )
         return
     for ( let i = 0; i < nVal; i++ ) {
         chart.addData( chartData.categories[i], [chartData.series[0].data[i]] )
     }
+    if ( dbglevel > 4 )
+        console.log (
+            'showDataTimesTuiChart(): return - ',
+            'chart._dynamicDataHelper.addedDataCount: ',
+            chart._dynamicDataHelper.addedDataCount )
+}
+/*
+ The issue with the ToastTUI's chart.addData() method here is that is
+ asynchronous (actually good, allowing us to do something else).
+ But if we continue to fetch even more data, soon there will be buffer
+ overrun. It may take several seconds to draw a completely new set of data.
+ Database operations are, on the other hand in <100ms range.
+ We should be able to wait on the end of the data plot drawing.
+ We use the undocumented variable from its _dynamicDataHelper object to
+ estimate if it is still busy.
+ */
+ export function getAddedDataCount() {
+     return chart._dynamicDataHelper.addedDataCount
 }
