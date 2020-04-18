@@ -193,25 +193,6 @@ var iface = {
             return
         }
     },
-    eventgetlaunch    : null,
-    elemgetlaunch     : null,
-    regeventgetlaunch: function ( newelem, newevent ) {
-        this.elemgetlaunch = newelem
-        this.eventgetlaunch = newevent
-    },
-    setgetlaunch: function() {
-        try {
-            if ( (this.eventgetlaunch === null) || (this.elemgetlaunch === null) )
-                return
-            this.elemgetlaunch.dispatchEvent( this.eventgetlaunch )
-        }
-        catch (error) {
-            if ( ifacedbglevel > 1 )
-                console.log('iface.setgetlaunch - state machine error',
-                            error)
-            return
-        }
-    },
     eventchgconf    : null,
     elemchgconf     : null,
     chgconfpath     : '',
