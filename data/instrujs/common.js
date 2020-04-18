@@ -24,7 +24,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 4,
+    debuglevel : 5,
     alerts : true,
     alertdelay : 5,
     corsproxy: 'http://localhost:8089',
@@ -418,6 +418,6 @@ var  instrustat = {
             divider    : this.knownpaths[ parseInt(i) ].divider,
             offset     : this.knownpaths[ parseInt(i) ].offset
         }
-    }
+    },
 }
 window.instrustat = instrustat
