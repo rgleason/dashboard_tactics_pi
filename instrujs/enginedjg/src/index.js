@@ -51,7 +51,8 @@ bottom.addEventListener('setid', function (e) {
             'Event:  setid: fsm.setid() transition failed, error: ', error,
             ' current state: ', fsm.state)
     }
-    var pollhascfg = (function () {
+    var pollhascfg
+    (pollhascfg = function () {
         if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
         if ( fsm.is('hasid') ) {
             var hascfg = true
@@ -83,7 +84,7 @@ bottom.addEventListener('setid', function (e) {
         else {
             setTimeout(pollhascfg, 100)
         }
-    }()) // do selection of the next action in the routing once ID has been set, or not
+    })() // do selection of the next action in the routing once ID has been set, or not
 }, true)
 window.iface.regeventsetid( bottom, eventsetid )
 
@@ -167,15 +168,6 @@ bottom.addEventListener('getnew', function (e) {
         'Event:  getnew: error: enginedjg does not ask new data from DB')
 }, true)
 window.iface.regeventgetnew( bottom, eventgetnew )
-
-// New data fetch has been launched
-var eventgetlaunch = document.createEvent('Event')
-eventgetlaunch.initEvent('getlaunch', false, false)
-bottom.addEventListener('getlaunch', function (e) {
-    console.error(
-        'Event:  getlaunch: error: enginedjg does not ask nor wait data from DB')
-}, true)
-window.iface.regeventgetlaunch( bottom, eventgetlaunch )
 
 // New data is coming in
 var eventnewdata = document.createEvent('Event')
@@ -275,7 +267,8 @@ window.iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
-function pollinitga () {
+var pollinitga
+(pollinitga = function() {
     if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ', fsm.state)
     if ( fsm.is('initga') ) {
         try {
@@ -289,9 +282,7 @@ function pollinitga () {
     } else {
         setTimeout(pollinitga, 100)
     }
-}
-
-pollinitga() // do _everything_ in the routing once condition met
+})() // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 
