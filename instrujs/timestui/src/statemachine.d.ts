@@ -15,7 +15,6 @@ export interface StateMachine {
     selected(): undefined
     ackschema(): undefined
     getnew(): undefined
-    getlaunch(): undefined
     newdata(): undefined
     errdata(): undefined
     retryget(): undefined

@@ -7,12 +7,15 @@ import {packagename, version} from '../../src/version'
 console.log('timestui ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
 
+
 import '../../src/iface.js'
 import '../sass/style.scss'
 import {setSkPathFontResizingStyle} from './css'
 
 import {kbdInit} from '../../src/kbd'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
+
+import {getAddedDataCount} from './chart'
 
 // InfluxDB client module
 import {initIdbClient} from './idbclient'
@@ -22,27 +25,32 @@ initIdbClient()
 import {createStateMachine} from './statemachine'
 import visualize from '../../src/state-machine-visualize'
 
-if ( dbglevel > 0 ) console.log('index.js - creating the finite state machine')
+if ( dbglevel > 0 )
+    console.log('index.ts - creating the finite state machine')
 var fsm = createStateMachine()
-if ( dbglevel > 0 ) console.log('fsm created - state: ', fsm.state)
+if ( dbglevel > 0 )
+    console.log('fsm created - state: ', fsm.state)
 try {
     var dot: any = visualize( fsm );
     (window as any).iface.setgraphwizdot( dot )
-    if ( dbglevel > 0 ) console.log('index.js: state machine GraphWiz presentation available through iface.js')
+    if ( dbglevel > 0 )
+        console.log('index.ts: state machine GraphWiz presentation available through iface.js')
 }
 catch( error ) {
-    console.error('index.js: state machine visualize, error: ', error)
+    console.error('index.ts: state machine visualize, error: ',
+                  error.message)
 }
 try {
     fsm.init()
 }
 catch( error ) {
-    console.error('index.js: fsm.init() transition failed, error: ', error)
+    console.error('index.ts: fsm.init() transition failed, error: ',
+                  error.message)
 }
 
 // Create the transitional events (the IE way, sorry!) for clieant messages
 var bottom: HTMLElement | null = document.getElementById( 'bottom' )
-if (!bottom) {
+if (bottom === null) {
     throw 'timestui: init: no element: bottom'
 }
 
@@ -56,10 +64,11 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
     }
     catch( error ) {
         console.error(
-            'Event:  setid: fsm.setid() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  setid: fsm.setid() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
-    var pollhascfg = (function () {
+    var pollhascfg: () => void
+    (pollhascfg= function () {
         if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
         if ( fsm.is('hasid') ) {
             var hascfg = true
@@ -73,8 +82,8 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ', error,
-                        ' current state: ', fsm.state)
+                        'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ',
+                        error.message, ' current state: ', fsm.state)
                 }
             }
             else {
@@ -83,16 +92,15 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ', error,
-                        ' current state: ', fsm.state)
+                        'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ',
+                        error.message, ' current state: ', fsm.state)
                 }
             }
         }
         else {
-            var n: number
-            n = window.setTimeout(() => pollhascfg, 100)
+            window.setTimeout(pollhascfg, 100)
         }
-    }()) // do selection of the next action in the routing once ID has been set, or not
+    })(); // do selection of the next action in the routing once ID has been set, or not
 }) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 (window as any).iface.regeventsetid( bottom, eventsetid )
 
@@ -114,8 +122,8 @@ bottom.addEventListener('setalldb', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  setalldb: fsm.setalldb() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  setalldb: fsm.setalldb() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventsetalldb( bottom, eventsetalldb )
@@ -129,8 +137,8 @@ bottom.addEventListener('rescan', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  rescan: fsm.rescan() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  rescan: fsm.rescan() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventrescan( bottom, eventrescan )
@@ -144,8 +152,8 @@ bottom.addEventListener('selected', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  selected: fsm.selected() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  selected: fsm.selected() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventselected( bottom, eventselected )
@@ -159,31 +167,6 @@ bottom.addEventListener('acksubs', ((event: Event) => {
 }) as EventListener);
 (window as any).iface.regeventacksubs( bottom, eventacksubs )
 
-/*
-   Getdata is a transitional state - it has three posssible entries:
-   1/ ackshema - new schema received from the C++ clieant
-   2/ getnew - new data query cycle launched
-   3/ retryget - error has occurred but new data query cycle launched
-   Since FSM cannot launch its own event we need to serve transitions
- */
-function pollgetdata () {
-    if ( dbglevel > 0 )
-        console.log('pollgetdata() - waiting for getdata, now: ', fsm.state)
-    if ( fsm.is('getdata') ) {
-        try {
-            alert('pollgetdata(): getlaunch')
-            fsm.getlaunch()
-        }
-        catch( error ) {
-            console.error(
-                'index.js:  fsm.getlaunch() transition failed, error: ', error,
-                ' current state: ', fsm.state)
-        }
-    } else {
-        setTimeout(pollgetdata, 100)
-    }
-}
-
 // Requested database schema is now available
 var eventackschema: Event = document.createEvent('Event')
 eventackschema.initEvent('ackschema', false, false)
@@ -193,70 +176,20 @@ bottom.addEventListener('ackschema', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  acksubs: fsm.ackschema() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  ackschema: fsm.ackschema() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
-    pollgetdata()
 }) as EventListener);
 (window as any).iface.regeventackschema( bottom, eventackschema )
 
-// Request to fetch new data from DB
+// Request to fetch new data from DB (pro-forma, see pollshowdata())
 var eventgetnew: Event = document.createEvent('Event')
 eventgetnew.initEvent('getnew', false, false)
 bottom.addEventListener('getnew', ((event: Event) => {
-    try {
-        fsm.getnew()
-    }
-    catch( error ) {
-        console.error(
-            'Event: getnew: fsm.getnew() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
-    pollgetdata()
+    console.error(
+            'Event: getnew: this should not be triggered from outside!')
 }) as EventListener);
 (window as any).iface.regeventgetnew( bottom, eventgetnew )
-
-// New data fetch has been launched
-var eventgetlaunch: Event = document.createEvent('Event')
-eventgetlaunch.initEvent('getlaunch', false, false)
-bottom.addEventListener('getlaunch', ((event: Event) => {
-    try {
-        fsm.getlaunch()
-    }
-    catch( error ) {
-        console.error(
-            'Event: getlaunch: fsm.getlaunch() transition failed, error: ', error,
-            ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventgetlaunch( bottom, eventgetlaunch )
-
-/*
-   Showdata is a transitional state - it has one entry transition
-   1/ newdata - from waitdata - DB query has succeeded
-   Two possible exits
-   2/ getnew - new data query cycle
-   3/ chgconf - mouse event, if occurs to ask for a config change
-   Since FSM cannot launch its own event we need to serve getnew transition
- */
-function pollshowdata () {
-    if ( dbglevel > 0 )
-        console.log('pollshowdata() - waiting for showdata, now: ', fsm.state)
-    if ( fsm.is('showdata') && !fsm.databusy ) {
-        alert('pollnewdata() - showdata now, not busy, getnew')
-        try {
-            fsm.getnew()
-        }
-        catch( error ) {
-            alert('pollshowdata fsm.getnew() exception: error' + error.message)
-            console.error(
-                'index.js:  fsm.newget() transition failed, error: ', error,
-                ' current state: ', fsm.state)
-        }
-    } else {
-        setTimeout(pollshowdata, 100)
-    }
-}
 
 // New data is availale
 var eventnewdata: Event = document.createEvent('Event')
@@ -267,38 +200,52 @@ bottom.addEventListener('newdata', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event: newdata: fsm.newdata() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event: newdata: fsm.newdata() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
-    pollshowdata()
+    /*
+      Showdata is a transitional state - it has one entry transition
+      1/ newdata - from waitdata - DB query has succeeded
+      Two possible exits
+      2/ getnew - new data query cycle
+      3/ chgconf - mouse event, if occurs to ask for a config change
+      Since FSM cannot launch its own event we need to serve getnew transition
+    */
+    var pollshowdata: () => void
+    var prevNewDataCnt: number = 0
+    var nofRemainedSame: number = 0;
+    (pollshowdata = function () {
+        var newDataCnt = getAddedDataCount()
+        var painting: boolean = true
+        if ( newDataCnt != prevNewDataCnt) {
+            prevNewDataCnt = newDataCnt
+        }
+        else {
+            nofRemainedSame++
+            if ( nofRemainedSame >= 2 )
+                painting = false
+        }
+        if ( dbglevel > 0 )
+            console.log('pollshowdata() - waiting for showdata, now: ',
+            // fsm.state, ' fsm.databusy: ', fsm.databusy)
+            fsm.state, ' painting ', painting, ' (',
+            newDataCnt, ',', prevNewDataCnt, ',', nofRemainedSame, ')')
+        // if ( fsm.is('showdata') && !fsm.databusy ) {
+        if ( fsm.is('showdata') && !painting ) {
+            try {
+                fsm.getnew()
+            }
+            catch( error ) {
+                console.error(
+                    'index.js:  fsm.newget() transition failed, error: ',
+                    error.message, ' current state: ', fsm.state)
+            }
+        } else {
+            window.setTimeout(pollshowdata, 500)
+        }
+    })(); // make the transition from newdata to getnew by polling the state
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
-
-/*
-   Nodata is a transitional state - it has one entry transition
-   1/ errdata - from waitdata - DB query has failed
-   Two possible exits
-   2/ retryget - new data query cycle launched despite error
-   3/ chgconf - mouse event, if occurs to ask for a config change
-   Since FSM cannot launch its own event we need to serve retryget transition
- */
-function pollerrdata () {
-    if ( dbglevel > 0 )
-        console.log('pollerrdata() - waiting for nodata, now: ', fsm.state)
-    if ( fsm.is('nodata') ) {
-        alert('pollerrdata() - nodata now, retryget')
-        try {
-            fsm.retryget()
-        }
-        catch( error ) {
-            console.error(
-                'index.js:  fsm.retryget() transition failed, error: ', error,
-                ' current state: ', fsm.state)
-        }
-    } else {
-        setTimeout(pollerrdata, 100)
-    }
-}
 
 // Asynchronous data retrieval from DB has failed
 var eventerrdata: Event = document.createEvent('Event')
@@ -309,10 +256,34 @@ bottom.addEventListener('errdata', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event: errdata: fsm.errdata() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event: errdata: fsm.errdata() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
-    pollerrdata()
+    /*
+      Nodata is a transitional state - it has one entry transition
+      1/ errdata - from waitdata - DB query has failed
+      Two possible exits
+      2/ retryget - new data query cycle launched despite error
+      3/ chgconf - mouse event, if occurs to ask for a config change
+      Since FSM cannot launch its own event we need to serve retryget transition
+    */
+    var pollerrdata: () => void
+    (pollerrdata = function () {
+        if ( dbglevel > 0 )
+            console.log('pollerrdata() - waiting for nodata, now: ', fsm.state)
+        if ( fsm.is('nodata') ) {
+            try {
+                fsm.retryget()
+            }
+            catch( error ) {
+                console.error(
+                    'index.js:  fsm.retryget() transition failed, error: ',
+                    error.message, ' current state: ', fsm.state)
+            }
+        } else {
+            window.setTimeout(pollerrdata, 100)
+        }
+    })() // make the transition from errdata to retryget by polling the state
 }) as EventListener);
 (window as any).iface.regeventerrdata( bottom, eventerrdata )
 
@@ -325,8 +296,8 @@ bottom.addEventListener('retryget', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event: retryget: fsm.retryget() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event: retryget: fsm.retryget() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventretryget( bottom, eventretryget )
@@ -340,8 +311,8 @@ bottom.addEventListener('chgconf', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  chgconf: fsm.chgconf() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  chgconf: fsm.chgconf() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventchgconf( bottom, eventchgconf )
@@ -355,8 +326,8 @@ bottom.addEventListener('luminsty', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  luminsty: fsm.luminsty() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  luminsty: fsm.luminsty() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventluminsty( bottom, eventluminsty )
@@ -380,31 +351,31 @@ bottom.addEventListener('closing', ((event: Event) => {
     }
     catch( error ) {
         console.error(
-            'Event:  closing: fsm.closing() transition failed, error: ', error,
-            ' current state: ', fsm.state)
+            'Event:  closing: fsm.closing() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
 (window as any).iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
-function pollinitga () {
-    if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ', fsm.state)
+var pollinitga: () => void
+(pollinitga = function() {
+    if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ',
+         fsm.state)
     if ( fsm.is('initga') ) {
         try {
             fsm.initok()
         }
         catch( error ) {
             console.error(
-                'index.js:  fsm.initok() transition failed, error: ', error,
-                ' current state: ', fsm.state)
+                'index.js:  fsm.initok() transition failed, error: ',
+                error.message, ' current state: ', fsm.state)
         }
     } else {
         setTimeout(pollinitga, 100)
     }
-}
-
-pollinitga() // do _everything_ in the routing once condition met
+})(); // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 
@@ -423,7 +394,8 @@ window.addEventListener('load',
             fsm.loaded()
         }
         catch( error ) {
-            console.error('loading: fsm.loaded() transition failed, error: ', error)
+            console.error('loading: fsm.loaded() transition failed, error: ',
+            error.message)
         }
     }, false)
 

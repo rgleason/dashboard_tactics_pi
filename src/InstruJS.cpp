@@ -271,7 +271,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         // see  ../instrujs/src/iface.js for the interface,
         // see  ../instrujs/<instrument>/src/statemachine.js for the states
         wxString request = wxEmptyString;
-        wxString pgtext  = m_pWebPanel->GetPageText();
+        wxString pgtext  = wxEmptyString;
+        pgtext  = m_pWebPanel->GetPageText();
         int pos = pgtext.Find("instrujs:");
         if ( pos != wxNOT_FOUND ) {
             wxString restOfTxt = pgtext.Mid( (pos + 9) );
@@ -451,21 +452,23 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_NO_REQUEST;
         }
         if ( m_istate == JSI_SHOWDATA ) {
-            if ( m_data != m_lastdataout ) {
-                wxString javascript =
-                    wxString::Format(
-                        L"%s%s%s",
-                        "window.iface.newdata(",
-                        m_data,
-                        ");");
-                RunScript( javascript );
-                m_lastdataout = m_data;
-                m_pparent->SendPerfSentenceToAllInstruments(
-                    OCPN_DBP_STC_SKSUBSCRIBE,
-                    m_fData,
-                    m_subscribedPath,
-                    getTimestamp() );
-            } // then do not load the system with the same script execution multiple times
+            if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
+                if ( m_data != m_lastdataout ) {
+                    wxString javascript =
+                        wxString::Format(
+                            L"%s%s%s",
+                            "window.iface.newdata(",
+                            m_data,
+                            ");");
+                    RunScript( javascript );
+                    m_lastdataout = m_data;
+                    m_pparent->SendPerfSentenceToAllInstruments(
+                        OCPN_DBP_STC_SKSUBSCRIBE,
+                        m_fData,
+                        m_subscribedPath,
+                        getTimestamp() );
+                } // then do not load the system with the same script execution multiple times
+            } // then the instrument has subscribed to incoming data by subscription
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {
             bool sendNewValue = false;
@@ -491,7 +494,10 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             } // then there is a reason to ask the instrument to change style
         } // then instru state machine allows luminosity changes
 
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
+        
     } // then all code loaded
+    
     else {
         if ( !m_webpanelCreated && m_webpanelCreateWait ) {
             if ( !m_pWebPanel->IsBusy() ) {
@@ -507,8 +513,11 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_WINDOW_LOADED;
             } // then page is reloaded
         } // then poll until page reloaded - to make sure to have the latest .js versions
+
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 2900,3099 ), wxTIMER_CONTINUOUS);
+
     } // else the webpanel is not yet loaded / scripts are not running
-    m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
+
 }
 
 void InstruJS::Draw(wxGCDC* dc)

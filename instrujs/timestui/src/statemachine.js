@@ -14,9 +14,9 @@ import {initLoad} from './init'
 import {getidAskClient, getidClientAnswer} from './getid'
 import {getConf, getPathDefaultsIfNew, clearConf, prepareConfHalt} from '../../src/conf'
 import {getalldbAskClient, getalldbClientAnswer, getpathAskClient, gotAckCheckSchema, getschemaAcknowledged} from './path'
-import {dataQuery} from './idbclient'
+import {dataQuery, setIdbClientStateHasResult, setIdbClientStateGotError} from './idbclient'
 import {setMenuAllPaths, setMenuRunTime, setMenuBackToLoading} from '../../src/menu'
-import {onWaitdataFinalCheck, waitData, showData, clearData, noData, prepareDataHalt} from './data'
+import {onWaitdataFinalCheck, showData, clearData, noData, prepareDataHalt} from './data'
 import {swapDisplay, rollDisplayToSelection} from './disp'
 import {getNewLuminosity} from './css'
 
@@ -58,12 +58,10 @@ export function createStateMachine() {
             { name: 'selected',  from: 'showmenu', to: 'getschema' },
             { name: 'ackschema', from: 'getschema',to: 'getdata' },
             { name: 'getnew',    from: 'showdata', to: 'getdata' },
-            { name: 'getlaunch', from: 'getdata',  to: 'waitdata' },
-            { name: 'newdata',   from: 'waitdata', to: 'showdata' },
-            { name: 'errdata',   from: 'waitdata', to: 'nodata' },
+            { name: 'newdata',   from: 'getdata',  to: 'showdata' },
+            { name: 'errdata',   from: 'getdata',  to: 'nodata' },
             { name: 'retryget',  from: 'nodata',   to: 'getdata' },
             { name: 'chgconf',   from: 'getschema',to: 'getalldb' },
-            { name: 'chgconf',   from: 'waitdata', to: 'getalldb' },
             { name: 'chgconf',   from: 'showdata', to: 'getalldb' },
             { name: 'chgconf',   from: 'nodata',   to: 'getalldb' },
             { name: 'luminsty',  from: 'getid',    to: 'getid' },
@@ -71,11 +69,10 @@ export function createStateMachine() {
             { name: 'luminsty',  from: 'getschema',to: 'getschema' },
             { name: 'luminsty',  from: 'getalldb', to: 'getalldb' },
             { name: 'luminsty',  from: 'getdata',  to: 'getdata' },
-            { name: 'luminsty',  from: 'waitdata', to: 'waitdata' },
             { name: 'luminsty',  from: 'nodata',   to: 'nodata' },
             { name: 'luminsty',  from: 'showmenu', to: 'showmenu' },
             { name: 'luminsty',  from: 'showdata', to: 'showdata' },
-            { name: 'closing',   from: 'waitdata', to: 'halt' },
+            { name: 'closing',   from: 'nodata',   to: 'halt' },
             { name: 'closing',   from: 'showdata', to: 'halt' }
         ],
         methods: {
@@ -153,15 +150,36 @@ export function createStateMachine() {
             },
             onBeforeAckschema:   function() {
                 if ( dbglevel > 0 )
-                    console.log('onAckschema() - before transition')
+                    console.log('onAckschema() - before transition (BT)')
                 clearData( this )
+                if ( dbglevel > 1 )
+                    console.log('onAckschema() BT - clearData() done')
                 gotAckCheckSchema( this )
+                if ( dbglevel > 1 )
+                    console.log('onAckschema() BT - gotAckCheckSchema() done')
                 getschemaAcknowledged( this )
+                if ( dbglevel > 1 )
+                    console.log('onAckschema() BT - getschemaAcknowledged() done')
+                onWaitdataFinalCheck( this )
+                if ( dbglevel > 1 )
+                    console.log('onAckschema() BT - onWaitdataFinalCheck() done')
+                dataQuery()
+                if ( dbglevel > 1 )
+                    console.log('onAckschema() BT - dataQuery() done')
             },
             onAfterAckschema:   function() {
                 if ( dbglevel > 0 )
                     console.log('onAckschema() - after transition')
-                onWaitdataFinalCheck( this )
+            },
+            onBeforeGetnew:   function() {
+                if ( dbglevel > 0 )
+                    console.log('onGetnew() - before transition (BT) - dataQuery()')
+                clearData( this )
+                if ( dbglevel > 1 )
+                    console.log('onGetnew() BT - clearData() done')
+                dataQuery()
+                if ( dbglevel > 1 )
+                    console.log('onGetnew() BT - dataQuery() done')
             },
             onAfterGetnew:   function() {
                 if ( dbglevel > 0 )
@@ -170,26 +188,80 @@ export function createStateMachine() {
             onGetdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onGetdata() - state')
-                    dataQuery()
-            },
-            onBeforeGetlaunch: function() {
-                    console.log('onGetlaunch() - before transition')
             },
             onBeforeNewdata: function() {
                 if ( dbglevel > 0 )
-                    console.log('onNewdata() - before transition')
-            },
-            onWaitdata: function() {
-                if ( dbglevel > 0 )
-                    console.log('onWaitData() - state')
-                waitData( this )
+                    console.log('onNewdata() - before transition (BT)')
+                setIdbClientStateHasResult()
+                if ( dbglevel > 1 )
+                    console.log('onShowData() BT - databusy = true')
+                this.databusy = true
+                showData( this )
+                if ( dbglevel > 1 )
+                    console.log('onShowData() BT - showData() done')
             },
             onShowdata: function() {
                 if ( dbglevel > 0 )
-                    console.log('onShowData() - state')
-                this.databusy = true
-                showData( this )
-                this.databusy = false
+                    console.log('onShowData() - state (ST)')
+//                while ( this.databusy ) {
+
+// var testval = getAddedDataCount()
+// console.log('testval: ', testval)
+// var test = new Promise(function(resolve, reject) {
+//    setTimeout(() => {
+//       console.log('in Promise, testval: ', testval)
+//       if ( testval === 0 ) {
+//          console.log('testval === 0')
+//           resolve(0)
+//       }
+//       else {
+//          reject(testval)
+//       }
+//    }, 3 * 1000)
+// })
+// // Success or not success and reason
+// test.then(
+//    success => console.log('success or failure: success! ', success),
+//    failure => console.log('success or failure: failure! reason: ', failure)
+// )
+// // deal only with fullfilled case
+// test.then(
+//    value => console.log('check success only: value: ', value)
+// )
+// // deal only with rejected case
+// test.then(
+//    undefined,
+//    failure => console.log('check for failure only: reason ', failure)
+// )
+// test.catch(
+//     reason => console.log('catch:', reason)
+// )
+
+
+                    // var addedData = new getAddedDataCountWithDelay()
+                    // addedData.then(
+                    //     isempty  => {
+                    //         if ( dbglevel > 1 )
+                    //             console.log(
+                    //                 'onShowData() - state (ST): addedData isempty: ',
+                    //                 isempty )
+                    //         this.databusy = false
+                    //     },
+                    //     notempty => {
+                    //         if ( dbglevel > 1 )
+                    //             console.log(
+                    //                 'onShowData() - state (ST): addedData notempty: ',
+                    //                 notempty )
+                    //     }
+                    // )
+//                }
+                if ( dbglevel > 1 )
+                    console.log('onShowData() ST - done.')
+            },
+            onBeforeErrdata: function() {
+                if ( dbglevel > 0 )
+                    console.log('onNodata() - before transition (errdata)')
+                setIdbClientStateGotError()
             },
             onNodata: function() {
                 if ( dbglevel > 0 )
@@ -197,10 +269,13 @@ export function createStateMachine() {
                 noData( this )
             },
             onBeforeRetryget: function( lifecycle ) {
-                if ( dbglevel > 0 ) console.log('onRetryget() - before transition')
+                if ( dbglevel > 0 ) console.log('onRetryget() - before transition (BT)')
                 if ( dbglevel > 2)
-                    dbgPrintFromTo( 'onBeforeRetryget', lifecycle )
+                    dbgPrintFromTo( 'onBeforeRetryget (BT)', lifecycle )
                 setMenuBackToLoading( this )
+                dataQuery()
+                if ( dbglevel > 1 )
+                    console.log('onBeforeRetryget BT - dataQuery() done')
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 )

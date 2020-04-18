@@ -9,7 +9,6 @@ digraph "fsm" {
   "showmenu";
   "getdata";
   "showdata";
-  "waitdata";
   "nodata";
   "halt";
   "window" -> "loading" [ label=" init " ];
@@ -23,11 +22,10 @@ digraph "fsm" {
   "showmenu" -> "getschema" [ label=" selected " ];
   "getschema" -> "getdata" [ label=" ackschema " ];
   "showdata" -> "getdata" [ label=" getnew " ];
-  "getdata" -> "waitdata" [ label=" getlaunch " ];
-  "waitdata" -> "showdata" [ label=" newdata " ];
-  "waitdata" -> "nodata" [ label=" errdata " ];
+  "getdata" -> "showdata" [ label=" newdata " ];
+  "getdata" -> "nodata" [ label=" errdata " ];
   "nodata" -> "getdata" [ label=" retryget " ];
-  "waitdata" -> "getalldb" [ label=" chgconf " ];
+  "getschema" -> "getalldb" [ label=" chgconf " ];
   "showdata" -> "getalldb" [ label=" chgconf " ];
   "nodata" -> "getalldb" [ label=" chgconf " ];
   "getid" -> "getid" [ label=" luminsty " ];
@@ -35,10 +33,9 @@ digraph "fsm" {
   "getschema" -> "getschema" [ label=" luminsty " ];
   "getalldb" -> "getalldb" [ label=" luminsty " ];
   "getdata" -> "getdata" [ label=" luminsty " ];
-  "waitdata" -> "waitdata" [ label=" luminsty " ];
   "nodata" -> "nodata" [ label=" luminsty " ];
   "showmenu" -> "showmenu" [ label=" luminsty " ];
   "showdata" -> "showdata" [ label=" luminsty " ];
-  "waitdata" -> "halt" [ label=" closing " ];
+  "nodata" -> "halt" [ label=" closing " ];
   "showdata" -> "halt" [ label=" closing " ];
 }

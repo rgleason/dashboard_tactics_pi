@@ -25,6 +25,14 @@ export function getIdbClientState() : string {
     return locstate
 }
 
+export function setIdbClientStateHasResult() {
+    locstate = 'RES'
+}
+
+export function setIdbClientStateGotError() {
+    locstate = 'ERR'
+}
+
 export function setIdbClientForRetry() {
     jsonCollectedData.length = 0
     locstate = 'RDY'
@@ -40,12 +48,34 @@ export function setRetrieveSeconds( newValue: number ) {
         return
     retrieveSeconds = nVal
 }
+/*
+ Reason why we do not manage time backwards relative is two folded:
+ 1) The server time, especially on Hyper-V Docker is not perhaps same as there
+ 2) We make provisions to allow methods to retrieve slises from the history
+ */
+interface TimeRange {
+    start: string
+    stop: string
+}
+function getTimeRangeBackFromNow(): TimeRange {
+    let tNowDate = new Date()
+    let tNowMs = tNowDate.getTime()
+    var tNowISOs = tNowDate.toISOString()
+    let tBackMs = tNowMs - (retrieveSeconds * 1000)
+    let tBackDate = new Date(tBackMs)
+    let tBackISOs = tBackDate.toISOString()
+    return{
+        start: tBackISOs,
+        stop:  tNowISOs
+    }
+}
 
 export function getCollectedDataJSON():string[] {
     if ( locstate !== 'RES' ) {
         if ( dbglevel > 0 )
             console.log (
-                'getCollectedDataJSON(): statemachine violation, expected RES, is ', locstate)
+                'getCollectedDataJSON(): statemachine violation, expected RES, is ',
+                locstate)
         return []
     }
     let retJsonArray: string[] = jsonCollectedData
@@ -58,7 +88,8 @@ export function getCollectedDataJSON():string[] {
 export function dataQuery() {
     if ( dbglevel > 0 )
         console.log('dataQuery()')
-    alert( 'dataQuery() - locstate: ' + locstate )
+    if ( (dbglevel > 5) && alerts )
+        alert( 'dataQuery() - locstate: ' + locstate )
     if ( locstate !== 'RDY' ) {
         if ( dbglevel > 0 )
             console.log (
@@ -67,8 +98,6 @@ export function dataQuery() {
     }
 
     let schma: DbSchema = getPathSchema()
-
-    // alert (schma)
 
     if ( schma.path === '' ) {
         if ( dbglevel > 0 )
@@ -87,7 +116,8 @@ export function dataQuery() {
 
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
     var fQry: string = 'from(bucket:"'+ schma.bucket + '")\n'
-    fQry += '  |> range(start: -' + retrieveSeconds.toString() + 's)\n'
+    let tRge = getTimeRangeBackFromNow()
+    fQry += '  |> range(start: ' + tRge.start + ', stop: ' + tRge.stop + ')\n'
     fQry += '  |> filter(fn: (r) => \n'
     fQry += '    r._measurement == "'
     fQry += schma.sMeasurement + '"'
@@ -113,16 +143,19 @@ export function dataQuery() {
     }
     fQry += '\n)'
 
-    // Quite handy if cannot find data - attention with the delay, no query while you are looking alert!
+    // Quite handy if cannot find data - attention with the delay, no query while you are looking at the alert!
     // ref https://docs.influxdata.com/flux/v0.50/introduction/getting-started/query-influxdb/#3-filter-your-data
-    // alert( fQry )
+    if ( dbglevel > 4 )
+        console.log('dataQuery(): fQry: ', fQry )
+    if ( (dbglevel > 5) && alerts )
+        alert( 'dataQuery(): fQry: ' + fQry )
 
-    if ( dbglevel > 2 )
-        console.log('*** QUERY ROWS ***');
     // performs query and receive line table metadata and rows
     // https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/
     queryApi.queryRows(fQry, {
         next(row: string[], tableMeta: FluxTableMetaData) {
+            if ( dbglevel > 5 )
+                console.log('queryApi.queryRows() - row', row )
             const o = tableMeta.toObject(row)
             /*
              JSON stringify the returned object to simplify the type definition
@@ -130,16 +163,20 @@ export function dataQuery() {
              The consumer of the data shall know what it has ordered...
              */
             let rowdata:string = JSON.stringify(o, null, 2)
-            if ( dbglevel > 0 )
+            if ( dbglevel > 5 )
                 console.log( rowdata )
 
             jsonCollectedData.push( rowdata )
+            if ( dbglevel > 4 )
+                console.log(
+                    'queryApi.queryRows() - jsonCollectedData.length: ',
+                    jsonCollectedData.length )
             // console.log( `${o._time} ${o._measurement}.${o._field}=${o._value}` )
         },
         error(error: Error) {
-            locstate = 'ERR';
-
-            (window as any).iface.seterrdata()
+            // note: this function cannot see module variables/functions
+            // local state transition via the fsm state transition
+            // setIdbClientStateGotError()
             if ( dbglevel > 0 ) {
                 console.log('\nDB Query finished ERROR')
             }
@@ -148,12 +185,29 @@ export function dataQuery() {
                 if ( alerts )
                     alert('DB error' + error.message);
             }
+            try {
+                (window as any).iface.seterrdata()
+            }
+            catch( err ) {
+                console.error(
+                    'dataQuery(): error(): iface.seterrdata() failed, error: ',
+                    err.message)
+            }
         },
         complete() {
-            locstate = 'RES';
-            (window as any).iface.newdata(0)
+            // note: this function cannot see module variables/functions
+            // local state transition via the fsm state transition
+            // setIdbClientStateHasResult()
             if ( dbglevel > 2 )
                 console.log('\nDB Query finished SUCCESS')
+                try {
+                    (window as any).iface.newdata(0)
+                }
+                catch( err ) {
+                    console.error(
+                        'dataQuery(): error(): iface.newdata() failed, error: ',
+                        err.message)
+                }
         },
     })
 }
