@@ -7,7 +7,6 @@ import {packagename, version} from '../../src/version'
 console.log('timestui ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
 
-
 import '../../src/iface.js'
 import '../sass/style.scss'
 import {setSkPathFontResizingStyle} from './css'
@@ -222,7 +221,7 @@ bottom.addEventListener('newdata', ((event: Event) => {
         }
         else {
             nofRemainedSame++
-            if ( nofRemainedSame >= 2 )
+            if ( nofRemainedSame >= 2 ) // 2x(450ms+del)=~1s when chart follows
                 painting = false
         }
         if ( dbglevel > 0 )
@@ -241,7 +240,7 @@ bottom.addEventListener('newdata', ((event: Event) => {
                     error.message, ' current state: ', fsm.state)
             }
         } else {
-            window.setTimeout(pollshowdata, 500)
+            window.setTimeout(pollshowdata, 450)
         }
     })(); // make the transition from newdata to getnew by polling the state
 }) as EventListener);
@@ -359,20 +358,31 @@ bottom.addEventListener('closing', ((event: Event) => {
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
+var reloadDelay:number = 2
 var pollinitga: () => void
 (pollinitga = function() {
-    if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ',
+    if ( dbglevel > 0 )
+        console.log('pollinitga() - waiting for initga, now: ',
          fsm.state)
     if ( fsm.is('initga') ) {
-        try {
-            fsm.initok()
+        if ( reloadDelay === 0 ) {
+            try {
+                fsm.initok()
+            }
+            catch( error ) {
+                console.error(
+                    'index.js:  fsm.initok() transition failed, error: ',
+                    error.message, ' current state: ', fsm.state)
+            }
         }
-        catch( error ) {
-            console.error(
-                'index.js:  fsm.initok() transition failed, error: ',
-                error.message, ' current state: ', fsm.state)
+        else {
+            reloadDelay--
+            if ( dbglevel > 1 )
+                console.log('pollinitga() - initga+reloadDelay: ', reloadDelay)
+            setTimeout(pollinitga, 500)
         }
-    } else {
+    }
+    else {
         setTimeout(pollinitga, 100)
     }
 })(); // do _everything_ in the routing once condition met

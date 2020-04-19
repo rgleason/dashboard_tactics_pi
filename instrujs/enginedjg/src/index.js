@@ -267,20 +267,31 @@ window.iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
+var reloadDelay = 2
 var pollinitga
 (pollinitga = function() {
-    if ( dbglevel > 0 ) console.log('pollinitga() - waiting for initga, now: ', fsm.state)
+    if ( dbglevel > 0 )
+        console.log('pollinitga() - waiting for initga, now: ', fsm.state)
     if ( fsm.is('initga') ) {
-        try {
-            fsm.initok()
+        if ( reloadDelay === 0 ) {
+            try {
+                fsm.initok()
+            }
+            catch( error ) {
+                console.error(
+                    'index.js:  fsm.initok() transition failed, error: ', error,
+                    ' current state: ', fsm.state)
+            }
         }
-        catch( error ) {
-            console.error(
-                'index.js:  fsm.initok() transition failed, error: ', error,
-                ' current state: ', fsm.state)
+        else {
+            reloadDelay--
+            if ( dbglevel > 1 )
+                console.log('pollinitga() - initga+reloadDelay: ', reloadDelay)
+            setTimeout(pollinitga, 500)
         }
-    } else {
-        setTimeout(pollinitga, 100)
+    }
+    else {
+        setTimeout(pollinitga, 500)
     }
 })() // do _everything_ in the routing once condition met
 
