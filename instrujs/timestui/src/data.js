@@ -301,7 +301,7 @@ export function showData( that ) {
                 )
             // Calculate a new, representative history window to retrieve
 
-            if ( (overlapStats.avg > 0) && (frequencyStats.avg != 0) ) {
+            if ( (overlapStats.avg > 0) && (frequencyStats.avg !== 0) ) {
                 let newRetrieveSeconds = Math.round( (nofGraphPoints +
                     contingencyFrequencyAdjustmentSeconds) / frequencyStats.avg )
                 if ( dbglevel > 4 )
