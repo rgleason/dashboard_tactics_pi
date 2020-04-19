@@ -226,10 +226,8 @@ bottom.addEventListener('newdata', ((event: Event) => {
         }
         if ( dbglevel > 0 )
             console.log('pollshowdata() - waiting for showdata, now: ',
-            // fsm.state, ' fsm.databusy: ', fsm.databusy)
             fsm.state, ' painting ', painting, ' (',
             newDataCnt, ',', prevNewDataCnt, ',', nofRemainedSame, ')')
-        // if ( fsm.is('showdata') && !fsm.databusy ) {
         if ( fsm.is('showdata') && !painting ) {
             try {
                 fsm.getnew()
