@@ -221,10 +221,10 @@ bottom.addEventListener('newdata', ((event: Event) => {
         }
         else {
             nofRemainedSame++
-            if ( nofRemainedSame >= 2 ) // 2x(450ms+del)=~1s when chart follows
+            if ( nofRemainedSame >= 1 ) // (450ms+del)=~500ms when chart follows
                 painting = false
         }
-        if ( dbglevel > 0 )
+        if ( dbglevel > 4 )
             console.log('pollshowdata() - waiting for showdata, now: ',
             fsm.state, ' painting ', painting, ' (',
             newDataCnt, ',', prevNewDataCnt, ',', nofRemainedSame, ')')
