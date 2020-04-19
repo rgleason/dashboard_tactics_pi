@@ -124,7 +124,8 @@ export function showData( that ) {
      stringified JSON objects, cf. idbclient.ts
      */
     let dbJsonStrArr = getCollectedDataJSON()
-    chartData.categories.length = 0
+    let emptyArray = []
+    chartData.categories = emptyArray
     chartData.series[0].data.length = 0 // https://codepen.io/petrim/pen/yLyRQJK
     if ( !(dbJsonStrArr.length) ) {
         nofEmptyResults++
@@ -143,6 +144,7 @@ export function showData( that ) {
     else
         nofEmptyResults = 0
 
+    // Oldest timestamp idx=0 which is good for timeseries graph, keep
     for ( let i in dbJsonStrArr ) {
         let iobj = JSON.parse( dbJsonStrArr[i] )
         dbData.push( iobj )
@@ -150,24 +152,31 @@ export function showData( that ) {
     // The members of the object may vary according the DB DbSchema
     // but we must have at least the time and value fields
     if ( dbglevel > 0 ) {
-        if ( !('_time' in dbData[0]) ) {
-            console.error( 'showData(): no _time field in dbData[0]' )
-            if ( (dbglevel > 1) && alerts )
-                alert ( 'showData(): '+ window.instrulang.dataFromDbNoTime )
-            return
+        for ( let i = 0; (i < dbData.length); i++ ){
+            if ( !('_time' in dbData[i]) ) {
+                console.error( 'showData(): no _time field in dbData[',i,']' )
+                if ( (dbglevel > 1) && alerts )
+                    alert ( 'showData(): '+ window.instrulang.dataFromDbNoTime )
+                return
+            }
+            if ( !('_value' in dbData[i]) ) {
+                console.error( 'showData(): no _value field in dbData[',i,']' )
+                if ( (dbglevel > 1) && alerts )
+                    alert ( 'showData(): '+ window.instrulang.dataFromDbNoValue )
+                return
         }
-        if ( !('_value' in dbData[0]) ) {
-            console.error( 'showData(): no _value field in dbData[0]' )
-            if ( (dbglevel > 1) && alerts )
-                alert ( 'showData(): '+ window.instrulang.dataFromDbNoValue )
-            return
         }
     }
+    if ( dbglevel > 4 )
+        console.log (
+            'showData(): dbData.lenght: ', dbData.length,
+            ' chartData.series[0].data.length ', chartData.series[0].data.length)
 
     // We will show only max. number of points, reject the excess history
     // or make undersampling if the sampling frequency is too high
     lastDataTimestamp.idx = -1
-    for ( let i = 0; ( (i < nofGraphPoints) && (i < dbData.length) ); i++ ){
+    for ( let i=(nofGraphPoints>dbData.length)?0:(dbData.length-nofGraphPoints);
+           (i < dbData.length); i++ ){
         var getSeriesValue = (function (iobj) {
             // The timestamp format is https://tools.ietf.org/html/rfc3339 (5.8)
             // Date.parse() converts it OK to milliseconds
@@ -223,9 +232,9 @@ export function showData( that ) {
         if ( seriesData.stmp > lastDataTimestamp.stmp ) {
             lastDataTimestamp.stmp = seriesData.stmp
             lastDataTimestamp.idx = i
+            chartData.categories.push( seriesData.name )
+            chartData.series[0].data.push( seriesData.data )
         }
-        chartData.categories.push( seriesData.name )
-        chartData.series[0].data.push( seriesData.data )
     } // for received data from start to max. points
     chartData.series[0].name = that.path
 
@@ -261,7 +270,7 @@ export function showData( that ) {
                                    overlapStats.lowest -
                                    overlapStats.highest ) /
                                  ( nofFrequencyAnalysis - 2 )
-            if ( dbglevel > 5 )
+            if ( dbglevel > 4 )
                 console.log
                 ( 'showData(): latest sampleFrequency: ', sampleFrequency,
                   'latest nofSamples: ', nofSamples,
@@ -275,7 +284,7 @@ export function showData( that ) {
                   'overlapStats.highest: ', overlapStats.highest,
                   'overlapStats.avg: ', overlapStats.avg
                )
-            if ( (dbglevel > 6) && alerts )
+            if ( (dbglevel > 5) && alerts )
                 alert
                 ( 'showData(): latest sampleFrequency: ' + sampleFrequency + '\n' +
                   'latest nofSamples: ' + nofSamples + '\n' +
@@ -289,11 +298,13 @@ export function showData( that ) {
                   'overlapStats.highest: ' + overlapStats.highest + '\n' +
                   'overlapStats.avg: ' + overlapStats.avg
                 )
+            // Calculate a new, representative history window to retrieve
+
             frequencyAnalysisDone = true
         }
     }
 
-    let numberOfNewPoints = lastDataTimestamp.idx + 1
+    let numberOfNewPoints = chartData.series[0].data.length
 
     showDataTimesTuiChart( numberOfNewPoints )
 
@@ -303,6 +314,8 @@ export function showData( that ) {
 export function clearData( that ) {
     let emptyArray = []
     dbData = emptyArray
+    chartData.categories = emptyArray
+    chartData.series[0].data.length = 0 // https://codepen.io/petrim/pen/yLyRQJK
     return
 }
 
