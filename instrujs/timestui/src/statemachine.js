@@ -39,7 +39,6 @@ export function createStateMachine() {
             luminosity : 'day',
             locInfo    : getLocInfo(),
             // Functional
-            databusy   : false,
             chart      : [],
             // Signal K Paths
             path       : '',
@@ -193,9 +192,6 @@ export function createStateMachine() {
                 if ( dbglevel > 0 )
                     console.log('onNewdata() - before transition (BT)')
                 setIdbClientStateHasResult()
-                if ( dbglevel > 1 )
-                    console.log('onShowData() BT - databusy = true')
-                this.databusy = true
                 showData( this )
                 if ( dbglevel > 1 )
                     console.log('onShowData() BT - showData() done')
@@ -203,58 +199,6 @@ export function createStateMachine() {
             onShowdata: function() {
                 if ( dbglevel > 0 )
                     console.log('onShowData() - state (ST)')
-//                while ( this.databusy ) {
-
-// var testval = getAddedDataCount()
-// console.log('testval: ', testval)
-// var test = new Promise(function(resolve, reject) {
-//    setTimeout(() => {
-//       console.log('in Promise, testval: ', testval)
-//       if ( testval === 0 ) {
-//          console.log('testval === 0')
-//           resolve(0)
-//       }
-//       else {
-//          reject(testval)
-//       }
-//    }, 3 * 1000)
-// })
-// // Success or not success and reason
-// test.then(
-//    success => console.log('success or failure: success! ', success),
-//    failure => console.log('success or failure: failure! reason: ', failure)
-// )
-// // deal only with fullfilled case
-// test.then(
-//    value => console.log('check success only: value: ', value)
-// )
-// // deal only with rejected case
-// test.then(
-//    undefined,
-//    failure => console.log('check for failure only: reason ', failure)
-// )
-// test.catch(
-//     reason => console.log('catch:', reason)
-// )
-
-
-                    // var addedData = new getAddedDataCountWithDelay()
-                    // addedData.then(
-                    //     isempty  => {
-                    //         if ( dbglevel > 1 )
-                    //             console.log(
-                    //                 'onShowData() - state (ST): addedData isempty: ',
-                    //                 isempty )
-                    //         this.databusy = false
-                    //     },
-                    //     notempty => {
-                    //         if ( dbglevel > 1 )
-                    //             console.log(
-                    //                 'onShowData() - state (ST): addedData notempty: ',
-                    //                 notempty )
-                    //     }
-                    // )
-//                }
                 if ( dbglevel > 1 )
                     console.log('onShowData() ST - done.')
             },
@@ -273,6 +217,11 @@ export function createStateMachine() {
                 if ( dbglevel > 2)
                     dbgPrintFromTo( 'onBeforeRetryget (BT)', lifecycle )
                 setMenuBackToLoading( this )
+                if ( dbglevel > 1 )
+                    console.log('onGetnew() BT - setMenuBackToLoading() done')
+                clearData( this )
+                if ( dbglevel > 1 )
+                    console.log('onGetnew() BT - clearData() done')
                 dataQuery()
                 if ( dbglevel > 1 )
                     console.log('onBeforeRetryget BT - dataQuery() done')
