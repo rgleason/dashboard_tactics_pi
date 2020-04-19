@@ -24,7 +24,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 5,
+    debuglevel : 0,
     alerts : true,
     alertdelay : 5,
     corsproxy: 'http://localhost:8089',

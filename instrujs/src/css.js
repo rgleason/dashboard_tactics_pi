@@ -3,6 +3,8 @@
  * Licensed under MIT - see distribution.
  */
 
+var dbglevel = window.instrustat.debuglevel
+
 /* Requires that the JS/TS has a local ../sass/style.scss containing:
 .skpath.propl.day   { color: instrujs.$skpathcolorday; }
 .skpath.propl.dusk  { color: instrujs.$skpathcolordusk; }
@@ -25,17 +27,20 @@ export function setSkPathFontResizingStyle() {
                               getComputedStyle(
                                   document.documentElement).getPropertyValue(
                                       '--skpproplw')) ) {
-                console.log('Has viewport proportional font size support')
+                if ( dbglevel > 0)
+                    console.log('Has viewport proportional font size support')
                 hasproplsupport = true
             }
             else{
-                console.log('No viewport proportional font size support, use media properties')
+                if ( dbglevel > 0)
+                    console.log('No viewport proportional font size support, use media properties')
             }
         }
     }
     catch( error ) {
         hadexception = true
-        console.log('No CSS.supports() - got exception, use media properties - unless this is a MSIE: use propl, anyway!')
+        if ( dbglevel > 0)
+            console.error('No CSS.supports() - got exception, use media properties - unless this is a MSIE: use propl, anyway!')
     }
     if ( hasproplsupport || ( hadexception && (msie > 0) ) ) {
         skpathispropl = true

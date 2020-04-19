@@ -133,7 +133,7 @@ export function createStateMachine() {
                 setMenuAllPaths( this )
             },
             onBeforeHascfg: function( lifecycle ) {
-                dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
+                if ( dbglevel > 1 ) dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
                 this.perspath = true
                 setMenuRunTime( this )
             },
@@ -144,7 +144,7 @@ export function createStateMachine() {
                 getPathDefaultsIfNew ( this )
             },
             onGetschema:  function( lifecycle ) {
-                dbgPrintFromTo( 'onGetschema() - state', lifecycle )
+                if ( dbglevel > 0 ) dbgPrintFromTo( 'onGetschema() - state', lifecycle )
                 getpathAskClient( this )
             },
             onBeforeAckschema:   function() {

@@ -137,7 +137,7 @@ export function createStateMachine() {
                 setMenuBackToLoading( this )
             },
             onBeforeHascfg: function( lifecycle ) {
-                dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
+                if ( dbglevel > 1 ) dbgPrintFromTo( 'onHascfg() - before transition', lifecycle )
                 this.perspath = true
                 setMenuRunTime( this )
             },
@@ -148,7 +148,7 @@ export function createStateMachine() {
                 getPathDefaultsIfNew ( this )
             },
             onGetpath:  function( lifecycle ) {
-                dbgPrintFromTo( 'onGetpath() - state', lifecycle )
+                if ( dbglevel > 0 ) dbgPrintFromTo( 'onGetpath() - state', lifecycle )
                 getpathAskClient( this )
             },
             onBeforeAcksubs:   function() {
