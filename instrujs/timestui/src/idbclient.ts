@@ -14,6 +14,7 @@ var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
 var jsonCollectedData: string[] = []
+var retJsonArray: string[] = []
 
 var retrieveSeconds: number = 300
 
@@ -78,9 +79,10 @@ export function getCollectedDataJSON():string[] {
                 locstate)
         return []
     }
-    let retJsonArray: string[] = jsonCollectedData
+    retJsonArray = jsonCollectedData
     let emptyArray: string[] = []
     jsonCollectedData = emptyArray
+    jsonCollectedData.length = 0
     locstate = 'RDY'
     return retJsonArray
 }
