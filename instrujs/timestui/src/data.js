@@ -10,7 +10,7 @@ var Sanitizer = sanitizer()
 
 import { rollDisplayToSelection } from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
-import { getRetrieveSeconds, setIdbClientForRetry, getCollectedDataJSON } from './idbclient'
+import { getRetrieveSeconds, setRetrieveSeconds, setIdbClientForRetry, getCollectedDataJSON } from './idbclient'
 import { showDataTimesTuiChart, getSecondsPerPointDraw } from './chart'
 
 var dbglevel = window.instrustat.debuglevel
@@ -29,7 +29,8 @@ var dbData = []
 var nofEmptyResults = 0
 var limitOfEmptyResults = 10
 var nofFrequencyAnalysis = 0
-var limitOfFrequencyAnalysis = 10
+var limitOfFrequencyAnalysis = 20
+var contingencyFrequencyAdjustmentSeconds = 5
 var sumOfFrequencies = 0
 var frequencyAnalysisDone = false
 var frequencyStats = {
@@ -299,6 +300,15 @@ export function showData( that ) {
                   'overlapStats.avg: ' + overlapStats.avg
                 )
             // Calculate a new, representative history window to retrieve
+
+            if ( (overlapStats.avg > 0) && (frequencyStats.avg != 0) ) {
+                let newRetrieveSeconds = Math.round( (nofGraphPoints +
+                    contingencyFrequencyAdjustmentSeconds) / frequencyStats.avg )
+                if ( dbglevel > 4 )
+                    console.log ( 'showData() newRetrieveSeconds: ',
+                                  newRetrieveSeconds )
+                setRetrieveSeconds( newRetrieveSeconds)
+            } // then useless data, reduce timespan
 
             frequencyAnalysisDone = true
         }
