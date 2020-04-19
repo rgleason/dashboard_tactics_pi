@@ -323,7 +323,7 @@ export function loadConf( cid, locProtocol ) {
 
     sLocProtocol = locProtocol || ''
 
-    // Priority for static confiruation even if we do not encourage for it
+    // Priority for static configuration even if we do not encourage for it
     var statConf = null
     try {
         statConf = window.instrustatconf.getObj( cid )
@@ -334,7 +334,7 @@ export function loadConf( cid, locProtocol ) {
                 'persistence.js loadConf() - instrustatconf.getObj() error: ',
                 error)
         if ( alertsenabled )
-            alert( window.instrulang.errCommonJs + '\n' + error )
+            alert( window.instrulang.errConfStatJs + '\n' + error )
         return null
     } // then tis exception is worthwhile to tell the user
     if ( statConf !== null ) {
@@ -343,12 +343,12 @@ export function loadConf( cid, locProtocol ) {
      }
      if ( dbglevel > 1 )
          console.log('persistence.js loadConf(): no static config found')
-    
+
     // Using local storage is indeed better, but is any available from backend?
     if ( !bSelfTest ) {
         selfTest( locProtocol )
     }
-    
+
     if ( !bLocalStorage && !bCookies ) {
         if ( dbglevel > 0 ) console.error(
             'persistence.js: loadConf(): no local storage support available,')
@@ -386,7 +386,7 @@ export function saveConf( cid, confObj ) {
         return false // nothing to save
     if ( !bSelfTest )
         selfTest( sLocProtocol )
-    
+
     if ( !bLocalStorage && !bCookies ) {
         if ( dbglevel > 0 )
             console.error('persistence.js saveConf(): no storage available')

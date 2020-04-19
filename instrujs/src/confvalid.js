@@ -45,18 +45,18 @@ function getVersionNumber( ofConf ) {
             console.log('getVersionNumber(): searching for a version number:')
         Object.entries( ofConf ).forEach( function( key, value ) {
         if ( dbglevel > 2 )
-            console.log('getVersionNUmber(): key ', key, ' key.length ', key.length, ' value ', value)
+            console.log('getVersionNumber(): key ', key, ' key.length ', key.length, ' value ', value)
         if ( key.length > 1 )
             if ( key[0] === 'version' ) {
                 var vers = key[1]
                 if ( dbglevel > 2 )
-                    console.log('getVersionNUmber(): vers ', vers)
+                    console.log('getVersionNumber(): vers ', vers)
                 if ( typeof vers === 'number' )
                     if ( dbglevel > 2 )
-                        console.log('getVersionNUmber(): vers is a typeof "number"')
+                        console.log('getVersionNumber(): vers is a typeof "number"')
                 if ( (key[1] !== null) && (typeof key[1] === 'number') ) {
                     if ( dbglevel > 2 )
-                        console.log('getVersionNUmber(): version key and number value found')
+                        console.log('getVersionNumber(): version key and number value found')
                     retval = key[1]
                 }
             }
@@ -65,7 +65,7 @@ function getVersionNumber( ofConf ) {
     catch ( error ) {
         if ( dbglevel > 1 )
             console.log(
-                'getVersionNUmber(): exception while inspecting the object (entries), error: ', error)
+                'getVersionNumber(): exception while inspecting the object (entries), error: ', error)
     }
     return retval
 }

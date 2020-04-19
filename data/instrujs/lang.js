@@ -8,6 +8,7 @@
 
 var instrulang = {
     errCommonJs : 'ERROR in common.js!',
+    errConfStatJs : 'ERROR in confstat.js!',
     savingNotAvailable : 'Saving of settings not available.',
     systemPolicyPrevents : 'System policy prevents local storage',
     theProtocolIs : 'The protocol (ini/conf) for instrument is',
