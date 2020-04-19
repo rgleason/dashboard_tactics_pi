@@ -24,7 +24,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 0,
+    debuglevel : 1,
     alerts : true,
     alertdelay : 5,
     corsproxy: 'http://localhost:8089',
@@ -49,7 +49,9 @@ var  instrustat = {
             maxval     : 20,
             multiplier : 1,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -65,7 +67,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 1,
             divider    : 1,
-            offset     : -273.2
+            offset     : -273.2,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -81,7 +85,9 @@ var  instrustat = {
             maxval     : 16,
             multiplier : 1,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -97,7 +103,9 @@ var  instrustat = {
             maxval     : 16,
             multiplier : 1,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -113,7 +121,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 1,
             divider    : 100000,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -129,7 +139,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 1,
             divider    : 1000000,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
 /*  ***
     Testing revealed an anomaly between negative and postive values
@@ -153,7 +165,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 100,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -169,7 +183,9 @@ var  instrustat = {
             maxval     : 110,
             multiplier : 1,
             divider    : 1,
-            offset     : -273.2
+            offset     : -273.2,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -185,7 +201,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 100,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -201,7 +219,9 @@ var  instrustat = {
             maxval     : 125,
             multiplier : 100,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -217,7 +237,9 @@ var  instrustat = {
             maxval     : 800,
             multiplier : 1,
             divider    : 1,
-            offset     : -273.2
+            offset     : -273.2,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -233,7 +255,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 1,
             divider    : 1000,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -249,7 +273,9 @@ var  instrustat = {
             maxval     : 50,
             multiplier : 3600000,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -265,7 +291,9 @@ var  instrustat = {
             maxval     : 400,
             multiplier : 1,
             divider    : 1000,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -281,7 +309,9 @@ var  instrustat = {
             maxval     : 130,
             multiplier : 1,
             divider    : 1,
-            offset     : -273.2
+            offset     : -273.2,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -297,7 +327,9 @@ var  instrustat = {
             maxval     : 3000,
             multiplier : 60,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
 /*  ***
     Did not pass tests for distribution, please feel free to test
@@ -316,7 +348,9 @@ var  instrustat = {
             maxval     : 10000,
             multiplier : 3600,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
  *** */
         {
@@ -333,7 +367,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 1,
             divider    : 1,
-            offset     : -273.2
+            offset     : -273.2,
+            dbfunc     : '',
+            dbnum      : 0
         },
         {
             version    : 1,
@@ -349,7 +385,9 @@ var  instrustat = {
             maxval     : 100,
             multiplier : 100,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : '',
+            dbnum      : 0
         },
 /*
         ----- Dashboard instrument records from InfluxDB -----
@@ -360,6 +398,7 @@ var  instrustat = {
         - typically, the NMEA-0183 sentences coming from OpenCPN
         - thus consider, for example wind speed being in knots, not m/s
         - this may be different in your boat, of course
+        - database function(s) can be given for server side calculations
  */
         {
             version    : 1,
@@ -367,7 +406,7 @@ var  instrustat = {
             title      : 'TWS',
             symbol     : '',
             unit       : 'kn',
-            display    : 'dial',
+            display    : 'chart',
             decimals   : 1,
             minval     : 0,
             loalert    : 0,
@@ -375,7 +414,9 @@ var  instrustat = {
             maxval     : 30,
             multiplier : 1,
             divider    : 1,
-            offset     : 0
+            offset     : 0,
+            dbfunc     : 'movingAverage(n: 20)',
+            dbnum      : 0
         },
 /* *********** Do not modify below this line *********** */
     ],
@@ -416,7 +457,9 @@ var  instrustat = {
             maxval     : this.knownpaths[ parseInt(i) ].maxval,
             multiplier : this.knownpaths[ parseInt(i) ].multiplier,
             divider    : this.knownpaths[ parseInt(i) ].divider,
-            offset     : this.knownpaths[ parseInt(i) ].offset
+            offset     : this.knownpaths[ parseInt(i) ].offset,
+            dbfunc     : this.knownpaths[ parseInt(i) ].dbfunc,
+            dbnum      : this.knownpaths[ parseInt(i) ].dbnum
         }
     },
 }

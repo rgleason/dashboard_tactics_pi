@@ -32,7 +32,9 @@ const instrustatconf = {
                     maxval     : 0,
                     multiplier : 1,
                     divider    : 1,
-                    offset     : 0
+                    offset     : 0,
+                    dbfunc     : '',
+                    dbnum      : 0
                 }
             }
         },
@@ -53,7 +55,9 @@ const instrustatconf = {
                     maxval     : 0,
                     multiplier : 1,
                     divider    : 1,
-                    offset     : 0
+                    offset     : 0,
+                    dbfunc     : '',
+                    dbnum      : 0
                 }
             }
         }

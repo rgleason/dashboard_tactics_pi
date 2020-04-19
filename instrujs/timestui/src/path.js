@@ -9,6 +9,8 @@ var alertsenabled = window.instrustat.alerts
 var dbglevel = window.instrustat.debuglevel
 
 var schema
+var dbfunc
+var dbnum
 
 export function initPaths( that ) {
     var emptySchema = {
@@ -26,10 +28,20 @@ export function initPaths( that ) {
         sField3: ''
     }
     schema = emptySchema
+    dbfunc = ''
+    dbnum = 0
 }
 
-export function getPathSchema(){
+export function getPathSchema() {
     return schema
+}
+
+export function getPathDbFunc() {
+    return dbfunc
+}
+
+export function getPathDbNum() {
+    return dbnum
 }
 
 export function getalldbAskClient() {
@@ -72,11 +84,11 @@ export function gotAckCheckSchema( that ) {
     if ( that.perspath ) {
         if ( that.conf === null ) {
             if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - static path suggested but conf object is null!')
+                console.error('path.js gotAckCheckPath() - static path suggested but conf object is null!')
         }
         if ( (that.conf.path === null) || (that.conf.path === '') ) {
             if ( dbglevel > 0 )
-                console.log('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
+                console.error('path.js gotAckCheckPath() - static path suggested but conf.path is empty or null!')
         }
         expectedpath = that.conf.path
     }
@@ -109,5 +121,10 @@ export function gotAckCheckSchema( that ) {
                     '' )
     }
     schema = ackSchema
+    if ( !(that.conf === null) ) {
+        dbfunc = that.conf.dbfunc
+        dbnum = that.conf.dbconf
+    }
+
     return
 }

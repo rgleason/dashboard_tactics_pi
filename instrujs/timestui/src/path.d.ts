@@ -6,3 +6,5 @@
 import DbSchema from '../../src/dbschema'
 
 export function getPathSchema(): DbSchema
+export function getPathDbFunc(): string
+export function getPathDbNum(): number

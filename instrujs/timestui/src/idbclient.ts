@@ -7,7 +7,7 @@ import FluxTableMetaData from '../../src/influxdb-client/packages/core/src/query
 // import {url, token, org, bucket} from './env'
 
 import DbSchema from '../../src/dbschema'
-import { getPathSchema } from './path'
+import { getPathSchema, getPathDbFunc, getPathDbNum } from './path'
 
 var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
@@ -144,7 +144,10 @@ export function dataQuery() {
         fQry += schma.sProp3 + '"'
     }
     fQry += '\n)'
-
+    if ( !(getPathDbFunc() === '') ) {
+        fQry += '\n'
+        fQry += '  |> ' + getPathDbFunc() + '\n'
+    }
     // Quite handy if cannot find data - attention with the delay, no query while you are looking at the alert!
     // ref https://docs.influxdata.com/flux/v0.50/introduction/getting-started/query-influxdb/#3-filter-your-data
     if ( dbglevel > 4 )

@@ -24,10 +24,12 @@ export function createEmptyConf() {
         maxval     : 100,
         multiplier : 1,
         divider    : 1,
-        offset     : 0
+        offset     : 0,
+        dbfunc     : '',
+        dbnum      : 0
     }
 }
- 
+
 export function getConf( that ) {
     if ( dbglevel > 1 )
         console.log('getConf()')
