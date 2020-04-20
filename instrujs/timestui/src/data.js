@@ -24,13 +24,18 @@ var suppressShowData = false
 
 var nofGraphPoints = 20 // initData(): max=3600 (anyway, too much!)
 var nofValDecimals = 1
+var htmlTitle = ''
+var htmlTitleValFunc = ''
+var htmlTitleValueAsStr = ''
+var htmlTitleSymbol = ''
+var htmlTitleUnit = ''
 
 var dbData = []
 var nofEmptyResults = 0
 var limitOfEmptyResults = 10
 var nofFrequencyAnalysis = 0
 var limitOfFrequencyAnalysis = 20
-var contingencyFrequencyAdjustmentSeconds = 5
+var contingencyFrequencyAdjustmentSeconds = 10
 var sumOfFrequencies = 0
 var frequencyAnalysisDone = false
 var frequencyStats = {
@@ -96,8 +101,18 @@ export function onWaitdataFinalCheck( that ) {
             htmlCandidate = that.conf.path
     })
     if ( that.conf !== null ) {
-        if ( (that.conf.title !== null) && (that.conf.title !== '' ) )
+        if ( (that.conf.title !== null) && (that.conf.title !== '' ) ) {
             htmlCandidate = that.conf.title
+            htmlTitle = htmlCandidate
+            if ( (that.conf.dbfunc !== null) && (that.conf.dbfunc !== '') )
+                htmlTitleValFunc = window.instrulang.dataFunctionAbbrv
+            if ( that.conf.symbol !== null )
+                htmlTitleSymbol = that.conf.symbol
+            if ( that.conf.unit !== null )
+                htmlTitleUnit = that.conf.unit
+            if ( that.conf.decimals !== null )
+                nofValDecimals = that.conf.decimals
+        }
         else if ( (that.conf.path !== null) && (that.conf.path !== '' ) )
             getSetDefTitle()
     }
@@ -109,6 +124,24 @@ export function onWaitdataFinalCheck( that ) {
     if ( htmlCandidate !== null ) {
         htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
         elem.innerHTML = Sanitizer.unwrapSafeHTML(htmlObj)
+    }
+}
+
+function updateTitleWithValue( valueStr ) {
+    if (valueStr === null)
+        return
+    var elemTitle = document.getElementById('skPath')
+    var htmlBuild = ''
+    var htmlObject = null
+    var htmlValue = valueStr
+    htmlBuild += htmlTitle + ' ' +
+        ((htmlTitleValFunc==='')?'':(htmlTitleValFunc + ' ')) +
+        htmlValue + ' ' +
+        ((htmlTitleSymbol==='')?'':(htmlTitleSymbol + ' ')) +
+        htmlTitleUnit
+    if ( htmlBuild !== '' ) {
+        htmlObject = Sanitizer.createSafeHTML(htmlBuild)
+        elemTitle.innerHTML = Sanitizer.unwrapSafeHTML(htmlObject)
     }
 }
 
@@ -316,7 +349,10 @@ export function showData( that ) {
 
     let numberOfNewPoints = chartData.series[0].data.length
 
-    showDataTimesTuiChart( numberOfNewPoints )
+    if ( numberOfNewPoints > 0 )
+        updateTitleWithValue( chartData.series[0].data[numberOfNewPoints-1])
+
+    showDataTimesTuiChart( numberOfNewPoints ) // call even if 0, useful for dbg
 
     return
 }
