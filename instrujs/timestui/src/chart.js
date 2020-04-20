@@ -11,6 +11,7 @@ var Sanitizer = sanitizer()
 import tui from '../node_modules/tui-chart/dist/tui-chart-polyfill'
 
 import { chartData } from './data'
+import { hasProportionalFontSupport } from '../../src/css'
 
 var dbglevel = window.instrustat.debuglevel
 var alerts = window.instrustat.alerts
@@ -19,6 +20,7 @@ var container
 var chart
 var rawData
 var options
+var theme
 
 export function startTimesTuiChart() {
 
@@ -29,28 +31,41 @@ export function startTimesTuiChart() {
     if ( dbglevel > 1 )
         console.log('startTimesTuiChart() - tui: ', tui)
 
+    theme = {
+        chart : {
+            background: 'white',
+            opacity: 0
+        }
+    }
+
+    tui.registerTheme('transpTheme', theme)
+
     options = {
+        theme: 'transpTheme',
+        chart: {
+            width: 480,
+            height: 400
+        },
         series: {
             spline: true,
             showDot: true,
-            shifting: true
+            shifting: true,
+            zoomable:  false
         },
         xAxis: {
             title: '[s]',
             labelInterval: 3,
             tickInterval: 'auto'
         },
-        yAxis: {
-            // min: 0,
-            // max: 100,
-            // title: 'users'
-        },
         tooltip: {
             grouped: true,
+            align: 'center top',
             template: function(category, items, categoryTimestamp) {
                 if ( dbglevel > 2 )
                     console.log('tooltip: category ', category, ' items: ', items)
-                var htmlCandidate = '<div id="cTpVal" class="numchart fixed day">' +
+                var htmlCandidate = '<div id="cTpVal" class="numchart ' +
+                    (hasProportionalFontSupport()?'propl':'fixed') + ' ' +
+                    window.iface.getluminsty() + '">' +
                     category + ' : ' + items[0].value + '</div>'
                 var htmlObj = Sanitizer.createSafeHTML(htmlCandidate)
                 return Sanitizer.unwrapSafeHTML(htmlObj)
@@ -64,7 +79,6 @@ export function startTimesTuiChart() {
         },
         usageStatistics: false
     }
-    // var chart = tui.lineChart(container, data, options);
     chart = tui.lineChart(container, chartData, options);
     if ( dbglevel > 1 )
         console.log('startTimesTuiChart() - chart: ', chart)
