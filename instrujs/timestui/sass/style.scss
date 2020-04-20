@@ -46,6 +46,7 @@ $skfiin : 100px;
     height: 75%;
     margin-bottom: 0px;
 }
+/* This is a placeholder for the ToastUI tooltip */
 .tooltip {
     top: 0px;
     margin-left: 1%;
@@ -53,9 +54,7 @@ $skfiin : 100px;
     height: 15%;
     margin-bottom: 0px;
 }
-
-/* Numerical chart's toolunit in chart space */
-
+/* This is the actual type we return for tooltip in the chart.js template */
 .numchart {
     top: 1%;
     margin-left: 1%;
@@ -66,14 +65,13 @@ $skfiin : 100px;
     text-align: center;
     font-family: "Helvetica", sans-serif;
 }
-
-$ngproplw : 20vw;
+$ngproplw : 4vw;
 :root {
     --ngpproplw: #{$ngproplw};
 }
 .numchart.propl { font-size: $ngproplw; }
 $ngffssz : 10px;
-$ngfffin :  2px;
+$ngfffin :  1px;
 .numchart.fixed { font-size: $ngffssz; }
 $ngfist : 201px;
 $ngfiin : 100px;
@@ -89,7 +87,6 @@ $ngfiin : 100px;
 .numchart.fixed.day   { color: instrujs.$skpathcolorday; }
 .numchart.fixed.dusk  { color: instrujs.$skpathcolordusk; }
 .numchart.fixed.night { color: instrujs.$skpathcolornight; }
-
 
 /* Bottom part is an interprocess communication (IPC) data field */
 .bottom {
