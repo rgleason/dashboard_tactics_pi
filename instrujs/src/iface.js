@@ -292,7 +292,7 @@ var iface = {
     },
     eventluminsty : null,
     elemluminsty  : null,
-    luminsty      : '',
+    luminsty      : 'day',
     regeventluminsty: function ( newelem, newevent ) {
         this.elemluminsty = newelem
         this.eventluminsty = newevent
