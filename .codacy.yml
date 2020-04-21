@@ -8,7 +8,7 @@ engines:
      - instrujs/enginedjg/src/statemachine.js
      - instrujs/timestui/src/statemachine.js
 exclude_paths:
-  - 'instrujs/**/webpack.config.js
+  - 'instrujs/**/webpack.config.js'
   - 'instrujs/src/influxdb-client/**'
   - 'data/instrujs/*.min.js'
   - 'data/instrujs/**/bundle.js'
