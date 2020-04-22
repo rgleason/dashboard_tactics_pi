@@ -31,7 +31,7 @@ Each part above is divided into its own thread structure, presented by two `git`
 * Development and testing branch for the project owner(s)
 * Staging branch for the solicited and unsolicited pull requests
 
-> **Pull requests to master branch (trunk) are not accepted until dev200 project reaches an advanced beta stage** Please submit any PR here, instead:
+> **Pull requests to master branch (trunk) are not accepted until dev200 branch reaches an advanced beta stage** Please submit any PR in these branches, instead:
 
 * `pr151` - Staging branch for pull requests for bug fixes in v1.5.11 - **no new features will be accepted in this branch**
 
@@ -49,7 +49,19 @@ Each part above is divided into its own thread structure, presented by two `git`
 
 >You may notice occasional _Flying Fish_ branches appear in the repository. They are for not break the development build by some test-only ideas. However, they can be created on simple demand for pull requests not meeting the below requirements of the CI (continuous integration and QA applied in commits and PRs):
 
-Common automatic QA requirements (mandatory to pass) for all branches are
+Commit messages ìn tense and semantic format
+
+```
+<type>: <desc>
+<type>: chore, docs, feat, fix, refactor, style, or test.
+<desc>: present tense description
+```
+
+Coding style - please do not change existing coding style to yours.
+
+Tabs 4 spaces.
+
+Common CI QA requirements (mandatory to pass) for all branches are
 * [Codacy static code analysis](https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/dashboard)
 * [Travis CI for pull requests](https://travis-ci.org/canne/dashboard_tactics_pi)
 * [AppVeyor CI for Windows build of commits](https://ci.appveyor.com/project/canne/dashboard-tactics-pi)
