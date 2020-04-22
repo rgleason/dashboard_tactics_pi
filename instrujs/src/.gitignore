@@ -1,2 +1,3 @@
-influxdb-client
-# !influxdb-client/packages/core/src/**
+/influxdb-client/.*
+/influxdb-client/*
+!/influxdb-client/packages
