@@ -2,15 +2,15 @@
 engines:
  duplication:
    exclude_paths:
-     - data/instrujs/common.js
-     - data/instrujs/common.min.js
-     - data/instrujs/confstat.js
+     - data/instrujs/www/common.js
+     - data/instrujs/www/common.min.js
+     - data/instrujs/www/confstat.js
      - instrujs/enginedjg/src/statemachine.js
      - instrujs/timestui/src/statemachine.js
 exclude_paths:
   - 'instrujs/**/webpack.config.js'
   - 'instrujs/src/influxdb-client/**'
-  - 'data/instrujs/*.min.js'
-  - 'data/instrujs/**/bundle.js'
-  - 'data/instrujs/**/bundle.css'
+  - 'data/instrujs/www/*.min.js'
+  - 'data/instrujs/www/**/bundle.js'
+  - 'data/instrujs/www/**/bundle.css'
   - 'docs/**/*.md'
