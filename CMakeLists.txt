@@ -19,9 +19,13 @@
 ## ***************************************************************************
 
 
-# define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
+# define minimum cmake version and backward compatibility policy
+# Set as per Ubuntu 18.04.4LTS as reference
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10.1)
+# Ignore COMPILE_DEFINITIONS_<Config> properties:
 CMAKE_POLICY(SET CMP0043 NEW)
+# `FindOpenGL`` prefers GLVND by default when available:
+CMAKE_POLICY(SET CMP0072 NEW)
 
 PROJECT(dashboard_tactics_pi)
 SET(PACKAGE_NAME dashboard_tactics_pi)
