@@ -12,7 +12,7 @@ module.exports = {
     },
     //path and filename of the final output
     output: {
-        path: path.resolve(__dirname, '../../data/instrujs/timestui'),
+        path: path.resolve(__dirname, '../../data/instrujs/www/timestui'),
         filename: 'bundle.js'
     },
     module: {

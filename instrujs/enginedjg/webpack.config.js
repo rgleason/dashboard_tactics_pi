@@ -4,16 +4,16 @@ const Extract = require('mini-css-extract-plugin')
 const Compresseur = require('terser-webpack-plugin')
 const HtmlInstaller = require('html-webpack-plugin')
 
-// This is main configuration object that tells Webpackw what to do. 
+// This is main configuration object that tells Webpackw what to do.
 module.exports = {
     //path to entry paint
     entry: './src/index.js',
     //path and filename of the final output
     output: {
-        path: path.resolve(__dirname, '../../data/instrujs/enginedjg'),
+        path: path.resolve(__dirname, '../../data/instrujs/www/enginedjg'),
         filename: 'bundle.js'
     },
-    module: { 
+    module: {
         rules: [
             {
                 test: /\.js$/,

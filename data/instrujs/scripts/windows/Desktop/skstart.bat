@@ -19,6 +19,7 @@ if exist "C:\Program Files\nodejs\npm.cmd" (
 popd
 endlocal
 start signalk-server
+rem should you have http server elsewhere (like Docker nginx) please comment below out
 start http-server "C:\Program Files (x86)\OpenCPN\plugins\dashboard_tactics_pi\data\instrujs" -p 8088
 rem just a short dummy delay to give up the CPU
 waitfor /t 5 dummyskstart
