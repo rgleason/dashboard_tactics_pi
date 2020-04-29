@@ -593,8 +593,14 @@ FunctionEnd
 ; Define some macro setting for the gui
 @CPACK_NSIS_INSTALLER_MUI_ICON_CODE@
 @CPACK_NSIS_INSTALLER_ICON_CODE@
+; this works and is coming from PluginPackage.cmake
 @CPACK_NSIS_INSTALLER_MUI_WELCOMEFINISH_CODE@
+; let's try to add hardcoded header image bitmap because CPack does not allow to
+!define MUI_HEADERIMAGE_BITMAP "@CPACK_NSIS_MUI_OPENCPN_PLUGIN_INST_HEADER_BITMAP@"
+; this if pro-forma, it works down to NSIS but never shown since no "unwelcome page"
 @CPACK_NSIS_INSTALLER_MUI_UNWELCOMEFINISH_CODE@
+; like the install header, this is not supported by CPack but let's add it:
+!define MUI_HEADERIMAGE_UNBITMAP "@CPACK_NSIS_MUI_OPENCPN_PLUGIN_UNINST_HEADER_BITMAP@"
 @CPACK_NSIS_INSTALLER_MUI_COMPONENTS_DESC@
 @CPACK_NSIS_INSTALLER_MUI_FINISHPAGE_RUN_CODE@
 
@@ -674,7 +680,6 @@ FunctionEnd
   !insertmacro MUI_LANGUAGE "Turkish"
   !insertmacro MUI_LANGUAGE "Ukrainian"
   !insertmacro MUI_LANGUAGE "Welsh"
-
 
 ;--------------------------------
 ;Reserve Files
