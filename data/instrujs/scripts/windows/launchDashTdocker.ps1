@@ -12,7 +12,7 @@
 #   8089: CORS proxy connecting *.js code with the database service
 # - graphs:
 #   Grafana for the visualization of the data - independently of OpenCPN
-#   3000
+#   30000
 # - db:
 #   InfluxDB v2 time series database server with incoprated data visualization
 #   9999
@@ -31,8 +31,6 @@
 #                          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 #                          <debug...>
 #                          Set-ExecutionPolicy <see above> -Scope CurrentUser
-#
-
 ##############################################################################
 #
 $param = $args[0]
@@ -41,6 +39,7 @@ $param = $args[0]
 $somethingMissing = $False
 #
 function Check_Program_Installed( $programName ) {
+# see launchNodeApps.ps1 when GUID / DisplayName need to searched, here only by name
 $x86_check = ((Get-ChildItem "HKLM:Software\Microsoft\Windows\CurrentVersion\Uninstall") |
 Where-Object { $_."Name" -like "*$programName*" } ).Length -gt 0;
 if(Test-Path 'HKLM:Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall')  
