@@ -236,9 +236,11 @@ if ( ($SkWindowsNodeCliCmdExists -eq $True) -AND ($SkWindowsNpmCliCmdExists -eq 
     echo ""
     if ( -NOT $nodeServices ) {
         echo ""
-        $SkWindowsNodeVersion = Invoke-Expression -Command "$SkWindowsNodeCliCmd --version" | Out-String
+        # NB: we cannot use dynamic strings below, like with Invoke-Expression cmdlet,
+        #     we _must_ hard code it in order to pass security checks
+        $SkWindowsNodeVersion = (C:\signalk\nodejs\node.exe --version) | Out-String
         echo "$SkWindowsNodeCliCmd --version returns: $SkWindowsNodeVersion"
-        $SkWindowsNpmVersion  = Invoke-Expression -Command "$SkWindowsNpmCliCmd  --version" | Out-String
+        $SkWindowsNpmVersion = (C:\signalk\nodejs\npm.cmd --version) | Out-String
         echo "$SkWindowsNpmCliCmd --version returns: $SkWindowsNpmVersion"
         echo ""
     }
@@ -265,7 +267,9 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     $ErrorActionPreference = ‘stop’
     try {if(Get-Command $nodeCliCmd){
             $nodeCliCmdExists = $True
-            $nodeVersion = Invoke-Expression -Command "$nodeCliCmd --version" | Out-String
+            # NB: we cannot use dynamic strings below, like with Invoke-Expression cmdlet,
+            #     we _must_ hard code it in order to pass security checks
+            $nodeVersion = (node --version) | Out-String
         }
     }
     Catch {
@@ -277,6 +281,8 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     $ErrorActionPreference = ‘stop’
     try {if(Get-Command $npmCliCmd){
             $npmCliCmdExists = $True
+            # NB: we cannot use dynamic strings below, like with Invoke-Expression cmdlet,
+            #     we _must_ hard code it in order to pass security checks
             $npmVersion = (npm --version) | Out-String
         }
     }
