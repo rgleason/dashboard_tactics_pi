@@ -132,7 +132,7 @@ function LaunchNodeServicePs1 {
         echo "`n"
         echo "`n"
         echo "- Could not find $nodeService startup-up script of Node.js`n"
-        echo "  Searching from`n"
+        echo "  Searching from:`n"
         echo "$ps1path`n"
         echo "`n"
     }
@@ -240,12 +240,12 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     }
 }
 else {
+    $exitNodeJsCheckWithError = $True
     if ( $null -eq $nodeServices ) {
         echo ""
         echo "Node.js installation not found from this system."
         echo ""
-        sleep 10
-        exit 0
+        $exitNodeJsCheckWithError = $False
     }
     else {
         echo ""
@@ -258,15 +258,40 @@ else {
         echo "                  ******************************"
         echo ""
         echo ""
-        echo "- Could not find a Node.js installationservices cannot be started."
-        echo "  Redirecting to OpenCPN documentation for instrutions:"
+        echo "- Could not find a Node.js installation. Services cannot be started."
+        echo "  Redirecting to OpenCPN documentation for instructions:"
         echo ""
         echo "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
         echo ""
         Start "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
         echo ""
-        sleep 10
+    }
+    $UsrAppData = [Environment]::GetEnvironmentVariable('APPDATA')
+    $npmDir = "$UsrAppData\npm"
+    $npmDirExists = Test-Path -Path $npmDir
+    if ( $npmDirExists -eq $True ) {
+        echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+        echo ""
+        echo ""
+        echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
+        echo "   | WARNING: - No Node.js installation but a npm data folder. |"
+        echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
+        echo ""
+        echo ""
+        echo "- Perhaps a trace of a previous Node.js installation:"
+        echo ""
+        echo "$npmDir"
+        echo ""
+        echo "- Rename the folder, for backup before installing again Node.js"
+        echo ""
+    }
+
+    sleep 10
+    if ( $exitNodeJsCheckWithError -eq $True ) {
         exit -1
+    }
+    else {
+        exit 0
     }
 }
 
