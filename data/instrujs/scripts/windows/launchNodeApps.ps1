@@ -4,11 +4,22 @@
 ##############################################################################
 ##### Without arguments #####
 #
-# Verify that node.js package has been installed 
+# Verify that either https://github.com/SignalK/signalk-server-windows or
+# node.js package has been installed 
 #
 ##### [service1][,service2] ... [,serviceN] #####
 #
-# Enumerated node services are started in DashT InstruJS data directory
+# Enumerated node services, in free order. Of which services the following
+# have dependencies with DashT InstruJS:
+#
+# For all services:
+# - If a folder C:\signalk\nodejs exists, then priority given to it,
+#   otherwise node.js global scope (global for user) is used
+# - If node service is not installed, an installation attempt will take place
+# signalk-server:
+# - If a TCP port 3000 is listening, no action will be taken
+# http-server:
+# - If a TCP port 8080 is listening, no action will be taken 
 #
 ##############################################################################
 # This script is designed to run with -ExecutionPolicy Bypass switch on system
@@ -100,25 +111,28 @@ function LaunchNodeServicePs1 {
     .SYNOPSIS
         Launch Node.js service from the user's npm-directory using provided PS1-script 
     .EXAMPLE
-        LaunchNodeServicePs1 signalk-server
+        LaunchNodeServicePs1 -ServiceName "signalk-server" -NpmDir "C:\signalk\nodejs"
         
-        This example launches the signal-server.ps1 script from the npm-directory
+        This example launches the signal-server.ps1 script from the signalk-server-windows
     .PARAMETER ServiceName
         The node service name
+    .PARAMETER NpmDir
+        The directory for the service's PS1-startup script
     #>
     [OutputType([System.Management.Automation.PSObject])]
     [CmdletBinding()]
     param (
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [string]$ServiceName
+        [string]$ServiceName,
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$NpmDir
     )
     $ps1exe = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
     $ps1argtmpl = "-ExecutionPolicy Bypass -File "
-    $UserAppData = [Environment]::GetEnvironmentVariable('APPDATA')
-    $npmPS1path = "$UserAppData\npm\"
 
-    $ps1path = "$npmPS1path\$ServiceName.ps1"
+    $ps1path = "$NpmDir\$ServiceName.ps1"
     $ps1pathExists = Test-Path -Path $ps1path
     if ( $ps1pathExists -eq $False ) {
         echo "`n"
@@ -142,6 +156,44 @@ function LaunchNodeServicePs1 {
     }
 }
 
+function Test-Port
+{
+    <#
+    .SYNOPSIS
+        Test-Path equivalent to check if TCP port exists and can be connected to
+    .EXAMPLE
+        Test-Port -Address 127.0.0.1 -Port 3000
+        
+        This example test if the (typical) port of Signal K node server is used
+    .PARAMETER Address
+        IP-address like 127.0.0.1
+    .PARAMETER Port
+        TCP port number to test
+    #>
+    [OutputType([System.Management.Automation.PSObject])]
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$Address,
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$Port
+    )
+    $tcpClient = new-object Net.Sockets.TcpClient
+    try {
+        $tcpClient.Connect("$Address", $Port)
+        $true
+    }
+    catch {
+        $false
+    }
+    finally {
+        $tcpClient.Dispose()
+    }
+}
+
+
 # ####################
 # Memorize the context
 # ####################
@@ -158,16 +210,48 @@ $oldLocation = Get-Location
 # $allInstalledGUIDs | ForEach-Object { $_.GUID; $_.Name }
 # $allInstalledGUIDs[0].GUID
 
+# ################
+# Priority node.js is given to https://github.com/SignalK/signalk-server-windows
+# ################
 
+$SkWindowsNodeJsDir = "C:\signalk\nodejs"
+$SkWindowsNodeJsDirExists = Test-Path -Path $SkWindowsNodeJsDir
+$SkWindowsNodeCliCmd = "$SkWindowsNodeJsDir\node.exe"
+$SkWindowsNodeCliCmdExists = Test-Path -Path $SkWindowsNodeCliCmd
+$SkWindowsNpmCliCmd = "$SkWindowsNodeJsDir\npm.cmd"
+$SkWindowsNpmCliCmdExists = Test-Path -Path $SkWindowsNpmCliCmd
+$SkWindowsNodeVersion = "n/a"
+$SkWindowsNpmVersion = "n/a"
+
+
+$SkWindows = $False
+if ( ($SkWindowsNodeCliCmdExists -eq $True) -AND ($SkWindowsNpmCliCmdExists -eq $True) ) {
+    $SkWindows = $True
+    echo ""
+    echo "https://github.com/SignalK/signalk-server-windows installation found from:"
+    echo "$SkWindowsNodeJsDir"
+    echo ""
+    if ( -NOT $nodeServices ) {
+        echo ""
+        $SkWindowsNodeVersion = Invoke-Expression -Command "$SkWindowsNodeCliCmd --version" | Out-String
+        echo "$SkWindowsNodeCliCmd --version returns: $SkWindowsNodeVersion"
+        $SkWindowsNpmVersion  = Invoke-Expression -Command "$SkWindowsNpmCliCmd  --version" | Out-String
+        echo "$SkWindowsNpmCliCmd --version returns: $SkWindowsNpmVersion"
+        echo ""
+    }
+    else {
+        echo "signalk-server-windows will be used in _priority_"
+    }
+}
 
 # #######
-# Node.js must be installed
+# Node.js must be installed if no signal-server-windows
 # #######
 
 $NodeJsFolder = "nodejs"
 $nodeCliCmd = "node.exe"
 $nodeCliCmdExists = $False
-$nodeVesion = "n/a"
+$nodeVersion = "n/a"
 $npmCliCmd = "npm.cmd"
 $npmCliCmdExists = $False
 $npmVersion = "n/a"
@@ -178,7 +262,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     $ErrorActionPreference = ‘stop’
     try {if(Get-Command $nodeCliCmd){
             $nodeCliCmdExists = $True
-            $nodeVersion = (node --version) | Out-String
+            $nodeVersion = Invoke-Expression -Command "$nodeCliCmd --version" | Out-String
         }
     }
     Catch {
@@ -200,9 +284,14 @@ if ( $null -ne $nodeJsGuidObjArray ) {
         $ErrorActionPreference = $oldPreference
     }
 
-    if ( $null -eq $nodeServices ) {
+    if ( -NOT $nodeServices ) {
         echo ""
-        echo "Found following instances of Node.js installations:"
+        if ( $SkWindows -eq $True ) {
+            echo "- Additionally, found following instances of Node.js:"
+        }
+        else {
+            echo "Found following istallations of Node.js:"
+        }
         echo ""
     `	ForEach ( $nodeJSGuidObj in $nodeJsGuidObjArray ) {
             Write-Verbose ($nodeJsGuidObjArray[0].GUID, $nodeJsGuidObjArray[0].Name) -Separator " "
@@ -219,7 +308,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
             $PathString = [Environment]::GetEnvironmentVariable('PATH')
             $foundidx = ($PathString | Select-String $NodeJsFolder).Matches.Index
             echo "Cannot find $nodeCliCmd and/or $npmCliCmd, check your command PATH:"
-            if ( $null -eq $foundidx ) {
+            if ( -NOT $foundidx ) {
                 echo "- there is no path with '$NodeJsFolder'"
             }
             else {
@@ -241,9 +330,13 @@ if ( $null -ne $nodeJsGuidObjArray ) {
 }
 else {
     $exitNodeJsCheckWithError = $True
-    if ( $null -eq $nodeServices ) {
-        echo ""
-        echo "Node.js installation not found from this system."
+    if ( $nodeServices ) {
+        if ( $SkWindows -eq $True ) {
+            echo "- No additional Node.js installation found from this system."
+        }
+        else {
+            echo "No Node.js installation found from this system."
+        }
         echo ""
         $exitNodeJsCheckWithError = $False
     }
@@ -266,15 +359,12 @@ else {
         Start "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
         echo ""
     }
-    $UsrAppData = [Environment]::GetEnvironmentVariable('APPDATA')
-    $npmDir = "$UsrAppData\npm"
-    $npmDirExists = Test-Path -Path $npmDir
     if ( $npmDirExists -eq $True ) {
         echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         echo ""
         echo ""
         echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
-        echo "   | WARNING: - No Node.js installation but a npm data folder. |"
+        echo "   ! WARNING: - No Node.js installation but a npm data folder. !"
         echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
         echo ""
         echo ""
@@ -286,12 +376,15 @@ else {
         echo ""
     }
 
-    sleep 10
-    if ( $exitNodeJsCheckWithError -eq $True ) {
-        exit -1
-    }
-    else {
-        exit 0
+    if ( $SkWindows -ne $True ) {
+        sleep 10
+        if ( $exitNodeJsCheckWithError -eq $True ) {
+            exit -1
+        }
+        else {
+
+            exit 0
+        }
     }
 }
 
@@ -339,61 +432,122 @@ Set-Location( $DashTwebFolderPath )
 # Ready to launch services, in given order. If not installed, attempt to install first
 # ########################
 
+$UserAppData = [Environment]::GetEnvironmentVariable('APPDATA')
+$npmPS1Dir = "$UserAppData\npm"
+
 ForEach ( $nodeService in $nodeServices ) {
 
-    $serviceInstalled = $False
+    # Check if the ports of known applications are already listened
+    $portTarget = 0
+    $portInUse = $False
+    if ( $nodeService -eq "signalk-server" ) {
+        $portTarget = 3000
+    }
+    if ( $nodeService -eq "http-server" ) {
+        $portTarget = 8080
+    }
+    if ( $portTarget -ne 0 ) {
+        $portInUse = Test-Port -Address 127.0.0.1 -Port $portTarget
+        if ( $portInUse -eq $True ) {
+            echo "Service ${nodeService}: port $portTarget is already used and served, no action."
+        }
+    }
 
-    $ErrorActionPreference = ‘stop’
-    try {if(Get-Command $nodeService){
-            $serviceInstalled = $True
-            $retval = LaunchNodeServicePs1 -ServiceName $nodeService
-            if ( $null -ne $retval ) {
+    if ( $portInUse -eq $False ) {
+
+        # Ok to launch service, test first does it exists
+
+        $serviceInstalled = $False
+
+        $ErrorActionPreference = ‘stop’
+        try {
+            if ( $SkWindows -eq $True ) {
+                if( Test-Path -Path "$SkWindowsNodeJsDir\${nodeService}.ps1" ){
+                    $serviceInstalled = $True
+                    $retval = LaunchNodeServicePs1 -ServiceName $nodeService -NpmDir $SkWindowsNodeJsDir
+                }
+                else {
+                    throw "Node service $nodeService not found."
+                }
+            }
+            else {
+                if( Get-Command $nodeService ){
+                    $serviceInstalled = $True
+                    $retval = LaunchNodeServicePs1 -ServiceName $nodeService -NpmDir $npmPS1Dir
+                }
+                else {
+                    throw "Node service $nodeService not found."
+                }
+            }
+            if ( $retval ) {
                 echo ""
-                echo "Node service $nodeService launch failed:"
+                Write-Verbose ($retval)
+                echo ""
+                throw "Node service $nodeService launch failed."
+            }
+        }
+        Catch {
+            $serviceInstalled = $False
+        }
+        Finally {
+            $ErrorActionPreference = $oldPreference
+        }
+
+
+        # In case no service available, we try to install it and then launch again
+
+        if ( $serviceInstalled -eq $False ) {
+            echo "Node service $nodeService not installed, attempting to install it:"
+            echo ""
+            $npmInstallAndScope = "install --force"
+            if ( $SkWindows -eq $False ) {
+                $npmInstallAndScope = "$npmInstallAndScope --global"
+            }
+            $npmInstallPermissionOption = ""
+            $npmSpecificVersion = ""
+            if ( $nodeService -eq "signalk-server" ) {
+                $npmInstallPermissionOption = "--unsafe-perm"
+                $npmSpecificVersion = "@1.28.0"
+            }
+            $npmCmdArgs = "$npmInstallAndScope $npmInstallPermissionOption $nodeService$npmSpecificVersion"
+            echo $npmCmdArgs
+            $useNpmCliCmd = $npmCliCmd
+            if ( $SkWindows -eq $True ) {
+                $useNpmCliCmd = $SkWindowsNpmCliCmd
+                $restoreLocation = Get-Location
+                Set-Location( $SkWindowsNodeJsDir )
+            }
+
+            $instprocess = (Start-Process -Wait $useNpmCliCmd $npmCmdArgs)
+
+            if ( $SkWindows -eq $True ) {
+                Set-Location( $restoreLocation )
+            }
+            $useNpmDir = $npmPS1Dir
+            if ( $SkWindows -eq $True ) {
+                $useNpmDir = $SkWindowsNodeJsDir
+            }
+            $retval = LaunchNodeServicePs1 -ServiceName $nodeService -NpmDir $useNpmDir
+            if ( $retval ) {
+                echo ""
+                echo "Node service $nodeService installation and launch failed:"
                 Write-Verbose ($retval)
                 echo ""
             }
+            else {
+                $serviceInstalled = $True
+            }
         }
-    }
-    Catch {
-        $serviceInstalled = $False
-    }
-    Finally {
-        $ErrorActionPreference = $oldPreference
-    }
-    if ( $serviceInstalled -eq $False ) {
-        echo "Node service $nodeService not installed, attempting to install it:"
-        echo ""
-        $npmInstallAndScope = "install --global --force"
-        $npmInstallPermissionOption = ""
-        $npmSpecificVersion = ""
-        if ( $nodeService -eq "signalk-server" ) {
-            $npmInstallPermissionOption = "--unsafe-perm"
-            $npmSpecificVersion = "@1.28.0"
-        }
-        $npmCmdArgs = "$npmInstallAndScope $npmInstallPermissionOption $nodeService$npmSpecificVersion"
-        echo $npmCmdArgs
-        $instprocess = (Start-Process -Wait $npmCliCmd $npmCmdArgs)
-        $retval = LaunchNodeServicePs1 -ServiceName $nodeService
-        if ( $null -ne $retval ) {
-            echo ""
-            echo "Node service $nodeService installation and launch failed:"
-            Write-Verbose ($retval)
+        if ( $serviceInstalled -eq $True ) {
+            if ( $nodeService -eq "signalk-server" ) {
+                Start "http://127.0.0.1:3000"
+            }
+            if ( $nodeService -eq "http-server" ) {
+                Start "http://127.0.0.1:8080"
+            }
+            echo "OK: $nodeService"
             echo ""
         }
-        else {
-            $serviceInstalled = $True
-        }
-    }
-    if ( $serviceInstalled -eq $True ) {
-        if ( $nodeService -eq "signalk-server" ) {
-            Start "http://127.0.0.1:3000"
-        }
-        if ( $nodeService -eq "http-server" ) {
-            Start "http://127.0.0.1:8080"
-        }
-        echo "OK: $nodeService"
-        echo ""
     }
 }
 
