@@ -241,6 +241,7 @@ if ( ($SkWindowsNodeCliCmdExists -eq $True) -AND ($SkWindowsNpmCliCmdExists -eq 
         $SkWindowsNodeVersion = (C:\signalk\nodejs\node.exe --version) | Out-String
         echo "$SkWindowsNodeCliCmd --version returns: $SkWindowsNodeVersion"
         $SkWindowsNpmVersion = (C:\signalk\nodejs\npm.cmd --version) | Out-String
+        echo "signalk-server-windows package manager:"
         echo "$SkWindowsNpmCliCmd --version returns: $SkWindowsNpmVersion"
         echo ""
     }
@@ -262,7 +263,7 @@ $npmCliCmdExists = $False
 $npmVersion = "n/a"
 
 $nodeJsGuidObjArray = Get-InstalledSoftware -Name "Node.js"
-if ( $null -ne $nodeJsGuidObjArray ) {
+if ( $nodeJsGuidObjArray ) {
 
     $ErrorActionPreference = ‘stop’
     try {if(Get-Command $nodeCliCmd){
@@ -296,6 +297,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     if ( -NOT $nodeServices ) {
         echo ""
         if ( $SkWindows -eq $True ) {
+            echo "Will use above signalk-server-windows instance for all services."
             echo "- Additionally, found following instances of Node.js:"
         }
         else {
@@ -303,7 +305,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
         }
         echo ""
     `	ForEach ( $nodeJSGuidObj in $nodeJsGuidObjArray ) {
-            Write-Verbose ($nodeJsGuidObjArray[0].GUID, $nodeJsGuidObjArray[0].Name) -Separator " "
+            echo "$($nodeJsGuidObj.GUID) $($nodeJsGuidObj.Name)"
         }
         echo ""
         if ( $nodeCliCmdExists -eq $True ) {
@@ -319,6 +321,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
             echo "Cannot find $nodeCliCmd and/or $npmCliCmd, check your command PATH:"
             if ( -NOT $foundidx ) {
                 echo "- there is no path with '$NodeJsFolder'"
+                echo "  (if you have just installed Node.js, reboot your system and try again)"
             }
             else {
                 echo "- there is a path with '$NodeJsFolder',please check that path being a valid one."
@@ -338,61 +341,54 @@ if ( $null -ne $nodeJsGuidObjArray ) {
     }
 }
 else {
-    $exitNodeJsCheckWithError = $True
-    if ( $nodeServices ) {
+    if ( -NOT $nodeServices ) {
         if ( $SkWindows -eq $True ) {
             echo "- No additional Node.js installation found from this system."
         }
         else {
             echo "No Node.js installation found from this system."
+            sleep 10
+            exit 0
         }
         echo ""
-        $exitNodeJsCheckWithError = $False
     }
     else {
-        echo ""
-        echo ""
-        echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        echo ""
-        echo ""
-        echo "                  ******************************"
-        echo "                  * ERRORS: - cannot continue. *"
-        echo "                  ******************************"
-        echo ""
-        echo ""
-        echo "- Could not find a Node.js installation. Services cannot be started."
-        echo "  Redirecting to OpenCPN documentation for instructions:"
-        echo ""
-        echo "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
-        echo ""
-        Start "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
-        echo ""
-    }
-    if ( $npmDirExists -eq $True ) {
-        echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        echo ""
-        echo ""
-        echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
-        echo "   ! WARNING: - No Node.js installation but a npm data folder. !"
-        echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
-        echo ""
-        echo ""
-        echo "- Perhaps a trace of a previous Node.js installation:"
-        echo ""
-        echo "$npmDir"
-        echo ""
-        echo "- Rename the folder, for backup before installing again Node.js"
-        echo ""
-    }
-
-    if ( $SkWindows -ne $True ) {
-        sleep 10
-        if ( $exitNodeJsCheckWithError -eq $True ) {
+        if ( $SkWindows -eq $False ) {
+            echo ""
+            echo ""
+            echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            echo ""
+            echo ""
+            echo "                  ******************************"
+            echo "                  * ERRORS: - cannot continue. *"
+            echo "                  ******************************"
+            echo ""
+            echo ""
+            echo "- Could not find a Node.js installation. Services cannot be started."
+            echo "  Redirecting to OpenCPN documentation for instructions:"
+            echo ""
+            echo "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
+            echo ""
+            Start "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk:a3"
+            echo ""
+            if ( $npmDirExists -eq $True ) {
+                echo " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+                echo ""
+                echo ""
+                echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
+                echo "   ! WARNING: - No Node.js installation but a npm data folder. !"
+                echo "   + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +"
+                echo ""
+                echo ""
+                echo "- Perhaps a trace of a previous Node.js installation:"
+                echo ""
+                echo "$npmDir"
+                echo ""
+                echo "- Rename the folder, for backup before installing again Node.js"
+                echo ""
+            }
+            sleep 10
             exit -1
-        }
-        else {
-
-            exit 0
         }
     }
 }
@@ -549,9 +545,11 @@ ForEach ( $nodeService in $nodeServices ) {
         }
         if ( $serviceInstalled -eq $True ) {
             if ( $nodeService -eq "signalk-server" ) {
+                sleep 5
                 Start "http://127.0.0.1:3000"
             }
             if ( $nodeService -eq "http-server" ) {
+                sleep 3
                 Start "http://127.0.0.1:8080"
             }
             echo "OK: $nodeService"
