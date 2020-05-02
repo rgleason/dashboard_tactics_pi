@@ -169,9 +169,12 @@ function Test-Port
         IP-address like 127.0.0.1
     .PARAMETER Port
         TCP port number to test
+    .OUTPUTS
+        System.Boolea $True if pot exist and can be connected, $False otherwise
     #>
     [OutputType([System.Management.Automation.PSObject])]
     [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param (
         [Parameter()]
         [ValidateNotNullOrEmpty()]
