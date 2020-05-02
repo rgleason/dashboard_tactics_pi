@@ -159,4 +159,3 @@ void DashboardInstrument_TimesTUI::SaveConfig()
     
     return;
 }
-
