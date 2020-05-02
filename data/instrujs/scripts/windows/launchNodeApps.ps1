@@ -205,7 +205,7 @@ if ( $null -ne $nodeJsGuidObjArray ) {
         echo "Found following instances of Node.js installations:"
         echo ""
     `	ForEach ( $nodeJSGuidObj in $nodeJsGuidObjArray ) {
-            Write-Host ($nodeJsGuidObjArray[0].GUID, $nodeJsGuidObjArray[0].Name) -Separator " "
+            Write-Verbose ($nodeJsGuidObjArray[0].GUID, $nodeJsGuidObjArray[0].Name) -Separator " "
         }
         echo ""
         if ( $nodeCliCmdExists -eq $True ) {
@@ -325,7 +325,7 @@ ForEach ( $nodeService in $nodeServices ) {
             if ( $null -ne $retval ) {
                 echo ""
                 echo "Node service $nodeService launch failed:"
-                Write-Host ($retval)
+                Write-Verbose ($retval)
                 echo ""
             }
         }
@@ -337,10 +337,9 @@ ForEach ( $nodeService in $nodeServices ) {
         $ErrorActionPreference = $oldPreference
     }
     if ( $serviceInstalled -eq $False ) {
-        echo ""
         echo "Node service $nodeService not installed, attempting to install it:"
         echo ""
-        $npmInstallAndScope = "install -g"
+        $npmInstallAndScope = "install --global --force"
         $npmInstallPermissionOption = ""
         $npmSpecificVersion = ""
         if ( $nodeService -eq "signalk-server" ) {
@@ -354,7 +353,7 @@ ForEach ( $nodeService in $nodeServices ) {
         if ( $null -ne $retval ) {
             echo ""
             echo "Node service $nodeService installation and launch failed:"
-            Write-Host ($retval)
+            Write-Verbose ($retval)
             echo ""
         }
         else {
