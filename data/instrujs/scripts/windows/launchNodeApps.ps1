@@ -7,7 +7,7 @@
 # Verify that either https://github.com/SignalK/signalk-server-windows or
 # node.js package has been installed 
 #
-##### [service1][,service2] ... [,serviceN] #####
+##### [service1] [service2] ... [serviceN] #####
 #
 # Enumerated node services, in free order. Of which services the following
 # have dependencies with DashT InstruJS:
@@ -33,13 +33,12 @@
 
 #
 # #####################
-# Read in the arguments as comma separated list
+# Read in the arguments as space separated list
 # #####################
 
-param( $serviceList )
 $nodeServices = @()
-ForEach ( $service in $serviceList ) {
-    $nodeServices += $service
+for ( $i = 0; $i -lt $args.count; $i++ ) {
+    $nodeServices += $args[$i]
 }
 
 #
