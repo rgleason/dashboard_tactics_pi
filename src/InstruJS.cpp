@@ -40,7 +40,7 @@ using namespace std;
 #include <wx/event.h>
 #include <wx/sstream.h>
 #include <wx/url.h>
-#include <wx/protocol/http.h>
+#include <wx/socket.h>
 
 #include <functional>
 #include <mutex>
@@ -125,35 +125,19 @@ InstruJS::~InstruJS(void)
     }
 }
 
-unsigned short InstruJS::getPortNumber( wxString &urlIpOrName, wxString &hostStr ) {
-
-    wxString portStr = wxEmptyString;
-    portStr = urlIpOrName.AfterFirst(':');
-    if ( portStr.IsEmpty() )
-        return 0;
-    hostStr = urlIpOrName.BeforeFirst(':');
-    int iPortNumber = wxAtoi( portStr );
-    unsigned short retval = (unsigned short) iPortNumber;
-    return retval;
-}
-
-bool InstruJS::testHTTPServer( wxString urlIpOrName ) {
-    wxHTTP *http = new wxHTTP();
-    http->SetHeader("Accept","text/*");
-    http->SetHeader("User-Agent","OpenCPNInstruJs");
-    wxString hostStr = wxEmptyString;
-    unsigned short port = getPortNumber ( urlIpOrName, hostStr );
+bool InstruJS::testHTTPServer( wxString urlIpOrNamePort ) {
+    wxSocketClient testSocket;
+    testSocket.SetTimeout( 1 );
+    testSocket.SetFlags( wxSOCKET_BLOCK );
+    wxIPV4address  *address = new wxIPV4address();
+    wxUniChar separator = 0x3a;
+    address->Hostname(urlIpOrNamePort.BeforeFirst(separator));
+    address->Service(urlIpOrNamePort.AfterFirst(separator));
     bool retval = false;
-    if ( port == 0 ) {
-        if ( http->Connect( urlIpOrName ) )
-            retval = true;
-    }
-    else {
-        if ( http->Connect( hostStr, port ) )
-            retval = true;
-    }
-    http->Destroy();
-    delete http;
+    if ( testSocket.Connect( *address ) )
+        retval = true;
+    testSocket.Close();
+    delete address;
     return retval;
 }
 
