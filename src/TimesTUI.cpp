@@ -64,6 +64,7 @@ DashboardInstrument_TimesTUI::DashboardInstrument_TimesTUI(
     previousTimestamp = 0LL; // dashboard instru base class
     m_orient = wxHORIZONTAL;
     m_htmlLoaded= false;
+    m_goodHttpServerDetects = -1; // default is: there is a server at startup
     m_pconfig = GetOCPNConfigObject();
     m_fullPathHTML = wxEmptyString;
     m_httpServer = wxEmptyString;
@@ -109,15 +110,23 @@ void DashboardInstrument_TimesTUI::OnThreadTimerTick( wxTimerEvent &event )
     m_pThreadTimesTUITimer->Stop();
     if ( !m_htmlLoaded) {
         if ( testHTTPServer( m_httpServer ) ) {
-            wxSize thisSize = wxControl::GetSize();
-            wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
-            SetInitialSize ( thisFrameInitSize );
-            wxSize webViewInitSize = thisFrameInitSize;
-            this->loadHTML( m_fullPathHTML, webViewInitSize );
-            // No more threaded jobs, InstruJS is working now
-            m_htmlLoaded= true;
+            if ( (m_goodHttpServerDetects == -1) ||
+                 (m_goodHttpServerDetects >= TIMESTUI_WAIT_NEW_HTTP_SERVER_TICKS) ) {
+                wxSize thisSize = wxControl::GetSize();
+                wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
+                SetInitialSize ( thisFrameInitSize );
+                wxSize webViewInitSize = thisFrameInitSize;
+                this->loadHTML( m_fullPathHTML, webViewInitSize );
+                // No more threaded jobs, InstruJS is working now
+                m_htmlLoaded= true;
+            } // then either a straigth start with server or detected a stable server
+            else {
+                m_goodHttpServerDetects += 1;
+                m_pThreadTimesTUITimer->Start( GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
+            }
         } // then there is a server serving the page, can ask content to be loaded
         else {
+            m_goodHttpServerDetects = 0;
             m_pThreadTimesTUITimer->Start( GetRandomNumber( 8000,11000 ), wxTIMER_CONTINUOUS);
         }  // else need to wait until a server appears
     } // else thread is not running (no JS instrument created in this frame, create one)

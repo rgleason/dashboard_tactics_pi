@@ -68,6 +68,8 @@
 #define TIMESTUI_H_MIN_WIDTH  TIMESTUI_H_WIDTH
 #define TIMESTUI_H_MIN_HEIGHT (TIMESTUI_H_TITLEH + TIMESTUI_H_HEIGHT + TIMESTUI_H_BOTTOM)
 
+#define TIMESTUI_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, and it appears
+
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -100,6 +102,7 @@ protected:
     int                  m_orient;
     bool                 m_htmlLoaded;
     wxTimer             *m_pThreadTimesTUITimer;
+    int                  m_goodHttpServerDetects;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
     wxString             m_httpServer;

@@ -68,6 +68,8 @@
 #define ENGINEDJG_H_MIN_WIDTH  ENGINEDJG_H_WIDTH
 #define ENGINEDJG_H_MIN_HEIGHT (ENGINEDJG_H_TITLEH + ENGINEDJG_H_HEIGHT + ENGINEDJG_H_BOTTOM)
 
+#define ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, and it appears               
+
 //+------------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -100,6 +102,7 @@ protected:
     int                  m_orient;
     bool                 m_htmlLoaded;
     wxTimer             *m_pThreadEngineDJGTimer;
+    int                  m_goodHttpServerDetects;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
     wxString             m_httpServer;
