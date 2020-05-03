@@ -287,7 +287,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
         header += "Host: ";
         header += m_source;
         header += "\r\n";
-        header += "User-Agent: OpenCPN/5.0\r\n";
+        header += "User-Agent: OpenCPN/5.x\r\n";
         header += "Accept: */*\r\n";
         header += "Content-Type: application/x-www-form-urlencoded";
         header += "\r\n";
