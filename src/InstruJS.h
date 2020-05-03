@@ -101,6 +101,8 @@ public:
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
     virtual bool instrIsRunning(void) { return !m_webPanelSuspended; };
     virtual void suspendInstrument(void);
+    virtual bool testHTTPServer( wxString urlIpOrName );
+    virtual wxString testURLretHost( wxString url );
     virtual bool instrIsReadyForConfig(void) { return m_webpanelCreated; };
     virtual void setNewConfig ( wxString newSkPath );
     virtual void setColorScheme ( PI_ColorScheme cs ) override;
@@ -158,6 +160,7 @@ protected:
     void OnSize( wxSizeEvent& event );
     void OnThreadTimerTick( wxTimerEvent& event);
     wxString RunScript(const wxString& javascript);
+    unsigned short getPortNumber( wxString& urlIpOrName, wxString& hostStr );
     
     virtual void Draw(wxGCDC* dc) final;
 
