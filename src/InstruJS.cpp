@@ -143,7 +143,6 @@ bool InstruJS::testHTTPServer( wxString urlIpOrName ) {
     http->SetHeader("User-Agent","OpenCPNInstruJs");
     wxString hostStr = wxEmptyString;
     unsigned short port = getPortNumber ( urlIpOrName, hostStr );
-    wxString mystring = wxString::Format(wxT("%i"),(int) port);
     bool retval = false;
     if ( port == 0 ) {
         if ( http->Connect( urlIpOrName ) )

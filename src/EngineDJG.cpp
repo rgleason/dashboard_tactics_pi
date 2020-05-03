@@ -158,7 +158,7 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
         message += m_fullPathHTML;
         wxMessageDialog *dlg = new wxMessageDialog(
             GetOCPNCanvasWindow(), message, _T("DashT E-Dial"), wxOK|wxICON_ERROR);
-        int choice = dlg->ShowModal();
+        (void) dlg->ShowModal();
         m_fullPathHTML = wxEmptyString;
     }
     
