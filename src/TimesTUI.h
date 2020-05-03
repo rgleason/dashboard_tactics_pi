@@ -102,6 +102,7 @@ protected:
     wxTimer             *m_pThreadTimesTUITimer;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
+    wxString             m_httpServer;
     
     wxDECLARE_EVENT_TABLE();
 

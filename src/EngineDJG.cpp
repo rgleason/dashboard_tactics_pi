@@ -65,13 +65,17 @@ InstruJS ( pparent, id, ids, cs, JSI_DS_INCOMING_DATA_SUBSCRIPTION )
     m_orient = wxVERTICAL;
     m_htmlLoaded= false;
     m_pconfig = GetOCPNConfigObject();
+    m_fullPathHTML = wxEmptyString;
+    m_httpServer = wxEmptyString;
 
     if ( !LoadConfig() )
         return;
 
-    m_pThreadEngineDJGTimer = new wxTimer( this, myID_TICK_ENGINEDJG );
-    wxMilliSleep( GetRandomNumber( 10,49 ) ); // avoid start loading all instruments simultaneously
-    m_pThreadEngineDJGTimer->Start(100, wxTIMER_CONTINUOUS);
+    if ( !m_fullPathHTML.IsEmpty() ) {
+        m_pThreadEngineDJGTimer = new wxTimer( this, myID_TICK_ENGINEDJG );
+        wxMilliSleep( GetRandomNumber( 400,800 ) ); // avoid start loading all instruments simultaneously
+        m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
+    } // then a reason to launch InstruJS, there is a page to load
 }
 DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
@@ -101,16 +105,20 @@ void DashboardInstrument_EngineDJG::SetData(
 
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
-
+    m_pThreadEngineDJGTimer->Stop();
     if ( !m_htmlLoaded) {
-        wxSize thisSize = wxControl::GetSize();
-        wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
-        SetInitialSize ( thisFrameInitSize );
-        wxSize webViewInitSize = thisFrameInitSize;
-        this->loadHTML( m_fullPathHTML, webViewInitSize );
-        m_pThreadEngineDJGTimer->Stop();
-        // No more threaded jobs by now m_pThreadEngineDJGTimer->Start(1000, wxTIMER_CONTINUOUS);
-        m_htmlLoaded= true;
+        if ( testHTTPServer( m_httpServer ) ) {
+            wxSize thisSize = wxControl::GetSize();
+            wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
+            SetInitialSize ( thisFrameInitSize );
+            wxSize webViewInitSize = thisFrameInitSize;
+            this->loadHTML( m_fullPathHTML, webViewInitSize );
+            // No more threaded jobs, InstruJS is working now
+            m_htmlLoaded= true;
+        } // then there is a server serving the page, can ask content to be loaded
+        else {
+            m_pThreadEngineDJGTimer->Start( GetRandomNumber( 5000,8000 ), wxTIMER_CONTINUOUS);
+        }   // else need to wait until a server appears, not in a hurry
     } // else thread is not running (no JS instrument created in this frame, create one)
 
 }
@@ -138,11 +146,21 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
         return false;
     
     // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
-    wxString sFullPathHTML = "http://localhost:8080/enginedjg/";
+    wxString sFullPathHTML = "http://127.0.0.1:8080/enginedjg/";
 
     pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
     
+    m_httpServer = this->testURLretHost( m_fullPathHTML );
+
+    if ( m_httpServer.IsEmpty() ) {
+        wxString message( _("Malformed URL string in WebView/EngineDJG ini-file entry: ") + "\n" );
+        message += m_fullPathHTML;
+        wxMessageDialog *dlg = new wxMessageDialog(
+            GetOCPNCanvasWindow(), message, _T("DashT E-Dial"), wxOK|wxICON_ERROR);
+        int choice = dlg->ShowModal();
+        m_fullPathHTML = wxEmptyString;
+    }
     
     return true;
 }

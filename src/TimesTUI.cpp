@@ -65,13 +65,17 @@ DashboardInstrument_TimesTUI::DashboardInstrument_TimesTUI(
     m_orient = wxHORIZONTAL;
     m_htmlLoaded= false;
     m_pconfig = GetOCPNConfigObject();
+    m_fullPathHTML = wxEmptyString;
+    m_httpServer = wxEmptyString;
 
     if ( !LoadConfig() )
         return;
 
-    m_pThreadTimesTUITimer = new wxTimer( this, myID_TICK_TIMESTUI );
-    wxMilliSleep( GetRandomNumber( 10,49 ) ); // avoid start loading all instruments simultaneously
-    m_pThreadTimesTUITimer->Start(100, wxTIMER_CONTINUOUS);
+    if ( !m_fullPathHTML.IsEmpty() ) {
+        m_pThreadTimesTUITimer = new wxTimer( this, myID_TICK_TIMESTUI );
+        wxMilliSleep( GetRandomNumber( 800,1600 ) ); // avoid start loading all instruments simultaneously
+        m_pThreadTimesTUITimer->Start(1000, wxTIMER_CONTINUOUS);
+    } // then a reason to launch InstruJS, there is a page to load
 }
 DashboardInstrument_TimesTUI::~DashboardInstrument_TimesTUI(void)
 {
@@ -102,15 +106,20 @@ void DashboardInstrument_TimesTUI::SetData(
 void DashboardInstrument_TimesTUI::OnThreadTimerTick( wxTimerEvent &event )
 {
 
+    m_pThreadTimesTUITimer->Stop();
     if ( !m_htmlLoaded) {
-        wxSize thisSize = wxControl::GetSize();
-        wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
-        SetInitialSize ( thisFrameInitSize );
-        wxSize webViewInitSize = thisFrameInitSize;
-        this->loadHTML( m_fullPathHTML, webViewInitSize );
-        m_pThreadTimesTUITimer->Stop();
-        // No more threaded jobs by now m_pThreadTimesTUITimer->Start(1000, wxTIMER_CONTINUOUS);
-        m_htmlLoaded= true;
+        if ( testHTTPServer( m_httpServer ) ) {
+            wxSize thisSize = wxControl::GetSize();
+            wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
+            SetInitialSize ( thisFrameInitSize );
+            wxSize webViewInitSize = thisFrameInitSize;
+            this->loadHTML( m_fullPathHTML, webViewInitSize );
+            // No more threaded jobs, InstruJS is working now
+            m_htmlLoaded= true;
+        } // then there is a server serving the page, can ask content to be loaded
+        else {
+            m_pThreadTimesTUITimer->Start( GetRandomNumber( 8000,11000 ), wxTIMER_CONTINUOUS);
+        }  // else need to wait until a server appears
     } // else thread is not running (no JS instrument created in this frame, create one)
 
 }
@@ -138,11 +147,21 @@ bool DashboardInstrument_TimesTUI::LoadConfig()
         return false;
     
     // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
-    wxString sFullPathHTML = "http://localhost:8088/timestui/";
+    wxString sFullPathHTML = "http://127.0.0.1:8088/timestui/";
 
     pConf->SetPath(_T("/PlugIns/Dashboard/WebView/TimesTUI/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
+
+    m_httpServer = this->testURLretHost( m_fullPathHTML );
     
+    if ( m_httpServer.IsEmpty() ) {
+        wxString message( _("Malformed URL string in WebView/TimesTUI ini-file entry: ") + "\n" );
+        message += m_fullPathHTML;
+        wxMessageDialog *dlg = new wxMessageDialog(
+            GetOCPNCanvasWindow(), message, _T("DashT Line Chart"), wxOK|wxICON_ERROR);
+        int choice = dlg->ShowModal();
+        m_fullPathHTML = wxEmptyString;
+    }
     
     return true;
 }
