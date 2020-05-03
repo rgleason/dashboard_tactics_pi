@@ -1,4 +1,6 @@
+; /* $Id: NSIS.template.in, v1.0 2019/11/30 VaderDarth Exp $ */
 ; CPack install script designed for a nmake build
+; - project: dashboard_tactics_pi
 
   ; Comment out for OpenCPN let-it-close-before-nobody-can-see-what-was-installed
   !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -389,7 +391,7 @@ Function un.RemoveFromPath
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Uninstall sutff
+; Uninstall stuff
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ###########################################
@@ -439,9 +441,9 @@ Function un.installInstruJS
     ;DetailPrint "Parent (R0): '$R0'"
     RMDir /r $R0\DashT
     ; Public\Desktop is well populated... maintain our desktop entries list:
-    Delete "$R0\Desktop\skstart.bat"
-    Delete "$R0\Desktop\StartDashTDocker.lnk"
-    Delete "$R0\Desktop\StopDashTDocker.lnk"
+    Delete "$R0\Desktop\Engine Gage.lnk"
+    Delete "$R0\Desktop\Start DB.lnk"
+    Delete "$R0\Desktop\Stop DB.lnk"
 FunctionEnd
 
 ; End of Application Specific Functions as for EXTRA_INSTALL EXTRA_UNINSTALL
