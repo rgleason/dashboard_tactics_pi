@@ -38,6 +38,9 @@ using namespace std;
 
 #include <wx/version.h>
 #include <wx/event.h>
+#include <wx/sstream.h>
+#include <wx/url.h>
+#include <wx/protocol/http.h>
 
 #include <functional>
 #include <mutex>
@@ -120,6 +123,51 @@ InstruJS::~InstruJS(void)
     if ( this->m_webpanelCreated || this->m_webpanelCreateWait ) {
         delete this->m_pWebPanel;
     }
+}
+
+unsigned short InstruJS::getPortNumber( wxString &urlIpOrName, wxString &hostStr ) {
+
+    wxString portStr = wxEmptyString;
+    portStr = urlIpOrName.AfterFirst(':');
+    if ( portStr.IsEmpty() )
+        return 0;
+    hostStr = urlIpOrName.BeforeFirst(':');
+    int iPortNumber = wxAtoi( portStr );
+    unsigned short retval = (unsigned short) iPortNumber;
+    return retval;
+}
+
+bool InstruJS::testHTTPServer( wxString urlIpOrName ) {
+    wxHTTP *http = new wxHTTP();
+    http->SetHeader("Accept","text/*");
+    http->SetHeader("User-Agent","OpenCPNInstruJs");
+    wxString hostStr = wxEmptyString;
+    unsigned short port = getPortNumber ( urlIpOrName, hostStr );
+    wxString mystring = wxString::Format(wxT("%i"),(int) port);
+    bool retval = false;
+    if ( port == 0 ) {
+        if ( http->Connect( urlIpOrName ) )
+            retval = true;
+    }
+    else {
+        if ( http->Connect( hostStr, port ) )
+            retval = true;
+    }
+    http->Destroy();
+    delete http;
+    return retval;
+}
+
+wxString InstruJS::testURLretHost( wxString url ) {
+    wxURL testURL( url );
+    if ( testURL.GetError() != wxURL_NOERR )
+        return wxEmptyString;
+    wxString restStr = wxEmptyString;
+    if ( !url.StartsWith( "http://", &restStr ) )
+        return wxEmptyString;
+    wxString hostOrIp = wxEmptyString;
+    hostOrIp = restStr.BeforeFirst('/');
+    return hostOrIp;
 }
 
 void InstruJS::stopScript( )
