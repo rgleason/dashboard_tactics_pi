@@ -7,7 +7,7 @@ _dashboard_tactics_pi_ in your OpenCPN plug-in catalog.
 
 ## Introduction
 
-_DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure. This version, of which you can find installation packages for earl testers in [Releases](https://github.com/canne/dashboard_tactics_pi/releases) continues this philosophy and presents new features by collecting timestamped open data and making it available to external applications and data retrieval systems.
+_DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure. This version, of which you can find installation packages for early adopters in [Releases](https://github.com/canne/dashboard_tactics_pi/releases) continues this philosophy and presents new features by collecting timestamped open data and making it available to external applications and data retrieval systems.
 
 The next OpenCPN version, currently in 5.1beta is embracing the open marine data format [Signal K](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This hopefully encourage you to consider to install the fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). As before, it is fully supported by _DashT_ as an alternative and direct data source, allowing the creation of enhancements which are not present in the traditional OpenCPN Dashboard:
 
@@ -41,7 +41,7 @@ The next OpenCPN version, currently in 5.1beta is embracing the open marine data
   
   * An all-received-data containing file can be registered to feed, off-line or after race InfluxDB v2.0 time series database
   
-    * Enhances post-race analysis and off-line polar calculations with high sampling rate data
+    * Enhances post-race analysis and off-line polar calculations with high sampling rate and accurately timestamped data
 
 * [Comprehensive documentation](https://canne.github.io/#DashT%20-%20plug-in%20for%20OpenCPN)
 
