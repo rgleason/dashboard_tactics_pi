@@ -1,5 +1,5 @@
 <a href="docs/developers/README.md"><img src="docs/developers/img/message.svg" /></a><br />
-# _DashT_ - an OpenCPN plug-in with Dashboard, Tactics, Engine/Energy dials and Time Series DB functions and history line graphs
+# _DashT_ - an OpenCPN plug-in with Dashboard, Tactics, Engine/Energy dials and Time Series DB functions with history line graphs
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings)
 
