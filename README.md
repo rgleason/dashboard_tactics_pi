@@ -37,7 +37,9 @@ The next OpenCPN version, currently in 5.1beta is embracing the open marine data
 
   * Time series based databases are essential with the data volumes and rates produced by Signal K enabled servers
   
-  * Real-time storage and retrieval allows monitoring and historical data browsing using tools such as Grafana
+  * Real-time storage and retrieval allows long-term monitoring and historical data browsing using external tools such as Grafana
+  
+  * Short-term historical data line graphs provided and integrated in OpenCPN Dashboard for race time or performance run real-time monitoring of key parameters
   
   * An all-received-data containing file can be registered to feed, off-line or after race InfluxDB v2.0 time series database
   
