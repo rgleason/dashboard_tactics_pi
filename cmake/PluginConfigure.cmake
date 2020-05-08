@@ -116,7 +116,7 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
   endif()
 else ()
   set (CMAKE_CXX_STANDARD 11)
-  message(STATUS "Setting C++11 standard via cmake standard mecahnism")
+  message(STATUS "Setting C++11 standard via cmake standard mechanism")
 endif ()
 
 
@@ -145,7 +145,7 @@ IF(MSVC)
 ENDIF(MSVC)
 
 IF(NOT DEFINED wxWidgets_USE_FILE)
-  SET(wxWidgets_USE_LIBS base core net xml html adv aui)
+   SET(wxWidgets_FIND_COMPONENTS base core net xml html adv aui)
 ENDIF(NOT DEFINED wxWidgets_USE_FILE)
 
 
@@ -242,7 +242,7 @@ IF (NOT QT_ANDROID )
     if(WXWIDGETS_FORCE_VERSION)
         set (wxWidgets_CONFIG_OPTIONS --version=${WXWIDGETS_FORCE_VERSION})
     endif()
-    FIND_PACKAGE(wxWidgets REQUIRED)
+    FIND_PACKAGE(wxWidgets COMPONENTS ${wxWidgets_FIND_COMPONENTS})
     INCLUDE(${wxWidgets_USE_FILE})
 ENDIF (NOT QT_ANDROID )
 
