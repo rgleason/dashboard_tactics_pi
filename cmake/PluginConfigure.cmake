@@ -145,7 +145,7 @@ IF(MSVC)
 ENDIF(MSVC)
 
 IF(NOT DEFINED wxWidgets_USE_FILE)
-    SET(wxWidgets_USE_LIBS base core net xml html adv aui webview)
+    SET(wxWidgets_FIND_COMPONENTS base core net xml html adv aui webview)
 ENDIF(NOT DEFINED wxWidgets_USE_FILE)
 
 #  QT_ANDROID is a cross-build, so the native FIND_PACKAGE(wxWidgets...) and wxWidgets_USE_FILE is not useful.
@@ -195,6 +195,11 @@ IF(OCPN_USE_SVG)
   ADD_DEFINITIONS(-DOCPN_USE_SVG)
 ENDIF(OCPN_USE_SVG)
 
+IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.12.0")
+  # `FindOpenGL`` prefers GLVND by default when available:
+  CMAKE_POLICY(SET CMP0072 NEW)
+ENDIF(CMAKE_VERSION VERSION_GREATER_EQUAL "3.12.0")
+
 FIND_PACKAGE(OpenGL)
 IF(OPENGL_GLU_FOUND)
 
@@ -236,11 +241,7 @@ IF(QT_ANDROID)
 ENDIF(QT_ANDROID)
 
 IF (NOT QT_ANDROID )
-    set (WXWIDGETS_FORCE_VERSION CACHE VERSION "Force usage of a specific wxWidgets version.")
-    if(WXWIDGETS_FORCE_VERSION)
-        set (wxWidgets_CONFIG_OPTIONS --version=${WXWIDGETS_FORCE_VERSION})
-    endif()
-    FIND_PACKAGE(wxWidgets REQUIRED)
+    FIND_PACKAGE(wxWidgets COMPONENTS ${wxWidgets_FIND_COMPONENTS})
     INCLUDE(${wxWidgets_USE_FILE})
 ENDIF (NOT QT_ANDROID )
 
