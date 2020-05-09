@@ -4,10 +4,10 @@ Fixes #
 
 _Briefly describe your proposed changes:_
 
-## Checklist
+## Checklist (put X when sure, otherwise leave open
 
   - [ ] You are committing a branch which starts with a 'pr', such as 'pr151', 'pr200'
   - [ ] A test has been added if appropriate
   - [ ] Your pull request passes CI on Windows (AppVeyor), Linux and MacOS (Travis)
-  - [ ] Your pull request passes does not create static QA rejection (Codacy)
+  - [ ] Your pull request does not create static QA (Codacy) rejection
   - [ ] Commit messages are in [semantic format](https://seesparkbox.com/foundry/semantic_commit_messages)
