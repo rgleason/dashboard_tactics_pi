@@ -47,7 +47,6 @@
 using namespace std;
 #endif // _TACTICSPI_H_
 
-
 #include "icons.h"
 #include "wx/jsonreader.h"
 #include "wx/jsonwriter.h"
@@ -85,8 +84,10 @@ static const long long lNaN = 0xfff8000000000000;
 #define NAN (*(double*)&lNaN)
 #endif
 
+#include "plugin_static_ids.h"
+
 #ifdef _TACTICSPI_H_
-const char *dashboard_pi::s_common_name = _("Dashboard_Tactics");
+const char *dashboard_pi::s_common_name = "Dashboard_Tactics";
 #endif // _TACTICSPI_H_
 
 // the class factories, used to create and destroy instances of the PlugIn
