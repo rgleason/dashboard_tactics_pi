@@ -49,8 +49,6 @@
 
 #include "version.h"
 
-#define     MY_API_VERSION_MAJOR    1
-#define     MY_API_VERSION_MINOR    12
 
 #include "nmea0183/nmea0183.h"
 #include "instrument.h"
