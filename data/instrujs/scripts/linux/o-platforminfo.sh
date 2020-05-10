@@ -21,7 +21,7 @@ echo "!                                                                         
 echo "+--------------------------------------------------------------------------+"
 echo ""
 
-HOSTNAMECTL=`which hostnamectl`
+HOSTNAMECTL=$(which hostnamectl)
 FILEOSRELS="/etc/os-release"
 if [ -z "${HOSTNAMECTL}" ]
 then
@@ -45,7 +45,7 @@ echo "!                                                                         
 echo "+--------------------------------------------------------------------------+"
 echo ""
 
-OCPNPATH=`which opencpn`
+OCPNPATH=$(which opencpn)
 if [ -z "${OCPNPATH}" ]
 then
     echo "Cannot find 'opencpn' from the path, attempting with:"
@@ -60,7 +60,7 @@ else
     OCPNPATH=""
 fi
 
-READELFPATH=`which readelf`
+READELFPATH=$(which readelf)
 if [ -z "${READELFPATH}" ]
 then
     echo "Cannot find 'readelf' from the path, attempting with:"
@@ -88,12 +88,12 @@ then
     echo ""
     echo "Searching for wxWidgets GTK-version dependency of OpenCPN:"
     echo ""
-    GTK2=`${READELFPATH} -d "${OCPNPATH}" | grep "libwx" | grep "gtk2"`
+    GTK2=$(${READELFPATH} -d "${OCPNPATH}" | grep "libwx" | grep "gtk2")
     if [ ! -z "${GTK2}" ]
     then
         echo "- Found GTK2 wxWidgets library dependencies"
     fi
-    GTK3=`${READELFPATH} -d "${OCPNPATH}" | grep "libwx" | grep "gtk3"`
+    GTK3=$(${READELFPATH} -d "${OCPNPATH}" | grep "libwx" | grep "gtk3")
     if [ ! -z "${GTK3}" ]
     then
         echo "- Found GTK3 wxWidgets library dependencies"
@@ -108,7 +108,7 @@ echo "!                                                                         
 echo "+--------------------------------------------------------------------------+"
 echo ""
 
-APTPATH=`which apt`
+APTPATH=$(which apt)
 DPKGPATH=""
 LISTCMD=""
 if [ -z "${APTPATH}" ]
@@ -124,7 +124,7 @@ then
 else
     echo "Cannot find '${APTPATH}(8)'. Attempting with 'dpkg(1)'"
     APTPATH=""
-    DPKGPATH=`which dpkg`
+    DPKGPATH=$(which dpkg)
     if [ -f ${DPKGPATH} ]
     then
         echo "Found '${DPKGPATH}(1)'."
@@ -138,7 +138,7 @@ if [ ! -z "${LISTCMD}" ]
 then
     ${LISTCMD} | grep libwx
     echo ""
-    WEBVIEWLIB=`${LISTCMD} | grep libwx | grep webview`
+    WEBVIEWLIB=$(${LISTCMD} | grep libwx | grep webview)
     if [ -z "$WEBVIEWLIB" ]
     then
         echo ""
@@ -178,7 +178,7 @@ echo "      - there should be no dynamic libraries which are not found from syst
 echo "      - the OpenCPN API (see Help/about) should be higher than what the plug-in announce."
 echo ""
 
-LDDPATH=`which ldd`
+LDDPATH=$(which ldd)
 if [ -z "${LDDPATH}" ]
 then
     echo "Cannot find 'ldd(1)' from the path, attempting with:"
@@ -211,12 +211,12 @@ do
             echo ""
             echo "Searching for wxWidgets GTK-version dependency of ${PLUGINSOFILE}:"
             echo ""
-            GTK2=`${READELFPATH} -d "${PLUGINSOFILE}" | grep "libwx" | grep "gtk2"`
+            GTK2=$(${READELFPATH} -d "${PLUGINSOFILE}" | grep "libwx" | grep "gtk2")
             if [ ! -z "${GTK2}" ]
             then
                 echo "- Found GTK2 wxWidgets library dependencies"
             fi
-            GTK3=`${READELFPATH} -d "${PLUGINSOFILE}" | grep "libwx" | grep "gtk3"`
+            GTK3=$(${READELFPATH} -d "${PLUGINSOFILE}" | grep "libwx" | grep "gtk3")
             if [ ! -z "${GTK3}" ]
             then
                 echo "- Found GTK3 wxWidgets library dependencies"
