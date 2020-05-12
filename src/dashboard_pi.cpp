@@ -911,7 +911,7 @@ wxString dashboard_pi::GetStandardPath()
     if (!wxDirExists(stdPath))
       wxMkdir(stdPath);
 
-    stdPath += s + _T("dashoard_tactics_pi");
+    stdPath += s + _T("dashboard_tactics_pi");
 
     if (!wxDirExists(stdPath))
       wxMkdir(stdPath);
