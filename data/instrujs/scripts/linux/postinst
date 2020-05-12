@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# /* $Id: postinst, v1.0 2019/11/30 VaderDarth Exp $ */
+#
+# Post-install script for Debian package dashboard_tactics_pi<version>.deb
+
+SCRIPTNAME="postinst"
+# Source definition
+OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
+DASHTPLUGINNAME="dashboard_tactics_pi"
+DASHTGLOBDATADIR="${OPLUGINGLOBDATADIR}/${DASHTPLUGINNAME}/data"
+DASHTGLOBINSTUJS="${DASHTGLOBDATADIR}/instrujs/"
+DASHTGLOBSCRIPTDIR="${DASHTGLOBDATADIR}/instrujs/scripts/linux"
+SCRIPTFULLPATH="${DASHTGLOBSCRIPTDIR}/${SCRIPTNAME}"
+# Target definition
+OPLUGINUSERDIR="${HOME}/.opencpnplugins"
+DASHTUSERDATADIR="${OPLUGINUSERDIR}/${DASHTPLUGINNAME}"
+DASHTUSERINSTRUJS="${DASHTUSERDATADIR}/instrujs"
+
+if [ "$EUID" -eq 0 ]
+then
+    echo "${SRIPTNAME} - not executed for root privileged user."
+    echo "${SCRIPTFULLPATH}"
+    exit -1
+fi
+if [ -z "${HOME}" ]
+then
+    echo "${SRIPTNAME} - cannot execute, do not have \$HOME variable for you."
+    echo "${SCRIPTFULLPATH}"
+    exit -1
+fi
+
+if [ ! -d ${DASHTGLOBINSTUJS} ]
+then
+    echo "${SCRIPTNAME} - ERROR: Folder does not exists:"
+    echo "${DASHTGLOBINSTUJS}"
+    echo "I am supposed to source from that directory."
+    exit -1
+fi
+
+if [ -d ${DASHTUSERINSTRUJS} ]
+then
+    echo ""
+    echo "${SCRIPTNAME} - WARNING: Target directory,"
+    echo "${DASHTUSERINSTRUJS}"
+    echo "exists."
+    echo "This script is one-time run only. Will not overwrite data."
+    echo ""
+    exit 0
+fi
+
+mkdir -p ${DASHTUSERINSTRUJS}
+
+echo "${SCRIPTNAME} - Copying from InstruJS template to user folder."
+echo "Source:"
+echo "${DASHTGLOBINSTUJS}"
+echo "Target:"
+echo "${DASHTUSERINSTRUJS}"
+
+cp -R ${DASHTGLOBINSTUJS}/* ${DASHTUSERINSTRUJS}
+
+echo "${SRIPTNAME} - Done."
+
+exit 0
