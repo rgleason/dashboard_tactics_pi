@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# /* $Id: dashtengine, v1.0 2019/11/30 VaderDarth Exp $ */
+#
+# Launching a simple node_modules http-server on instrujs folder
+
+echo "Launch simple, local http-server to provide DashT EngineDJG dials"
+
+HTTPSERVER=$(which http-server)
+if [ ! -z "${HTTPSERVER}" ]
+then
+    http-server /usr/share/opencpn/plugins/dashboard_tactics_pi/data/instrujs/ -p 8088
+fi
+
+# Need to check how we can get http-server installed...
+
+NODEJSOK=$(dpkg-query -W --showformat='${Status}\n' nodejs 2>/dev/null |grep "install ok installed")
+NPMOK=$(dpkg-query -W --showformat='${Status}\n' npm 2>/dev/null |grep "install ok installed")
+
+if [ -z "${NODEJSOK}" ]
+then
+    if [ -z "${NPMOK}" ]
+    then
+        echo "No NodeJS and package manager npm installed, do you want to install? [Y/n]"
+    else
+        echo "No NodeJS installed, do you want to install? [Y/n]"
+    fi
+    read
+    if [ "$REPLY" = "Y" ]
+    then
+        sudo apt-get update
+        sudo apt-get install nodejs
+        if [ -z "${NPMOK}" ]
+        then 
+            sudo apt-get install npm
+        fi
+        echo ""
+        echo ""
+        echo "While we are here, do you want to install SignalK node server? [Y/n]"
+        read
+        if [ "$REPLY" = "Y" ]
+        then
+            npm list -g | grep signalk-server || sudo npm install -g signalk-server --unsafe-perm --no-shrinkwrap
+            echo ""
+            echo "-------------------------- BACK TO 'dashtengine' -------------------------"
+            echo ""
+            echo "signalk-server installed. For configuration, refer to:"
+            echo "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk"
+            echo "Basically, you would first need to set it for your boat and your account, with:"
+            echo "sudo signalk-server-setup"
+            echo "--------------------------------------------------------------------------"
+            echo ""
+        else
+            echo "Alright, but remember that a Signal K server must exists _somewhere_"
+            echo "to feed EngineDJG dials, they need NMEA-2000 data."
+        fi
+        echo "Launching now the HTTP-server"
+    else
+        echo "OK, nothing installed."
+        echo "If you plan to use an other local server, like Apache set it on port 8088"
+        exit 1
+    fi
+else
+    if [ -z "${NPMOK}" ]
+    then
+        echo "NodeJS installed, but no package manager npm,do you want to install? [Y/n]"
+        read
+        if [ "$REPLY" = "Y" ]
+        then
+            sudo apt-get install npm
+        else
+            echo "OK, nothing installed."
+            exit 1
+        fi
+    fi
+fi
+
+npm list -g | grep http-server || sudo npm install -g http-server --no-shrinkwrap
+
+http-server /usr/share/opencpn/plugins/dashboard_tactics_pi/data/instrujs/ -p 8088
+
+exit 0
