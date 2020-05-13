@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -e
-# /* $Id: postinst, v1.0 2019/11/30 VaderDarth Exp $ */
+# /* $Id: postrm, v1.0 2019/11/30 VaderDarth Exp $ */
 #
-# Post-install script for Debian package dashboard_tactics_pi<version>.deb
+# Post-removal script for Debian package dashboard_tactics_pi<version>.deb
 
-SCRIPTNAME="postinst"
+SCRIPTNAME="postrm"
 # Source definition
 OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
 DASHTPLUGINNAME="dashboard_tactics_pi"
@@ -20,22 +20,20 @@ then
     echo ""
     echo "${SCRIPTNAME} - not executed without root privileges, try with sudo(8)."
     echo "${SCRIPTFULLPATH}"
-    echo "- intedend to be executed as part of the *.deb package post-install"
+    echo "- intedend to be executed as part of the *.deb package post-removal"
     echo ""
     exit 1
 fi
 
-
-echo "Installing DashT scripted helper launchers in"
-mkdir -p ${TARGETBIN}
+echo "Removing DashT scripted helper launchers from"
 echo "${TARGETBIN}:"
-cp -f ${DASHTGLOBSCRIPTDIR}/dashtengine ${TARGETBIN}
-chown root.root ${TARGETBIN}/dashtengine
-echo "+ dashtengine" 
-cp -f ${DASHTGLOBSCRIPTDIR}/dashtdb ${TARGETBIN}
-chown root.root ${TARGETBIN}/dashtdb
-echo "+ dashtdb"
+rm -f {TARGETBIN}/dashtengine
+echo "- dashtengine"
+rm -f {TARGETBIN}/dashtdb
+echo "- dashtdb"
 
 echo "${SRIPTNAME} - Done."
 
 exit 0
+
+
