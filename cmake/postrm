@@ -25,14 +25,14 @@ then
     exit 1
 fi
 
-echo "Removing DashT scripted helper launchers from"
+echo "${SCRIPTNAME} - Removing DashT scripted helper launchers from"
 echo "${TARGETBIN}:"
 rm -f {TARGETBIN}/dashtengine
 echo "- dashtengine"
 rm -f {TARGETBIN}/dashtdb
 echo "- dashtdb"
 
-echo "${SRIPTNAME} - Done."
+echo "${SCRIPTNAME} - Done."
 
 exit 0
 

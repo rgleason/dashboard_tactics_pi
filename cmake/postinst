@@ -26,16 +26,18 @@ then
 fi
 
 
-echo "Installing DashT scripted helper launchers in"
+echo "${SCRIPTNAME} - Installing DashT scripted helper launchers into"
 mkdir -p ${TARGETBIN}
 echo "${TARGETBIN}:"
 cp -f ${DASHTGLOBSCRIPTDIR}/dashtengine ${TARGETBIN}
 chown root.root ${TARGETBIN}/dashtengine
+chmod 755 ${TARGETBIN}/dashtengine
 echo "+ dashtengine" 
 cp -f ${DASHTGLOBSCRIPTDIR}/dashtdb ${TARGETBIN}
 chown root.root ${TARGETBIN}/dashtdb
+chmod 755 ${TARGETBIN}/dashtdb
 echo "+ dashtdb"
 
-echo "${SRIPTNAME} - Done."
+echo "${SCRIPTNAME} - Done."
 
 exit 0
