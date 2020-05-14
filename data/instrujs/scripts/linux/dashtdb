@@ -1,79 +1,161 @@
 #!/usr/bin/env bash
-# /* $Id: postinst, v1.0 2019/11/30 VaderDarth Exp $ */
+# /* $Id: dashtdb, v1.0 2019/11/30 VaderDarth Exp $ */
 #
-# Post-install script for Debian package dashboard_tactics_pi<version>.deb
+# Launching Docker based services for DashT: nginx, infludb, grafana
 
-SCRIPTNAME="postinst"
+SCRIPTNAME="dashtdb"
+if [ -z "$1" -o "-?" = "$1" -o "--help" = "$1" ]
+then
+    echo ""
+    echo "${SCRIPTNAME} - Launching Docker based services for DashT: nginx, infludb, grafana"
+    echo "Usage:"
+    echo "      ${SCRIPTNAME} [start|up]"
+    echo "      ${SCRIPTNAME} [stop|down]"
+    echo ""
+    exit 1
+fi
+
 # Source definition
 OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
 DASHTPLUGINNAME="dashboard_tactics_pi"
 DASHTGLOBDATADIR="${OPLUGINGLOBDATADIR}/${DASHTPLUGINNAME}/data"
 DASHTGLOBINSTUJS="${DASHTGLOBDATADIR}/instrujs/"
 DASHTGLOBSCRIPTDIR="${DASHTGLOBDATADIR}/instrujs/scripts/linux"
-SCRIPTFULLPATH="${DASHTGLOBSCRIPTDIR}/${SCRIPTNAME}"
 # Target definition
 OPLUGINUSERDIR="${HOME}/.opencpnplugins"
 DASHTUSERDATADIR="${OPLUGINUSERDIR}/${DASHTPLUGINNAME}"
 DASHTUSERINSTRUJS="${DASHTUSERDATADIR}/instrujs"
 
-if [ "$EUID" -eq 0 ]
-then
-    echo "${SRIPTNAME} - not executed for root privileged user."
-    echo "${SCRIPTFULLPATH}"
-    exit -1
-fi
+# Check the resources needed
+
 if [ -z "${HOME}" ]
 then
-    echo "${SRIPTNAME} - cannot execute, do not have \$HOME variable for you."
-    echo "${SCRIPTFULLPATH}"
-    exit -1
+    echo "${SCRIPTNAME} - cannot execute, you do not have your \$HOME variable set."
+    exit 1
 fi
 
 if [ ! -d ${DASHTGLOBINSTUJS} ]
 then
     echo "${SCRIPTNAME} - ERROR: Folder does not exists:"
     echo "${DASHTGLOBINSTUJS}"
-    echo "I am supposed to source from that directory."
-    exit -1
+    echo "I am supposed to source from that directory. Have you DashT installed?"
+    exit 1
 fi
 
 if [ -d ${DASHTUSERINSTRUJS} ]
 then
     echo ""
-    echo "${SCRIPTNAME} - WARNING: Target directory,"
+    echo "${SCRIPTNAME} - Using existing data directory"
     echo "${DASHTUSERINSTRUJS}"
-    echo "exists."
-    echo "This script is one-time run only. Will not overwrite data."
+else
     echo ""
-    exit 0
+    echo "${SCRIPTNAME} - Preparing a data directory for first time usage,"
+    echo "${DASHTUSERINSTRUJS}"
+    echo ""
+    mkdir -p ${DASHTUSERINSTRUJS}
+    echo "${SCRIPTNAME} - Copying from InstruJS template to user folder."
+    echo "Source:"
+    echo "${DASHTGLOBINSTUJS}"
+    echo "Target:"
+    echo "${DASHTUSERINSTRUJS}"
+    cp -R ${DASHTGLOBINSTUJS}/* ${DASHTUSERINSTRUJS}
+    echo ""
+    echo "Tailoring docker-compose.yml for the data directory"
+    rm -f ${DASHTUSERINSTRUJS}/docker-compose.yml
+    mv ${DASHTUSERINSTRUJS}/docker-compose.yml.tmpl ${DASHTUSERINSTRUJS}/docker-compose.yml
+    sed -i "s#DASHTUSERINSTRUJS#${DASHTUSERINSTRUJS}#g" "${DASHTUSERINSTRUJS}/docker-compose.yml"
+    echo ""
+    echo "Assigning a local data folders for nginx (bind mount, read-only usage)"
+    echo ${DASHTUSERINSTRUJS}/nginx
+    echo ${DASHTUSERINSTRUJS}/www
+    echo ""
+    echo "Preparing grafana.grafana (472.472) system user - need your permission:"
+    sudo addgroup --system --quiet --gid 472 grafana
+    sudo adduser --system --quiet --shell /bin/false --no-create-home --uid 472 --gid 472 grafana
+    echo ""
+    echo "Assigning a local data folder for grafana.grafana (bind mount)"
+    echo ${DASHTUSERINSTRUJS}/grafana
+    sudo chown grafana.grafana ${DASHTUSERINSTRUJS}/grafana
+    echo "(note: remove with 'sudo rm -rf ${DASHTUSERINSTRUJS}/grafana'"
+    echo ""
+    echo "Assigning a local data folder for InfluxDB v2.0 (bind mount, root mapping)"
+    echo ${DASHTUSERINSTRUJS}/influxdb2
+    echo "(note: remove with 'sudo rm -rf ${DASHTUSERINSTRUJS}/influxdb2'"
+    echo ""
 fi
 
-mkdir -p ${DASHTUSERINSTRUJS}
 
-echo "${SCRIPTNAME} - Copying from InstruJS template to user folder."
-echo "Source:"
-echo "${DASHTGLOBINSTUJS}"
-echo "Target:"
-echo "${DASHTUSERINSTRUJS}"
+DOCKERCOMPOSE=$(which docker-compose)
+if [ -z "${DOCKERCOMPOSE}" ]
+then
+    DOCKEROK=$(dpkg-query -W --showformat='${Status}\n' docker 2>/dev/null |grep "install ok installed")
+    DOCKERCOMPOSEOK=$(dpkg-query -W --showformat='${Status}\n' docker-compose 2>/dev/null |grep "install ok installed")
+else
+    DOCKEROK=$(dpkg-query -W --showformat='${Status}\n' docker 2>/dev/null |grep "install ok installed")
+    DOCKERCOMPOSEOK="OK"
+fi
 
-cp -R ${DASHTGLOBINSTUJS}/* ${DASHTUSERINSTRUJS}
+if [ -z "${DOCKEROK}" ]
+then
+    if [ -z "${DOCKERCOMPOSEOK}" ]
+    then
+        echo "No Docker, nor Docker Composer installed, do you want to install? [Y/n]"
+    else
+        echo "No Docker installed, do you want to install? [Y/n]"
+    fi
+    read
+    if [ "$REPLY" = "Y" ]
+    then
+        sudo apt-get update
+        sudo apt-get install docker
+        sudo systemctl enable --now docker
+        if [ -z "${DOCKERCOMPOSEOK}" ]
+        then
+            sudo apt-get install docker-compose
+        fi
+    else
+        echo "OK, nothing installed"
+        exit 1
+    fi
+else
+    if [ -z "${DOCKERCOMPOSEOK}" ]
+    then
+        echo "No Docker Composer installed, do you want to install? [Y/n]"
+        read
+        if [ "$REPLY" = "Y" ]
+        then
+            sudo apt-get update
+            sudo apt-get install docker-compose
+        else
+            echo "OK, nothing installed"
+            exit 1
+        fi
+    fi
+fi
+
+cd ${DASHTUSERINSTRUJS}
+if [ "start" = "$1" -o "up" = "$1" ]
+then
+    docker-compose up -d
+else
+    docker-compose down
+fi
+
+if [ "start" = "$1" -o "up" = "$1" ]
+then
+    GRAFANAFLUXPLUGINDESCR="${DASHTUSERINSTRUJS}/grafana/plugins/grafana-influxdb-flux-datasource/docker-compose.yml"
+    if [ ! -f "${GRAFANAFLUXPLUGINDESCR}" ]
+    then
+        # Dependency on docker-compose.yml defined container name
+        GRAFANACONTAINERNAME="dasht_grafana"
+        echo ""
+        echo "Installing InfluxDB Flux as datasource plug-in into DashT Grafana service..."
+        DOCKERCLICMDARGS="exec -it ${GRAFANACONTAINERNAME} grafana-cli plugins install grafana-influxdb-flux-datasource"
+        docker ${DOCKERCLICMDARGS}
+    fi
+fi
 
 
-
-
-
-
-echo "Preparing DashTDB Docker"
-
-echo "Grafana instance r/w as grafana.grafana, system user and group"
-addgroup --system --quiet --gid 472 grafana
-adduser --system --quiet --shell /bin/false --no-create-home --uid 472 --gid 472 grafana
-
-
-
-
-
-
-echo "${SRIPTNAME} - Done."
+echo "${SCRIPTNAME} - Done."
 
 exit 0
