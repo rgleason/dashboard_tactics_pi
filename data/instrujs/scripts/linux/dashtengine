@@ -3,12 +3,38 @@
 #
 # Launching a simple node_modules http-server on instrujs folder
 
-echo "Launch simple, local http-server to provide DashT EngineDJG dials"
+echo "Launch a simple, local http-server to provide DashT EngineDJG dials"
+
+if [ -z "$1" ]
+then
+    PORT=8088
+else
+    PORT=$1
+fi
+
+# Source definition
+OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
+DASHTPLUGINNAME="dashboard_tactics_pi"
+DASHTGLOBDATADIR="${OPLUGINGLOBDATADIR}/${DASHTPLUGINNAME}/data"
+DASHTGLOBINSTUJS="${DASHTGLOBDATADIR}/instrujs/"
 
 HTTPSERVER=$(which http-server)
 if [ ! -z "${HTTPSERVER}" ]
 then
-    http-server /usr/share/opencpn/plugins/dashboard_tactics_pi/data/instrujs/ -p 8088
+    http-server ${DASHTGLOBINSTUJS} -p ${PORT}
+    if test $? -eq 0
+    then
+        exit 0
+    else
+        echo "---------------------------------------------------------------------------------"
+        echo "'dashtdb' launcher has a more advanced server incorporated in a container:"
+        echo "If there is an address clash with its port ${PORT}, you may want to:"
+        echo "* use the http service on port ${PORT} provided by 'dashtdb'"
+        echo "* change this one by providing another port number as argument"
+        echo "  - change also in opencpn.conf"
+        echo ""
+        exit 1
+    fi
 fi
 
 # Need to check how we can get http-server installed...
@@ -45,18 +71,30 @@ then
             echo ""
             echo "signalk-server installed. For configuration, refer to:"
             echo "https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk"
-            echo "Basically, you would first need to set it for your boat and your account, with:"
-            echo "sudo signalk-server-setup"
+            echo ""
+            echo "Do you want to configure SignalK Node Server now? [Y/n]"
+            echo "(You would need your boat's name, its MMSI if you have one and that's about it)"
+            read
+            if [ "$REPLY" = "Y" ]
+            then
+                sudo signalk-server-setup
+            else
+                echo "OK, you can do that later on with command:"
+                echo "sudo signalk-server-setup"
+            fi
             echo "--------------------------------------------------------------------------"
             echo ""
         else
             echo "Alright, but remember that a Signal K server must exists _somewhere_"
-            echo "to feed EngineDJG dials, they need NMEA-2000 data."
+            echo "to feed EngineDJG dials, they would starve without NMEA-2000 data."
         fi
         echo "Launching now the HTTP-server"
     else
         echo "OK, nothing installed."
-        echo "If you plan to use an other local server, like Apache set it on port 8088"
+        echo "If you plan to use an other local server, like Apache set it on port 8088:"
+        echo "- port can be changed in opencpn.conf"
+        echo "- html/js files are in folder:"
+        echo "  ${DASHTGLOBINSTUJS}"
         exit 1
     fi
 else
@@ -76,6 +114,16 @@ fi
 
 npm list -g | grep http-server || sudo npm install -g http-server --no-shrinkwrap
 
-http-server /usr/share/opencpn/plugins/dashboard_tactics_pi/data/instrujs/ -p 8088
+http-server ${DASHTGLOBINSTUJS} -p ${PORT}
 
-exit 0
+if test $? -eq 0
+then
+    exit 0
+else
+    echo ""
+    echo "----------------------------------------------------------------------"
+    echo "Do you have other services, like 'dashdb' running on the same ${PORT}?"
+    echo ""
+    exit 1
+fi
+
