@@ -146,12 +146,17 @@ then
     GRAFANAFLUXPLUGINDESCR="${DASHTUSERINSTRUJS}/grafana/plugins/grafana-influxdb-flux-datasource/docker-compose.yml"
     if [ ! -f "${GRAFANAFLUXPLUGINDESCR}" ]
     then
+        sleep 3
         # Dependency on docker-compose.yml defined container name
         GRAFANACONTAINERNAME="dasht_grafana"
         echo ""
         echo "Installing InfluxDB Flux as datasource plug-in into DashT Grafana service..."
         DOCKERCLICMDARGS="exec -it ${GRAFANACONTAINERNAME} grafana-cli plugins install grafana-influxdb-flux-datasource"
         docker ${DOCKERCLICMDARGS}
+        sleep 3
+        docker-compose down
+        sleep 3
+        docker-compose up -d
     fi
 fi
 
