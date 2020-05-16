@@ -42,10 +42,8 @@
 #include <typeinfo>
 #include "dashboard_pi.h"
 
-#ifdef _TACTICSPI_H_
 #include <random>
 using namespace std;
-#endif // _TACTICSPI_H_
 
 #include "icons.h"
 #include "wx/jsonreader.h"
@@ -66,18 +64,14 @@ int g_iDashSOGDamp;
 int g_iDashDepthUnit;
 int g_iDashDistanceUnit;
 int g_iDashWindSpeedUnit;
-#ifdef _TACTICSPI_H_
 int g_iDashTemperatureUnit;
-#endif // _TACTICSPI_H_
 int g_iUTCOffset;
 double g_dDashDBTOffset;
 
-#ifdef _TACTICSPI_H_
 #include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (dashboard_pi, wxTimer)
 EVT_TIMER (myID_THREAD_AVGWIND, dashboard_pi::OnAvgWindUpdTimer)
 wxEND_EVENT_TABLE ()
-#endif // _TACTICSPI_H_
 
 #if !defined(NAN)
 static const long long lNaN = 0xfff8000000000000;
@@ -86,9 +80,7 @@ static const long long lNaN = 0xfff8000000000000;
 
 #include "plugin_static_ids.h"
 
-#ifdef _TACTICSPI_H_
 const char *dashboard_pi::s_common_name = "Dashboard_Tactics";
-#endif // _TACTICSPI_H_
 
 // the class factories, used to create and destroy instances of the PlugIn
 
@@ -110,11 +102,7 @@ extern "C" DECL_EXP void destroy_pi( opencpn_plugin* p )
 // !!! WARNING !!!
 // do not change the order, add new instruments at the end, before ID_DBP_LAST_ENTRY!
 // otherwise, for users with an existing opencpn.ini file, their instruments are changing !
-#ifndef _TACTICSPI_H_
-enum {
-#else
 enum eInstruments {
-#endif // _TACTICSPI_H_
     ID_DBP_I_POS, ID_DBP_I_SOG, ID_DBP_D_SOG, ID_DBP_I_COG, ID_DBP_D_COG, ID_DBP_I_STW,
     ID_DBP_I_HDT, ID_DBP_D_AW, ID_DBP_D_AWA, ID_DBP_I_AWS, ID_DBP_D_AWS, ID_DBP_D_TW,
     ID_DBP_I_DPT, ID_DBP_D_DPT, ID_DBP_I_TMP, ID_DBP_I_VMG, ID_DBP_D_VMG, ID_DBP_I_RSA,
@@ -123,7 +111,6 @@ enum eInstruments {
     ID_DBP_D_TWD, ID_DBP_I_HDM, ID_DBP_D_HDT, ID_DBP_D_WDH, ID_DBP_I_VLW1, ID_DBP_I_VLW2,
     ID_DBP_D_MDA,ID_DBP_I_MDA,ID_DBP_D_BPH, ID_DBP_I_FOS, ID_DBP_M_COG, ID_DBP_I_PITCH,
     ID_DBP_I_HEEL, ID_DBP_D_AWA_TWA, ID_DBP_I_GPSLCL, ID_DBP_I_CPULCL, ID_DBP_I_SUNLCL,
-#ifdef _TACTICSPI_H_
     /* The below lines are allows the base dashboard code defining more instruments:
        If there will be new instruments (now after ID_DBP_I_SUNLCL), remove the same
        number of these "buffer" (between the Dashboard and Tactics)  enumeration values.
@@ -146,25 +133,21 @@ enum eInstruments {
     ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,
     /* the section end marker, do not remove */
     ID_DPB_PERF_LAST,
-#endif // _TACTICSPI_H_
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
                          setting the reference to it, is one codeline less to change (and find)
                          when adding new instruments :-) */
 };
 
-#ifdef _TACTICSPI_H_
 // This function can be used to separate the original dashboard instruments from the original dashboard instruments
 bool IsTacticsInstrument( int id ) {
     if ( id > ID_DPB_PERF_FIRST && id < ID_DPB_PERF_LAST )
         return true;
     return false;
 }
-#endif // _TACTICSPI_H_
 
 bool IsObsolete( int id ) {
     switch( id ) {
     case ID_DBP_D_AWA:
-#ifdef _TACTICSPI_H_
         /* Please see above, placeholders for eventual new dashboard_pi insteuments shall go
            before tactics_pi instruments: the eInstruments enumeration and this
            "obsolence" list, a placeholder between the two instrument lists must match. */
@@ -192,7 +175,6 @@ bool IsObsolete( int id ) {
     case ID_DBP_R_EABD:
     case ID_DBP_R_EABE:
     case ID_DBP_R_EABF:
-#endif // _TACTICSPI_H_
         return true;
     default:
         return false;
@@ -295,7 +277,6 @@ wxString getInstrumentCaption( unsigned int id )
         return _( "Local CPU Clock" );
     case ID_DBP_I_SUNLCL:
         return _( "Local Sunrise/Sunset" );
-#ifdef _TACTICSPI_H_
 	case  ID_DBP_I_LEEWAY:
 		return _(L"\u2191Leeway");
     case ID_DBP_I_TWAMARK:
@@ -336,7 +317,6 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2b24 DashT E-Dial");
     case ID_DBP_D_TSETUI: 
 		return _(L"\u2b24 DashT Line Chart");
-#endif // _TACTICSPI_H_
     }
     return _T("");
 }
@@ -379,7 +359,6 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_I_FOS:
     case ID_DBP_I_PITCH:
     case ID_DBP_I_HEEL:
-#ifdef _TACTICSPI_H_
 	case ID_DBP_I_LEEWAY:
     case ID_DBP_I_TWAMARK:
 	case ID_DBP_I_CURRDIR:
@@ -393,7 +372,6 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_I_POLTCMGANGLE:
     case ID_DBP_V_IFLX:
     case ID_DBP_V_INSK:
-#endif // _TACTICSPI_H_
         item.SetImage( 0 );
         break;
     case ID_DBP_D_SOG:
@@ -413,14 +391,12 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_D_MON:
     case ID_DBP_D_WDH:
     case ID_DBP_D_BPH:
-#ifdef _TACTICSPI_H_
 	case ID_DBP_D_BRG:
 	case ID_DBP_D_POLPERF:
 	case ID_DBP_D_AVGWIND:
 	case ID_DBP_D_POLCOMP:
     case ID_DBP_D_ENGDJG:
     case ID_DBP_D_TSETUI:
-#endif // _TACTICSPI_H_
         item.SetImage( 1 );
         break;
     }
@@ -430,16 +406,11 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 /*  These two function were taken from gpxdocument.cpp (route_pi) */
 int GetRandomNumber(int range_min, int range_max)
 {
-#ifdef _TACTICSPI_H_
     // C++ 2011 and greater, instead of rand() which gives non-uniform results w/ float
     std::random_device rd; // pseudo or real random device (non-cryptographic)
     std::mt19937 mt( rd() ); // Fast and cross-platform consistent; Matsumoto and Nishimura, 1998
     std::uniform_int_distribution<int> iRandomRange(range_min, range_max); // Park, Miller, and Stockmeyer, 1988, 1993
     return iRandomRange( mt );
-#else
-    long u = (long)wxRound(((double)rand() / ((double)(RAND_MAX) + 1) * (range_max - range_min)) + range_min);
-    return (int)u;
-#endif // _TACTICSPI_H_
 }
 
 
@@ -490,7 +461,6 @@ wxString MakeName()
     return _T("DASH_") + GetUUID();
 }
 
-#ifdef _TACTICSPI_H_
 // implement rule for *TMP and *ATMP sentences according g_iDashTemperatureUnit selection (C=0, F=1)
 void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &TemperatureUnitOfMeasurement)
 {
@@ -508,7 +478,6 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
     TemperatureValue = (TemperatureValue - 32.0) / 1.8;
     return;
 }
-#endif // _TACTICSPI_H_
 //---------------------------------------------------------------------------------------------------------
 //
 //          PlugIn initialization and de-init
@@ -516,13 +485,8 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
 //---------------------------------------------------------------------------------------------------------
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
-#ifdef _TACTICSPI_H_
     tactics_pi(), wxTimer( this ), opencpn_plugin_112( ppimgr )
-#else
-     wxTimer( this ), opencpn_plugin_16( ppimgr )
-#endif // _TACTICSPI_H_
 {
-#ifdef _TACTICSPI_H_
     m_nofStreamOut = 0;
     std::unique_lock<std::mutex> init_m_mtxNofStreamOut( m_mtxNofStreamOut, std::defer_lock );
     m_echoStreamerShow = wxEmptyString;
@@ -533,7 +497,6 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
     m_pluginFrame = NULL;
-#endif // _TACTICSPI_H_
     m_NMEA0183 = new NMEA0183();
     mPriPosition = 99;
     mPriCOGSOG = 99;
@@ -553,13 +516,11 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
     mVar_Watchdog = 2;
-#ifdef _TACTICSPI_H_
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
-#endif // _TACTICSPI_H_
 
     // Create the PlugIn icons
     initialize_images();
@@ -578,11 +539,7 @@ dashboard_pi::~dashboard_pi( void )
 
 int dashboard_pi::Init( void )
 {
-#ifdef _TACTICSPI_H_
     AddLocaleCatalog( _T("opencpn-dashboard_tactics_pi") );
-#else
-    AddLocaleCatalog( _T("opencpn-dashboard_pi") );
-#endif // _TACTICSPI_H_
 
     g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -590,71 +547,40 @@ int dashboard_pi::Init( void )
     g_pFontSmall = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
 
     m_pauimgr = GetFrameAuiManager();
-#ifdef _TACTICSPI_H_
     m_pluginFrame = m_pauimgr->GetManagedWindow();
     m_pauimgr->Connect( wxEVT_AUI_RENDER, wxAuiManagerEventHandler( dashboard_pi::OnAuiRender ),
                         NULL, this );
-#else
-    m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
-                        NULL, this );
-#endif //  _TACTICSPI_H_
 
     //    Get a pointer to the opencpn configuration object
     m_pconfig = GetOCPNConfigObject();
 
     //    And load the configuration items
 
-#ifdef _TACTICSPI_H_
     m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
     // Tick for average wind calculations is taken care in Tactics class, we host the timers  
     m_avgWindUpdTimer = new wxTimer ( this, myID_THREAD_AVGWIND );
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
-#endif //  _TACTICSPI_H_
 
     LoadConfig();
 
 #ifdef OCPN_USE_SVG
     m_toolbar_item_id = InsertPlugInToolSVG(
         this->GetCommonName(),
-#ifdef _TACTICSPI_H_
         _svg_dashboard_tactics, _svg_dashboard_tactics_rollover, _svg_dashboard_tactics_toggled,
-#else
-        _svg_dashboard, _svg_dashboard_rollover, _svg_dashboard_toggled,
-#endif // _TACTICSPI_H_
         wxITEM_CHECK, this->GetShortDescription(), _T( "" ), NULL, DASHBOARD_TOOL_POSITION, 0, this);
 #else
     // Use memory allocated PNG-images (icons.cpp)
     m_toolbar_item_id = InsertPlugInTool
         (_T(""),
-#ifdef _TACTICSPI_H_
          _img_dashboard_tactics_pi, _img_dashboard_tactics_pi,
-#else
-         _img_dashboard_pi, _img_dashboard_pi,
-#endif // _TACTICSPI_H_
          wxITEM_CHECK, this->GetCommonName(), _T(""), NULL,
          DASHBOARD_TOOL_POSITION, 0, this);
 #endif // OCPN_USE_SVG
 
-#ifndef _TACTICSPI_H_
-    /* porting note: I reckon that this is obsolete in ov50, but since the code is there
-       let's keep it in the non-Tactics-version compilation. */
-    if(GetActiveStyleName().Lower() != _T("traditional")){
-        wxString normalIcon = _T("");
-        wxString toggledIcon = _T("");
-        wxString rolloverIcon = _T("");
-        m_toolbar_item_id = InsertPlugInToolSVG(
-            _T(""), normalIcon, rolloverIcon, toggledIcon, wxITEM_CHECK,
-            _("Dashboard"), _T(""), NULL,DASHBOARD_TOOL_POSITION, 0, this);
-    }
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     bool init = true;
     ApplyConfig( init );
-#else
-    ApplyConfig();
-#endif // _TACTICSPI_H_
 
     //  If we loaded a version 1 config setup, convert now to version 2
     if(m_config_version == 1) {
@@ -663,25 +589,12 @@ int dashboard_pi::Init( void )
 
     Start( 1000, wxTIMER_CONTINUOUS );
 
-#ifdef _TACTICSPI_H_
     m_iPlugInRequirements = // dashboard_pi requirements
         WANTS_CURSOR_LATLON | WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL |
         WANTS_PREFERENCES   | WANTS_CONFIG           | WANTS_NMEA_SENTENCES  |
         WANTS_NMEA_EVENTS   | USES_AUI_MANAGER       | WANTS_PLUGIN_MESSAGING;
     m_iPlugInRequirements = what_tactics_pi_wants | m_iPlugInRequirements;
     return m_iPlugInRequirements;
-#else
-    return (
-        WANTS_CURSOR_LATLON |
-        WANTS_TOOLBAR_CALLBACK |
-        INSTALLS_TOOLBAR_TOOL |
-        WANTS_PREFERENCES |
-        WANTS_CONFIG |
-        WANTS_NMEA_SENTENCES |
-        WANTS_NMEA_EVENTS |
-        USES_AUI_MANAGER |
-        WANTS_PLUGIN_MESSAGING );
-#endif //  _TACTICSPI_H_
 }
 
 bool dashboard_pi::DeInit( void )
@@ -710,11 +623,9 @@ bool dashboard_pi::DeInit( void )
     delete g_pFontLabel;
     delete g_pFontSmall;
 
-#ifdef _TACTICSPI_H_
     this->m_avgWindUpdTimer->Stop();
     delete this->m_avgWindUpdTimer;
     return this->TacticsDeInit();
-#endif //  _TACTICSPI_H_
 
     return true;
 }
@@ -749,7 +660,6 @@ void dashboard_pi::Notify()
         mVar_Watchdog = gps_watchdog_timeout_ticks;
     }
 
-#ifdef _TACTICSPI_H_
     mStW_Watchdog--;
     if( mStW_Watchdog <= 0 ) {
         SendSentenceToAllInstruments( OCPN_DBP_STC_STW, NAN, "" );
@@ -757,7 +667,6 @@ void dashboard_pi::Notify()
     }
     if ( mSiK_Watchdog > 0)
         mSiK_Watchdog--;
-#endif // _TACTICSPI_H_
 
     mGPS_Watchdog--;
     if( mGPS_Watchdog <= 0 ) {
@@ -774,7 +683,6 @@ void dashboard_pi::Notify()
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
         mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
-#ifdef _TACTICSPI_H_
     this->TacticsNotify();
 
     if ( APPLYSAVEWINREQUESTED ) {
@@ -782,11 +690,9 @@ void dashboard_pi::Notify()
         SaveConfig();
     }
     APPLYSAVEWINSERVED;
-#endif //  _TACTICSPI_H_
     return;
 }
 
-#ifdef _TACTICSPI_H_
 void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
 {
     this->OnAvgWindUpdTimer_Tactics();
@@ -821,7 +727,6 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
         } // then valid dashboard window in the container
     } // for number of dashboard windows in the container
 }
-#endif //  _TACTICSPI_H_
 
 int dashboard_pi::GetAPIVersionMajor()
 {
@@ -845,14 +750,9 @@ int dashboard_pi::GetPlugInVersionMinor()
 
 wxBitmap *dashboard_pi::GetPlugInBitmap()
 {
-#ifdef _TACTICSPI_H_
     return new wxBitmap(_img_dashboard_tactics_pi->ConvertToImage().Copy());
-#else
-    return new wxBitmap(_img_dashboard_pi->ConvertToImage().Copy());
-#endif // _TACTICSPI_H_
 }
 
-#ifdef _TACTICSPI_H_
 wxString dashboard_pi::GetNameVersion()
 {
     char name_version[32];
@@ -866,42 +766,27 @@ wxString dashboard_pi::GetCommonNameVersion()
     wxString retstr ( GetCommonName() + " " + GetNameVersion() );
     return retstr;
 }
-#endif // _TACTICSPI_H_
 
 wxString dashboard_pi::GetCommonName()
 {
-#ifdef _TACTICSPI_H_
     wxString retstr( s_common_name );
     return retstr;
-#else
-    return _("Dashboard");
-#endif // _TACTICSPI_H_
 }
 
 
 wxString dashboard_pi::GetShortDescription()
 {
-#ifdef _TACTICSPI_H_
     return _("Dashboard and Tactics");
-#else
-    return _("Dashboard");
-#endif // _TACTICSPI_H_
     
 }
 
 wxString dashboard_pi::GetLongDescription()
 {
-#ifdef _TACTICSPI_H_
     return _("Dashboard PlugIn with Tactics for OpenCPN\n\
 Provides navigation instruments enhanced with performance functions and alternative input/output functions.");
-#else
-    return _("Dashboard PlugIn for OpenCPN\n\
-Provides navigation instrument display from NMEA source.");
-#endif // _TACTICSPI_H_
 
 }
 
-#ifdef _TACTICSPI_H_
 wxString dashboard_pi::GetStandardPath()
 {
     wxString s = wxFileName::GetPathSeparator();
@@ -919,10 +804,8 @@ wxString dashboard_pi::GetStandardPath()
     stdPath += s;
     return stdPath;
 }
-#endif // _TACTICSPI_H_
 
 
-#ifdef _TACTICSPI_H_
 /* Porting note: this section is the cornerstone of the Tactics porting effort.
    The below private method is about the original dashboard's simple and real
    method: it merely passes to dashboard instruments the NMEA sentences. Now,
@@ -1050,20 +933,6 @@ void dashboard_pi::SendDataToAllPathSubscribers (
     }
 }
 
-#else
-
-void dashboard_pi::SendSentenceToAllInstruments(
-    int st, double value, wxString unit )
-{
-    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindow *dashboard_window =
-            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
-        if( dashboard_window )
-            dashboard_window->SendSentenceToAllInstruments(
-                st, value, unit );
-    }
-}
-#endif // _TACTICSPI_H_
 
 void dashboard_pi::SendUtcTimeToAllInstruments( wxDateTime value )
 {
@@ -1081,7 +950,6 @@ void dashboard_pi::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[
     }
 }
 
-#ifdef _TACTICSPI_H_
 void dashboard_pi::SetNMEASentence(wxString &sentence)
 {
     this->SetNMEASentence (sentence,
@@ -1092,14 +960,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or from Signal K input
     wxString &sentence, wxString *type, wxString *sentenceId, wxString *talker, wxString *src,
     int pgn, wxString *path, double value, wxString *valStr, long long timestamp, wxString *key)
-#else
-void dashboard_pi::SetNMEASentence(wxString &sentence)
-#endif // _TACTICSPI_H_
 	
 {
 
     
-#ifdef _TACTICSPI_H_
     bool SignalK = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
     if ( (type != NULL) && (sentenceId != NULL) && (talker != NULL) &&
@@ -1130,10 +994,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
     } // else this is NMEA-0183 coming via OpenCPN
 
     if ( !SignalK ) {
-#else
-        (*m_NMEA0183) << sentence;
-        if ( m_NMEA0183->PreParse() ) {
-#endif // _TACTICSPI_H_
 
         if( m_NMEA0183->LastSentenceIDReceived == _T("DBT") ) {
             if( m_NMEA0183->Parse() ) {
@@ -1264,7 +1124,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         0.0 != m_NMEA0183->Hdg.MagneticVariationDegrees)
                     {
                         mPriVar = 2;
-#ifdef _TACTICSPI_H_
                         /* Porting note: I am bit puzzled by this: here we override the mVar
                            which was initially provided by O, in Plugin_Position_Fix().
                            So, we trust the instrument. Fine. But Plugin_Position_Fix()
@@ -1275,13 +1134,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                            and the instrument do not agree, the below leads to a toggling
                            mVar value, and as consequence to toggling mHdt value in Tactics.
                         */
-#endif // _TACTICSPI_H_
                         if( m_NMEA0183->Hdg.MagneticVariationDirection == East )
                             mVar =  m_NMEA0183->Hdg.MagneticVariationDegrees;
                         else if( m_NMEA0183->Hdg.MagneticVariationDirection == West )
                             mVar = -m_NMEA0183->Hdg.MagneticVariationDegrees;
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
-#ifdef _TACTICSPI_H_
                         /* Porting note: Why not rearm the mVar_Watchdog?
                            Answer: it does not matter. We get anyway the mVar from O's 'fix'
                            which distributes it to all plugins including us. Here it
@@ -1290,7 +1147,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                            interpret NMEA-sentences.
                         */
                         mVar_Watchdog = gps_watchdog_timeout_ticks;
-#endif // _TACTICSPI_H_
                     }
 
                 }
@@ -1307,14 +1163,12 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 if( !std::isnan(m_NMEA0183->Hdg.MagneticSensorHeadingDegrees) ) {
                     if( !std::isnan( mVar )  && (mPriHeadingT > 3) ){
                         mPriHeadingT = 4;
-#ifdef _TACTICSPI_H_
                         /* Porting note: tactics_pi has contained the below corrections
                            since 2015, in "HDG" and in "HDM" with a class variable.Now, in  ov50,
                            the correction has been implemented in dashboard_pi, but with
                            a local variable. Since tactics_pi does not use the class
                            variable anywhere, we retain the solution of dashboard_pi.
                            (You can delete this note and the conditional compilation) */
-#endif // _TACTICSPI_H_
                         double heading = mHdm + mVar;
                         if (heading < 0)
                             heading += 360;
@@ -1375,15 +1229,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                   double   m_NMEA0183->Mta.Temperature;
                   wxString m_NMEA0183->Mta.UnitOfMeasurement;
                 */
-#ifdef _TACTICSPI_H_
                 double TemperatureValue               = m_NMEA0183->Mta.Temperature;
                 wxString TemperatureUnitOfMeasurement = m_NMEA0183->Mta.UnitOfMeasurement;
                 checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                 SendSentenceToAllInstruments( OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
-#else
-                SendSentenceToAllInstruments( OCPN_DBP_STC_ATMP, m_NMEA0183->Mta.Temperature,
-                                              m_NMEA0183->Mta.UnitOfMeasurement );
-#endif // _TACTICSPI_H_
             }
         }
 
@@ -1413,15 +1262,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                   double   m_NMEA0183->Mtw.Temperature;
                   wxString m_NMEA0183->Mtw.UnitOfMeasurement;
                 */
-#ifdef _TACTICSPI_H_
                 double TemperatureValue = m_NMEA0183->Mtw.Temperature;
                 wxString TemperatureUnitOfMeasurement = m_NMEA0183->Mtw.UnitOfMeasurement;
                 checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                 SendSentenceToAllInstruments( OCPN_DBP_STC_TMP, TemperatureValue, TemperatureUnitOfMeasurement );
-#else
-                SendSentenceToAllInstruments( OCPN_DBP_STC_TMP, m_NMEA0183->Mtw.Temperature,
-                                              m_NMEA0183->Mtw.UnitOfMeasurement );
-#endif // _TACTICSPI_H_
             }
 
         }
@@ -1432,11 +1276,9 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                   double   m_NMEA0183->Vlw.TotalMileage;
                   double   m_NMEA0183->Vlw.TripMileage;
                 */
-#ifdef _TACTICSPI_H_
                 /* Porting note: tactics_pi has the below two sentence commented out,
                    for no obvious reason. dashboard_pi solution is retained.
                    (You can delete this note and the conditional compilation) */
-#endif // _TACTICSPI_H_
                 SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1, toUsrDistance_Plugin( m_NMEA0183->Vlw.TripMileage, g_iDashDistanceUnit ),
                                               getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ) );
 
@@ -1453,28 +1295,20 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 if( m_NMEA0183->Mwd.WindAngleTrue < 999. ) { //if WindAngleTrue is available, use it ...
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWD, m_NMEA0183->Mwd.WindAngleTrue,
                                                   _T("\u00B0T") );
-#ifdef _TACTICSPI_H_
                     this->SetNMEASentence_Arm_TWD_Watchdog();
-#endif // _TACTICSPI_H_
                 } else if( m_NMEA0183->Mwd.WindAngleMagnetic < 999. ) { //otherwise try WindAngleMagnetic ...
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWD, m_NMEA0183->Mwd.WindAngleMagnetic,
                                                   _T("\u00B0M") );
-#ifdef _TACTICSPI_H_
                     this->SetNMEASentence_Arm_TWD_Watchdog();
-#endif // _TACTICSPI_H_
                 }
-#ifdef _TACTICSPI_H_
                 if (!this->SetNMEASentenceMWD_NKEbug(m_NMEA0183->Mwd.WindSpeedKnots)) {
-#endif // _TACTICSPI_H_
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_TWS, toUsrSpeed_Plugin( m_NMEA0183->Mwd.WindSpeedKnots, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_TWS2, toUsrSpeed_Plugin( m_NMEA0183->Mwd.WindSpeedKnots, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-#ifdef _TACTICSPI_H_
                 } // then NKEbug hunt activated and condition for it detected, drop.
-#endif // _TACTICSPI_H_
                 //m_NMEA0183->Mwd.WindSpeedms
             }
         }
@@ -1494,21 +1328,13 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                             wxString m_awaunit;
                             double m_awaangle;
                             if (m_NMEA0183->Mwv.WindAngle >180) {
-#ifdef _TACTICSPI_H_
                                 m_awaunit = L"\u00B0lr"; // == wind arrow on port side
-#else
-                                m_awaunit = _T("\u00B0L");
-#endif // _TACTICSPI_H_
 
                                 
                                 m_awaangle = 180.0 - (m_NMEA0183->Mwv.WindAngle - 180.0);
                             }
                             else {
-#ifdef _TACTICSPI_H_
                                 m_awaunit = L"\u00B0rl"; // == wind arrow on starboard side
-#else
-                                m_awaunit = _T("\u00B0R");
-#endif // _TACTICSPI_H_
                                 m_awaangle = m_NMEA0183->Mwv.WindAngle;
                             }
                             SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
@@ -1517,9 +1343,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                           toUsrSpeed_Plugin( m_NMEA0183->Mwv.WindSpeed * m_wSpeedFactor,
                                                                              g_iDashWindSpeedUnit ),
                                                           getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-#ifdef _TACTICSPI_H_
                             this->SetNMEASentence_Arm_AWS_Watchdog();
-#endif // _TACTICSPI_H_
                         }
                     }
 
@@ -1529,19 +1353,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                             wxString m_twaunit;
                             double m_twaangle;
                             if (m_NMEA0183->Mwv.WindAngle >180) {
-#ifdef _TACTICSPI_H_
                                 m_twaunit = L"\u00B0lr";  // == wind arrow on port side
-#else
-                                m_twaunit = _T("\u00B0L");
-#endif // _TACTICSPI_H_
                                 m_twaangle = 180.0 - (m_NMEA0183->Mwv.WindAngle - 180.0);
                             }
                             else {
-#ifdef _TACTICSPI_H_
                                 m_twaunit = L"\u00B0rl";  // == wind arrow on starboard side
-#else
-                                m_twaunit = _T("\u00B0R");
-#endif // _TACTICSPI_H_
                                 m_twaangle = m_NMEA0183->Mwv.WindAngle;
                             }
                             SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
@@ -1554,16 +1370,13 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                                           toUsrSpeed_Plugin( m_NMEA0183->Mwv.WindSpeed * m_wSpeedFactor,
                                                                              g_iDashWindSpeedUnit ),
                                                           getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-#ifdef _TACTICSPI_H_
                             this->SetNMEASentence_Arm_TWS_Watchdog();
-#endif // _TACTICSPI_H_
                         }
                     }
                 }
             }
         }
 
-#ifdef _TACTICSPI_H_
         else if (m_NMEA0183->LastSentenceIDReceived == _T("RMB")) {
             if (m_NMEA0183->Parse()) {
                 if (m_NMEA0183->Rmb.IsDataValid == NTrue) {
@@ -1595,7 +1408,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 } // then valid data
             } // then sentence parse OK
         } // then last sentence is RMB
-#endif // _TACTICSPI_H_
 
         else if( m_NMEA0183->LastSentenceIDReceived == _T("RMC") ) {
             if( m_NMEA0183->Parse() ) {
@@ -1711,9 +1523,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 if( m_NMEA0183->Vhw.Knots < 999. ) {
                     SendSentenceToAllInstruments( OCPN_DBP_STC_STW, toUsrSpeed_Plugin( m_NMEA0183->Vhw.Knots, g_iDashSpeedUnit ),
                                                   getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
-#ifdef _TACTICSPI_H_
                     mStW_Watchdog = gps_watchdog_timeout_ticks;
-#endif // _TACTICSPI_H_
                 }
 
                 if( !std::isnan(m_NMEA0183->Vhw.DegreesMagnetic) )
@@ -1759,20 +1569,14 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     mPriAWA = 2;
 
                     wxString awaunit;
-#ifdef _TACTICSPI_H_
                     awaunit = m_NMEA0183->Vwr.DirectionOfWind == Left ? L"\u00B0lr" : L"\u00B0rl";
-#else
-                    awaunit = m_NMEA0183->Vwr.DirectionOfWind == Left ? _T("\u00B0L") : _T("\u00B0R");
-#endif // _TACTICSPI_H_
                     SendSentenceToAllInstruments( OCPN_DBP_STC_AWA,
                                                   m_NMEA0183->Vwr.WindDirectionMagnitude, awaunit );
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_AWS, toUsrSpeed_Plugin(
                             m_NMEA0183->Vwr.WindSpeedKnots, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-#ifdef _TACTICSPI_H_
                     this->SetNMEASentence_Arm_AWS_Watchdog();
-#endif // _TACTICSPI_H_
                     /*
                       double m_NMEA0183->Vwr.WindSpeedms;
                       double m_NMEA0183->Vwr.WindSpeedKmh;
@@ -1790,11 +1594,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 if( mPriTWA >= 2 ) {
                     mPriTWA = 2;
                     wxString vwtunit;
-#ifdef _TACTICSPI_H_
                     vwtunit = m_NMEA0183->Vwt.DirectionOfWind == Left ? L"\u00B0lr" : L"\u00B0rl";
-#else
-                    vwtunit = m_NMEA0183->Vwt.DirectionOfWind == Left ? _T("\u00B0L") : _T("\u00B0R");
-#endif // _TACTICSPI_H_
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
                                                   m_NMEA0183->Vwt.WindDirectionMagnitude, vwtunit );
                     SendSentenceToAllInstruments(
@@ -1830,18 +1630,12 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     xdrdata = m_NMEA0183->Xdr.TransducerInfo[i].Data;
                     // XDR Airtemp
                     if (m_NMEA0183->Xdr.TransducerInfo[i].Type == _T("C")) {
-#ifdef _TACTICSPI_H_
                         double TemperatureValue               = xdrdata;
                         wxString TemperatureUnitOfMeasurement = m_NMEA0183->Xdr.TransducerInfo[i].Unit;
                         checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
-#else
-                        SendSentenceToAllInstruments(
-                            OCPN_DBP_STC_ATMP, xdrdata , m_NMEA0183->Xdr.TransducerInfo[i].Unit);
-#endif // _TACTICSPI_H_
                     }
-#ifdef _TACTICSPI_H_
                     // NKE style of XDR Airtemp etc. cf. original Tactics Plugin
                     if (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("AirTemp") ||
                         m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ENV_OUTAIR_T") ||
@@ -1852,7 +1646,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
                     }
-#endif // _TACTICSPI_H_
                     // XDR Pressure
                     if (m_NMEA0183->Xdr.TransducerInfo[i].Type == _T("P")) {
                         if (m_NMEA0183->Xdr.TransducerInfo[i].Unit == _T("B")) {
@@ -1865,46 +1658,24 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         if (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("PTCH")
                             || m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("PITCH")) {
                             if (m_NMEA0183->Xdr.TransducerInfo[i].Data > 0) {
-#ifdef _TACTICSPI_H_
                                 xdrunit = L"\u00B0u";
-#else
-                                xdrunit = _T("\u00B0 Nose up");
-#endif // _TACTICSPI_H_                                
                             }
                             else if (m_NMEA0183->Xdr.TransducerInfo[i].Data < 0) {
-#ifdef _TACTICSPI_H_
                                 xdrunit = L"\u00B0d";
-#else
-                                xdrunit = _T("\u00B0 Nose down");
-                                xdrdata *= -1;
-#endif // _TACTICSPI_H_                                
                             }
                             else {
                                 xdrunit = _T("\u00B0");
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_PITCH, xdrdata, xdrunit);
                         }
-#ifdef _TACTICSPI_H_
                         else if ((m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
                                  (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("Heel Angle")))
-#else
-                        else if (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL"))
-#endif // _TACTICSPI_H_
                         {
                             if (m_NMEA0183->Xdr.TransducerInfo[i].Data > 0) {
-#ifdef _TACTICSPI_H_
                                 xdrunit = L"\u00B0r";
-#else
-                                xdrunit = _T("\u00B0 to Starboard");
-#endif // _TACTICSPI_H_
                             }
                             else if (m_NMEA0183->Xdr.TransducerInfo[i].Data < 0) {
-#ifdef _TACTICSPI_H_
                                 xdrunit = L"\u00B0l";
-#else
-                                xdrunit = _T("\u00B0 to Port");
-                                xdrdata *= -1;
-#endif // _TACTICSPI_H_
                             }
                             else {
                                 xdrunit = _T("\u00B0");
@@ -1913,17 +1684,11 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         } 
                         //Nasa style water temp
                         else if (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ENV_WATER_T")){
-#ifdef _TACTICSPI_H_
                             double TemperatureValue               = xdrdata;
                             wxString TemperatureUnitOfMeasurement = m_NMEA0183->Xdr.TransducerInfo[i].Unit;
                             checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                             SendSentenceToAllInstruments(
                                 OCPN_DBP_STC_ATMP, TemperatureValue, TemperatureUnitOfMeasurement );
-#else
-                            SendSentenceToAllInstruments(
-                                OCPN_DBP_STC_TMP,
-                                m_NMEA0183->Xdr.TransducerInfo[i].Data,m_NMEA0183->Xdr.TransducerInfo[i].Unit);
-#endif // _TACTICSPI_H_
                         }
                     }
                 } // for XDR transducers
@@ -1973,7 +1738,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             }
         }
     }
-#ifdef _TACTICSPI_H_
     else { // SignalK - see https://git.io/Je3W0 for supported NMEA-0183 sentences
         if ( type->IsSameAs( "NMEA0183", false ) ) {
 
@@ -2441,7 +2205,6 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 
     } // else Signal K
 
-#endif // _TACTICSPI_H_
 }
 
 void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
@@ -2482,9 +2245,7 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
 
 void dashboard_pi::SetCursorLatLon( double lat, double lon )
 {
-#ifdef _TACTICSPI_H_
     this->TacticsSetCursorLatLon(lat, lon);
-#endif // _TACTICSPI_H_
     SendSentenceToAllInstruments( OCPN_DBP_STC_PLA, lat, _T("SDMM") );
     SendSentenceToAllInstruments( OCPN_DBP_STC_PLO, lon, _T("SDMM") );
 
@@ -2532,11 +2293,9 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 {
     DashboardPreferencesDialog *dialog = new DashboardPreferencesDialog( parent, wxID_ANY,
                                                                          m_ArrayOfDashboardWindow
-#ifdef _TACTICSPI_H_
                                                                          , GetCommonName(),
                                                                          GetNameVersion(),
                                                                          wxDefaultPosition
-#endif // _TACTICSPI_H_
      );
 
     if( dialog->ShowModal() == wxID_OK ) {
@@ -2564,17 +2323,13 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
 
 void dashboard_pi::SetColorScheme( PI_ColorScheme cs )
 {
-#ifdef _TACTICSPI_H_
     m_colorScheme = cs;
-#endif // _TACTICSPI_H_
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window ) {
             dashboard_window->SetColorScheme( cs );
-#ifdef _TACTICSPI_H_
             dashboard_window->SendColorSchemeToAllJSInstruments( cs );
-#endif // _TACTICSPI_H_
         }
     }
 }
@@ -2593,30 +2348,6 @@ int dashboard_pi::GetDashboardWindowShownCount()
     return cnt;
 }
 
-#ifndef _TACTICSPI_H_
-void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
-{
-    // if name is unique, we should use it
-    DashboardWindow *dashboard_window = (DashboardWindow *) event.pane->window;
-    int cnt = 0;
-    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
-        DashboardWindow *d_w = cont->m_pDashboardWindow;
-        if( d_w ) {
-            // we must not count this one because it is being closed
-            if( dashboard_window != d_w ) {
-                wxAuiPaneInfo &pane = m_pauimgr->GetPane( d_w );
-                if( pane.IsOk() && pane.IsShown() ) cnt++;
-            } else {
-                cont->m_bIsVisible = false;
-            }
-        }
-    }
-    SetToolbarItemState( m_toolbar_item_id, cnt != 0 );
-
-    event.Skip();
-}
-#endif // (not) _TACTICSPI_H_
 
 void dashboard_pi::OnToolbarToolCallback( int id )
 {
@@ -2692,26 +2423,20 @@ void dashboard_pi::OnToolbarToolCallback( int id )
     }
     // Toggle is handled by the toolbar but we must keep plugin manager b_toggle updated
     // to actual status to ensure right status upon toolbar rebuild
-#ifdef _TACTICSPI_H_
     int iToolbarToolCallbackShownWindows = GetDashboardWindowShownCount();
     ( iToolbarToolCallbackShownWindows != 0 ?
         m_bToggledStateVisible = true : m_bToggledStateVisible = false );
     SetToolbarItemState( m_toolbar_item_id, m_bToggledStateVisible );
     this->SetToggledStateVisible( m_bToggledStateVisible );
-#else
-    SetToolbarItemState( m_toolbar_item_id, GetDashboardWindowShownCount() != 0/*cnt==0*/);
-#endif // _TACTICSPI_H_
     m_pauimgr->Update();
 }
 
-#ifdef _TACTICSPI_H_
 void dashboard_pi::OnContextMenuItemCallback(int id)
 {
     // so far only thes  parent class deals with this event
     this->TacticsOnContextMenuItemCallback(id);
     return;
 }
-#endif // _TACTICSPI_H_
 
 void dashboard_pi::UpdateAuiStatus( void )
 {
@@ -2731,15 +2456,11 @@ void dashboard_pi::UpdateAuiStatus( void )
     m_pauimgr->Update();
 
     //    We use this callback here to keep the context menu selection in sync with the window state
-#ifdef _TACTICSPI_H_
     int iUpdateAuiShownWindows = GetDashboardWindowShownCount();
     ( iUpdateAuiShownWindows != 0 ?
         m_bToggledStateVisible = true : m_bToggledStateVisible = false );
     SetToolbarItemState( m_toolbar_item_id, m_bToggledStateVisible );
     this->SetToggledStateVisible( m_bToggledStateVisible );
-#else
-    SetToolbarItemState( m_toolbar_item_id, GetDashboardWindowShownCount() != 0 );
-#endif // _TACTICSPI_H_
 }
 
 bool dashboard_pi::LoadConfig( void )
@@ -2775,9 +2496,7 @@ bool dashboard_pi::LoadConfig( void )
         pConf->Read( _T("WindSpeedUnit"), &g_iDashWindSpeedUnit, 0 );
 
         pConf->Read( _T("UTCOffset"), &g_iUTCOffset, 0 );
-#ifdef _TACTICSPI_H_
         pConf->Read( _T("TemperatureUnit"), &g_iDashTemperatureUnit, 0 );
-#endif // _TACTICSPI_H_
 
         int d_cnt;
         pConf->Read( _T("DashboardCount"), &d_cnt, -1 );
@@ -2789,13 +2508,10 @@ bool dashboard_pi::LoadConfig( void )
             int i_cnt;
             pConf->Read( _T("InstrumentCount"), &i_cnt, -1 );
             wxArrayInt ar;
-#ifdef _TACTICSPI_H_
             wxArrayString idar;
-#endif // _TACTICSPI_H_
             if( i_cnt != -1 ) {
                 for( int i = 0; i < i_cnt; i++ ) {
                     int id;
-#ifdef _TACTICSPI_H_
                     wxString ids;
                     pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
                     pConf->Read( wxString::Format( _T("InstrumentID%d"), i + 1 ), &ids, _T("") );
@@ -2803,33 +2519,17 @@ bool dashboard_pi::LoadConfig( void )
                         ar.Add( id );
                         idar.Add ( ids );
                     }
-#else
-                    pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
-                    if( id != -1 ) ar.Add( id );
-#endif // _TACTICSPI_H_
                 }
             } else {
                 // This is the default instrument list
-#ifdef _TACTICSPI_H_
                 ar.Add( ID_DBP_I_POS ); idar.Add( _T("") );
                 ar.Add( ID_DBP_D_COG ); idar.Add( _T("") );
                 ar.Add( ID_DBP_D_GPS ); idar.Add( _T("") );
-#else
-                ar.Add( ID_DBP_I_POS );
-                ar.Add( ID_DBP_D_COG );
-                ar.Add( ID_DBP_D_GPS );
-#endif // _TACTICSPI_H_
             }
 
-#ifdef _TACTICSPI_H_
             DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
                                                                            _("Dashboard_Tactics"),
                                                                            _T("V"), ar, idar );
-#else
-            DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
-                                                                           _("Dashboard"),
-                                                                           _T("V"), ar );
-#endif // _TACTICSPI_H_
             cont->m_bPersVisible = true;
             m_ArrayOfDashboardWindow.Add(cont);
 
@@ -2843,11 +2543,7 @@ bool dashboard_pi::LoadConfig( void )
                 pConf->Read( _T("Name"), &name, MakeName() );
                 wxString caption;
                 pConf->Read( _T("Caption"), &caption,
-#ifdef _TACTICSPI_H_
                              _("Dashboard_Tactics") );
-#else
-                             _("Dashboard") );
-#endif // _TACTICSPI_H_
                 wxString orient;
                 pConf->Read( _T("Orientation"), &orient, _T("V") );
                 int i_cnt;
@@ -2856,14 +2552,9 @@ bool dashboard_pi::LoadConfig( void )
                 pConf->Read( _T("Persistence"), &b_persist, 1 );
 
                 wxArrayInt ar;
-#ifdef _TACTICSPI_H_
                 wxArrayString idar;
                 for( int j = 0; j < i_cnt; j++ ) {
-#else
-                for( int i = 0; i < i_cnt; i++ ) {
-#endif // _TACTICSPI_H_
                     int id;
-#ifdef _TACTICSPI_H_
                     wxString ids;
                     pConf->Read( wxString::Format( _T("Instrument%d"), j + 1 ), &id, -1 );
                     pConf->Read( wxString::Format( _T("InstrumentID%d"), j + 1 ), &ids, _T("") );
@@ -2874,13 +2565,6 @@ bool dashboard_pi::LoadConfig( void )
                 }
                 // TODO: Do not add if GetCount == 0
                 DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, name, caption, orient, ar, idar );
-#else
-                    pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
-                    if( id != -1 ) ar.Add( id );
-                }
-                // TODO: Do not add if GetCount == 0
-                DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, name, caption, orient, ar );
-#endif // _TACTICSPI_H_
                 cont->m_bPersVisible = b_persist;
 
                 if(b_persist)
@@ -2922,9 +2606,7 @@ bool dashboard_pi::SaveConfig( void )
         pConf->Write( _T("DepthOffset"), g_dDashDBTOffset );
         pConf->Write( _T("DistanceUnit"), g_iDashDistanceUnit );
         pConf->Write( _T("WindSpeedUnit"), g_iDashWindSpeedUnit );
-#ifdef _TACTICSPI_H_
         pConf->Write( _T("TemperatureUnit"), g_iDashTemperatureUnit );
-#endif // _TACTICSPI_H_
         pConf->Write( _T("UTCOffset"), g_iUTCOffset );
 
         pConf->Write( _T("DashboardCount" ), (int) m_ArrayOfDashboardWindow.GetCount() );
@@ -2937,18 +2619,12 @@ bool dashboard_pi::SaveConfig( void )
             pConf->Write( _T("Persistence"), cont->m_bPersVisible );
 
             pConf->Write( _T("InstrumentCount"), (int) cont->m_aInstrumentList.GetCount() );
-#ifdef _TACTICSPI_H_
             for( unsigned int j = 0; j < cont->m_aInstrumentList.GetCount(); j++ ) {
                 pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
                               cont->m_aInstrumentList.Item( j ) );
                 pConf->Write( wxString::Format( _T("InstrumentID%d"), j + 1 ),
                               cont->m_aInstrumentIDs.Item( j ) );
             }
-#else
-            for( unsigned int j = 0; j < cont->m_aInstrumentList.GetCount(); j++ )
-                pConf->Write( wxString::Format( _T("Instrument%d"), j + 1 ),
-                              cont->m_aInstrumentList.Item( j ) );
-#endif // _TACTICSPI_H_
         }
         return true;
     } else
@@ -2956,11 +2632,7 @@ bool dashboard_pi::SaveConfig( void )
 }
 
 void dashboard_pi::ApplyConfig(
-#ifdef _TACTICSPI_H_
     bool init
-#else
-    void
-#endif // _TACTICSPI_H_
     )
 {
     // Reverse order to handle deletes
@@ -2977,7 +2649,6 @@ void dashboard_pi::ApplyConfig(
             m_ArrayOfDashboardWindow.Remove( cont );
             delete cont;
         }
-#ifdef _TACTICSPI_H_
         else {
             DashboardWindowContainer *newcont = new DashboardWindowContainer( cont );
             /*
@@ -3140,45 +2811,9 @@ void dashboard_pi::ApplyConfig(
                 } // no need to do a replacement or to create a new window
             } // else brand new pane or no action
         } // else not a deleted window, to be created or recreated
-#else
-        else if( !cont->m_pDashboardWindow ) {
-            // A new dashboard is created
-            cont->m_pDashboardWindow = new DashboardWindow(
-                GetOCPNCanvasWindow(), wxID_ANY,
-                m_pauimgr, this, orient, cont, this->m_pSkData
-                );
-            cont->m_pDashboardWindow->SetInstrumentList( cont->m_aInstrumentList, cont->m_aInstrumentIDs );
-            bool vertical = orient == wxVERTICAL;
-            wxSize sz = cont->m_pDashboardWindow->GetMinSize();
-            // Mac has a little trouble with initial Layout() sizing...
-#ifdef __WXOSX__
-            if(sz.x == 0)
-                sz.IncTo( wxSize( 160, 388) );
-#endif
-            wxAuiPaneInfo p = wxAuiPaneInfo().Name( cont->m_sName ).Caption( cont->m_sCaption ).CaptionVisible( false ).TopDockable(
-                !vertical ).BottomDockable( !vertical ).LeftDockable( vertical ).RightDockable( vertical ).MinSize(
-                    sz ).BestSize( sz ).FloatingSize( sz ).FloatingPosition( 100, 100 ).Float().Show( cont->m_bIsVisible ).Gripper(false) ;
-
-            m_pauimgr->AddPane( cont->m_pDashboardWindow, p);
-        } else {
-            wxAuiPaneInfo& pane = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-            pane.Caption( cont->m_sCaption ).Show( cont->m_bIsVisible );
-            if( !cont->m_pDashboardWindow->isInstrumentListEqual( cont->m_aInstrumentList ) ) {
-                cont->m_pDashboardWindow->SetInstrumentList(
-                    cont->m_aInstrumentList, cont->m_aInstrumentIDs );
-                wxSize sz = cont->m_pDashboardWindow->GetMinSize();
-                pane.MinSize( sz ).BestSize( sz ).FloatingSize( sz );
-            }
-            if( cont->m_pDashboardWindow->GetSizerOrientation() != orient ) {
-                cont->m_pDashboardWindow->ChangePaneOrientation( orient, false );
-            }
-        }
-#endif // _TACTICSPI_H_
     }  // for dashboard window arrays
 
-#ifdef _TACTICSPI_H_
     this->TacticsApplyConfig();
-#endif // _TACTICSPI_H_
 
     m_pauimgr->Update();
     mSOGFilter.setFC(g_iDashSOGDamp ? 1.0 / (2.0*g_iDashSOGDamp) : 0.0);
@@ -3206,7 +2841,6 @@ void dashboard_pi::ShowDashboard( size_t id, bool visible )
     }
 }
 
-#ifdef _TACTICSPI_H_
 bool dashboard_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 {
     return this->TacticsRenderOverlay( dc, vp );
@@ -3215,7 +2849,6 @@ bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
     return this->TacticsRenderGLOverlay( pcontext, vp );
 }
-#endif // _TACTICSPI_H_
 
 /* DashboardPreferencesDialog
  *
@@ -3224,13 +2857,8 @@ bool dashboard_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 DashboardPreferencesDialog::DashboardPreferencesDialog(
     wxWindow *parent, wxWindowID id,
     wxArrayOfDashboard config
-#ifdef _TACTICSPI_H_
     , wxString commonName, wxString versionName, wxPoint pos ) :
     TacticsPreferencesDialog ( parent, id, commonName + " " + versionName + _(" Preferences"), pos )
-#else
-     ) :wxDialog( parent, id, _("Dashboard preferences"),
-              wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE )
-#endif // _TACTICSPI_H_
 {
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( DashboardPreferencesDialog::OnCloseDialog ),
              NULL, this );
@@ -3247,10 +2875,8 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
 
     itemBoxSizerMainPanel->Add( itemNotebook, 1, wxALL | wxEXPAND, border_size );
 
-#ifdef _TACTICSPI_H_
     m_itemNotebook = itemNotebook;
     this->TacticsPreferencesInit( m_itemNotebook, border_size );
-#endif // _TACTICSPI_H_
 
     wxPanel *itemPanelNotebook01 = new wxPanel( itemNotebook, wxID_ANY, wxDefaultPosition,
                                                 wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3258,11 +2884,7 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     itemFlexGridSizer01->AddGrowableCol( 1 );
     itemPanelNotebook01->SetSizer( itemFlexGridSizer01 );
     itemNotebook->AddPage( itemPanelNotebook01,
-#ifdef _TACTICSPI_H_
                            commonName
-#else
-                           _("Dashboard")
-#endif // _TACTICSPI_H_
         );
 
     wxBoxSizer *itemBoxSizer01 = new wxBoxSizer( wxVERTICAL );
@@ -3270,11 +2892,7 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
 
     wxImageList *imglist1 = new wxImageList( 32, 32, true, 1);
     imglist1->Add(
-#ifdef _TACTICSPI_H_
         *_img_dashboard_tactics_pi
-#else
-        *_img_dashboard_pi
-#endif // _TACTICSPI_H_
         );
 
     m_pListCtrlDashboards = new wxListCtrl(
@@ -3311,11 +2929,7 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     m_pPanelDashboard->SetSizer( itemBoxSizer03 );
 
     wxStaticBox* itemStaticBox02 = new wxStaticBox( m_pPanelDashboard, wxID_ANY,
-#ifdef _TACTICSPI_H_
                                                     commonName
-#else
-                                                    _("Dashboard")
-#endif // _TACTICSPI_H_
         );
     wxStaticBoxSizer* itemStaticBoxSizer02 = new wxStaticBoxSizer( itemStaticBox02, wxHORIZONTAL );
     itemBoxSizer03->Add( itemStaticBoxSizer02, 0, wxEXPAND | wxALL, border_size );
@@ -3541,7 +3155,6 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     m_pChoiceWindSpeedUnit->SetSelection( g_iDashWindSpeedUnit );
     itemFlexGridSizer04->Add( m_pChoiceWindSpeedUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
 
-#ifdef _TACTICSPI_H_
     wxStaticText* itemStaticText0c = new wxStaticText( itemPanelNotebook02, wxID_ANY, _("Temperature units:"),
                                                        wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer04->Add( itemStaticText0c, 0, wxEXPAND | wxALL, border_size );
@@ -3550,12 +3163,9 @@ DashboardPreferencesDialog::DashboardPreferencesDialog(
     m_pChoiceTemperatureUnit = new wxChoice( itemPanelNotebook02, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_TempUnitNChoices, m_TempUnitChoices, 0 );
     m_pChoiceTemperatureUnit->SetSelection( g_iDashTemperatureUnit );
     itemFlexGridSizer04->Add( m_pChoiceTemperatureUnit, 0, wxALIGN_RIGHT | wxALL, 0 );
-#endif // _TACTICSPI_H_
 
     //////////////////////////////////////////////////////////////
-#ifdef _TACTICSPI_H_
     this->TacticsPreferencesPanel();
-#endif // _TACTICSPI_H_
 
     wxStdDialogButtonSizer* DialogButtonSizer = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
     itemBoxSizerMainPanel->Add( DialogButtonSizer, 0, wxALIGN_RIGHT | wxALL, 5 );
@@ -3609,13 +3219,9 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
     g_iDashDepthUnit = m_pChoiceDepthUnit->GetSelection() + 3;
     g_iDashDistanceUnit = m_pChoiceDistanceUnit->GetSelection() - 1;
     g_iDashWindSpeedUnit = m_pChoiceWindSpeedUnit->GetSelection();
-#ifdef _TACTICSPI_H_
     g_iDashTemperatureUnit = m_pChoiceTemperatureUnit->GetSelection();
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     this->SaveTacticsConfig();
-#endif // _TACTICSPI_H_
 
     if( curSel != -1 ) {
         DashboardWindowContainer *cont = m_Config.Item( curSel );
@@ -3625,11 +3231,8 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
         cont->m_sOrientation =
             m_pChoiceOrientation->GetSelection() ==
             0 ? _T("V") : _T("H");
-#ifdef _TACTICSPI_H_
         DashboardWindowContainer *oldcont = new DashboardWindowContainer( cont );
-#endif // _TACTICSPI_H_
         cont->m_aInstrumentList.Clear();
-#ifdef _TACTICSPI_H_
         cont->m_aInstrumentIDs.Clear();
         int id, j, oldmax;
         bool idMatch;
@@ -3653,11 +3256,6 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
             cont->m_aInstrumentList.Add( id );
             cont->m_aInstrumentIDs.Add( ids );
         } // for number of selected instruments
-#else
-        for( int i = 0; i < m_pListCtrlInstruments->GetItemCount(); i++ )
-            cont->m_aInstrumentList.Add(
-                (int) m_pListCtrlInstruments->GetItemData( i ) );
-#endif // _TACTICSPI_H_
     }
 }
 
@@ -3677,7 +3275,6 @@ void DashboardPreferencesDialog::UpdateDashboardButtonsState()
     //  Disable the Dashboard Delete button if the parent(Dashboard) of this dialog is selected.
     bool delete_enable = enable;
     if( item != -1 ) {
-#ifdef _TACTICSPI_H_
         /*
           In this implemenation the dialog parent is the plugin, not any particular dashboard window
           so that we can destroy even the window from which we the dialog was started from.
@@ -3696,13 +3293,6 @@ void DashboardPreferencesDialog::UpdateDashboardButtonsState()
             if ( NumberOfVisible <= 1 )
                 delete_enable = false;
         }
-#else
-        int sel = m_pListCtrlDashboards->GetItemData( item );
-        DashboardWindowContainer *cont = m_Config.Item( sel );
-        DashboardWindow *dash_sel = cont->m_pDashboardWindow;
-        if(dash_sel == GetParent())
-            delete_enable = false;
-#endif // _TACTICSPI_H_
     }
     m_pButtonDeleteDashboard->Enable( delete_enable );
 
@@ -3742,16 +3332,10 @@ void DashboardPreferencesDialog::OnDashboardAdd( wxCommandEvent& event )
     // Data is index in m_Config
     m_pListCtrlDashboards->SetItemData( idx, m_Config.GetCount() );
     wxArrayInt ar;
-#ifdef _TACTICSPI_H_
     wxArrayString idar;
     DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
                                                                   _("Dashboard_Tactics"),
                                                                   _T("V"), ar, idar );
-#else
-    DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
-                                                                  _("Dashboard"),
-                                                                  _T("V"), ar );
-#endif // _TACTICSPI_H_
     dwc->m_bIsVisible = true;
     dwc->m_bPersVisible = true;
     m_Config.Add( dwc );
@@ -3852,7 +3436,6 @@ void DashboardPreferencesDialog::OnInstrumentDown( wxCommandEvent& event )
 //    Add Instrument Dialog Implementation
 //
 //----------------------------------------------------------------
-#ifdef _TACTICSPI_H_
 /* Provide a callback method to tweak the alphabetical ascending order of the instrument list(s)
    so that tactics and performance instruments are listed at the end, after the dashbaord std.
    instruments. */
@@ -3870,7 +3453,6 @@ int wxCALLBACK InstrumentListSortCallback (wxIntPtr item1, wxIntPtr item2, wxInt
     const wxString capt1 = getInstrumentCaption (item1);
     return capt1.CmpNoCase ( getInstrumentCaption (item2) );
 }
-#endif // _TACTICSPI_H
 
 AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     wxDialog( pparent, id, _("Add instrument"), wxDefaultPosition, wxDefaultSize,
@@ -3880,9 +3462,7 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
     SetSizer( itemBoxSizer01 );
     wxStaticText* itemStaticText01 = new wxStaticText( this, wxID_ANY,
                                                        _("Select instrument to add:")
-#ifdef _TACTICSPI_H_
                                                        + _(L"\n(\u2191Tactics at the end of the list)")
-#endif // _TACTICSPI_H_
                                                        , wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer01->Add( itemStaticText01, 0, wxEXPAND | wxALL, 5 );
 
@@ -3907,10 +3487,8 @@ AddInstrumentDlg::AddInstrumentDlg( wxWindow *pparent, wxWindowID id ) :
             m_pListCtrlInstruments->InsertItem( item );
         }
     }
-#ifdef _TACTICSPI_H_
     // Provide a dual sorting callback so that Tactics and Dashboard instruments are kept apart.
     m_pListCtrlInstruments->SortItems( InstrumentListSortCallback, 0);
-#endif // _TACTICSPI_H_
     m_pListCtrlInstruments->SetColumnWidth( 0, wxLIST_AUTOSIZE );
     m_pListCtrlInstruments->SetItemState( 0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED );
     Fit();
@@ -3946,23 +3524,11 @@ DashboardWindow::DashboardWindow(
 
     //wx2.9      itemBoxSizer = new wxWrapSizer( orient );
     itemBoxSizer = new wxBoxSizer( orient );
-#ifdef _TACTICSPI_H_
     SetSizerAndFit( itemBoxSizer );
-#else
-    SetSizer( itemBoxSizer );
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
     // Dynamic binding used for event handlers
     Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
     Bind( wxEVT_CONTEXT_MENU, &DashboardWindow::OnContextMenu, this );
     Bind( wxEVT_COMMAND_MENU_SELECTED, &DashboardWindow::OnContextMenuSelect, this);
-#else
-    Connect( wxEVT_SIZE, wxSizeEventHandler( DashboardWindow::OnSize ), NULL, this );
-    Connect( wxEVT_CONTEXT_MENU, wxContextMenuEventHandler( DashboardWindow::OnContextMenu ), NULL,
-             this );
-    Connect( wxEVT_COMMAND_MENU_SELECTED,
-             wxCommandEventHandler( DashboardWindow::OnContextMenuSelect ), NULL, this );
-#endif // _TACTICSPI_H_
 }
 
 DashboardWindow::~DashboardWindow()
@@ -3975,7 +3541,6 @@ DashboardWindow::~DashboardWindow()
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardWindow::OnClose( wxCloseEvent &event )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
@@ -3999,7 +3564,6 @@ void DashboardWindow::RebuildPane( wxArrayInt list, wxArrayString listIDs )
     SetInstrumentList( list, listIDs );
 }
 
-#endif // _TACTICSPI_H_
 
 void DashboardWindow::SetMinSizes( )
 {
@@ -4039,10 +3603,8 @@ void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )
 
     m_plugin->PopulateContextMenu( contextMenu );
 
-#ifdef _TACTICSPI_H_
     contextMenu->AppendSeparator();
     this->InsertTacticsIntoContextMenu ( contextMenu );
-#endif // _TACTICSPI_H_
 
     contextMenu->AppendSeparator();
     contextMenu->Append( ID_DASH_PREFS, _("Preferences") );
@@ -4060,48 +3622,26 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
     switch( event.GetId() ){
     case ID_DASH_PREFS: {
       m_plugin->ShowPreferencesDialog(
-#ifdef _TACTICSPI_H_
                 m_plugin->pGetPluginFrame() // running dialog from plugin, can delete all windows
-#else
-                this
-#endif //  _TACTICSPI_H_
         );
         return; // Does it's own save.
     }
     case ID_DASH_VERTICAL: {
-#ifdef _TACTICSPI_H_
         m_Container->m_sOrientation = _T("V");
         m_plugin->SetApplySaveWinRequest();
         return;
-#else
-        ChangePaneOrientation( wxVERTICAL, true );
-        m_Container->m_sOrientation = _T("V");
-        break;
-#endif // _TACTICSPI_H_
     }
     case ID_DASH_HORIZONTAL: {
-#ifdef _TACTICSPI_H_
         m_Container->m_sOrientation = _T("H");
         m_plugin->SetApplySaveWinRequest();
         return;
-#else
-        ChangePaneOrientation( wxHORIZONTAL, true );
-        m_Container->m_sOrientation = _T("H");
-        break;
-#endif // _TACTICSPI_H_
     }
     case ID_DASH_UNDOCK: {
         ChangePaneOrientation( GetSizerOrientation(), true );
-#ifdef _TACTICSPI_H_
         break;      // Actually, the pane name has changed so better save
-#else
-        return;     // Nothing changed so nothing need be saved
-#endif //  _TACTICSPI_H_
     }
-#ifdef _TACTICSPI_H_
     default:
         this->TacticsInContextMenuAction( event.GetId() );
-#endif // _TACTICSPI_H_
     }
     m_plugin->SaveConfig();
 }
@@ -4120,7 +3660,6 @@ void DashboardWindow::SetColorScheme( PI_ColorScheme cs )
 
 void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
 {
-#ifdef _TACTICSPI_H_
     wxRect rect = m_plugin->pGetPluginFrame()->GetRect();
     wxPoint position;
     position.x = rect.x + 100;
@@ -4151,7 +3690,6 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
         } // then a docked container, undock request
     } // then this is not orientation request, check if this is undock request
     // orientation change request service follows
-#endif // _TACTICSPI_H_
     m_pauimgr->DetachPane( this );
     SetSizerOrientation( orient );
     bool vertical = orient == wxVERTICAL;
@@ -4163,18 +3701,10 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
         this, wxAuiPaneInfo().Name( m_Container->m_sName ).Caption(
             m_Container->m_sCaption ).CaptionVisible( true ).TopDockable( !vertical ).BottomDockable(
                 !vertical ).LeftDockable(
-#ifdef _TACTICSPI_H_
                     false
-#else
-                    vertical
-#endif // _TACTICSPI_H_
                     ).RightDockable( vertical ).MinSize( sz ).BestSize(
                     sz ).FloatingSize( sz ).FloatingPosition(
-#ifdef _TACTICSPI_H_
                         position
-#else
-                        100, 100
-#endif // _TACTICSPI_H_
                         ).Float().Show( m_Container->m_bIsVisible ) );
     if ( updateAUImgr ) m_pauimgr->Update();
 }
@@ -4214,11 +3744,7 @@ bool DashboardWindow::isInstrumentListEqual( const wxArrayInt& list )
     return isArrayIntEqual( list, m_ArrayOfInstrument );
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs )
-#else
-void DashboardWindow::SetInstrumentList( wxArrayInt list )
-#endif // _TACTICSPI_H_
 {
     /* options
        ID_DBP_D_SOG: config max value, show STW optional
@@ -4237,19 +3763,15 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
 
     itemBoxSizer->Clear( true );
 
-#ifdef _TACTICSPI_H_
     itemBoxSizer->SetSizeHints( this );
     Layout();
     Refresh();
-#endif // _TACTICSPI_H_
 
     DashboardInstrument *instrument;
     
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
-#ifdef _TACTICSPI_H_
         wxString ids = listIDs.Item( i );
-#endif // _TACTICSPI_H_
         instrument = NULL;
         switch( id ){
         case ID_DBP_I_POS:
@@ -4332,18 +3854,10 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
                                                                          DIAL_LABEL_HORIZONTAL );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMarker( 1,
                                                                           DIAL_MARKER_SIMPLE, 5 );
-#ifdef _TACTICSPI_H_
             ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("A:%.2f"),
-#else
-            ( (DashboardInstrument_Dial *) instrument )->SetOptionMainValue( _T("A %.2f"),
-#endif // _TACTICSPI_H_
                                                                              DIAL_POSITION_BOTTOMLEFT );
             ( (DashboardInstrument_Dial *) instrument )->SetOptionExtraValue(
-#ifdef _TACTICSPI_H_
                 OCPN_DBP_STC_TWS, _T("T:%.1f"), DIAL_POSITION_BOTTOMRIGHT );
-#else
-                OCPN_DBP_STC_TWS, _T("T %.1f"), DIAL_POSITION_BOTTOMRIGHT );
-#endif // _TACTICSPI_H_
             break;
         case ID_DBP_D_TW: //True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_TrueWindAngle( this, wxID_ANY,
@@ -4383,11 +3897,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             break;
         case ID_DBP_I_MDA: //barometric pressure
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-#ifdef _TACTICSPI_H_
                                                          getInstrumentCaption( id ), OCPN_DBP_STC_MDA, _T("%5.1f") );
-#else
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_MDA, _T("%5.3f") );
-#endif // _TACTICSPI_H_
             break;
         case ID_DBP_D_MDA: //barometric pressure
             instrument = new DashboardInstrument_Speedometer( this, wxID_ANY,
@@ -4508,7 +4018,6 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             instrument = new DashboardInstrument_CPUClock( this, wxID_ANY,
                                                            getInstrumentCaption( id ), _T( "%02i:%02i:%02i LCL" ) );
 			break;
-#ifdef _TACTICSPI_H_
 		case ID_DBP_I_CURRDIR:
 			instrument = new DashboardInstrument_Single(this, wxID_ANY,
 				getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%2.0f"));
@@ -4715,78 +4224,45 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
             instrument = new DashboardInstrument_TimesTUI( // Time-series DB graph
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
-#endif // _TACTICSPI_H_
         }
         if( instrument ) {
             instrument->instrumentTypeId = id;
-#ifdef _TACTICSPI_H_
             Unbind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
                     id, instrument, instrument->GetCapacity(), ids ) );
-#else
-            m_ArrayOfInstrument.Add(
-                new DashboardInstrumentContainer(
-                    id, instrument, instrument->GetCapacity() ) );
-#endif // _TACTICSPI_H_
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
-#ifdef _TACTICSPI_H_
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
             itemBoxSizer->SetSizeHints( this );
             Layout();
-#endif // _TACTICSPI_H_
             if( itemBoxSizer->GetOrientation() == wxHORIZONTAL ) {
                 itemBoxSizer->AddSpacer( 5 );
-#ifdef _TACTICSPI_H_
                 itemBoxSizer->SetSizeHints( this );
                 Layout();
-#endif // _TACTICSPI_H_
             }
         }
-#ifdef _TACTICSPI_H_
         m_Container->m_aInstrumentIDs.Item( i ) = ids; // UUID for persistance
-#endif // _TACTICSPI_H_
     } // for items in the list
-#ifdef _TACTICSPI_H_
     itemBoxSizer->SetSizeHints( this );
     Layout();
     Refresh();
-#else
-    Fit();
-    SetMinSize( itemBoxSizer->GetMinSize() );
-    Layout();
-#endif // _TACTICSPI_H_
 
 }
 
 void DashboardWindow::SendSentenceToAllInstruments(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double value, wxString unit
-#ifdef _TACTICSPI_H_
         , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
 
         if (
-#ifdef _TACTICSPI_H_
             (!((m_ArrayOfInstrument.Item( i )->m_cap_flag & st) == 0ULL))
-#else
-             m_ArrayOfInstrument.Item( i )->m_cap_flag & st
-#endif // _TACTICSPI_H_
                 )
             m_ArrayOfInstrument.Item( i )->m_pInstrument->SetData(
                 st, value, unit
-#ifdef _TACTICSPI_H_
                 , timestamp
-#endif // _TACTICSPI_H_
                 );
     }
 }
@@ -4795,12 +4271,8 @@ void DashboardWindow::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sa
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         if(
-#ifdef _TACTICSPI_H_
              (!((m_ArrayOfInstrument.Item( i )->m_cap_flag &
                  OCPN_DBP_STC_GPS) == 0ULL))
-#else
-             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS )
-#endif // _TACTICSPI_H_
             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf(
                 CLASSINFO(DashboardInstrument_GPS)))
             ((DashboardInstrument_GPS*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetSatInfo(
@@ -4812,22 +4284,15 @@ void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
          if(
-#ifdef _TACTICSPI_H_
              (!((m_ArrayOfInstrument.Item( i )->m_cap_flag &
                  OCPN_DBP_STC_CLK) == 0ULL))
              && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
-#else
-             // ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_GPS ) // default _D_GPS has no SetUtcTime()!
-             ( m_ArrayOfInstrument.Item( i )->m_cap_flag & OCPN_DBP_STC_CLK )
-             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
-#endif // _TACTICSPI_H_
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Sun ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Moon ) ) ) )
             ((DashboardInstrument_Clock*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardWindow::SendColorSchemeToAllJSInstruments( PI_ColorScheme cs )
 {
     for ( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
@@ -4835,4 +4300,3 @@ void DashboardWindow::SendColorSchemeToAllJSInstruments( PI_ColorScheme cs )
             m_ArrayOfInstrument.Item(i)->m_pInstrument->setColorScheme( cs );
     }
 }
-#endif // _TACTICSPI_H_
