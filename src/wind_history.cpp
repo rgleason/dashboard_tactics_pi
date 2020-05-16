@@ -233,7 +233,7 @@ void DashboardInstrument_WindDirHistory::SetData(
     , long long timestamp
     )
 {
-    if (st == OCPN_DBP_STC_TWD || st == OCPN_DBP_STC_TWS
+    if ( ( (st == OCPN_DBP_STC_TWD) || (st == OCPN_DBP_STC_TWS) )
         && (!std::isnan(data))
         ) {
         if (st == OCPN_DBP_STC_TWD) {

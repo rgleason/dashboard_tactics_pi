@@ -212,7 +212,7 @@ wxString SkData::getAllJsOrderedList(
                 std::string sFullPath = *it;
                 wxString fullPath = wxString( sFullPath );
                 wxStringTokenizer tokenizer(fullPath, ".");
-                if ( tokenizer.CountTokens() == (i + 1) ) {
+                if ( tokenizer.CountTokens() == (unsigned long int) (i + 1) ) {
                     wxString nowTopic = tokenizer.GetNextToken();
                     if ( nowTopic == topicToCollect ) {
                         if ( jsonType != wxJSONTYPE_NULL )

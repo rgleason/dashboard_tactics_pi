@@ -440,41 +440,42 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       TextPoint.height = height;
       switch (position)
       {
-            case DIAL_POSITION_NONE:
-                  // This case was already handled before, it's here just
-                  // to avoid compiler warning.
-                  return;
-            case DIAL_POSITION_INSIDE:
-            {
-                  TextPoint.x = m_cx - (width / 2) - 1;
-                  TextPoint.y = (size.y * .75) - height;
-                  GetGlobalColor(_T("DASHL"), &cl);
-                  int penwidth = size.x / 100;
-                  wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
-                  dc->SetPen( *pen );
-                  GetGlobalColor(_T("DASHB"), &cl);
-                  dc->SetBrush(cl);
-                  // There might be a background drawn below
-                  // so we must clear it first.
-                  dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
-                  break;
-            }
-            case DIAL_POSITION_TOPLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_TOPRIGHT:
-                  TextPoint.x = size.x-width-1;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_BOTTOMLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = size.y-height;
-                  break;
-            case DIAL_POSITION_BOTTOMRIGHT:
-                  TextPoint.x = size.x-width-1;
-                  TextPoint.y = size.y-height;
-                  break;
+      case DIAL_POSITION_NONE:
+          // This case was already handled before, it's here just
+          // to avoid compiler warning.
+          return;
+      case DIAL_POSITION_TOPINSIDE:
+      case DIAL_POSITION_INSIDE:
+      {
+          TextPoint.x = m_cx - (width / 2) - 1;
+          TextPoint.y = (size.y * .75) - height;
+          GetGlobalColor(_T("DASHL"), &cl);
+          int penwidth = size.x / 100;
+          wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
+          dc->SetPen( *pen );
+          GetGlobalColor(_T("DASHB"), &cl);
+          dc->SetBrush(cl);
+          // There might be a background drawn below
+          // so we must clear it first.
+          dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
+          break;
+      }
+      case DIAL_POSITION_TOPLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_TOPRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_BOTTOMLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = size.y-height;
+          break;
+      case DIAL_POSITION_BOTTOMRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = size.y-height;
+          break;
       }
 
      wxColour c2;

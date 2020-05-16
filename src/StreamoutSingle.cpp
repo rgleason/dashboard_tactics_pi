@@ -179,7 +179,6 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &event )
     event.Skip(); // let the destructor to finalize
 }
 /***********************************************************************************
-/***********************************************************************************
 
 ************************************************************************************/
 wxSize TacticsInstrument_StreamoutSingle::GetSize(int orient, wxSize hint)
