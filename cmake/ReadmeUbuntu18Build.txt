@@ -1,6 +1,6 @@
 * $Id: ReadmeUbuntu18Build.txt, v1.0 2019/11/30 DarthVader Exp $
 
-Note: his is an ongoing problem the solution of which is not
+Note: This is an ongoing problem the solution of which is not
      automated for Continuous Integration (with .travis):
      - do not use travis build for "bionic"  18.04.4LTS
        for distribution until this message has disappeared.
