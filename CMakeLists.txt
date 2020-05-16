@@ -71,10 +71,10 @@ SET(SRC_DASHT
     src/from_ownship.h
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
-    include/wx/json_defs.h
-    include/wx/jsonreader.h
-    include/wx/jsonval.h
-    include/wx/jsonwriter.h
+    src/wxJSON/json_defs.h
+    src/wxJSON/jsonreader.h
+    src/wxJSON/jsonval.h
+    src/wxJSON/jsonwriter.h
     src/tactics_pi.h
     src/tactics_pi.cpp
     src/TacticsWindow.h
