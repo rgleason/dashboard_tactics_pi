@@ -41,7 +41,8 @@
 #include <wx/wx.h>
 #endif
 #include "wx/tokenzr.h"
-#include "performance.h"
+#include "ExpSmooth.h"
+#include "Polar.h"
 #include <cmath>
 
 extern int g_iMinLaylineWidth;
