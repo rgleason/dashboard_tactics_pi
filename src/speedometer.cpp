@@ -45,11 +45,7 @@
 
 DashboardInstrument_Speedometer::DashboardInstrument_Speedometer(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag,
-#else
-    int cap_flag,
-#endif // _TACTICSPI_H_
     int s_value, int e_value) : DashboardInstrument_Dial(
         parent, id, title, cap_flag, 225, 270, s_value, e_value)
 {

@@ -69,22 +69,14 @@ wxSize DashboardInstrument_RudderAngle::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_RudderAngle::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
-#endif // _TACTICSPI_H_
     if (st == m_MainValueCap)
     {
         // Dial works clockwise but Rudder has negative values for left
@@ -104,7 +96,6 @@ void DashboardInstrument_RudderAngle::SetData(
     else return;
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_RudderAngle::derivedTimeoutEvent()
 {
     m_MainValue = static_cast<double>(m_s_value);
@@ -112,7 +103,6 @@ void DashboardInstrument_RudderAngle::derivedTimeoutEvent()
     m_ExtraValue = 0.0;
     m_ExtraValueUnit = _T("");
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_RudderAngle::DrawFrame(wxGCDC* dc)
 {

@@ -69,20 +69,12 @@ wxSize DashboardInstrument_Depth::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Depth::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     if (st == OCPN_DBP_STC_DPT)
     {
         m_Depth = data;
@@ -99,7 +91,6 @@ void DashboardInstrument_Depth::SetData(
         m_Temp = wxString::Format(_T("%.1f"), data)+DEGREE_SIGN+unit;
     }
 }
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Depth::timeoutEvent()
 {
     m_MaxDepth = 0;
@@ -110,7 +101,6 @@ void DashboardInstrument_Depth::timeoutEvent()
         m_ArrayDepth[idx] = 0;
     }
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Depth::Draw(wxGCDC* dc)
 {

@@ -41,11 +41,9 @@
     #include <wx/wx.h>
 #endif
 
-#ifdef _TACTICSPI_H_
 #ifndef __DERIVEDTIMEOUT_OVERRIDE__
 #define __DERIVEDTIMEOUT_OVERRIDE__
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-#endif // _TACTICSPI_H_
 #include "dial.h"
 
 class DashboardInstrument_RudderAngle: public DashboardInstrument_Dial
@@ -55,12 +53,8 @@ public:
     ~DashboardInstrument_RudderAngle(void){}
 
     wxSize GetSize( int orient, wxSize hint );
-#ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
     void derivedTimeoutEvent(void) override;
-#else
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
 
 private:
 

@@ -41,7 +41,6 @@
     #include <wx/wx.h>
 #endif
 
-#ifdef _TACTICSPI_H_
 #include <wx/fileconf.h>
 #include "plugin_ids.h"
 extern wxString g_sDataExportSeparator;
@@ -55,46 +54,27 @@ extern bool g_bDataExportClockticks;
 wxBEGIN_EVENT_TABLE (DashboardInstrument_BaroHistory, DashboardInstrument)
    EVT_TIMER (myID_THREAD_BAROHISTORY, DashboardInstrument_BaroHistory::OnBaroHistUpdTimer)
 wxEND_EVENT_TABLE ()
-#endif // _TACTICSPI_H_
 
 //************************************************************************************************************************
 // History of barometic pressure
 //************************************************************************************************************************
 
 DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *parent, wxWindowID id, wxString title) :
-#ifdef _TACTICSPI_H_
     DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA, SETDRAWSOLOINPANE)
 {
-#else
-    DashboardInstrument(parent, id, title, OCPN_DBP_STC_MDA)
-{     SetDrawSoloInPane(true);
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     m_LastReceivedPressure = 0.0;
     m_LastReceivedTime = wxDateTime::Now().GetTm();
     m_PressRecCnt=0;
     for ( int i = 0; i < BARO_START_AVG_CNT; i++ )
         m_PressStartVal[i] = - 1;
-#else
-    m_SpdRecCnt = m_DirRecCnt = m_DirStartVal = 0;
-    m_SpdStartVal=-1;
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     m_pconfig = GetOCPNConfigObject();
     m_BaroHistUpdTimer = new wxTimer( this, myID_THREAD_BAROHISTORY );
-#endif // _TACTICSPI_H_
 
-#ifndef _TACTICSPI_H_
-    alpha=0.01;  //smoothing constant
-#endif // _TACTICSPI_H_
 
     for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         m_ArrayPressHistory[idx] = -1;
-#ifndef _TACTICSPI_H_
-        m_ExpSmoothArrayPressure[idx] = -1;
-#endif // _TACTICSPI_H_
         m_ArrayRecTime[idx]=wxDateTime::UNow().GetTm();
         m_ArrayRecTime[idx].year=999;
     }
@@ -114,22 +94,15 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_WindowRect=GetClientRect();
     m_DrawAreaRect=GetClientRect();
     m_DrawAreaRect.SetHeight(m_WindowRect.height-m_TopLineHeight-m_TitleHeight);
-#ifdef _TACTICSPI_H_
     m_TopLineHeight = 35;
-#else
-    m_TopLineHeight = 30;
-#endif // _TACTICSPI_H_
     m_LeftLegend = 3;
     m_RightLegend = 3;
     m_TitleHeight = 10;
 
-#ifdef _TACTICSPI_H_
     m_logfile = wxEmptyString;
     m_ostreamlogfile = new wxFile();
     m_exportInterval = 0;
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     m_BaroHistUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
     //data export
@@ -158,9 +131,7 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     if (m_exportInterval == 10) btn10Sec->Check(true);
     if (m_exportInterval == 20) btn20Sec->Check(true);
     if (m_exportInterval == 60) btn60Sec->Check(true);
-#endif // _TACTICSPI_H_
 }
-#ifdef _TACTICSPI_H_
 DashboardInstrument_BaroHistory::~DashboardInstrument_BaroHistory(void) {
     this->m_BaroHistUpdTimer->Stop();
     delete this->m_BaroHistUpdTimer;
@@ -173,7 +144,6 @@ DashboardInstrument_BaroHistory::~DashboardInstrument_BaroHistory(void) {
         NULL,
         this);
 }
-#endif // _TACTICSPI_H_
 
 wxSize DashboardInstrument_BaroHistory::GetSize( int orient, wxSize hint )
 {
@@ -188,20 +158,13 @@ wxSize DashboardInstrument_BaroHistory::GetSize( int orient, wxSize hint )
     }
 }
 void DashboardInstrument_BaroHistory::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
     if (st == OCPN_DBP_STC_MDA) {
         m_Press = data;
-#ifdef _TACTICSPI_H_
         if ( (m_PressRecCnt >= 0) && (m_PressRecCnt < BARO_START_AVG_CNT) ) {
             m_PressStartVal[m_PressRecCnt] = m_Press;
             m_PressRecCnt++;
@@ -210,50 +173,8 @@ void DashboardInstrument_BaroHistory::SetData(
             m_LastReceivedTime = wxDateTime::UNow().GetTm();
         }
     }
-#else
-        if(m_SpdRecCnt++<=5) m_SpdStartVal+=data;
-    }
-    if ( m_SpdRecCnt == 5 ) {
-        m_Press=  m_SpdStartVal/5;
-    }
-    //start working after we collected 5 records each, as start values for the smoothed curves
-    if (m_SpdRecCnt > 5) {
-        m_IsRunning=true;
-        m_SampleCount = m_SampleCount<BARO_RECORD_COUNT? m_SampleCount+1:BARO_RECORD_COUNT;
-        m_MaxPress = 0;
-        ;
-        //data shifting
-        for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
-            if (BARO_RECORD_COUNT-m_SampleCount <= idx)
-                m_MaxPress   = wxMax(m_ArrayPressHistory[idx-1],m_MaxPress);
-            m_MinPress   = wxMin(m_ArrayPressHistory[idx-1],m_MinPress);
-            m_ArrayPressHistory[idx-1] = m_ArrayPressHistory[idx];
-            m_ExpSmoothArrayPressure[idx-1]=m_ExpSmoothArrayPressure[idx];
-            m_ArrayRecTime[idx-1]=m_ArrayRecTime[idx];
-        }
-        m_ArrayPressHistory[BARO_RECORD_COUNT-1] = m_Press;
-        if( m_SampleCount<2) {
-            m_ArrayPressHistory[BARO_RECORD_COUNT-2] = m_Press;
-            m_ExpSmoothArrayPressure[BARO_RECORD_COUNT-2]= m_Press;
-
-        }
-        m_ExpSmoothArrayPressure[BARO_RECORD_COUNT-1]=alpha*m_ArrayPressHistory[BARO_RECORD_COUNT-2] +
-            (1-alpha)*m_ExpSmoothArrayPressure[BARO_RECORD_COUNT-2];
-        m_ArrayRecTime[BARO_RECORD_COUNT-1]=wxDateTime::UNow().GetTm();
-        m_MaxPress   = wxMax(m_Press,m_MaxPress);
-
-        m_MinPress   = wxMin(m_MinPress,m_Press);
-        if (wxMin(m_Press,m_MinPress) == -1 ) {
-            m_MinPress   = wxMin(m_Press,1200); // to make a OK inital value
-        }
-        //get the overall max min pressure
-        m_TotalMaxPress = wxMax(m_Press,m_TotalMaxPress);
-        m_TotalMinPress = wxMin(m_Press,m_TotalMinPress);
-    }
-#endif // _TACTICSPI_H_
 }
 
-#ifdef _TACTICSPI_H_
 // once every 5 seconds tick to collect pressure data received by SetData()
 void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
 {
@@ -326,7 +247,6 @@ void DashboardInstrument_BaroHistory::OnBaroHistUpdTimer(wxTimerEvent &event)
 
     } // then pressure > 0
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_BaroHistory::Draw(wxGCDC* dc)
 {
@@ -343,11 +263,7 @@ void DashboardInstrument_BaroHistory::Draw(wxGCDC* dc)
 //*********************************************************************************
 // draw pressure scale
 //*********************************************************************************
-#ifdef _TACTICSPI_H_
 void  DashboardInstrument_BaroHistory::DrawPressureScale(wxGCDC* dc)
-#else
-void  DashboardInstrument_BaroHistory::DrawWindSpeedScale(wxGCDC* dc)
-#endif // _TACTICSPI_H_
 {
   wxString label1,label2,label3,label4,label5;
   wxColour cl;
@@ -423,11 +339,7 @@ void DashboardInstrument_BaroHistory::DrawBackground(wxGCDC* dc)
   // draw legend for pressure
   //---------------------------------------------------------------------------------
 
-#ifdef _TACTICSPI_H_
   DrawPressureScale(dc);
-#else
-  DrawWindSpeedScale(dc); //porting: well, let's not correct this, for diff-methods
-#endif // _TACTICSPI_H_
 
   //---------------------------------------------------------------------------------
   // horizontal lines
@@ -458,11 +370,7 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     double ratioH;
     int degw,degh;
     int width,height,min,hour;
-#ifdef _TACTICSPI_H_
     wxString BaroPressure;
-#else
-    wxString WindAngle,WindSpeed;  //porting: well, let's not correct this, for diff-methods
-#endif // _TACTICSPI_H_
     wxPen pen;
     wxString label;
 
@@ -473,16 +381,10 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     col=wxColour(61,61,204,255); //blue, opaque
     dc->SetFont(*g_pFontData);
     dc->SetTextForeground(col);
-#ifdef _TACTICSPI_H_
     BaroPressure=wxString::Format(_T("hPa %4.1f  "),
                                   (m_LastReceivedPressure>0.0?m_LastReceivedPressure:m_Press));
     dc->GetTextExtent(BaroPressure, &degw, &degh, 0, 0, g_pFontData);
     dc->DrawText(BaroPressure, m_LeftLegend+3, m_TopLineHeight-degh);
-#else
-    WindSpeed=wxString::Format(_T("hPa %3.1f  "), m_Press);
-    dc->GetTextExtent(WindSpeed, &degw, &degh, 0, 0, g_pFontData);
-    dc->DrawText(WindSpeed, m_LeftLegend+3, m_TopLineHeight-degh);
-#endif // _TACTICSPI_H_
     dc->SetFont(*g_pFontLabel);
     //determine the time range of the available data (=oldest data value)
     int i=0;
@@ -494,7 +396,6 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
         min=m_ArrayRecTime[i].min;
         hour=m_ArrayRecTime[i].hour;
     }
-#ifdef _TACTICSPI_H_
     // Single text var to facilitate correct translations:
     wxString s_Max = _("Max");
     wxString s_Since = _("since");
@@ -502,38 +403,21 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     wxString s_Min = _("Min");
     dc->DrawText(wxString::Format(_T(" %s %.1f %s %02d:%02d  %s %.1f %s %.1f "), s_Max, m_MaxPress, s_Since, hour, min, s_OMax,
                                   m_TotalMaxPress, s_Min, m_TotalMinPress), m_LeftLegend + 3 + 2 + degw, m_TopLineHeight - degh + 2);
-#else
-    m_ratioW = double(m_DrawAreaRect.width) / (BARO_RECORD_COUNT-1);
-    dc->DrawText(wxString::Format(_(" Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "),
-                                  m_MaxPress, hour, min, m_TotalMaxPress, m_TotalMinPress), m_LeftLegend+3+2+degw,
-                 m_TopLineHeight-degh+5);
-#endif // _TACTICSPI_H_
     pen.SetStyle(wxPENSTYLE_SOLID);
-#ifdef _TACTICSPI_H_
     pen.SetColour(wxColour(61,61,204,255)); //blue, opaque
-#else
-    pen.SetColour(wxColour(61,61,204,96)); //blue, transparent
-#endif // _TACTICSPI_H_
     pen.SetWidth(1);
 
     ratioH = (double)m_DrawAreaRect.height / (double)m_MaxPressScale ;
-#ifdef _TACTICSPI_H_
     m_DrawAreaRect.SetWidth(m_WindowRect.width - 6 - m_LeftLegend - m_RightLegend);
     m_ratioW = double(m_DrawAreaRect.width) / (BARO_RECORD_COUNT-1);
     
     wxPoint  pointPressure[BARO_RECORD_COUNT+2],pointPressure_old;
     pointPressure_old.x=m_LeftLegend+3;
     pointPressure_old.y = m_TopLineHeight+m_DrawAreaRect.height - (m_ArrayPressHistory[0] - (double)m_TotalMinPress + 18) * ratioH;
-#else
-    wxPoint  pointsSpd[BARO_RECORD_COUNT+2],pointSpeed_old;
-    pointSpeed_old.x=m_LeftLegend+3;
-    pointSpeed_old.y = m_TopLineHeight+m_DrawAreaRect.height - m_ArrayPressHistory[0] * ratioH;
-#endif // _TACTICSPI_H_
 
     //---------------------------------------------------------------------------------
     // live pressure data
     //---------------------------------------------------------------------------------
-#ifdef _TACTICSPI_H_
     if ( m_IsRunning) {
         for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
             pointPressure[idx].y = m_TopLineHeight+m_DrawAreaRect.height - ((m_ArrayPressHistory[idx]-(double)m_TotalMinPress+18) * ratioH);
@@ -545,24 +429,9 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
             pointPressure_old.y=pointPressure[idx].y;
         } // for number of point
     } // then there is some data, no need to draw while we're collecting in the beginning slow data
-#else
-    for (int idx = 1; idx < BARO_RECORD_COUNT; idx++) {
-        pointsSpd[idx].y = m_TopLineHeight+m_DrawAreaRect.height - ((m_ArrayPressHistory[idx]-(double)m_TotalMinPress+18) * ratioH);
-        pointsSpd[idx].x = idx * m_ratioW -3 ;//- 30 + m_LeftLegend;
-        if(BARO_RECORD_COUNT-m_SampleCount <= idx && pointsSpd[idx].y > m_TopLineHeight && pointSpeed_old.y > m_TopLineHeight &&
-           pointsSpd[idx].y <=m_TopLineHeight+m_DrawAreaRect.height && pointSpeed_old.y<=m_TopLineHeight+m_DrawAreaRect.height)
-            dc->DrawLine( pointSpeed_old.x, pointSpeed_old.y, pointsSpd[idx].x,pointsSpd[idx].y );
-        pointSpeed_old.x=pointsSpd[idx].x;
-        pointSpeed_old.y=pointsSpd[idx].y;
-    }
-#endif // _TACTICSPI_H_
 
     //---------------------------------------------------------------------------------
-#ifdef _TACTICSPI_H_
     //draw vertical timelines every 15 minutes
-#else
-    //draw vertical timelines every 5 minutes
-#endif // _TACTICSPI_H_
     //---------------------------------------------------------------------------------
     GetGlobalColor(_T("UBLCK"), &col);
     pen.SetColour(col);
@@ -572,37 +441,27 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     dc->SetFont(*g_pFontSmall);
     int done=-1;
     wxPoint pointTime;
-#ifdef _TACTICSPI_H_
     int prevfiverfit = -15;
-#endif // _TACTICSPI_H_
     for (int idx = 0; idx < BARO_RECORD_COUNT; idx++) {
         if (m_ArrayRecTime[idx].year != 999) {
             wxDateTime localTime( m_ArrayRecTime[idx] );
             min      = localTime.GetMinute( );
             hour     = localTime.GetHour( );
-#ifndef _TACTICSPI_H_
-            int sec  = localTime.GetSecond( );
-            if ( (hour*100+min) != done && (min % 5 == 0 ) && (sec == 0 || sec == 1) ) {
-#else
             if ( (hour*100+min) != done && (min % 15 == 0 ) ) {
                 if ( min != prevfiverfit ) {
-#endif // _TACTICSPI_H_
                     pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
                     dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
                     label.Printf(_T("%02d:%02d"), hour,min);
                     dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
                     dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
                     done=hour*100+min;
-#ifdef _TACTICSPI_H_
                     prevfiverfit = min;
                 } // then avoid double printing in faster devices
-#endif // _TACTICSPI_H_
             }
         }
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& event) {
 
     if (m_isExporting == false) {
@@ -695,4 +554,3 @@ void DashboardInstrument_BaroHistory::ExportData()
     wxString str = wxString::Format(_T("%s%s%s%s%s%s%4.1f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_LastReceivedPressure);
     m_ostreamlogfile->Write(str);
 }
-#endif // _TACTICSPI_H_

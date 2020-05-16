@@ -33,27 +33,16 @@
 class DashboardInstrumentContainer
 {
 public:
-#ifdef _TACTICSPI_H_
     DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
                                  unsigned long long capa, wxString ids = _T("") )
         {
             m_ID = id; m_pInstrument = instrument; m_cap_flag = capa; m_IDs = ids;
         };
-#else
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument, int capa )
-        {
-            m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-        };
-#endif // _TACTICSPI_H_
     ~DashboardInstrumentContainer(){ delete m_pInstrument; };
     DashboardInstrument    *m_pInstrument;
     int                     m_ID;
-#ifdef _TACTICSPI_H_
     unsigned long long      m_cap_flag;
     wxString                m_IDs;
-#else
-    int                     m_cap_flag;
-#endif // _TACTICSPI_H_
 };
 
 WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);

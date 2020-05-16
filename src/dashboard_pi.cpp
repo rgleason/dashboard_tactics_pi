@@ -46,8 +46,8 @@
 using namespace std;
 
 #include "icons.h"
-#include "wx/jsonreader.h"
-#include "wx/jsonwriter.h"
+#include "wxJSON/jsonreader.h"
+#include "wxJSON/jsonwriter.h"
 
 #include "ocpn_plugin.h"
 #include <wx/glcanvas.h>
@@ -3718,7 +3718,6 @@ void DashboardWindow::SetSizerOrientation( int orient )
         node->GetData()->SetMinSize( wxDefaultSize );
         node = node->GetNext();
     }
-// #endif // _TACTICSPI_H_
     SetMinSize( wxDefaultSize );
     Fit();
     SetMinSize( itemBoxSizer->GetMinSize() );

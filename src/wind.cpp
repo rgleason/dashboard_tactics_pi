@@ -46,11 +46,7 @@
 // We also want the extra value (wind speed) displayed inside the dial
 
 DashboardInstrument_Wind::DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                     unsigned long long cap_flag
-#else
-                                                    int cap_flag
-#endif // _TACTICSPI_H_
                                                     ) :
       DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
 {
@@ -66,11 +62,7 @@ void DashboardInstrument_Wind::DrawBackground(wxGCDC* dc)
 }
 
 DashboardInstrument_WindCompass::DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                                   unsigned long long cap_flag
-#else
-                                                                  int cap_flag
-#endif // _TACTICSPI_H_
     ) :
       DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360 )
 {
@@ -88,11 +80,7 @@ void DashboardInstrument_WindCompass::DrawBackground(wxGCDC* dc)
 // We also want the extra value (wind speed) displayed inside the dial
 
 DashboardInstrument_TrueWindAngle::DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                                       unsigned long long cap_flag
-#else
-                                                                      int cap_flag
-#endif // _TACTICSPI_H_
     ) :
     DashboardInstrument_Dial( parent, id, title, cap_flag, 0, 360, 0, 360)
 {
@@ -112,11 +100,7 @@ void DashboardInstrument_TrueWindAngle::DrawBackground(wxGCDC* dc)
   Author: Thomas Rauch
 ******************************************************************************/
 DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                                            unsigned long long cap_flag
-#else
-                                                                           int cap_flag
-#endif // _TACTICSPI_H_
     ) :
     DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
 {
@@ -128,10 +112,8 @@ DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWin
 	m_MainValueTrue = NAN;
 	m_ExtraValueApp = NAN;
 	m_ExtraValueTrue = NAN;
-#ifdef _TACTICSPI_H_
 	m_TWD = NAN;
 	m_TWDUnit = _T("");
-#endif // _TACTICSPI_H_
     m_MainValueOption1 = DIAL_POSITION_NONE;
     m_MainValueOption2 = DIAL_POSITION_NONE;
     m_ExtraValueOption1 = DIAL_POSITION_NONE;
@@ -144,18 +126,11 @@ void DashboardInstrument_AppTrueWindAngle::DrawBackground(wxGCDC* dc)
 }
 
 void DashboardInstrument_AppTrueWindAngle::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 { 
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
@@ -184,7 +159,6 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
         } // perhaps TWS watchdog has hit, reset both TWA and TWS.
         return;
     } // else invalid data received
-#endif // _TACTICSPI_H_
 
     if (st == OCPN_DBP_STC_TWA){
         m_MainValueTrue = data;
@@ -206,12 +180,10 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
         m_ExtraValueTrueUnit = unit;
         m_ExtraValueOption2 = DIAL_POSITION_BOTTOMRIGHT;
     }
-#ifdef _TACTICSPI_H_
     else if (st == OCPN_DBP_STC_TWD){
         m_TWD = data;
         m_TWDUnit = unit;
     }
-#endif // _TACTICSPI_H_
     Refresh();
 }
 void DashboardInstrument_AppTrueWindAngle::Draw(wxGCDC* bdc)
@@ -240,9 +212,7 @@ void DashboardInstrument_AppTrueWindAngle::Draw(wxGCDC* bdc)
 	DrawData(bdc, m_MainValueTrue, m_MainValueTrueUnit, m_MainValueFormat, m_MainValueOption2);
 	DrawData(bdc, m_ExtraValueApp, m_ExtraValueAppUnit, m_ExtraValueFormat, m_ExtraValueOption1);
 	DrawData(bdc, m_ExtraValueTrue, m_ExtraValueTrueUnit, m_ExtraValueFormat, m_ExtraValueOption2);
-#ifdef _TACTICSPI_H_
 	DrawData(bdc, m_TWD, m_MainValueTrueUnit, _T("TWD:%.0f"), DIAL_POSITION_INSIDE);
-#endif // _TACTICSPI_H_    
 	DrawForeground(bdc);
 }
 void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
@@ -267,9 +237,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 	dc->DrawCircle(m_cx, m_cy, m_radius / 8);
 
 	/*True Wind*/
-#ifdef _TACTICSPI_H_
 	if (!std::isnan(m_ExtraValueTrue)){  //m_ExtraValueTrue = True Wind Angle; we have a watchdog for TWS; if TWS becomes NAN, TWA must be NAN as well
-#endif //_TACTICSPI_H_ 
         dc->SetPen(*wxTRANSPARENT_PEN);
 
         GetGlobalColor(_T("BLUE3"), &cl);
@@ -281,11 +249,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
         /* this is fix for a +/-180 deg. round instrument, when
            m_MainValue is supplied as <0..180><L | R>
            * for example TWA & AWA */
-#ifdef _TACTICSPI_H_
         if (m_MainValueTrueUnit == (DEGREE_SIGN + L"\u2192") )
-#else
-        if (m_MainValueTrueUnit == _T("\u00B0L"))
-#endif // _TACTICSPI_H_
             data = 360 - m_MainValueTrue;
         else
             data = m_MainValueTrue;
@@ -306,14 +270,10 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
         points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
         points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
         dc->DrawPolygon(4, points, 0, 0);
-#ifdef _TACTICSPI_H_
     }
-#endif // _TACTICSPI_H_
 
 	/* Apparent Wind*/
-#ifdef _TACTICSPI_H_
     if (!std::isnan(m_ExtraValueApp)){ //m_ExtraValueApp=AWA; we have a watchdog for AWS; if AWS becomes NAN, AWA will also be NAN ...
-#endif // _TACTICSPI_H_
 	dc->SetPen(*wxTRANSPARENT_PEN);
 
 	GetGlobalColor(_T("DASHN"), &cl);
@@ -325,11 +285,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 	/* this is fix for a +/-180deg. round instrument,
        when m_MainValue is supplied as <0..180><L | R>
        * for example TWA & AWA */
-#ifdef _TACTICSPI_H_
     if (m_MainValueAppUnit == (DEGREE_SIGN + L"\u2192") )
-#else
-    if (m_MainValueAppUnit == _T("\u00B0L"))
-#endif // _TACTICSPI_H_
 		data = 360 - m_MainValueApp;
 	else
 		data = m_MainValueApp;
@@ -350,9 +306,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 	points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
 	points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
 	dc->DrawPolygon(4, points, 0, 0);
-#ifdef _TACTICSPI_H_
     }
-#endif // _TACTICSPI_H_
 }
 void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 	wxString unit, wxString format, DialPositionOption position)
@@ -370,11 +324,9 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 	wxString text;
 	if (!std::isnan(value))
 	{
-#ifdef _TACTICSPI_H_
         if ( (unit != (DEGREE_SIGN + L"\u2192")) && (unit != (DEGREE_SIGN + L"\u2190")) &&
              (unit != (DEGREE_SIGN + L"\u2191")) && (unit != (DEGREE_SIGN + L"\u2193")) )
         {
-#endif
             if (unit == _T("\u00B0"))
                 text = wxString::Format(format, value) + DEGREE_SIGN;
             else if (unit == _T("\u00B0L")) // No special display for now, might be XXdeg< (as in text-only instrument)
@@ -389,12 +341,10 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
                 text = wxString::Format(format, value) + _T(" Kts");
             else
                 text = wxString::Format(format, value) + _T(" ") + unit;
-#ifdef _TACTICSPI_H_
         } // then "unit" value is not set yet for wind SetData()data,
         else {
             text = wxString::Format(format, value) + unit;
         } // else "unit" value has been set for wind SetData()data,
-#endif
 	}
 	else
 		text = _T("---");

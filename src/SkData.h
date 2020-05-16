@@ -43,7 +43,7 @@
 #include <wx/wx.h>
 #endif
 
-#include "wx/jsonval.h"
+#include "wxJSON/jsonval.h"
 
 #include "StreamoutSchema.h"
 
