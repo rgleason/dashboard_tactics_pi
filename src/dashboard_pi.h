@@ -45,6 +45,11 @@
 
 #include "ocpn_plugin.h"
 
+class dashboard_pi;
+#include "DashboardWindowContainer.h"
+#include "DashboardPreferencesDialog.h"
+#include "DashboardWindow.h"
+#include "AddInstrumentDlg.h"
 #include "tactics_pi.h"
 
 #include "version.h"
@@ -208,75 +213,6 @@ protected:
     DECLARE_EVENT_TABLE();
 };
   
-class DashboardPreferencesDialog : public
-    TacticsPreferencesDialog
-{
-public:
-    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
-                                , wxString commonName, wxString nameVersion, wxPoint pos = wxDefaultPosition
-        );
-    ~DashboardPreferencesDialog() {}
-
-    void OnCloseDialog(wxCloseEvent& event);
-    void OnDashboardSelected(wxListEvent& event);
-    void OnDashboardAdd(wxCommandEvent& event);
-    void OnDashboardDelete(wxCommandEvent& event);
-    void OnInstrumentSelected(wxListEvent& event);
-    void OnInstrumentAdd(wxCommandEvent& event);
-    void OnInstrumentEdit(wxCommandEvent& event);
-    void OnInstrumentDelete(wxCommandEvent& event);
-    void OnInstrumentUp(wxCommandEvent& event);
-    void OnInstrumentDown(wxCommandEvent& event);
-    void SaveDashboardConfig();
-
-    wxArrayOfDashboard            m_Config;
-    wxNotebook                   *m_itemNotebook;
-    wxFontPickerCtrl             *m_pFontPickerTitle;
-    wxFontPickerCtrl             *m_pFontPickerData;
-    wxFontPickerCtrl             *m_pFontPickerLabel;
-    wxFontPickerCtrl             *m_pFontPickerSmall;
-    wxSpinCtrl                   *m_pSpinSpeedMax;
-    wxSpinCtrl                   *m_pSpinCOGDamp;
-    wxSpinCtrl                   *m_pSpinSOGDamp;
-    wxChoice                     *m_pChoiceUTCOffset;
-    wxChoice                     *m_pChoiceSpeedUnit;
-    wxChoice                     *m_pChoiceDepthUnit;
-    wxSpinCtrlDouble             *m_pSpinDBTOffset;
-    wxChoice                     *m_pChoiceDistanceUnit;
-    wxChoice                     *m_pChoiceWindSpeedUnit;
-    wxChoice                     *m_pChoiceTemperatureUnit;
-
-private:
-    void UpdateDashboardButtonsState(void);
-    void UpdateButtonsState(void);
-    int                           curSel;
-    wxListCtrl                   *m_pListCtrlDashboards;
-    wxBitmapButton               *m_pButtonAddDashboard;
-    wxBitmapButton               *m_pButtonDeleteDashboard;
-    wxPanel                      *m_pPanelDashboard;
-    wxTextCtrl                   *m_pTextCtrlCaption;
-    wxCheckBox                   *m_pCheckBoxIsVisible;
-    wxChoice                     *m_pChoiceOrientation;
-    wxListCtrl                   *m_pListCtrlInstruments;
-    wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
-    wxButton                     *m_pButtonDelete;
-    wxButton                     *m_pButtonUp;
-    wxButton                     *m_pButtonDown;
-};
-
-class AddInstrumentDlg : public wxDialog
-{
-public:
-    AddInstrumentDlg(wxWindow *pparent, wxWindowID id);
-    ~AddInstrumentDlg() {}
-
-    unsigned int GetInstrumentAdded();
-
-private:
-    wxListCtrl*                   m_pListCtrlInstruments;
-
-};
 
 enum
 {
