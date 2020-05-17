@@ -145,7 +145,7 @@ function updateTitleWithValue( valueStr ) {
     }
 }
 
-/*eslint complexity: ['error', {'properties': 'never'}]*/
+/*eslint complexity: ['error', 35]*/
 export function showData( that ) {
     if ( dbglevel > 0 )
         console.log('showData()')
