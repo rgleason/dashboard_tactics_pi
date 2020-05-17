@@ -78,6 +78,7 @@ wxJSONRefData::wxJSONRefData()
     m_lineNo   = -1;
     m_refCount = 1;
     m_memBuff  = 0;
+    m_commentPos = 0;
 
 #if defined( WXJSON_USE_VALUE_COUNTER )
     m_progr = sm_progr;
@@ -1322,6 +1323,7 @@ wxJSONValue::AsCString( wxChar* ch ) const
     bool r = IsCString();
     if ( r )    {
         // cppcheck-suppress unreadVariable
+        // cppcheck-suppress uselessAssignmentPtrArg
         ch = (wxChar*) AsCString();
     }
     return r;

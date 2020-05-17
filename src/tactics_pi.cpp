@@ -97,6 +97,8 @@ tactics_pi::tactics_pi( void )
 {
     m_hostplugin = NULL;
     m_hostplugin_pconfig = NULL;
+    m_pmenu = NULL;
+    // cppcheck-suppress noCopyConstructor
     m_pSkData = new SkData();
     b_tactics_dc_message_shown = false;
 

@@ -202,6 +202,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_bToggledStateVisible = false;
     m_iPlugInRequirements = 0;
     m_pluginFrame = NULL;
+    m_show_id = 0;
+    m_hide_id = 0;
+    // cppcheck-suppress noCopyConstructor
     m_NMEA0183 = new NMEA0183();
     mPriPosition = 99;
     mPriCOGSOG = 99;

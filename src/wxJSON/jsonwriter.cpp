@@ -201,6 +201,7 @@ wxJSONWriter::wxJSONWriter( int style, int indent, int step )
     m_indent = indent;
     m_step   = step;
     m_style  = style;
+    m_colNo  = 0;
     m_noUtf8 = false;
     if ( m_style == wxJSONWRITER_NONE )  {
         m_indent = 0;
