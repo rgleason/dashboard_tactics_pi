@@ -612,6 +612,7 @@ wxJSONValue::IsInt() const
     }
     else if ( type == wxJSONTYPE_LONG )  {
         // in case of LONG, check if the bit width is the same
+        // cppcheck-suppress ConfigurationNotChecked
         if ( INT_MAX == LONG_MAX )  {
             r = true;
         }
@@ -2413,6 +2414,7 @@ wxJSONValue::IsSameAs( const wxJSONValue& other ) const
         case wxJSONTYPE_INT :
             if ( otherData->m_type == wxJSONTYPE_UINT )    {
                 // compare the bits and returns true if value is between 0 and LLONG_MAX
+                // cppcheck-suppress ConfigurationNotChecked
                 if ( (data->m_value.VAL_UINT <= LLONG_MAX ) &&
                      (data->m_value.VAL_UINT == otherData->m_value.VAL_UINT))
                 {
