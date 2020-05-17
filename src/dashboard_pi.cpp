@@ -86,6 +86,7 @@ const char *dashboard_pi::s_common_name = "DashT";
 
 extern "C" DECL_EXP opencpn_plugin* create_pi( void *ppimgr )
 {
+    // cppcheck-suppress cstyleCast
     return (opencpn_plugin *) new dashboard_pi( ppimgr );
 }
 
@@ -1328,9 +1329,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 
             if (m_NMEA0183->Parse()) {
                 wxString xdrunit;
-                double xdrdata;
                 for (int i = 0; i<m_NMEA0183->Xdr.TransducerCnt; i++) {
-                    xdrdata = m_NMEA0183->Xdr.TransducerInfo[i].Data;
+                    double xdrdata = m_NMEA0183->Xdr.TransducerInfo[i].Data;
                     // XDR Airtemp
                     if (m_NMEA0183->Xdr.TransducerInfo[i].Type == _T("C")) {
                         double TemperatureValue               = xdrdata;
@@ -2168,7 +2168,7 @@ void dashboard_pi::UpdateAuiStatus( void )
 
 bool dashboard_pi::LoadConfig( void )
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_pconfig;
+    wxFileConfig *pConf = static_cast <wxFileConfig *>(m_pconfig);
 
     if( pConf ) {
 

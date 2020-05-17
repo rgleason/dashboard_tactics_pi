@@ -800,7 +800,7 @@ void DashboardWindow::SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sa
                  OCPN_DBP_STC_GPS) == 0ULL))
             && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf(
                 CLASSINFO(DashboardInstrument_GPS)))
-            ((DashboardInstrument_GPS*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetSatInfo(
+            static_cast <DashboardInstrument_GPS*>(m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetSatInfo(
                 cnt, seq, sats);
     }
 }
