@@ -427,9 +427,8 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
         DashboardWindowContainer *oldcont = new DashboardWindowContainer( cont );
         cont->m_aInstrumentList.Clear();
         cont->m_aInstrumentIDs.Clear();
-        int id;
         for( int i = 0; i < m_pListCtrlInstruments->GetItemCount(); i++ ) {
-            id = (int) m_pListCtrlInstruments->GetItemData( i );
+            int id = (int) m_pListCtrlInstruments->GetItemData( i );
             int j = 0;
             int oldmax = oldcont->m_aInstrumentIDs.GetCount();
             bool idMatch = false;
