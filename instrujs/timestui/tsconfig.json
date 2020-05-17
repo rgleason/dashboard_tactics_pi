@@ -21,7 +21,7 @@
                   }
               }]
             ],
-            plugins: ["@babel/plugin-transform-runtime"]
+            "plugins": ["@babel/plugin-transform-runtime"]
         },
         "babelCore": "@babel/core",
         "useCache": true
