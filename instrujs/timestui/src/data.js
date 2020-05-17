@@ -70,8 +70,8 @@ function strMinSecSinceEpoch( cntSec ) {
     let mSinceBigBang = d.getMinutes()
     let sSinceBigBang = d.getSeconds()
     var leadZeroStr = function (num) {
-       var s = "0" + num;
-       return s.substr(s.length-2);
+       var s = '0' + num
+       return s.substr(s.length-2)
     }
     let mStr = leadZeroStr(mSinceBigBang)
     let sStr = leadZeroStr(sSinceBigBang)

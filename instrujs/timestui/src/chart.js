@@ -24,7 +24,7 @@ var theme
 
 export function startTimesTuiChart() {
 
-    container = document.getElementById('chart0');
+    container = document.getElementById('chart0')
 
     // Data shifting logic - see ToastUI's example https://git.io/Jvh92
 
@@ -79,7 +79,7 @@ export function startTimesTuiChart() {
         },
         usageStatistics: false
     }
-    chart = tui.lineChart(container, chartData, options);
+    chart = tui.lineChart(container, chartData, options)
     if ( dbglevel > 1 )
         console.log('startTimesTuiChart() - chart: ', chart)
 
