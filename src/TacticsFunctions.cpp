@@ -29,7 +29,7 @@ using namespace std;
 
 #include <wx/gdicmn.h>
 
-#include "Performance.h"
+#include "TacticsFunctions.h"
 #include "Polar.h"
 
 extern Polar* BoatPolar;

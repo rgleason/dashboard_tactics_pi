@@ -527,7 +527,7 @@ void DashboardPreferencesDialog::OnDashboardAdd( wxCommandEvent& event )
     wxArrayInt ar;
     wxArrayString idar;
     DashboardWindowContainer *dwc = new DashboardWindowContainer( NULL, MakeName(),
-                                                                  _("Dashboard_Tactics"),
+                                                                  _("DashT"),
                                                                   _T("V"), ar, idar );
     dwc->m_bIsVisible = true;
     dwc->m_bPersVisible = true;

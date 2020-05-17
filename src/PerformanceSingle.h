@@ -42,7 +42,7 @@
 
 class DoubleExpSmooth;
 #include "avg_wind.h"
-#include "Performance.h"
+#include "TacticsFunctions.h"
 
 //+------------------------------------------------------------------------------
 //|

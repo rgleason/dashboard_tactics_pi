@@ -47,7 +47,7 @@ using namespace std;
 
 #include "nmea0183/nmea0183.h"
 
-#include "Performance.h"
+#include "TacticsFunctions.h"
 #include "PolarPerformance.h"
 
 extern Polar* BoatPolar;

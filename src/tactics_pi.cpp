@@ -454,7 +454,7 @@ bool tactics_pi::LoadConfig_CheckTacticsPlugin( wxFileConfig *pConf )
     if (!this->StandaloneTacticsSettingsExists ( pConf ))
         return false;
     wxString message(
-        _("Import existing Tactics plugin settings into Dashboard's integrated Tactics settings? (Cancel=later)"));
+        _("Import existing Tactics plug-in settings into DashT? (Cancel=later)"));
     wxMessageDialog *dlg = new wxMessageDialog(
         GetOCPNCanvasWindow(), message, _T("Dashboard configuration choice"), wxYES_NO|wxCANCEL);
     int choice = dlg->ShowModal();

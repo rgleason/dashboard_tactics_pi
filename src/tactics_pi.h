@@ -48,7 +48,7 @@
 
 #include "ocpn_plugin.h"
 #include "instrument.h"
-#include "Performance.h"
+#include "TacticsFunctions.h"
 #include "Polar.h"
 #include "PerformanceSingle.h"
 #include "PolarPerformance.h"
