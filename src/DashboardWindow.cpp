@@ -301,12 +301,13 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
     Layout();
     Refresh();
 
-    DashboardInstrument *instrument;
-    
     for( size_t i = 0; i < list.GetCount(); i++ ) {
+
+        DashboardInstrument *instrument;
+        instrument = NULL;
         int id = list.Item( i );
         wxString ids = listIDs.Item( i );
-        instrument = NULL;
+
         switch( id ){
         case ID_DBP_I_POS:
             instrument = new DashboardInstrument_Position( this, wxID_ANY,
@@ -404,9 +405,9 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
         case ID_DBP_D_AWA_TWA: //App/True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_AppTrueWindAngle(this, wxID_ANY,
                                                                   getInstrumentCaption(id), OCPN_DBP_STC_AWA | OCPN_DBP_STC_TWA);
-            ((DashboardInstrument_Dial *)instrument)->SetOptionMainValue(_T("%.0f"),
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionMainValue(_T("%.0f"),
                                                                          DIAL_POSITION_NONE);
-            ((DashboardInstrument_Dial *)instrument)->SetOptionExtraValue(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionExtraValue(
                 OCPN_DBP_STC_TWS | OCPN_DBP_STC_AWS, _T("%.1f"), DIAL_POSITION_NONE);
             break;
         case ID_DBP_D_TWD: //True Wind direction and speed
@@ -576,12 +577,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON |
                 OCPN_DBP_STC_STW | OCPN_DBP_STC_AWA |
                 OCPN_DBP_STC_TWS | OCPN_DBP_STC_TWD);
-            ((DashboardInstrument_Dial *) instrument)->SetOptionMarker(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionMarker(
                 5, DIAL_MARKER_SIMPLE, 2);
-            ((DashboardInstrument_Dial *) instrument)->SetOptionLabel(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionLabel(
                 30, DIAL_LABEL_ROTATED);
-            ((DashboardInstrument_Dial *)
-             instrument)->SetOptionExtraValue(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionExtraValue(
                  OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
             break;
         case ID_DBP_D_POLCOMP: // Polar Compass
@@ -594,12 +594,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON |
                 OCPN_DBP_STC_STW | OCPN_DBP_STC_AWA |
                 OCPN_DBP_STC_TWS | OCPN_DBP_STC_TWD);
-            ((DashboardInstrument_Dial *) instrument)->SetOptionMarker(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionMarker(
                 5, DIAL_MARKER_SIMPLE, 2);
-            ((DashboardInstrument_Dial *) instrument)->SetOptionLabel(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionLabel(
                 30, DIAL_LABEL_ROTATED);
-            ((DashboardInstrument_Dial *)
-             instrument)->SetOptionExtraValue(
+            static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionExtraValue(
                  OCPN_DBP_STC_DTW, _T("%.2f"), DIAL_POSITION_TOPLEFT);
             break;
         case ID_DBP_I_TWAMARK:
@@ -608,40 +607,35 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 getInstrumentCaption(id),
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD |
                 OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON, _T("%5.0f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(TWAMARK);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(TWAMARK);
             break;
 		case ID_DBP_I_POLSPD:
             instrument = new TacticsInstrument_PerformanceSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_STW |
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARSPEED);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARSPEED);
             break;
         case ID_DBP_I_POLVMG:
             instrument = new TacticsInstrument_PerformanceSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_STW |
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARVMG);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARVMG);
             break;
         case ID_DBP_I_POLTVMG:
             instrument = new TacticsInstrument_PerformanceSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_STW |
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARTARGETVMG);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARTARGETVMG);
             break;
         case ID_DBP_I_POLTVMGANGLE:
             instrument = new TacticsInstrument_PerformanceSingle(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_STW |
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARTARGETVMGANGLE);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARTARGETVMGANGLE);
             break;
         case ID_DBP_I_POLCMG:
             instrument = new TacticsInstrument_PerformanceSingle(
@@ -649,8 +643,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 getInstrumentCaption(id), OCPN_DBP_STC_STW |
                 OCPN_DBP_STC_COG | OCPN_DBP_STC_SOG | OCPN_DBP_STC_BRG |
                 OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARCMG);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARCMG);
             break;
         case ID_DBP_I_POLTCMG:
             instrument = new TacticsInstrument_PerformanceSingle(
@@ -659,8 +652,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS | OCPN_DBP_STC_HDT |
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD | OCPN_DBP_STC_LAT |
                 OCPN_DBP_STC_LON, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARTARGETCMG);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARTARGETCMG);
             break;
         case ID_DBP_I_POLTCMGANGLE:
             instrument = new TacticsInstrument_PerformanceSingle(
@@ -669,8 +661,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
                 OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWS | OCPN_DBP_STC_HDT |
                 OCPN_DBP_STC_BRG | OCPN_DBP_STC_TWD | OCPN_DBP_STC_LAT |
                 OCPN_DBP_STC_LON, _T("%.2f"));
-            ((TacticsInstrument_PerformanceSingle *)
-             instrument)->SetDisplayType(POLARTARGETCMGANGLE);
+            static_cast <TacticsInstrument_PerformanceSingle *>(instrument)->SetDisplayType(POLARTARGETCMGANGLE);
             break;
         case ID_DBP_V_IFLX:
             instrument = new TacticsInstrument_StreamoutSingle(
@@ -823,7 +814,7 @@ void DashboardWindow::SendUtcTimeToAllInstruments( wxDateTime value )
              && m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Clock ) ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Sun ) )
             //                  || m_ArrayOfInstrument.Item( i )->m_pInstrument->IsKindOf( CLASSINFO( DashboardInstrument_Moon ) ) ) )
-            ((DashboardInstrument_Clock*) m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
+             static_cast <DashboardInstrument_Clock*>(m_ArrayOfInstrument.Item(i)->m_pInstrument)->SetUtcTime( value );
     }
 }
 
