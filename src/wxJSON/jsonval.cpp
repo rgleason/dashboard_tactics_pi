@@ -14,7 +14,7 @@
 #define wxDEBUG_LEVEL 0
 #endif
 
-#include <limits.h>
+#include <climits>
 
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
@@ -507,7 +507,7 @@ wxJSONValue::GetType() const
         switch ( type )  {
             case wxJSONTYPE_INT :
             // check if the integer fits in a SHORT INT
-                if ( data->m_value.VAL_INT >= SHORT_MIN &&
+                if ( data->m_value.VAL_INT >= SHRT_MIN &&
                                 data->m_value.VAL_INT <= SHRT_MAX ) {
                     type = wxJSONTYPE_SHORT;
                 }

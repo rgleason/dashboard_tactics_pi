@@ -8,6 +8,8 @@
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+
 #ifdef NDEBUG
 // make wxLogTrace a noop if no debug set, it's really slow
 // must be defined before including debug.h
