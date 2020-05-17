@@ -25,14 +25,14 @@
         },
         "babelCore": "@babel/core",
         "useCache": true
-    }
+    },
     "include": [
         "src/**/*.ts",
         "../src/influxdb-client/packages/core/src/*.ts",
         "../src/influxdb-client/packages/core/src/impl/*.ts",
         "../src/influxdb-client/packages/core/src/query/*.ts",
         "../src/influxdb-client/packages/core/src/util/*.ts"
-    ]
+    ],
     "exclude": [
         "node_modules",
         "*.js",
