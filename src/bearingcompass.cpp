@@ -41,7 +41,8 @@
 #include <wx/wx.h>
 #endif
 #include "wx/tokenzr.h"
-#include "performance.h"
+#include "ExpSmooth.h"
+#include "Polar.h"
 #include <cmath>
 
 extern int g_iMinLaylineWidth;
@@ -93,8 +94,9 @@ DashboardInstrument_Dial(parent, id, title, cap_flag, 0, 360, 0, 360)
     m_ExpSmoothDegRange = 0.0;
     alpha_diffCogHdt = 0.1;
     m_LaylineDegRange = 0.0;
-    for (int i = 0; i < COGRANGE; i++)
+    for (int i = 0; i < COGRANGE; i++) {
         m_COGRange[i] = 0;
+    }
 	m_Cog = -999.9;
 	m_ExpSmoothDiffCogHdt = 0.0;
 	m_oldExpSmoothDiffCogHdt = 0.0;

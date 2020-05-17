@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: wind_history.h, v1.0 2010/08/30 tom-r Exp $
+* $Id: avg_wind.h, v1.0 2010/08/30 tom-r Exp $
 *
 * Project:  OpenCPN
 * Purpose:  Tactics_pi Plugin
@@ -43,7 +43,8 @@
 
 #include "instrument.h"
 #include "dial.h"
-#include "performance.h"
+
+#include "DoubleExpSmooth.h"
 
 // class for calculation of the average wind direction 
 class AvgWind

@@ -42,11 +42,9 @@
     #include <wx/wx.h>
 #endif
 
-#ifdef _TACTICSPI_H_
 #ifndef __DERIVEDTIMEOUT_OVERRIDE__
 #define __DERIVEDTIMEOUT_OVERRIDE__
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-#endif // _TACTICSPI_H_
 #include "dial.h"
 
 //+------------------------------------------------------------------------------
@@ -63,21 +61,13 @@ class DashboardInstrument_Compass: public DashboardInstrument_Dial
 public:
     DashboardInstrument_Compass(
         wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
         unsigned long long cap_flag
-#else
-        int cap_flag
-#endif // _TACTICSPI_H_
                 );
 
     ~DashboardInstrument_Compass(void){}
 
-#ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
     void derivedTimeoutEvent(void) override;
-#else
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
 
 private:
 

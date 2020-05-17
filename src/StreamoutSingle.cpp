@@ -34,7 +34,7 @@
 
 #include "StreamoutSingle.h"
 #include "ocpn_plugin.h"
-#include "wx/jsonreader.h"
+#include "wxJSON/jsonreader.h"
 #include "plugin_ids.h"
 
 extern int g_iDashWindSpeedUnit;
@@ -178,7 +178,6 @@ void TacticsInstrument_StreamoutSingle::OnClose( wxCloseEvent &event )
     }
     event.Skip(); // let the destructor to finalize
 }
-/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/

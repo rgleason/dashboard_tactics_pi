@@ -14,7 +14,7 @@
 #define wxDEBUG_LEVEL 0
 #endif
 
-#include <wx/jsonreader.h>
+#include "jsonreader.h"
 
 #include <wx/mstream.h>
 #include <wx/sstream.h>

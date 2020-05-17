@@ -40,9 +40,8 @@
 #include "DashboardInstrumentContainer.h"
 #include "DashboardWindowContainer.h"
 #include "dashboard_pi.h"
+#include "ocpn_plugin.h"
 #include "nmea0183/SatInfo.h"
-
-class dashboard_pi;
 
 class DashboardWindow : public TacticsWindow
 {

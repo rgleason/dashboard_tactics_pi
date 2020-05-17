@@ -40,7 +40,7 @@ using namespace std;
 #include <wx/thread.h>
 #include <wx/socket.h>
 
-#include "wx/jsonval.h"
+#include "wxJSON/jsonval.h"
 
 #include "instrument.h"
 #include "SkData.h"

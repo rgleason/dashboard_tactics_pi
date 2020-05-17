@@ -33,8 +33,8 @@
 #include <wx/sckstrm.h>
 #include <wx/tokenzr.h>
 
-#include "wx/jsonreader.h"
-#include "wx/jsonwriter.h"
+#include "wxJSON/jsonreader.h"
+#include "wxJSON/jsonwriter.h"
 #include "plugin_ids.h"
 
 #include "dashboard_pi.h"
@@ -180,7 +180,6 @@ void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &event )
     }
     event.Skip(); // let the destructor to finalize
 }
-/***********************************************************************************
 /***********************************************************************************
 
 ************************************************************************************/

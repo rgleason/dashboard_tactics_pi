@@ -30,33 +30,36 @@
 
 #include "instrument.h"
 
+class DashboardWindow;
+
 class DashboardWindowContainer
 {
 public:
-#ifdef _TACTICSPI_H_
-    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation,
-                             wxArrayInt inst, wxArrayString instID ) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation;
-        m_aInstrumentList = inst; m_aInstrumentIDs = instID;
-        m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
-#else
-    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; m_bIsDocked = false; }
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
-    DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
-            m_pDashboardWindow = sourcecont->m_pDashboardWindow;
-            m_bIsVisible       = sourcecont->m_bIsVisible;
-            m_bIsDeleted       = sourcecont->m_bIsDeleted;
-            m_bIsDocked        = sourcecont->m_bIsDocked;
-            m_bPersVisible     = sourcecont->m_bPersVisible;
-            m_sName            = sourcecont->m_sName;
-            m_sCaption         = sourcecont->m_sCaption;
-            m_sOrientation     = sourcecont->m_sOrientation;
-            m_aInstrumentList  = sourcecont->m_aInstrumentList;
-            m_aInstrumentIDs   = sourcecont->m_aInstrumentIDs;
+    DashboardWindowContainer(
+        DashboardWindow *dashboard_window, wxString name, wxString caption,
+        wxString orientation, wxArrayInt inst, wxArrayString instID ) {
+        m_pDashboardWindow = dashboard_window;
+        m_sName = name;
+        m_sCaption = caption;
+        m_sOrientation = orientation;
+        m_aInstrumentList = inst;
+        m_aInstrumentIDs = instID;
+        m_bIsVisible = false;
+        m_bIsDeleted = false;
+        m_bIsDocked = false;
     }
-#endif // _TACTICSPI_H_
+    DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
+        m_pDashboardWindow = sourcecont->m_pDashboardWindow;
+        m_bIsVisible       = sourcecont->m_bIsVisible;
+        m_bIsDeleted       = sourcecont->m_bIsDeleted;
+        m_bIsDocked        = sourcecont->m_bIsDocked;
+        m_bPersVisible     = sourcecont->m_bPersVisible;
+        m_sName            = sourcecont->m_sName;
+        m_sCaption         = sourcecont->m_sCaption;
+        m_sOrientation     = sourcecont->m_sOrientation;
+        m_aInstrumentList  = sourcecont->m_aInstrumentList;
+        m_aInstrumentIDs   = sourcecont->m_aInstrumentIDs;
+    }
  
     ~DashboardWindowContainer(){}
 
@@ -69,9 +72,7 @@ public:
     wxString                  m_sCaption;
     wxString                  m_sOrientation;
     wxArrayInt                m_aInstrumentList;
-#ifdef _TACTICSPI_H_
     wxArrayString             m_aInstrumentIDs;
-#endif // _TACTICSPI_H_
 };
 
 WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);

@@ -48,13 +48,19 @@
 
 #include "ocpn_plugin.h"
 #include "instrument.h"
-#include "performance.h"
+#include "TacticsFunctions.h"
+#include "Polar.h"
+#include "PerformanceSingle.h"
+#include "PolarPerformance.h"
+#include "ExpSmooth.h"
+#include "DoubleExpSmooth.h"
 #include "bearingcompass.h"
 #include "avg_wind.h"
 #include "polarcompass.h"
 #include "StreamoutSingle.h"
 #include "SkData.h"
 #include "StreamInSkSingle.h"
+#include "TacticsPreferencesDialog.h"
 #include "TacticsWindow.h"
 
 
@@ -79,8 +85,6 @@ enum dbgTrueWindStartMval {
     DBGRES_MVAL_UNKNOWN, DBGRES_MVAL_INVALID, DBGRES_MVAL_AVAILABLE, DBGRES_MVAL_IS_ZERO, DBGRES_MVAL_IS_NEG };
 enum dbgTrueWindExecStat {
     DBGRES_EXEC_UNKNOWN, DBGRES_EXEC_FALSE, DBGRES_EXEC_TWDONLY_TRUE, DBGRES_EXEC_TRUE };
-enum dbgPolarStat {
-    DBGRES_POLAR_UNKNOWN, DBGRES_POLAR_INVALID, DBGRES_POLAR_VALID };
 
 
 class tactics_pi
@@ -277,6 +281,7 @@ private:
     double               mPredictedSoG;
     double               mPercentTargetVMGupwind;
     double               mPercentTargetVMGdownwind;
+    double               mPercentUserTargetSpeed;
     TargetxMG            tvmg;
     TargetxMG            tcmg;
     double               mVMGGain;
@@ -337,94 +342,6 @@ private:
     void SendNMEASentence( wxString sentence );
     wxString ComputeChecksum(wxString sentence);
 
-};
-
-class TacticsPreferencesDialog : public wxDialog
-{
-public:
-    TacticsPreferencesDialog(
-        wxWindow *pparent, wxWindowID id, const wxString derivtitle, wxPoint pos = wxDefaultPosition );
-    ~TacticsPreferencesDialog() {}
-
-    virtual void TacticsPreferencesInit(
-        wxNotebook *itemNotebook, int border_size) final;
-    virtual void TacticsPreferencesPanel(void) final;
-    virtual void SaveTacticsConfig(void) final;
-
-    void SelectPolarFile(wxCommandEvent& event);
-    void OnAWSAWACorrectionUpdated(wxCommandEvent& event);
-    void OnManualHeelUpdate(wxCommandEvent& event);
-
-    wxNotebook                   *m_itemNotebook;
-    int                           m_border_size;
-
-    wxSpinCtrlDouble             *m_alphaDeltCoG; //TR
-    wxSpinCtrlDouble             *m_alphaLaylineDampFactor;//TR
-    wxSpinCtrl                   *m_minLayLineWidth;//TR
-    wxSpinCtrl                   *m_maxLayLineWidth;//TR
-    wxSpinCtrlDouble             *m_LeewayFactor;//TR
-    wxSpinCtrl                   *m_AlphaCurrDir; //TR
-    wxSpinCtrlDouble             *m_fixedLeeway;//TR
-    wxButton                     *m_buttonLoadPolar;//TR
-    wxButton                     *m_buttonPrefsApply;//TR
-    wxTextCtrl                   *m_pTextCtrlPolar; //TR
-    wxSpinCtrlDouble             *m_pLaylineLength; //TR
-    wxSpinCtrlDouble             *m_heel5_45;
-    wxSpinCtrlDouble             *m_heel5_90;
-    wxSpinCtrlDouble             *m_heel5_135;
-    wxSpinCtrlDouble             *m_heel10_45;
-    wxSpinCtrlDouble             *m_heel10_90;
-    wxSpinCtrlDouble             *m_heel10_135;
-    wxSpinCtrlDouble             *m_heel15_45;
-    wxSpinCtrlDouble             *m_heel15_90;
-    wxSpinCtrlDouble             *m_heel15_135;
-    wxSpinCtrlDouble             *m_heel20_45;
-    wxSpinCtrlDouble             *m_heel20_90;
-    wxSpinCtrlDouble             *m_heel20_135;
-    wxSpinCtrlDouble             *m_heel25_45;
-    wxSpinCtrlDouble             *m_heel25_90;
-    wxSpinCtrlDouble             *m_heel25_135;
-    wxTextCtrl                   *m_UseHeelSensor;
-    wxCheckBox                   *m_CurrentOnChart;
-    wxRadioButton                *m_ButtonLeewayFactor;
-    wxRadioButton                *m_ButtonFixedLeeway;
-    wxRadioButton                *m_ButtonHeelInput;
-    wxRadioButton                *m_ButtonUseHeelSensor;
-    wxCheckBox                   *m_CorrectSTWwithLeeway;
-    wxCheckBox                   *m_CorrectAWwithHeel;
-    wxCheckBox                   *m_ForceTrueWindCalculation;
-    wxCheckBox                   *m_UseSOGforTWCalc;
-    wxCheckBox                   *m_ShowWindbarbOnChart;
-    wxCheckBox                   *m_ShowPolarOnChart;
-    wxRadioButton                *m_ButtonExpNKE;
-    wxCheckBox                   *m_ExpPerfData01;
-    wxCheckBox                   *m_ExpPerfData02;
-    wxCheckBox                   *m_ExpPerfData03;
-    wxCheckBox                   *m_ExpPerfData04;
-    wxCheckBox                   *m_ExpPerfData05;
-    wxCheckBox                   *m_ExpFileData01;
-    wxCheckBox                   *m_ExpFileData02;
-    wxTextCtrl                   *m_pDataExportSeparator;
-    wxCheckBox                   *m_PersistentChartPolarAnimation;
-private:
-    void UpdateTacticsButtonsState(void);
-    void UpdateButtonsState(void);
-    wxFileConfig     *m_pconfig;
-
-    int                           curSel;
-    wxListCtrl                   *m_pListCtrlTacticss;
-    wxBitmapButton               *m_pButtonAddTactics;
-    wxBitmapButton               *m_pButtonDeleteTactics;
-    wxPanel                      *m_pPanelTactics;
-    wxTextCtrl                   *m_pTextCtrlCaption;
-    wxCheckBox                   *m_pCheckBoxIsVisible;
-    wxChoice                     *m_pChoiceOrientation;
-    wxListCtrl                   *m_pListCtrlInstruments;
-    wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
-    wxButton                     *m_pButtonDelete;
-    wxButton                     *m_pButtonUp;
-    wxButton                     *m_pButtonDown;
 };
 
 enum eIdDashTacticsContextMenu {

@@ -1,5 +1,5 @@
 /******************************************************************************
-* $Id: wind_history.cpp, v1.0 2010/08/30 tom_BigSpeedy Exp $
+* $Id: avg_wind.cpp, v1.0 2010/08/30 tom_BigSpeedy Exp $
 *
 * Project:  OpenCPN
 * Purpose:  Tactics_pi Plugin
@@ -46,6 +46,9 @@
 
 extern int g_iDashWindSpeedUnit;
 extern AvgWind* AverageWind;
+
+extern double getSignedDegRange(double fromAngle, double toAngle);
+
 wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, DashboardInstrument)
 EVT_TIMER (myID_TICK_AVGWIND, TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)
 wxEND_EVENT_TABLE ()

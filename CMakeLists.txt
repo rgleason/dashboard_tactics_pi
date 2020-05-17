@@ -39,7 +39,14 @@ SET(SRC_DASHT
     src/dashboard_pi.h
     src/DashboardWindow.h
     src/DashboardWindowContainer.h
+    src/DashboardWindow.h
+    src/DashboardWindow.cpp
+    src/AddInstrumentDlg.h
+    src/AddInstrumentDlg.cpp
     src/DashboardInstrumentContainer.h
+    src/DashboardInstrumentContainer.cpp
+    src/DashboardPreferencesDialog.h
+    src/DashboardPreferencesDialog.cpp
     src/dashboard_pi.cpp
     src/instrument.cpp
     src/instrument.h
@@ -71,16 +78,28 @@ SET(SRC_DASHT
     src/from_ownship.h
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
-    include/wx/json_defs.h
-    include/wx/jsonreader.h
-    include/wx/jsonval.h
-    include/wx/jsonwriter.h
+    src/wxJSON/json_defs.h
+    src/wxJSON/jsonreader.h
+    src/wxJSON/jsonval.h
+    src/wxJSON/jsonwriter.h
     src/tactics_pi.h
     src/tactics_pi.cpp
     src/TacticsWindow.h
     src/TacticsWindow.cpp
-    src/performance.h
-    src/performance.cpp
+    src/TacticsPreferencesDialog.h
+    src/TacticsPreferencesDialog.cpp
+    src/TacticsFunctions.h
+    src/TacticsFunctions.cpp
+    src/ExpSmooth.h
+    src/ExpSmooth.cpp
+    src/DoubleExpSmooth.h
+    src/DoubleExpSmooth.cpp
+    src/Polar.h
+    src/Polar.cpp
+    src/PerformanceSingle.h
+    src/PerformanceSingle.cpp
+    src/PolarPerformance.h
+    src/PolarPerformance.cpp
     src/StreamInSkSingle.h
     src/StreamInSkSingle.cpp
     src/wxJSON/jsonwriter.cpp

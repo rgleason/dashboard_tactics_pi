@@ -57,25 +57,17 @@ double deg2rad(double angle)
 
 DashboardInstrument_Dial::DashboardInstrument_Dial(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag,
-#else
-    int cap_flag,
-#endif // _TACTICSPI_H_
     int s_angle, int r_angle, int s_value, int e_value) : DashboardInstrument(parent, id, title, cap_flag)
 {
     m_cx = 0;
     m_cy = 0;
     m_radius = 0;
     m_AngleStart = s_angle;
-#ifdef _TACTICSPI_H_
     m_s_angle = s_angle;
-#endif // _TACTICSPI_H_
     m_AngleRange = r_angle;
     m_MainValue = static_cast<double>(s_value);
-#ifdef _TACTICSPI_H_
     m_s_value = s_value;
-#endif // _TACTICSPI_H_
     m_MainValueCap = cap_flag;
     m_MainValueMin = m_MainValue;
     m_MainValueMax = static_cast<double>(e_value);
@@ -110,18 +102,11 @@ wxSize DashboardInstrument_Dial::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Dial::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
@@ -142,7 +127,6 @@ void DashboardInstrument_Dial::SetData(
             m_ExtraValue = 0.0;
         return;
     } // then having NaN: can mean that data stream has ended and it is the watchog barking.
-#endif // _TACTICSPI_H_
 
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
@@ -158,7 +142,6 @@ void DashboardInstrument_Dial::SetData(
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Dial::timeoutEvent()
 {
     m_MainValue = static_cast<double>(m_s_value);
@@ -168,7 +151,6 @@ void DashboardInstrument_Dial::timeoutEvent()
     m_ExtraValueUnit = _T("");
     this->derivedTimeoutEvent();
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
 {
@@ -425,11 +407,9 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       wxString text;
       if(!std::isnan(value))
       {
-#ifdef _TACTICSPI_H_
         if ( (unit != (DEGREE_SIGN + L"\u2192")) && (unit != (DEGREE_SIGN + L"\u2190")) &&
              (unit != (DEGREE_SIGN + L"\u2191")) && (unit != (DEGREE_SIGN + L"\u2193")) )
         {
-#endif
             if (unit == _T("\u00B0"))
                 text = wxString::Format(format, value)+DEGREE_SIGN;
             else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
@@ -444,12 +424,10 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
                 text = wxString::Format(format, value)+_T(" Kts");
             else
                 text = wxString::Format(format, value)+_T(" ")+unit;
-#ifdef _TACTICSPI_H_
         } // then "unit" value is not set yet for wind SetData()data,
         else {
             text = wxString::Format(format, value) + unit;
         } // else "unit" value has been set for wind SetData()data,
-#endif
       }
       else
            text = _T("---");
@@ -462,45 +440,42 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       TextPoint.height = height;
       switch (position)
       {
-            case DIAL_POSITION_NONE:
-                  // This case was already handled before, it's here just
-                  // to avoid compiler warning.
-                  return;
-            case DIAL_POSITION_INSIDE:
-            {
-                  TextPoint.x = m_cx - (width / 2) - 1;
-                  TextPoint.y = (size.y * .75) - height;
-                  GetGlobalColor(_T("DASHL"), &cl);
-                  int penwidth = size.x / 100;
-                  wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
-                  dc->SetPen( *pen );
-                  GetGlobalColor(_T("DASHB"), &cl);
-                  dc->SetBrush(cl);
-                  // There might be a background drawn below
-                  // so we must clear it first.
-                  dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
-                  break;
-            }
-            case DIAL_POSITION_TOPLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_TOPRIGHT:
-                  TextPoint.x = size.x-width-1;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_BOTTOMLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = size.y-height;
-                  break;
-            case DIAL_POSITION_BOTTOMRIGHT:
-                  TextPoint.x = size.x-width-1;
-#ifdef _TACTICSPI_H_
-                  TextPoint.y = size.y-height;
-#else
-                  TextPoint.y = size.x-height;
-#endif
-                  break;
+      case DIAL_POSITION_NONE:
+          // This case was already handled before, it's here just
+          // to avoid compiler warning.
+          return;
+      case DIAL_POSITION_TOPINSIDE:
+      case DIAL_POSITION_INSIDE:
+      {
+          TextPoint.x = m_cx - (width / 2) - 1;
+          TextPoint.y = (size.y * .75) - height;
+          GetGlobalColor(_T("DASHL"), &cl);
+          int penwidth = size.x / 100;
+          wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
+          dc->SetPen( *pen );
+          GetGlobalColor(_T("DASHB"), &cl);
+          dc->SetBrush(cl);
+          // There might be a background drawn below
+          // so we must clear it first.
+          dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
+          break;
+      }
+      case DIAL_POSITION_TOPLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_TOPRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_BOTTOMLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = size.y-height;
+          break;
+      case DIAL_POSITION_BOTTOMRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = size.y-height;
+          break;
       }
 
      wxColour c2;
@@ -568,11 +543,7 @@ void DashboardInstrument_Dial::DrawForeground(wxGCDC* dc)
       /* this is fix for a +/-180deg round instrument, when m_MainValue is supplied as <0..180><L | R>
        * for example TWA & AWA */
       double data;
-#ifdef _TACTICSPI_H_
       if( m_MainValueUnit == (DEGREE_SIGN + L"\u2192") )
-#else
-      if(m_MainValueUnit == _T("\u00B0L"))
-#endif // _TACTICSPI_H_
           data=360-m_MainValue;
       else
           data=m_MainValue;
