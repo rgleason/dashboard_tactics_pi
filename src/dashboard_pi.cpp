@@ -80,7 +80,7 @@ static const long long lNaN = 0xfff8000000000000;
 
 #include "plugin_static_ids.h"
 
-const char *dashboard_pi::s_common_name = "Dashboard_Tactics";
+const char *dashboard_pi::s_common_name = "DashT";
 
 // the class factories, used to create and destroy instances of the PlugIn
 
@@ -260,7 +260,7 @@ int dashboard_pi::Init( void )
 
     //    And load the configuration items
 
-    m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
+    m_pconfig->SetPath( _T("/PlugIns/DashT") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
     // Tick for average wind calculations is taken care in Tactics class, we host the timers  
     m_avgWindUpdTimer = new wxTimer ( this, myID_THREAD_AVGWIND );
@@ -480,8 +480,7 @@ wxString dashboard_pi::GetCommonName()
 
 wxString dashboard_pi::GetShortDescription()
 {
-    return _("Dashboard and Tactics");
-    
+    return _("Dashboard w/ Tactics,EngineD,DB");
 }
 
 wxString dashboard_pi::GetLongDescription()
@@ -2146,7 +2145,7 @@ void dashboard_pi::UpdateAuiStatus( void )
 {
     //    This method is called by OpenCPN (pluginmanager.cpp) after the PlugIn is initialized
     //    and the frame has done its initial layout, possibly from a saved wxAuiManager "Perspective"
-    //    (see also OCPN_AUIManager.cpp, it knows type "Dashboard" but not "Dashboard_Tactics"). 
+    //    (see also OCPN_AUIManager.cpp, v5.0 knows type "Dashboard" but not "DashT"... what can one do...). 
     //    It is a chance for the PlugIn to syncronize itself internally with the state of any Panes that
     //    were added to the frame in the PlugIn ctor.
 
@@ -2173,7 +2172,7 @@ bool dashboard_pi::LoadConfig( void )
 
     if( pConf ) {
 
-        pConf->SetPath( _T("/PlugIns/Dashboard") );
+        pConf->SetPath( _T("/PlugIns/DashT") );
 
         wxString version;
         pConf->Read( _T("Version"), &version, wxEmptyString );
@@ -2232,7 +2231,7 @@ bool dashboard_pi::LoadConfig( void )
             }
 
             DashboardWindowContainer *cont = new DashboardWindowContainer( NULL, MakeName(),
-                                                                           _("Dashboard_Tactics"),
+                                                                           _("DashT"),
                                                                            _T("V"), ar, idar );
             cont->m_bPersVisible = true;
             m_ArrayOfDashboardWindow.Add(cont);
@@ -2242,12 +2241,12 @@ bool dashboard_pi::LoadConfig( void )
             m_config_version = 2;
             bool b_onePersisted = false;
             for( int i = 0; i < d_cnt; i++ ) {
-                pConf->SetPath( wxString::Format( _T("/PlugIns/Dashboard/Dashboard%d"), i + 1 ) );
+                pConf->SetPath( wxString::Format( _T("/PlugIns/DashT/Dashboard%d"), i + 1 ) );
                 wxString name;
                 pConf->Read( _T("Name"), &name, MakeName() );
                 wxString caption;
                 pConf->Read( _T("Caption"), &caption,
-                             _("Dashboard_Tactics") );
+                             _("DashT") );
                 wxString orient;
                 pConf->Read( _T("Orientation"), &orient, _T("V") );
                 int i_cnt;
@@ -2295,7 +2294,7 @@ bool dashboard_pi::SaveConfig( void )
 {
     wxFileConfig *pConf = (wxFileConfig *) m_pconfig;
     if( pConf ) {
-        pConf->SetPath( _T("/PlugIns/Dashboard") );
+        pConf->SetPath( _T("/PlugIns/DashT") );
         pConf->Write( _T("Version"), _T("2") );
         pConf->Write( _T("FontTitle"), g_pFontTitle->GetNativeFontInfoDesc() );
         pConf->Write( _T("FontData"), g_pFontData->GetNativeFontInfoDesc() );
@@ -2316,7 +2315,7 @@ bool dashboard_pi::SaveConfig( void )
         pConf->Write( _T("DashboardCount" ), (int) m_ArrayOfDashboardWindow.GetCount() );
         for( unsigned int i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
             DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
-            pConf->SetPath( wxString::Format( _T("/PlugIns/Dashboard/Dashboard%d"), i + 1 ) );
+            pConf->SetPath( wxString::Format( _T("/PlugIns/DashT/Dashboard%d"), i + 1 ) );
             pConf->Write( _T("Name"), cont->m_sName );
             pConf->Write( _T("Caption"), cont->m_sCaption );
             pConf->Write( _T("Orientation"), cont->m_sOrientation );
