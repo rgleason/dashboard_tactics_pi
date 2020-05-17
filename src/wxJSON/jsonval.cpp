@@ -15,6 +15,7 @@
 #endif
 
 #include <climits>
+#include <cstdint>
 
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"

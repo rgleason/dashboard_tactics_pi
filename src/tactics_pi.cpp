@@ -2536,10 +2536,10 @@ in the variables mPredictedCoG, mPredictedSoG
 **********************************************************************/
 void tactics_pi::CalculatePredictedCourse(void)
 {
-    std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS ); // lock both TWA and TWS
     std::unique_lock<std::mutex> lckmAWAmAWS( mtxAWS ); // shares mutex with AWS
-    std::unique_lock<std::mutex> lckmBRG( mtxBRG );
+    std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS ); // lock both TWA and TWS
     std::unique_lock<std::mutex> lckmHdt( mtxHdt );
+    std::unique_lock<std::mutex> lckmBRG( mtxBRG );
     if (!std::isnan(mStW) && !std::isnan(mHdt) && !std::isnan(mTWA) &&
         !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway) &&
         !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)) {

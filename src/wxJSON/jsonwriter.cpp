@@ -684,7 +684,7 @@ wxJSONWriter::WriteStringValue( wxOutputStream& os, const wxString& str )
         writeBuff = utf8CB.data();
     }
 #else
-        writeBuff = utf8CB.data();
+    writeBuff = utf8CB.data();
 #endif
 
     // NOTE: in ANSI builds UTF-8 conversion may fail (see samples/test5.cpp,
@@ -761,6 +761,7 @@ wxJSONWriter::WriteStringValue( wxOutputStream& os, const wxString& str )
         // lowercase letter, we should escape it
         if ( !shouldEscape && ch < 32 )  {
             char b[8];
+            // cppcheck-suppress ConfigurationNotChecked
             snprintf( b, 8, "\\u%04X", (int) ch );
             os.Write( b, 6 );
             if ( os.GetLastError() != wxSTREAM_NO_ERROR )    {
@@ -818,7 +819,7 @@ wxJSONWriter::WriteStringValue( wxOutputStream& os, const wxString& str )
             // character to write and the character written is a punctuation or space
             // BUG: the following does not work because the columns are not counted
             else if ( (m_colNo >= wxJSONWRITER_SPLIT_COL)
-                     && (tempCol <= wxJSONWRITER_LAST_COL )) {
+                      && (tempCol <= wxJSONWRITER_LAST_COL )) {
                 if ( IsSpace( ch ) || IsPunctuation( ch ))  {
                     if ( len - i > wxJSONWRITER_MIN_LENGTH )  {
                         // close quotes and CR
@@ -921,26 +922,28 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
     wxASSERT( data );
 
 #if defined( wxJSON_64BIT_INT )
-    #if wxCHECK_VERSION(2, 9, 0 ) || !defined( wxJSON_USE_UNICODE )
-        // this is fine for wxW 2.9 and for wxW 2.8 ANSI
-        snprintf( buffer, 32, "%" wxLongLongFmtSpec "d",
-        data->m_value.m_valInt64 );
-    #else
-        // this is for wxW 2.8 Unicode: in order to use the cross-platform
-        // format specifier, we use the wxString's sprintf() function and then
-        // convert to UTF-8 before writing to the stream
-        wxString s;
-        s.Printf( _T("%") wxLongLongFmtSpec _T("d"),
-                                                data->m_value.m_valInt64 );
-        wxCharBuffer cb = s.ToUTF8();
-        const char* cbData = cb.data();
-        wxCharBuffer safebuff = cbData;
-        len = safebuff.length();
-        wxASSERT( len < 32 );
-        memcpy( buffer, cbData, len );
-        buffer[len] = 0;
-    #endif
+#if wxCHECK_VERSION(2, 9, 0 ) || !defined( wxJSON_USE_UNICODE )
+    // this is fine for wxW 2.9 and for wxW 2.8 ANSI
+    // cppcheck-suppress ConfigurationNotChecked
+    snprintf( buffer, 32, "%" wxLongLongFmtSpec "d",
+              data->m_value.m_valInt64 );
 #else
+    // this is for wxW 2.8 Unicode: in order to use the cross-platform
+    // format specifier, we use the wxString's sprintf() function and then
+    // convert to UTF-8 before writing to the stream
+    wxString s;
+    s.Printf( _T("%") wxLongLongFmtSpec _T("d"),
+              data->m_value.m_valInt64 );
+    wxCharBuffer cb = s.ToUTF8();
+    const char* cbData = cb.data();
+    wxCharBuffer safebuff = cbData;
+    len = safebuff.length();
+    wxASSERT( len < 32 );
+    memcpy( buffer, cbData, len );
+    buffer[len] = 0;
+#endif
+#else
+    // cppcheck-suppress ConfigurationNotChecked
     snprintf( buffer, 32, "%ld", data->m_value.m_valLong );
 #endif
     wxCharBuffer bufferout = buffer;
@@ -976,26 +979,28 @@ wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
     wxASSERT( data );
 
 #if defined( wxJSON_64BIT_INT )
-    #if wxCHECK_VERSION(2, 9, 0 ) || !defined( wxJSON_USE_UNICODE )
-        // this is fine for wxW 2.9 and for wxW 2.8 ANSI
-        snprintf( buffer, 32, "%" wxLongLongFmtSpec "u",
-        data->m_value.m_valUInt64 );
-    #else
-        // this is for wxW 2.8 Unicode: in order to use the cross-platform
-        // format specifier, we use the wxString's sprintf() function and then
-        // convert to UTF-8 before writing to the stream
-        wxString s;
-        s.Printf( _T("%") wxLongLongFmtSpec _T("u"),
-                                                data->m_value.m_valInt64 );
-        wxCharBuffer cb = s.ToUTF8();
-        const char* cbData = cb.data();
-        wxCharBuffer safebuff = cbData;
-        len = safebuff.length();
-        wxASSERT( len < 32 );
-        memcpy( buffer, cbData, len );
-        buffer[len] = 0;
-    #endif
+#if wxCHECK_VERSION(2, 9, 0 ) || !defined( wxJSON_USE_UNICODE )
+    // this is fine for wxW 2.9 and for wxW 2.8 ANSI
+    // cppcheck-suppress ConfigurationNotChecked
+    snprintf( buffer, 32, "%" wxLongLongFmtSpec "u",
+              data->m_value.m_valUInt64 );
 #else
+    // this is for wxW 2.8 Unicode: in order to use the cross-platform
+    // format specifier, we use the wxString's sprintf() function and then
+    // convert to UTF-8 before writing to the stream
+    wxString s;
+    s.Printf( _T("%") wxLongLongFmtSpec _T("u"),
+              data->m_value.m_valInt64 );
+    wxCharBuffer cb = s.ToUTF8();
+    const char* cbData = cb.data();
+    wxCharBuffer safebuff = cbData;
+    len = safebuff.length();
+    wxASSERT( len < 32 );
+    memcpy( buffer, cbData, len );
+    buffer[len] = 0;
+#endif
+#else
+    // cppcheck-suppress ConfigurationNotChecked
     snprintf( buffer, 32, "%lu", data->m_value.m_valULong );
 #endif
     wxCharBuffer bufferout = buffer;
@@ -1026,6 +1031,7 @@ wxJSONWriter::WriteDoubleValue( wxOutputStream& os, const wxJSONValue& value )
     char buffer[32];
     wxJSONRefData* data = value.GetRefData();
     wxASSERT( data );
+    // cppcheck-suppress ConfigurationNotChecked
     snprintf( buffer, 32, m_fmt, data->m_value.m_valDouble );
     wxCharBuffer bufferout = buffer;
     os.Write( bufferout.data(), bufferout.length() );
@@ -1123,7 +1129,7 @@ wxJSONWriter::WriteInvalid( wxOutputStream& os )
 int
 wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
 {
-#define MAX_BYTES_PER_ROW	20
+#define MAX_BYTES_PER_ROW   20
     char str[16];
 
     // if STYLED and SPLIT_STRING flags are set, the function writes 20 bytes on every row
@@ -1132,7 +1138,7 @@ wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
     int bytesWritten = 0;
     bool splitString = false;
     if ( (m_style & wxJSONWRITER_STYLED) && 
-               (m_style & wxJSONWRITER_SPLIT_STRING))   {
+         (m_style & wxJSONWRITER_SPLIT_STRING))   {
         splitString = true;
     }
 
@@ -1157,6 +1163,7 @@ wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
         ++ptr;
 
         if ( asArray )  {
+            // cppcheck-suppress ConfigurationNotChecked
             snprintf( str, 14, "%d", c );
             wxCharBuffer safelen = str;
             size_t len = safelen.length();
