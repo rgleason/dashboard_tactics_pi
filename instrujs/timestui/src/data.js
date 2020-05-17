@@ -145,6 +145,7 @@ function updateTitleWithValue( valueStr ) {
     }
 }
 
+/*eslint complexity: ['error', {'properties': 'never'}]*/
 export function showData( that ) {
     if ( dbglevel > 0 )
         console.log('showData()')
@@ -180,20 +181,22 @@ export function showData( that ) {
 
     // Oldest timestamp idx=0 which is good for timeseries graph, keep
     for ( let i in dbJsonStrArr ) {
-        let iobj = JSON.parse( dbJsonStrArr[i] )
-        dbData.push( iobj )
+        if ( dbJsonStrArr[parseInt(i)].length > 0 ) {
+            let iobj = JSON.parse( dbJsonStrArr[parseInt(i)] )
+            dbData.push( iobj )
+        }
     }
     // The members of the object may vary according the DB DbSchema
     // but we must have at least the time and value fields
     if ( dbglevel > 0 ) {
         for ( let i = 0; (i < dbData.length); i++ ){
-            if ( !('_time' in dbData[i]) ) {
+            if ( !('_time' in dbData[parseInt(i)]) ) {
                 console.error( 'showData(): no _time field in dbData[',i,']' )
                 if ( (dbglevel > 1) && alerts )
                     alert ( 'showData(): '+ window.instrulang.dataFromDbNoTime )
                 return
             }
-            if ( !('_value' in dbData[i]) ) {
+            if ( !('_value' in dbData[parseInt(i)]) ) {
                 console.error( 'showData(): no _value field in dbData[',i,']' )
                 if ( (dbglevel > 1) && alerts )
                     alert ( 'showData(): '+ window.instrulang.dataFromDbNoValue )
@@ -211,7 +214,7 @@ export function showData( that ) {
     lastDataTimestamp.idx = -1
     for ( let i=(nofGraphPoints>dbData.length)?0:(dbData.length-nofGraphPoints);
            (i < dbData.length); i++ ){
-        var getSeriesValue = (function (iobj) {
+        var getSeriesValue = (function (iobj, nofDec) {
             // The timestamp format is https://tools.ietf.org/html/rfc3339 (5.8)
             // Date.parse() converts it OK to milliseconds
             var retname = strMinSecSinceEpoch( i )
@@ -243,7 +246,7 @@ export function showData( that ) {
                             + '\n' + iobj._value)
             } // then no data value
             else {
-                retvalue = iobj._value.toFixed( nofValDecimals )
+                retvalue = iobj._value.toFixed( nofDec )
             }
             return {
                 name: retname,
@@ -251,7 +254,7 @@ export function showData( that ) {
                 stmp: retstamp
             }
         }) // function seriesData()
-        var seriesData = getSeriesValue( dbData[i] )
+        var seriesData = getSeriesValue( dbData[parseInt(i)], nofValDecimals )
         if ( dbglevel > 4 )
             console.log (
                 'showData(): ',

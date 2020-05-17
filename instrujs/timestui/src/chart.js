@@ -92,10 +92,10 @@ export function showDataTimesTuiChart( nofNewValues ) {
             'chart._dynamicDataHelper.addedDataCount: ',
             chart._dynamicDataHelper.addedDataCount )
     var nVal = nofNewValues || null
-    if ( (nVal === null) || (nVal == 0) )
+    if ( (nVal === null) || (nVal === 0) )
         return
     for ( let i = 0; i < nVal; i++ ) {
-        chart.addData( chartData.categories[i], [chartData.series[0].data[i]] )
+        chart.addData( chartData.categories[parseInt(i)], [chartData.series[0].data[parseInt(i)]] )
     }
     if ( dbglevel > 4 )
         console.log (

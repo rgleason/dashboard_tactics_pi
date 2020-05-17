@@ -5,11 +5,11 @@
     "main": "index.js",
     "scripts": {
         "enginedjg": "webpack -p --progress",
-        "common": "babel-minify ../../data/instrujs/common.js --out-file ../../data/instrujs/common.min.js --mangle.keepClassName",
+        "common": "babel-minify ../../data/instrujs/www/common.js --out-file ../../data/instrujs/www/common.min.js --mangle.keepClassName",
         "build": "npm run enginedjg && npm run common",
         "debug": "webpack -d --display-modules",
         "watch": "webpack -d --display-modules --watch",
-        "serve": "cd ../../data/instrujs/; http-server",
+        "serve": "cd ../../data/instrujs/www; http-server",
         "test": "weinre"
     },
     "repository": {
