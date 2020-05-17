@@ -97,6 +97,8 @@ tactics_pi::tactics_pi( void )
 {
     m_hostplugin = NULL;
     m_hostplugin_pconfig = NULL;
+    m_pmenu = NULL;
+    // cppcheck-suppress noCopyConstructor
     m_pSkData = new SkData();
     b_tactics_dc_message_shown = false;
 
@@ -393,7 +395,7 @@ void tactics_pi::TacticsNotify()
 
 bool tactics_pi::TacticsLoadConfig()
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
+    wxFileConfig *pConf = static_cast <wxFileConfig *>(m_hostplugin_pconfig);
 	if (!pConf)
         return false;
 
@@ -1247,10 +1249,10 @@ void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 	if (!std::isnan(mTWS) && !std::isnan(mTWD) && !std::isnan(mBRG)){
 		glColor4ub(0, 0, 255, 192);	// red, green, blue,  alpha (byte values)
 		double polval[STEPS];
-		double max = 0;
 		double rotate = vp->rotation;
 		if (mTWS > 0){
             int i;
+            double max = 0;
 			TargetxMG vmg_up = BoatPolar->GetTargetVMGUpwind(mTWS);
 			TargetxMG vmg_dn = BoatPolar->GetTargetVMGDownwind(mTWS);
 			TargetxMG CmGMax, CmGMin;
@@ -1260,7 +1262,8 @@ void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 				polval[i] = BoatPolar->GetPolarSpeed(i * 2 + 1, mTWS); //polar data is 1...180 !!! i*2 : draw in 2� steps
 				polval[STEPS - 1 - i] = polval[i];
 				//if (std::isnan(polval[i])) polval[i] = polval[STEPS-1 - i] = 0.0;
-				if (polval[i]>max) max = polval[i];
+				if (polval[i]>max)
+                    max = polval[i];
 			}
 			wxPoint currpoints[STEPS];
 			double rad, anglevalue;
@@ -2535,37 +2538,41 @@ in the variables mPredictedCoG, mPredictedSoG
 **********************************************************************/
 void tactics_pi::CalculatePredictedCourse(void)
 {
-    std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS ); // lock both TWA and TWS
     std::unique_lock<std::mutex> lckmAWAmAWS( mtxAWS ); // shares mutex with AWS
-    std::unique_lock<std::mutex> lckmBRG( mtxBRG );
+    std::unique_lock<std::mutex> lckmTWAmTWS( mtxTWS ); // lock both TWA and TWS
     std::unique_lock<std::mutex> lckmHdt( mtxHdt );
-    double predictedKdW; //==predicted Course Through Water
-    if (!std::isnan(mStW) && !std::isnan(mHdt) && !std::isnan(mTWA) && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway) && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
-      //New: with BearingCompass in Head-Up mode = Hdt
-      double Leeway = (mHeelUnit == _T("\u00B0lr")) ? -mLeeway : mLeeway;
-      //todo : assuming TWAunit = AWAunit ...
-      if (mAWAUnit == _T("\u00B0lr")){ //currently wind is from port, target is from starboard ...
-        predictedKdW = mHdt - 2 * mTWA - Leeway;
-      }
-      else if (mAWAUnit == _T("\u00B0rl")){ //so, currently wind from starboard
-        predictedKdW = mHdt + 2 * mTWA - Leeway;
-      }
-      else {
-        predictedKdW = (mTWA < 10) ? 180 : 0; // should never happen, but is this correct ???
-      }
-      if (predictedKdW >= 360) predictedKdW -= 360;
-      if (predictedKdW < 0) predictedKdW += 360;
-      double predictedLatHdt, predictedLonHdt, predictedLatCog, predictedLonCog;
-      //double predictedCoG;
-      //standard triangle calculation to get predicted CoG / SoG
-      //get endpoint from boat-position by applying  KdW, StW
-      PositionBearingDistanceMercator_Plugin(mlat, mlon, predictedKdW, mStW, &predictedLatHdt, &predictedLonHdt);
-      //wxLogMessage(_T("Step1: m_lat=%f,m_lon=%f, predictedKdW=%f,m_StW=%f --> predictedLatHdt=%f,predictedLonHdt=%f\n"), m_lat, m_lon, predictedKdW, m_StW, predictedLatHdt, predictedLonHdt);
-      //apply surface current with direction & speed to endpoint from above
-      PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, m_CurrentDirection, m_ExpSmoothCurrSpd, &predictedLatCog, &predictedLonCog);
-      //wxLogMessage(_T("Step2: predictedLatHdt=%f,predictedLonHdt=%f, m_CurrDir=%f,m_CurrSpeed=%f --> predictedLatCog=%f,predictedLonCog=%f\n"), predictedLatHdt, predictedLonHdt, m_CurrDir, m_CurrSpeed, predictedLatCog, predictedLonCog);
-      //now get predicted CoG & SoG as difference between the 2 endpoints (coordinates) from above
-      DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, mlat, mlon, &mPredictedCoG, &mPredictedSoG);
+    std::unique_lock<std::mutex> lckmBRG( mtxBRG );
+    if (!std::isnan(mStW) && !std::isnan(mHdt) && !std::isnan(mTWA) &&
+        !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(mLeeway) &&
+        !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)) {
+        double predictedKdW; //==predicted Course Through Water
+        //New: with BearingCompass in Head-Up mode = Hdt
+        double Leeway = (mHeelUnit == _T("\u00B0lr")) ? -mLeeway : mLeeway;
+        //todo : assuming TWAunit = AWAunit ...
+        if (mAWAUnit == _T("\u00B0lr")){ //currently wind is from port, target is from starboard ...
+            predictedKdW = mHdt - 2 * mTWA - Leeway;
+        }
+        else if (mAWAUnit == _T("\u00B0rl")){ //so, currently wind from starboard
+            predictedKdW = mHdt + 2 * mTWA - Leeway;
+        }
+        else {
+            predictedKdW = (mTWA < 10) ? 180 : 0; // should never happen, but is this correct ???
+        }
+        if (predictedKdW >= 360)
+            predictedKdW -= 360;
+        if (predictedKdW < 0)
+            predictedKdW += 360;
+        double predictedLatHdt, predictedLonHdt, predictedLatCog, predictedLonCog;
+        //double predictedCoG;
+        //standard triangle calculation to get predicted CoG / SoG
+        //get endpoint from boat-position by applying  KdW, StW
+        PositionBearingDistanceMercator_Plugin(mlat, mlon, predictedKdW, mStW, &predictedLatHdt, &predictedLonHdt);
+        //wxLogMessage(_T("Step1: m_lat=%f,m_lon=%f, predictedKdW=%f,m_StW=%f --> predictedLatHdt=%f,predictedLonHdt=%f\n"), m_lat, m_lon, predictedKdW, m_StW, predictedLatHdt, predictedLonHdt);
+        //apply surface current with direction & speed to endpoint from above
+        PositionBearingDistanceMercator_Plugin(predictedLatHdt, predictedLonHdt, m_CurrentDirection, m_ExpSmoothCurrSpd, &predictedLatCog, &predictedLonCog);
+        //wxLogMessage(_T("Step2: predictedLatHdt=%f,predictedLonHdt=%f, m_CurrDir=%f,m_CurrSpeed=%f --> predictedLatCog=%f,predictedLonCog=%f\n"), predictedLatHdt, predictedLonHdt, m_CurrDir, m_CurrSpeed, predictedLatCog, predictedLonCog);
+        //now get predicted CoG & SoG as difference between the 2 endpoints (coordinates) from above
+        DistanceBearingMercator_Plugin(predictedLatCog, predictedLonCog, mlat, mlon, &mPredictedCoG, &mPredictedSoG);
     }
 }
 

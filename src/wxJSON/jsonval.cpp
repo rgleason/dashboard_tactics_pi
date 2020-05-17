@@ -14,7 +14,8 @@
 #define wxDEBUG_LEVEL 0
 #endif
 
-#include <limits.h>
+#include <climits>
+#include <cstdint>
 
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
@@ -77,6 +78,7 @@ wxJSONRefData::wxJSONRefData()
     m_lineNo   = -1;
     m_refCount = 1;
     m_memBuff  = 0;
+    m_commentPos = 0;
 
 #if defined( WXJSON_USE_VALUE_COUNTER )
     m_progr = sm_progr;
@@ -505,36 +507,37 @@ wxJSONValue::GetType() const
         // for integers and unsigned ints check the storage requirements
         // note that ints are stored as 'long' or as 'long long'
         switch ( type )  {
-            case wxJSONTYPE_INT :
+        case wxJSONTYPE_INT :
             // check if the integer fits in a SHORT INT
-                if ( data->m_value.VAL_INT >= SHORT_MIN &&
-                                data->m_value.VAL_INT <= SHRT_MAX ) {
-                    type = wxJSONTYPE_SHORT;
-                }
+            if ( data->m_value.VAL_INT >= SHRT_MIN &&
+                 data->m_value.VAL_INT <= SHRT_MAX ) {
+                type = wxJSONTYPE_SHORT;
+            }
             // check if the value fits in LONG INT
-                else if ( data->m_value.VAL_INT >= LONG_MIN
-                                && data->m_value.VAL_INT <= LONG_MAX ) {
-                    type = wxJSONTYPE_LONG;
-                }
+            // cppcheck-suppress ConfigurationNotChecked
+            else if ( (data->m_value.VAL_INT >= LONG_MIN) && (data->m_value.VAL_INT <= LONG_MAX) ) {
+                type = wxJSONTYPE_LONG;
+            }
             else {
                 type = wxJSONTYPE_INT64;
             }
             break;
 
-            case wxJSONTYPE_UINT :
-                if ( data->m_value.VAL_UINT <= USHRT_MAX ) {
-                    type = wxJSONTYPE_USHORT;
-                }
-                else if ( data->m_value.VAL_UINT <= ULONG_MAX ) {
-                    type = wxJSONTYPE_ULONG;
-                }
-                else  {
-                    type = wxJSONTYPE_UINT64;
-                }
-                break;
+        case wxJSONTYPE_UINT :
+            if ( data->m_value.VAL_UINT <= USHRT_MAX ) {
+                type = wxJSONTYPE_USHORT;
+            }
+            // cppcheck-suppress ConfigurationNotChecked
+            else if ( data->m_value.VAL_UINT <= ULONG_MAX ) {
+                type = wxJSONTYPE_ULONG;
+            }
+            else  {
+                type = wxJSONTYPE_UINT64;
+            }
+            break;
 
-            default :
-                break;
+        default :
+            break;
         }
     }
     return type;
@@ -610,6 +613,7 @@ wxJSONValue::IsInt() const
     }
     else if ( type == wxJSONTYPE_LONG )  {
         // in case of LONG, check if the bit width is the same
+        // cppcheck-suppress ConfigurationNotChecked
         if ( INT_MAX == LONG_MAX )  {
             r = true;
         }
@@ -674,6 +678,7 @@ wxJSONValue::IsUInt() const
         r = true;
     }
     else if ( type == wxJSONTYPE_ULONG )  {
+        // cppcheck-suppress ConfigurationNotChecked
         if ( INT_MAX == LONG_MAX )  {
             r = true;
         }
@@ -1318,6 +1323,7 @@ wxJSONValue::AsCString( wxChar* ch ) const
     bool r = IsCString();
     if ( r )    {
         // cppcheck-suppress unreadVariable
+        // cppcheck-suppress uselessAssignmentPtrArg
         ch = (wxChar*) AsCString();
     }
     return r;
@@ -2395,8 +2401,8 @@ wxJSONValue::IsSameAs( const wxJSONValue& other ) const
 
     if ( data == otherData ) {
         wxLogTrace( compareTraceMask, _T("(%s) objects share the same referenced data - r=TRUE"),
-             __PRETTY_FUNCTION__ );
-    return true;
+                    __PRETTY_FUNCTION__ );
+        return true;
     }
 
 
@@ -2407,63 +2413,65 @@ wxJSONValue::IsSameAs( const wxJSONValue& other ) const
         // otherwise compares the compatible types: INT, UINT and DOUBLE
         double val;
         switch ( data->m_type )  {
-            case wxJSONTYPE_INT :
-                if ( otherData->m_type == wxJSONTYPE_UINT )    {
-                    // compare the bits and returns true if value is between 0 and LLONG_MAX
-                    if ( (data->m_value.VAL_UINT <= LLONG_MAX ) &&
-                            (data->m_value.VAL_UINT == otherData->m_value.VAL_UINT))
-                        {
-                                r = true;
-                        }
+        case wxJSONTYPE_INT :
+            if ( otherData->m_type == wxJSONTYPE_UINT )    {
+                // compare the bits and returns true if value is between 0 and LLONG_MAX
+                // cppcheck-suppress ConfigurationNotChecked
+                if ( (data->m_value.VAL_UINT <= LLONG_MAX ) &&
+                     (data->m_value.VAL_UINT == otherData->m_value.VAL_UINT))
+                {
+                    r = true;
                 }
-                else if ( otherData->m_type == wxJSONTYPE_DOUBLE )    {
-                    val = data->m_value.VAL_INT;
-                    if ( val == otherData->m_value.m_valDouble )    {
-                        r = true;
-                    }
+            }
+            else if ( otherData->m_type == wxJSONTYPE_DOUBLE )    {
+                val = data->m_value.VAL_INT;
+                if ( val == otherData->m_value.m_valDouble )    {
+                    r = true;
                 }
-                else    {
-                    r = false;
-                }
-                break;
-            case wxJSONTYPE_UINT :
-                if ( otherData->m_type == wxJSONTYPE_INT )    {
-                    // compare the bits and returns true if value is between 0 and LLONG_MAX
-                    if ( (data->m_value.VAL_UINT <= LLONG_MAX ) &&
-                            (data->m_value.VAL_UINT == otherData->m_value.VAL_UINT))
-                        {
-                            r = true;
-                        }
-                }
-                else if ( otherData->m_type == wxJSONTYPE_DOUBLE )    {
-                    val = data->m_value.VAL_UINT;
-                    if ( val == otherData->m_value.m_valDouble )    {
-                        r = true;
-                    }
-                }
-                else    {
-                    r = false;
-                }
-                break;
-            case wxJSONTYPE_DOUBLE :
-                if ( otherData->m_type == wxJSONTYPE_INT )    {
-                    val = otherData->m_value.VAL_INT;
-                    if ( val == data->m_value.m_valDouble )    {
-                        r = true;
-                    }
-                }
-                else if ( otherData->m_type == wxJSONTYPE_UINT )    {
-                    val = otherData->m_value.VAL_UINT;
-                    if ( val == data->m_value.m_valDouble )    {
-                        r = true;
-                    }
-                }
-                else    {
-                    r = false;
-                }
-                break;
-            default:
+            }
+            else    {
                 r = false;
+            }
+            break;
+        case wxJSONTYPE_UINT :
+            if ( otherData->m_type == wxJSONTYPE_INT )    {
+                // compare the bits and returns true if value is between 0 and LLONG_MAX
+                // cppcheck-suppress ConfigurationNotChecked
+                if ( (data->m_value.VAL_UINT <= LLONG_MAX ) &&
+                     (data->m_value.VAL_UINT == otherData->m_value.VAL_UINT))
+                {
+                    r = true;
+                }
+            }
+            else if ( otherData->m_type == wxJSONTYPE_DOUBLE )    {
+                val = data->m_value.VAL_UINT;
+                if ( val == otherData->m_value.m_valDouble )    {
+                    r = true;
+                }
+            }
+            else    {
+                r = false;
+            }
+            break;
+        case wxJSONTYPE_DOUBLE :
+            if ( otherData->m_type == wxJSONTYPE_INT )    {
+                val = otherData->m_value.VAL_INT;
+                if ( val == data->m_value.m_valDouble )    {
+                    r = true;
+                }
+            }
+            else if ( otherData->m_type == wxJSONTYPE_UINT )    {
+                val = otherData->m_value.VAL_UINT;
+                if ( val == data->m_value.m_valDouble )    {
+                    r = true;
+                }
+            }
+            else    {
+                r = false;
+            }
+            break;
+        default:
+            r = false;
             break;
         }
         return r;
@@ -2479,101 +2487,101 @@ wxJSONValue::IsSameAs( const wxJSONValue& other ) const
     int r1;
 
     switch ( data->m_type )  {
-        case wxJSONTYPE_INVALID :
-        case wxJSONTYPE_NULL :
-            // there is no need to compare the values
-            break;
-        case wxJSONTYPE_INT :
-            if ( data->m_value.VAL_INT != otherData->m_value.VAL_INT )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_UINT :
-            if ( data->m_value.VAL_UINT != otherData->m_value.VAL_UINT )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_DOUBLE :
-            if ( data->m_value.m_valDouble != otherData->m_value.m_valDouble )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_CSTRING :
-            s1 = wxString( data->m_value.m_valCString );
-            s2 = wxString( otherData->m_value.m_valCString );
-            if ( s1 != s2 )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_BOOL :
-            if ( data->m_value.m_valBool != otherData->m_value.m_valBool )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_STRING :
-            if ( data->m_valString != otherData->m_valString )  {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_MEMORYBUFF :
-            // we cannot simply use the operator ==; we need a deep comparison
-            r1 = CompareMemoryBuff( *(data->m_memBuff), *(otherData->m_memBuff));
-            if ( r1 != 0 )   {
-                r = false;
-            }
-            break;
-        case wxJSONTYPE_ARRAY :
-            size = Size();
-            wxLogTrace( compareTraceMask, _T("(%s) Comparing an array object - size=%d"),
+    case wxJSONTYPE_INVALID :
+    case wxJSONTYPE_NULL :
+        // there is no need to compare the values
+        break;
+    case wxJSONTYPE_INT :
+        if ( data->m_value.VAL_INT != otherData->m_value.VAL_INT )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_UINT :
+        if ( data->m_value.VAL_UINT != otherData->m_value.VAL_UINT )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_DOUBLE :
+        if ( data->m_value.m_valDouble != otherData->m_value.m_valDouble )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_CSTRING :
+        s1 = wxString( data->m_value.m_valCString );
+        s2 = wxString( otherData->m_value.m_valCString );
+        if ( s1 != s2 )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_BOOL :
+        if ( data->m_value.m_valBool != otherData->m_value.m_valBool )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_STRING :
+        if ( data->m_valString != otherData->m_valString )  {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_MEMORYBUFF :
+        // we cannot simply use the operator ==; we need a deep comparison
+        r1 = CompareMemoryBuff( *(data->m_memBuff), *(otherData->m_memBuff));
+        if ( r1 != 0 )   {
+            r = false;
+        }
+        break;
+    case wxJSONTYPE_ARRAY :
+        size = Size();
+        wxLogTrace( compareTraceMask, _T("(%s) Comparing an array object - size=%d"),
                     __PRETTY_FUNCTION__, size );
 
-            if ( size != other.Size() )  {
-                wxLogTrace( compareTraceMask, _T("(%s) Sizes does not match"),
+        if ( size != other.Size() )  {
+            wxLogTrace( compareTraceMask, _T("(%s) Sizes does not match"),
                         __PRETTY_FUNCTION__ );
-                return false;
-            }
-            // compares every element in this object with the element of
-            // the same index in the 'other' object
-            for ( int i = 0; i < size; i++ )  {
-                wxLogTrace( compareTraceMask, _T("(%s) Comparing array element=%d"),
+            return false;
+        }
+        // compares every element in this object with the element of
+        // the same index in the 'other' object
+        for ( int i = 0; i < size; i++ )  {
+            wxLogTrace( compareTraceMask, _T("(%s) Comparing array element=%d"),
                         __PRETTY_FUNCTION__, i );
-                wxJSONValue v1 = ItemAt( i );
-                wxJSONValue v2 = other.ItemAt( i );
+            wxJSONValue v1 = ItemAt( i );
+            wxJSONValue v2 = other.ItemAt( i );
 
-                if ( !v1.IsSameAs( v2 ))  {
-                    return false;
-                }
-            }
-            break;
-        case wxJSONTYPE_OBJECT :
-            size = Size();
-            wxLogTrace( compareTraceMask, _T("(%s) Comparing a map obejct - size=%d"),
-                        __PRETTY_FUNCTION__, size );
-
-            if ( size != other.Size() )  {
-                wxLogTrace( compareTraceMask, _T("(%s) Comparison failed - sizes does not match"),
-                                __PRETTY_FUNCTION__ );
+            if ( !v1.IsSameAs( v2 ))  {
                 return false;
             }
-            // for every key calls itself on the value found in
-            // the other object. if 'key' does no exist, returns FALSE
-            for ( wxJSONInternalMap::const_iterator it = data->m_valMap.begin(); it != data->m_valMap.end(); ++it )  {
-                wxString key = it->first;
-                wxLogTrace( compareTraceMask, _T("(%s) Comparing map object - key=%s"),
-                                __PRETTY_FUNCTION__, key.c_str() );
-                wxJSONValue otherVal = other.ItemAt( key );
-                bool isSame = it->second.IsSameAs( otherVal );
-                if ( !isSame )  {
-                    wxLogTrace( compareTraceMask, _T("(%s) Comparison failed for the last object"),
-                                    __PRETTY_FUNCTION__ );
-                    return false;
-                }
+        }
+        break;
+    case wxJSONTYPE_OBJECT :
+        size = Size();
+        wxLogTrace( compareTraceMask, _T("(%s) Comparing a map obejct - size=%d"),
+                    __PRETTY_FUNCTION__, size );
+
+        if ( size != other.Size() )  {
+            wxLogTrace( compareTraceMask, _T("(%s) Comparison failed - sizes does not match"),
+                        __PRETTY_FUNCTION__ );
+            return false;
+        }
+        // for every key calls itself on the value found in
+        // the other object. if 'key' does no exist, returns FALSE
+        for ( wxJSONInternalMap::const_iterator it = data->m_valMap.begin(); it != data->m_valMap.end(); ++it )  {
+            wxString key = it->first;
+            wxLogTrace( compareTraceMask, _T("(%s) Comparing map object - key=%s"),
+                        __PRETTY_FUNCTION__, key.c_str() );
+            wxJSONValue otherVal = other.ItemAt( key );
+            bool isSame = it->second.IsSameAs( otherVal );
+            if ( !isSame )  {
+                wxLogTrace( compareTraceMask, _T("(%s) Comparison failed for the last object"),
+                            __PRETTY_FUNCTION__ );
+                return false;
             }
-            break;
-        default :
-            // should never happen
-            wxFAIL_MSG( _T("wxJSONValue::IsSameAs() unexpected wxJSONType"));
-            break;
+        }
+        break;
+    default :
+        // should never happen
+        wxFAIL_MSG( _T("wxJSONValue::IsSameAs() unexpected wxJSONType"));
+        break;
     }
     return r;
 }

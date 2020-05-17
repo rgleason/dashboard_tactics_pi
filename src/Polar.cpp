@@ -225,10 +225,9 @@ void Polar::loadPolar(wxString FilePath)
             WSS = wxStringTokenize(str, _T(";,\t "));
             if (WSS[0] == _T("0") && mode == 1)
             {
-                row++; continue;
-            }
-            else if (row == -1)
                 row++;
+                continue;
+            }
             row = wxAtoi(WSS[0]);
             for (i = 1; i < (int)WSS.GetCount(); i++)
             {
@@ -605,41 +604,40 @@ Calculate opt. CMG (angle & speed) for up- and downwind courses with bearing to 
 
 TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 {
-	TargetxMG TCMG,tcmg2;
-	TCMG.TargetAngle = NAN;
-	TCMG.TargetSpeed = -999;
-	double cmg;
-	int i_tws = wxRound(TWS);
+    TargetxMG TCMG,tcmg2;
+    TCMG.TargetAngle = NAN;
+    TCMG.TargetSpeed = -999;
+    double cmg;
+    int i_tws = wxRound(TWS);
     double range = getSignedDegRange(TWD, BRG);
     int vPolarAngle = wxRound(range);  //polar is rotated by this angle, this is "vertical" now
-	int k = 0;
+    int k = 0;
     int start = 0;
     int iIargetAngle = -999;
     start = vPolarAngle - 90; 
     if (start < 0) start += 360;  // oder 180 ?
     for (k = 0; k <= 180; k++){
-      int curAngle = k + start;
-      if (curAngle > 359) curAngle -= 360;
-      int polang = curAngle;
-      double diffAngle = curAngle - range;
-      if (diffAngle > 359) diffAngle -= 360;
-      if (diffAngle < -359) diffAngle += 360;
-      if (!std::isnan(windsp[i_tws].winddir[polang])){
-        cmg = windsp[i_tws].winddir[polang] * cos(diffAngle*M_PI / 180.);
-        if (cmg > TCMG.TargetSpeed) {
-          TCMG.TargetSpeed = cmg;
-
-          iIargetAngle = curAngle;
+        int curAngle = k + start;
+        if (curAngle > 359) curAngle -= 360;
+        int polang = curAngle;
+        double diffAngle = curAngle - range;
+        if (diffAngle > 359) diffAngle -= 360;
+        if (diffAngle < -359) diffAngle += 360;
+        if (!std::isnan(windsp[i_tws].winddir[polang])){
+            cmg = windsp[i_tws].winddir[polang] * cos(diffAngle*M_PI / 180.);
+            if (cmg > TCMG.TargetSpeed) {
+                TCMG.TargetSpeed = cmg;
+                iIargetAngle = curAngle;
+            }
         }
-      }
     }
-    if (TCMG.TargetSpeed == -999)TCMG.TargetSpeed = NAN;
+    if (TCMG.TargetSpeed == -999)
+        TCMG.TargetSpeed = NAN;
     if (iIargetAngle != -999)
         TCMG.TargetAngle = (double)iIargetAngle;
-
     if (TCMG.TargetAngle > 180)
         TCMG.TargetAngle = 360. - TCMG.TargetAngle;
-	return TCMG;
+    return TCMG;
 }
 /**********************************************************************************
 in certain cases there exists a second, lower cmg on the other tack

@@ -95,6 +95,7 @@ TacticsPreferencesDialog::TacticsPreferencesDialog(
         parent, id, derivtitle, pos, wxDefaultSize ,
         wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER)
 {
+    // cppcheck-suppress uninitMemberVarPrivate
     m_itemNotebook = NULL;
     return;
 }
