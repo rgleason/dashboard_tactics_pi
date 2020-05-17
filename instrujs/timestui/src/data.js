@@ -146,6 +146,7 @@ function updateTitleWithValue( valueStr ) {
 }
 
 /*eslint complexity: ['error', { "max": 35 }]*/
+
 export function showData( that ) {
     if ( dbglevel > 0 )
         console.log('showData()')
