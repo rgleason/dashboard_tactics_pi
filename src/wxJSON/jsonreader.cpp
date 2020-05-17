@@ -241,8 +241,8 @@ wxJSONReader::wxJSONReader( int flags, int maxErrors )
 {
     m_flags     = flags;
     m_maxErrors = maxErrors;
-    m_noUtf8    = false;
     m_peekChar  = 0;
+    m_noUtf8    = false;
 #if !defined( wxJSON_USE_UNICODE )
     // in ANSI builds we can suppress UTF-8 conversion for both the writer and the reader
     if ( m_flags & wxJSONREADER_NOUTF8_STREAM )    {
