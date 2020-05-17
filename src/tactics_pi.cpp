@@ -584,7 +584,7 @@ void tactics_pi::TacticsApplyConfig(void)
 
 bool tactics_pi::TacticsSaveConfig()
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_hostplugin_pconfig;
+    wxFileConfig *pConf = static_cast <wxFileConfig *>(m_hostplugin_pconfig);
     if (!pConf)
         return false;
     pConf->SetPath( this->m_this_config_path );
@@ -960,7 +960,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
             //optional : use target CMG calculation for laylines-to-mark
             // tvmg = BoatPolar->Calc_TargetCMG(mTWS,mTWD,CTM); // directLineTWA <= 90deg --> upwind, >90 --> downwind
             double sigCTM_TWA = getSignedDegRange(CTM, mTWD);
-            double cur_tacklinedir=0, target_tacklinedir=0;
+            double cur_tacklinedir;
+            double target_tacklinedir;
             if (!std::isnan(tvmg.TargetAngle))
             {
                 if (curTack == _T("\u00B0lr")){
@@ -1248,8 +1249,8 @@ void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 		double polval[STEPS];
 		double max = 0;
 		double rotate = vp->rotation;
-		int i;
 		if (mTWS > 0){
+            int i;
 			TargetxMG vmg_up = BoatPolar->GetTargetVMGUpwind(mTWS);
 			TargetxMG vmg_dn = BoatPolar->GetTargetVMGDownwind(mTWS);
 			TargetxMG CmGMax, CmGMin;

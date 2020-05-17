@@ -2292,7 +2292,7 @@ bool dashboard_pi::LoadConfig( void )
 
 bool dashboard_pi::SaveConfig( void )
 {
-    wxFileConfig *pConf = (wxFileConfig *) m_pconfig;
+    wxFileConfig *pConf = static_cast <wxFileConfig *>(m_pconfig);
     if( pConf ) {
         pConf->SetPath( _T("/PlugIns/DashT") );
         pConf->Write( _T("Version"), _T("2") );

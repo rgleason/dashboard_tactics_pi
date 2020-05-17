@@ -14,6 +14,8 @@
 #define wxDEBUG_LEVEL 0
 #endif
 
+#include <limits.h>
+
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
@@ -506,7 +508,7 @@ wxJSONValue::GetType() const
             case wxJSONTYPE_INT :
             // check if the integer fits in a SHORT INT
                 if ( data->m_value.VAL_INT >= SHORT_MIN &&
-                                data->m_value.VAL_INT <= SHORT_MAX ) {
+                                data->m_value.VAL_INT <= SHRT_MAX ) {
                     type = wxJSONTYPE_SHORT;
                 }
             // check if the value fits in LONG INT
@@ -520,7 +522,7 @@ wxJSONValue::GetType() const
             break;
 
             case wxJSONTYPE_UINT :
-                if ( data->m_value.VAL_UINT <= USHORT_MAX ) {
+                if ( data->m_value.VAL_UINT <= USHRT_MAX ) {
                     type = wxJSONTYPE_USHORT;
                 }
                 else if ( data->m_value.VAL_UINT <= ULONG_MAX ) {
@@ -1315,6 +1317,7 @@ wxJSONValue::AsCString( wxChar* ch ) const
 {
     bool r = IsCString();
     if ( r )    {
+        // cppcheck-suppress unreadVariable
         ch = (wxChar*) AsCString();
     }
     return r;

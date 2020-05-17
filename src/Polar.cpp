@@ -606,7 +606,7 @@ Calculate opt. CMG (angle & speed) for up- and downwind courses with bearing to 
 TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
 {
 	TargetxMG TCMG,tcmg2;
-	TCMG.TargetAngle = -999;
+	TCMG.TargetAngle = NAN;
 	TCMG.TargetSpeed = -999;
 	double cmg;
 	int i_tws = wxRound(TWS);
@@ -634,12 +634,11 @@ TargetxMG Polar::Calc_TargetCMG(double TWS, double TWD,  double BRG)
       }
     }
     if (TCMG.TargetSpeed == -999)TCMG.TargetSpeed = NAN;
-    if (iIargetAngle == -999)
-      TCMG.TargetAngle = NAN;
-    else
-      TCMG.TargetAngle = (double)iIargetAngle;
+    if (iIargetAngle != -999)
+        TCMG.TargetAngle = (double)iIargetAngle;
 
-    if (TCMG.TargetAngle > 180) TCMG.TargetAngle = 360. - TCMG.TargetAngle;
+    if (TCMG.TargetAngle > 180)
+        TCMG.TargetAngle = 360. - TCMG.TargetAngle;
 	return TCMG;
 }
 /**********************************************************************************
