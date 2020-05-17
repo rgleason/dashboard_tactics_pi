@@ -427,13 +427,12 @@ void DashboardPreferencesDialog::SaveDashboardConfig()
         DashboardWindowContainer *oldcont = new DashboardWindowContainer( cont );
         cont->m_aInstrumentList.Clear();
         cont->m_aInstrumentIDs.Clear();
-        int id, j, oldmax;
-        bool idMatch;
+        int id, j;
         for( int i = 0; i < m_pListCtrlInstruments->GetItemCount(); i++ ) {
             id = (int) m_pListCtrlInstruments->GetItemData( i );
             j = 0;
-            oldmax = oldcont->m_aInstrumentIDs.GetCount();
-            idMatch = false;
+            int oldmax = oldcont->m_aInstrumentIDs.GetCount();
+            bool idMatch = false;
             while ( !idMatch && (j < oldmax) ) {
                 if ( id == oldcont->m_aInstrumentList.Item( j ) )
                     idMatch = true;
@@ -474,11 +473,11 @@ void DashboardPreferencesDialog::UpdateDashboardButtonsState()
           However, let's follow the principle to always leave at least one window to be consistent
           with the Dashboard-only code. It is also practical, and less confusing!
         */
-        int NumberOfVisible = 0;
         int NumberOfItemsLeft = (int) m_pListCtrlDashboards->GetItemCount();
         if ( NumberOfItemsLeft <= 1)
             delete_enable = false;
         else {
+            int NumberOfVisible = 0;
             for ( int i = 0; i < NumberOfItemsLeft; i++ ) {
                 if ( m_Config.Item( i )->m_bIsVisible )
                     NumberOfVisible++;
