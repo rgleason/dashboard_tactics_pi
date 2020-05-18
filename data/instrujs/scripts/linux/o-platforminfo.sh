@@ -230,6 +230,7 @@ do
         if [ ! -z "${READELFPATH}" ]
         then
             ${READELFPATH} -p .rodata "${PLUGINSOFILE}" | grep "plugin_id"
+            ${READELFPATH} -p .rodata "${PLUGINSOFILE}" | grep "plugin_date"
             ${READELFPATH} -p .rodata "${PLUGINSOFILE}" | grep "plugin_api"
             echo ""
             echo "Displaying ${PLUGINSOFILE}'s dependencies on wxWidgets libraries:"
