@@ -89,13 +89,13 @@ extern int g_iDbgRes_Polar_Status;
 //                  create and deal with buttons outside the tabs.
 //----------------------------------------------------------------
 
+// cppcheck-suppress uninitMemberVarPrivate
 TacticsPreferencesDialog::TacticsPreferencesDialog(
     wxWindow *parent, wxWindowID id, const wxString derivtitle, wxPoint pos ) :
 	wxDialog(
         parent, id, derivtitle, pos, wxDefaultSize ,
         wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER)
 {
-    // cppcheck-suppress uninitMemberVarPrivate
     m_itemNotebook = NULL;
     return;
 }
