@@ -2,6 +2,7 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
+ /*eslint complexity: ['error', { "max": 35 }]*/
 
 // An actor to ask and retrieve from a client a unique ID for this instance
 
@@ -144,8 +145,6 @@ function updateTitleWithValue( valueStr ) {
         elemTitle.innerHTML = Sanitizer.unwrapSafeHTML(htmlObject)
     }
 }
-
-/*eslint complexity: ['error', { "max": 35 }]*/
 
 export function showData( that ) {
     if ( dbglevel > 0 )
