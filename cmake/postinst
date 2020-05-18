@@ -37,6 +37,10 @@ cp -f ${DASHTGLOBSCRIPTDIR}/dashtdb ${TARGETBIN}
 chown root.root ${TARGETBIN}/dashtdb
 chmod 755 ${TARGETBIN}/dashtdb
 echo "+ dashtdb"
+echo "${SCRIPTNAME} - Enabling the execution of DashT system analysis script:"
+echo ${DASHTGLOBSCRIPTDIR}/o-platforminfo.sh
+chmod 755 ${DASHTGLOBSCRIPTDIR}/o-platforminfo.sh
+echo "(enabled)"
 
 echo "${SCRIPTNAME} - Done."
 
