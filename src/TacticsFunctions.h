@@ -45,8 +45,8 @@ class tactics_pi;
 class DashboardWindow;
 class Polar;
 
-int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2);
-bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4);
+inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2);
+inline bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4);
 wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2, wxRealPoint line2point1, wxRealPoint line2point2);
 double CalcPolarTimeToMark(double distance, double twa, double tws);
 double getMarkTWA(double twd, double ctm);
