@@ -87,8 +87,15 @@ extern int g_iDbgRes_Polar_Status;
 //    Tactics Preference Dialogs Implementation
 //    porting note: as virtual parent for child dialog which will
 //                  create and deal with buttons outside the tabs.
+//    This panel, normally is not designed to exist alone but
+//    being part of the DashboardPreferencesDialog, which invokes
+//    in its constructor this panel's TacticsPrefencesPanel()
+//    method when it is appropriate to create the panel.
+//    For this reason the panel widgets are not initilaized in the
+//    constructor.
 //----------------------------------------------------------------
 
+// cppcheck-suppress uninitMemberVar
 // cppcheck-suppress uninitMemberVarPrivate
 TacticsPreferencesDialog::TacticsPreferencesDialog(
     wxWindow *parent, wxWindowID id, const wxString derivtitle, wxPoint pos ) :
