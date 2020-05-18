@@ -3,6 +3,7 @@
  * Licensed under MIT - see distribution.
  */
  /*eslint complexity: ['error', { "max": 35 }]*/
+/* This is a relatively complex data pattern we are going to receive here */
 
 // An actor to ask and retrieve from a client a unique ID for this instance
 
