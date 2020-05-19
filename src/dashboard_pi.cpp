@@ -25,6 +25,12 @@
  ***************************************************************************
  */
 
+using namespace std;
+
+#include <climits>
+#include <cmath>
+#include <typeinfo>
+#include <random>
 
 #include "wx/wxprec.h"
 
@@ -32,17 +38,9 @@
 #include "wx/wx.h"
 #endif //precompiled headers
 
-#include <cmath>
-
-// xw 2.8
 #include <wx/filename.h>
 
 #include <wx/utils.h>
-
-#include <typeinfo>
-
-#include <random>
-using namespace std;
 
 #include "version.h"
 
@@ -80,11 +78,6 @@ double g_dDashDBTOffset;
 wxBEGIN_EVENT_TABLE (dashboard_pi, wxTimer)
 EVT_TIMER (myID_THREAD_AVGWIND, dashboard_pi::OnAvgWindUpdTimer)
 wxEND_EVENT_TABLE ()
-
-#if !defined(NAN)
-static const long long lNaN = 0xfff8000000000000;
-#define NAN (*(double*)&lNaN)
-#endif
 
 #include "plugin_static_ids.h"
 
