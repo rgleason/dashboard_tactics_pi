@@ -7,6 +7,11 @@ engines:
      - data/instrujs/www/confstat.js
      - instrujs/enginedjg/src/statemachine.js
      - instrujs/timestui/src/statemachine.js
+     - src/PolarPerformance.cpp
+     - src/baro_history.cpp
+     - src/wind_history.cpp
+     - src/avg_wind.cpp
+     - src/clock.cpp
 exclude_paths:
   - 'instrujs/**/webpack.config.js'
   - 'instrujs/src/influxdb-client/**'
