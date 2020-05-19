@@ -3,8 +3,11 @@
 #ifndef WX_PRECOMP
 #	include <wx/wx.h>
 #endif
+#include <wx/fileconf.h>
 #include <wx/mstream.h>
+
 #include "icons.h"
+#include "ocpn_plugin.h"
 
 wxBitmap *_img_dashboard_tactics_pi;
 wxBitmap *_img_dashboard_tactics;

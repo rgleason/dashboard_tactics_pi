@@ -40,19 +40,27 @@
 #include <wx/utils.h>
 
 #include <typeinfo>
-#include "dashboard_pi.h"
 
 #include <random>
 using namespace std;
+
+#include "version.h"
 
 #include "icons.h"
 #include "wxJSON/jsonreader.h"
 #include "wxJSON/jsonwriter.h"
 
-#include "ocpn_plugin.h"
 #include <wx/glcanvas.h>
 
+#include "dashboard_pi.h"
 
+#include "DashboardWindow.h"
+
+#include "DashboardPreferencesDialog.h"
+
+
+#include "dashboard_pi_ext.h"
+// define above variable declarations
 wxFont *g_pFontTitle;
 wxFont *g_pFontData;
 wxFont *g_pFontLabel;
@@ -100,6 +108,8 @@ extern "C" DECL_EXP void destroy_pi( opencpn_plugin* p )
 //    Global helper functions
 //
 //---------------------------------------------------------------------------------------------------------
+#include "dashboard_pi_ext.h"
+// define above function declarations
 
 int GetRandomNumber( int range_min, int range_max )
 {

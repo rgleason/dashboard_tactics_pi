@@ -29,8 +29,6 @@
 
 #include "AddInstrumentDlg.h"
 
-class dashboard_pi;
-
 #include "DashboardInstrumentContainer.h"
 
 #include "icons.h"

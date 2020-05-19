@@ -25,63 +25,10 @@
 ***************************************************************************
 */
 
-#include "tactics_pi.h"
+#include "TacticsPreferencesDialog.h"
 
-// This module has been detached from tactics_pi.cpp defining below:
-extern int g_iDashSpeedMax;
-extern int g_iDashCOGDamp;
-extern int g_iDashSpeedUnit;
-extern int g_iDashSOGDamp;
-extern int g_iDashDepthUnit;
-extern int g_iDashDistanceUnit;  //0="Nautical miles", 1="Statute miles", 2="Kilometers", 3="Meters"
-extern int g_iDashWindSpeedUnit; //0="Kts", 1="mph", 2="km/h", 3="m/s"
-extern int g_iUTCOffset;
-
-extern bool g_bTacticsImportChecked;
-extern double g_dalphaDeltCoG;
-extern double g_dalphaLaylinedDampFactor;
-extern double g_dLeewayFactor;
-extern double g_dfixedLeeway;
-extern double g_dalpha_currdir;
-extern int g_iMinLaylineWidth;
-extern int g_iMaxLaylineWidth;
-extern double g_dLaylineLengthonChart;
-extern Polar* BoatPolar;
-extern bool g_bDisplayLaylinesOnChart;
-extern bool g_bDisplayCurrentOnChart;
-extern wxString g_path_to_PolarFile;
-extern wxString g_path_to_PolarLookupOutputFile;
-extern PlugIn_Route *m_pRoute;
-extern PlugIn_Waypoint *m_pMark;
-extern wxString g_sMarkGUID;
-extern double g_dmark_lat;
-extern double g_dmark_lon;
-extern double g_dcur_lat;
-extern double g_dcur_lon;
-extern double g_dheel[6][5];
-extern bool g_bUseHeelSensor;
-extern bool g_bUseFixedLeeway;
-extern bool g_bManHeelInput;
-extern bool g_bCorrectSTWwithLeeway;  //if true STW is corrected with Leeway (in case Leeway is available)
-extern bool g_bCorrectAWwithHeel;    //if true, AWS/AWA will be corrected with Heel-Angle
-extern bool g_bForceTrueWindCalculation;    //if true, NMEA Data for TWS,TWA,TWD is not used, but the plugin calculated data is used
-extern bool g_bUseSOGforTWCalc; //if true, use SOG instead of STW to calculate TWS,TWA,TWD
-extern bool g_bShowWindbarbOnChart;
-extern bool g_bShowPolarOnChart;
-extern bool g_bPersistentChartPolarAnimation; // If true, continue timer based functions to animate performance on the chart
-extern bool g_bExpPerfData01;
-extern bool g_bExpPerfData02;
-extern bool g_bExpPerfData03;
-extern bool g_bExpPerfData04;
-extern bool g_bExpPerfData05;
-extern bool g_bNKE_TrueWindTableBug;//variable for NKE TrueWindTable-Bugfix
-extern wxString g_sCMGSynonym, g_sVMGSynonym;
-extern wxString g_sDataExportSeparator;
-extern bool     g_bDataExportUTC;
-extern bool     g_bDataExportClockticks;
-extern AvgWind* AverageWind;
-
-extern int g_iDbgRes_Polar_Status;
+#include "dashboard_pi_ext.h"
+#include "tactics_pi_ext.h"
 
 //----------------------------------------------------------------
 //    Tactics Preference Dialogs Implementation

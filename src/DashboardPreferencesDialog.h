@@ -28,6 +28,14 @@
 #ifndef _DASHBOARDPREFERENCESDIALOG_H_
 #define _DASHBOARDPREFERENCESDIALOG_H_
 
+#include "wx/wxprec.h"
+
+#ifndef  WX_PRECOMP
+#include "wx/wx.h"
+#endif //precompiled headers
+
+#include <wx/fontpicker.h>
+
 #include "TacticsPreferencesDialog.h"
   
 class DashboardPreferencesDialog : public

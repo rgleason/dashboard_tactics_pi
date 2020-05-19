@@ -25,27 +25,14 @@
  ***************************************************************************
  */
 
-#include "dashboard_pi.h"
-#include "icons.h"
+#include "DashboardPreferencesDialog.h"
 
-// This module has been detached from dashboard_pi.cpp defining below:
-extern wxFont *g_pFontTitle;
-extern wxFont *g_pFontData;
-extern wxFont *g_pFontLabel;
-extern wxFont *g_pFontSmall;
-extern int g_iDashSpeedMax;
-extern int g_iDashCOGDamp;
-extern int g_iDashSpeedUnit;
-extern int g_iDashSOGDamp;
-extern int g_iDashDepthUnit;
-extern int g_iDashDistanceUnit;
-extern int g_iDashWindSpeedUnit;
-extern int g_iDashTemperatureUnit;
-extern int g_iUTCOffset;
-extern double g_dDashDBTOffset;
+#include "AddInstrumentDlg.h"
 
-extern bool getListItemForInstrument( wxListItem &item, unsigned int id );
-extern wxString MakeName( void );   
+#include "dashboard_pi_ext.h"
+
+#include "DashboardInstrumentContainer.h"
+
 
 DashboardPreferencesDialog::DashboardPreferencesDialog(
     wxWindow *parent, wxWindowID id,

@@ -88,6 +88,8 @@ SET(SRC_DASHT
     src/TacticsWindow.cpp
     src/TacticsPreferencesDialog.h
     src/TacticsPreferencesDialog.cpp
+    src/TacticsEnums.h
+    src/TacticsStructs.h
     src/TacticsFunctions.h
     src/TacticsFunctions.cpp
     src/ExpSmooth.h

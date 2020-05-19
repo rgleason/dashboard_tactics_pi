@@ -43,19 +43,13 @@
 
 #include "wx/tokenzr.h"
 
-#include "ExpSmooth.h"
 #include "Polar.h"
 
-extern int g_iMinLaylineWidth;
-extern int g_iMaxLaylineWidth;
-extern Polar* BoatPolar;
-extern PlugIn_Waypoint *m_pMark;
-extern wxString g_sMarkGUID;
-extern int g_iDashDistanceUnit;
-extern int g_iDashSpeedUnit;
+#include "TacticsFunctions.h"
 
-extern double g_dalphaDeltCoG;
-extern double  getDegRange(double max, double min);
+#include "tactics_pi_ext.h"
+#include "dashboard_pi_ext.h"
+
 /***************************************************************************************
 ****************************************************************************************/
 TacticsInstrument_PolarCompass::TacticsInstrument_PolarCompass(wxWindow *parent, wxWindowID id, wxString title, unsigned long long cap_flag) :

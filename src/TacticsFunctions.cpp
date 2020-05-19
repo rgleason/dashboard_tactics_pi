@@ -29,11 +29,14 @@ using namespace std;
 
 #include <wx/gdicmn.h>
 
+#include "tactics_pi.h"
+
+#include "TacticsStructs.h"
 #include "TacticsFunctions.h"
+
 #include "Polar.h"
 
-extern Polar* BoatPolar;
-extern int g_iDbgRes_Polar_Status;
+#include "tactics_pi_ext.h"
 
 
 // Miscellaneous helper functions
@@ -213,5 +216,14 @@ double getSignedDegRange(double fromAngle, double toAngle)
 			range = toAngle - fromAngle;
 	}
 	return range;
+}
+
+double rad2deg(double angle)
+{
+      return angle*180.0/M_PI;
+}
+double deg2rad(double angle)
+{
+      return angle/180.0*M_PI;
 }
 

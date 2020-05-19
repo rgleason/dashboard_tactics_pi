@@ -27,9 +27,6 @@
  */
 
 
-#include "dial.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -46,14 +43,9 @@
 #include <cmath>
 #include "wx/tokenzr.h"
 
-double rad2deg(double angle)
-{
-      return angle*180.0/M_PI;
-}
-double deg2rad(double angle)
-{
-      return angle/180.0*M_PI;
-}
+#include "dial.h"
+
+#include "TacticsFunctions.h"
 
 DashboardInstrument_Dial::DashboardInstrument_Dial(
     wxWindow *parent, wxWindowID id, wxString title,

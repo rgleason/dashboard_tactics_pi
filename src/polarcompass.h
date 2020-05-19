@@ -44,8 +44,8 @@
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
-class ExpSmooth;
-class DoubleExpSmooth;
+#include "ExpSmooth.h"
+#include "DoubleExpSmooth.h"
 
 #define COGRANGE 60
 //+------------------------------------------------------------------------------

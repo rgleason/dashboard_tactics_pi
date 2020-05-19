@@ -33,7 +33,6 @@
 #include <cmath>
 
 #include "instrument.h"
-#include "wx28compat.h"
 
 #include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (DashboardInstrument,wxControl)

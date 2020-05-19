@@ -45,37 +45,15 @@
 
 #include "ocpn_plugin.h"
 
-class dashboard_pi;
-#include "DashboardWindowContainer.h"
-#include "DashboardPreferencesDialog.h"
-#include "DashboardWindow.h"
-#include "AddInstrumentDlg.h"
 #include "tactics_pi.h"
 
-#include "version.h"
-
-
 #include "nmea0183/nmea0183.h"
-#include "instrument.h"
-#include "speedometer.h"
-#include "compass.h"
-#include "wind.h"
-#include "rudder_angle.h"
-#include "gps.h"
-#include "depth.h"
-#include "clock.h"
-#include "wind_history.h"
-#include "baro_history.h"
-#include "from_ownship.h"
-#include "iirfilter.h"
-#include "DashboardWindow.h"
-#include "EngineDJG.h"
-#include "TimesTUI.h"
 
-class tactics_pi;
-class DashboardWindow;
-class DashboardWindowContainer;
-class DashboardInstrumentContainer;
+#include "gps.h"
+
+#include "iirfilter.h"
+
+#include "DashboardWindowContainer.h"
 
 #define DASHBOARD_TOOL_POSITION -1          // Request default positioning of toolbar tool
 

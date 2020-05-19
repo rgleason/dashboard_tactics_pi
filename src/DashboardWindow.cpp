@@ -27,6 +27,24 @@
 
 #include "DashboardWindow.h"
 
+#include "instrument.h"
+#include "speedometer.h"
+#include "compass.h"
+#include "bearingcompass.h"
+#include "polarcompass.h"
+#include "wind.h"
+#include "rudder_angle.h"
+#include "depth.h"
+#include "clock.h"
+#include "wind_history.h"
+#include "baro_history.h"
+#include "from_ownship.h"
+#include "PerformanceSingle.h"
+#include "PolarPerformance.h"
+#include "StreamInSkSingle.h"
+#include "StreamoutSingle.h"
+#include "EngineDJG.h"
+#include "TimesTUI.h"
 
 // Dashboard global definitions and functions
 extern int g_iDashSpeedMax;

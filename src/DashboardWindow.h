@@ -36,10 +36,10 @@
 
 #include <wx/aui/aui.h>
 
+#include "dashboard_pi.h"
 #include "TacticsWindow.h"
 #include "DashboardInstrumentContainer.h"
 #include "DashboardWindowContainer.h"
-#include "dashboard_pi.h"
 #include "ocpn_plugin.h"
 #include "nmea0183/SatInfo.h"
 

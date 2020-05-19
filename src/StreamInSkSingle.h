@@ -43,8 +43,8 @@ using namespace std;
 #include "wxJSON/jsonval.h"
 
 #include "instrument.h"
+#include "DashboardWindow.h"
 #include "SkData.h"
-class DashboardWindow;
 
 enum StreamInSkSingleStateMachine {
     SSKM_STATE_UNKNOWN, SSKM_STATE_DISPLAYRELAY, SSKM_STATE_INIT, SSKM_STATE_CONFIGURED,

@@ -48,21 +48,11 @@ using namespace std;
 #include "nmea0183/nmea0183.h"
 
 #include "TacticsFunctions.h"
+#include "PerformanceSingle.h"
 #include "Polar.h"
 
-extern Polar* BoatPolar;
-extern AvgWind* AverageWind;
-extern wxString g_path_to_PolarLookupOutputFile;
-extern wxString g_path_to_PolarFile;
-extern int g_iDashWindSpeedUnit;
-extern int g_iDashSpeedUnit;
-extern PlugIn_Waypoint *m_pMark;
-extern wxString g_sMarkGUID;
-extern int g_iSpeedFormat;
-extern wxString g_sDataExportSeparator;
-extern bool g_bDataExportUTC;
-extern bool g_bDataExportClockticks;
-
+#include "dashboard_pi_ext.h"
+#include "tactics_pi_ext.h"
 
 /***********************************************************************************
 

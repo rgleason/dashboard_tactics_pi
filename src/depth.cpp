@@ -25,11 +25,6 @@
  ***************************************************************************
  */
 
-#include "depth.h"
-#include "wx28compat.h"
-extern int g_iDashDepthUnit;
-
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -42,6 +37,10 @@ extern int g_iDashDepthUnit;
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include "depth.h"
+
+#include "dashboard_pi_ext.h"
 
 DashboardInstrument_Depth::DashboardInstrument_Depth( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_DPT | OCPN_DBP_STC_TMP)

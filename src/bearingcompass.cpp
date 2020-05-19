@@ -25,9 +25,6 @@
 ***************************************************************************
 */
 
-#include "bearingcompass.h"
-#include "dial.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -41,20 +38,18 @@
 #include <wx/wx.h>
 #endif
 #include "wx/tokenzr.h"
-#include "ExpSmooth.h"
-#include "Polar.h"
 #include <cmath>
 
-extern int g_iMinLaylineWidth;
-extern int g_iMaxLaylineWidth;
-extern Polar* BoatPolar;
-extern PlugIn_Waypoint *m_pMark;
-extern wxString g_sMarkGUID;
-extern int g_iDashDistanceUnit;
-extern int g_iDashSpeedUnit;
 
-extern double g_dalphaDeltCoG;
-extern double  getDegRange(double max, double min);
+#include "bearingcompass.h"
+#include "dial.h"
+#include "Polar.h"
+
+#include "TacticsFunctions.h"
+
+#include "tactics_pi_ext.h"
+#include "dashboard_pi_ext.h"
+
 /***************************************************************************************
 ****************************************************************************************/
 TacticsInstrument_BearingCompass::TacticsInstrument_BearingCompass(wxWindow *parent, wxWindowID id, wxString title, unsigned long long cap_flag) :

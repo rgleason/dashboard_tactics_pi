@@ -25,9 +25,6 @@
 ***************************************************************************
 */
 
-#include "avg_wind.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -42,12 +39,15 @@
 #endif
 #include <cmath>
 
+#include "avg_wind.h"
+
+#include "TacticsFunctions.h"
+
+#include "tactics_pi_ext.h"
+#include "dashboard_pi_ext.h"
+
 #include "plugin_ids.h"
 
-extern int g_iDashWindSpeedUnit;
-extern AvgWind* AverageWind;
-
-extern double getSignedDegRange(double fromAngle, double toAngle);
 
 wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, DashboardInstrument)
 EVT_TIMER (myID_TICK_AVGWIND, TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)

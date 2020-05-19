@@ -31,37 +31,16 @@ using namespace std;
 #include <wx/wx.h>
 #endif
 
-#include <wx/dir.h>
-#include <wx/filefn.h>
-#include <wx/textfile.h>
-#include <wx/tokenzr.h>
-#include <wx/wfstream.h> 
-#include <wx/txtstrm.h> 
-#include <wx/math.h>
-#include <wx/stdpaths.h>
-#include <wx/progdlg.h>
-#include <wx/gdicmn.h>
-#include <wx/fileconf.h>
-
 #include "dashboard_pi.h"
 
-#include "nmea0183/nmea0183.h"
-
+#include "TacticsEnums.h"
 #include "TacticsFunctions.h"
+#include "PerformanceSingle.h"
+#include "Polar.h"
 #include "PolarPerformance.h"
 
-extern Polar* BoatPolar;
-extern AvgWind* AverageWind;
-extern wxString g_path_to_PolarLookupOutputFile;
-extern wxString g_path_to_PolarFile;
-extern int g_iDashWindSpeedUnit;
-extern int g_iDashSpeedUnit;
-extern PlugIn_Waypoint *m_pMark;
-extern wxString g_sMarkGUID;
-extern int g_iSpeedFormat;
-extern wxString g_sDataExportSeparator;
-extern bool g_bDataExportUTC;
-extern bool g_bDataExportClockticks;
+#include "dashboard_pi_ext.h"
+#include "tactics_pi_ext.h"
 
 //extern int g_iPolarMode; //0=do nothing, 1=create new, 2=update existing
 #define ID_EXPORTRATE_1   11001

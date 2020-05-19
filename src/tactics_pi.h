@@ -34,38 +34,15 @@
   #include "wx/wx.h"
 #endif //precompiled headers
 
-#include <wx/notebook.h>
-#include <wx/fileconf.h>
-#include <wx/listctrl.h>
-#include <wx/imaglist.h>
-#include <wx/spinctrl.h>
-#include <wx/aui/aui.h>
-#include <wx/fontpicker.h>
-#include <wx/glcanvas.h>
 #include <mutex>
-#include <functional>
-#include <unordered_map>
 
 #include "ocpn_plugin.h"
-#include "instrument.h"
-#include "TacticsFunctions.h"
-#include "Polar.h"
-#include "PerformanceSingle.h"
-#include "PolarPerformance.h"
+
+#include "TacticsStructs.h"
 #include "ExpSmooth.h"
 #include "DoubleExpSmooth.h"
-#include "bearingcompass.h"
-#include "avg_wind.h"
-#include "polarcompass.h"
-#include "StreamoutSingle.h"
+
 #include "SkData.h"
-#include "StreamInSkSingle.h"
-#include "TacticsPreferencesDialog.h"
-#include "TacticsWindow.h"
-
-
-class Polar;
-class AvgWind;
 
 #define aws_watchdog_timeout_ticks 10
 #define brg_watchdog_timeout_ticks 10
@@ -74,18 +51,6 @@ class AvgWind;
 #define vmg_watchdog_timeout_ticks 10
 #define CURR_RECORD_COUNT 20
 #define COGRANGE 60
-
-enum dbgTrueWindStartAWS_STC {
-    DBGRES_AWS_STC_UNKNOWN, DBGRES_AWS_STC_WAIT, DBGRES_AWS_STC_AVAILABLE_INVALID, DBGRES_AWS_STC_AVAILABLE };
-enum dbgTrueWindStartForce {
-    DBGRES_FORCE_UNKNOWN, DBGRES_FORCE_SELECTED_TW_AVAILABLE, DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE,
-    DBGRES_FORCE_SELECTED_NO_TWD_AVAILABLE, DBGRES_FORCE_NOT_SELECTED_TW_AVAILABLE,
-    DBGRES_FORCE_NOT_SELECTED_NO_TW_AVAILABLE };
-enum dbgTrueWindStartMval {
-    DBGRES_MVAL_UNKNOWN, DBGRES_MVAL_INVALID, DBGRES_MVAL_AVAILABLE, DBGRES_MVAL_IS_ZERO, DBGRES_MVAL_IS_NEG };
-enum dbgTrueWindExecStat {
-    DBGRES_EXEC_UNKNOWN, DBGRES_EXEC_FALSE, DBGRES_EXEC_TWDONLY_TRUE, DBGRES_EXEC_TRUE };
-
 
 class tactics_pi
 {

@@ -37,7 +37,6 @@
 #include "wxJSON/jsonwriter.h"
 #include "plugin_ids.h"
 
-#include "dashboard_pi.h"
 #include "StreamInSkSingle.h"
 
 extern int g_iDashWindSpeedUnit;

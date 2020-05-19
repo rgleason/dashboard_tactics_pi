@@ -28,17 +28,13 @@
 using namespace std;
 #include <unordered_map>
 
+#include <wx/glcanvas.h>
+
+
 #include "tactics_pi.h"
 
-extern int g_iDashSpeedMax;
-extern int g_iDashCOGDamp;
-extern int g_iDashSpeedUnit;
-extern int g_iDashSOGDamp;
-extern int g_iDashDepthUnit;
-extern int g_iDashDistanceUnit;  //0="Nautical miles", 1="Statute miles", 2="Kilometers", 3="Meters"
-extern int g_iDashWindSpeedUnit; //0="Kts", 1="mph", 2="km/h", 3="m/s"
-extern int g_iUTCOffset;
-
+#include "tactics_pi_ext.h"
+// define the above declarations
 bool g_bTacticsImportChecked;
 double g_dalphaDeltCoG;
 double g_dalphaLaylinedDampFactor;
@@ -87,6 +83,9 @@ int g_iDbgRes_Polar_Status;
 
 wxString tactics_pi::get_sCMGSynonym(void) {return g_sCMGSynonym;};
 wxString tactics_pi::get_sVMGSynonym(void) {return g_sVMGSynonym;};
+
+#include "dashboard_pi_ext.h"
+
 //---------------------------------------------------------------------------------------------------------
 //
 //          Tactics Performance instruments and functions for Dashboard plug-in

@@ -40,10 +40,10 @@
 #include "instrument.h"
 #include "plugin_ids.h"
 
-class DoubleExpSmooth;
-#include "avg_wind.h"
-
 #include "PerformanceSingle.h"
+
+#include "TacticsEnums.h"
+#include "TacticsFunctions.h"
 
 
 //*************************************************************************************

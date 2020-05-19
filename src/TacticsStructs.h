@@ -1,5 +1,5 @@
 /***************************************************************************
-* $Id: TacticsFunctions.h, v1.0 2016/06/07 tomBigSpeedy Exp $
+* $Id: TacticsStructs.h, v1.0 2016/06/07 tomBigSpeedy Exp $
 *
 * Project:  OpenCPN
 * Purpose:  tactics Plugin
@@ -25,19 +25,12 @@
 ***************************************************************************
 */
 
-#ifndef __TACTICSFUNCTIONS_H__
-#define __TACTICSFUNCTIONS_H__
+#ifndef __TACTICSSTRUCTS_H__
+#define __TACTICSSTRUCTS_H__
 
-#include <wx/gdicmn.h>
+struct TargetxMG{
+	double TargetAngle=0;
+	double TargetSpeed=0;
+};
 
-inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2);
-inline bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4);
-wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2, wxRealPoint line2point1, wxRealPoint line2point2);
-double CalcPolarTimeToMark(double distance, double twa, double tws);
-double getMarkTWA(double twd, double ctm);
-double getDegRange(double max, double min);
-double getSignedDegRange(double max, double min);
-double rad2deg(double angle);
-double deg2rad(double angle);
-
-#endif // __TACTICSFUNCTIONS_H__
+#endif // __TACTICSSTRUCTS_H__

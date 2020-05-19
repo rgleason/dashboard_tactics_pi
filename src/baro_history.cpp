@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-#include "baro_history.h"
-#include "wx28compat.h"
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
@@ -42,15 +40,18 @@
 #endif
 
 #include <wx/fileconf.h>
-#include "plugin_ids.h"
-extern wxString g_sDataExportSeparator;
-extern bool g_bDataExportUTC;
-extern bool g_bDataExportClockticks;
+
+#include "baro_history.h"
+
+#include "tactics_pi_ext.h"
 
 #define ID_EXPORTRATE_10 11110
 #define ID_EXPORTRATE_20 11120
 #define ID_EXPORTRATE_60 11160
 #define SETDRAWSOLOINPANE true
+
+#include "plugin_ids.h"
+
 wxBEGIN_EVENT_TABLE (DashboardInstrument_BaroHistory, DashboardInstrument)
    EVT_TIMER (myID_THREAD_BAROHISTORY, DashboardInstrument_BaroHistory::OnBaroHistUpdTimer)
 wxEND_EVENT_TABLE ()

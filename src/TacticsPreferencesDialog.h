@@ -28,6 +28,21 @@
 #ifndef _TACTICSPREFERENCESDIALOG_H_
 #define _TACTICSPREFERENCESDIALOG_H_
 
+#include "wx/wxprec.h"
+
+#ifndef  WX_PRECOMP
+#include "wx/wx.h"
+#endif //precompiled headers
+
+#include <wx/fileconf.h>
+#include <wx/notebook.h>
+#include <wx/spinctrl.h>
+#include <wx/textctrl.h>
+#include <wx/listctrl.h>
+
+#include "icons.h"
+#include "DashboardWindowContainer.h"
+
 class TacticsPreferencesDialog : public wxDialog
 {
 public:

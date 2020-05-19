@@ -40,7 +40,9 @@
 #include "instrument.h"
 #include "plugin_ids.h"
 
-class DoubleExpSmooth;
+#include "DashboardWindow.h"
+
+#include "DoubleExpSmooth.h"
 #include "avg_wind.h"
 #include "TacticsFunctions.h"
 

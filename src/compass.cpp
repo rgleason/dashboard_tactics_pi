@@ -26,8 +26,6 @@
  ***************************************************************************
  */
 
-#include "compass.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -40,6 +38,9 @@
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include "compass.h"
+
 
 DashboardInstrument_Compass::DashboardInstrument_Compass(
     wxWindow *parent, wxWindowID id, wxString title,

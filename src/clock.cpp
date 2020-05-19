@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-#include "clock.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -39,6 +37,10 @@
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include "clock.h"
+
+#include "dashboard_pi_ext.h"
 
 DashboardInstrument_Clock::DashboardInstrument_Clock(
     wxWindow *parent, wxWindowID id, wxString title,

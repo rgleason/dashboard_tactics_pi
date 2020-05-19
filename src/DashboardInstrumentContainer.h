@@ -28,14 +28,6 @@
 #ifndef _DASHBOARDINSTRUMENTCONTAINER_H_
 #define _DASHBOARDINSTRUMENTCONTAINER_H_
 
-#include "wx/wxprec.h"
-
-#ifndef  WX_PRECOMP
-#include "wx/wx.h"
-#endif //precompiled headers
-
-#include <wx/listctrl.h>
-
 #include "instrument.h"
 
 // !!! WARNING !!!

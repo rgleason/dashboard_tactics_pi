@@ -25,9 +25,6 @@
  ***************************************************************************
  */
 
-#include "rudder_angle.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -40,6 +37,8 @@
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include "rudder_angle.h"
 
 DashboardInstrument_RudderAngle::DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument_Dial( parent, id, title, OCPN_DBP_STC_RSA, 100, 160, -40, +40)

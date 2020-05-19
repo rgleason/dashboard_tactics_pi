@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-#include "wind.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -41,6 +39,8 @@
     #include <wx/wx.h>
 #endif
 #include "wx/tokenzr.h"
+
+#include "wind.h"
 
 // Display the arrow for MainValue (wind angle)
 // We also want the extra value (wind speed) displayed inside the dial

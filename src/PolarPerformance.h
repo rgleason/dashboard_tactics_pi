@@ -40,9 +40,10 @@
 #include "instrument.h"
 #include "plugin_ids.h"
 
-class DoubleExpSmooth;
+#include "DoubleExpSmooth.h"
 #include "avg_wind.h"
 
+#include "TacticsEnums.h"
 
 // Warn: div by 0 if count == 1
 #define DATA_RECORD_COUNT 1500

@@ -6,7 +6,6 @@
 #ifndef WX_PRECOMP
 #	include <wx/wx.h>
 #endif
-#include "dashboard_pi.h"
 
 extern void initialize_images(void);
 

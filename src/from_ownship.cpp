@@ -28,7 +28,7 @@ using namespace std;
 
 #include "from_ownship.h"
 
-extern int g_iDashDistanceUnit;
+#include "dashboard_pi_ext.h"
 
 //----------------------------------------------------------------
 //

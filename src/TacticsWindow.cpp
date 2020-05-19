@@ -30,10 +30,8 @@ using namespace std;
 #include <mutex>
 
 #include "TacticsWindow.h"
-#include "tactics_pi.h"
-#include "SkData.h"
 
-extern wxString GetUUID(void);
+#include "dashboard_pi_ext.h"
 
 TacticsWindow::TacticsWindow (
     wxWindow *pparent, wxWindowID id,

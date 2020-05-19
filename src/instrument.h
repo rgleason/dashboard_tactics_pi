@@ -112,7 +112,7 @@ enum eSentenceType : unsigned long long {
 
 };
 
-// These are the streaming originated, (unlimited?) mappings for signal paths
+// These are the streaming originated mappings for signal paths
 typedef std::tuple<wxString, wxString, wxString> sigPathLangTuple; // path, title, description
 typedef std::vector<sigPathLangTuple> sigPathLangVector;
 

@@ -38,8 +38,8 @@
 #include <functional>
 #include <mutex>
 
-class tactics_pi;
-class SkData;
+#include "tactics_pi.h"
+#include "SkData.h"
 
 // helpers for the call-back methods in instruments subsribing to signal paths
 typedef std::function<void  (double, wxString, long long)> callbackFunction;

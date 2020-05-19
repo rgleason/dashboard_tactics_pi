@@ -1,5 +1,5 @@
 /***************************************************************************
-* $Id: TacticsFunctions.h, v1.0 2016/06/07 tomBigSpeedy Exp $
+* $Id: TacticsEnums.h, v1.0 2016/06/07 tomBigSpeedy Exp $
 *
 * Project:  OpenCPN
 * Purpose:  tactics Plugin
@@ -25,19 +25,30 @@
 ***************************************************************************
 */
 
-#ifndef __TACTICSFUNCTIONS_H__
-#define __TACTICSFUNCTIONS_H__
+#ifndef __TACTICSENUMS_H__
+#define __TACTICSENUMS_H__
 
-#include <wx/gdicmn.h>
 
-inline int myCCW(wxRealPoint p0, wxRealPoint p1, wxRealPoint p2);
-inline bool IsLineIntersect(wxRealPoint p1, wxRealPoint p2, wxRealPoint p3, wxRealPoint p4);
-wxRealPoint GetLineIntersection(wxRealPoint line1point1, wxRealPoint line1point2, wxRealPoint line2point1, wxRealPoint line2point2);
-double CalcPolarTimeToMark(double distance, double twa, double tws);
-double getMarkTWA(double twd, double ctm);
-double getDegRange(double max, double min);
-double getSignedDegRange(double max, double min);
-double rad2deg(double angle);
-double deg2rad(double angle);
+#define WINDDIR 360
+#define WINDSPEED 60
 
-#endif // __TACTICSFUNCTIONS_H__
+enum dbgPolarStat {
+    DBGRES_POLAR_UNKNOWN, DBGRES_POLAR_INVALID, DBGRES_POLAR_VALID
+};
+
+enum polarPos {
+	POLARSPEED, POLARVMG, POLARTARGETVMG, POLARTARGETVMGANGLE, POLARCMG, POLARTARGETCMG, POLARTARGETCMGANGLE, TWAMARK
+};
+
+enum dbgTrueWindStartAWS_STC {
+    DBGRES_AWS_STC_UNKNOWN, DBGRES_AWS_STC_WAIT, DBGRES_AWS_STC_AVAILABLE_INVALID, DBGRES_AWS_STC_AVAILABLE };
+enum dbgTrueWindStartForce {
+    DBGRES_FORCE_UNKNOWN, DBGRES_FORCE_SELECTED_TW_AVAILABLE, DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE,
+    DBGRES_FORCE_SELECTED_NO_TWD_AVAILABLE, DBGRES_FORCE_NOT_SELECTED_TW_AVAILABLE,
+    DBGRES_FORCE_NOT_SELECTED_NO_TW_AVAILABLE };
+enum dbgTrueWindStartMval {
+    DBGRES_MVAL_UNKNOWN, DBGRES_MVAL_INVALID, DBGRES_MVAL_AVAILABLE, DBGRES_MVAL_IS_ZERO, DBGRES_MVAL_IS_NEG };
+enum dbgTrueWindExecStat {
+    DBGRES_EXEC_UNKNOWN, DBGRES_EXEC_FALSE, DBGRES_EXEC_TWDONLY_TRUE, DBGRES_EXEC_TRUE };
+
+#endif // __TACTICSENUMS_H__

@@ -42,7 +42,7 @@
 #endif
 
 #include "instrument.h"
-extern int g_iUTCOffset;    // get offset from dashboard_pi.cpp
+
 
 class DashboardInstrument_Clock: public DashboardInstrument_Single
 {

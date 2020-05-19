@@ -1,12 +1,12 @@
 /******************************************************************************
- * $Id: speedometer.cpp, v1.0 2010/08/05 SethDart Exp $
+ * $Id: dashboard_pi_ext.h, v1.0 2010/08/05 SethDart Exp $
  *
  * Project:  OpenCPN
  * Purpose:  Dashboard Plugin
  * Author:   Jean-Eudes Onfray
  *
  ***************************************************************************
- *   Copyright (C) 2010 by David S. Register   *
+ *   Copyright (C) 2010 by David S. Register                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,36 +21,31 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
  ***************************************************************************
  */
 
-// For compilers that support precompilation, includes "wx/wx.h".
-#include <wx/wxprec.h>
+#ifndef _DASHBOARDPIEXT_H_
+#define _DASHBOARDPIEXT_H_
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
+extern wxFont *g_pFontTitle;
+extern wxFont *g_pFontData;
+extern wxFont *g_pFontLabel;
+extern wxFont *g_pFontSmall;
+extern int g_iDashSpeedMax;
+extern int g_iDashCOGDamp;
+extern int g_iDashSpeedUnit;
+extern int g_iDashSOGDamp;
+extern int g_iDashDepthUnit;
+extern int g_iDashDistanceUnit;
+extern int g_iDashWindSpeedUnit;
+extern int g_iDashTemperatureUnit;
+extern int g_iUTCOffset;
+extern double g_dDashDBTOffset;
 
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
-#ifndef WX_PRECOMP
-    #include <wx/wx.h>
-#endif
+int GetRandomNumber( int range_min, int range_max );
+wxString GetUUID( void );
+wxString MakeName( void );
+void checkNMEATemperatureDataAndUnit( double &TemperatureValue, wxString &TemperatureUnitOfMeasurement );
 
-#include "speedometer.h"
-
-// Not much to do here most of the default dial values are fine.
-// Note the default AngleStart = 225 and AngleRange = 270 set here.
-
-DashboardInstrument_Speedometer::DashboardInstrument_Speedometer(
-    wxWindow *parent, wxWindowID id, wxString title,
-    unsigned long long cap_flag,
-    int s_value, int e_value) : DashboardInstrument_Dial(
-        parent, id, title, cap_flag, 225, 270, s_value, e_value)
-{
-      // We want the main value displayed inside the dial as well
-      // as the default arrow
-      SetOptionMainValue(_T("%.2f"), DIAL_POSITION_INSIDE);
-}
-
+#endif // _DASHBOARDPIEXT_H_

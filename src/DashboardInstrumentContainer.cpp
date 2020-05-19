@@ -27,6 +27,15 @@
 
 class dashboard_pi;
 
+
+#include "wx/wxprec.h"
+
+#ifndef  WX_PRECOMP
+#include "wx/wx.h"
+#endif //precompiled headers
+
+#include <wx/listctrl.h>
+
 #include "DashboardInstrumentContainer.h"
 
 #include "tactics_pi.h"

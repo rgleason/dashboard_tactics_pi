@@ -25,9 +25,6 @@
  ***************************************************************************
  */
 
-#include "wind_history.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -42,11 +39,10 @@
 #endif
 
 #include <wx/fileconf.h>
-#include "plugin_ids.h"
-extern int g_iDashWindSpeedUnit;
-extern wxString g_sDataExportSeparator;
-extern bool g_bDataExportUTC;
-extern bool g_bDataExportClockticks;
+#include "wind_history.h"
+
+#include "tactics_pi_ext.h"
+#include "dashboard_pi_ext.h"
 
 #define ID_EXPORTRATE_1   11201
 #define ID_EXPORTRATE_5   11205
@@ -54,6 +50,8 @@ extern bool g_bDataExportClockticks;
 #define ID_EXPORTRATE_20  11220
 #define ID_EXPORTRATE_60  11260
 #define SETDRAWSOLOINPANE true
+
+#include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (DashboardInstrument_WindDirHistory, DashboardInstrument)
 EVT_TIMER (myID_THREAD_WINDHISTORY, DashboardInstrument_WindDirHistory::OnWindHistUpdTimer)
 wxEND_EVENT_TABLE ()

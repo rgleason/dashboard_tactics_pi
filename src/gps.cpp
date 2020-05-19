@@ -25,9 +25,6 @@
  ***************************************************************************
  */
 
-#include "gps.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -41,8 +38,10 @@
     #include <wx/wx.h>
 #endif
 
-// Required deg2rad
-#include "dial.h"
+#include "gps.h"
+
+#include "TacticsFunctions.h" // deg2rad()
+#include "dial.h" // ANGLE_OFFSET
 
 DashboardInstrument_GPS::DashboardInstrument_GPS( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_GPS)
