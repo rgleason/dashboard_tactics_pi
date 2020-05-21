@@ -159,7 +159,7 @@ wxString GetUUID( void )
 
 wxString MakeName()
 {
-    return _T("DASH_") + GetUUID();
+    return _T("DASHT_") + GetUUID();
 }
 
 // implement rule for *TMP and *ATMP sentences according g_iDashTemperatureUnit selection (C=0, F=1)
