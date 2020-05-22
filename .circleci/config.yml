@@ -27,7 +27,7 @@ jobs:
             cloudsmith-repository: canne/DashT
             package-format: deb
             package-distribution: ubuntu/focal
-            package-path: build/dashboard_tactics_pi_1.98.*.deb
+            package-path: build/dashboard_tactics_pi*.deb
 
 workflows:
     cloudsmith_publish:
