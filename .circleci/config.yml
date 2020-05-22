@@ -25,8 +25,9 @@ jobs:
         - cloudsmith/install-cli
         - cloudsmith/publish:
             cloudsmith-repository: canne/DashT
-            package-format: linux
-            package-path: build/dashboard_tactics_pi_1.98.*
+            package-format: deb
+            package-distribution: focal
+            package-path: build/dashboard_tactics_pi_1.98.*.deb
 
 workflows:
     cloudsmith_publish:
