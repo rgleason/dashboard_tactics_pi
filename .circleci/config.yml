@@ -21,7 +21,7 @@ jobs:
             - run: cat /etc/apt/sources.list
             - run: chmod a+x .circleci/*.sh
             - run: .circleci/circleci-build-debian.sh
-        - cloudsmith-publish:
+        - cloudsmith/publish:
             cloudsmith-repository: canne/DashT
             package-format: linux
             package-path: build/dashboard_tactics_pi_1.98.*
