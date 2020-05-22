@@ -31,6 +31,7 @@ jobs:
             package-path: build/dashboard_tactics_pi_1.98.*
 
 workflows:
+    version: 2.1
     build_all:
         jobs:
         - build-focal:
@@ -41,6 +42,6 @@ workflows:
                     - tmp
                 tags:
                     only: /.*/
-     cloudsmith_publish:
+    cloudsmith_publish:
         jobs:
         - publish
