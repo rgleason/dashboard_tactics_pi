@@ -6,6 +6,7 @@ orbs:
 
 jobs:
     publish:
+        executor: circleci/python:3.7
         steps:
         - checkout
         - cloudsmith/ensure-api-key
