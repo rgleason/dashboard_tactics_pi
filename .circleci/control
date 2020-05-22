@@ -1,6 +1,7 @@
 Source: opencpn
 Build-Depends: debhelper (>= 9),
- cmake3 | cmake (>> 3.5.0),
+ cmake3 | cmake (>> 3.10.0),
+ rpmbuild,
  curl,
  libarchive-dev,
  libbz2-dev,
@@ -25,15 +26,15 @@ Build-Depends: debhelper (>= 9),
  python3-pip,
  python3-setuptools
 
-Standards-Version: 4.3.0
+Standards-Version: 5.2.0
 Homepage: https://opencpn.org
 
-Description: Packages needed to build opencpn on debian.
+Description: Packages needed to build DashT on debian.
  The Build-Depends field can be used to install dependencies
  using something like:
  .
  .   sudo apt install devscripts equivs
  .   sudo mk-build-deps --install ci/control
  .
- These packages are available in trusty+. The base-files
+ These packages are available in focal+. The base-files
  fallback is for optional packages available in later releases.
