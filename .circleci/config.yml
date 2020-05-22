@@ -6,7 +6,7 @@ orbs:
 
 jobs:
     publishfocal:
-        executor: cloudsmith/default
+        executor: circleci/python:3.7
         docker:
         - image: circleci/buildpack-deps:focal-scm
         steps:
