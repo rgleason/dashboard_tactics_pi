@@ -1,11 +1,11 @@
 ---
-version: 2
+version: 2.1
+orbs:
+  cloudsmith: cloudsmith/cloudsmith@1.0.4
 jobs:
     build-focal:
         docker:
         - image: circleci/buildpack-deps:focal-scm
-        environment:
-        - OCPN_TARGET:  focal
         steps:
         - checkout
         - run: >
@@ -17,7 +17,16 @@ jobs:
         - run: cat /etc/apt/sources.list
         - run: chmod a+x .circleci/*.sh
         - run: .circleci/circleci-build-debian.sh
-        - run: .circleci/cloudsmith-upload.sh
+      publish:
+        executor: cloudsmith/default
+        steps:
+          - checkout
+          - cloudsmith/ensure-api-key
+          - cloudsmith/install-cli
+          - cloudsmith/publish:
+              cloudsmith-repository: canne/DashT
+              package-format: linux
+              package-path: build/dashboard_tactics_pi_1.98.*
 workflows:
     version: 2
     build_all:
@@ -30,3 +39,6 @@ workflows:
                     - tmp
                 tags:
                     only: /.*/
+     cloudsmith_publish:
+        jobs:
+          - publish
