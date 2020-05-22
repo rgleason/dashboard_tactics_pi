@@ -26,7 +26,6 @@ jobs:
             cloudsmith-repository: canne/DashT
             package-format: linux
             package-path: build/dashboard_tactics_pi_1.98.*
-
 workflows:
     cloudsmith-publish:
         jobs:
