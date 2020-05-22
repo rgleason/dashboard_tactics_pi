@@ -8,7 +8,7 @@ sudo apt-get -qq update
 sudo apt-get install devscripts equivs
 
 rm -rf build && mkdir build && cd build
-mk-build-deps ../ci/control
+mk-build-deps ../.circleci/control
 sudo apt-get --allow-unauthenticated install ./*all.deb  || :
 sudo apt-get --allow-unauthenticated install -f
 rm -f ./*all.deb
