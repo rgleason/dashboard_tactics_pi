@@ -5,7 +5,7 @@ orbs:
     cloudsmith: cloudsmith/cloudsmith@1.0.4
 
 jobs:
-    publish:
+    publishfocal:
         executor: cloudsmith/default
         docker:
         - image: circleci/buildpack-deps:focal-scm
@@ -28,6 +28,6 @@ jobs:
             package-path: build/dashboard_tactics_pi_1.98.*
 
 workflows:
-    cloudsmith-publish:
+    cloudsmith_publish:
         jobs:
-        -publish
+            -publishfocal
