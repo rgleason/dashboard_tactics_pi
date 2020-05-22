@@ -12,6 +12,9 @@ jobs:
         - image: circleci/buildpack-deps:focal-scm
         steps:
         - checkout
+        - run:
+          name: "Set Python Version"
+          command: pyenv global 3.7.0
         - cloudsmith/ensure-api-key
         - cloudsmith/install-cli
         - run: >
