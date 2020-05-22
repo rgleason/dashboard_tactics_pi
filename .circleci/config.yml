@@ -30,11 +30,3 @@ workflows:
                     - tmp
                 tags:
                     only: /.*/
-        - build-flatpak:
-            filters:
-                branches:
-                    ignore:
-                    - devel
-                    - tmp
-                tags:
-                    only: /.*/
