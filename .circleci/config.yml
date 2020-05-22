@@ -30,4 +30,4 @@ jobs:
 workflows:
     cloudsmith_publish:
         jobs:
-            -publishfocal
+            - publishfocal
