@@ -266,7 +266,11 @@ void DashboardWindow::SetSizerOrientation( int orient )
 {
     itemBoxSizer->SetOrientation( orient );
     /* We must reset all MinSize to ensure we start with new default */
+#if defined( wxUSE_STL ) && wxUSE_STL == 1
+    wxWindowList::compatibility_iterator node = GetChildren().GetFirst();
+#else
     wxWindowListNode* node = GetChildren().GetFirst();
+#endif
     while(node) {
         node->GetData()->SetMinSize( wxDefaultSize );
         node = node->GetNext();
