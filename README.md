@@ -64,19 +64,24 @@ Please refer to User's Guides accessible from the [documentation pages](https://
 
 ### Windows build
 
->Under Windows, please get first the library file "_opencpn.lib_" (Visual Studio). It is located in the build directory of [OpenCPN](https://github.com/OpenCPN/OpenCPN) after having built it; or your can search it from the various processes of CI (continuous integration) of this plug-in. Copy the library file matching the target OpenCPN version into the build directory before launching the following:
+>This build is tested with Visual Studio 2019 on Windows 10
+
+Please get first the library file "_opencpn.lib_". It is located in the build directory of [OpenCPN](https://github.com/OpenCPN/OpenCPN) after having built it; or your can search it from the various processes of CI (continuous integration) of this plug-in. Or try [this one](https://github.com/canne/dashboard_tactics_pi/releases/download/0.0.1/opencpn.lib).
+
+>Starting from v2.0 this plug-in has moved in Windows entirely to use [vcpkg](https://github.com/Microsoft/vcpkg) for dependencies - hence the directive below. As usual the most annoying part is the wxWidgets package which cannot be STL-enabled, unfortunately in OpenCPN - in DashT it can: to help in this dilemma, there is a non-STL port with CMake find-script available [here](https://github.com/canne/dashboard_tactics_pi/releases/download/0.0.1/vcpkgOpenCPNwxWidgetsNoSTLport.7z). Of course, one can install wxWidgets manually in C: - by no means DashT depends on its location; _vcpkg_ is only for build process on Windows to provide libraries readily available on a Linux system:
 
 * cd build
-* cmake  -T v140_xp ..
+* cp ..\..\mydirectory\opencpn.lib .
+* cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
 * cmake --build . --target package --config release
 
-### Unix style build
+### Debian/Linux style build
 
 * cd build
 * cmake ..
 * make
 * make package
-* sudo make install
+* sudo gdebi packagename-version-etc.deb
 
 ### License
 
