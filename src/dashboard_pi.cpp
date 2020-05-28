@@ -194,7 +194,7 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
 //---------------------------------------------------------------------------------------------------------
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
-    tactics_pi(), wxTimer( this ), opencpn_plugin_112( ppimgr )
+    tactics_pi(), wxTimer( this ), opencpn_plugin_117( ppimgr )
 {
     m_nofStreamOut = 0;
     std::unique_lock<std::mutex> init_m_mtxNofStreamOut( m_mtxNofStreamOut, std::defer_lock );
@@ -455,6 +455,10 @@ int dashboard_pi::GetPlugInVersionMajor()
     return PLUGIN_VERSION_MAJOR;
 }
 
+int dashboard_pi::GetPlugInVersionPatch()
+{
+    return PLUGIN_VERSION_PATCH;
+}
 int dashboard_pi::GetPlugInVersionMinor()
 {
     return PLUGIN_VERSION_MINOR;
@@ -494,7 +498,7 @@ wxString dashboard_pi::GetShortDescription()
 wxString dashboard_pi::GetLongDescription()
 {
     return _("Dashboard PlugIn with Tactics for OpenCPN\n\
-Provides navigation instruments enhanced with performance functions and alternative input/output functions.");
+Provides navigation and engine instrument, sailing performance tools with SignalK and time based DB connections.");
 
 }
 
@@ -2156,7 +2160,7 @@ void dashboard_pi::UpdateAuiStatus( void )
     //    It is a chance for the PlugIn to syncronize itself internally with the state of any Panes that
     //    were added to the frame in the PlugIn ctor.
 
-    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
         wxAuiPaneInfo &pane = m_pauimgr->GetPane( cont->m_pDashboardWindow );
         // Initialize visible state as perspective is loaded now
@@ -2424,7 +2428,8 @@ void dashboard_pi::ApplyConfig(
                 newcont->m_pDashboardWindow = new DashboardWindow(
                     GetOCPNCanvasWindow(), wxID_ANY,
                     m_pauimgr, this, orient, (init ? cont : newcont),
-                    GetCommonName(), this->m_pSkData );
+                    wxPanelNameStr,   // note, ov51 commit https://git.io/JfoVy, requires "panel"
+                    this->m_pSkData );
                 newcont->m_pDashboardWindow->Show( false );
                 newcont->m_pDashboardWindow->SetInstrumentList(
                     newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );

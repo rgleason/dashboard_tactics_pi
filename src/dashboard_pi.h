@@ -65,7 +65,7 @@
 //----------------------------------------------------------------------------------------------------------
 
 
-class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_112
+class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_117
 {
 public:
     dashboard_pi(void *ppimgr);
@@ -81,6 +81,7 @@ public:
     int GetAPIVersionMinor();
     int GetPlugInVersionMajor();
     int GetPlugInVersionMinor();
+    int GetPlugInVersionPatch();
     wxBitmap *GetPlugInBitmap();
     wxString GetCommonName();
     wxString GetShortDescription();
