@@ -5,10 +5,7 @@ enable_testing()
 
 add_library(test_main OBJECT testmain.cpp)
 
-# add_executable(test_one testmain.cpp test_one.cpp)
-# add_test(NAME test_one COMMAND test_one)
-
-file(GLOB files "test_*.cpp")
+file(GLOB files "test-*.cpp")
 
 foreach(file ${files})
   string(REGEX REPLACE "(^.*/|\\.[^.]*$)" "" file_without_ext ${file})
@@ -17,5 +14,5 @@ foreach(file ${files})
   add_test(${file_without_ext} ${file_without_ext})
   set_tests_properties(${file_without_ext}
 	PROPERTIES
-	TIMEOUT 60)
+	TIMEOUT 120)
  endforeach()
