@@ -31,7 +31,7 @@ SET(VERBOSE_NAME DashT)
 SET(TITLE_NAME DashT)
 SET(CPACK_PACKAGE_CONTACT "petri38-github@yahoo.com")
 
-# SET (CMAKE_BUILD_TYPE Debug)
+INCLUDE(CTest)
 
 INCLUDE("cmake/PluginConfigure.cmake")
 
@@ -201,3 +201,5 @@ ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")
 INCLUDE("cmake/PluginPackage.cmake")
+
+ADD_SUBDIRECTORY("tests")
