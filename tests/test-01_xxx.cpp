@@ -8,7 +8,6 @@ using namespace std;
 SCENARIO("sleep a second") {
 
     GIVEN("a one second sleep duration") {
-        unsigned int duration =1 ;
 
         WHEN("call sleep with this duration") {
 
