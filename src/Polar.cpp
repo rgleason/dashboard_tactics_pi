@@ -47,7 +47,6 @@ using namespace std;
 
 #include "nmea0183/nmea0183.h"
 
-#include "TacticsFunctions.h"
 #include "PerformanceSingle.h"
 #include "Polar.h"
 
@@ -455,6 +454,25 @@ void Polar::CalculateRowAverages(int i, int min, int max)
 		cur_min = j;
 	}
 
+}
+/**********************************************************************
+Method to calculates the time to sail for a given distance, TWA and TWS,
+based on the polar data
+returns NaN if no polar data or if it is not validin Tactics
+***********************************************************************/
+double Polar::CalcPolarTimeToMark(double distance, double twa, double tws)
+{
+    if ( !isValid() ) {
+        if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
+            wxLogMessage (
+                "dashboard_tactics_pi: >>> Missing or invalid Polar file: no Performance data, Laylines, Polar graphs available. <<<");
+            g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
+        } // then debug print
+        return NAN;
+    } // then no valid polar
+    g_iDbgRes_Polar_Status = DBGRES_POLAR_VALID;
+	double pspd = BoatPolar->GetPolarSpeed(twa, tws);
+	return distance / pspd;
 }
 /***********************************************************************************
 Return the polar speed with averaging of wind speed.
