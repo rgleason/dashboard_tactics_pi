@@ -43,7 +43,6 @@
 #include "PerformanceSingle.h"
 
 #include "TacticsEnums.h"
-#include "TacticsFunctions.h"
 
 
 //*************************************************************************************
@@ -76,6 +75,7 @@ public:
 	void completePolar();    //complete the empty spots in the lookup table with simple average calculation
 	void CalculateLineAverages(int n, int min, int max);
 	void CalculateRowAverages(int i, int min, int max);
+    double CalcPolarTimeToMark(double distance, double twa, double tws);
 	double GetPolarSpeed(double twa, double tws);
     TargetxMG GetTargetVMGUpwind(double TWS);
     TargetxMG GetTargetVMGDownwind(double TWS);
