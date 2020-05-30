@@ -4,11 +4,6 @@
 
 #include "TacticsFunctions.h"
 
-#include <iostream>
-using namespace std;
-
-// int radianstodeg(double number) { return number <= 1 ? number : factorial(number - 1) * number; }
-
 TEST_CASE( "testing degress to radians conversions" ) {
     CHECK( deg2rad( 0. ) == 0. );
     CHECK( deg2rad( 90.  ) == 90./180.*M_PI );
