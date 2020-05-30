@@ -50,6 +50,9 @@ build_script:
   # - cmake --build . --config debug
   - cmake --build . --target package --config release
 
+test_script:
+  - cmd: ctest -j2
+    
 artifacts:
   - path: 'build\*.exe'
     name: installer
