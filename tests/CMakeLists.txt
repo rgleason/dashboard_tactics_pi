@@ -18,3 +18,18 @@ set_tests_properties(test-01_tactics_functions
   PROPERTIES
   TIMEOUT 5)
 
+#
+# test-02_SkData_class
+#
+add_executable(test-02_SkData_class $<TARGET_OBJECTS:testmain>
+  ../src/SkData.cpp
+  ../src/wxJSON/jsonval.cpp
+  test-02_SkData_class.cpp)
+target_link_libraries(test-02_SkData_class ${wxWidgets_LIBRARIES})
+
+add_test(test-02_SkData_class test-02_SkData_class)
+
+set_tests_properties(test-02_SkData_class
+  PROPERTIES
+  TIMEOUT 10)
+
