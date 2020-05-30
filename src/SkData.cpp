@@ -80,6 +80,7 @@ SkData::~SkData()
 void SkData::pushDefaultSubscriptions()
 {
     // Signal K paths to be subscribed for by default and without learning/selection
+    // Do not forget to update the ../tests/test-02_SkData_class.cpp if change in number!
     m_subscriptionlist->push_back( std::string( "environment.depth.belowTransducer" ) );
     m_subscriptionlist->push_back( std::string( "environment.depth.belowKeel" ) );
     m_subscriptionlist->push_back( std::string( "environment.outside.pressure" ) );
