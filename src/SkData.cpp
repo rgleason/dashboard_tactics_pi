@@ -81,8 +81,8 @@ void SkData::pushDefaultSubscriptions()
 {
     // Signal K paths to be subscribed for by default and without learning/selection
     // Do not forget to update the ../tests/test-02_SkData_class.cpp if change in number!
-    m_subscriptionlist->push_back( std::string( "environment.depth.belowTransducer" ) );
     m_subscriptionlist->push_back( std::string( "environment.depth.belowKeel" ) );
+    m_subscriptionlist->push_back( std::string( "environment.depth.belowTransducer" ) );
     m_subscriptionlist->push_back( std::string( "environment.outside.pressure" ) );
     m_subscriptionlist->push_back( std::string( "environment.water.temperature" ) );
     m_subscriptionlist->push_back( std::string( "environment.wind.angleApparent" ) );
@@ -99,7 +99,8 @@ void SkData::pushDefaultSubscriptions()
     m_subscriptionlist->push_back( std::string( "navigation.headingMagnetic" ) );
     m_subscriptionlist->push_back( std::string( "navigation.headingTrue" ) );
     m_subscriptionlist->push_back( std::string( "navigation.magneticVariation" ) );
-    m_subscriptionlist->push_back( std::string( "navigation.position" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.position.latitude" ) );
+    m_subscriptionlist->push_back( std::string( "navigation.position.longitude" ) );
     m_subscriptionlist->push_back( std::string( "navigation.speedOverGround" ) );
     m_subscriptionlist->push_back( std::string( "navigation.speedThroughWater" ) );
     m_subscriptionlist->push_back( std::string( "navigation.trip.log" ) );
@@ -113,8 +114,10 @@ void SkData::UpdatePathList( SkDataPathList *pathlist, wxString *path, wxString 
 {
     std::string stdPathFull = std::string( path->mb_str() );
     if ( key != NULL ) {
-        std::string stdKey  = std::string( key->mb_str() );
-        stdPathFull = stdPathFull + "." + stdKey;
+        if ( !key->IsEmpty() ) {
+            std::string stdKey  = std::string( key->mb_str() );
+            stdPathFull = stdPathFull + "." + stdKey;
+        }
     }
     SkDataPathList::iterator it = std::find(pathlist->begin(), pathlist->end(), stdPathFull);
     if ( it != pathlist->end() )
