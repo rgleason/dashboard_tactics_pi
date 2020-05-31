@@ -111,11 +111,13 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_startGraceCnt = 0;
     m_threadMsg = emptyStr;
 
-    m_subscribeAll["context"] = SSKM_SUBSCRIBE_CONTEXT;
-    m_subscribeAll["subscribe"][0]["path"] = L"*";
+    wxString sSubscribeContext ( SSKM_SUBSCRIBE_CONTEXT );
+    wxString sToAllPaths ( L"*" );
+    m_subscribeAll["context"] = sSubscribeContext;
+    m_subscribeAll["subscribe"][0]["path"] = sToAllPaths;
     m_subscribeAllPending = false;
     m_subscribeAllCount = 0;
-    m_subscribeTo["context"] = SSKM_SUBSCRIBE_CONTEXT;
+    m_subscribeTo["context"] = sSubscribeContext;
     m_subscribeToPending = false;
     m_subscribeToJS = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
 
