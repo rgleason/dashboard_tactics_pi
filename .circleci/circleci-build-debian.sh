@@ -26,5 +26,6 @@ else
 fi
 
 make -j2
+ctest -j2
 make package
 ls -l
