@@ -11,6 +11,7 @@ add_library(testmain OBJECT testmain.cpp)
 add_executable(test-01_tactics_functions $<TARGET_OBJECTS:testmain>
   ../src/TacticsFunctions.cpp 
   test-01_tactics_functions.cpp)
+target_link_libraries(test-01_tactics_functions ${wxWidgets_LIBRARIES})
 
 add_test(test-01_tactics_functions test-01_tactics_functions)
 
@@ -22,8 +23,8 @@ set_tests_properties(test-01_tactics_functions
 # test-02_SkData_class
 #
 add_executable(test-02_SkData_class $<TARGET_OBJECTS:testmain>
-  ../src/SkData.cpp
   ../src/wxJSON/jsonval.cpp
+  ../src/SkData.cpp
   test-02_SkData_class.cpp)
 target_link_libraries(test-02_SkData_class ${wxWidgets_LIBRARIES})
 
