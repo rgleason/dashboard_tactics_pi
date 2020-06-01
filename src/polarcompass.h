@@ -106,6 +106,7 @@ public:
 
 private:
     bool LoadConfig(void);
+    bool m_timeout;
     wxFileConfig     *m_pconfig;
 
 protected:
