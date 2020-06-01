@@ -426,7 +426,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_D_AWA_TWA: //App/True Wind angle +-180deg on boat axis
             instrument = new DashboardInstrument_AppTrueWindAngle(this, wxID_ANY,
-                                                                  getInstrumentCaption(id), OCPN_DBP_STC_AWA | OCPN_DBP_STC_TWA);
+                                                                  getInstrumentCaption(id), OCPN_DBP_STC_AWA | OCPN_DBP_STC_TWA | OCPN_DBP_STC_TWD);
             static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionMainValue(_T("%.0f"),
                                                                          DIAL_POSITION_NONE);
             static_cast <DashboardInstrument_Dial *>(instrument)->SetOptionExtraValue(
