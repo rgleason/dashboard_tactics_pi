@@ -18,4 +18,6 @@ exclude_paths:
   - 'data/instrujs/www/*.min.js'
   - 'data/instrujs/www/**/bundle.js'
   - 'data/instrujs/www/**/bundle.css'
+  - 'tests/test*.cpp'
+  - 'tests/**/test*.cpp'
   - 'docs/**/*.md'
