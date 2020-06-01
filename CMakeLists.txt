@@ -37,6 +37,7 @@ INCLUDE("cmake/PluginConfigure.cmake")
 
 SET(SRC_DASHT
     src/dashboard_pi.h
+    src/DashboardConfig.cpp
     src/DashboardFunctions.h
     src/DashboardFunctions.cpp
     src/DashboardWindow.h
@@ -86,6 +87,7 @@ SET(SRC_DASHT
     src/wxJSON/jsonwriter.h
     src/tactics_pi.h
     src/tactics_pi.cpp
+    src/TacticsConfig.cpp
     src/TacticsWindow.h
     src/TacticsWindow.cpp
     src/TacticsPreferencesDialog.h
