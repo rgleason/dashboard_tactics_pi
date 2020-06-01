@@ -479,6 +479,11 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 void dashboard_pi::SendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp )
 {
+    long long datatimestamp = timestamp;
+    if ( datatimestamp == 0LL ) {
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        datatimestamp = wxllNowMs.GetValue();
+    } // then, oops, the source has no timestamps of its own, let's make one
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
         // we have a valid AWS sentence here, it may require heel correction
@@ -487,11 +492,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
         if ( this->SendSentenceToAllInstruments_PerformanceCorrections (
                  st, distvalue, distunit ) ) {
             this->SetCalcVariables(st, distvalue, distunit);
-            pSendSentenceToAllInstruments( st, distvalue, distunit, timestamp );
+            pSendSentenceToAllInstruments( st, distvalue, distunit, datatimestamp );
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, timestamp );
+            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // AWS corrected or not, it is now sent, move to TW calculations
         unsigned long long st_twa, st_tws, st_tws2, st_twd;
@@ -521,11 +526,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
                  st, distvalue, distunit ) ) {
             perfCorrections = true;
             this->SetCalcVariables(st, distvalue, distunit);
-            pSendSentenceToAllInstruments( st, distvalue, distunit, timestamp );
+            pSendSentenceToAllInstruments( st, distvalue, distunit, datatimestamp );
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, timestamp );
+            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // Leeway
         unsigned long long st_leeway;
@@ -559,12 +564,17 @@ void dashboard_pi::SendSentenceToAllInstruments(
 void dashboard_pi::SendDataToAllPathSubscribers (
     wxString path, double value, wxString unit, long long timestamp )
 {
+    long long datatimestamp = timestamp;
+    if ( datatimestamp == 0LL ) {
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        datatimestamp = wxllNowMs.GetValue();
+    } // then, oops, the source has no timestamps of its own, let's make one
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window )
             dashboard_window->SendDataToAllPathSubscribers(
-                path, value, unit, timestamp);
+                path, value, unit, datatimestamp);
     }
 }
 
