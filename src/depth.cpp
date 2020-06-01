@@ -46,8 +46,8 @@ DashboardInstrument_Depth::DashboardInstrument_Depth( wxWindow *parent, wxWindow
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_DPT | OCPN_DBP_STC_TMP)
 {
     m_MaxDepth = 0;
-    m_Depth = 0;
-    m_DepthUnit = getUsrDistanceUnit_Plugin( g_iDashDepthUnit );
+    m_Depth = std::nan("1");
+    m_DepthUnit = _T("");
     m_Temp = _T("--");
     for (int idx = 0; idx < DEPTH_RECORD_COUNT; idx++)
     {
@@ -73,27 +73,39 @@ void DashboardInstrument_Depth::SetData(
     , long long timestamp
     )
 {
-    setTimestamp( timestamp );
     if (st == OCPN_DBP_STC_DPT)
     {
-        m_Depth = data;
+        if ( !std::isnan( data ) ) {
+            m_Depth = data;
         
-        for (int idx = 1; idx < DEPTH_RECORD_COUNT; idx++)
-        {
-            m_ArrayDepth[idx-1] = m_ArrayDepth[idx];
+            for (int idx = 1; idx < DEPTH_RECORD_COUNT; idx++) {
+                m_ArrayDepth[idx-1] = m_ArrayDepth[idx];
+            }
+            m_ArrayDepth[DEPTH_RECORD_COUNT-1] = data;
+            m_DepthUnit = unit;
         }
-        m_ArrayDepth[DEPTH_RECORD_COUNT-1] = data;
-        m_DepthUnit = unit;
+        else {
+            m_Depth = std::nan("1");
+            m_DepthUnit = _T("");
+        }
     }
     else if (st == OCPN_DBP_STC_TMP)
     {
-        m_Temp = wxString::Format(_T("%.1f"), data)+DEGREE_SIGN+unit;
+        if ( !std::isnan( data ) )
+            m_Temp = wxString::Format(_T("%.1f"), data)+DEGREE_SIGN+unit;
+        else
+            m_Temp = _T("--");
     }
+
+    setTimestamp( timestamp );
+
 }
+
 void DashboardInstrument_Depth::timeoutEvent()
 {
     m_MaxDepth = 0;
-    m_Depth = 0;
+    m_Depth = std::nan("1");
+    m_DepthUnit = _T("");
     m_Temp = _T("--");
     for (int idx = 0; idx < DEPTH_RECORD_COUNT; idx++)
     {
@@ -191,7 +203,7 @@ void DashboardInstrument_Depth::DrawForeground(wxGCDC* dc)
     GetGlobalColor(_T("DASHF"), &cl);
     dc->SetTextForeground( cl );
     dc->SetFont(*g_pFontData);
-    dc->DrawText(wxString::Format(_T("%.1f "), m_Depth)+m_DepthUnit, 10, m_TitleHeight);
+    dc->DrawText( (std::isnan( m_Depth ) ? _T("") : wxString::Format(_T("%.1f "), m_Depth))+m_DepthUnit, 10, m_TitleHeight);
 
     dc->SetFont(*g_pFontLabel);
     int width, height;
