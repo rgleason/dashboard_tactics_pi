@@ -40,6 +40,9 @@
 #endif
 #include "wx/tokenzr.h"
 
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "wind.h"
 
 // Display the arrow for MainValue (wind angle)
@@ -108,11 +111,11 @@ DashboardInstrument_AppTrueWindAngle::DashboardInstrument_AppTrueWindAngle(wxWin
 	// Labels are set static because we've no logic to display them this way
 	wxString labels[] = { _T(""), _T("30"), _T("60"), _T("90"), _T("120"), _T("150"), _T(""), _T("150"), _T("120"), _T("90"), _T("60"), _T("30") };
 	SetOptionLabel(30, DIAL_LABEL_HORIZONTAL, wxArrayString(12, labels));
-	m_MainValueApp = NAN;
-	m_MainValueTrue = NAN;
-	m_ExtraValueApp = NAN;
-	m_ExtraValueTrue = NAN;
-	m_TWD = NAN;
+	m_MainValueApp = std::nan("1");
+	m_MainValueTrue = std::nan("1");
+	m_ExtraValueApp = std::nan("1");
+	m_ExtraValueTrue = std::nan("1");
+	m_TWD = std::nan("1");
 	m_TWDUnit = _T("");
     m_MainValueOption1 = DIAL_POSITION_NONE;
     m_MainValueOption2 = DIAL_POSITION_NONE;
@@ -131,7 +134,26 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
     , long long timestamp
     )
 { 
+    if ( std::isnan( data ) ) {
+        if ( st == OCPN_DBP_STC_AWS ) {
+            m_MainValueApp  = std::nan("1");
+            m_MainValueAppUnit = _T("");
+            m_ExtraValueApp = std::nan("1");
+            m_MainValueAppUnit = _T("");
+            Refresh();
+        } // perhaps AWS watchdog has hit, reset both AWA and AWS.
+        else if ( st == OCPN_DBP_STC_TWS ) {
+            m_MainValueTrue  = std::nan("1");
+            m_MainValueTrueUnit = _T("");
+            m_ExtraValueTrue = std::nan("1");
+            m_ExtraValueTrueUnit = _T("");
+            Refresh();
+        } // perhaps TWS watchdog has hit, reset both TWA and TWS.
+        return;
+    } // else invalid data received
+
     setTimestamp( timestamp );
+
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -144,21 +166,6 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
     else if (unit == _T("\u00B0d")){
         unit = DEGREE_SIGN + L"\u2193";
     }
-    if (std::isnan(data)) {
-        if ( st == OCPN_DBP_STC_AWS ) {
-            m_MainValueApp  = NAN;
-            m_ExtraValueApp = NAN;
-            Refresh();
-            return;
-        } // perhaps AWS watchdog has hit, reset both AWA and AWS.
-        else if ( st == OCPN_DBP_STC_TWS ) {
-            m_MainValueTrue  = NAN;
-            m_ExtraValueTrue = NAN;
-            Refresh();
-            return;
-        } // perhaps TWS watchdog has hit, reset both TWA and TWS.
-        return;
-    } // else invalid data received
 
     if (st == OCPN_DBP_STC_TWA){
         m_MainValueTrue = data;
@@ -186,6 +193,22 @@ void DashboardInstrument_AppTrueWindAngle::SetData(
     }
     Refresh();
 }
+
+void DashboardInstrument_AppTrueWindAngle::derivedTimeoutEvent()
+{
+
+    m_MainValueTrue = std::nan("1");
+    m_MainValueTrueUnit = _T("");
+    m_MainValueApp = std::nan("1");
+    m_MainValueAppUnit = _T("");
+    m_ExtraValueTrue = std::nan("1");
+    m_ExtraValueTrueUnit = _T("");
+    m_ExtraValueApp = std::nan("1");
+    m_ExtraValueAppUnit = _T("");
+    m_TWD = std::nan("1");
+	m_TWDUnit = _T("");
+}
+
 void DashboardInstrument_AppTrueWindAngle::Draw(wxGCDC* bdc)
 {
 	wxColour c1;
@@ -237,7 +260,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 	dc->DrawCircle(m_cx, m_cy, m_radius / 8);
 
 	/*True Wind*/
-	if (!std::isnan(m_ExtraValueTrue)){  //m_ExtraValueTrue = True Wind Angle; we have a watchdog for TWS; if TWS becomes NAN, TWA must be NAN as well
+	if ( !std::isnan( m_ExtraValueTrue ) ) {  //m_ExtraValueTrue = True Wind Angle; we have a watchdog for TWS; if TWS becomes NAN, TWA must be NAN as well
         dc->SetPen(*wxTRANSPARENT_PEN);
 
         GetGlobalColor(_T("BLUE3"), &cl);
@@ -273,39 +296,39 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
     }
 
 	/* Apparent Wind*/
-    if (!std::isnan(m_ExtraValueApp)){ //m_ExtraValueApp=AWA; we have a watchdog for AWS; if AWS becomes NAN, AWA will also be NAN ...
-	dc->SetPen(*wxTRANSPARENT_PEN);
+    if ( !std::isnan( m_ExtraValueApp ) ) { //m_ExtraValueApp=AWA; we have a watchdog for AWS; if AWS becomes NAN, AWA will also be NAN ...
+        dc->SetPen(*wxTRANSPARENT_PEN);
 
-	GetGlobalColor(_T("DASHN"), &cl);
-	wxBrush brush;
-	brush.SetStyle(wxBRUSHSTYLE_SOLID);
-	brush.SetColour(cl);
-	dc->SetBrush(brush);
+        GetGlobalColor(_T("DASHN"), &cl);
+        wxBrush brush;
+        brush.SetStyle(wxBRUSHSTYLE_SOLID);
+        brush.SetColour(cl);
+        dc->SetBrush(brush);
 
-	/* this is fix for a +/-180deg. round instrument,
-       when m_MainValue is supplied as <0..180><L | R>
-       * for example TWA & AWA */
-    if (m_MainValueAppUnit == (DEGREE_SIGN + L"\u2192") )
-		data = 360 - m_MainValueApp;
-	else
-		data = m_MainValueApp;
+        /* this is fix for a +/-180deg. round instrument,
+           when m_MainValue is supplied as <0..180><L | R>
+           * for example TWA & AWA */
+        if (m_MainValueAppUnit == (DEGREE_SIGN + L"\u2192") )
+            data = 360 - m_MainValueApp;
+        else
+            data = m_MainValueApp;
 
-	// The arrow should stay inside fixed limits
-	if (data < m_MainValueMin) val = m_MainValueMin;
-	else if (data > m_MainValueMax) val = m_MainValueMax;
-	else val = data;
+        // The arrow should stay inside fixed limits
+        if (data < m_MainValueMin) val = m_MainValueMin;
+        else if (data > m_MainValueMax) val = m_MainValueMax;
+        else val = data;
 
-	value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
+        value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-	points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-	points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-	points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-	points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-	points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-	points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-	points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-	points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-	dc->DrawPolygon(4, points, 0, 0);
+        points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
+        points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
+        points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
+        points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
+        points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
+        points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
+        points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
+        points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
+        dc->DrawPolygon(4, points, 0, 0);
     }
 }
 void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
@@ -364,6 +387,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 		// to avoid compiler warning.
 		return;
     case DIAL_POSITION_TOPINSIDE:
+        return;
 	case DIAL_POSITION_INSIDE:
 	{
 		TextPoint.x = m_cx - (width / 2) - 1;

@@ -59,7 +59,23 @@ void DashboardInstrument_Compass::SetData(
     , long long timestamp
     )
 {
+    if ( std::isnan( data ) ) {
+        if (st == m_MainValueCap)
+        {
+            m_AngleStart = 0;
+            m_MainValue = std::nan("1");
+            m_MainValueUnit = _T("");
+        }
+        else if (st == m_ExtraValueCap)
+        {
+            m_ExtraValue = std::nan("1");
+            m_ExtraValueUnit = _T("");
+        }
+        return;
+    }
+
     setTimestamp( timestamp );
+
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
     if (st == m_MainValueCap)
@@ -79,10 +95,7 @@ void DashboardInstrument_Compass::SetData(
 
 void DashboardInstrument_Compass::derivedTimeoutEvent()
 {
-    m_MainValue = static_cast<double>(m_s_value);
-    m_MainValueUnit = _T("");
-    m_ExtraValue = 0.0;
-    m_ExtraValueUnit = _T("");
+    return;
 }
 
 void DashboardInstrument_Compass::DrawBackground(wxGCDC* dc)

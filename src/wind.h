@@ -41,6 +41,9 @@
     #include <wx/wx.h>
 #endif
 
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
 //+------------------------------------------------------------------------------
@@ -58,7 +61,7 @@ public:
     DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title,
                                              unsigned long long cap_flag
         );
-    
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_Wind(void){}
 
 private:
@@ -73,7 +76,7 @@ public:
     DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title,
                                      unsigned long long cap_flag
         );
-
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_WindCompass(void){}
 
 private:
@@ -88,7 +91,7 @@ public:
     DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title,
                                        unsigned long long cap_flag
         );
-    
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_TrueWindAngle(void){}
 
 private:
@@ -107,7 +110,7 @@ public:
 	DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title,
                                          unsigned long long cap_flag
         );
-    
+    void derivedTimeoutEvent(void) override;
 	~DashboardInstrument_AppTrueWindAngle(void){}
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
 
