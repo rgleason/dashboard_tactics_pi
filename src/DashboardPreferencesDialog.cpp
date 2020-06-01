@@ -31,6 +31,8 @@
 
 #include "dashboard_pi_ext.h"
 
+#include "DashboardFunctions.h"
+
 #include "DashboardInstrumentContainer.h"
 
 

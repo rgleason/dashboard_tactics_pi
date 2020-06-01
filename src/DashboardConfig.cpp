@@ -1,5 +1,5 @@
-/******************************************************************************
- * $Id: dashboard_pi_ext.h, v1.0 2010/08/05 SethDart Exp $
+/***************************************************************************
+ * $Id: dashboard_pi.cpp, v1.0 2010/08/05 SethDart Exp $
  *
  * Project:  OpenCPN
  * Purpose:  Dashboard Plugin
@@ -25,24 +25,14 @@
  ***************************************************************************
  */
 
-#ifndef _DASHBOARDPIEXT_H_
-#define _DASHBOARDPIEXT_H_
+using namespace std;
 
-#include <wx/font.h>
+#include "wx/wxprec.h"
 
-extern wxFont *g_pFontTitle;
-extern wxFont *g_pFontData;
-extern wxFont *g_pFontLabel;
-extern wxFont *g_pFontSmall;
-extern int g_iDashSpeedMax;
-extern int g_iDashCOGDamp;
-extern int g_iDashSpeedUnit;
-extern int g_iDashSOGDamp;
-extern int g_iDashDepthUnit;
-extern int g_iDashDistanceUnit;
-extern int g_iDashWindSpeedUnit;
-extern int g_iDashTemperatureUnit;
-extern int g_iUTCOffset;
-extern double g_dDashDBTOffset;
+#ifndef  WX_PRECOMP
+#include "wx/wx.h"
+#endif //precompiled headers
 
-#endif // _DASHBOARDPIEXT_H_
+#include "dashboard_pi.h"
+
+

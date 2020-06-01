@@ -33,6 +33,8 @@ using namespace std;
 
 #include "dashboard_pi_ext.h"
 
+#include "DashboardFunctions.h"
+
 TacticsWindow::TacticsWindow (
     wxWindow *pparent, wxWindowID id,
     tactics_pi *tactics, const wxString derivtitle,

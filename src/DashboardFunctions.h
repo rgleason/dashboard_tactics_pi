@@ -1,5 +1,5 @@
-/******************************************************************************
- * $Id: dashboard_pi_ext.h, v1.0 2010/08/05 SethDart Exp $
+/***************************************************************************
+ * $Id: DashboardFunctions.h, v1.0 2010/08/05 SethDart Exp $
  *
  * Project:  OpenCPN
  * Purpose:  Dashboard Plugin
@@ -25,24 +25,14 @@
  ***************************************************************************
  */
 
-#ifndef _DASHBOARDPIEXT_H_
-#define _DASHBOARDPIEXT_H_
+#ifndef __DASHBOARDFUNCTIONS_H__
+#define __DASHBOARDFUNCTIONS_H__
 
-#include <wx/font.h>
+#include <wx/string.h>
 
-extern wxFont *g_pFontTitle;
-extern wxFont *g_pFontData;
-extern wxFont *g_pFontLabel;
-extern wxFont *g_pFontSmall;
-extern int g_iDashSpeedMax;
-extern int g_iDashCOGDamp;
-extern int g_iDashSpeedUnit;
-extern int g_iDashSOGDamp;
-extern int g_iDashDepthUnit;
-extern int g_iDashDistanceUnit;
-extern int g_iDashWindSpeedUnit;
-extern int g_iDashTemperatureUnit;
-extern int g_iUTCOffset;
-extern double g_dDashDBTOffset;
+int GetRandomNumber( int range_min, int range_max );
+wxString GetUUID( void );
+wxString MakeName( void );
+void checkNMEATemperatureDataAndUnit( double& TemperatureValue, wxString& TemperatureUnitOfMeasurement );
 
-#endif // _DASHBOARDPIEXT_H_
+#endif // __DASHBOARDFUNCTIONS_H__
