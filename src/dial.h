@@ -127,6 +127,7 @@ protected:
     int m_AngleRange;
     double m_MainValue;
     unsigned long long m_MainValueCap;
+    unsigned long long m_s_cap_flag;
     int m_s_angle;
     int m_s_value;
     double m_MainValueMin;

@@ -58,15 +58,16 @@ DashboardInstrument_Dial::DashboardInstrument_Dial(
     m_AngleStart = s_angle;
     m_s_angle = s_angle;
     m_AngleRange = r_angle;
-    m_MainValue = static_cast<double>(s_value);
+    m_MainValue = std::nan("1");
     m_s_value = s_value;
+    m_s_cap_flag = cap_flag;
     m_MainValueCap = cap_flag;
-    m_MainValueMin = m_MainValue;
+    m_MainValueMin = static_cast<double>(s_value);;
     m_MainValueMax = static_cast<double>(e_value);
     m_MainValueFormat = _T("%d");
     m_MainValueUnit = _T("");
     m_MainValueOption = DIAL_POSITION_NONE;
-    m_ExtraValue = 0.0;
+    m_ExtraValue = std::nan("1");
     m_ExtraValueCap = 0;
     m_ExtraValueFormat = _T("%d");
     m_ExtraValueUnit = _T("");
@@ -99,7 +100,20 @@ void DashboardInstrument_Dial::SetData(
     , long long timestamp
     )
 {
+    if ( std::isnan( data ) ) {
+        if ( st == m_MainValueCap ) {
+            m_MainValue = std::nan("1");
+            m_MainValueUnit = _T("");
+        }
+        if ( st == m_ExtraValueCap ) {
+            m_ExtraValue = std::nan("1");
+            m_ExtraValueUnit = _T("");
+        }
+        return;
+    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
+
     setTimestamp( timestamp );
+
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -112,13 +126,6 @@ void DashboardInstrument_Dial::SetData(
     else if (unit == _T("\u00B0d")){
         unit = DEGREE_SIGN + L"\u2193";
     }
-    if ( std::isnan(data) ) {
-        if ( st == m_MainValueCap )
-            m_MainValue = 0.0;
-        if ( st == m_ExtraValueCap )
-            m_ExtraValue = 0.0;
-        return;
-    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
 
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
@@ -136,11 +143,13 @@ void DashboardInstrument_Dial::SetData(
 
 void DashboardInstrument_Dial::timeoutEvent()
 {
-    m_MainValue = static_cast<double>(m_s_value);
     m_AngleStart = m_s_angle;
+    m_MainValue = std::nan("1");
     m_MainValueUnit = _T("");
-    m_ExtraValue = 0.0;
+    m_MainValueCap = m_s_cap_flag;
+    m_ExtraValue = std::nan("1");
     m_ExtraValueUnit = _T("");
+    m_ExtraValueCap = 0;
     this->derivedTimeoutEvent();
 }
 
@@ -509,55 +518,57 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
 
 void DashboardInstrument_Dial::DrawForeground(wxGCDC* dc)
 {
-      // The default foreground is the arrow used in most dials
-      wxColour cl;
-      GetGlobalColor(_T("DASH2"), &cl);
-      wxPen pen1;
-      pen1.SetStyle(wxPENSTYLE_SOLID);
-      pen1.SetColour(cl);
-      pen1.SetWidth(2);
-      dc->SetPen(pen1);
-      GetGlobalColor(_T("DASH1"), &cl);
-      wxBrush brush1;
-      brush1.SetStyle(wxBRUSHSTYLE_SOLID);
-      brush1.SetColour(cl);
-      dc->SetBrush(brush1);
-      dc->DrawCircle(m_cx, m_cy, m_radius / 8);
+    // The default foreground is the arrow used in most dials
+    wxColour cl;
+    GetGlobalColor(_T("DASH2"), &cl);
+    wxPen pen1;
+    pen1.SetStyle(wxPENSTYLE_SOLID);
+    pen1.SetColour(cl);
+    pen1.SetWidth(2);
+    dc->SetPen(pen1);
+    GetGlobalColor(_T("DASH1"), &cl);
+    wxBrush brush1;
+    brush1.SetStyle(wxBRUSHSTYLE_SOLID);
+    brush1.SetColour(cl);
+    dc->SetBrush(brush1);
+    dc->DrawCircle(m_cx, m_cy, m_radius / 8);
 
-      dc->SetPen(*wxTRANSPARENT_PEN);
+    if( !std::isnan( m_MainValue ) ) { // Start, or watchdog timne has hit
+        dc->SetPen(*wxTRANSPARENT_PEN);
 
-      GetGlobalColor(_T("DASHN"), &cl);
-      wxBrush brush;
-      brush.SetStyle(wxBRUSHSTYLE_SOLID);
-      brush.SetColour(cl);
-      dc->SetBrush(brush);
+        GetGlobalColor(_T("DASHN"), &cl);
+        wxBrush brush;
+        brush.SetStyle(wxBRUSHSTYLE_SOLID);
+        brush.SetColour(cl);
+        dc->SetBrush(brush);
 
-      /* this is fix for a +/-180deg round instrument, when m_MainValue is supplied as <0..180><L | R>
-       * for example TWA & AWA */
-      double data;
-      if( m_MainValueUnit == (DEGREE_SIGN + L"\u2192") )
-          data=360-m_MainValue;
-      else
-          data=m_MainValue;
+        /* this is fix for a +/-180deg round instrument, when m_MainValue is supplied as <0..180><L | R>
+         * for example TWA & AWA */
+        double data;
+        if( m_MainValueUnit == (DEGREE_SIGN + L"\u2192") )
+            data=360-m_MainValue;
+        else
+            data=m_MainValue;
 
-      // The arrow should stay inside fixed limits
-      double val;
-      if (data < m_MainValueMin) val = m_MainValueMin;
-      else if (data > m_MainValueMax) val = m_MainValueMax;
-      else val = data;
+        // The arrow should stay inside fixed limits
+        double val;
+        if (data < m_MainValueMin) val = m_MainValueMin;
+        else if (data > m_MainValueMax) val = m_MainValueMax;
+        else val = data;
 
-      double value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
+        double value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-      wxPoint points[4];
-      points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-      points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-      points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-      points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-      points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-      points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-      points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-      points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-      dc->DrawPolygon(4, points, 0, 0);
+        wxPoint points[4];
+        points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
+        points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
+        points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
+        points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
+        points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
+        points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
+        points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
+        points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
+        dc->DrawPolygon(4, points, 0, 0);
+    }
 }
 
 /* Shared functions */
