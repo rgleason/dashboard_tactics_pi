@@ -7,6 +7,8 @@ engines:
      - data/instrujs/www/confstat.js
      - instrujs/enginedjg/src/statemachine.js
      - instrujs/timestui/src/statemachine.js
+     - src/polarcompass.cpp
+     - src/bearingcompass.cpp
      - src/PolarPerformance.cpp
      - src/baro_history.cpp
      - src/wind_history.cpp
