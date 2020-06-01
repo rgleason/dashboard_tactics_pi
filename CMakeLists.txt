@@ -37,6 +37,8 @@ INCLUDE("cmake/PluginConfigure.cmake")
 
 SET(SRC_DASHT
     src/dashboard_pi.h
+    src/DashboardFunctions.h
+    src/DashboardFunctions.cpp
     src/DashboardWindow.h
     src/DashboardWindowContainer.h
     src/DashboardWindow.h
