@@ -132,6 +132,7 @@ public:
     unsigned long long GetCapacity(void);
     virtual void timeoutEvent(void) = 0;
     virtual void setTimestamp( long long ts ) final;
+    virtual void clearTimeStamp(void) final { previousTimestamp = 0LL; };
     virtual long long getTimestamp(void) final;
     virtual void setColorScheme ( PI_ColorScheme cs ) {};
     void OnEraseBackground(wxEraseEvent& WXUNUSED(evt));

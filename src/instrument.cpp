@@ -95,7 +95,8 @@ void DashboardInstrument::OnClose( wxCloseEvent &event )
 }
 void DashboardInstrument::setTimestamp( long long ts )
 {
-    previousTimestamp = ts;
+    if ( ts != 0LL )
+        previousTimestamp = ts;
 }
 long long DashboardInstrument::getTimestamp()
 {
@@ -284,11 +285,10 @@ void DashboardInstrument_Single::SetData(
     , long long timestamp
     )
 {
-    setTimestamp( timestamp );
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
-      if (m_cap_flag & st){
-            if(!std::isnan(data) && (data < 9999)){
+      if ( m_cap_flag & st ){
+            if( !std::isnan( data ) && (data < 9999.) ) {
                 if (unit == _T("C"))
                   m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("C");
                 else if (unit == _T("F"))
@@ -331,15 +331,18 @@ void DashboardInstrument_Single::SetData(
                 }
                 else if (unit == _T("N")) //Knots
                   m_data = wxString::Format(m_format, data)+_T(" Kts");
-/* maybe in the future ...
+                /* maybe in the future ...
                 else if (unit == _T("M")) // m/s
                   m_data = wxString::Format(m_format, data)+_T(" m/s");
                 else if (unit == _T("K")) // km/h
                   m_data = wxString::Format(m_format, data)+_T(" km/h");
- ... to be completed
- */
+                  ... to be completed
+                */
                 else
                   m_data = wxString::Format(m_format, data)+_T(" ")+unit;
+
+                setTimestamp( timestamp );
+
             }
             else
                 m_data = _T("---");
