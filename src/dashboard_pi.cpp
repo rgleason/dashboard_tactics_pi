@@ -74,6 +74,20 @@ int g_iDashWindSpeedUnit;
 int g_iDashTemperatureUnit;
 int g_iUTCOffset;
 double g_dDashDBTOffset;
+wxString g_sDialColorBackground;
+wxString g_sDialColorForeground;
+wxString g_sDialColorLabel;
+wxString g_sDialColorRed;
+wxString g_sDialColorGreen;
+wxString g_sDialColorIs1;
+wxString g_sDialColorIs2;
+wxString g_sDialNeedleColor;
+wxString g_sDialSecondNeedleColor;
+wxString g_sDialCentralCircleColor;
+wxString g_sDialColorCompassBackgound;
+bool g_bDialNeedleEmbossed;
+wxString g_sDialNeedleContourColor;
+bool g_bDialShowRedGreen;
 
 #include "DashboardFunctions.h"
 

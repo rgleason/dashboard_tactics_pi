@@ -139,8 +139,14 @@ public:
     
 private:
     bool LoadConfig(void);
+    void LoadDashboardBasePart( wxFileConfig* pConf );
+    void SaveDashboardBasePart( wxFileConfig* pConf );
+    void LoadDashboardInstruments( wxFileConfig* pConf );
+    void SaveDashboardInstruments( wxFileConfig* pConf );
+    void LoadDialSettings( wxFileConfig* pConf );
+    void SaveDialSettings( wxFileConfig* pConf );
     wxString GetCommonNameVersion(void);  
-    wxString GetNameVersion(void);  
+    wxString GetNameVersion(void);
 
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );

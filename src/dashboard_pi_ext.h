@@ -44,5 +44,19 @@ extern int g_iDashWindSpeedUnit;
 extern int g_iDashTemperatureUnit;
 extern int g_iUTCOffset;
 extern double g_dDashDBTOffset;
+extern wxString g_sDialColorBackground;
+extern wxString g_sDialColorForeground;
+extern wxString g_sDialColorLabel;
+extern wxString g_sDialColorRed;
+extern wxString g_sDialColorGreen;
+extern wxString g_sDialColorIs1;
+extern wxString g_sDialColorIs2;
+extern wxString g_sDialNeedleColor;
+extern wxString g_sDialSecondNeedleColor;
+extern wxString g_sDialCentralCircleColor;
+extern wxString g_sDialColorCompassBackgound;
+extern bool g_bDialNeedleEmbossed;
+extern wxString g_sDialNeedleContourColor;
+extern bool g_bDialShowRedGreen;
 
 #endif // _DASHBOARDPIEXT_H_
