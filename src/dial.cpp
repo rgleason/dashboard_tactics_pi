@@ -158,7 +158,7 @@ void DashboardInstrument_Dial::timeoutEvent()
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
 {
     wxColour c1;
-    GetGlobalColor( g_sDialColorBackground , &c1);
+    GetGlobalColor( g_sDialColorBackground, &c1 );
     wxBrush b1(c1);
     bdc->SetBackground(b1);
     bdc->Clear();
@@ -522,31 +522,7 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
 void DashboardInstrument_Dial::DrawForeground(wxGCDC* dc)
 {
     // The default foreground is the arrow used in most dials
-    wxColour cl;
-
-    if( std::isnan( m_MainValue ) )
-        GetGlobalColor( g_sDialColorIs2, &cl );
-    else
-        GetGlobalColor( g_sDialCentralCircleColor, &cl );
-
-    wxPen pen1;
-    pen1.SetStyle(wxPENSTYLE_SOLID);
-    pen1.SetColour(cl);
-    pen1.SetWidth(3);
-    dc->SetPen(pen1);
-    wxBrush brush1;
-    brush1.SetStyle(wxBRUSHSTYLE_SOLID);
-    if ( std::isnan( m_MainValue ) ) {
-        GetGlobalColor( g_sDialColorIs1, &cl );
-        brush1.SetColour( cl );
-   }
-    else {
-        wxColour centershade;
-        centershade = cl.ChangeLightness( 130 );
-        brush1.SetColour( centershade );
-    }
-    dc->SetBrush(brush1);
-    dc->DrawCircle(m_cx, m_cy, m_radius / 8);
+    DrawNeedleHub( dc, m_cx, m_cy, m_radius, (std::isnan( m_MainValue ) ? false : true) );
 
     if( !std::isnan( m_MainValue ) ) { // Start, or watchdog timne has hit
         
@@ -569,91 +545,8 @@ void DashboardInstrument_Dial::DrawForeground(wxGCDC* dc)
 
         double value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-        if ( g_bDialNeedleEmbossed ) {
-            
-            wxPen nonshadepen;
-            wxColour pennonshade;
-            nonshadepen.SetStyle(wxPENSTYLE_SOLID);
-            GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
-            pennonshade = cl.ChangeLightness( 130 );
-            nonshadepen.SetColour( pennonshade ); // towards the observer = less dark!
-            nonshadepen.SetWidth(1);
-            wxPen shadepen;
-            shadepen.SetStyle(wxPENSTYLE_SOLID);
-            GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
-            shadepen.SetColour( cl ); // away from the observer = original!
-            shadepen.SetWidth(2);
-            
-            wxBrush needlebrush;
-            wxBrush needleshadebrush;
-            wxColour needleshade;
-            GetGlobalColor( g_sDialNeedleColor, &cl );
-            needlebrush.SetColour( cl ); // towards the observer = original
-            needleshade = cl.ChangeLightness( 85 );
-            needleshadebrush.SetColour( needleshade ); // away from the observer = darker
+        DrawNeedle( dc, m_cx, m_cy, m_radius, value, g_sDialNeedleColor );
 
-            if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
-                dc->SetPen( shadepen );
-                dc->SetBrush( needleshadebrush );
-            }
-            else {
-                dc->SetPen( nonshadepen );
-                dc->SetBrush( needlebrush );
-            }
-
-            wxPoint points[4];
-            points[0].x = m_cx + (m_radius * 0.95 * cos(value - .0));
-            points[0].y = m_cy + (m_radius * 0.95 * sin(value - .0));
-            points[1].x = m_cx + (m_radius * 0.95 * cos(value + .01));
-            points[1].y = m_cy + (m_radius * 0.95 * sin(value + .01));
-            points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-            points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-            points[3].x = m_cx + (m_radius * 0.22 * cos(value - 3.14));
-            points[3].y = m_cy + (m_radius * 0.22 * sin(value - 3.14));
-            dc->DrawPolygon(4, points, 0, 0);
-
-            if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
-                dc->SetPen( nonshadepen );
-                dc->SetBrush( needlebrush );
-            }
-            else {
-                dc->SetPen( shadepen );
-                dc->SetBrush( needleshadebrush );
-            }
-
-            points[0].x = m_cx + (m_radius * 0.95 * cos(value - .0));
-            points[0].y = m_cy + (m_radius * 0.95 * sin(value - .0));
-            points[1].x = m_cx + (m_radius * 0.95 * cos(value - .01));
-            points[1].y = m_cy + (m_radius * 0.95 * sin(value - .01));
-            points[2].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-            points[2].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-            points[3].x = m_cx + (m_radius * 0.22 * cos(value - 3.14));
-            points[3].y = m_cy + (m_radius * 0.22 * sin(value - 3.14));
-            dc->DrawPolygon(4, points, 0, 0);
-
-
-
-        }
-        else {
-            dc->SetPen(*wxTRANSPARENT_PEN);
-            GetGlobalColor( g_sDialNeedleColor, &cl );
-
-            wxBrush brush;
-            brush.SetStyle(wxBRUSHSTYLE_SOLID);
-            brush.SetColour(cl);
-            dc->SetBrush(brush);
-
-            wxPoint points[4];
-            points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-            points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-            points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-            points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-            points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-            points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-            points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-            points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-            dc->DrawPolygon(4, points, 0, 0);
-        }
     }
 }
 
@@ -767,3 +660,124 @@ void DrawBoat( wxGCDC* dc, int cx, int cy, int radius )
     dc->DrawPolygon(7, points, 0, 0);
 }
 
+
+
+void DrawNeedleHub( wxGCDC* dc, int cx, int cy, int radius, bool dataAvailable )
+{
+    wxColour cl;
+
+    if ( dataAvailable )
+        GetGlobalColor( g_sDialCentralCircleColor, &cl );
+    else
+        GetGlobalColor( g_sDialColorIs2, &cl );
+
+    wxPen pen1;
+    pen1.SetStyle(wxPENSTYLE_SOLID);
+    pen1.SetColour(cl);
+    pen1.SetWidth(3);
+    dc->SetPen(pen1);
+    wxBrush brush1;
+    brush1.SetStyle(wxBRUSHSTYLE_SOLID);
+    if ( dataAvailable ) {
+        wxColour centershade;
+        centershade = cl.ChangeLightness( 130 );
+        brush1.SetColour( centershade );
+    }
+    else {
+        GetGlobalColor( g_sDialColorIs1, &cl );
+        brush1.SetColour( cl );
+   }
+    dc->SetBrush(brush1);
+    dc->DrawCircle(cx, cy, radius / 8);
+}
+
+
+void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString ocpnColorCode )
+{
+    wxColour cl;
+
+    if ( g_bDialNeedleEmbossed ) {
+            
+        wxPen nonshadepen;
+        wxColour pennonshade;
+        nonshadepen.SetStyle(wxPENSTYLE_SOLID);
+        GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
+        pennonshade = cl.ChangeLightness( 130 );
+        nonshadepen.SetColour( pennonshade ); // towards the observer = less dark!
+        nonshadepen.SetWidth(1);
+        wxPen shadepen;
+        shadepen.SetStyle(wxPENSTYLE_SOLID);
+        GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
+        shadepen.SetColour( cl ); // away from the observer = original!
+        shadepen.SetWidth(2);
+            
+        wxBrush needlebrush;
+        wxBrush needleshadebrush;
+        wxColour needleshade;
+        GetGlobalColor( ocpnColorCode, &cl );
+        needlebrush.SetColour( cl ); // towards the observer = original
+        needleshade = cl.ChangeLightness( 85 );
+        needleshadebrush.SetColour( needleshade ); // away from the observer = darker
+
+        if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
+            dc->SetPen( shadepen );
+            dc->SetBrush( needleshadebrush );
+        }
+        else {
+            dc->SetPen( nonshadepen );
+            dc->SetBrush( needlebrush );
+        }
+
+        wxPoint points[4];
+        points[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        points[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        points[1].x = cx + (radius * 0.95 * cos(value + .01));
+        points[1].y = cy + (radius * 0.95 * sin(value + .01));
+        points[2].x = cx + (radius * 0.22 * cos(value + 2.8));
+        points[2].y = cy + (radius * 0.22 * sin(value + 2.8));
+        points[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        points[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+        dc->DrawPolygon(4, points, 0, 0);
+
+        if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
+            dc->SetPen( nonshadepen );
+            dc->SetBrush( needlebrush );
+        }
+        else {
+            dc->SetPen( shadepen );
+            dc->SetBrush( needleshadebrush );
+        }
+
+        points[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        points[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        points[1].x = cx + (radius * 0.95 * cos(value - .01));
+        points[1].y = cy + (radius * 0.95 * sin(value - .01));
+        points[2].x = cx + (radius * 0.22 * cos(value - 2.8));
+        points[2].y = cy + (radius * 0.22 * sin(value - 2.8));
+        points[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        points[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+        dc->DrawPolygon(4, points, 0, 0);
+
+    }
+    else {
+        dc->SetPen(*wxTRANSPARENT_PEN);
+        GetGlobalColor( ocpnColorCode, &cl );
+
+        wxBrush brush;
+        brush.SetStyle(wxBRUSHSTYLE_SOLID);
+        brush.SetColour(cl);
+        dc->SetBrush(brush);
+
+        wxPoint points[4];
+        points[0].x = cx + (radius * 0.95 * cos(value - .010));
+        points[0].y = cy + (radius * 0.95 * sin(value - .010));
+        points[1].x = cx + (radius * 0.95 * cos(value + .015));
+        points[1].y = cy + (radius * 0.95 * sin(value + .015));
+        points[2].x = cx + (radius * 0.22 * cos(value + 2.8));
+        points[2].y = cy + (radius * 0.22 * sin(value + 2.8));
+        points[3].x = cx + (radius * 0.22 * cos(value - 2.8));
+        points[3].y = cy + (radius * 0.22 * sin(value - 2.8));
+        dc->DrawPolygon(4, points, 0, 0);
+    }
+
+}

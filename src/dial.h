@@ -159,6 +159,8 @@ protected:
 /* Shared functions */
 void DrawCompassRose( wxGCDC* dc, int cx, int cy, int radius, int startangle, bool showlabels );
 void DrawBoat( wxGCDC* dc, int cx, int cy, int radius );
+void DrawNeedleHub( wxGCDC* dc, int cx, int cy, int radius, bool dataAvailable );
+void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString ocpnColorCode );
 
 #endif // __Dial_H__
 

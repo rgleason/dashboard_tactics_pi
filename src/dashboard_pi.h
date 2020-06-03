@@ -143,8 +143,8 @@ private:
     void SaveDashboardBasePart( wxFileConfig* pConf );
     void LoadDashboardInstruments( wxFileConfig* pConf );
     void SaveDashboardInstruments( wxFileConfig* pConf );
-    void LoadDialSettings( wxFileConfig* pConf );
-    void SaveDialSettings( wxFileConfig* pConf );
+    void LoadColorSettings( wxFileConfig* pConf );
+    void SaveColorSettings( wxFileConfig* pConf );
     wxString GetCommonNameVersion(void);  
     wxString GetNameVersion(void);
 

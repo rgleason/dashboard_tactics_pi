@@ -256,7 +256,7 @@ void TacticsInstrument_BearingCompass::derivedTimeoutEvent()
 void TacticsInstrument_BearingCompass::Draw(wxGCDC* bdc)
 {
 	wxColour c1;
-	GetGlobalColor(_T("DASHB"), &c1);
+	GetGlobalColor( g_sDialColorBackground, &c1 );
 	wxBrush b1(c1);
 	bdc->SetBackground(b1);
 	bdc->Clear();
@@ -337,13 +337,13 @@ void TacticsInstrument_BearingCompass::DrawWindAngles(wxGCDC* dc)
 	// True Wind Angle first (it's in the background then)
 	if (!std::isnan(m_TWA)) {
 		wxColour cl;
-		GetGlobalColor(_T("DASH2"), &cl);
+		GetGlobalColor( g_sDialColorIs2, &cl );
 		wxPen pen1;
 		pen1.SetStyle(wxPENSTYLE_SOLID);
 		pen1.SetColour(cl);
 		pen1.SetWidth(2);
 		dc->SetPen(pen1);
-		GetGlobalColor(_T("DASH1"), &cl);
+		GetGlobalColor( g_sDialColorIs1, &cl );
 		wxBrush brush1;
 		brush1.SetStyle(wxBRUSHSTYLE_SOLID);
 		brush1.SetColour(cl);
@@ -420,13 +420,13 @@ void TacticsInstrument_BearingCompass::DrawWindAngles(wxGCDC* dc)
 	// now almost the same for AWA
 	if (m_AWA != -999) {
 		wxColour cl;
-		GetGlobalColor(_T("DASH2"), &cl);
+		GetGlobalColor( g_sDialColorIs2, &cl );
 		wxPen pen1;
 		pen1.SetStyle(wxPENSTYLE_SOLID);
 		pen1.SetColour(cl);
 		pen1.SetWidth(2);
 		dc->SetPen(pen1);
-		GetGlobalColor(_T("DASH1"), &cl);
+		GetGlobalColor( g_sDialColorIs1, &cl );
 		wxBrush brush1;
 		brush1.SetStyle(wxBRUSHSTYLE_SOLID);
 		brush1.SetColour(cl);
@@ -434,7 +434,7 @@ void TacticsInstrument_BearingCompass::DrawWindAngles(wxGCDC* dc)
 
 		dc->SetPen(*wxTRANSPARENT_PEN);
 
-		GetGlobalColor(_T("DASHN"), &cl);
+		GetGlobalColor( g_sDialNeedleColor, &cl );
 		wxBrush brush;
 		brush.SetStyle(wxBRUSHSTYLE_SOLID);
 		brush.SetColour(cl);
@@ -698,7 +698,7 @@ void TacticsInstrument_BearingCompass::DrawData(wxGCDC* dc, double value,
 
 	dc->SetFont(*g_pFontLabel);
 	wxColour cl;
-	GetGlobalColor(_T("DASHF"), &cl);
+	GetGlobalColor( g_sDialColorForeground, &cl );
 	dc->SetTextForeground(cl);
 
 	wxSize size = GetClientSize();
@@ -735,7 +735,7 @@ void TacticsInstrument_BearingCompass::DrawData(wxGCDC* dc, double value,
 	switch (position)
 	{
 	case DIAL_POSITION_NONE:
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor( g_sDialColorForeground, &c3 );
 		// This case was already handled before, it's here just
 		// to avoid compiler warning.
 		return;
@@ -744,11 +744,11 @@ void TacticsInstrument_BearingCompass::DrawData(wxGCDC* dc, double value,
 		GetGlobalColor(_T("BLUE2"), &c3);
 		TextPoint.x = m_cx - (width / 2) - 1;
 		TextPoint.y = (size.y * .75) - height;
-		GetGlobalColor(_T("DASHL"), &cl);
+		GetGlobalColor( g_sDialColorLabel, &cl );
 		int penwidth = size.x / 100;
 		wxPen* pen = wxThePenList->FindOrCreatePen(cl, penwidth, wxPENSTYLE_SOLID);
 		dc->SetPen(*pen);
-		GetGlobalColor(_T("DASHB"), &cl);
+		GetGlobalColor( g_sDialColorBackground, &cl);
 		dc->SetBrush(cl);
 		// There might be a background drawn below
 		// so we must clear it first.
@@ -757,14 +757,14 @@ void TacticsInstrument_BearingCompass::DrawData(wxGCDC* dc, double value,
 	}
 	case DIAL_POSITION_TOPINSIDE:
 	{
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor( g_sDialColorForeground, &c3 );
 		TextPoint.x = m_cx - (width / 2) - 1;
 		TextPoint.y = m_cy- 0.95*m_radius - height;
 		GetGlobalColor(_T("UBLCK"), &cl);
 		int penwidth = size.x / 100;
 		wxPen* pen = wxThePenList->FindOrCreatePen(cl, penwidth, wxPENSTYLE_SOLID);
 		dc->SetPen(*pen);
-		GetGlobalColor(_T("DASHB"), &cl);
+		GetGlobalColor( g_sDialColorBackground, &cl );
 		dc->SetBrush(cl);
 		// There might be a background drawn below
 		// so we must clear it first.
@@ -772,29 +772,29 @@ void TacticsInstrument_BearingCompass::DrawData(wxGCDC* dc, double value,
 		break;
 	}
 	case DIAL_POSITION_TOPLEFT:
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor( g_sDialColorForeground, &c3 );
 		TextPoint.x = 0;
 		TextPoint.y = m_TitleHeight;
 		break;
 	case DIAL_POSITION_TOPRIGHT:
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor( g_sDialColorForeground, &c3 );
 		TextPoint.x = size.x - width - 1;
 		TextPoint.y = m_TitleHeight;
 		break;
 	case DIAL_POSITION_BOTTOMLEFT:
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor( g_sDialColorForeground, &c3 );
 		TextPoint.x = 0;
 		TextPoint.y = size.y - height;
 		break;
 	case DIAL_POSITION_BOTTOMRIGHT:
-		GetGlobalColor(_T("DASHF"), &c3);
+		GetGlobalColor(g_sDialColorForeground, &c3 );
 		TextPoint.x = size.x - width - 1;
 		TextPoint.y = size.y - height;
 		break;
 	}
 
 	wxColour c2;
-	GetGlobalColor(_T("DASHB"), &c2);
+	GetGlobalColor( g_sDialColorBackground, &c2 );
 
 	wxStringTokenizer tkz(text, _T("\n"));
 	wxString token;
@@ -836,13 +836,13 @@ void TacticsInstrument_BearingCompass::DrawLaylines(wxGCDC* dc)
 
 
 		wxColour cl;
-		GetGlobalColor(_T("DASH2"), &cl);
+		GetGlobalColor( g_sDialColorIs2, &cl );
 		wxPen pen1;
 		pen1.SetStyle(wxPENSTYLE_SOLID);
 		pen1.SetColour(cl);
 		pen1.SetWidth(2);
 		dc->SetPen(pen1);
-		GetGlobalColor(_T("DASH1"), &cl);
+		GetGlobalColor( g_sDialColorIs1, &cl );
 		wxBrush brush1;
 		brush1.SetStyle(wxBRUSHSTYLE_SOLID);
 		brush1.SetColour(cl);
@@ -850,7 +850,7 @@ void TacticsInstrument_BearingCompass::DrawLaylines(wxGCDC* dc)
 
 		dc->SetPen(*wxTRANSPARENT_PEN);
 
-		GetGlobalColor(_T("DASHN"), &cl);
+		GetGlobalColor( g_sDialNeedleColor, &cl);
 		wxBrush vbrush, tackbrush;
 		vbrush.SetStyle(wxBRUSHSTYLE_SOLID);
 		tackbrush.SetStyle(wxBRUSHSTYLE_SOLID);

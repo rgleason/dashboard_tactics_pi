@@ -162,7 +162,7 @@ void DashboardInstrument_Moon::Draw(wxGCDC* dc)
     wxColour cl0, cl1, cl2;
 
     dc->SetPen( *wxTRANSPARENT_PEN );
-    GetGlobalColor(_T("DASHL"), &cl0);
+    GetGlobalColor( g_sDialColorLabel, &cl0 );
     dc->SetBrush(cl0);
     wxPoint points[3];
     points[0].x = 5;
@@ -179,9 +179,9 @@ void DashboardInstrument_Moon::Draw(wxGCDC* dc)
     /* Moon phases are seen upside-down on the southern hemisphere */
     int startangle = ( m_hemisphere == _("N") ? -90 : 90 );
 
-    GetGlobalColor(_T("DASH2"), &cl0);
-    GetGlobalColor(_T("DASH1"), &cl1);
-    GetGlobalColor(_T("DASHF"), &cl2);
+    GetGlobalColor( g_sDialColorIs2, &cl0 );
+    GetGlobalColor( g_sDialColorIs1, &cl1 );
+    GetGlobalColor( g_sDialColorForeground, &cl2 );
 
     dc->SetBrush(cl0);
     dc->DrawCircle( x, y, m_radius );
@@ -317,7 +317,7 @@ void DashboardInstrument_Sun::Draw(wxGCDC* dc)
       wxColour cl;
 
       dc->SetFont(*g_pFontData);
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl );
       dc->SetTextForeground(cl);
 
       dc->DrawText(m_sunrise, 10, m_TitleHeight);

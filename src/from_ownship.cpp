@@ -64,7 +64,7 @@ void DashboardInstrument_FromOwnship::Draw(wxGCDC* dc)
 
     dc->SetFont(*g_pFontData);
     //dc.SetTextForeground(pFontMgr->GetFontColor(_T("Dashboard Data")));
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorBackground, &cl);
     dc->SetTextForeground(cl);
 
     dc->DrawText(m_data1, 10, m_TitleHeight);

@@ -45,6 +45,8 @@
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "wind.h"
 
+#include "dashboard_pi_ext.h"
+
 // Display the arrow for MainValue (wind angle)
 // We also want the extra value (wind speed) displayed inside the dial
 
@@ -212,7 +214,7 @@ void DashboardInstrument_AppTrueWindAngle::derivedTimeoutEvent()
 void DashboardInstrument_AppTrueWindAngle::Draw(wxGCDC* bdc)
 {
 	wxColour c1;
-	GetGlobalColor(_T("DASHB"), &c1);
+	GetGlobalColor( g_sDialColorBackground, &c1 );
 	wxBrush b1(c1);
 	bdc->SetBackground(b1);
 	bdc->Clear();
@@ -240,38 +242,16 @@ void DashboardInstrument_AppTrueWindAngle::Draw(wxGCDC* bdc)
 }
 void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 {
-	wxPoint points[4];
 	double data;
 	double val;
 	double value;
 	// The default foreground is the arrow used in most dials
-	wxColour cl;
-	GetGlobalColor(_T("DASH2"), &cl);
-	wxPen pen1;
-	pen1.SetStyle(wxPENSTYLE_SOLID);
-	pen1.SetColour(cl);
-	pen1.SetWidth(2);
-	dc->SetPen(pen1);
-	GetGlobalColor(_T("DASH1"), &cl);
-	wxBrush brush1;
-	brush1.SetStyle(wxBRUSHSTYLE_SOLID);
-	brush1.SetColour(cl);
-	dc->SetBrush(brush1);
-	dc->DrawCircle(m_cx, m_cy, m_radius / 8);
+    DrawNeedleHub( dc, m_cx, m_cy, m_radius,
+                   ( !std::isnan( m_ExtraValueTrue) ||  !std::isnan( m_ExtraValueApp) ) ? true : false  );
 
 	/*True Wind*/
 	if ( !std::isnan( m_ExtraValueTrue ) ) {  //m_ExtraValueTrue = True Wind Angle; we have a watchdog for TWS; if TWS becomes NAN, TWA must be NAN as well
-        dc->SetPen(*wxTRANSPARENT_PEN);
 
-        GetGlobalColor(_T("BLUE3"), &cl);
-        wxBrush brush2;
-        brush2.SetStyle(wxBRUSHSTYLE_SOLID);
-        brush2.SetColour(cl);
-        dc->SetBrush(brush2);
-
-        /* this is fix for a +/-180 deg. round instrument, when
-           m_MainValue is supplied as <0..180><L | R>
-           * for example TWA & AWA */
         if (m_MainValueTrueUnit == (DEGREE_SIGN + L"\u2192") )
             data = 360 - m_MainValueTrue;
         else
@@ -284,30 +264,13 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 
         value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-        points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-        points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-        points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-        points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-        points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-        points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-        points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-        points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-        dc->DrawPolygon(4, points, 0, 0);
+        DrawNeedle( dc, m_cx, m_cy, m_radius, value, g_sDialSecondNeedleColor );
+
     }
 
 	/* Apparent Wind*/
     if ( !std::isnan( m_ExtraValueApp ) ) { //m_ExtraValueApp=AWA; we have a watchdog for AWS; if AWS becomes NAN, AWA will also be NAN ...
-        dc->SetPen(*wxTRANSPARENT_PEN);
 
-        GetGlobalColor(_T("DASHN"), &cl);
-        wxBrush brush;
-        brush.SetStyle(wxBRUSHSTYLE_SOLID);
-        brush.SetColour(cl);
-        dc->SetBrush(brush);
-
-        /* this is fix for a +/-180deg. round instrument,
-           when m_MainValue is supplied as <0..180><L | R>
-           * for example TWA & AWA */
         if (m_MainValueAppUnit == (DEGREE_SIGN + L"\u2192") )
             data = 360 - m_MainValueApp;
         else
@@ -320,15 +283,8 @@ void DashboardInstrument_AppTrueWindAngle::DrawForeground(wxGCDC* dc)
 
         value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-        points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-        points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-        points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-        points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-        points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-        points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-        points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-        points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-        dc->DrawPolygon(4, points, 0, 0);
+        DrawNeedle( dc, m_cx, m_cy, m_radius, value, g_sDialNeedleColor );
+
     }
 }
 void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
@@ -339,7 +295,7 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 
 	dc->SetFont(*g_pFontLabel);
 	wxColour cl;
-	GetGlobalColor(_T("DASHF"), &cl);
+	GetGlobalColor( g_sDialColorForeground, &cl );
 	dc->SetTextForeground(cl);
 
 	wxSize size = GetClientSize();
@@ -392,11 +348,11 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 	{
 		TextPoint.x = m_cx - (width / 2) - 1;
 		TextPoint.y = (size.y * .75) - height;
-		GetGlobalColor(_T("DASHL"), &cl);
+		GetGlobalColor( g_sDialColorLabel, &cl );
 		int penwidth = size.x / 100;
 		wxPen* pen = wxThePenList->FindOrCreatePen(cl, penwidth, wxPENSTYLE_SOLID);
 		dc->SetPen(*pen);
-		GetGlobalColor(_T("DASHB"), &cl);
+		GetGlobalColor( g_sDialColorBackground, &cl );
 		dc->SetBrush(cl);
 		// There might be a background drawn below
 		// so we must clear it first.
@@ -404,30 +360,30 @@ void DashboardInstrument_AppTrueWindAngle::DrawData(wxGCDC* dc, double value,
 		break;
 	}
 	case DIAL_POSITION_TOPLEFT:
-		GetGlobalColor(_T("DASHN"), &c3);
+		GetGlobalColor( g_sDialNeedleColor, &c3 );
 		TextPoint.x = 0;
 		TextPoint.y = m_TitleHeight;
 		text = _T("A:") + text;
 		break;
 	case DIAL_POSITION_TOPRIGHT:
-		GetGlobalColor(_T("DASHN"), &c3);
+		GetGlobalColor( g_sDialNeedleColor, &c3 );
 		TextPoint.x = size.x - width - 1;
 		TextPoint.y = m_TitleHeight;
 		break;
 	case DIAL_POSITION_BOTTOMLEFT:
-		GetGlobalColor(_T("BLUE3"), &c3);
+		GetGlobalColor( g_sDialSecondNeedleColor, &c3 );
 		text = _T("T:") + text;
 		TextPoint.x = 0;
 		TextPoint.y = size.y - height;
 		break;
 	case DIAL_POSITION_BOTTOMRIGHT:
-		GetGlobalColor(_T("BLUE3"), &c3);
+		GetGlobalColor( g_sDialSecondNeedleColor, &c3 );
 		TextPoint.x = size.x - width - 1;
 		TextPoint.y = size.y - height;
 		break;
 	}
 	wxColour c2;
-	GetGlobalColor(_T("DASHB"), &c2);
+	GetGlobalColor( g_sDialColorBackground, &c2 );
 	wxStringTokenizer tkz(text, _T("\n"));
 	wxString token;
 

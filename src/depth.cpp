@@ -124,12 +124,12 @@ void DashboardInstrument_Depth::DrawBackground(wxGCDC* dc)
     wxSize size = GetClientSize();
     wxColour cl;
 
-    GetGlobalColor(_T("DASHL"), &cl);
+    GetGlobalColor( g_sDialColorLabel, &cl) ;
     dc->SetTextForeground(cl);
 
     wxPen pen;
     pen.SetStyle(wxPENSTYLE_SOLID);
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorForeground, &cl );
     pen.SetColour(cl);
     pen.SetWidth(1);
     dc->SetPen(pen);
@@ -176,7 +176,7 @@ void DashboardInstrument_Depth::DrawForeground(wxGCDC* dc)
     wxSize size = GetClientSize();
     wxColour cl;
 
-    GetGlobalColor(_T("DASHL"), &cl);
+    GetGlobalColor( g_sDialColorLabel, &cl );
     wxBrush brush;
     brush.SetStyle(wxBRUSHSTYLE_SOLID);
     brush.SetColour(cl);
@@ -200,7 +200,7 @@ void DashboardInstrument_Depth::DrawForeground(wxGCDC* dc)
     points[DEPTH_RECORD_COUNT+1].y = 140;
     dc->DrawPolygon(DEPTH_RECORD_COUNT+2, points);
       
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorForeground, &cl );
     dc->SetTextForeground( cl );
     dc->SetFont(*g_pFontData);
     dc->DrawText( (std::isnan( m_Depth ) ? _T("") : wxString::Format(_T("%.1f "), m_Depth))+m_DepthUnit, 10, m_TitleHeight);

@@ -49,8 +49,8 @@ bool dashboard_pi::LoadConfig( void )
         pConf->SetPath( _T("/PlugIns/DashT") );
         LoadDashboardBasePart( pConf );
         LoadDashboardInstruments( pConf );
-        pConf->SetPath( _T("/PlugIns/DashT/Dials") );
-        LoadDialSettings( pConf );
+        pConf->SetPath( _T("/PlugIns/DashT/Colors") );
+        LoadColorSettings( pConf );
         pConf->SetPath( _T("/PlugIns/DashT") );
         return true;
     }
@@ -178,7 +178,7 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
     }
 }
 
-void dashboard_pi::LoadDialSettings( wxFileConfig *pConf )
+void dashboard_pi::LoadColorSettings( wxFileConfig *pConf )
 {
     pConf->Read( _T("BackgroundColor"),        &g_sDialColorBackground,       _T("DASHB") );
     pConf->Read( _T("ForeroundColor"),         &g_sDialColorForeground,       _T("DASHF") );
@@ -203,8 +203,8 @@ bool dashboard_pi::SaveConfig( void )
         pConf->SetPath( _T("/PlugIns/DashT") );
         SaveDashboardBasePart( pConf );
         SaveDashboardInstruments( pConf );
-        pConf->SetPath( _T("/PlugIns/DashT/Dials") );
-        SaveDialSettings( pConf );
+        pConf->SetPath( _T("/PlugIns/DashT/Colors") );
+        SaveColorSettings( pConf );
         pConf->SetPath( _T("/PlugIns/DashT") );
         return true;
     }
@@ -253,7 +253,7 @@ void dashboard_pi::SaveDashboardInstruments( wxFileConfig *pConf )
     }
 }
 
-void dashboard_pi::SaveDialSettings( wxFileConfig *pConf )
+void dashboard_pi::SaveColorSettings( wxFileConfig *pConf )
 {
     pConf->Write( _T("BackgroundColor"),        g_sDialColorBackground );
     pConf->Write( _T("ForeroundColor"),         g_sDialColorForeground );

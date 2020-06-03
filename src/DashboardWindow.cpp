@@ -46,6 +46,8 @@
 #include "EngineDJG.h"
 #include "TimesTUI.h"
 
+#include "dashboard_pi_ext.h"
+
 // Dashboard global definitions and functions
 extern int g_iDashSpeedMax;
 extern wxString GetUUID( void );
@@ -205,7 +207,7 @@ void DashboardWindow::SetColorScheme( PI_ColorScheme cs )
 
     //  Improve appearance, especially in DUSK or NIGHT palette
     wxColour col;
-    GetGlobalColor( _T("DASHL"), &col );
+    GetGlobalColor( g_sDialColorLabel, &col );
     SetBackgroundColour( col );
 
     Refresh( false );

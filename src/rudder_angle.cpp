@@ -40,6 +40,8 @@
 
 #include "rudder_angle.h"
 
+#include "dashboard_pi_ext.h"
+
 DashboardInstrument_RudderAngle::DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument_Dial( parent, id, title, OCPN_DBP_STC_RSA, 100, 160, -40, +40)
 {
@@ -119,7 +121,7 @@ void DashboardInstrument_RudderAngle::DrawFrame(wxGCDC* dc)
       wxPen pen;
       pen.SetStyle(wxPENSTYLE_SOLID);
       pen.SetWidth(2);
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl);
       pen.SetColour(cl);
       dc->SetPen(pen);
 
@@ -138,7 +140,7 @@ void DashboardInstrument_RudderAngle::DrawBackground(wxGCDC* dc)
       wxCoord x = m_cx - (m_radius * 0.3);
       wxCoord y = m_cy - (m_radius * 0.5);
       wxColour cl;
-      GetGlobalColor(_T("DASH1"), &cl);
+      GetGlobalColor( g_sDialColorIs1, &cl);
       dc->SetBrush( cl );
       dc->DrawEllipticArc(x, y, m_radius * 0.6, m_radius * 1.4, 0, 180);
 }

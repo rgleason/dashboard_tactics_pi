@@ -110,12 +110,12 @@ void TacticsInstrument_PerformanceSingle::Draw(wxGCDC* dc)
 	wxBitmap tbm(dc->GetSize().x, m_DataHeight, -1);
 	wxMemoryDC tdc(tbm);
 	wxColour c2;
-	GetGlobalColor(_T("DASHB"), &c2);
+	GetGlobalColor( g_sDialColorBackground, &c2 );
 	tdc.SetBackground(c2);
 	tdc.Clear();
 
 	tdc.SetFont(*g_pFontData);
-	GetGlobalColor(_T("DASHF"), &cl);
+	GetGlobalColor( g_sDialColorForeground, &cl) ;
 	tdc.SetTextForeground(cl);
 
 	tdc.DrawText(m_data, 10, 0);
@@ -125,7 +125,7 @@ void TacticsInstrument_PerformanceSingle::Draw(wxGCDC* dc)
 	dc->DrawBitmap(tbm, 0, m_TitleHeight, false);
 #else
 	dc->SetFont(*g_pFontData);
-	GetGlobalColor(_T("DASHF"), &cl);
+	GetGlobalColor( g_sDialColorForeground, &cl );
 	dc->SetTextForeground(cl);
 
 	dc->DrawText(m_data, 10, m_TitleHeight);
