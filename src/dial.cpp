@@ -697,6 +697,26 @@ void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString 
 
     if ( g_bDialNeedleEmbossed ) {
             
+        wxPoint pointswestfront[4];
+        pointswestfront[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        pointswestfront[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        pointswestfront[1].x = cx + (radius * 0.95 * cos(value + .01));
+        pointswestfront[1].y = cy + (radius * 0.95 * sin(value + .01));
+        pointswestfront[2].x = cx + (radius * 0.22 * cos(value + 2.8));
+        pointswestfront[2].y = cy + (radius * 0.22 * sin(value + 2.8));
+        pointswestfront[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        pointswestfront[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+
+        wxPoint pointswestback[4];
+        pointswestback[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        pointswestback[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        pointswestback[1].x = cx + (radius * 0.95 * cos(value - .01));
+        pointswestback[1].y = cy + (radius * 0.95 * sin(value - .01));
+        pointswestback[2].x = cx + (radius * 0.22 * cos(value - 2.8));
+        pointswestback[2].y = cy + (radius * 0.22 * sin(value - 2.8));
+        pointswestback[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        pointswestback[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+        
         wxPen nonshadepen;
         wxColour pennonshade;
         nonshadepen.SetStyle(wxPENSTYLE_SOLID);
@@ -726,17 +746,8 @@ void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString 
             dc->SetPen( nonshadepen );
             dc->SetBrush( needlebrush );
         }
+        dc->DrawPolygon(4, pointswestfront, 0, 0);
 
-        wxPoint points[4];
-        points[0].x = cx + (radius * 0.95 * cos(value - 0.));
-        points[0].y = cy + (radius * 0.95 * sin(value - 0.));
-        points[1].x = cx + (radius * 0.95 * cos(value + .01));
-        points[1].y = cy + (radius * 0.95 * sin(value + .01));
-        points[2].x = cx + (radius * 0.22 * cos(value + 2.8));
-        points[2].y = cy + (radius * 0.22 * sin(value + 2.8));
-        points[3].x = cx + (radius * 0.22 * cos(value - 3.14));
-        points[3].y = cy + (radius * 0.22 * sin(value - 3.14));
-        dc->DrawPolygon(4, points, 0, 0);
 
         if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
             dc->SetPen( nonshadepen );
@@ -746,16 +757,7 @@ void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString 
             dc->SetPen( shadepen );
             dc->SetBrush( needleshadebrush );
         }
-
-        points[0].x = cx + (radius * 0.95 * cos(value - 0.));
-        points[0].y = cy + (radius * 0.95 * sin(value - 0.));
-        points[1].x = cx + (radius * 0.95 * cos(value - .01));
-        points[1].y = cy + (radius * 0.95 * sin(value - .01));
-        points[2].x = cx + (radius * 0.22 * cos(value - 2.8));
-        points[2].y = cy + (radius * 0.22 * sin(value - 2.8));
-        points[3].x = cx + (radius * 0.22 * cos(value - 3.14));
-        points[3].y = cy + (radius * 0.22 * sin(value - 3.14));
-        dc->DrawPolygon(4, points, 0, 0);
+        dc->DrawPolygon(4, pointswestback, 0, 0);
 
     }
     else {
