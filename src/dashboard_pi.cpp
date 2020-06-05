@@ -144,20 +144,10 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     m_hide_id = 0;
     // cppcheck-suppress noCopyConstructor
     m_NMEA0183 = new NMEA0183();
-    mPriPosition = 99;
-    mPriCOGSOG = 99;
-    mPriHeadingT = 99; // True heading
-    mPriHeadingM = 99; // Magnetic heading
-    mPriVar = 99;
-    mPriDateTime = 99;
-    mPriAWA = 99; // Relative wind
-    mPriTWA = 99; // True wind
-    mPriDepth = 99;
-    mVar = NAN;
-    mSatsInView = 0.0;
-    mHdm = 0.0;
+    ResetAllSourcePriorities();
     mUTCDateTime.Set( (time_t) -1 );
     m_config_version = -1;
+    mSrc_Watchdog = 2;
     mHDx_Watchdog = 2;
     mHDT_Watchdog = 2;
     mGPS_Watchdog = 2;
@@ -276,6 +266,22 @@ bool dashboard_pi::DeInit( void )
     return true;
 }
 
+void dashboard_pi::ResetAllSourcePriorities()
+{
+    mPriPosition = 99;
+    mPriCOGSOG = 99;
+    mPriHeadingT = 99; // True heading
+    mPriHeadingM = 99; // Magnetic heading
+    mPriVar = 99;
+    mPriDateTime = 99;
+    mPriAWA = 99; // Relative wind
+    mPriTWA = 99; // True wind
+    mPriDepth = 99;
+    mVar = NAN;
+    mSatsInView = 0.0;
+    mHdm = 0.0;
+}
+
 void dashboard_pi::Notify()
 {
 
@@ -285,6 +291,15 @@ void dashboard_pi::Notify()
         if( dashboard_window ) dashboard_window->Refresh();
     }
     //  Manage the watchdogs
+    mSrc_Watchdog--;
+    if( mSrc_Watchdog <= 0 ) {
+        ResetAllSourcePriorities();
+        // Unlike trad. Dashboard, DashT instruments deal with their own timeouts
+        mSrc_Watchdog = gps_watchdog_timeout_ticks;
+    }
+    if ( mSiK_Watchdog > 0)
+        mSiK_Watchdog--; // control the switch between SK and OpenCPN
+
     mHDx_Watchdog--;
     if( mHDx_Watchdog <= 0 ) {
         mHdm = NAN;
@@ -311,8 +326,6 @@ void dashboard_pi::Notify()
         SendSentenceToAllInstruments( OCPN_DBP_STC_STW, NAN, "" );
         mStW_Watchdog = gps_watchdog_timeout_ticks;
     }
-    if ( mSiK_Watchdog > 0)
-        mSiK_Watchdog--;
 
     mGPS_Watchdog--;
     if( mGPS_Watchdog <= 0 ) {
@@ -426,7 +439,7 @@ wxString dashboard_pi::GetCommonName()
 
 wxString dashboard_pi::GetShortDescription()
 {
-    return _("Dashboard w/ Tactics,EngineD,DB");
+    return _T("Dashboard w/ Tactics,EngineD,DB");
 }
 
 wxString dashboard_pi::GetLongDescription()
@@ -629,6 +642,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
          (src != NULL) && (path != NULL) && (!std::isnan(value)) ) {
         SignalK = true;
         mSiK_Watchdog = gps_watchdog_timeout_ticks;
+        mSrc_Watchdog = gps_watchdog_timeout_ticks;
     } // then Signal K input stream provided data
     else {
         if ( mSiK_Watchdog > 0 ) {
@@ -641,6 +655,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                      !(m_NMEA0183->LastSentenceIDReceived == _T("VWT")) &&
                      !(m_NMEA0183->LastSentenceIDReceived == _T("ZDA")) )
                     return; // no reason to interleave NMEA-0183 coming from OpenCPN with Signal K
+                mSrc_Watchdog = gps_watchdog_timeout_ticks;
             }
             else
                 return; // failure in NMEA sentence
@@ -649,6 +664,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             (*m_NMEA0183) << sentence;
             if( !m_NMEA0183->PreParse() )
                 return; // failure in NMEA sentence
+            mSrc_Watchdog = gps_watchdog_timeout_ticks;
         }  // else no Signal K, this is a normal cycle with NMEA-0183 coming from OpenCPN 
     } // else this is NMEA-0183 coming via OpenCPN
 

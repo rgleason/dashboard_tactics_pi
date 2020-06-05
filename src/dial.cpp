@@ -151,7 +151,6 @@ void DashboardInstrument_Dial::timeoutEvent()
     m_MainValueCap = m_s_cap_flag;
     m_ExtraValue = std::nan("1");
     m_ExtraValueUnit = _T("");
-    m_ExtraValueCap = 0;
     this->derivedTimeoutEvent();
 }
 
@@ -415,9 +414,9 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
         {
             if (unit == _T("\u00B0"))
                 text = wxString::Format(format, value)+DEGREE_SIGN;
-            else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
+            else if (unit == _T("\u00B0L")) // No special display for now, might be XX deg < (as in text-only instrument)
                 text = wxString::Format(format, value)+DEGREE_SIGN;
-            else if (unit == _T("\u00B0R")) // No special display for now, might be >XX°
+            else if (unit == _T("\u00B0R")) // No special display for now, might be > XX deg
                 text = wxString::Format(format, value)+DEGREE_SIGN;
             else if (unit == _T("\u00B0T"))
                 text = wxString::Format(format, value)+DEGREE_SIGN+_T("T");

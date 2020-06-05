@@ -75,6 +75,7 @@ public:
     int Init(void);
     bool DeInit(void);
 
+    void ResetAllSourcePriorities();
     void Notify();
 
     int GetAPIVersionMajor();
@@ -181,6 +182,7 @@ private:
     wxDateTime           mUTCDateTime;
     int                  m_config_version;
     wxString             m_VDO_accumulator;
+    int                  mSrc_Watchdog;
     int                  mHDx_Watchdog;
     int                  mHDT_Watchdog;
     int                  mGPS_Watchdog;

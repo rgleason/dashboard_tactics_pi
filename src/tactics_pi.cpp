@@ -1481,6 +1481,7 @@ bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
     } // then invalid contents
 
     if ( ( m_iDbgRes_TW_Calc_AWS_STC == DBGRES_AWS_STC_WAIT ) || ( m_iDbgRes_TW_Calc_AWS_STC == DBGRES_AWS_STC_AVAILABLE_INVALID ) ) {
+        mAWS = value; // above the value has been deemed vaiid, set for logic below
         wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: a valid AWS received, now (%f).", value);
         m_iDbgRes_TW_Calc_AWS_STC = DBGRES_AWS_STC_AVAILABLE;
     } // then AWS sentence with valid contents
