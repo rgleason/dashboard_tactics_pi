@@ -1,6 +1,6 @@
 # Information for developers, contributors and collaborators
 
-## Project's situation report February 2020
+## Project's situation report June 2020
 
 >[Previous report and roadmap after publication of v1.5.11](https://github.com/canne/dashboard_tactics_pi/blob/c7656142b49c6bb38b3d1c681db9b2426f22193a/docs/developers/README.md)
 
@@ -9,6 +9,8 @@ v2.0 alpha has made a successful POC (proof of concept) which allows to integrat
 One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from.
 
 This project cannot contribute the corrections done for v1.5.11 in Dashboard back to the main project - the overall deviation is now too large. Dashboard's original code base carried over from the Dashboard project will be removed to ease the maintenance effort.
+
+The SignalK node server's delta channel remains the sole source of Signal K provided data. There is no plans to make the _DastT_ to accept Signal K data provided eventually by OpenCPN but direct connection with timestamps is preferred. This may exclude some other Signal K data sources like the COTS router ones but until there is no use case and equipment available for testing this will not be considered as a bug but a feature request.
 
 ## v1.5.11 roadmap
 
