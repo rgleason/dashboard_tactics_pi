@@ -22,4 +22,5 @@ exclude_paths:
   - 'data/instrujs/www/**/bundle.css'
   - 'tests/test*.cpp'
   - 'tests/**/test*.cpp'
+  - '.github/*.md'
   - 'docs/**/*.md'
