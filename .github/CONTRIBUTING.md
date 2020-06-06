@@ -16,6 +16,8 @@ Shortly:
 
 * Checkout and commit your PR in a branch which starts with `pr` - for pull request
 
+  * `master` or `dev` branches do not accept pull requests
+
 * Trusting that you have tested correctly before suggesting your fix, however:
 
   * this is a multiplatform project: please check at least that all Continuous Integration (CI) tests have passed, at minimum
