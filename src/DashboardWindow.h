@@ -57,7 +57,7 @@ public:
     int GetSizerOrientation();
     void OnSize( wxSizeEvent& evt );
     void OnContextMenu( wxContextMenuEvent& evt );
-    void OnContextMenuSelect( wxCommandEvent& evt );
+    void OnContextMenuSelect( wxCommandEvent& evt ); 
     bool isInstrumentListEqual( const wxArrayInt& list );
     void SetInstrumentList( wxArrayInt list, wxArrayString listIDs );
     void SetMinSizes( void );

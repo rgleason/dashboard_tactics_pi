@@ -56,14 +56,13 @@ extern wxString MakeName( void );
 // Helper functions to obtain information from enumerated instrument list
 extern wxString getInstrumentCaption( unsigned int id );
 
-
 //----------------------------------------------------------------
 //
 //    Dashboard Window Implementation
 //
 //----------------------------------------------------------------
 wxBEGIN_EVENT_TABLE (DashboardWindow, TacticsWindow)
-   EVT_CLOSE (DashboardWindow::OnClose)
+EVT_CLOSE (DashboardWindow::OnClose)
 wxEND_EVENT_TABLE ()
 
 DashboardWindow::DashboardWindow(
@@ -104,6 +103,7 @@ void DashboardWindow::OnClose( wxCloseEvent &event )
             pdic->m_pInstrument->Close();
         }
     }
+    m_Container->m_bIsVisible = false;
     event.Skip(); // Destroy() must be called
 }
 
