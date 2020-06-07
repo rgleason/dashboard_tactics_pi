@@ -188,6 +188,8 @@ int dashboard_pi::Init( void )
     m_pluginFrame = m_pauimgr->GetManagedWindow();
     m_pauimgr->Connect( wxEVT_AUI_RENDER, wxAuiManagerEventHandler( dashboard_pi::OnAuiRender ),
                         NULL, this );
+    m_pauimgr->Connect( wxEVT_AUI_PANE_CLOSE, wxAuiManagerEventHandler( dashboard_pi::OnPaneClose ),
+            NULL, this );
 
     //    Get a pointer to the opencpn configuration object
     m_pconfig = GetOCPNConfigObject();
@@ -387,6 +389,29 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
             } // then valid window pane of the dashboard window
         } // then valid dashboard window in the container
     } // for number of dashboard windows in the container
+}
+
+void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
+{
+    // if name is unique, we should use it
+    DashboardWindow *dashboard_window = (DashboardWindow *) event.pane->window;
+    int cnt = 0;
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
+        DashboardWindow *d_w = cont->m_pDashboardWindow;
+        if( d_w ) {
+            // we must not count this one because it is being closed
+            if( dashboard_window != d_w ) {
+                wxAuiPaneInfo &pane = m_pauimgr->GetPane( d_w );
+                if( pane.IsOk() && pane.IsShown() ) cnt++;
+            } else {
+                cont->m_bIsVisible = false;
+            }
+        }
+    }
+    SetToolbarItemState( m_toolbar_item_id, cnt != 0 );
+
+    event.Skip();
 }
 
 int dashboard_pi::GetAPIVersionMajor()

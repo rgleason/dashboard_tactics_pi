@@ -114,6 +114,7 @@ public:
     void OnToolbarToolCallback(int id);
     void ShowPreferencesDialog( wxWindow* parent );
     void SetColorScheme(PI_ColorScheme cs);
+    void OnPaneClose( wxAuiManagerEvent& event );
     void UpdateAuiStatus(void);
     bool SaveConfig(void);
     void PopulateContextMenu( wxMenu* menu );
