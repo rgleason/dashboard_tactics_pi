@@ -58,5 +58,7 @@ extern wxString g_sDialColorCompassBackgound;
 extern bool g_bDialNeedleEmbossed;
 extern wxString g_sDialNeedleContourColor;
 extern bool g_bDialShowRedGreen;
+extern int g_iDialLowDegRedGreen;
+extern int g_iDialHighDegRedGreen;
 
 #endif // _DASHBOARDPIEXT_H_

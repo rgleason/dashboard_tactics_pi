@@ -88,6 +88,8 @@ wxString g_sDialColorCompassBackgound;
 bool g_bDialNeedleEmbossed;
 wxString g_sDialNeedleContourColor;
 bool g_bDialShowRedGreen;
+int g_iDialLowDegRedGreen;
+int g_iDialHighDegRedGreen;
 
 #include "DashboardFunctions.h"
 

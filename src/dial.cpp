@@ -197,10 +197,30 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         GetGlobalColor( g_sDialColorRed , &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        // double angle1 = deg2rad( 270 ); // 305-ANGLE_OFFSET
-        double angle1 = (3*M_PI/2) - deg2rad( 20 ); // 20-ANGLE_OFFSET
-        //        double angle2 = deg2rad( 90 ); // 55-ANGLE_OFFSET
-        double angle2 = (3*M_PI/2) - deg2rad( 50 ); // 60-ANGLE_OFFSET
+        // Let's check for eventual user tweak for reduced angle
+        int userLowDeg = abs( g_iDialLowDegRedGreen ) ;
+        int userHighDeg = abs( g_iDialHighDegRedGreen );
+        if ( userLowDeg > userHighDeg ) {
+            userLowDeg = abs( g_iDialHighDegRedGreen ) ;
+            userHighDeg = abs( g_iDialLowDegRedGreen );
+        }
+        if ( ((userLowDeg % 10) == 0) || ((userLowDeg % 5) == 0) )
+            userLowDeg += 1; //  this is purely cosmetic due to rounded-end arc
+        if ( ((userHighDeg % 10) == 0) || ((userHighDeg % 5) == 0) )
+            userHighDeg -= 1; // same reason as above but backwards
+        if ( userLowDeg >= userHighDeg ) {
+            userLowDeg = userHighDeg; // can happen w/ adjustements, like user 90 and 90...
+            userHighDeg += 1; // there must be min. 1 degree difference
+        }
+        if (userLowDeg >= 179) // this works only with dual 180-degree instruments
+            userLowDeg = 178;
+        if (userLowDeg < 1)
+            userLowDeg = 1;
+        if (userHighDeg >= 180)
+            userHighDeg = 179;
+        // Quadrants II and III
+        double angle1 = (3*M_PI/2) - deg2rad( userLowDeg );
+        double angle2 = (3*M_PI/2) - deg2rad( userHighDeg );
         int radi = m_radius - 1 - penwidth;
         wxCoord x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         wxCoord y1 = m_cy + ( ( radi ) * sin( angle1 ) );
@@ -211,12 +231,11 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         GetGlobalColor( g_sDialColorGreen, &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        // angle1 = deg2rad( 89 ); // 305-ANGLE_OFFSET
-        double quadrIandIV = (3*M_PI/2) + deg2rad( 50 );
-        angle1 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( 50 ) - M_PI/2) : quadrIandIV; // 60-ANGLE_OFFSET
-        // angle2 = deg2rad( 271 ); // 55-ANGLE_OFFSET
-        quadrIandIV = (3*M_PI/2) + deg2rad( 20 );
-        angle2 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( 20 ) - M_PI/2) : quadrIandIV; // 60-ANGLE_OFFSET
+        // Quadrants IV and I
+        double quadrIandIV = (3*M_PI/2) + deg2rad( userHighDeg );
+        angle1 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( userHighDeg ) - M_PI/2) : quadrIandIV;
+        quadrIandIV = (3*M_PI/2) + deg2rad( userLowDeg );
+        angle2 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( userLowDeg ) - M_PI/2) : quadrIandIV;
         x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         y1 = m_cy + ( ( radi ) * sin( angle1 ) );
         x2 = m_cx + ( ( radi ) * cos( angle2 ) );
