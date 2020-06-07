@@ -197,8 +197,10 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         GetGlobalColor( g_sDialColorRed , &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        double angle1 = deg2rad( 270 ); // 305-ANGLE_OFFSET
-        double angle2 = deg2rad( 90 ); // 55-ANGLE_OFFSET
+        // double angle1 = deg2rad( 270 ); // 305-ANGLE_OFFSET
+        double angle1 = (3*M_PI/2) - deg2rad( 20 ); // 20-ANGLE_OFFSET
+        //        double angle2 = deg2rad( 90 ); // 55-ANGLE_OFFSET
+        double angle2 = (3*M_PI/2) - deg2rad( 50 ); // 60-ANGLE_OFFSET
         int radi = m_radius - 1 - penwidth;
         wxCoord x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         wxCoord y1 = m_cy + ( ( radi ) * sin( angle1 ) );
@@ -209,8 +211,12 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         GetGlobalColor( g_sDialColorGreen, &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        angle1 = deg2rad( 89 ); // 305-ANGLE_OFFSET
-        angle2 = deg2rad( 271 ); // 55-ANGLE_OFFSET
+        // angle1 = deg2rad( 89 ); // 305-ANGLE_OFFSET
+        double quadrIandIV = (3*M_PI/2) + deg2rad( 50 );
+        angle1 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( 50 ) - M_PI/2) : quadrIandIV; // 60-ANGLE_OFFSET
+        // angle2 = deg2rad( 271 ); // 55-ANGLE_OFFSET
+        quadrIandIV = (3*M_PI/2) + deg2rad( 20 );
+        angle2 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( 20 ) - M_PI/2) : quadrIandIV; // 60-ANGLE_OFFSET
         x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         y1 = m_cy + ( ( radi ) * sin( angle1 ) );
         x2 = m_cx + ( ( radi ) * cos( angle2 ) );
