@@ -17,28 +17,8 @@
                 <div class="col-sm-2">
                 </div>
                 <div class="col-sm-8">
-                    <nav class="navbar navbar-default">
-                        <div class="container-fluid">
-                            <div class="navbar-header">
-                                <a class="navbar-brand" href="#">RaceDash</a>
-                            </div>
-                            <ul class="nav navbar-nav">
-                                <li class="active"><a href="#">Start</a></li>
-                                <li><a href="nextmark.html">Next Mark</a></li>
-                                <li><a href="nextleg.html">Next Leg</a></li>
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
-                <div class="col-sm-2">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-2">
-                </div>
-                <div class="col-sm-8">
                     <div class="well well-lg text-center">
-                        <div class="startmsgtext day">Drop start line mark</div>
+                        <div id="msgbox" class="msgbox day">Press Ready below to activate</div>
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -47,17 +27,23 @@
             <div class="row">
                 <div class="col-sm-4">
                     <div class="well well-lg text-center">
-                        Port Mark
+                        <button id="dropport" type="button" class="btn btn-lg btn-danger disabled">
+                            Port Mark
+                        </button>
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="well well-lg text-center">
-                        Clear/5min
+                        <button id="confirm" type="button" class="btn btn-lg btn-warning ready">
+                            Ready?
+                        </button>
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="well well-lg text-center">
-                        Starboard Mark
+                        <button id="dropstbd" type="button" class="btn btn-lg btn-success disabled">
+                            Stbd Mark
+                        </button>
                     </div>
                 </div>
             </div>
