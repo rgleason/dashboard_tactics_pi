@@ -119,14 +119,6 @@ module.exports = {
         new HtmlInstaller({
             template: './html/index.html',
             filename: 'index.html'
-        }),
-        new HtmlInstaller({
-            template: './html/nextmark.html',
-            filename: 'nextmark.html'
-        }),
-        new HtmlInstaller({
-            template: './html/nextleg.html',
-            filename: 'nextleg.html'
         })
     ],
     //default mode is production
