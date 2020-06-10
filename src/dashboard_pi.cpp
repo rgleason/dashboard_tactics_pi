@@ -394,7 +394,7 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
 void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
 {
     // if name is unique, we should use it
-    DashboardWindow *dashboard_window = (DashboardWindow *) event.pane->window;
+    DashboardWindow *dashboard_window = static_cast <DashboardWindow *>(event.pane->window);
     int cnt = 0;
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
