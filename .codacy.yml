@@ -17,6 +17,7 @@ engines:
 exclude_paths:
   - 'instrujs/**/webpack.config.js'
   - 'instrujs/src/influxdb-client/**'
+  - 'instrujs/**/src/bootstrap-sass.d.ts'
   - 'data/instrujs/www/*.min.js'
   - 'data/instrujs/www/**/bundle.js'
   - 'data/instrujs/www/**/bundle.css'
