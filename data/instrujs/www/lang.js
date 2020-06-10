@@ -36,6 +36,7 @@ var instrulang = {
     dataFromDbBadTime: 'Data returned by database query contains unknwon _time format',
     dataFromDbNoValue: 'Data returned by database query does not contain _value fields',
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
-    dataFunctionAbbrv: 'fn():'
+    dataFunctionAbbrv: 'fn():',
+    rdsInitMsg: 'RaceDash - getting ready'
 }
 window.instrulang = instrulang
