@@ -37,6 +37,7 @@ var instrulang = {
     dataFromDbNoValue: 'Data returned by database query does not contain _value fields',
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
     dataFunctionAbbrv: 'fn():',
-    rdsInitMsg: 'RaceDash - getting ready'
+    rdsInitMsg: 'Are you ready to mark the start line?',
+    rdsBtnArmTxt: 'Start'
 }
 window.instrulang = instrulang

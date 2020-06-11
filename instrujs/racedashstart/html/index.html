@@ -13,38 +13,24 @@
     </head>
     <body id="instrument" class="instrument day">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-2">
+            <div id="rowUpper" class="row">
+                <div id="grdDistLine" class="col-sm-4">
                 </div>
-                <div class="col-sm-8">
-                    <div class="well well-lg text-center">
-                        <div id="wllMessage" class="msgbox day"></div>
+                <div id="grdMsgClock" class="col-sm-4">
+                    <div id="pnlMsgClock" class="panel panel-primary day">
+                        <div id="pnlMsgClockHdr" class="panel-heading text-center day">RaceDash Start Line</div>
+                        <div id="pnlMsgClockBdy" class="panel-body text-center day">Loading</div>
                     </div>
                 </div>
-                <div class="col-sm-2">
+                <div id="grdDistAbs" class="col-sm-4">
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="well well-lg text-center">
-                        <button id="btnDropport" type="button" class="btn btn-lg btn-danger disabled">
-                            Port Mark
-                        </button>
-                    </div>
+            <div id="rowLower" class="row">
+                <div id="grdPort" class="col-sm-4">
                 </div>
-                <div class="col-sm-4">
-                    <div class="well well-lg text-center">
-                        <button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">
-                            Ready?
-                        </button>
-                    </div>
+                <div id="grdCenter" class="col-sm-4">
                 </div>
-                <div class="col-sm-4">
-                    <div class="well well-lg text-center">
-                        <button id="btnDropstbd" type="button" class="btn btn-lg btn-success disabled">
-                            Stbd Mark
-                        </button>
-                    </div>
+                <div id="grdStarboard" class="col-sm-4">
                 </div>
             </div>
         </div>
