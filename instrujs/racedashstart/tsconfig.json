@@ -2,6 +2,7 @@
     "compilerOptions": {
         "strict": true,
         "target": "es2015",
+        "module": "commonjs",
         "resolveJsonModule": false,
         "strictPropertyInitialization": false,
         "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],

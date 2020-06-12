@@ -3,8 +3,6 @@
  * Licensed under MIT - see distribution.
  */
 
-// import {Button} from "bootstrap-sass"
-
 import {packagename, version} from '../../src/version'
 console.log('racedash ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
