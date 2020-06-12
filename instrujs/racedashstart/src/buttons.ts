@@ -3,6 +3,8 @@
  * Licensed under MIT - see distribution.
  */
 
+ import {StateMachine} from "./statemachine"
+
 var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
 
@@ -17,7 +19,7 @@ var $elemBtnArm = $('<button id="btnArm" type="button" class="btn btn-lg btn-war
 '</button>' )
 
 
-export function initButtons() {
+export function initButtons( that: StateMachine ) {
     console.log('racedash buttons initButtons()')
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $elemPnlCenter.appendTo( $('#grdCenter') )

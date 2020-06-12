@@ -4,7 +4,7 @@
  */
 
 import {packagename, version} from '../../src/version'
-console.log('racedash ', packagename(), ' ', version())
+console.log('racedashstart ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
 
 import '../../src/iface.js'
@@ -13,48 +13,38 @@ import '../sass/style.scss'
 import {kbdInit} from '../../src/kbd'
 import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 
-// Buttons
-import {initButtons} from './buttons'
-initButtons()
-
-// import {getAddedDataCount} from './chart'
-
-// InfluxDB client module
-// import {initIdbClient} from './idbclient'
-// initIdbClient()
-
 // State Machine Services
-// import {createStateMachine} from './statemachine'
-// import visualize from '../../src/state-machine-visualize'
-//
-// if ( dbglevel > 0 )
-//     console.log('index.ts - creating the finite state machine')
-// var fsm = createStateMachine()
-// if ( dbglevel > 0 )
-//     console.log('fsm created - state: ', fsm.state)
-// try {
-//     var dot: any = visualize( fsm );
-//     (window as any).iface.setgraphwizdot( dot )
-//     if ( dbglevel > 0 )
-//         console.log('index.ts: state machine GraphWiz presentation available through iface.js')
-// }
-// catch( error ) {
-//     console.error('index.ts: state machine visualize, error: ',
-//                   error.message)
-// }
-// try {
-//     fsm.init()
-// }
-// catch( error ) {
-//     console.error('index.ts: fsm.init() transition failed, error: ',
-//                   error.message)
-// }
+import {createStateMachine} from './statemachine'
+import visualize from '../../src/state-machine-visualize'
+
+if ( dbglevel > 0 )
+    console.log('index.ts - creating the finite state machine')
+var fsm = createStateMachine()
+if ( dbglevel > 0 )
+    console.log('fsm created - state: ', fsm.state)
+try {
+    var dot: any = visualize( fsm );
+    (window as any).iface.setgraphwizdot( dot )
+    if ( dbglevel > 0 )
+        console.log('index.ts: state machine GraphWiz presentation available through iface.js w/ getgraphwizdot()')
+}
+catch( error ) {
+    console.error('index.ts: state machine visualize, error: ',
+                  error.message)
+}
+try {
+    fsm.init()
+}
+catch( error ) {
+    console.error('index.ts: fsm.init() transition failed, error: ',
+                  error.message)
+}
 
 // Create the transitional events (the IE way, sorry!) for clieant messages
-// var bottom: HTMLElement | null = document.getElementById( 'bottom' )
-// if (bottom === null) {
-//     throw 'racedash: init: no element: bottom'
-// }
+var bottom: HTMLElement | null = document.getElementById( 'bottom' )
+if (bottom === null) {
+    throw 'racedashstart: init: no element: bottom'
+}
 
 // UID and configuration file
 // var eventsetid: Event = document.createEvent('Event')
@@ -111,7 +101,7 @@ initButtons()
 // eventsetall.initEvent('setall', false, false)
 // bottom.addEventListener('setall', ((event: Event) => {
 //     console.error(
-//         'Event:  setall: error: racedash does not require all paths')
+//         'Event:  setall: error: racedashstart does not require all paths')
 // }) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 // (window as any).iface.regeventsetall( bottom, eventsetall )
 
@@ -165,7 +155,7 @@ initButtons()
 // eventacksubs.initEvent('acksubs', false, false)
 // bottom.addEventListener('acksubs', ((event: Event) => {
 //     console.error(
-//         'Event:  acksubs: error: racedash does not ask for path subscription')
+//         'Event:  acksubs: error: racedashstart does not ask for path subscription')
 // }) as EventListener);
 // (window as any).iface.regeventacksubs( bottom, eventacksubs )
 
@@ -318,75 +308,56 @@ initButtons()
 // (window as any).iface.regeventchgconf( bottom, eventchgconf )
 
 // Luminosity
-// var eventluminsty: Event = document.createEvent('Event')
-// eventluminsty.initEvent('luminsty', false, false)
-// bottom.addEventListener('luminsty', ((event: Event) => {
-//     try {
-//         fsm.luminsty()
-//     }
-//     catch( error ) {
-//         console.error(
-//             'Event:  luminsty: fsm.luminsty() transition failed, error: ',
-//             error.message, ' current state: ', fsm.state)
-//     }
-// }) as EventListener);
-// (window as any).iface.regeventluminsty( bottom, eventluminsty )
+var eventluminsty: Event = document.createEvent('Event')
+eventluminsty.initEvent('luminsty', false, false)
+bottom.addEventListener('luminsty', ((event: Event) => {
+    try {
+        fsm.luminsty()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  luminsty: fsm.luminsty() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventluminsty( bottom, eventluminsty )
 
 // Keyboard event requires to swap the display format
-// kbdInit()
-// var eventswapdisp: Event = document.createEvent('Event')
-// eventswapdisp.initEvent('swapdisp', false, false)
-// bottom.addEventListener('swapdisp', ((event: Event) => {
-//     console.error(
-//         'Event:  swapdisp: error: racedash does not deal with this event (for now)')
-// }) as EventListener);
-// (window as any).iface.regeventswapdisp( bottom, eventswapdisp )
+kbdInit()
+var eventswapdisp: Event = document.createEvent('Event')
+eventswapdisp.initEvent('swapdisp', false, false)
+bottom.addEventListener('swapdisp', ((event: Event) => {
+    console.error(
+        'Event:  swapdisp: error: racedashstart does not deal with this event (for now)')
+}) as EventListener);
+(window as any).iface.regeventswapdisp( bottom, eventswapdisp )
 
-// The instrument has a persistent configuration object, close gracefully
-// var eventclosing: Event = document.createEvent('Event')
-// eventclosing.initEvent('closing', false, false)
-// bottom.addEventListener('closing', ((event: Event) => {
-//     try {
-//         fsm.closing()
-//     }
-//     catch( error ) {
-//         console.error(
-//             'Event:  closing: fsm.closing() transition failed, error: ',
-//             error.message, ' current state: ', fsm.state)
-//     }
-// }) as EventListener);
-// (window as any).iface.regeventclosing( bottom, eventclosing )
+// Although the instrument has no persistent configuration object, close gracefully
+var eventclosing: Event = document.createEvent('Event')
+eventclosing.initEvent('closing', false, false)
+bottom.addEventListener('closing', ((event: Event) => {
+    try {
+        fsm.closing()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  closing: fsm.closing() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
-// var reloadDelay:number = 2
-// var pollinitga: () => void
-// (pollinitga = function() {
-//     if ( dbglevel > 0 )
-//         console.log('pollinitga() - waiting for initga, now: ',
-//          fsm.state)
-//     if ( fsm.is('initga') ) {
-//         if ( reloadDelay === 0 ) {
-//             try {
-//                 fsm.initok()
-//             }
-//             catch( error ) {
-//                 console.error(
-//                     'index.js:  fsm.initok() transition failed, error: ',
-//                     error.message, ' current state: ', fsm.state)
-//             }
-//         }
-//         else {
-//             reloadDelay--
-//             if ( dbglevel > 1 )
-//                 console.log('pollinitga() - initga+reloadDelay: ', reloadDelay)
-//             setTimeout(pollinitga, 500)
-//         }
-//     }
-//     else {
-//         setTimeout(pollinitga, 100)
-//     }
-// })(); // do _everything_ in the routing once condition met
+var pollwaiting: () => void
+(pollwaiting = function() {
+    if ( dbglevel > 0 )
+        console.log('pollinitga() - waiting for waiting-state, now: ',
+         fsm.state)
+    if ( !fsm.is('waiting') ) {
+        setTimeout(pollwaiting, 100)
+    }
+})(); // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 
@@ -401,13 +372,13 @@ window.addEventListener('load',
         unloadScrollBars()
 
         // Loading state done
-        // try {
-        //     fsm.loaded()
-        // }
-        // catch( error ) {
-        //     console.error('loading: fsm.loaded() transition failed, error: ',
-        //     error.message)
-        // }
+        try {
+            fsm.loaded()
+        }
+        catch( error ) {
+            console.error('loading: fsm.loaded() transition failed, error: ',
+            error.message)
+        }
     }, false)
 
 /* ------------------------------------------ */
