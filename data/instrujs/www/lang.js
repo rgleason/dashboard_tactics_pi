@@ -23,7 +23,7 @@ var instrulang = {
     errNofConfKeysDoNotMatch4: 'got',
     alertTitle:   '*********** ALERT ***********',
     alertLolimit: 'passed under the lower limit with value:',
-    alertHilimit: 'passed over the high limit with value:',
+    alertHDilimit: 'passed over the high limit with value:',
     menuPathWaitMsg: 'loading.wait', // keep the dot
     menuPathRunningReconfig: 'running.reconfigure', // keep the dot
     pathHasNoDescription1: 'has no configuration, will not subscribe without one.',
@@ -38,6 +38,13 @@ var instrulang = {
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
     dataFunctionAbbrv: 'fn():',
     rdsInitMsg: 'Are you ready to mark the start line?',
-    rdsBtnArmTxt: 'Ready'
+    rdsBtnArmTxt: 'Mark',
+    rdsDropMarksMsg: 'Drop the line end marks',
+    rdsDropPortHdr: 'Port side end',
+    rdsDropPortBtn: "Port",
+    rdsDropStarboardHdr: 'Starboard side end',
+    rdsDropStarboardBtn: "Stbd",
+    rdsBtnArmCancelHdr: 'Abort the marking operation',
+    rdsBtnArmCancel: 'Cancel'
 }
 window.instrulang = instrulang

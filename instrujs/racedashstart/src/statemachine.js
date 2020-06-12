@@ -10,7 +10,7 @@ var dbglevel = window.instrustat.debuglevel
 
 import StateMachine from 'javascript-state-machine'
 import getLocInfo from '../../src/location'
-import {initButtons} from './buttons'
+import {initButtons, btmarmwButtons} from './buttons'
 import {getNewLuminosity} from './css'
 
 function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
@@ -36,7 +36,9 @@ export function createStateMachine() {
         transitions: [
             { name: 'init',      from: 'window',   to: 'loading' },
             { name: 'loaded',    from: 'loading',  to: 'waiting' },
+            { name: 'btnarmw',   from: 'waiting',  to: 'marking' },
             { name: 'luminsty',  from: 'waiting',  to: 'waiting' },
+            { name: 'luminsty',  from: 'marking',  to: 'marking' },
             { name: 'closing',   from: 'waiting',  to: 'halt'    }
         ],
         methods: {
@@ -53,6 +55,13 @@ export function createStateMachine() {
             },
             onWaiting:   function() {
                 if ( dbglevel > 0 ) console.log('onWaiting() - state')
+            },
+            onBeforeBtnarmw:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnarmw() - transition')
+                btmarmwButtons()
+            },
+            onMarking:   function() {
+                if ( dbglevel > 0 ) console.log('onMarking() - state')
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 )
