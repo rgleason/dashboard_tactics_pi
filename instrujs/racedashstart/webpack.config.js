@@ -124,6 +124,10 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery"
+        }),
+        new webpack.ProvidePlugin({
+            $: "bootstrap-sass",
+            Bootstrap: "bootstrap-sass"
         })
     ],
     //default mode is production

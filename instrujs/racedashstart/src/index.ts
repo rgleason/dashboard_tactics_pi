@@ -3,7 +3,7 @@
  * Licensed under MIT - see distribution.
  */
 
- import "bootstrap-sass"
+// import {Button} from "bootstrap-sass"
 
 import {packagename, version} from '../../src/version'
 console.log('racedash ', packagename(), ' ', version())
