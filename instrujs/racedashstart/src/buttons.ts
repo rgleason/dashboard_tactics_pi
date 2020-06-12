@@ -3,8 +3,6 @@
  * Licensed under MIT - see distribution.
  */
 
-import "bootstrap-sass"
-
 var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
 

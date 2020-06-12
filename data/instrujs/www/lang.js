@@ -38,6 +38,6 @@ var instrulang = {
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
     dataFunctionAbbrv: 'fn():',
     rdsInitMsg: 'Are you ready to mark the start line?',
-    rdsBtnArmTxt: 'Start'
+    rdsBtnArmTxt: 'Ready'
 }
 window.instrulang = instrulang
