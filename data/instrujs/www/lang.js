@@ -37,14 +37,15 @@ var instrulang = {
     dataFromDbNoValue: 'Data returned by database query does not contain _value fields',
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
     dataFunctionAbbrv: 'fn():',
-    rdsInitMsg: 'Are you ready to mark the start line?',
+    rdsInitMsg: 'Get ready to mark the start line',
+    rdsBtnArmInitHdr: 'Press here when approaching',
     rdsBtnArmTxt: 'Mark',
     rdsDropMarksMsg: 'Drop the line end marks',
-    rdsDropPortHdr: 'Port side end',
-    rdsDropPortBtn: "Port",
-    rdsDropStarboardHdr: 'Starboard side end',
-    rdsDropStarboardBtn: "Stbd",
-    rdsBtnArmCancelHdr: 'Abort the marking operation',
+    rdsDropPortHdr: 'Drop mark',
+    rdsDropPortBtn: 'Port',
+    rdsDropStarboardHdr: 'Drop mark',
+    rdsDropStarboardBtn: 'Stbd',
+    rdsBtnArmCancelHdr: 'Abort the marking',
     rdsBtnArmCancel: 'Cancel'
 }
 window.instrulang = instrulang

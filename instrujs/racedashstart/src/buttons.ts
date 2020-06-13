@@ -39,16 +39,20 @@ export function initButtons( that: StateMachine ) {
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $elemPnlCenter.appendTo( $('#grdCenter') )
     $elemBtnArm.appendTo( $('#pnlDistLineBdy') )
+    $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmInitHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
     $('#btnArm').removeClass('disabled')
-    locstate = 'RDY'
+    locstate = 'READY'
 }
 
 $('body').on('click', '#btnArm', function(event) {
     console.log('racedashstart buttons event click #btnArm')
     console.log('racedashstart buttons - state: ', fsm.state)
     $('#btnArm').addClass('active')
-    fsm.btnarmw()
+    if ( fsm.is('marking') || fsm.is('onemark') )
+        fsm.btnarmc()
+    else
+        fsm.btnarmw()
     console.log('racedashstart buttons - state now: ', fsm.state)
 })
 
@@ -72,4 +76,61 @@ export function btmarmwButtons( ) {
     $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmCancelHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmCancel )
     $('#btnArm').removeClass('active')
+    locstate = 'MARKING'
 }
+
+export function btmarmcButtons( that: StateMachine ) {
+    console.log('racedashstart buttons btmarmcButtons()')
+
+    $('#grdPort').animate({
+         opacity: 0.25 //use more parameter for effect
+    }, 1000, function() { $(this).text( '' ) })
+    $('#grdStarboard').animate({
+         opacity: 0.25 //use more parameter for effect
+    }, 1000, function() { $(this).text( '' ) })
+    $('#grdCenter').animate({
+         opacity: 0.25 //use more parameter for effect
+    }, 1000, function() { $(this).text( '' ) })
+
+    $('#grdCenter').promise().done(function() {
+        console.log('racedashstart buttons btmarmcButtons(): initButtons()')
+        $("#grdPort").css({ opacity: 1.0 });
+        $("#grdStarboard").css({ opacity: 1.0 });
+        $("#grdCenter").css({ opacity: 1.0 });
+        initButtons( that )
+    })
+}
+
+$('body').on('click', '#btnDropPort', function(event) {
+    console.log('racedashstart buttons event click #btnDropPort')
+    console.log('racedashstart buttons - state: ', fsm.state)
+    if ( !$('#btnDropPort').css('disabled') ) {
+        console.log('racedashstart buttons - button enabled and pressed')
+        if ( fsm.is('marking') )
+            fsm.btnportd1()
+        else if ( fsm.is('onemark') ) {
+            locstate = 'MARKED'
+            fsm.btnportd2()
+        }
+        $('#btnDropPort').addClass('active')
+        $('#btnDropPort').addClass('disabled')
+    }
+    console.log('racedashstart buttons - state now: ', fsm.state)
+})
+
+$('body').on('click', '#btnDropStarboard', function(event) {
+    console.log('racedashstart buttons event click #btnDropStarboard')
+    console.log('racedashstart buttons - state: ', fsm.state)
+    if ( !$('#btnDropStarboard').css('disabled') ) {
+        console.log('racedashstart buttons - button enabled and pressed')
+        if ( fsm.is('marking') )
+            fsm.btnstbdd1()
+        else if ( fsm.is('onemark') ) {
+            locstate = 'MARKED'
+            fsm.btnstbdd2()
+        }
+        $('#btnDropStarboard').addClass('active')
+        $('#btnDropStarboard').addClass('disabled')
+    }
+    console.log('racedashstart buttons - state now: ', fsm.state)
+})
