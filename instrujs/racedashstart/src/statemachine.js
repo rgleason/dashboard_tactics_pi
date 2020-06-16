@@ -10,7 +10,7 @@ var dbglevel = window.instrustat.debuglevel
 
 import StateMachine from 'javascript-state-machine'
 import getLocInfo from '../../src/location'
-import {initButtons, btmarmwButtons, btmarmcButtons} from './buttons'
+import {initButtons, btmarmwButtons, btmarmcButtons, btmarmedButtons, btmarmaButtons} from './buttons'
 import {getNewLuminosity} from './css'
 
 function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
@@ -43,6 +43,7 @@ export function createStateMachine() {
             { name: 'btnstbdd2', from: 'onemark',  to: 'armed'   },
             { name: 'btnarmc',   from: 'marking',  to: 'waiting' },
             { name: 'btnarmc',   from: 'onemark',  to: 'waiting' },
+            { name: 'btnarma',   from: 'armed',    to: 'waiting' },
             { name: 'luminsty',  from: 'waiting',  to: 'waiting' },
             { name: 'luminsty',  from: 'marking',  to: 'marking' },
             { name: 'luminsty',  from: 'onemark',  to: 'onemark' },
@@ -77,6 +78,29 @@ export function createStateMachine() {
             onBeforeBtnarmc:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeBtnarmc() - transition')
                 btmarmcButtons( this )
+            },
+            onBeforeBtnportd1:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnportd1() - transition')
+            },
+            onBeforeBtnstbdd1:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnstbdd1() - transition')
+            },
+            onOnemark:   function() {
+                if ( dbglevel > 0 ) console.log('onOnemark() - state')
+            },
+            onBeforeBtnportd2:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnportd2() - transition')
+            },
+            onBeforeBtnstbdd2:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnstbdd2() - transition')
+            },
+            onArmed:   function() {
+                if ( dbglevel > 0 ) console.log('onArmed() - state')
+                btmarmedButtons( this )
+            },
+            onBeforeBtnarma:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeBtnarmc() - transition')
+                btmarmaButtons( this )
             },
             onBeforeLuminsty: function() {
                 if ( dbglevel > 0 )

@@ -12,6 +12,7 @@ export interface StateMachine {
     btnportd2(): undefined
     btnstbdd2(): undefined
     btnarmc(): undefined
+    btnarma(): undefined
     luminsty(): undefined
     closing(): undefined
     is(a:string): boolean

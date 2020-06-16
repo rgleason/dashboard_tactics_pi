@@ -3,6 +3,11 @@
  * Licensed under MIT - see distribution.
  */
 
+/*eslint camelcase: ['error', {'properties': 'never'}]*/
+
+import sanitizer from '../../src/escapeHTML'
+var Sanitizer = new sanitizer()
+
 import {StateMachine} from "./statemachine"
 
 var fsm: StateMachine
@@ -11,34 +16,46 @@ var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
 
-var $elemPnlCenter = $('<div id="pnlDistLine" class="panel panel-default day">' +
+const elemPnlCenter = '<div id="pnlDistLine" class="panel panel-default day">' +
 '<div id="pnlDistLineHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlDistLineBdy" class="panel-body text-center day"></div>' +
-'</div>')
-var $elemBtnArm = $('<button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">' +
-'</button>' )
+'</div>'
+var htmlPnlCenter = Sanitizer.createSafeHTML(elemPnlCenter)
+const elemBtnArm = '<button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">' +
+'</button>'
+var htmlBtnArm = Sanitizer.createSafeHTML(elemBtnArm)
+const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-lg btn-primary disabled">' +
+'</button>' +
+'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-lg btn-info disabled">' +
+'</button>' +
+'&nbsp;<button id="btnArmedQuit" type="button" class="btn btn-sm btn-warning disabled">' +
+'</div>'
+var htmlBtnArmed = Sanitizer.createSafeHTML(elemBtnArmed)
 
-var $elemPnlDropPort = $('<div id="pnlPort" class="panel panel-default day">' +
+const elemPnlDropPort = '<div id="pnlPort" class="panel panel-default day">' +
 '<div id="pnlDropPortHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlDropPortBdy" class="panel-body text-center day"></div>' +
-'</div>')
-var $elemBtnDropPort = $('<button id="btnDropPort" type="button" class="btn btn-lg btn-danger disabled">' +
-'</button>' )
+'</div>'
+var htmlPnlDropPort = Sanitizer.createSafeHTML(elemPnlDropPort)
+const elemBtnDropPort = '<button id="btnDropPort" type="button" class="btn btn-lg btn-danger disabled">' +
+'</button>'
+var htmlBtnDropPort = Sanitizer.createSafeHTML(elemBtnDropPort)
 
-var $elemPnlDropStarboard = $('<div id="pnlStarboard" class="panel panel-default day">' +
+const elemPnlDropStarboard = '<div id="pnlStarboard" class="panel panel-default day">' +
 '<div id="pnlDropStarboardHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlDropStarboardBdy" class="panel-body text-center day"></div>' +
-'</div>')
-var $elemBtnDropStarboard = $('<button id="btnDropStarboard" type="button" class="btn btn-lg btn-success disabled">' +
-'</button>' )
-
+'</div>'
+var htmlPnlDropStarboard = Sanitizer.createSafeHTML(elemPnlDropStarboard)
+const elemBtnDropStarboard = '<button id="btnDropStarboard" type="button" class="btn btn-lg btn-success disabled">' +
+'</button>'
+var htmlBtnDropStarboard = Sanitizer.createSafeHTML(elemBtnDropStarboard)
 
 export function initButtons( that: StateMachine ) {
     fsm = that
     console.log('racedashstart buttons initButtons()')
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
-    $elemPnlCenter.appendTo( $('#grdCenter') )
-    $elemBtnArm.appendTo( $('#pnlDistLineBdy') )
+    $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
+    $('#pnlDistLineBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )
     $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmInitHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
     $('#btnArm').removeClass('disabled')
@@ -61,14 +78,14 @@ export function btmarmwButtons( ) {
 
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsDropMarksMsg )
 
-    $elemPnlDropPort.appendTo( $('#grdPort') )
-    $elemBtnDropPort.appendTo( $('#pnlDropPortBdy') )
+    $('#grdPort').html( Sanitizer.unwrapSafeHTML(htmlPnlDropPort) )
+    $('#pnlDropPortBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnDropPort) )
     $('#pnlDropPortHdr').text( (window as any).instrulang.rdsDropPortHdr )
     $('#btnDropPort').text( (window as any).instrulang.rdsDropPortBtn )
     $('#btnDropPort').removeClass('disabled')
 
-    $elemPnlDropStarboard.appendTo( $('#grdStarboard') )
-    $elemBtnDropStarboard.appendTo( $('#pnlDropStarboardBdy') )
+    $('#grdStarboard').html( Sanitizer.unwrapSafeHTML(htmlPnlDropStarboard) )
+    $('#pnlDropStarboardBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnDropStarboard) )
     $('#pnlDropStarboardHdr').text( (window as any).instrulang.rdsDropStarboardHdr )
     $('#btnDropStarboard').text( (window as any).instrulang.rdsDropStarboardBtn )
     $('#btnDropStarboard').removeClass('disabled')
@@ -79,24 +96,30 @@ export function btmarmwButtons( ) {
     locstate = 'MARKING'
 }
 
+function fadeAwayPortCenterStarboard() {
+    console.log('racedashstart buttons fadeAwayPortCenterStarboard()')
+    $('#grdPort').animate({
+         opacity: 0.25
+    }, 900, function() { $(this).text( '' ) })
+    $('#grdStarboard').animate({
+         opacity: 0.25
+    }, 900, function() { $(this).text( '' ) })
+    $('#grdCenter').animate({
+         opacity: 0.25
+    }, 1100, function() { $(this).text( '' ) })
+}
+
 export function btmarmcButtons( that: StateMachine ) {
     console.log('racedashstart buttons btmarmcButtons()')
-
-    $('#grdPort').animate({
-         opacity: 0.25 //use more parameter for effect
-    }, 1000, function() { $(this).text( '' ) })
-    $('#grdStarboard').animate({
-         opacity: 0.25 //use more parameter for effect
-    }, 1000, function() { $(this).text( '' ) })
-    $('#grdCenter').animate({
-         opacity: 0.25 //use more parameter for effect
-    }, 1000, function() { $(this).text( '' ) })
-
+    fadeAwayPortCenterStarboard()
     $('#grdCenter').promise().done(function() {
-        console.log('racedashstart buttons btmarmcButtons(): initButtons()')
-        $("#grdPort").css({ opacity: 1.0 });
-        $("#grdStarboard").css({ opacity: 1.0 });
-        $("#grdCenter").css({ opacity: 1.0 });
+        console.log('racedashstart buttons btmarmcButtons(): fading over')
+        $("#grdCenter").css({ opacity: 1.0 })
+        $("#grdCenter").empty()
+        $("#grdPort").css({ opacity: 1.0 })
+        $("#grdPort").empty()
+        $("#grdStarboard").css({ opacity: 1.0 })
+        $("#grdStarboard").empty()
         initButtons( that )
     })
 }
@@ -105,32 +128,82 @@ $('body').on('click', '#btnDropPort', function(event) {
     console.log('racedashstart buttons event click #btnDropPort')
     console.log('racedashstart buttons - state: ', fsm.state)
     if ( !$('#btnDropPort').css('disabled') ) {
-        console.log('racedashstart buttons - button enabled and pressed')
-        if ( fsm.is('marking') )
+        console.log('racedashstart buttons - btnDropPort button enabled and pressed')
+        if ( fsm.is('marking') ) {
             fsm.btnportd1()
-        else if ( fsm.is('onemark') ) {
+            $('#btnDropPort').addClass('active')
+            $('#btnDropPort').addClass('disabled')
+        }
+        else {
             locstate = 'MARKED'
             fsm.btnportd2()
         }
-        $('#btnDropPort').addClass('active')
-        $('#btnDropPort').addClass('disabled')
     }
-    console.log('racedashstart buttons - state now: ', fsm.state)
+    console.log('racedashstart buttons - btnDropPort - state now: ', fsm.state)
 })
 
 $('body').on('click', '#btnDropStarboard', function(event) {
     console.log('racedashstart buttons event click #btnDropStarboard')
     console.log('racedashstart buttons - state: ', fsm.state)
     if ( !$('#btnDropStarboard').css('disabled') ) {
-        console.log('racedashstart buttons - button enabled and pressed')
-        if ( fsm.is('marking') )
+        console.log('racedashstart buttons - btnDropStarboard button enabled and pressed')
+        if ( fsm.is('marking') ) {
             fsm.btnstbdd1()
-        else if ( fsm.is('onemark') ) {
+            $('#btnDropStarboard').addClass('active')
+            $('#btnDropStarboard').addClass('disabled')
+        }
+        else {
             locstate = 'MARKED'
             fsm.btnstbdd2()
         }
-        $('#btnDropStarboard').addClass('active')
-        $('#btnDropStarboard').addClass('disabled')
     }
+    console.log('racedashstart buttons - btnDropStarboard - state now: ', fsm.state)
+})
+
+export function btmarmedButtons( that: StateMachine ) {
+    console.log('racedashstart buttons btmarmedButtons()')
+    fadeAwayPortCenterStarboard()
+    $('#grdCenter').promise().done(function() {
+        console.log('racedashstart buttons btmarmedButtons(): fading over')
+        $("#grdCenter").css({ opacity: 1.0 })
+        $("#grdCenter").empty()
+        $("#grdStarboard").css({ opacity: 1.0 })
+        $("#grdStarboard").empty()
+        $("#grdPort").css({ opacity: 1.0 })
+        $("#grdPort").empty()
+        $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
+        $('#pnlDistLineBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArmed) )
+        $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsMarkedAndArmed )
+        $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmedHdr )
+        $('#btnFiveMinutes').text( (window as any).instrulang.rdsBtnArmed5m )
+        $('#btnFiveMinutes').removeClass('disabled')
+        $('#btnFourMinutes').text( (window as any).instrulang.rdsBtnArmed4m )
+        $('#btnFourMinutes').removeClass('disabled')
+        $('#btnArmedQuit').text( (window as any).instrulang.rdsBtnArmedQuit )
+        $('#btnArmedQuit').removeClass('disabled')
+        locstate = 'ARMED'
+    })
+}
+
+$('body').on('click', '#btnArmedQuit', function(event) {
+    console.log('racedashstart buttons event click #btnArmedQuit')
+    console.log('racedashstart buttons - state: ', fsm.state)
+    $('#btnArmedQuit').addClass('active')
+    if ( fsm.is('armed') )
+        fsm.btnarma()
     console.log('racedashstart buttons - state now: ', fsm.state)
 })
+
+export function btmarmaButtons( that: StateMachine ) {
+    console.log('racedashstart buttons btmarmaButtons()')
+    $('#grdCenter').animate({
+         opacity: 0.25
+    }, 1000, function() { $(this).text( '' ) })
+    $('#grdCenter').promise().done(function() {
+        console.log('racedashstart buttons btmarmaButtons(): fading over')
+        $("#grdCenter").css({ opacity: 1.0 })
+        $("#grdCenter").empty()
+        $("#pnlDistLine").remove()
+        initButtons( that )
+    })
+}
