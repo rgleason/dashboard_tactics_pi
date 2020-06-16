@@ -45,7 +45,12 @@ var instrulang = {
     rdsDropPortBtn: 'Port',
     rdsDropStarboardHdr: 'Drop mark',
     rdsDropStarboardBtn: 'Stbd',
-    rdsBtnArmCancelHdr: 'Abort the marking',
-    rdsBtnArmCancel: 'Cancel'
+    rdsBtnArmCancelHdr: 'Abandon the marking',
+    rdsBtnArmCancel: 'Cancel',
+    rdsMarkedAndArmed: 'Start line marked. Running and ready.',
+    rdsBtnArmedHdr: 'Start/resync race countdown or abandon all',
+    rdsBtnArmed5m: '5 minutes',
+    rdsBtnArmed4m: '4 minutes',
+    rdsBtnArmedQuit: 'Quit'
 }
 window.instrulang = instrulang
