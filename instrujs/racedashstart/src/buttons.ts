@@ -15,6 +15,8 @@ var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
+var timeLeft: number = 300
+var showTimeLeft = false
 
 const elemPnlCenter = '<div id="pnlCenter" class="panel panel-default day">' +
 '<div id="pnlCenterBdy" class="panel-body text-center day"></div>' +
@@ -190,6 +192,7 @@ $('body').on('click', '#btnArmedQuit', function(event) {
 
 export function btmarmaButtons( that: StateMachine ) {
     console.log('racedashstart buttons btmarmaButtons()')
+    showTimeLeft = false
     $('#grdCenter').animate({
          opacity: 0.25
     }, 1000, function() { $(this).text( '' ) })
@@ -198,6 +201,44 @@ export function btmarmaButtons( that: StateMachine ) {
         $("#grdCenter").css({ opacity: 1.0 })
         $("#grdCenter").empty()
         $("#pnlCenter").remove()
+        $('#pnlMsgClock').removeClass('panel-danger')
+        $('#pnlMsgClock').addClass('panel-primary')
         initButtons( that )
     })
 }
+
+function makeTimer() {
+    if ( showTimeLeft ) {
+        timeLeft--
+        var minutes: number = Math.floor(timeLeft / 60)
+        var seconds: number = Math.floor(timeLeft - (minutes * 60))
+        var strSeconds: string = seconds.toString()
+    	if (seconds < 10)
+            strSeconds = "0" + strSeconds
+        var htlmObjCandidate = '<b>' + minutes.toString() +
+            '</b><span> minutes </span><b>' +
+            strSeconds + '</b><span> seconds</span>'
+        if ( minutes < 0 ) {
+            htlmObjCandidate = '<b>' +
+                (window as any).instrulang.rdsAllTimeBurned + '</b>'
+            $('#pnlMsgClock').removeClass('panel-primary')
+            $('#pnlMsgClock').addClass('panel-danger')
+        }
+        var htmlObj = Sanitizer.createSafeHTML( htlmObjCandidate )
+    	$("#pnlMsgClockBdy").html( Sanitizer.unwrapSafeHTML( htmlObj ) )
+    }
+}
+
+setInterval(function() { makeTimer(); }, 1000);
+
+$('body').on('click', '#btnFiveMinutes', function(event) {
+    timeLeft = 300
+    showTimeLeft = true
+    $('#btnFiveMinutes').addClass('disabled')
+})
+$('body').on('click', '#btnFourMinutes', function(event) {
+    timeLeft = 240
+    showTimeLeft = true
+    $('#btnFiveMinutes').addClass('disabled')
+    $('#btnFourMinutes').addClass('disabled')
+})

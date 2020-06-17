@@ -50,6 +50,7 @@ var instrulang = {
     rdsDistLine: 'Distance to go',
     rdsDistAbs: 'Closest point',
     rdsWindBias: 'Wind bias',
-    rdswindBiasAdv: 'Advantage'
+    rdswindBiasAdv: 'Advantage',
+    rdsAllTimeBurned: 'RACE IS ON'
 }
 window.instrulang = instrulang
