@@ -11,6 +11,7 @@ export interface StateMachine {
     btnstbdd1(): undefined
     btnportd2(): undefined
     btnstbdd2(): undefined
+    btnfaded(): undefined
     btnarmc(): undefined
     btnarma(): undefined
     luminsty(): undefined

@@ -27,6 +27,7 @@ var  instrustat = {
     debuglevel : 1,
     alerts : true,
     alertdelay : 5,
+    rdsfeet: false,
     corsproxy: 'http://localhost:8089',
     knownpaths: [
 /*

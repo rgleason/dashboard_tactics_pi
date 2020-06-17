@@ -47,10 +47,13 @@ var instrulang = {
     rdsDropStarboardBtn: 'Stbd',
     rdsBtnArmCancelHdr: 'Abandon the marking',
     rdsBtnArmCancel: 'Cancel',
-    rdsMarkedAndArmed: 'Start line marked. Running and ready.',
-    rdsBtnArmedHdr: 'Start/resync race countdown or abandon all',
+    rdsMarkedAndArmed: 'Start line marked.',
     rdsBtnArmed5m: '5 minutes',
     rdsBtnArmed4m: '4 minutes',
-    rdsBtnArmedQuit: 'Quit'
+    rdsBtnArmedQuit: 'Quit',
+    rdsDistLine: 'Distance to go',
+    rdsDistAbs: 'Closest point',
+    rdsWindBias: 'Wind bias',
+    rdswindBiasAdv: 'Advantage'
 }
 window.instrulang = instrulang

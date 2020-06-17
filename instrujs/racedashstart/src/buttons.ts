@@ -16,17 +16,17 @@ var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
 
-const elemPnlCenter = '<div id="pnlDistLine" class="panel panel-default day">' +
-'<div id="pnlDistLineHdr" class="panel-heading text-center day"></div>' +
-'<div id="pnlDistLineBdy" class="panel-body text-center day"></div>' +
+const elemPnlCenter = '<div id="pnlCenter" class="panel panel-default day">' +
+'<div id="pnlCenterHdr" class="panel-heading text-center day"></div>' +
+'<div id="pnlCenterBdy" class="panel-body text-center day"></div>' +
 '</div>'
 var htmlPnlCenter = Sanitizer.createSafeHTML(elemPnlCenter)
 const elemBtnArm = '<button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">' +
 '</button>'
 var htmlBtnArm = Sanitizer.createSafeHTML(elemBtnArm)
-const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-lg btn-primary disabled">' +
+const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-sm btn-primary disabled">' +
 '</button>' +
-'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-lg btn-info disabled">' +
+'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-sm btn-info disabled">' +
 '</button>' +
 '&nbsp;<button id="btnArmedQuit" type="button" class="btn btn-sm btn-warning disabled">' +
 '</div>'
@@ -55,8 +55,8 @@ export function initButtons( that: StateMachine ) {
     console.log('racedashstart buttons initButtons()')
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
-    $('#pnlDistLineBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )
-    $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmInitHdr )
+    $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )
+    $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmInitHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
     $('#btnArm').removeClass('disabled')
     locstate = 'READY'
@@ -90,7 +90,7 @@ export function btmarmwButtons( ) {
     $('#btnDropStarboard').text( (window as any).instrulang.rdsDropStarboardBtn )
     $('#btnDropStarboard').removeClass('disabled')
 
-    $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmCancelHdr )
+    $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmCancelHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmCancel )
     $('#btnArm').removeClass('active')
     locstate = 'MARKING'
@@ -172,15 +172,17 @@ export function btmarmedButtons( that: StateMachine ) {
         $("#grdPort").css({ opacity: 1.0 })
         $("#grdPort").empty()
         $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
-        $('#pnlDistLineBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArmed) )
+        $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArmed) )
         $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsMarkedAndArmed )
-        $('#pnlDistLineHdr').text( (window as any).instrulang.rdsBtnArmedHdr )
+        $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmedHdr )
         $('#btnFiveMinutes').text( (window as any).instrulang.rdsBtnArmed5m )
         $('#btnFiveMinutes').removeClass('disabled')
         $('#btnFourMinutes').text( (window as any).instrulang.rdsBtnArmed4m )
         $('#btnFourMinutes').removeClass('disabled')
         $('#btnArmedQuit').text( (window as any).instrulang.rdsBtnArmedQuit )
         $('#btnArmedQuit').removeClass('disabled')
+        if ( fsm.is('btnfade') )
+            fsm.btnfaded()
         locstate = 'ARMED'
     })
 }
@@ -203,7 +205,7 @@ export function btmarmaButtons( that: StateMachine ) {
         console.log('racedashstart buttons btmarmaButtons(): fading over')
         $("#grdCenter").css({ opacity: 1.0 })
         $("#grdCenter").empty()
-        $("#pnlDistLine").remove()
+        $("#pnlCenter").remove()
         initButtons( that )
     })
 }
