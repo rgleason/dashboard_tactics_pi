@@ -17,23 +17,21 @@ var alerts: boolean = (window as any).instrustat.alerts
 var locstate: string = ''
 
 const elemPnlCenter = '<div id="pnlCenter" class="panel panel-default day">' +
-'<div id="pnlCenterHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlCenterBdy" class="panel-body text-center day"></div>' +
 '</div>'
 var htmlPnlCenter = Sanitizer.createSafeHTML(elemPnlCenter)
 const elemBtnArm = '<button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">' +
 '</button>'
 var htmlBtnArm = Sanitizer.createSafeHTML(elemBtnArm)
-const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-sm btn-primary disabled">' +
+const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-lg btn-primary disabled">' +
 '</button>' +
-'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-sm btn-info disabled">' +
+'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-lg btn-info disabled">' +
 '</button>' +
 '&nbsp;<button id="btnArmedQuit" type="button" class="btn btn-sm btn-warning disabled">' +
 '</div>'
 var htmlBtnArmed = Sanitizer.createSafeHTML(elemBtnArmed)
 
 const elemPnlDropPort = '<div id="pnlPort" class="panel panel-default day">' +
-'<div id="pnlDropPortHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlDropPortBdy" class="panel-body text-center day"></div>' +
 '</div>'
 var htmlPnlDropPort = Sanitizer.createSafeHTML(elemPnlDropPort)
@@ -42,7 +40,6 @@ const elemBtnDropPort = '<button id="btnDropPort" type="button" class="btn btn-l
 var htmlBtnDropPort = Sanitizer.createSafeHTML(elemBtnDropPort)
 
 const elemPnlDropStarboard = '<div id="pnlStarboard" class="panel panel-default day">' +
-'<div id="pnlDropStarboardHdr" class="panel-heading text-center day"></div>' +
 '<div id="pnlDropStarboardBdy" class="panel-body text-center day"></div>' +
 '</div>'
 var htmlPnlDropStarboard = Sanitizer.createSafeHTML(elemPnlDropStarboard)
@@ -56,7 +53,6 @@ export function initButtons( that: StateMachine ) {
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
     $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )
-    $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmInitHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
     $('#btnArm').removeClass('disabled')
     locstate = 'READY'
@@ -80,17 +76,14 @@ export function btmarmwButtons( ) {
 
     $('#grdPort').html( Sanitizer.unwrapSafeHTML(htmlPnlDropPort) )
     $('#pnlDropPortBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnDropPort) )
-    $('#pnlDropPortHdr').text( (window as any).instrulang.rdsDropPortHdr )
     $('#btnDropPort').text( (window as any).instrulang.rdsDropPortBtn )
     $('#btnDropPort').removeClass('disabled')
 
     $('#grdStarboard').html( Sanitizer.unwrapSafeHTML(htmlPnlDropStarboard) )
     $('#pnlDropStarboardBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnDropStarboard) )
-    $('#pnlDropStarboardHdr').text( (window as any).instrulang.rdsDropStarboardHdr )
     $('#btnDropStarboard').text( (window as any).instrulang.rdsDropStarboardBtn )
     $('#btnDropStarboard').removeClass('disabled')
 
-    $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmCancelHdr )
     $('#btnArm').text( (window as any).instrulang.rdsBtnArmCancel )
     $('#btnArm').removeClass('active')
     locstate = 'MARKING'
@@ -174,7 +167,6 @@ export function btmarmedButtons( that: StateMachine ) {
         $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
         $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArmed) )
         $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsMarkedAndArmed )
-        $('#pnlCenterHdr').text( (window as any).instrulang.rdsBtnArmedHdr )
         $('#btnFiveMinutes').text( (window as any).instrulang.rdsBtnArmed5m )
         $('#btnFiveMinutes').removeClass('disabled')
         $('#btnFourMinutes').text( (window as any).instrulang.rdsBtnArmed4m )
