@@ -13,7 +13,7 @@ module.exports = {
     },
     //path and filename of the final output
     output: {
-        path: path.resolve(__dirname, '../../data/instrujs/www/racedash'),
+        path: path.resolve(__dirname, '../../data/instrujs/www/racedashstart'),
         filename: 'bundle.js'
     },
     module: {
