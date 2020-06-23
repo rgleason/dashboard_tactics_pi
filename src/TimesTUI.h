@@ -91,7 +91,7 @@ public:
     virtual void derived2TimeoutEvent(void){};
 #else
     virtual void derived2TimeoutEvent(void) = 0;
-#endif // __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __TIMESTUI_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derivedTimeoutEvent(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     bool LoadConfig(void);
