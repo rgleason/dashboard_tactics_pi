@@ -74,8 +74,11 @@ public:
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllDbSchemasJsOrderedList(void);
     wxString getDbSchemaJs( wxString* path );
-    void collectAllSignalKDeltaPaths(void); 
-    void collectAllDbSchemaPaths(void); 
+    void collectAllSignalKDeltaPaths(void);
+    void collectAllDbSchemaPaths(void);
+    wxString GetActiveRouteName();
+    wxString GetActiveRouteGUID();
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr();
 protected:
     std::mutex          m_mtxCallBackContainer;
     callback_map       *m_callbacks;

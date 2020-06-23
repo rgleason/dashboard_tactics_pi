@@ -147,6 +147,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     // cppcheck-suppress noCopyConstructor
     m_NMEA0183 = new NMEA0183();
     ResetAllSourcePriorities();
+    mRouteActivatedName = wxEmptyString;
+    mRouteActivatedGUID = wxEmptyString;
+    mActiveLegInfo = nullptr;
     mUTCDateTime.Set( (time_t) -1 );
     m_config_version = -1;
     mSrc_Watchdog = 2;
@@ -173,6 +176,8 @@ dashboard_pi::~dashboard_pi( void )
     delete _img_instrument;
     delete _img_minus;
     delete _img_plus;
+    if ( !(mActiveLegInfo == nullptr) )
+        delete mActiveLegInfo;
 }
 
 int dashboard_pi::Init( void )
@@ -1952,36 +1957,47 @@ void dashboard_pi::SetCursorLatLon( double lat, double lon )
 
 }
 
+void dashboard_pi::SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info) {
+    if ( mActiveLegInfo )
+       *mActiveLegInfo = leg_info;
+}
+
 void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body)
 {
-    if(message_id == _T("WMM_VARIATION_BOAT"))
-    {
-
-        // construct the JSON root object
-        wxJSONValue  root;
-        // construct a JSON parser
-        wxJSONReader reader;
-
-        // now read the JSON text and store it in the 'root' structure
-        // check for errors before retreiving values...
-        int numErrors = reader.Parse( message_body, &root );
-        if ( numErrors > 0 )  {
-            //              const wxArrayString& errors = reader.GetErrors();
+    wxJSONValue  root;
+    // construct a JSON parser
+    wxJSONReader reader;
+    int numErrors = reader.Parse( message_body, &root );
+    if ( numErrors > 0 )  {
+            const wxArrayString& errors = reader.GetErrors();
             return;
-        }
+    }
+    
+    if ( message_id == _T("WMM_VARIATION_BOAT") ) {
 
-        // get the DECL value from the JSON message
         wxString decl = root[_T("Decl")].AsString();
         double decl_val;
         decl.ToDouble(&decl_val);
 
-
-        if( mPriVar >= 4 ) {
+        if ( mPriVar >= 4 ) {
             mPriVar = 4;
             mVar = decl_val;
             mVar_Watchdog = gps_watchdog_timeout_ticks;
             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
         }
+    }
+    else if ( message_id == _T("OCPN_RTE_ACTIVATED") ) {
+        mRouteActivatedName = root[_T("Route_activated")].AsString();  
+        mRouteActivatedGUID = root[_T("GUID")].AsString();
+        mActiveLegInfo = new Plugin_Active_Leg_Info();
+        mActiveLegInfo->wp_name = wxEmptyString;
+    }
+    else if ( message_id == _T("OCPN_RTE_DEACTIVATED") ) {
+        mRouteActivatedName = wxEmptyString;
+        mRouteActivatedGUID = wxEmptyString;
+        if ( mActiveLegInfo )
+            delete mActiveLegInfo;
+        mActiveLegInfo = nullptr;
     }
 }
 

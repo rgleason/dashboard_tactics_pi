@@ -190,3 +190,15 @@ void TacticsWindow::collectAllDbSchemaPaths()
 {
     m_pSkData->recordAllDbSchemas();
 }
+wxString TacticsWindow::GetActiveRouteName()
+{
+    return m_plugin->GetActiveRouteName();
+}
+wxString TacticsWindow::GetActiveRouteGUID()
+{
+    return m_plugin->GetActiveRouteGUID();
+}
+Plugin_Active_Leg_Info* TacticsWindow::GetActiveLegInfoPtr()
+{
+    return m_plugin->GetActiveLegInfoPtr();
+}

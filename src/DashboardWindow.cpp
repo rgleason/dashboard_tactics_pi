@@ -45,6 +45,7 @@
 #include "StreamoutSingle.h"
 #include "EngineDJG.h"
 #include "TimesTUI.h"
+#include "RaceStart.h"
 
 #include "dashboard_pi_ext.h"
 
@@ -771,6 +772,12 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             if ( ids.IsEmpty() )
                 ids = GetUUID();
             instrument = new DashboardInstrument_TimesTUI( // Time-series DB graph
+                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+            break;
+        case ID_DBP_D_RACESTA:
+            if ( ids.IsEmpty() )
+                ids = GetUUID();
+            instrument = new DashboardInstrument_RaceStart( // Start line tactician
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
         }

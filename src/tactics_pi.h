@@ -149,6 +149,9 @@ public:
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
         wxString &unit_currspd, long long &calctimestamp) final;
+    virtual wxString GetActiveRouteName() = 0;
+    virtual wxString GetActiveRouteGUID() = 0;
+    virtual Plugin_Active_Leg_Info* GetActiveLegInfoPtr() = 0;
 
     virtual void OnAvgWindUpdTimer_Tactics(void) final;
 

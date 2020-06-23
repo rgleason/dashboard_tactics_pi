@@ -101,6 +101,9 @@ public:
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
     void OnAuiRender( wxAuiManagerEvent& event );
+    wxString GetActiveRouteName() { return mRouteActivatedName; };
+    wxString GetActiveRouteGUID() { return mRouteActivatedGUID; };
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr() { return mActiveLegInfo; };
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
@@ -121,7 +124,8 @@ public:
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
-    void SetPluginMessage(wxString &message_id, wxString &message_body);
+    void SetActiveLegInfo(Plugin_Active_Leg_Info& leg_info);
+    void SetPluginMessage(wxString& message_id, wxString& message_body);
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
     void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
@@ -177,6 +181,9 @@ private:
     short                mPriTWA;
     short                mPriDepth;
     double               mVar;
+    wxString             mRouteActivatedName;
+    wxString             mRouteActivatedGUID;
+    Plugin_Active_Leg_Info *mActiveLegInfo;
     // FFU
     double               mSatsInView;
     double               mHdm;

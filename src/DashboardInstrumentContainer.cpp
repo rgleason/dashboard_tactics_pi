@@ -219,10 +219,12 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191InfluxDB Out");
     case ID_DBP_V_INSK:
 		return _(L"\u2191Signal K In");
-    case ID_DBP_D_ENGDJG: 
+    case ID_DBP_D_ENGDJG:
 		return _(L"\u2b24 DashT E-Dial");
-    case ID_DBP_D_TSETUI: 
+    case ID_DBP_D_TSETUI:
 		return _(L"\u2b24 DashT Line Chart");
+    case ID_DBP_D_RACESTA:
+		return _(L"\u2b24 DashT Race Start");
     }
     return _T("");
 }
