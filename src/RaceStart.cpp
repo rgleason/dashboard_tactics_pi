@@ -37,9 +37,6 @@ using namespace std;
 
 #include <wx/version.h>
 
-#include <algorithm>
-#include <functional>
-
 #include "dashboard_pi.h"
 #include "RaceStart.h"
 #include "plugin_ids.h"

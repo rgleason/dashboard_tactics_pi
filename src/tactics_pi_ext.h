@@ -77,7 +77,7 @@ extern wxString g_sCMGSynonym, g_sVMGSynonym;
 extern wxString g_sDataExportSeparator;
 extern bool     g_bDataExportUTC;
 extern bool     g_bDataExportClockticks;
-extern AvgWind* AverageWind;
+extern AvgWind *AverageWind;
 extern int g_iDbgRes_Polar_Status;
 
 
