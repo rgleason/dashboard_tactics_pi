@@ -54,17 +54,17 @@ wxEND_EVENT_TABLE ()
 
 DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     TacticsWindow *pparent, wxWindowID id, wxString ids,
-    PI_ColorScheme cs, wxString format ) :
-    InstruJS ( pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE )
+    PI_ColorScheme cs, wxString format ) : InstruJS (
+        pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE )
 {
     m_pparent = pparent;
-    previousTimestamp = 0LL; // dashboard instru base class
     m_orient = wxHORIZONTAL;
+    previousTimestamp = 0LL; // see dashboard instru base class
     m_htmlLoaded= false;
     m_goodHttpServerDetects = -1; // default is: there is a server at startup
-    m_pconfig = GetOCPNConfigObject();
-    m_fullPathHTML = wxEmptyString;
     m_httpServer = wxEmptyString;
+    m_fullPathHTML = wxEmptyString;
+    m_pconfig = GetOCPNConfigObject();
 
     // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
     if ( !CheckForValidStartLineGUID (

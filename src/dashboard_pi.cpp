@@ -1968,10 +1968,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
     // construct a JSON parser
     wxJSONReader reader;
     int numErrors = reader.Parse( message_body, &root );
-    if ( numErrors > 0 )  {
-            const wxArrayString& errors = reader.GetErrors();
-            return;
-    }
+    if ( numErrors > 0 )
     
     if ( message_id == _T("WMM_VARIATION_BOAT") ) {
 
