@@ -637,6 +637,17 @@ void dashboard_pi::SendDataToAllPathSubscribers (
     }
 }
 
+void dashboard_pi::callAllRegisteredGLRenderers( wxGLContext *pcontext, PlugIn_ViewPort *vp, wxString className )
+{
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window )
+            dashboard_window->callAllRegisteredGLRenderers(
+                pcontext, vp, className );
+    }
+}
+
 
 void dashboard_pi::SendUtcTimeToAllInstruments( wxDateTime value )
 {

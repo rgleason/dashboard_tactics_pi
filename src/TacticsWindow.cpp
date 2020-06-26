@@ -44,15 +44,18 @@ TacticsWindow::TacticsWindow (
         wxBORDER_NONE || wxFULL_REPAINT_ON_RESIZE, derivtitle )
 {
     m_plugin = tactics;
-    m_callbacks = new callback_map();
     std::unique_lock<std::mutex> init_m_mtxCallBackContainer( m_mtxCallBackContainer, std::defer_lock );
+    m_callbacks = new callback_map();
     m_pSkData = pSkData;
+    std::unique_lock<std::mutex> init_m_mtxRendererContainer( m_mtxRendererContainer, std::defer_lock );
+    m_renderers = new renderer_map();
     return;
 }
 
 TacticsWindow::~TacticsWindow()
 {
     delete m_callbacks;
+    delete m_renderers;
     return;
 }
 
@@ -166,38 +169,97 @@ void TacticsWindow::SendDataToAllPathSubscribers(
         ++it;
     }
 }
+
+wxString TacticsWindow::registerGLRenderer( wxString className, glRendererFunction renderer)
+{
+    wxString regUUID = GetUUID();
+    std::string keyID = std::string( regUUID.mb_str() );
+    glRendererFunctionTuple newEntry = std::make_tuple(className, renderer);
+    std::unique_lock<std::mutex> lckmRenderer( m_mtxRendererContainer );
+    m_renderers->insert ( make_pair(keyID, newEntry) );
+    return regUUID;
+}
+
+void TacticsWindow::unregisterGLRenderer ( wxString rendererUUID )
+{
+    std::string keyID = std::string( rendererUUID.mb_str() );
+    std::unique_lock<std::mutex> lckmRenderer( m_mtxRendererContainer );
+    renderer_map::iterator it = m_renderers->find( keyID );
+    if ( it != m_renderers->end() ) {
+            m_renderers->erase( it );
+    } // key found, delete
+}
+
+void TacticsWindow::callAllRegisteredGLRenderers( wxGLContext *pcontext, PlugIn_ViewPort *vp, wxString className )
+{
+    std::unique_lock<std::mutex> lckmRenderer( m_mtxRendererContainer );
+    renderer_map::iterator it = m_renderers->begin();
+    glRendererFunctionPair  thisEntry;
+    glRendererFunctionTuple thisSubscriber;
+    std::string keyID;
+    wxString subscribedClassName;
+    glRendererFunction callThis;
+    while ( it != m_renderers->end() ) {
+        thisEntry = *it;
+        keyID = std::get<0>(thisEntry);
+        if ( !keyID.empty() ) {
+            thisSubscriber = std::get<1>(thisEntry);
+            subscribedClassName = std::get<0>(thisSubscriber);
+            bool OkToCall = className.IsEmpty();
+            if ( !OkToCall ) {
+                if ( subscribedClassName == className ) {
+                    OkToCall = true;
+                }
+            }
+            if ( OkToCall ) {
+                callThis = std::get<1>(thisSubscriber);
+                callThis ( pcontext, vp );
+            }
+        }
+        ++it;
+    }
+}
+
 wxString TacticsWindow::getAllNMEA0183JsOrderedList()
 {
     return m_pSkData->getAllNMEA0183JsOrderedList();
 }
+
 wxString TacticsWindow::getAllNMEA2000JsOrderedList()
 {
     return m_pSkData->getAllNMEA2000JsOrderedList();
 }
+
 wxString TacticsWindow::getAllDbSchemasJsOrderedList()
 {
     return m_pSkData->getAllDbSchemasJsOrderedList();
 }
+
 wxString TacticsWindow::getDbSchemaJs( wxString *path )
 {
     return m_pSkData->getDbSchemaJs( path );
 }
+
 void TacticsWindow::collectAllSignalKDeltaPaths()
 {
     m_pSkData->subscribeToAllPaths();
 }
+
 void TacticsWindow::collectAllDbSchemaPaths()
 {
     m_pSkData->recordAllDbSchemas();
 }
+
 wxString TacticsWindow::GetActiveRouteName()
 {
     return m_plugin->GetActiveRouteName();
 }
+
 wxString TacticsWindow::GetActiveRouteGUID()
 {
     return m_plugin->GetActiveRouteGUID();
 }
+
 Plugin_Active_Leg_Info* TacticsWindow::GetActiveLegInfoPtr()
 {
     return m_plugin->GetActiveLegInfoPtr();

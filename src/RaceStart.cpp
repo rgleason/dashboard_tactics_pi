@@ -39,6 +39,7 @@ using namespace std;
 
 #include "dashboard_pi.h"
 #include "RaceStart.h"
+using namespace std::placeholders;
 #include "plugin_ids.h"
 
 extern int GetRandomNumber(int, int);
@@ -65,6 +66,10 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_httpServer = wxEmptyString;
     m_fullPathHTML = wxEmptyString;
     m_pconfig = GetOCPNConfigObject();
+    m_rendererIsHere = std::bind(&DashboardInstrument_RaceStart::DoRenderGLOverLay,
+                                               this, _1, _2 );
+    m_sRendererCallbackUUID = m_pparent->registerGLRenderer(
+        _T("DashboardInstrument_RaceStart"), m_rendererIsHere );
 
     // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
     if ( !CheckForValidStartLineGUID (
@@ -91,6 +96,8 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
 {
     this->m_pThreadRaceStartTimer->Stop();
     delete this->m_pThreadRaceStartTimer;
+    if ( !this->m_sRendererCallbackUUID.IsEmpty() )
+        this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
     SaveConfig();
     return;
 }
@@ -98,6 +105,9 @@ void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
 {
     this->m_pThreadRaceStartTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
+    if ( !this->m_sRendererCallbackUUID.IsEmpty() )
+        this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
+    this->m_sRendererCallbackUUID = wxEmptyString;
     event.Skip(); // Destroy() must be called
 }
 

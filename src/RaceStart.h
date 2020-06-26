@@ -123,8 +123,7 @@ public:
                                      wxString portName, wxString stbdName);
     bool CheckForValidUserSetStartLine(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
-    bool LoadConfig(void);
-    void SaveConfig(void);
+    void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     
 protected:
     TacticsWindow       *m_pparent;
@@ -141,12 +140,19 @@ protected:
     PlugIn_Waypoint     *m_startStbdWp;
     wxString             m_sStartPortWpGuid;
     PlugIn_Waypoint     *m_startPortWp;
+    wxString             m_sRendererCallbackUUID;
+    glRendererFunction   m_rendererIsHere;
     
     wxDECLARE_EVENT_TABLE();
 
     void OnThreadTimerTick( wxTimerEvent& event );
     void OnClose(wxCloseEvent& event);
-
+    bool LoadConfig(void);
+    void SaveConfig(void);
+    void RenderGLStartLine(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp );
 };
 
 #endif // __RACESTART_H__

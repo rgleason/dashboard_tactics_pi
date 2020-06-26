@@ -97,6 +97,9 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
+    void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString );
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);

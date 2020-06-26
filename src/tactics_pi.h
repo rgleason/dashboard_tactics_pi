@@ -72,6 +72,9 @@ public:
     virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
     virtual void UpdateAuiStatus(void) = 0;
     virtual void SetToggledStateVisible(bool isvisible) final;
+    virtual void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString ) = 0;
     virtual bool TacticsRenderOverlay(
         wxDC &dc, PlugIn_ViewPort *vp) final;
     virtual bool RenderGLOverlay(

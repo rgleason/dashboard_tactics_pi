@@ -30,7 +30,6 @@ using namespace std;
 
 #include <wx/glcanvas.h>
 
-
 #include "tactics_pi.h"
 
 #include "tactics_pi_ext.h"
@@ -398,24 +397,25 @@ Called by Plugin Manager on main system process cycle
 **********************************************************************/
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
+    b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
 #ifndef __linux__
     if ( !pcontext->IsOK() )
         return false;
 #endif // __linux__
-	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
-		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glPushMatrix();
-		this->DoRenderLaylineGLOverlay(pcontext, vp);
-		this->DoRenderCurrentGLOverlay(pcontext, vp);
-		glPopMatrix();
-		glPopAttrib();
-	}
-	return true;
+    if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
+        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glPushMatrix();
+        this->DoRenderLaylineGLOverlay( pcontext, vp );
+        this->DoRenderCurrentGLOverlay( pcontext, vp );
+        callAllRegisteredGLRenderers( pcontext, vp );
+        glPopMatrix();
+        glPopAttrib();
+    }
+    return true;
 }
 
 bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
