@@ -44,7 +44,6 @@ using namespace std::placeholders;
 
 extern int GetRandomNumber(int, int);
 
-
 wxBEGIN_EVENT_TABLE (DashboardInstrument_RaceStart, InstruJS)
    EVT_TIMER (myID_TICK_RACESTART, DashboardInstrument_RaceStart::OnThreadTimerTick)
    EVT_CLOSE (DashboardInstrument_RaceStart::OnClose)
@@ -66,25 +65,18 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_httpServer = wxEmptyString;
     m_fullPathHTML = wxEmptyString;
     m_pconfig = GetOCPNConfigObject();
+    // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
+    (void) CheckForValidStartLineGUID (
+        _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
+        _T(RACESTART_NAME_WP_STARTP), _T(RACESTART_NAME_WP_STARTS) );
+
+    if ( !LoadConfig() )
+        return;
+
     m_rendererIsHere = std::bind(&DashboardInstrument_RaceStart::DoRenderGLOverLay,
                                                this, _1, _2 );
     m_sRendererCallbackUUID = m_pparent->registerGLRenderer(
         _T("DashboardInstrument_RaceStart"), m_rendererIsHere );
-
-    // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
-    if ( !CheckForValidStartLineGUID (
-             _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
-             _T(RACESTART_NAME_WP_STARTP_USER), _T(RACESTART_NAME_WP_STARTS_USER) ) ) {
-        m_sStartLineAsRouteGuid = wxEmptyString;
-        m_startLineAsRoute = nullptr;
-        m_sStartStbdWpGuid = wxEmptyString;
-        m_startStbdWp = nullptr;
-        m_sStartPortWpGuid = wxEmptyString;
-        m_startPortWp = nullptr;
-    } // then some points given by routing, possibly, but can't map them to start
-
-    if ( !LoadConfig() )
-        return;
 
     if ( !m_fullPathHTML.IsEmpty() ) {
         m_pThreadRaceStartTimer = new wxTimer( this, myID_TICK_RACESTART );
@@ -172,7 +164,7 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
                             } // then port side marker not yet found
                             else
                                 startlineAsRouteValid = false;
-                        } // else then poer side waypoint
+                        } // else then port side waypoint
                         else
                             startlineAsRouteValid = false;
                     } // then there is at least first point OK
@@ -183,6 +175,8 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
             } // else a valid name for the startline route
         } // else there is a pointer to waypoint list
     } // then a route has been returned
+    else
+        startlineAsRouteValid = false;
     if ( !startlineAsRouteValid ) {
         m_sStartLineAsRouteGuid = wxEmptyString;
         m_startLineAsRoute = nullptr;

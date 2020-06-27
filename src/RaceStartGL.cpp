@@ -57,11 +57,10 @@ void DashboardInstrument_RaceStart::RenderGLStartLine(
 {
     if ( !(m_startStbdWp) || !(m_startPortWp) )
         return;
-    return;
     wxPoint stbd;
     GetCanvasPixLL( vp, &stbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
     wxPoint port;
-    GetCanvasPixLL( vp, &stbd, m_startPortWp->m_lat, m_startPortWp->m_lon );
+    GetCanvasPixLL( vp, &port, m_startPortWp->m_lat, m_startPortWp->m_lon );
     glColor4ub(255, 128, 0, 168); //orange
     glLineWidth(2);
     glBegin(GL_LINES);
