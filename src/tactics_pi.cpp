@@ -98,7 +98,6 @@ tactics_pi::tactics_pi( void )
     m_pmenu = NULL;
     // cppcheck-suppress noCopyConstructor
     m_pSkData = new SkData();
-    b_tactics_dc_message_shown = false;
 
     // please keep the below in same order than in class definition to ease the maintenance
     mHdt = NAN;
@@ -423,9 +422,11 @@ bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 	if (b_tactics_dc_message_shown == false) {
         b_tactics_dc_message_shown = true;
 
-		wxString message(_("You have to turn on OpenGL to use chart overlay "));
-		wxMessageDialog dlg(GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"), wxOK);
-		dlg.ShowModal();
+		wxString message(
+            _("OpenGL is not available or it is disabled in OpenCPN.\n") +
+            _("It is needed in all chart overlay functions of this plug-in."));
+		wxMessageDialog dlg(GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"), wxOK|wxICON_ERROR);
+		(void) dlg.ShowModal();
 	}
 	return false;
 }

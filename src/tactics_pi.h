@@ -162,6 +162,9 @@ public:
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
 
+    bool getTacticsDCmsgShown(void) { return b_tactics_dc_message_shown; };
+    void setTacticsDCmsgShownTrue(void) { b_tactics_dc_message_shown = true; };
+    
 protected:
     SkData              *m_pSkData;
     

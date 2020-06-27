@@ -203,6 +203,8 @@ private:
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
+    bool                 mBmajorVersion_warning_given;
+    bool                 mBminorVersion_warning_given;
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;

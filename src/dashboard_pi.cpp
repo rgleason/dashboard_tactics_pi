@@ -159,6 +159,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mVar_Watchdog = 2;
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mApS_Watchcat = 0;
+    mBmajorVersion_warning_given = false;
+    mBminorVersion_warning_given = false;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
@@ -1980,6 +1983,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
     wxJSONReader reader;
     int numErrors = reader.Parse( message_body, &root );
     if ( numErrors > 0 )
+        return;
     
     if ( message_id == _T("WMM_VARIATION_BOAT") ) {
 
@@ -2006,6 +2010,57 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         if ( mActiveLegInfo )
             delete mActiveLegInfo;
         mActiveLegInfo = nullptr;
+    }
+    else if ( message_id == _T("OpenCPN Config") ) {
+        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;
+        if ( !mBmajorVersion_warning_given ) {
+            if ( ocpnMajorVersion != PLUGIN_TARGET_OCPN_VERSION_MAJOR ) {
+                wxString message = wxString::Format(
+                    _T("%s%d%s%d"),
+                    _("This plug-in is intended for OpenCPN v"),
+                    PLUGIN_TARGET_OCPN_VERSION_MAJOR,
+                    _(".\nYou have OpenCPN v"),
+                    ocpnMajorVersion );
+                wxMessageDialog dlg(
+                    GetOCPNCanvasWindow(), message,
+                    _T("dashboard_tactics_pi message"), wxOK );
+                (void) dlg.ShowModal();
+                mBmajorVersion_warning_given = true;
+            }
+        }
+        if ( !mBminorVersion_warning_given ) {
+            int ocpnMinorVersion = root[_T("OpenCPN Version Minor")].AsInt();
+            if ( ocpnMinorVersion < PLUGIN_MINIMUM_OCPN_VERSION_MINOR ) {
+                wxString message = wxString::Format(
+                    _T("%s%d%s%d%s%d%s%d"),
+                    _("This plug-in is intended for OpenCPN v"),
+                    PLUGIN_TARGET_OCPN_VERSION_MAJOR, _T("."),
+                    PLUGIN_MINIMUM_OCPN_VERSION_MINOR,
+                    _(" or superior minor version.\nYou have OpenCPN v"),
+                    ocpnMajorVersion, _T("."), ocpnMinorVersion );
+                wxMessageDialog dlg( GetOCPNCanvasWindow(), message,
+                                     _T("dashboard_tactics_pi message"), wxOK );
+                (void) dlg.ShowModal();
+                mBminorVersion_warning_given = true;
+            }
+        }
+    }
+    else if ( message_id == _T("OCPN_OPENGL_CONFIG") ) {
+        if ( this->getTacticsDCmsgShown() ) {
+            bool bOpenGLsetupComplete = root[_T("setupComplete")].AsBool();
+            if ( !bOpenGLsetupComplete ) {
+                wxString message(
+                    _("OpenGL appears to be enabled but OpenCPN reports\n") +
+                    _("OpenGL setup not being complete.\n") +
+                    _("Chart overlay functions in this plug-in may fail.\n") +
+                    _("Please study OpenCPN log file for OpenGL error messages.") );
+                wxMessageDialog dlg(
+                    GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"),
+                    wxOK|wxICON_ERROR);
+                (void) dlg.ShowModal();
+                this->setTacticsDCmsgShownTrue();
+            }
+        }
     }
 }
 

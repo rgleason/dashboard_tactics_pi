@@ -57,6 +57,7 @@ void DashboardInstrument_RaceStart::RenderGLStartLine(
 {
     if ( !(m_startStbdWp) || !(m_startPortWp) )
         return;
+    return;
     wxPoint stbd;
     GetCanvasPixLL( vp, &stbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
     wxPoint port;
