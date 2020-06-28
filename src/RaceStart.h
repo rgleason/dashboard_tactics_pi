@@ -158,6 +158,8 @@ protected:
     double               m_renSlineDir;
     double               m_renBiasSlineDir;
     double               m_renWindBias;
+    double               m_renWindBiasAdvDist;
+    double               m_renWindBiasAdvDir;
     double               m_renWindBiasLineDir;
     wxPoint              m_renPointBiasStart;
     wxPoint              m_renPointBiasStop;

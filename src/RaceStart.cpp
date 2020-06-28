@@ -136,6 +136,8 @@ void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
     m_renSlineDir = std::nan("1");
     m_renBiasSlineDir = std::nan("1");
     m_renWindBias = std::nan("1");
+    m_renWindBiasAdvDist = std::nan("1");
+    m_renWindBiasAdvDir = std::nan("1");
     m_renWindBiasLineDir = std::nan("1");
     m_renWindBiasDrawn = false;
     m_renLLPortDir = std::nan("1");

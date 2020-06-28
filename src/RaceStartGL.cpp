@@ -85,6 +85,8 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
         m_renSlineDir = std::nan("1");
         m_renBiasSlineDir = std::nan("1");
         m_renWindBias = std::nan("1");
+        m_renWindBiasAdvDist = std::nan("1");
+        m_renWindBiasAdvDir = std::nan("1");
         m_renWindBiasLineDir = std::nan("1");
         return;
     }
@@ -118,8 +120,10 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
     }
     m_renWindBias = getSignedDegRange( zeroBiasWindDir, AvgWind );
     PlugIn_Waypoint *startPointBiasLine;
+    PlugIn_Waypoint *endRefPointBiasLine;
     if ( m_renWindBias < 0. ) {
         startPointBiasLine = m_startPortWp;
+        endRefPointBiasLine = m_startStbdWp;
         if ( m_renbNorthSector )
             m_renWindBiasLineDir = m_renSlineDir + m_renWindBias;
         else
@@ -127,6 +131,7 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
     } // then wind veers
     else {
         startPointBiasLine = m_startStbdWp;
+        endRefPointBiasLine = m_startPortWp;
         if ( m_renbNorthSector )
             m_renWindBiasLineDir = m_renSlineDir - 180. + m_renWindBias;
         else
@@ -142,7 +147,11 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
         startPointBiasLine->m_lat, startPointBiasLine->m_lon,
         m_renWindBiasLineDir, m_renSlineLength,
         &startPointBiasEnd_lat, &startPointBiasEnd_lon );
-    GetCanvasPixLL(
+    DistanceBearingMercator_Plugin(
+        startPointBiasEnd_lat, startPointBiasEnd_lon, // "to"
+        endRefPointBiasLine->m_lat, endRefPointBiasLine->m_lon, // "from"
+        &m_renWindBiasAdvDir, &m_renWindBiasAdvDist ); // result = "advantage" dist+direction
+     GetCanvasPixLL(
         vp, &m_renPointBiasStart,
         startPointBiasLine->m_lat, startPointBiasLine->m_lon );
     GetCanvasPixLL(
