@@ -131,10 +131,16 @@ void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
     m_startPortWp = nullptr;
     m_startWestWp = nullptr;
     m_startEastWp = nullptr;
+    m_renStartLineDrawn = false;
     m_renSlineLength = std::nan("1");
     m_renSlineDir = std::nan("1");
     m_renBiasSlineDir = std::nan("1");
     m_renWindBias = std::nan("1");
+    m_renWindBiasLineDir = std::nan("1");
+    m_renWindBiasDrawn = false;
+    m_renLLPortDir = std::nan("1");
+    m_renLLStbdDir = std::nan("1");
+    m_renLaylinesDrawn = false;
 }
 
 

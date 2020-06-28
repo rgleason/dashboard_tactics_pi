@@ -82,6 +82,8 @@
 #define RACESTART_NAME_WP_STARTP "STARTP"
 #define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
 
+#define RACESTART_GRID_SIZE 2
+
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
     std::unique_ptr<Base, Del>&& p )
@@ -145,16 +147,23 @@ protected:
     glRendererFunction   m_rendererIsHere;
     bool                 m_renStartLineDrawn;
     wxPoint              m_renPointStbd;
-    wxPoint              m_rendPointPort;
+    wxPoint              m_renPointPort;
     bool                 m_renWindBiasDrawn;
     PlugIn_Waypoint     *m_startWestWp;
     PlugIn_Waypoint     *m_startEastWp;
+    wxPoint              m_renPointWest;
+    wxPoint              m_renPointEast;
+    bool                 m_renbNorthSector;
     double               m_renSlineLength;
     double               m_renSlineDir;
     double               m_renBiasSlineDir;
     double               m_renWindBias;
+    double               m_renWindBiasLineDir;
     wxPoint              m_renPointBiasStart;
     wxPoint              m_renPointBiasStop;
+    bool                 m_renLaylinesDrawn;
+    double               m_renLLPortDir;
+    double               m_renLLStbdDir;
     
     wxDECLARE_EVENT_TABLE();
 

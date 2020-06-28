@@ -63,12 +63,12 @@ void DashboardInstrument_RaceStart::RenderGLStartLine(
     GetCanvasPixLL(
         vp, &m_renPointStbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
     GetCanvasPixLL(
-        vp, &m_rendPointPort, m_startPortWp->m_lat, m_startPortWp->m_lon );
+        vp, &m_renPointPort, m_startPortWp->m_lat, m_startPortWp->m_lon );
     glColor4ub(255, 128, 0, 168); //orange
     glLineWidth(4);
     glBegin(GL_LINES);
     glVertex2d( m_renPointStbd.x, m_renPointStbd.y );
-    glVertex2d( m_rendPointPort.x, m_rendPointPort.y );
+    glVertex2d( m_renPointPort.x, m_renPointPort.y );
     glEnd();
     m_renStartLineDrawn = true;
 }
@@ -85,25 +85,29 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
         m_renSlineDir = std::nan("1");
         m_renBiasSlineDir = std::nan("1");
         m_renWindBias = std::nan("1");
+        m_renWindBiasLineDir = std::nan("1");
         return;
     }
-    bool northsector;
     if ( (AvgWind >= 90.0) && (AvgWind <= 270.0) ) {
         m_startWestWp = m_startStbdWp;
+        m_renPointWest = m_renPointStbd;
         m_startEastWp = m_startPortWp;
-        northsector = false;
+        m_renPointEast = m_renPointPort;
+        m_renbNorthSector = false;
     } // then wind from southern segment
     else {
         m_startWestWp = m_startPortWp;
+        m_renPointWest = m_renPointPort;
         m_startEastWp = m_startStbdWp;
-        northsector = true;
+        m_renPointEast = m_renPointStbd;
+        m_renbNorthSector = true;
     } // else wind from northern segment
     DistanceBearingMercator_Plugin(
         m_startEastWp->m_lat, m_startEastWp->m_lon, // "to"
         m_startWestWp->m_lat, m_startWestWp->m_lon, // "from"
         &m_renSlineDir, &m_renSlineLength ); // result
     double zeroBiasWindDir;
-    if ( northsector ) {
+    if ( m_renbNorthSector ) {
         zeroBiasWindDir = m_renSlineDir - 90.0;
         if ( zeroBiasWindDir < 0. ) {
             zeroBiasWindDir = 360. + zeroBiasWindDir;
@@ -114,38 +118,36 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
     }
     m_renWindBias = getSignedDegRange( zeroBiasWindDir, AvgWind );
     PlugIn_Waypoint *startPointBiasLine;
-    double startPointBiasLineDir;
     if ( m_renWindBias < 0. ) {
         startPointBiasLine = m_startPortWp;
-        if ( northsector )
-            startPointBiasLineDir = m_renSlineDir + m_renWindBias;
+        if ( m_renbNorthSector )
+            m_renWindBiasLineDir = m_renSlineDir + m_renWindBias;
         else
-            startPointBiasLineDir = m_renSlineDir -180. + m_renWindBias;
+            m_renWindBiasLineDir = m_renSlineDir -180. + m_renWindBias;
     } // then wind veers
     else {
         startPointBiasLine = m_startStbdWp;
-        if ( northsector )
-            startPointBiasLineDir = m_renSlineDir - 180. + m_renWindBias;
+        if ( m_renbNorthSector )
+            m_renWindBiasLineDir = m_renSlineDir - 180. + m_renWindBias;
         else
-            startPointBiasLineDir = m_renSlineDir + m_renWindBias;
+            m_renWindBiasLineDir = m_renSlineDir + m_renWindBias;
     } // else wind backs
-    if ( startPointBiasLineDir > 360. )
-        startPointBiasLineDir -= 360.;
-    if ( startPointBiasLineDir < 0. )
-        startPointBiasLineDir = 360. + startPointBiasLineDir;
+    if ( m_renWindBiasLineDir > 360. )
+        m_renWindBiasLineDir -= 360.;
+    if ( m_renWindBiasLineDir < 0. )
+        m_renWindBiasLineDir = 360. + m_renWindBiasLineDir;
     double startPointBiasEnd_lat;
     double startPointBiasEnd_lon;
     PositionBearingDistanceMercator_Plugin(
         startPointBiasLine->m_lat, startPointBiasLine->m_lon,
-        startPointBiasLineDir, m_renSlineLength,
+        m_renWindBiasLineDir, m_renSlineLength,
         &startPointBiasEnd_lat, &startPointBiasEnd_lon );
     GetCanvasPixLL(
         vp, &m_renPointBiasStart,
         startPointBiasLine->m_lat, startPointBiasLine->m_lon );
     GetCanvasPixLL(
         vp, &m_renPointBiasStop, startPointBiasEnd_lat, startPointBiasEnd_lon );
-    // draw the wind turnina, biased "start line" as dotted line
-
+    // draw the wind turning biased "ladder rungs" start, as dotted line
     glEnable(GL_LINE_STIPPLE); // discontinuing line, stipple
     glLineWidth(4);
     glColor4ub(0, 0, 0, 168); // black, somwwhat opaque
@@ -156,15 +158,92 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
     glBegin(GL_LINES);
     glVertex2d( m_renPointBiasStart.x, m_renPointBiasStart.y );
     glVertex2d( m_renPointBiasStop.x, m_renPointBiasStop.y );
-    glDisable(GL_LINE_STIPPLE); //Disabling the Line Type.
     glEnd();
+    glDisable(GL_LINE_STIPPLE); //Disabling the Line Type.
     m_renWindBiasDrawn = true;
 }
 
 void DashboardInstrument_RaceStart::RenderGLLaylines(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-}
+    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn &&
+            !std::isnan(m_renSlineDir) && !std::isnan(m_renWindBias) ) ) {
+        m_renLLPortDir = std::nan("1");
+        m_renLLStbdDir = std::nan("1");
+        m_renLaylinesDrawn = false;
+        return;
+    }
+    if ( m_renbNorthSector ) {
+        m_renLLStbdDir = m_renSlineDir + 45.0 + m_renWindBias;
+        m_renLLPortDir = m_renLLStbdDir + 90.;
+    }
+    else {
+        m_renLLPortDir = m_renLLStbdDir - 45.0 - m_renWindBias;
+        if ( m_renLLPortDir < 0. )
+            m_renLLPortDir += 360.0;
+        m_renLLStbdDir = m_renSlineDir - 90.0;
+        if ( m_renLLStbdDir < 0. )
+            m_renLLStbdDir += 360.0;
+    }
+    double llWestStbd_lat;
+    double llWestStbd_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_startWestWp->m_lat, m_startWestWp->m_lon,
+        m_renLLStbdDir, RACESTART_GRID_SIZE,
+        &llWestStbd_lat, &llWestStbd_lon );
+    wxPoint llWestEndStdb;
+    GetCanvasPixLL( vp, &llWestEndStdb, llWestStbd_lat, llWestStbd_lon );
+    glColor4ub(0, 200, 0, 128); // green
+    glLineWidth(2);
+    glBegin(GL_LINES);
+    glVertex2d( m_renPointWest.x, m_renPointWest.y );
+    glVertex2d( llWestEndStdb.x, llWestEndStdb.y );
+    glEnd();
+    double llWestPort_lat;
+    double llWestPort_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_startWestWp->m_lat, m_startWestWp->m_lon,
+        m_renLLPortDir, RACESTART_GRID_SIZE,
+        &llWestPort_lat, &llWestPort_lon );
+    wxPoint llWestEndPort;
+    GetCanvasPixLL( vp, &llWestEndPort, llWestPort_lat, llWestPort_lon );
+    glColor4ub(204, 41, 41, 128); // red
+    glLineWidth(2);
+    glBegin(GL_LINES);
+    glVertex2d( m_renPointWest.x, m_renPointWest.y );
+    glVertex2d( llWestEndPort.x, llWestEndPort.y );
+    glEnd();
+    double llEastStbd_lat;
+    double llEastStbd_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_startEastWp->m_lat, m_startEastWp->m_lon,
+        m_renLLStbdDir, RACESTART_GRID_SIZE,
+        &llEastStbd_lat, &llEastStbd_lon );
+    wxPoint llEastEndStdb;
+    GetCanvasPixLL( vp, &llEastEndStdb, llEastStbd_lat, llEastStbd_lon );
+    glColor4ub(0, 200, 0, 128); // green
+    glLineWidth(2);
+    glBegin(GL_LINES);
+    glVertex2d( m_renPointEast.x, m_renPointEast.y );
+    glVertex2d( llEastEndStdb.x, llEastEndStdb.y );
+    glEnd();
+    double llEastPort_lat;
+    double llEastPort_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_startEastWp->m_lat, m_startEastWp->m_lon,
+        m_renLLPortDir, RACESTART_GRID_SIZE,
+        &llEastPort_lat, &llEastPort_lon );
+    wxPoint llEastEndPort;
+    GetCanvasPixLL( vp, &llEastEndPort, llEastPort_lat, llEastPort_lon );
+    glColor4ub(204, 41, 41, 128); // red
+    glLineWidth(2);
+    glBegin(GL_LINES);
+    glVertex2d( m_renPointEast.x, m_renPointEast.y );
+    glVertex2d( llEastEndPort.x, llEastEndPort.y );
+    glEnd();
+
+    m_renLaylinesDrawn = true;
+ }
 
 void DashboardInstrument_RaceStart::RenderGLGrid(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
