@@ -170,6 +170,7 @@ protected:
     wxDECLARE_EVENT_TABLE();
 
     void ClearRoutesAndWPs(void);
+    void ClearRendererCalcs(void);
     void OnThreadTimerTick( wxTimerEvent& event );
     void OnClose(wxCloseEvent& event);
     bool LoadConfig(void);

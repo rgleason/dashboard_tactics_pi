@@ -42,10 +42,29 @@ using namespace std;
 #include "tactics_pi_ext.h"
 using namespace std::placeholders;
 
+void DashboardInstrument_RaceStart::ClearRendererCalcs()
+{
+    m_renStartLineDrawn = false;
+    m_renSlineLength = std::nan("1");
+    m_renSlineDir = std::nan("1");
+    m_renBiasSlineDir = std::nan("1");
+    m_renWindBias = std::nan("1");
+    m_renWindBiasAdvDist = std::nan("1");
+    m_renWindBiasAdvDir = std::nan("1");
+    m_renWindBiasLineDir = std::nan("1");
+    m_renWindBiasDrawn = false;
+    m_renLLPortDir = std::nan("1");
+    m_renLLStbdDir = std::nan("1");
+    m_renLaylinesDrawn = false;
+}
 
 void DashboardInstrument_RaceStart::DoRenderGLOverLay(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
+    if ( !(m_startStbdWp) || !(m_startPortWp) ) {
+        ClearRendererCalcs();
+        return;
+    }
     this->RenderGLStartLine( pcontext, vp );
     this->RenderGLWindBias( pcontext, vp );
     this->RenderGLLaylines( pcontext, vp );
@@ -56,10 +75,6 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
 void DashboardInstrument_RaceStart::RenderGLStartLine(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-    if ( !(m_startStbdWp) || !(m_startPortWp) ) {
-        m_renStartLineDrawn = false;
-        return;
-    }
     GetCanvasPixLL(
         vp, &m_renPointStbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
     GetCanvasPixLL(
@@ -78,16 +93,7 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
 {
     double AvgWind = AverageWind->GetAvgWindDir();
     if ( !( m_renStartLineDrawn && !std::isnan( AvgWind )) ) {
-        m_renWindBiasDrawn = false;
-        m_startWestWp = nullptr;
-        m_startEastWp = nullptr;
-        m_renSlineLength = std::nan("1");
-        m_renSlineDir = std::nan("1");
-        m_renBiasSlineDir = std::nan("1");
-        m_renWindBias = std::nan("1");
-        m_renWindBiasAdvDist = std::nan("1");
-        m_renWindBiasAdvDir = std::nan("1");
-        m_renWindBiasLineDir = std::nan("1");
+        ClearRendererCalcs();
         return;
     }
     if ( (AvgWind >= 90.0) && (AvgWind <= 270.0) ) {
