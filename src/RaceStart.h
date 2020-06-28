@@ -73,8 +73,8 @@
 #define RACESTART_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, and it appears
 
 #define RACESTART_GUID_STARTLINE_AS_ROUTE "DashT_RaceStart_0001_STARTLINE"
-#define RACESTART_NAME_STARTLINE_AS_ROUTE "DashT Start Line"
-#define RACESTART_NAME_STARTLINE_AS_ROUTE_USER "My Start Line"
+#define RACESTART_NAME_STARTLINE_AS_ROUTE "DashT Startline"
+#define RACESTART_NAME_STARTLINE_AS_ROUTE_USER "My Startline"
 #define RACESTART_GUID_WP_STARTS "DashT_RaceStart_0001_STARTS"
 #define RACESTART_NAME_WP_STARTS "STARTS"
 #define RACESTART_NAME_WP_STARTS_USER "MySTARTS"
@@ -122,6 +122,7 @@ public:
     bool CheckForValidStartLineGUID( wxString sGUID, wxString lineName,
                                      wxString portName, wxString stbdName);
     bool CheckForValidUserSetStartLine(void);
+    bool CheckStartLineStillValid(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     
@@ -142,9 +143,22 @@ protected:
     PlugIn_Waypoint     *m_startPortWp;
     wxString             m_sRendererCallbackUUID;
     glRendererFunction   m_rendererIsHere;
+    bool                 m_renStartLineDrawn;
+    wxPoint              m_renPointStbd;
+    wxPoint              m_rendPointPort;
+    bool                 m_renWindBiasDrawn;
+    PlugIn_Waypoint     *m_startWestWp;
+    PlugIn_Waypoint     *m_startEastWp;
+    double               m_renSlineLength;
+    double               m_renSlineDir;
+    double               m_renBiasSlineDir;
+    double               m_renWindBias;
+    wxPoint              m_renPointBiasStart;
+    wxPoint              m_renPointBiasStop;
     
     wxDECLARE_EVENT_TABLE();
 
+    void ClearRoutesAndWPs(void);
     void OnThreadTimerTick( wxTimerEvent& event );
     void OnClose(wxCloseEvent& event);
     bool LoadConfig(void);
@@ -153,6 +167,7 @@ protected:
     void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp );
 };
 
 #endif // __RACESTART_H__

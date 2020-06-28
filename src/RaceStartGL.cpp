@@ -50,28 +50,115 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
     this->RenderGLWindBias( pcontext, vp );
     this->RenderGLLaylines( pcontext, vp );
     this->RenderGLGrid( pcontext, vp );
+    this->RenderGLZeroBurn(  pcontext, vp );
 }
 
 void DashboardInstrument_RaceStart::RenderGLStartLine(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-    if ( !(m_startStbdWp) || !(m_startPortWp) )
+    if ( !(m_startStbdWp) || !(m_startPortWp) ) {
+        m_renStartLineDrawn = false;
         return;
-    wxPoint stbd;
-    GetCanvasPixLL( vp, &stbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
-    wxPoint port;
-    GetCanvasPixLL( vp, &port, m_startPortWp->m_lat, m_startPortWp->m_lon );
+    }
+    GetCanvasPixLL(
+        vp, &m_renPointStbd, m_startStbdWp->m_lat, m_startStbdWp->m_lon );
+    GetCanvasPixLL(
+        vp, &m_rendPointPort, m_startPortWp->m_lat, m_startPortWp->m_lon );
     glColor4ub(255, 128, 0, 168); //orange
-    glLineWidth(2);
+    glLineWidth(4);
     glBegin(GL_LINES);
-    glVertex2d( stbd.x, stbd.y );
-    glVertex2d( port.x, port.y );
+    glVertex2d( m_renPointStbd.x, m_renPointStbd.y );
+    glVertex2d( m_rendPointPort.x, m_rendPointPort.y );
     glEnd();
+    m_renStartLineDrawn = true;
 }
 
 void DashboardInstrument_RaceStart::RenderGLWindBias(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
+    double AvgWind = AverageWind->GetAvgWindDir();
+    if ( !( m_renStartLineDrawn && !std::isnan( AvgWind )) ) {
+        m_renWindBiasDrawn = false;
+        m_startWestWp = nullptr;
+        m_startEastWp = nullptr;
+        m_renSlineLength = std::nan("1");
+        m_renSlineDir = std::nan("1");
+        m_renBiasSlineDir = std::nan("1");
+        m_renWindBias = std::nan("1");
+        return;
+    }
+    bool northsector;
+    if ( (AvgWind >= 90.0) && (AvgWind <= 270.0) ) {
+        m_startWestWp = m_startStbdWp;
+        m_startEastWp = m_startPortWp;
+        northsector = false;
+    } // then wind from southern segment
+    else {
+        m_startWestWp = m_startPortWp;
+        m_startEastWp = m_startStbdWp;
+        northsector = true;
+    } // else wind from northern segment
+    DistanceBearingMercator_Plugin(
+        m_startEastWp->m_lat, m_startEastWp->m_lon, // "to"
+        m_startWestWp->m_lat, m_startWestWp->m_lon, // "from"
+        &m_renSlineDir, &m_renSlineLength ); // result
+    double zeroBiasWindDir;
+    if ( northsector ) {
+        zeroBiasWindDir = m_renSlineDir - 90.0;
+        if ( zeroBiasWindDir < 0. ) {
+            zeroBiasWindDir = 360. + zeroBiasWindDir;
+        }
+    }
+    else {
+        zeroBiasWindDir = m_renSlineDir + 90.0;
+    }
+    m_renWindBias = getSignedDegRange( zeroBiasWindDir, AvgWind );
+    PlugIn_Waypoint *startPointBiasLine;
+    double startPointBiasLineDir;
+    if ( m_renWindBias < 0. ) {
+        startPointBiasLine = m_startPortWp;
+        if ( northsector )
+            startPointBiasLineDir = m_renSlineDir + m_renWindBias;
+        else
+            startPointBiasLineDir = m_renSlineDir -180. + m_renWindBias;
+    } // then wind veers
+    else {
+        startPointBiasLine = m_startStbdWp;
+        if ( northsector )
+            startPointBiasLineDir = m_renSlineDir - 180. + m_renWindBias;
+        else
+            startPointBiasLineDir = m_renSlineDir + m_renWindBias;
+    } // else wind backs
+    if ( startPointBiasLineDir > 360. )
+        startPointBiasLineDir -= 360.;
+    if ( startPointBiasLineDir < 0. )
+        startPointBiasLineDir = 360. + startPointBiasLineDir;
+    double startPointBiasEnd_lat;
+    double startPointBiasEnd_lon;
+    PositionBearingDistanceMercator_Plugin(
+        startPointBiasLine->m_lat, startPointBiasLine->m_lon,
+        startPointBiasLineDir, m_renSlineLength,
+        &startPointBiasEnd_lat, &startPointBiasEnd_lon );
+    GetCanvasPixLL(
+        vp, &m_renPointBiasStart,
+        startPointBiasLine->m_lat, startPointBiasLine->m_lon );
+    GetCanvasPixLL(
+        vp, &m_renPointBiasStop, startPointBiasEnd_lat, startPointBiasEnd_lon );
+    // draw the wind turnina, biased "start line" as dotted line
+
+    glEnable(GL_LINE_STIPPLE); // discontinuing line, stipple
+    glLineWidth(4);
+    glColor4ub(0, 0, 0, 168); // black, somwwhat opaque
+    glLineStipple(5, 0xAAAA);  /* long dash */
+    // glLineStipple(5, 0x0101);  /*  dotted  */
+    // glLineStipple(5, 0x00FF);  /*  dashed  */
+    // glLineStipple(5, 0x1C47);  /*  dash/dot/dash */
+    glBegin(GL_LINES);
+    glVertex2d( m_renPointBiasStart.x, m_renPointBiasStart.y );
+    glVertex2d( m_renPointBiasStop.x, m_renPointBiasStop.y );
+    glDisable(GL_LINE_STIPPLE); //Disabling the Line Type.
+    glEnd();
+    m_renWindBiasDrawn = true;
 }
 
 void DashboardInstrument_RaceStart::RenderGLLaylines(
@@ -80,6 +167,11 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
 }
 
 void DashboardInstrument_RaceStart::RenderGLGrid(
+    wxGLContext *pcontext, PlugIn_ViewPort *vp )
+{
+}
+
+void DashboardInstrument_RaceStart::RenderGLZeroBurn(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
 }

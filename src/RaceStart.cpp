@@ -65,6 +65,10 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_httpServer = wxEmptyString;
     m_fullPathHTML = wxEmptyString;
     m_pconfig = GetOCPNConfigObject();
+    m_renStartLineDrawn = false;
+    m_renWindBiasDrawn = false;
+    ClearRoutesAndWPs();
+    
     // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
     (void) CheckForValidStartLineGUID (
         _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
@@ -114,6 +118,26 @@ void DashboardInstrument_RaceStart::SetData(
 {
     return; // this derived class gets its data from the multiplexer through a callback PushData()
 }
+
+void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
+{
+    m_startWestWp =  nullptr;
+    m_startEastWp = nullptr;
+    m_sStartLineAsRouteGuid = wxEmptyString;
+    m_startLineAsRoute = nullptr;
+    m_sStartStbdWpGuid = wxEmptyString;
+    m_startStbdWp = nullptr;
+    m_sStartPortWpGuid = wxEmptyString;
+    m_startPortWp = nullptr;
+    m_startWestWp = nullptr;
+    m_startEastWp = nullptr;
+    m_renSlineLength = std::nan("1");
+    m_renSlineDir = std::nan("1");
+    m_renBiasSlineDir = std::nan("1");
+    m_renWindBias = std::nan("1");
+}
+
+
 // This method checks if the candiate for persistent startline is valid
 bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, wxString lineName, wxString portName, wxString stbdName) {
     if ( sGUID.IsEmpty() )
@@ -177,14 +201,11 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
     } // then a route has been returned
     else
         startlineAsRouteValid = false;
+    m_startWestWp =  nullptr;
+    m_startEastWp = nullptr;
     if ( !startlineAsRouteValid ) {
-        m_sStartLineAsRouteGuid = wxEmptyString;
-        m_startLineAsRoute = nullptr;
-        m_sStartStbdWpGuid = wxEmptyString;
-        m_startStbdWp = nullptr;
-        m_sStartPortWpGuid = wxEmptyString;
-        m_startPortWp = nullptr;
-    } // then some points given by routing, possibly, but can't map them to start
+        ClearRoutesAndWPs();
+    } // then  some points given by routing, possibly, but can't map them to start
     return startlineAsRouteValid;
 }
 
@@ -204,11 +225,24 @@ bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine() {
         _T(RACESTART_NAME_WP_STARTP_USER), _T(RACESTART_NAME_WP_STARTS_USER) );
 }
 
+// The startline is a route and can be killed in route manager of OpenCPN
+bool DashboardInstrument_RaceStart::CheckStartLineStillValid() {
+    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin( m_sStartLineAsRouteGuid );
+    PlugIn_Route *selectedRouteAsStartLineStillThere = rte.get();
+    if ( selectedRouteAsStartLineStillThere )
+        return true;
+    return false;
+}
+
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {
     
     if ( !(m_startLineAsRoute) )
         (void) CheckForValidUserSetStartLine();
+    else {
+        if ( !CheckStartLineStillValid() )
+            ClearRoutesAndWPs();
+    }
 
     // m_pThreadRaceStartTimer->Stop();
     // if ( !m_htmlLoaded) {
