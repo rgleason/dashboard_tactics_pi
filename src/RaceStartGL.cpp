@@ -156,7 +156,8 @@ void DashboardInstrument_RaceStart::RenderGLWindBias(
     DistanceBearingMercator_Plugin(
         startPointBiasEnd_lat, startPointBiasEnd_lon, // "to"
         endRefPointBiasLine->m_lat, endRefPointBiasLine->m_lon, // "from"
-        &m_renWindBiasAdvDir, &m_renWindBiasAdvDist ); // result = "advantage" dist+direction
+        &m_renWindBiasAdvDir, &m_renWindBiasAdvDist ); // result = "advantage" as vector
+    m_renWindBiasAdvDist = m_renWindBiasAdvDist * cos( abs(m_renWindBias) * M_PI / 180. );
      GetCanvasPixLL(
         vp, &m_renPointBiasStart,
         startPointBiasLine->m_lat, startPointBiasLine->m_lon );
