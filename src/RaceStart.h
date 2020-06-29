@@ -82,7 +82,8 @@
 #define RACESTART_NAME_WP_STARTP "STARTP"
 #define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
 
-#define RACESTART_GRID_SIZE 2
+#define RACESTART_GRID_SIZE 2 // in nautical miles
+#define RACESTART_GRID_STEP 0.0269978 // 50 meters in nautical miles
 
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
@@ -166,6 +167,8 @@ protected:
     bool                 m_renLaylinesDrawn;
     double               m_renLLPortDir;
     double               m_renLLStbdDir;
+    bool                 m_renGridDrawn;
+    bool                 m_renZeroBurnDrawn;
     
     wxDECLARE_EVENT_TABLE();
 
