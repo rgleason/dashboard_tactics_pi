@@ -83,7 +83,8 @@
 #define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
 
 #define RACESTART_GRID_SIZE 2 // in nautical miles
-#define RACESTART_GRID_STEP 0.0269978 // 50 meters in nautical miles
+#define RACESTART_GRID_STEP 0.0107991 // 20 meters in nautical miles
+#define RACESTART_GRID_BOLD_INTERVAL 5 // 1 all bold, 2 every 2nd bold, etc.
 
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
@@ -174,15 +175,15 @@ protected:
 
     void ClearRoutesAndWPs(void);
     void ClearRendererCalcs(void);
-    void OnThreadTimerTick( wxTimerEvent& event );
+    void OnThreadTimerTick(wxTimerEvent& event);
     void OnClose(wxCloseEvent& event);
     bool LoadConfig(void);
     void SaveConfig(void);
-    void RenderGLStartLine(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLStartLine(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp);
 };
 
 #endif // __RACESTART_H__
