@@ -360,7 +360,6 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     double thisPoint_lat = m_startWestWp->m_lat; 
     double thisPoint_lon = m_startWestWp->m_lon;
     int  boldLineCounter = RACESTART_GRID_BOLD_INTERVAL;
-    bool outOfGrid = false;
     wxPoint thisPoint;
 
 #define __GRID_SET_LINE_CHARACTERISTICS__         if ( boldLineCounter >= RACESTART_GRID_BOLD_INTERVAL ) { \
@@ -373,29 +372,30 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         }
         // end of __GRID_SET_LINE_CHARACTERISTICS__ 
 
-    while ( !outOfGrid ) {
+    while ( 1 ) {
         // Calculate next point's position on the imaginary endless line
         PositionBearingDistanceMercator_Plugin(
             thisPoint_lat, thisPoint_lon,
             slineOppositeWest, stepOnStartLine,
             &thisPoint_lat, &thisPoint_lon );
         // Make available for the loop end the distance to the start point
-        double brg;
-        DistanceBearingMercator_Plugin(
-           thisPoint_lat, thisPoint_lon, // "to"
-            m_startWestWp->m_lat, m_startWestWp->m_lon, // "from"
-            &brg, &distanceToStart ); // result
-        if ( distanceToStart > distanceToStartLimit ) {
-            outOfGrid = true;
-            break;
-        }
-        boldLineCounter++;
-        if ( boldLineCounter > RACESTART_GRID_BOLD_INTERVAL ) {
-            boldLineCounter = 1;
-        }
-        GetCanvasPixLL(
-            vp, &thisPoint,
+#define __FROM_STARTLINE_SET_NEXT_POINT__ double brg; \
+        DistanceBearingMercator_Plugin( \
+           thisPoint_lat, thisPoint_lon, \
+            m_startWestWp->m_lat, m_startWestWp->m_lon, \
+            &brg, &distanceToStart ); \
+        if ( distanceToStart > distanceToStartLimit ) { \
+            break; \
+        } \
+        boldLineCounter++; \
+        if ( boldLineCounter > RACESTART_GRID_BOLD_INTERVAL ) { \
+            boldLineCounter = 1; \
+        } \
+        GetCanvasPixLL( \
+            vp, &thisPoint, \
             thisPoint_lat, thisPoint_lon );
+
+        __FROM_STARTLINE_SET_NEXT_POINT__
         
 #define __FROM_STARTLINE_TOWARD_EAST__         double lineEndPointEast_lat; \
         double lineEndPointEast_lon; \
@@ -427,10 +427,13 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         __FROM_STARTLINE_TOWARD_EAST__
         
         __GRID_SET_LINE_CHARACTERISTICS__
-        glBegin(GL_LINES);
-        glVertex2d( thisPoint.x, thisPoint.y );
-        glVertex2d( squareEndPointEast.x, squareEndPointEast.y );
+
+#define __GRID_DRAW_TO_END_EAST__  glBegin(GL_LINES); \
+        glVertex2d( thisPoint.x, thisPoint.y ); \
+        glVertex2d( squareEndPointEast.x, squareEndPointEast.y ); \
         glEnd();
+
+        __GRID_DRAW_TO_END_EAST__
 
 #define __FROM_STARTLINE_TOWARD_WEST__         double lineEndPointWest_lat; \
         double lineEndPointWest_lon; \
@@ -462,10 +465,13 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         __FROM_STARTLINE_TOWARD_WEST__
 
         __GRID_SET_LINE_CHARACTERISTICS__
-        glBegin(GL_LINES);
-        glVertex2d( thisPoint.x, thisPoint.y );
-        glVertex2d( squareEndPointWest.x, squareEndPointWest.y );
+
+#define __GRID_DRAW_TO_END_WEST__  glBegin(GL_LINES); \
+        glVertex2d( thisPoint.x, thisPoint.y ); \
+        glVertex2d( squareEndPointWest.x, squareEndPointWest.y ); \
         glEnd();
+
+        __GRID_DRAW_TO_END_WEST__
 
     } // while drawing from point West towards grid's end point
 
@@ -477,47 +483,27 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     thisPoint_lat = m_startWestWp->m_lat; 
     thisPoint_lon = m_startWestWp->m_lon;
     boldLineCounter = RACESTART_GRID_BOLD_INTERVAL;
-    outOfGrid = false;
 
-    while ( !outOfGrid ) {
+    while ( 1 ) {
         // Calculate next point's position on the imaginary endless line
         PositionBearingDistanceMercator_Plugin(
             thisPoint_lat, thisPoint_lon,
             m_renSlineDir, stepOnStartLine,
             &thisPoint_lat, &thisPoint_lon );
-        // Make available for the loop end the distance to the start point
-        double brg;
-        DistanceBearingMercator_Plugin(
-           thisPoint_lat, thisPoint_lon, // "to"
-            m_startWestWp->m_lat, m_startWestWp->m_lon, // "from"
-            &brg, &distanceToStart ); // result
-        if ( distanceToStart > distanceToStartLimit ) {
-            outOfGrid = true;
-            break;
-        }
-        boldLineCounter++;
-        if ( boldLineCounter > RACESTART_GRID_BOLD_INTERVAL ) {
-            boldLineCounter = 1;
-        }
-        GetCanvasPixLL(
-            vp, &thisPoint,
-            thisPoint_lat, thisPoint_lon );
+
+        __FROM_STARTLINE_SET_NEXT_POINT__
 
         __FROM_STARTLINE_TOWARD_EAST__
 
         __GRID_SET_LINE_CHARACTERISTICS__
-        glBegin(GL_LINES);
-        glVertex2d( thisPoint.x, thisPoint.y );
-        glVertex2d( squareEndPointEast.x, squareEndPointEast.y );
-        glEnd();
+
+        __GRID_DRAW_TO_END_EAST__
 
         __FROM_STARTLINE_TOWARD_WEST__
 
         __GRID_SET_LINE_CHARACTERISTICS__
-        glBegin(GL_LINES);
-        glVertex2d( thisPoint.x, thisPoint.y );
-        glVertex2d( squareEndPointWest.x, squareEndPointWest.y );
-        glEnd();
+
+        __GRID_DRAW_TO_END_WEST__
 
     } // while drawing from point West towards grid's end point
     
