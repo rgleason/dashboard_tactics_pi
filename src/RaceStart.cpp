@@ -291,8 +291,8 @@ bool DashboardInstrument_RaceStart::LoadConfig()
     // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
     wxString sFullPathHTML = "http://127.0.0.1:8088/racedashstart/";
 
-    pConf->SetPath(_T("/PlugIns/DashT/WebView/RaceStart/"));
-    pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
+    pConf->SetPath( _T("/PlugIns/DashT/WebView/RaceStart/") );
+    pConf->Read( _T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
 
     m_httpServer = this->testURLretHost( m_fullPathHTML );
     
@@ -304,7 +304,24 @@ bool DashboardInstrument_RaceStart::LoadConfig()
         (void) dlg->ShowModal();
         m_fullPathHTML = wxEmptyString;
     }
-    
+
+    pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
+    pConf->Read( _T("DrawLaylines"), &m_renDrawLaylines, true ); 
+    pConf->Read( _T("DrawGrid"), &m_renDrawGrid, true );
+    pConf->Read( _T("GridSize"), &m_renGridSize, RACESTART_GRID_SIZE );
+    m_renGridSize = abs(m_renGridSize);
+    if ( m_renGridSize == 0. )
+        m_renGridSize = RACESTART_GRID_SIZE;
+    pConf->Read( _T("GridStep"), &m_renGridStep, RACESTART_GRID_STEP );
+    m_renGridStep = abs(m_renGridStep);
+    if ( m_renGridStep == 0. )
+        m_renGridStep = RACESTART_GRID_STEP;
+    pConf->Read( _T("GridBoldInterval"), &m_renGridBoldInterval, RACESTART_GRID_BOLD_INTERVAL );
+    if ( m_renGridBoldInterval < 1 )
+        m_renGridBoldInterval = 1;
+    pConf->Read( _T("ZeroBurnSeconds"), &m_renZeroBurnSeconds, RACESTART_ZERO_BURN_BY_POLAR_SECONDS );
+    m_renZeroBurnSeconds = abs(m_renZeroBurnSeconds);
+       
     return true;
 }
 
@@ -317,6 +334,13 @@ void DashboardInstrument_RaceStart::SaveConfig()
 
     pConf->SetPath(_T("/PlugIns/DashT/WebView/RaceStart/"));
     pConf->Write(_T("instrujsURL"), m_fullPathHTML );
+    pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
+    pConf->Write( _T("DrawLaylines"), m_renDrawLaylines ); 
+    pConf->Write( _T("DrawGrid"), m_renDrawGrid );
+    pConf->Write( _T("GridSize"), m_renGridSize );
+    pConf->Write( _T("GridStep"), m_renGridStep );
+    pConf->Write( _T("GridBoldInterval"), m_renGridBoldInterval );
+    pConf->Write( _T("ZeroBurnSeconds"), m_renZeroBurnSeconds );
     
     return;
 }

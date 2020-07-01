@@ -82,9 +82,11 @@
 #define RACESTART_NAME_WP_STARTP "STARTP"
 #define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
 
-#define RACESTART_GRID_SIZE 2 // in nautical miles
+// These values for first time start only
+#define RACESTART_GRID_SIZE 2. // in nautical miles
 #define RACESTART_GRID_STEP 0.0107991 // 20 meters in nautical miles
 #define RACESTART_GRID_BOLD_INTERVAL 5 // 1 all bold, 2 every 2nd bold, etc.
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60 // 0 = do not show even if polar
 
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
@@ -165,10 +167,16 @@ protected:
     double               m_renWindBiasLineDir;
     wxPoint              m_renPointBiasStart;
     wxPoint              m_renPointBiasStop;
+    bool                 m_renDrawLaylines;
     bool                 m_renLaylinesDrawn;
     double               m_renLLPortDir;
     double               m_renLLStbdDir;
+    double               m_renGridSize;
+    double               m_renGridStep;
+    int                  m_renGridBoldInterval;
+    bool                 m_renDrawGrid;
     bool                 m_renGridDrawn;
+    int                  m_renZeroBurnSeconds;
     bool                 m_renZeroBurnDrawn;
     
     wxDECLARE_EVENT_TABLE();
