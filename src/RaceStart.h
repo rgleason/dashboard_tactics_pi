@@ -86,7 +86,9 @@
 #define RACESTART_GRID_SIZE 2. // in nautical miles
 #define RACESTART_GRID_STEP 0.0107991 // 20 meters in nautical miles
 #define RACESTART_GRID_BOLD_INTERVAL 5 // 1 all bold, 2 every 2nd bold, etc.
-#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60 // 0 = do not show even if polar
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT 180
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT 30 // below, will turn to zero = disable
 
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
@@ -156,10 +158,13 @@ protected:
     PlugIn_Waypoint     *m_startWestWp;
     PlugIn_Waypoint     *m_startEastWp;
     wxPoint              m_renPointWest;
+    wxRealPoint          m_renRealPointWest;
     wxPoint              m_renPointEast;
+    wxRealPoint          m_renRealPointEast;
     bool                 m_renbNorthSector;
     double               m_renSlineLength;
     double               m_renSlineDir;
+    double               m_renOppositeSlineDir;
     double               m_renBiasSlineDir;
     double               m_renWindBias;
     double               m_renWindBiasAdvDist;
@@ -169,6 +174,25 @@ protected:
     wxPoint              m_renPointBiasStop;
     bool                 m_renDrawLaylines;
     bool                 m_renLaylinesDrawn;
+    double               m_renGridBoxDir;
+    double               m_renGridDirEast;
+    double               m_renGridDirWest;
+    double               m_renGridEndOffset;
+    double               m_renGridLineMaxLen;
+    double               m_gridStepOnStartLine;
+    double               m_renGridEndPointStartlineWest_lat;
+    double               m_renGridEndPointStartlineWest_lon;
+    wxRealPoint          m_renGridEndRealPointStartlineWest;
+    double               m_renGridEndPointStartlineEast_lat;
+    double               m_renGridEndPointStartlineEast_lon;
+    wxRealPoint          m_renGridEndRealPointStartlineEast;
+    double               m_renGridEndPointOtherWest_lat;
+    double               m_renGridEndPointOtherWest_lon;
+    wxRealPoint          m_renGridEndRealPointOtherWest;
+    double               m_renGridEndPointOtherEast_lat;
+    double               m_renGridEndPointOtherEast_lon;
+    wxRealPoint          m_renGridEndRealPointOtherEast;
+    bool                 m_renGridBoxCalculated;
     double               m_renLLPortDir;
     double               m_renLLStbdDir;
     double               m_renGridSize;
@@ -190,6 +214,7 @@ protected:
     void RenderGLStartLine(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    bool CalculateGridBox(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp);
 };

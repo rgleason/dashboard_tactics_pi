@@ -321,6 +321,10 @@ bool DashboardInstrument_RaceStart::LoadConfig()
         m_renGridBoldInterval = 1;
     pConf->Read( _T("ZeroBurnSeconds"), &m_renZeroBurnSeconds, RACESTART_ZERO_BURN_BY_POLAR_SECONDS );
     m_renZeroBurnSeconds = abs(m_renZeroBurnSeconds);
+    if ( m_renZeroBurnSeconds > RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT )
+        m_renZeroBurnSeconds = RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT;
+    if ( m_renZeroBurnSeconds < RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT )
+        m_renZeroBurnSeconds = 0;
        
     return true;
 }
