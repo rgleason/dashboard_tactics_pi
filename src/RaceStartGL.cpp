@@ -62,7 +62,8 @@ void DashboardInstrument_RaceStart::ClearRendererCalcs()
     m_renGridDirWest = std::nan("1");
     m_renGridEndOffset = std::nan("1");
     m_renGridLineMaxLen = std::nan("1");
-    m_gridStepOnStartLine = std::nan("1");
+    m_gridStepWestOnStartline = std::nan("1");
+    m_gridStepEastOnStartline = std::nan("1");
     m_renGridEndPointStartlineWest_lat = std::nan("1");
     m_renGridEndPointStartlineWest_lon = std::nan("1");
     m_renGridEndPointStartlineEast_lat = std::nan("1");
@@ -432,13 +433,22 @@ bool DashboardInstrument_RaceStart::CalculateGridBox(wxGLContext *pcontext, Plug
     m_renGridEndOffset = 
         (m_renSlineLength >= m_renGridSize) ? 0.0 :
         (m_renGridSize - m_renSlineLength)/2.;
-    m_renGridLineMaxLen = 1.1 * (1.41421 * m_renGridSize); // must cross the opposite line
+    m_renGridLineMaxLen = 1.1 * (1.41421 * m_renGridSize); // cross the opposite line
     // avoid a division by zero in case layline is laying on the startline:
-    double stepOnStartLineMax = ((m_renGridSize - m_renSlineLength) / 2.) + m_renSlineLength; // toward east
-    double maxPossibledirEastAngle = asin( m_renGridStep / stepOnStartLineMax ) * 180. / M_PI;
-    double dirEastOffset = abs(m_renGridDirEast - m_renSlineDir);
-    double angleEastForStartlineStep = (dirEastOffset < maxPossibledirEastAngle) ? maxPossibledirEastAngle : dirEastOffset;
-    m_gridStepOnStartLine = m_renGridStep / sin( angleEastForStartlineStep * M_PI / 180. );
+    double stepOnStartLineMax =
+        ((m_renGridSize - m_renSlineLength) / 2.) + m_renSlineLength; // toward east
+    double maxPossibleDirAngle =
+        asin( m_renGridStep / stepOnStartLineMax ) * 180. / M_PI;
+    double dirWestOffset = getDegRange(m_renGridDirWest, m_renOppositeSlineDir);
+    double angleWestForStartlineStep = (dirWestOffset < maxPossibleDirAngle) ?
+        maxPossibleDirAngle : dirWestOffset;
+    m_gridStepWestOnStartline =
+        m_renGridStep / sin( angleWestForStartlineStep * M_PI / 180. );
+    double dirEastOffset = getDegRange(m_renGridDirEast, m_renSlineDir);
+    double angleEastForStartlineStep = (dirEastOffset < maxPossibleDirAngle) ?
+        maxPossibleDirAngle : dirEastOffset;
+    m_gridStepEastOnStartline =
+        m_renGridStep / sin( angleEastForStartlineStep * M_PI / 180. );
     
     PositionBearingDistanceMercator_Plugin(
         m_startWestWp->m_lat, m_startWestWp->m_lon,
@@ -502,16 +512,18 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     // To avoid jumping of the grid while possible wind turn, start always from point West
 
     // First, let's move towards the west end of the grid from the point West
+    // We will do it twice, first for west oriented line, then for east
+    // The order is important since we want to draw more east oriented lines after.
 
     double distanceToStart = 0.0;
     double distanceToStartLimit = (m_renGridSize - m_renSlineLength) / 2.; // towards west
     double thisPoint_lat = m_startWestWp->m_lat;
     double thisPoint_lon = m_startWestWp->m_lon;
-    double prevPoint_lat, prevPoint_lon;
     wxPoint thisPoint;
 
     bool MoveToNextPoint = ( m_renDrawLaylines ? true : false );
-    int  boldLineCounter = ( MoveToNextPoint? m_renGridBoldInterval : (m_renGridBoldInterval - 1) );
+    int  boldLineCounter =
+        ( MoveToNextPoint? m_renGridBoldInterval : (m_renGridBoldInterval - 1) );
     
 #define __GRID_SET_LINE_CHARACTERISTICS__         if ( boldLineCounter >= m_renGridBoldInterval ) { \
             glLineWidth(2); \
@@ -525,12 +537,10 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 
     while ( 1 ) {
         if ( MoveToNextPoint ) {
-            prevPoint_lat = thisPoint_lat;
-            prevPoint_lon = thisPoint_lon;
             // Calculate next point's position on the imaginary endless line
             PositionBearingDistanceMercator_Plugin(
                 thisPoint_lat, thisPoint_lon,
-                m_renOppositeSlineDir, m_gridStepOnStartLine,
+                m_renOppositeSlineDir, m_gridStepWestOnStartline,
                 &thisPoint_lat, &thisPoint_lon );
         } // then there is a layline, do not paint on it
         MoveToNextPoint = true;
@@ -550,6 +560,77 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         GetCanvasPixLL( \
             vp, &thisPoint, \
             thisPoint_lat, thisPoint_lon );
+
+        __FROM_STARTLINE_SET_NEXT_POINT__
+        
+#define __FROM_LINE_TOWARD_WEST__         double lineEndPointWest_lat; \
+        double lineEndPointWest_lon; \
+        PositionBearingDistanceMercator_Plugin( \
+            thisPoint_lat, thisPoint_lon, \
+            m_renGridDirWest, m_renGridLineMaxLen, \
+            &lineEndPointWest_lat, &lineEndPointWest_lon ); \
+        wxPoint lineEndPointWest; \
+        GetCanvasPixLL( \
+            vp, &lineEndPointWest, \
+            lineEndPointWest_lat, lineEndPointWest_lon ); \
+        wxRealPoint lineEndRealPointWest( lineEndPointWest ); \
+        wxRealPoint squareEndRealPointWest = GetLineIntersection( \
+            thisPoint, lineEndRealPointWest, \
+            m_renGridEndRealPointStartlineWest, m_renGridEndRealPointOtherWest ); \
+        wxPoint squareEndPointWest; \
+        if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) { \
+            squareEndRealPointWest = GetLineIntersection( \
+                thisPoint, lineEndRealPointWest, \
+                m_renGridEndRealPointOtherWest, m_renGridEndRealPointOtherEast ); \
+            if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) {  \
+                squareEndRealPointWest = GetLineIntersection( \
+                    thisPoint, lineEndRealPointWest, \
+                    m_renGridEndRealPointStartlineEast, m_renGridEndRealPointOtherEast ); \
+                if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) \
+                    squareEndPointWest = thisPoint; \
+                else \
+                    squareEndPointWest = squareEndRealPointWest; \
+            } \
+            else  \
+                squareEndPointWest = squareEndRealPointWest; \
+        } \
+        else \
+            squareEndPointWest = squareEndRealPointWest;
+
+        __FROM_LINE_TOWARD_WEST__
+
+        __GRID_SET_LINE_CHARACTERISTICS__
+
+#define __GRID_DRAW_TO_END_WEST__  glBegin(GL_LINES); \
+        glVertex2d( thisPoint.x, thisPoint.y ); \
+        glVertex2d( squareEndPointWest.x, squareEndPointWest.y ); \
+        glEnd();
+
+        __GRID_DRAW_TO_END_WEST__
+
+    } // while drawing from point West towards grid's west end point
+
+    distanceToStart = 0.0;
+    thisPoint_lat = m_startWestWp->m_lat;
+    thisPoint_lon = m_startWestWp->m_lon;
+    double prevPoint_lat, prevPoint_lon;
+
+    MoveToNextPoint = ( m_renDrawLaylines ? true : false );
+    boldLineCounter =
+        ( MoveToNextPoint? m_renGridBoldInterval : (m_renGridBoldInterval - 1) );
+    
+    while ( 1 ) {
+        if ( MoveToNextPoint ) {
+            prevPoint_lat = thisPoint_lat;
+            prevPoint_lon = thisPoint_lon;
+            // Calculate next point's position on the imaginary endless line
+            PositionBearingDistanceMercator_Plugin(
+                thisPoint_lat, thisPoint_lon,
+                m_renOppositeSlineDir, m_gridStepEastOnStartline,
+                &thisPoint_lat, &thisPoint_lon );
+        } // then there is a layline, do not paint on it
+        MoveToNextPoint = true;
+        // Make available for the loop end the distance to the start point
 
         __FROM_STARTLINE_SET_NEXT_POINT__
         
@@ -598,52 +679,11 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 
         __GRID_DRAW_TO_END_EAST__
 
-#define __FROM_LINE_TOWARD_WEST__         double lineEndPointWest_lat; \
-        double lineEndPointWest_lon; \
-        PositionBearingDistanceMercator_Plugin( \
-            thisPoint_lat, thisPoint_lon, \
-            m_renGridDirWest, m_renGridLineMaxLen, \
-            &lineEndPointWest_lat, &lineEndPointWest_lon ); \
-        wxPoint lineEndPointWest; \
-        GetCanvasPixLL( \
-            vp, &lineEndPointWest, \
-            lineEndPointWest_lat, lineEndPointWest_lon ); \
-        wxRealPoint lineEndRealPointWest( lineEndPointWest ); \
-        wxRealPoint squareEndRealPointWest = GetLineIntersection( \
-            thisPoint, lineEndRealPointWest, \
-            m_renGridEndRealPointStartlineWest, m_renGridEndRealPointOtherWest ); \
-        wxPoint squareEndPointWest; \
-        if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) { \
-            squareEndRealPointWest = GetLineIntersection( \
-                thisPoint, lineEndRealPointWest, \
-                m_renGridEndRealPointOtherWest, m_renGridEndRealPointOtherEast ); \
-            if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) {  \
-                squareEndRealPointWest = GetLineIntersection( \
-                    thisPoint, lineEndRealPointWest, \
-                    m_renGridEndRealPointStartlineEast, m_renGridEndRealPointOtherEast ); \
-                if ( (squareEndRealPointWest.x == -999.) || (squareEndRealPointWest.y == -999.) ) \
-                    squareEndPointWest = thisPoint; \
-                else \
-                    squareEndPointWest = squareEndRealPointWest; \
-            } \
-            else  \
-                squareEndPointWest = squareEndRealPointWest; \
-        } \
-        else \
-            squareEndPointWest = squareEndRealPointWest;
-
-        __FROM_LINE_TOWARD_WEST__
-
-        __GRID_SET_LINE_CHARACTERISTICS__
-
-#define __GRID_DRAW_TO_END_WEST__  glBegin(GL_LINES); \
-        glVertex2d( thisPoint.x, thisPoint.y ); \
-        glVertex2d( squareEndPointWest.x, squareEndPointWest.y ); \
-        glEnd();
-
-        __GRID_DRAW_TO_END_WEST__
-
     } // while drawing from point West towards grid's west end point
+
+    // Above, we finished with east-oriented lines starting from startline.
+    // We continue now with east-oriented lines but moving along the grid's
+    // edge. Note that the step is not the same as on startline but the opposite!
 
     // Calculate the distance from the last point to the grid corner west/startline
     double projectedLinePointWestSide_lat;
@@ -671,10 +711,11 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     wxRealPoint squareEndRealPointWestSide = GetLineIntersection(
             projectedLineRealPointWestSide, projectedLineRealPointWestToEast,
             m_renGridEndRealPointStartlineWest, m_renGridEndRealPointOtherWest );
-    if ( (squareEndRealPointWestSide.x == -999.) || (squareEndRealPointWestSide.y == -999.) ) {
+    if ( (squareEndRealPointWestSide.x == -999.) ||
+         (squareEndRealPointWestSide.y == -999.) ) {
         thisPoint_lat = prevPoint_lat;
         thisPoint_lon = prevPoint_lon;
-    }
+    } // else must to this approximation, no intersection was found
     else {
         wxPoint squareEndPointWestSide( squareEndRealPointWestSide );
         GetCanvasLLPix(
@@ -696,7 +737,7 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 
         PositionBearingDistanceMercator_Plugin(
             thisPoint_lat, thisPoint_lon,
-            m_renGridBoxDir, m_gridStepOnStartLine,
+            m_renGridBoxDir, m_gridStepWestOnStartline, // yes, opposite angle!
             &thisPoint_lat, &thisPoint_lon );
         // Make available for the loop end the distance to the start point
         double brg;
@@ -712,6 +753,7 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     } // while drawing from grid west side towards east
 
     // Next, let's move towards the east end of the grid from the point West
+    // This time, we draw east-oriented lines first, then finish with west ones
 
     distanceToStart = 0.0;
     distanceToStartLimit =
@@ -720,14 +762,11 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     thisPoint_lon = m_startWestWp->m_lon;
     boldLineCounter = m_renGridBoldInterval;
 
-
     while ( 1 ) {
         // Calculate next point's position on the imaginary endless line
-        prevPoint_lat = thisPoint_lat;
-        prevPoint_lon = thisPoint_lon;
         PositionBearingDistanceMercator_Plugin(
             thisPoint_lat, thisPoint_lon,
-            m_renSlineDir, m_gridStepOnStartLine,
+            m_renSlineDir, m_gridStepEastOnStartline,
             &thisPoint_lat, &thisPoint_lon );
 
         __FROM_STARTLINE_SET_NEXT_POINT__
@@ -738,6 +777,24 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 
         __GRID_DRAW_TO_END_EAST__
 
+    } // while drawing from point West towards grid's end point   
+
+    distanceToStart = 0.0;
+    thisPoint_lat = m_startWestWp->m_lat; 
+    thisPoint_lon = m_startWestWp->m_lon;
+    boldLineCounter = m_renGridBoldInterval;
+
+    while ( 1 ) {
+        // Calculate next point's position on the imaginary endless line
+        prevPoint_lat = thisPoint_lat;
+        prevPoint_lon = thisPoint_lon;
+        PositionBearingDistanceMercator_Plugin(
+            thisPoint_lat, thisPoint_lon,
+            m_renSlineDir, m_gridStepEastOnStartline,
+            &thisPoint_lat, &thisPoint_lon );
+
+        __FROM_STARTLINE_SET_NEXT_POINT__
+
         __FROM_LINE_TOWARD_WEST__
 
         __GRID_SET_LINE_CHARACTERISTICS__
@@ -745,6 +802,8 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         __GRID_DRAW_TO_END_WEST__
 
     } // while drawing from point West towards grid's end point
+
+    // This is very much the same as in the opposite edge of the grid, just west.
     
     // Calculate the distance from the last point to the grid corner east/startline
     double projectedLinePointEastSide_lat;
@@ -772,7 +831,8 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     wxRealPoint squareEndRealPointEastSide = GetLineIntersection(
             projectedLineRealPointEastSide, projectedLineRealPointEastToWest,
             m_renGridEndRealPointStartlineEast, m_renGridEndRealPointOtherEast );
-    if ( (squareEndRealPointEastSide.x == -999.) || (squareEndRealPointEastSide.y == -999.) ) {
+    if ( (squareEndRealPointEastSide.x == -999.) ||
+         (squareEndRealPointEastSide.y == -999.) ) {
         thisPoint_lat = prevPoint_lat;
         thisPoint_lon = prevPoint_lon;
     }
@@ -797,7 +857,7 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 
         PositionBearingDistanceMercator_Plugin(
             thisPoint_lat, thisPoint_lon,
-            m_renGridBoxDir, m_gridStepOnStartLine,
+            m_renGridBoxDir, m_gridStepEastOnStartline,
             &thisPoint_lat, &thisPoint_lon );
         // Make available for the loop end the distance to the start point
         double brg;

@@ -179,7 +179,8 @@ protected:
     double               m_renGridDirWest;
     double               m_renGridEndOffset;
     double               m_renGridLineMaxLen;
-    double               m_gridStepOnStartLine;
+    double               m_gridStepWestOnStartline;
+    double               m_gridStepEastOnStartline;
     double               m_renGridEndPointStartlineWest_lat;
     double               m_renGridEndPointStartlineWest_lon;
     wxRealPoint          m_renGridEndRealPointStartlineWest;

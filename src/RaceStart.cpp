@@ -232,6 +232,7 @@ bool DashboardInstrument_RaceStart::CheckStartLineStillValid() {
 
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {
+    m_pThreadRaceStartTimer->Stop();
     
     if ( !(m_startLineAsRoute) )
         (void) CheckForValidUserSetStartLine();
@@ -240,29 +241,36 @@ void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
             ClearRoutesAndWPs();
     }
 
-    // m_pThreadRaceStartTimer->Stop();
-    // if ( !m_htmlLoaded) {
-    //     if ( testHTTPServer( m_httpServer ) ) {
-    //         if ( (m_goodHttpServerDetects == -1) ||
-    //              (m_goodHttpServerDetects >= RACESTART_WAIT_NEW_HTTP_SERVER_TICKS) ) {
-    //             wxSize thisSize = wxControl::GetSize();
-    //             wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
-    //             SetInitialSize ( thisFrameInitSize );
-    //             wxSize webViewInitSize = thisFrameInitSize;
-    //             this->loadHTML( m_fullPathHTML, webViewInitSize );
-    //             // No more threaded jobs, InstruJS is working now
-    //             m_htmlLoaded= true;
-    //         } // then either a straigth start with server or detected a stable server
-    //         else {
-    //             m_goodHttpServerDetects += 1;
-    //             m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
-    //         }
-    //     } // then there is a server serving the page, can ask content to be loaded
-    //     else {
-    //         m_goodHttpServerDetects = 0;
-    //         m_pThreadRaceStartTimer->Start( GetRandomNumber( 8000,11000 ), wxTIMER_CONTINUOUS);
-    //     }  // else need to wait until a server appears
-    // } // else thread is not running (no JS instrument created in this frame, create one)
+    if ( !m_htmlLoaded) {
+        if ( testHTTPServer( m_httpServer ) ) {
+            if ( (m_goodHttpServerDetects == -1) ||
+                 (m_goodHttpServerDetects >= RACESTART_WAIT_NEW_HTTP_SERVER_TICKS) ) {
+                wxSize thisSize = wxControl::GetSize();
+                wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
+                SetInitialSize ( thisFrameInitSize );
+                wxSize webViewInitSize = thisFrameInitSize;
+                this->loadHTML( m_fullPathHTML, webViewInitSize );
+                // No more threaded jobs, InstruJS is working now
+                m_htmlLoaded= true;
+                m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ),
+                                                wxTIMER_CONTINUOUS);
+            } // then either a straigth start with server or detected a stable server
+            else {
+                m_goodHttpServerDetects += 1;
+                m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ),
+                                                wxTIMER_CONTINUOUS);
+            }
+        } // then there is a server serving the page, can ask content to be loaded
+        else {
+            m_goodHttpServerDetects = 0;
+            m_pThreadRaceStartTimer->Start( GetRandomNumber( 8000,11000 ),
+                                            wxTIMER_CONTINUOUS);
+        }  // else need to wait until a server appears
+    } // then there is not page loaded keep on trying
+    else {
+        m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ),
+                                        wxTIMER_CONTINUOUS);
+    } //else keep on polling for the startline changes
 
 }
 
