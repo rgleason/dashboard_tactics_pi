@@ -659,7 +659,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
             if ( !BoatPolar->isValid() ) {
                 if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
                     wxLogMessage (
-                        "dashboard_tactics_pi: >>> Missing or invalid Polar file: no Performance data, Laylines, Polar graphs available. <<<");
+                        "dashboard_tactics_pi: >>> Missing or invalid Polar file:"
+                        "no Performance data, Laylines, Polar graphs available. <<<");
                     g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
                 } // then debug print
                 return;

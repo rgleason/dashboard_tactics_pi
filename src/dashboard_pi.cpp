@@ -522,6 +522,9 @@ void dashboard_pi::pSendSentenceToAllInstruments(
             dashboard_window->SendSentenceToAllInstruments(
                 st, value, unit, timestamp );
     }
+    wxString stToDashboardPath = getDashboardTacticsInstrumentIdStr( st );
+    if ( !stToDashboardPath.IsEmpty() )
+        SendDataToAllPathSubscribers ( stToDashboardPath, value, unit, timestamp );
 }
 /* Porting note: with Tactics, new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the TacticsWP

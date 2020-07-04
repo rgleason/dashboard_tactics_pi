@@ -120,7 +120,7 @@ public:
         TacticsWindow *pparent, wxWindowID id, wxString ids,
         PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_RaceStart(void);
-    void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
+    void SetData(unsigned long long, double, wxString, long long timestamp=0LL ){;};
 #ifndef __RACESTART_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derived2TimeoutEvent(void){};
 #else
@@ -133,6 +133,9 @@ public:
     bool CheckStartLineStillValid(void);
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    virtual void PushTwaHere(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushTwsHere(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushCogHere(double data, wxString unit, long long timestamp=0LL);
     
 protected:
     TacticsWindow       *m_pparent;
@@ -173,7 +176,7 @@ protected:
     wxPoint              m_renPointBiasStart;
     wxPoint              m_renPointBiasStop;
     bool                 m_renDrawLaylines;
-    bool                 m_renLaylinesDrawn;
+    bool                 m_renLaylinesCalculated;
     double               m_renGridBoxDir;
     double               m_renGridDirEast;
     double               m_renGridDirWest;
@@ -204,6 +207,16 @@ protected:
     int                  m_renZeroBurnSeconds;
     bool                 m_renZeroBurnDrawn;
     
+    callbackFunction     m_pushTwaHere;
+    wxString             m_pushTwaUUID;
+    double               m_Twa;
+    callbackFunction     m_pushTwsHere;
+    wxString             m_pushTwsUUID;
+    double               m_Tws;
+    callbackFunction     m_pushCogHere;
+    wxString             m_pushCogUUID;
+    double               m_Cog;
+
     wxDECLARE_EVENT_TABLE();
 
     void ClearRoutesAndWPs(void);

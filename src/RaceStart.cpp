@@ -68,6 +68,25 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_renStartLineDrawn = false;
     m_renWindBiasDrawn = false;
     ClearRoutesAndWPs();
+
+    /*
+      Subcscribe to some interesting data, for compatibility reasons
+      we use OpenCPN Dashboard paths, so if there is Signal K paths
+      they are considered having passing first through OpenCPN. This way,
+      this instrument can be used both with OpenCPN and Signal K with no mods.
+    */
+    m_Twa = std::nan("1");
+    m_pushTwaHere = std::bind(&DashboardInstrument_RaceStart::PushTwaHere,
+                              this, _1, _2, _3 );
+    m_pushTwaUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWA"), m_pushTwaHere );
+    m_Tws = std::nan("1");
+    m_pushTwsHere = std::bind(&DashboardInstrument_RaceStart::PushTwsHere,
+                              this, _1, _2, _3 );
+    m_pushTwsUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWS"), m_pushTwsHere );
+    m_Cog = std::nan("1");
+    m_pushCogHere = std::bind(&DashboardInstrument_RaceStart::PushCogHere,
+                              this, _1, _2, _3 );
+    m_pushCogUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_COG"), m_pushCogHere );
     
     // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
     (void) CheckForValidStartLineGUID (
@@ -94,6 +113,12 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
     delete this->m_pThreadRaceStartTimer;
     if ( !this->m_sRendererCallbackUUID.IsEmpty() )
         this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
+    if ( !this->m_pushTwaUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushTwaUUID );
+    if ( !this->m_pushTwsUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushTwsUUID );
+    if ( !this->m_pushCogUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushCogUUID );
     SaveConfig();
     return;
 }
@@ -104,19 +129,49 @@ void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
     if ( !this->m_sRendererCallbackUUID.IsEmpty() )
         this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
     this->m_sRendererCallbackUUID = wxEmptyString;
+    if ( !this->m_pushTwaUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushTwaUUID );
+    this->m_pushTwaUUID = wxEmptyString;
+    if ( !this->m_pushTwsUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushTwsUUID );
+    this->m_pushTwsUUID = wxEmptyString;
+    if ( !this->m_pushCogUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushCogUUID );
+    this->m_pushCogUUID = wxEmptyString;
     event.Skip(); // Destroy() must be called
 }
 
 void DashboardInstrument_RaceStart::derivedTimeoutEvent()
 {
     m_data = L"0.0";
+    m_Twa = std::nan("1");
+    m_Tws = std::nan("1");
+    m_Cog = std::nan("1");
     derived2TimeoutEvent();
 }
 
-void DashboardInstrument_RaceStart::SetData(
-    unsigned long long st, double data, wxString unit, long long timestamp)
+void DashboardInstrument_RaceStart::PushTwaHere(
+    double data, wxString unit, long long timestamp)
 {
-    return; // this derived class gets its data from the multiplexer through a callback PushData()
+    if ( !std::isnan(data) )
+        setTimestamp( timestamp );
+    m_Twa = data;
+}
+
+void DashboardInstrument_RaceStart::PushTwsHere(
+    double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) )
+        setTimestamp( timestamp );
+    m_Tws = data;
+}
+
+void DashboardInstrument_RaceStart::PushCogHere(
+    double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) )
+        setTimestamp( timestamp );
+    m_Cog = data;
 }
 
 void DashboardInstrument_RaceStart::ClearRoutesAndWPs()

@@ -56,7 +56,7 @@ void DashboardInstrument_RaceStart::ClearRendererCalcs()
     m_renWindBiasDrawn = false;
     m_renLLPortDir = std::nan("1");
     m_renLLStbdDir = std::nan("1");
-    m_renLaylinesDrawn = false;
+    m_renLaylinesCalculated = false;
     m_renGridBoxDir = std::nan("1");
     m_renGridDirEast = std::nan("1");
     m_renGridDirWest = std::nan("1");
@@ -231,7 +231,7 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
     } // then give up, avoid crash if angles are beyond our understanding
 
     if ( !m_renDrawLaylines ) {
-            m_renLaylinesDrawn = true;
+            m_renLaylinesCalculated = true;
             return;
     }
     // calculate the righ lenght for the layline so that it ends with the grid
@@ -407,7 +407,7 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
     glVertex2d( squareEndPointEastPort.x, squareEndPointEastPort.y );
     glEnd();
 
-    m_renLaylinesDrawn = true;
+    m_renLaylinesCalculated = true;
  }
 
 bool DashboardInstrument_RaceStart::CalculateGridBox(wxGLContext *pcontext, PlugIn_ViewPort *vp) {
@@ -497,7 +497,7 @@ bool DashboardInstrument_RaceStart::CalculateGridBox(wxGLContext *pcontext, Plug
 void DashboardInstrument_RaceStart::RenderGLGrid(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesDrawn &&
+    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesCalculated &&
             m_renGridBoxCalculated &&
             !std::isnan(m_renSlineDir)  && !std::isnan(m_renSlineLength) &&
             !std::isnan(m_renLLPortDir) && !std::isnan(m_renLLStbdDir) ) ) {
@@ -505,11 +505,10 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
         return;
     }
     if ( !m_renDrawGrid ) {
-        m_renGridDrawn = true;
         return;
     } // then it is safe to quit now, this routine does not produce any module calcs
 
-    // To avoid jumping of the grid while possible wind turn, start always from point West
+    // To avoid jumping of the grid w/ possible wind turn, pivot around point West
 
     // First, let's move towards the west end of the grid from the point West
     // We will do it twice, first for west oriented line, then for east
@@ -878,4 +877,38 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 void DashboardInstrument_RaceStart::RenderGLZeroBurn(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
+    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesCalculated &&
+            m_renGridBoxCalculated &&
+            !std::isnan(m_renSlineDir)  && !std::isnan(m_renSlineLength) &&
+            !std::isnan(m_renLLPortDir) && !std::isnan(m_renLLStbdDir) ) ) {
+        ClearRendererCalcs();
+        return;
+    }
+    if ( BoatPolar == nullptr ) {
+        if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
+            wxLogMessage (
+                "dashboard_tactics_pi: >>> Missing or invalid Polar file:"
+                "no Performance data, Laylines, Polar graphs available. <<<" );
+            g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
+        } // then debug print
+        ClearRendererCalcs();
+        return;
+    }
+    if ( !!BoatPolar->isValid() ) {
+        if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
+            wxLogMessage (
+                "dashboard_tactics_pi: >>> Missing or invalid Polar file:"
+                "no Performance data, Laylines, Polar graphs available. <<<" );
+            g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
+        } // then debug print
+        ClearRendererCalcs();
+        return;
+    }
+    if ( !std::isnan(m_Twa) && !std::isnan(m_Tws) && !std::isnan(m_Cog) ) {
+        ClearRendererCalcs();
+        return;
+    } // then no reason to continue, no data yet, new cycle.
+    
+
+    m_renZeroBurnDrawn = true;
 }

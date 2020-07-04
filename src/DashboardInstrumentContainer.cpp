@@ -89,7 +89,7 @@ bool IsObsolete( int id ) {
 
 wxString getInstrumentCaption( unsigned int id )
 {
-    switch( id ){
+    switch( id ) {
     case ID_DBP_I_POS:
         return _("Position");
     case ID_DBP_I_SOG:
@@ -226,7 +226,106 @@ wxString getInstrumentCaption( unsigned int id )
     case ID_DBP_D_RACESTA:
 		return _(L"\u2b24 DashT Race Start");
     }
-    return _T("");
+    return wxEmptyString;
+}
+
+wxString getDashboardTacticsInstrumentIdStr( unsigned long long id )
+{
+    switch( id ) {
+    case 1 << 0:
+        return _T("OCPN_DBP_STC_LAT");
+    case 1 << 1:
+        return _T("OCPN_DBP_STC_LON");
+    case 1 << 2:
+        return _T("OCPN_DBP_STC_SOG");
+    case 1 << 3:
+        return _T("OCPN_DBP_STC_COG");
+    case 1 << 4:
+        return _T("OCPN_DBP_STC_STW");
+    case 1 << 5:
+        return _T("OCPN_DBP_STC_HDM");
+    case 1 << 6:
+        return _T("OCPN_DBP_STC_HDT");
+    case 1 << 7:
+        return _T("OCPN_DBP_STC_HMV");
+    case 1 << 8:
+        return _T("OCPN_DBP_STC_BRG");
+    case 1 << 9:
+        return _T("OCPN_DBP_STC_AWA");
+    case 1 << 10:
+        return _T("OCPN_DBP_STC_AWS");
+    case 1 << 11:
+        return _T("OCPN_DBP_STC_TWA");
+    case 1 << 12:
+        return _T("OCPN_DBP_STC_TWS");
+    case 1 << 13:
+        return _T("OCPN_DBP_STC_DPT");
+    case 1 << 14:
+        return _T("OCPN_DBP_STC_TMP");
+    case 1 << 15:
+        return _T("OCPN_DBP_STC_VMG");
+    case 1 << 16:
+        return _T("OCPN_DBP_STC_RSA");
+    case 1 << 17:
+        return _T("OCPN_DBP_STC_SAT");
+    case 1 << 18:
+        return _T("OCPN_DBP_STC_GPS");
+    case 1 << 19:
+        return _T("OCPN_DBP_STC_PLA");
+    case 1 << 20:
+        return _T("OCPN_DBP_STC_PLO");
+    case 1 << 21:
+        return _T("OCPN_DBP_STC_CLK");
+    case 1 << 22:
+        return _T("OCPN_DBP_STC_MON");
+    case 1 << 23:
+        return _T("OCPN_DBP_STC_ATMP ");
+    case 1 << 24:
+        return _T("OCPN_DBP_STC_TWD");
+    case 1 << 25:
+        return _T("OCPN_DBP_STC_TWS2");
+    case 1 << 26:
+        return _T("OCPN_DBP_STC_VLW1");
+    case 1 << 27:
+        return _T("OCPN_DBP_STC_VLW2");
+    case 1 << 28:
+        return _T("OCPN_DBP_STC_MDA");
+    case 1 << 29:
+        return _T("CPN_DBP_STC_MCOG");
+    case 1 << 30:
+        return _T("OCPN_DBP_STC_PITCH");
+    case 1ULL << 31:
+        return _T("OCPN_DBP_STC_HEEL");
+    case 1ULL << 32:
+        return _T("OCPN_DBP_STC_LEEWAY");
+    case 1ULL << 33:
+        return _T("OCPN_DBP_STC_CURRDIR");
+    case 1ULL << 34:
+        return _T("OCPN_DBP_STC_CURRSPD");
+    case 1ULL << 35:
+        return _T("OCPN_DBP_STC_DTW");
+    case 1ULL << 36:
+        return _T("OCPN_DBP_STC_TWAMARK");
+    case 1ULL << 37:
+        return _T("OCPN_DBP_STC_POLPERF");
+    case 1ULL << 38:
+        return _T("OCPN_DBP_STC_POLSPD");
+    case 1ULL << 39:
+        return _T("OCPN_DBP_STC_POLVMG");
+    case 1ULL << 40:
+        return _T("OCPN_DBP_STC_POLTVMG");
+    case 1ULL << 41:
+        return _T("OCPN_DBP_STC_POLTVMGANGLE");
+    case 1ULL << 42:
+        return _T("OCPN_DBP_STC_POLCMG");
+    case 1ULL << 43:
+        return _T("OCPN_DBP_STC_POLTCMG");
+    case 1ULL << 44:
+        return _T("OCPN_DBP_STC_POLTCMGANGLE");
+    case 1ULL << 63:
+        return _T("OCPN_DBP_STC_SKSUBSCRIBE");
+    }
+    return wxEmptyString;
 }
 
 bool getListItemForInstrument( wxListItem &item, unsigned int id )

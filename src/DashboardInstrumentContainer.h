@@ -72,6 +72,7 @@ enum eInstruments {
 bool IsTacticsInstrument( int id );
 bool IsObsolete( int id );
 wxString getInstrumentCaption( unsigned int id );
+wxString getDashboardTacticsInstrumentIdStr( unsigned long long id );
 bool getListItemForInstrument( wxListItem &item, unsigned int id );
 
 class DashboardInstrumentContainer
