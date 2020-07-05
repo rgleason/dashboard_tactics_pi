@@ -90,6 +90,8 @@
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT 180
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT 30 // below, will turn to zero = disable
 
+#define RACESTART_COG_MAX_JITTER 5 // in degrees, otherwise cannot calculate
+
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
     std::unique_ptr<Base, Del>&& p )
@@ -136,6 +138,8 @@ public:
     virtual void PushTwaHere(double data, wxString unit, long long timestamp=0LL);
     virtual void PushTwsHere(double data, wxString unit, long long timestamp=0LL);
     virtual void PushCogHere(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushLatHere(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushLonHere(double data, wxString unit, long long timestamp=0LL);
     
 protected:
     TacticsWindow       *m_pparent;
@@ -206,6 +210,9 @@ protected:
     bool                 m_renGridDrawn;
     int                  m_renZeroBurnSeconds;
     bool                 m_renZeroBurnDrawn;
+    double               m_renDistanceToStartLine;
+    double               m_renDistanceCogToStartLine;
+    wxRealPoint          m_renCogCrossingStartlineRealPoint;
     
     callbackFunction     m_pushTwaHere;
     wxString             m_pushTwaUUID;
@@ -216,6 +223,13 @@ protected:
     callbackFunction     m_pushCogHere;
     wxString             m_pushCogUUID;
     double               m_Cog;
+    callbackFunction     m_pushLatHere;
+    wxString             m_pushLatUUID;
+    double               m_Lat;
+    callbackFunction     m_pushLonHere;
+    wxString             m_pushLonUUID;
+    double               m_Lon;
+
 
     wxDECLARE_EVENT_TABLE();
 
@@ -229,8 +243,11 @@ protected:
     void RenderGLWindBias(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLLaylines(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     bool CalculateGridBox(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    bool IsSlineWbiasLaylinesGridbox(void);
     void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    bool IsAllMeasurementDataValid(void);
+    void CalculateDistancesToStartline(wxGLContext* pcontext, PlugIn_ViewPort* vp);
 };
 
 #endif // __RACESTART_H__

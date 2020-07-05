@@ -72,6 +72,8 @@ void DashboardInstrument_RaceStart::ClearRendererCalcs()
     m_renGridEndPointOtherWest_lon = std::nan("1");
     m_renGridEndPointOtherEast_lat = std::nan("1");
     m_renGridEndPointOtherEast_lon = std::nan("1");
+    m_renDistanceToStartLine = std::nan("1");
+    m_renDistanceCogToStartLine = std::nan("1");
     m_renGridBoxCalculated = false;
     m_renGridDrawn = false;
     m_renZeroBurnDrawn = false;
@@ -88,6 +90,7 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
     this->RenderGLWindBias( pcontext, vp );
     this->RenderGLLaylines( pcontext, vp );
     this->RenderGLGrid( pcontext, vp );
+    this->CalculateDistancesToStartline( pcontext, vp );
     this->RenderGLZeroBurn(  pcontext, vp );
 }
 
@@ -494,18 +497,26 @@ bool DashboardInstrument_RaceStart::CalculateGridBox(wxGLContext *pcontext, Plug
     return true;
 }
 
+bool DashboardInstrument_RaceStart::IsSlineWbiasLaylinesGridbox()
+{
+    if ( ( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesCalculated &&
+           m_renGridBoxCalculated &&
+           !std::isnan(m_renSlineDir)  && !std::isnan(m_renSlineLength) &&
+           !std::isnan(m_renLLPortDir) && !std::isnan(m_renLLStbdDir) ) )
+        return true;
+    return false;
+}
+
 void DashboardInstrument_RaceStart::RenderGLGrid(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesCalculated &&
-            m_renGridBoxCalculated &&
-            !std::isnan(m_renSlineDir)  && !std::isnan(m_renSlineLength) &&
-            !std::isnan(m_renLLPortDir) && !std::isnan(m_renLLStbdDir) ) ) {
+    if ( !m_renDrawGrid )
+        return;
+
+    if ( !IsSlineWbiasLaylinesGridbox() ) {
         ClearRendererCalcs();
         return;
-    }
-    if ( !m_renDrawGrid ) {
-        return;
+
     } // then it is safe to quit now, this routine does not produce any module calcs
 
     // To avoid jumping of the grid w/ possible wind turn, pivot around point West
@@ -874,13 +885,109 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
     m_renGridDrawn = true;
 }
 
+// When we have a startline, a grid box for starting area we can calculate distances
+void DashboardInstrument_RaceStart::CalculateDistancesToStartline(
+    wxGLContext* pcontext, PlugIn_ViewPort* vp )
+{
+    if ( !IsAllMeasurementDataValid() || !IsSlineWbiasLaylinesGridbox() ) {
+        m_renDistanceToStartLine = std::nan("1");
+        m_renDistanceCogToStartLine = std::nan("1");
+        return;
+    }
+    // Check are we on the 'wrong' side of the startline
+    double brgToWest;
+    double distanceToWestPoint;
+    DistanceBearingMercator_Plugin( m_Lat, m_Lon, // "to" boat
+                                    m_startWestWp->m_lat, m_startWestWp->m_lon, 
+                                    &brgToWest, &distanceToWestPoint );
+    double deltaFromSlineDir = getSignedDegRange( m_renSlineDir, brgToWest );
+    bool isOnWrongSide = false;
+    if ( deltaFromSlineDir < 0. ) {
+        if ( m_renbNorthSector ) {
+            isOnWrongSide = true;
+        } // then the organizer expects the boats being on the "southern" section
+    } // then we are in the "northern" 180-deg section of the startline
+    double deltaFromOppositeSlineDir = getSignedDegRange(
+        m_renOppositeSlineDir, brgToWest );
+    if ( abs( deltaFromOppositeSlineDir ) < 90. ) {
+        m_renDistanceToStartLine = distanceToWestPoint;
+    } // the the shortest distance is to the west side marker
+    else {
+        double brgToEast;
+        double distanceToEastPoint;
+        DistanceBearingMercator_Plugin( m_Lat, m_Lon, // "to" boat
+                                        m_startEastWp->m_lat, m_startEastWp->m_lon, 
+                                        &brgToEast, &distanceToEastPoint );
+        deltaFromSlineDir = getSignedDegRange( m_renSlineDir, brgToEast );
+        if ( abs( deltaFromSlineDir ) < 90. ) {
+            m_renDistanceToStartLine = distanceToEastPoint;
+        } // then the shortest distance is to the east side marker
+        else {
+            m_renDistanceToStartLine =
+                distanceToEastPoint * ((abs(deltaFromSlineDir) - 90.0) * M_PI / 180.);
+        } // else the shortest distance is a direct line to a point on startline
+    } // else we are either above startline or east to it
+    /*
+     If we are in the "wrong side" of the startline (racing organizer's point
+     of view), then do not attempt to calculate the COG distance to the startline
+    */
+    if ( isOnWrongSide ) {
+        m_renDistanceCogToStartLine = std::nan("1");
+        return;
+    } // then on the wind side of the startling line, cheating!
+    wxPoint boatPositionPoint;
+    GetCanvasPixLL(
+        vp, &boatPositionPoint, 
+        m_Lat, m_Lon );
+    wxRealPoint boatPositionRealPoint( boatPositionPoint );
+    double projectedCogLinePointEnd_lat;
+    double projectedCogLinePointEnd_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_Lat, m_Lon,
+        m_Cog, m_renGridLineMaxLen, // we must be reasonably close
+        &projectedCogLinePointEnd_lat, &projectedCogLinePointEnd_lon );
+    wxPoint projectedCogLineEndPoint;
+    GetCanvasPixLL(
+        vp, &projectedCogLineEndPoint, 
+        projectedCogLinePointEnd_lat, projectedCogLinePointEnd_lon );
+    wxRealPoint projectedCogLineEndRealPoint( projectedCogLineEndPoint );
+    m_renCogCrossingStartlineRealPoint = GetLineIntersection(
+            boatPositionRealPoint, projectedCogLineEndPoint,
+            m_renGridEndRealPointStartlineWest, m_renGridEndRealPointStartlineEast );
+    if ( (m_renCogCrossingStartlineRealPoint.x == -999.) ||
+         (m_renCogCrossingStartlineRealPoint.y == -999.) ) {
+        m_renDistanceCogToStartLine = std::nan("1");
+        return;
+    } // then we have a COG which is point out of the startline
+    else {
+        wxPoint intersectionCogPoint( m_renCogCrossingStartlineRealPoint );
+        double intersectionCogPoint_lat;
+        double intersectionCogPoint_lon;
+        GetCanvasLLPix(
+            vp, intersectionCogPoint, 
+            &intersectionCogPoint_lat, &intersectionCogPoint_lon );
+        double brgToIntersectionCogPoint;
+        double distanceToIntersctionCogPoint;
+        DistanceBearingMercator_Plugin(
+           intersectionCogPoint_lat, intersectionCogPoint_lon, // "to"
+           m_Lat, m_Lon, // "from" boat
+           &brgToIntersectionCogPoint, &distanceToIntersctionCogPoint );
+        // Let's make a sanity check, boat's GPS can be jumping around
+        double deltaCogVsCalcBearing = getDegRange(
+            m_Cog, brgToIntersectionCogPoint );
+        if ( deltaCogVsCalcBearing > RACESTART_COG_MAX_JITTER ) {
+            m_renDistanceCogToStartLine = std::nan("1");
+            return;
+        } // then too much jitter, COG is jumping around
+        m_renDistanceCogToStartLine = distanceToIntersctionCogPoint;
+    } // else we have a COG which may take us to the startline
+    
+}
+
 void DashboardInstrument_RaceStart::RenderGLZeroBurn(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
-    if ( !( m_renStartLineDrawn && m_renWindBiasDrawn && m_renLaylinesCalculated &&
-            m_renGridBoxCalculated &&
-            !std::isnan(m_renSlineDir)  && !std::isnan(m_renSlineLength) &&
-            !std::isnan(m_renLLPortDir) && !std::isnan(m_renLLStbdDir) ) ) {
+    if ( !IsSlineWbiasLaylinesGridbox() ) {
         ClearRendererCalcs();
         return;
     }

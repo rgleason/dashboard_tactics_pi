@@ -41,6 +41,7 @@ using namespace std;
 #include "RaceStart.h"
 using namespace std::placeholders;
 #include "plugin_ids.h"
+#include "TacticsFunctions.h"
 
 extern int GetRandomNumber(int, int);
 
@@ -76,19 +77,32 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
       this instrument can be used both with OpenCPN and Signal K with no mods.
     */
     m_Twa = std::nan("1");
-    m_pushTwaHere = std::bind(&DashboardInstrument_RaceStart::PushTwaHere,
-                              this, _1, _2, _3 );
+    m_pushTwaHere = std::bind(
+        &DashboardInstrument_RaceStart::PushTwaHere, this, _1, _2, _3 );
     m_pushTwaUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWA"), m_pushTwaHere );
     m_Tws = std::nan("1");
-    m_pushTwsHere = std::bind(&DashboardInstrument_RaceStart::PushTwsHere,
-                              this, _1, _2, _3 );
+    m_pushTwsHere = std::bind(
+        &DashboardInstrument_RaceStart::PushTwsHere, this, _1, _2, _3 );
     m_pushTwsUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWS"), m_pushTwsHere );
     m_Cog = std::nan("1");
-    m_pushCogHere = std::bind(&DashboardInstrument_RaceStart::PushCogHere,
-                              this, _1, _2, _3 );
+    m_pushCogHere = std::bind(
+        &DashboardInstrument_RaceStart::PushCogHere, this, _1, _2, _3 );
     m_pushCogUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_COG"), m_pushCogHere );
+    m_Lat = std::nan("1");
+    m_pushLatHere = std::bind(
+        &DashboardInstrument_RaceStart::PushLatHere, this, _1, _2, _3 );
+    m_pushLatUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_LAT"), m_pushLatHere );
+    m_Lon = std::nan("1");
+    m_pushLonHere = std::bind(
+        &DashboardInstrument_RaceStart::PushLonHere, this, _1, _2, _3 );
+    m_pushLonUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_LON"), m_pushLonHere );
     
-    // Startline set by us as a "route" with two waypoints, it is persistant, check if it is there
+    /* 
+       Startline set by us as a "route" with two waypoints, it is persistant,
+       check if it is there right now when this instrument is started.
+    */
+    m_renDistanceToStartLine = std::nan("1");
+    m_renDistanceCogToStartLine = std::nan("1");
     (void) CheckForValidStartLineGUID (
         _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
         _T(RACESTART_NAME_WP_STARTP), _T(RACESTART_NAME_WP_STARTS) );
@@ -96,8 +110,11 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     if ( !LoadConfig() )
         return;
 
-    m_rendererIsHere = std::bind(&DashboardInstrument_RaceStart::DoRenderGLOverLay,
-                                               this, _1, _2 );
+    /*
+      We subscribe as sub-renderer to Tactics' OpenGL rendering services
+    */
+    m_rendererIsHere = std::bind(
+        &DashboardInstrument_RaceStart::DoRenderGLOverLay, this, _1, _2 );
     m_sRendererCallbackUUID = m_pparent->registerGLRenderer(
         _T("DashboardInstrument_RaceStart"), m_rendererIsHere );
 
@@ -119,6 +136,10 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
         this->m_pparent->unsubscribeFrom( m_pushTwsUUID );
     if ( !this->m_pushCogUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushCogUUID );
+    if ( !this->m_pushLatUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushLatUUID ); 
+    if ( !this->m_pushLonUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushLonUUID ); 
     SaveConfig();
     return;
 }
@@ -138,6 +159,9 @@ void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
     if ( !this->m_pushCogUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushCogUUID );
     this->m_pushCogUUID = wxEmptyString;
+    if ( !this->m_pushLatUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_pushLatUUID );
+    this->m_pushLatUUID = wxEmptyString;
     event.Skip(); // Destroy() must be called
 }
 
@@ -147,7 +171,19 @@ void DashboardInstrument_RaceStart::derivedTimeoutEvent()
     m_Twa = std::nan("1");
     m_Tws = std::nan("1");
     m_Cog = std::nan("1");
+    m_Lat = std::nan("1");
+    m_Lon = std::nan("1");
+    m_renDistanceToStartLine = std::nan("1");
+    m_renDistanceCogToStartLine = std::nan("1");
     derived2TimeoutEvent();
+}
+
+bool DashboardInstrument_RaceStart::IsAllMeasurementDataValid()
+{
+    if ( !std::isnan(m_Twa) && !std::isnan(m_Tws) && !std::isnan(m_Cog) &&
+         !std::isnan(m_Lat) && !std::isnan(m_Lon) )
+        return true;
+    return false;
 }
 
 void DashboardInstrument_RaceStart::PushTwaHere(
@@ -174,6 +210,22 @@ void DashboardInstrument_RaceStart::PushCogHere(
     m_Cog = data;
 }
 
+void DashboardInstrument_RaceStart::PushLatHere(
+    double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) )
+        setTimestamp( timestamp );
+    m_Lat = data;
+}
+
+void DashboardInstrument_RaceStart::PushLonHere(
+    double data, wxString unit, long long timestamp)
+{
+    if ( !std::isnan(data) )
+        setTimestamp( timestamp );
+    m_Lon = data;
+}
+
 void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
 {
     m_startWestWp =  nullptr;
@@ -186,8 +238,9 @@ void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
     m_startPortWp = nullptr;
     m_startWestWp = nullptr;
     m_startEastWp = nullptr;
+    m_renDistanceToStartLine = std::nan("1");
+    m_renDistanceCogToStartLine = std::nan("1");
 }
-
 
 // This method checks if the candiate for persistent startline is valid
 bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, wxString lineName, wxString portName, wxString stbdName) {
