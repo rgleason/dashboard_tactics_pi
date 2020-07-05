@@ -74,6 +74,9 @@ void DashboardInstrument_RaceStart::ClearRendererCalcs()
     m_renGridEndPointOtherEast_lon = std::nan("1");
     m_renDistanceToStartLine = std::nan("1");
     m_renDistanceCogToStartLine = std::nan("1");
+    m_renCogCrossingStartlinePoint_lat = std::nan("1");
+    m_renCogCrossingStartlinePoint_lon = std::nan("1");
+    m_renPolarDistance = std::nan("1");
     m_renGridBoxCalculated = false;
     m_renGridDrawn = false;
     m_renZeroBurnDrawn = false;
@@ -985,15 +988,14 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartlineGLDot(
     } // then we have a COG which is point out of the startline
     else {
         wxPoint intersectionCogPoint( m_renCogCrossingStartlineRealPoint );
-        double intersectionCogPoint_lat;
-        double intersectionCogPoint_lon;
         GetCanvasLLPix(
             vp, intersectionCogPoint, 
-            &intersectionCogPoint_lat, &intersectionCogPoint_lon );
+            &m_renCogCrossingStartlinePoint_lat, &m_renCogCrossingStartlinePoint_lon );
         double brgToIntersectionCogPoint;
         double distanceToIntersctionCogPoint;
         DistanceBearingMercator_Plugin(
-           intersectionCogPoint_lat, intersectionCogPoint_lon, // "to"
+           m_renCogCrossingStartlinePoint_lat,
+           m_renCogCrossingStartlinePoint_lon, // "to"
            m_Lat, m_Lon, // "from" boat
            &brgToIntersectionCogPoint, &distanceToIntersctionCogPoint );
         // Let's make a sanity check, boat's GPS can be jumping around
@@ -1025,10 +1027,18 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartlineGLDot(
 void DashboardInstrument_RaceStart::RenderGLZeroBurn(
     wxGLContext *pcontext, PlugIn_ViewPort *vp )
 {
+    if ( m_renZeroBurnSeconds == 0 )
+        return;
+
     if ( !IsSlineWbiasLaylinesGridbox() ) {
         ClearRendererCalcs();
         return;
     }
+    if ( !IsAllMeasurementDataValid() ) {
+        ClearRendererCalcs();
+        return;
+    } // then no reason to continue, no data yet, new cycle.
+    
     if ( BoatPolar == nullptr ) {
         if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
             wxLogMessage (
@@ -1039,7 +1049,7 @@ void DashboardInstrument_RaceStart::RenderGLZeroBurn(
         ClearRendererCalcs();
         return;
     }
-    if ( !!BoatPolar->isValid() ) {
+    if ( !BoatPolar->isValid() ) {
         if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
             wxLogMessage (
                 "dashboard_tactics_pi: >>> Missing or invalid Polar file:"
@@ -1049,11 +1059,48 @@ void DashboardInstrument_RaceStart::RenderGLZeroBurn(
         ClearRendererCalcs();
         return;
     }
-    if ( !std::isnan(m_Twa) && !std::isnan(m_Tws) && !std::isnan(m_Cog) ) {
-        ClearRendererCalcs();
+
+    double polarSpeed = BoatPolar->GetPolarSpeed( m_Twa, m_Tws );
+    if ( std::isnan( polarSpeed ) )
         return;
-    } // then no reason to continue, no data yet, new cycle.
+
+    double m_renPolarDistance = m_renZeroBurnSeconds / 3600. * polarSpeed;
+
+    if ( m_renDistanceCogToStartLine < m_renPolarDistance )
+        return;
     
+    double brgFromIntersectionCogPointToBoat;
+    double distanceFromIntersctionCogPointToBoat;
+    DistanceBearingMercator_Plugin(
+        m_Lat, m_Lon, // "to" boat
+        m_renCogCrossingStartlinePoint_lat,
+        m_renCogCrossingStartlinePoint_lon, // "from" COG poing
+        &brgFromIntersectionCogPointToBoat, &distanceFromIntersctionCogPointToBoat );
+
+    if ( distanceFromIntersctionCogPointToBoat < m_renPolarDistance )
+        return;
+
+    double projectedPolarZeroBurnTowardCog_lat;
+    double projectedPolarZeroBurnTowardCog_lon;
+    PositionBearingDistanceMercator_Plugin(
+        m_renCogCrossingStartlinePoint_lat, m_renCogCrossingStartlinePoint_lon,
+        brgFromIntersectionCogPointToBoat, m_renPolarDistance,
+        &projectedPolarZeroBurnTowardCog_lat,
+        &projectedPolarZeroBurnTowardCog_lon );
+
+    wxPoint polarSweetSpotPoint;
+    GetCanvasPixLL(
+        vp, &polarSweetSpotPoint,
+        projectedPolarZeroBurnTowardCog_lat,
+        projectedPolarZeroBurnTowardCog_lon );
+    wxPoint cogIntersectionPoing( m_renCogCrossingStartlineRealPoint );
+
+    glColor4ub(0, 0, 0, 168); // black
+    glLineWidth(15);
+    glBegin(GL_LINES);
+    glVertex2d( cogIntersectionPoing.x, cogIntersectionPoing.y );
+    glVertex2d( polarSweetSpotPoint.x, polarSweetSpotPoint.y );
+    glEnd();
 
     m_renZeroBurnDrawn = true;
 }

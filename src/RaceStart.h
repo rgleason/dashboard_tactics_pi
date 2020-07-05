@@ -86,8 +86,8 @@
 #define RACESTART_GRID_SIZE 2. // in nautical miles
 #define RACESTART_GRID_STEP 0.0107991 // 20 meters in nautical miles
 #define RACESTART_GRID_BOLD_INTERVAL 5 // 1 all bold, 2 every 2nd bold, etc.
-#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60
-#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT 180
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 120
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT 240
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT 30 // below, will turn to zero = disable
 
 #define RACESTART_COG_MAX_JITTER 5 // in degrees, otherwise cannot calculate
@@ -209,10 +209,13 @@ protected:
     bool                 m_renDrawGrid;
     bool                 m_renGridDrawn;
     int                  m_renZeroBurnSeconds;
-    bool                 m_renZeroBurnDrawn;
     double               m_renDistanceToStartLine;
     double               m_renDistanceCogToStartLine;
     wxRealPoint          m_renCogCrossingStartlineRealPoint;
+    double               m_renCogCrossingStartlinePoint_lat;
+    double               m_renCogCrossingStartlinePoint_lon;
+    double               m_renPolarDistance;
+    bool                 m_renZeroBurnDrawn;
     
     callbackFunction     m_pushTwaHere;
     wxString             m_pushTwaUUID;
