@@ -247,7 +247,8 @@ protected:
     void RenderGLGrid(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     void RenderGLZeroBurn(wxGLContext* pcontext, PlugIn_ViewPort* vp);
     bool IsAllMeasurementDataValid(void);
-    void CalculateDistancesToStartline(wxGLContext* pcontext, PlugIn_ViewPort* vp);
+    void CalculateDistancesToStartlineGLDot(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp);
 };
 
 #endif // __RACESTART_H__

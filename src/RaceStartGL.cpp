@@ -90,7 +90,7 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
     this->RenderGLWindBias( pcontext, vp );
     this->RenderGLLaylines( pcontext, vp );
     this->RenderGLGrid( pcontext, vp );
-    this->CalculateDistancesToStartline( pcontext, vp );
+    this->CalculateDistancesToStartlineGLDot( pcontext, vp );
     this->RenderGLZeroBurn(  pcontext, vp );
 }
 
@@ -886,7 +886,7 @@ void DashboardInstrument_RaceStart::RenderGLGrid(
 }
 
 // When we have a startline, a grid box for starting area we can calculate distances
-void DashboardInstrument_RaceStart::CalculateDistancesToStartline(
+void DashboardInstrument_RaceStart::CalculateDistancesToStartlineGLDot(
     wxGLContext* pcontext, PlugIn_ViewPort* vp )
 {
     if ( !IsAllMeasurementDataValid() || !IsSlineWbiasLaylinesGridbox() ) {
@@ -953,11 +953,35 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartline(
     wxRealPoint projectedCogLineEndRealPoint( projectedCogLineEndPoint );
     m_renCogCrossingStartlineRealPoint = GetLineIntersection(
             boatPositionRealPoint, projectedCogLineEndPoint,
-            m_renGridEndRealPointStartlineWest, m_renGridEndRealPointStartlineEast );
+            m_renRealPointWest, m_renRealPointEast );
     if ( (m_renCogCrossingStartlineRealPoint.x == -999.) ||
          (m_renCogCrossingStartlineRealPoint.y == -999.) ) {
         m_renDistanceCogToStartLine = std::nan("1");
-        return;
+        // Let's draw a guiding dot if not too far from startline
+        wxRealPoint cogCrossingGridlineRealPoint = GetLineIntersection(
+            boatPositionRealPoint, projectedCogLineEndPoint,
+            m_renGridEndRealPointStartlineWest, m_renGridEndRealPointStartlineEast );
+        if ( (cogCrossingGridlineRealPoint.x == -999.) ||
+             (cogCrossingGridlineRealPoint.y == -999.) ) {
+            return;
+        }
+        else {
+            wxPoint cogCrossingGridlinePoint( cogCrossingGridlineRealPoint );
+            glEnable(GL_TRIANGLE_FAN);
+            glLineWidth(1);
+            glColor4ub(0, 0, 0, 148); //black w/ transparency
+            double radius = 15.;
+            double twicePi = 2. * M_PI;
+            glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(cogCrossingGridlinePoint.x, cogCrossingGridlinePoint.y);
+            for (int i = 0; i <= 20; i++)   {
+                glVertex2f (
+                    (cogCrossingGridlinePoint.x + (radius * cos(i * twicePi / 20))),
+                    (cogCrossingGridlinePoint.y + (radius * sin(i * twicePi / 20))) );
+            }
+            glEnd();
+            glDisable(GL_TRIANGLE_FAN);
+        } // else not spot on but at least on the grid line, draw a guidance dot
     } // then we have a COG which is point out of the startline
     else {
         wxPoint intersectionCogPoint( m_renCogCrossingStartlineRealPoint );
@@ -980,6 +1004,20 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartline(
             return;
         } // then too much jitter, COG is jumping around
         m_renDistanceCogToStartLine = distanceToIntersctionCogPoint;
+        glEnable(GL_TRIANGLE_FAN);
+        glLineWidth(1);
+        glColor4ub(255, 128, 0, 168); //orange (see RenderGLStartLine)
+        double radius = 15.;
+        double twicePi = 2. * M_PI;
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(intersectionCogPoint.x, intersectionCogPoint.y);
+        for (int i = 0; i <= 20; i++)   {
+            glVertex2f (
+                (intersectionCogPoint.x + (radius * cos(i * twicePi / 20))),
+                (intersectionCogPoint.y + (radius * sin(i * twicePi / 20))) );
+        }
+        glEnd();
+        glDisable(GL_TRIANGLE_FAN);
     } // else we have a COG which may take us to the startline
     
 }
