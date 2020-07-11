@@ -561,7 +561,9 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD)  ||
+                    (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2) ) )
+                 pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // AWS corrected or not, it is now sent, move to TW calculations
         unsigned long long st_twa, st_tws, st_tws2, st_twd;
@@ -595,7 +597,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            if ( !this->IsConfigSetToForcedTrueWindCalculation() )
+                pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            else if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD)  ||
+                         (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2) ) )
+                pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // Leeway
         unsigned long long st_leeway;
