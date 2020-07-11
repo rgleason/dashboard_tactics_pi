@@ -83,10 +83,12 @@
 #define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
 
 // These values for first time start only
-#define RACESTART_GRID_SIZE 2. // in nautical miles
-#define RACESTART_GRID_STEP 0.0107991 // 20 meters in nautical miles
-#define RACESTART_GRID_BOLD_INTERVAL 5 // 1 all bold, 2 every 2nd bold, etc.
-#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 120
+#define RACESTART_LAYL_LINE_WIDTH 3 // pen width
+#define RACESTART_GRID_SIZE 1. // in nautical miles
+#define RACESTART_GRID_STEP 0.026998 // 50 meters in nautical miles
+#define RACESTART_GRID_BOLD_INTERVAL 2 // 1 all bold, 2 every 2nd bold, etc.
+#define RACESTART_GRID_LINE_WIDTH 1 // pen width
+#define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT 240
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT 30 // below, will turn to zero = disable
 
@@ -180,7 +182,9 @@ protected:
     wxPoint              m_renPointBiasStart;
     wxPoint              m_renPointBiasStop;
     bool                 m_renDrawLaylines;
+    int                  m_renLaylineWidth;
     bool                 m_renLaylinesCalculated;
+    bool                 m_renLaylinesDrawn;
     double               m_renGridBoxDir;
     double               m_renGridDirEast;
     double               m_renGridDirWest;
@@ -188,6 +192,8 @@ protected:
     double               m_renGridLineMaxLen;
     double               m_gridStepWestOnStartline;
     double               m_gridStepEastOnStartline;
+    double               m_gridStepEastOnWestEdge;
+    double               m_gridStepEastOnEastEdge;
     double               m_renGridEndPointStartlineWest_lat;
     double               m_renGridEndPointStartlineWest_lon;
     wxRealPoint          m_renGridEndRealPointStartlineWest;
@@ -206,6 +212,7 @@ protected:
     double               m_renGridSize;
     double               m_renGridStep;
     int                  m_renGridBoldInterval;
+    int                  m_renGridLineWidth;
     bool                 m_renDrawGrid;
     bool                 m_renGridDrawn;
     int                  m_renZeroBurnSeconds;

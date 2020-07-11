@@ -422,8 +422,12 @@ bool DashboardInstrument_RaceStart::LoadConfig()
     }
 
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
-    pConf->Read( _T("DrawLaylines"), &m_renDrawLaylines, true ); 
-    pConf->Read( _T("DrawGrid"), &m_renDrawGrid, true );
+    pConf->Read( _T("LaylineWidth"), &m_renLaylineWidth, RACESTART_LAYL_LINE_WIDTH );
+    m_renDrawLaylines = true;
+    if ( m_renLaylineWidth <= 0 ) {
+        m_renLaylineWidth = 0;
+        m_renDrawLaylines = false;
+    }
     pConf->Read( _T("GridSize"), &m_renGridSize, RACESTART_GRID_SIZE );
     m_renGridSize = abs(m_renGridSize);
     if ( m_renGridSize == 0. )
@@ -432,7 +436,13 @@ bool DashboardInstrument_RaceStart::LoadConfig()
     m_renGridStep = abs(m_renGridStep);
     if ( m_renGridStep == 0. )
         m_renGridStep = RACESTART_GRID_STEP;
-    pConf->Read( _T("GridBoldInterval"), &m_renGridBoldInterval, RACESTART_GRID_BOLD_INTERVAL );
+    pConf->Read( _T("GridLineWidth"), &m_renGridLineWidth, RACESTART_GRID_LINE_WIDTH );
+    if ( m_renGridLineWidth < 0 )
+        m_renGridLineWidth = 0;
+    m_renDrawGrid = true;
+    if ( m_renGridLineWidth == 0 )
+        m_renDrawGrid = false;
+     pConf->Read( _T("GridBoldInterval"), &m_renGridBoldInterval, RACESTART_GRID_BOLD_INTERVAL );
     if ( m_renGridBoldInterval < 1 )
         m_renGridBoldInterval = 1;
     pConf->Read( _T("ZeroBurnSeconds"), &m_renZeroBurnSeconds, RACESTART_ZERO_BURN_BY_POLAR_SECONDS );
@@ -455,10 +465,10 @@ void DashboardInstrument_RaceStart::SaveConfig()
     pConf->SetPath(_T("/PlugIns/DashT/WebView/RaceStart/"));
     pConf->Write(_T("instrujsURL"), m_fullPathHTML );
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
-    pConf->Write( _T("DrawLaylines"), m_renDrawLaylines ); 
-    pConf->Write( _T("DrawGrid"), m_renDrawGrid );
+    pConf->Write( _T("LaylineWidth"), m_renLaylineWidth ); 
     pConf->Write( _T("GridSize"), m_renGridSize );
     pConf->Write( _T("GridStep"), m_renGridStep );
+    pConf->Write( _T("GridLineWidth"), m_renGridLineWidth );
     pConf->Write( _T("GridBoldInterval"), m_renGridBoldInterval );
     pConf->Write( _T("ZeroBurnSeconds"), m_renZeroBurnSeconds );
     
