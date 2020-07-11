@@ -96,6 +96,7 @@ public:
     bool GetWindbarbVisibility(void);
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
+    bool IsConfigSetToForcedTrueWindCalculation(void);
 
     virtual void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
@@ -289,6 +290,7 @@ private:
     bool                 b_tactics_dc_message_shown;
     bool                 m_bToggledStateVisible;
     bool                 m_bToggledStateVisibleDefined;
+    int                  m_iDbgRes_TW_Calc_TW_Available;
     int                  m_iDbgRes_TW_Calc_AWS_STC;
     int                  m_iDbgRes_TW_Calc_AWS;
     int                  m_iDbgRes_TW_Calc_Force;

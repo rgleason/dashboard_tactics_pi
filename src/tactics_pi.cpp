@@ -219,6 +219,7 @@ tactics_pi::tactics_pi( void )
     b_tactics_dc_message_shown = false;
     m_bToggledStateVisible = false;
     m_bToggledStateVisibleDefined = false;
+    m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE_UNKNOWN;
     m_iDbgRes_TW_Calc_AWS_STC = DBGRES_AWS_STC_UNKNOWN;
     m_iDbgRes_TW_Calc_Force = DBGRES_FORCE_UNKNOWN;
     m_iDbgRes_TW_Calc_AWS = DBGRES_MVAL_UNKNOWN;
@@ -1449,20 +1450,37 @@ false - no, do not launch the true wind calculations, continue
 true - yes, use  (and only call true wind calculations if this true)
 *********************************************************************/
 
+bool tactics_pi::IsConfigSetToForcedTrueWindCalculation()
+{
+    return g_bForceTrueWindCalculation;
+}
+
 bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         unsigned long long st, double value )
 {
     // Let's collect information about instruments providing true wind
-    if ( (st == OCPN_DBP_STC_TWA) )
+    if ( (st == OCPN_DBP_STC_TWA) && !std::isnan(value) )
         m_bTrueWindAngle_available = true;
-    if ( (st == OCPN_DBP_STC_TWS) )
+    if ( (st == OCPN_DBP_STC_TWS)  && !std::isnan(value) )
         m_bTrueWindSpeed_available = true;
-    if ( (st == OCPN_DBP_STC_TWD) ) {
-        if ( std::isnan(value) || (value == 0.0) )
-                m_bTrueWindDirection_available = false;
+    if ( (st == OCPN_DBP_STC_TWD)  && !std::isnan(value) ) {
+        m_bTrueWindDirection_available = true;
+        if ( value == 0.0 )
+            m_bTrueWindDirection_available = false;
     }
-    if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && m_bTrueWindDirection_available )
+    if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && m_bTrueWindDirection_available ) {
+        if ( (m_iDbgRes_TW_Calc_TW_Available == DBGRES_ALLTW_AVAILABLE_UNKNOWN) ||
+             (m_iDbgRes_TW_Calc_TW_Available == DBGRES_ALLTW_AVAILABLE_WAIT) ) {
+            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: All TW data available as input, including TWD.");
+            m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE;
+        }
         m_bTrueWind_available = true;
+    }
+    else
+        m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE_WAIT;
+
+    if ( !IsConfigSetToForcedTrueWindCalculation() && m_bTrueWind_available )
+        return false;
 
     // Here's the logic depending of the data and settings
     if ( st != OCPN_DBP_STC_AWS ) { // this is the data we're waiting
@@ -2397,7 +2415,7 @@ void tactics_pi::createPNKEP_NMEA(int sentence, double data1, double data2, doub
         $PNKEP,03,x.x,x.x,x.x*hh<CR><LF>
                    |    |   \ polar speed performance TWA/TWS from 0 to 99%
                    |    \ performance upwind or downwind from 0 to 99%
-                   \ opt.VMG angle  0 à 359deg  */
+                   \ opt.VMG angle  0-359deg  */
 		nmeastr = _T("$PNKEP,03,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f", data3);
 		break;
 	case 4:
