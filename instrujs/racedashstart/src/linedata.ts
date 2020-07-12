@@ -8,8 +8,10 @@
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()
 
+import {iface} from "../../src/iface"
 import {StateMachine} from "./statemachine"
 
+var cpp: iface
 var fsm: StateMachine
 var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
@@ -42,8 +44,9 @@ const elemPnlBiasDist = '<div id="pnlStarboard" class="panel panel-default day">
 var htmlPnlBiasDist = Sanitizer.createSafeHTML(elemPnlBiasDist)
 
 export function initLineData( that: StateMachine ) {
-    fsm = that
     console.log('racedashstart linedata initLineData()')
+    fsm = that
+    cpp = (window as any).iface
     locstate = 'READY'
 }
 
@@ -52,19 +55,19 @@ export function armedLineData( ) {
 
     $('#grdDistLine').html( Sanitizer.unwrapSafeHTML(htmlPnlDistLine) )
     $('#pnlDistLineHdr').text( (window as any).instrulang.rdsDistLine )
-    $('#pnlDistLineBdy').text( '50 ' + (rdsfeet?'feet':'meters') )
+    $('#pnlDistLineBdy').text( '- - -' + (rdsfeet?' feet':' meters') )
 
     $('#grdDistAbs').html( Sanitizer.unwrapSafeHTML(htmlPnlDistAbs) )
     $('#pnlDistAbsHdr').text( (window as any).instrulang.rdsDistAbs )
-    $('#pnlDistAbsBdy').text( '20 ' + (rdsfeet?'feet':'meters') )
+    $('#pnlDistAbsBdy').text( '- - -' + (rdsfeet?' feet':' meters') )
 
     $('#grdPort').html( Sanitizer.unwrapSafeHTML(htmlPnlBiasValue) )
     $('#pnlBiasValueHdr').text( (window as any).instrulang.rdsWindBias )
-    $('#pnlBiasValueBdy').text( '6' )
+    $('#pnlBiasValueBdy').text( '- - -' )
 
     $('#grdStarboard').html( Sanitizer.unwrapSafeHTML(htmlPnlBiasDist) )
     $('#pnlBiasDistHdr').text( (window as any).instrulang.rdswindBiasAdv )
-    $('#pnlBiasDistBdy').text( '13 ' + (rdsfeet?'feet':'meters') )
+    $('#pnlBiasDistBdy').text( '- - -' + (rdsfeet?' feet':' meters') )
 
     locstate = 'ARMED'
 }
@@ -84,6 +87,42 @@ function fadeAwayAllDataPanels() {
          opacity: 0.25
     }, 1000, function() { $(this).text( '' ) })
 }
+
+export function newLineData() {
+    console.log('racedashstart linedata newLineData()')
+
+    var distanceToGoStr: string = '- - -'
+    var distanceToGo: number = cpp.getsldistancetogo()
+    if ( distanceToGo >= 0.0 ) {
+        (rdsfeet ? (distanceToGo *= 6076.12) : (distanceToGo *= 1852.0))
+        distanceToGoStr = distanceToGo.toFixed(0)
+    }
+    $('#pnlDistLineBdy').text( distanceToGoStr + (rdsfeet?' feet':' meters') )
+
+    var distanceToGoAbsStr: string = '- - -'
+    var distanceToGoAbs: number = cpp.getslclosestpoint()
+    if ( distanceToGoAbs >= 0.0 ) {
+        (rdsfeet ? (distanceToGoAbs *= 6076.12) : (distanceToGoAbs *= 1852.0))
+        distanceToGoAbsStr = distanceToGoAbs.toFixed(0)
+    }
+    $('#pnlDistAbsBdy').text( distanceToGoAbsStr + (rdsfeet?' feet':' meters') )
+
+    var biasStr: string = '- - -'
+    var bias: number = cpp.getslwindbias()
+    if ( bias >= 0.0 )
+        biasStr = bias.toFixed(0)
+    $('#pnlBiasValueBdy').text( biasStr )
+
+    var biasDistanceStr: string = '- - -'
+    var biasDistance: number = cpp.getsladvantage()
+    if ( biasDistance >= 0.0 ) {
+        (rdsfeet ? (biasDistance *= 6076.12) : (biasDistance *= 1852.0))
+        biasDistanceStr = biasDistance.toFixed(0)
+    }
+    $('#pnlBiasDistBdy').text( biasDistanceStr + (rdsfeet?' feet':' meters') )
+
+}
+
 
 export function quitLineData( that: StateMachine ) {
     console.log('racedashstart linedata quitLineData()')

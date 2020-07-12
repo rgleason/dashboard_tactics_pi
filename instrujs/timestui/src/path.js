@@ -49,7 +49,7 @@ export function getalldbAskClient() {
 }
 
 export function getalldbClientAnswer( that ) {
-    that.allpaths= window.iface.getalldb()
+    that.allpaths = window.iface.getalldb()
 }
 
 export function getpathAskClient( that ) {

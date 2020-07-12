@@ -37,9 +37,10 @@ var instrulang = {
     dataFromDbNoValue: 'Data returned by database query does not contain _value fields',
     dataFromDbBadValue: 'Data returned by database query contains a non-number _value field',
     dataFunctionAbbrv: 'fn():',
-    rdsInitMsg: 'Get ready to mark the start line',
-    rdsBtnArmTxt: 'Ready',
-    rdsDropMarksMsg: 'Drop the line end marks',
+    rdsInitMsg: 'This software is intented for learning purposes. Read about usage, ' +
+                'warranty and liability from the documentation.',
+    rdsBtnArmTxt: 'Start',
+    rdsDropMarksMsg: 'Drop the startline end marks',
     rdsDropPortBtn: 'Port',
     rdsDropStarboardBtn: 'Stbd',
     rdsBtnArmCancel: 'Cancel',

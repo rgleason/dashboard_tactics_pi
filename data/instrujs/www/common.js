@@ -24,7 +24,7 @@
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 1,
+    debuglevel : 5,
     alerts : true,
     alertdelay : 5,
     rdsfeet: false,

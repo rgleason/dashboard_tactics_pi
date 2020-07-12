@@ -307,6 +307,96 @@ if (bottom === null) {
 // }) as EventListener);
 // (window as any).iface.regeventchgconf( bottom, eventchgconf )
 
+// A user set startline has been selected
+var eventusersl: Event = document.createEvent('Event')
+eventusersl.initEvent('usersl', false, false)
+bottom.addEventListener('usersl', ((event: Event) => {
+    try {
+        fsm.usersl()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventusersl: fsm.usersl() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventusersl( bottom, eventusersl )
+
+// No user set startline has been selected
+var eventnousersl: Event = document.createEvent('Event')
+eventnousersl.initEvent('nousersl', false, false)
+bottom.addEventListener('nousersl', ((event: Event) => {
+    try {
+        fsm.nousersl()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventnousersl: fsm.nousersl() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventnousersl( bottom, eventnousersl )
+
+// Dropped marked has been acknowledged
+var eventmarkack: Event = document.createEvent('Event')
+eventmarkack.initEvent('markack', false, false)
+bottom.addEventListener('markack', ((event: Event) => {
+    try {
+        fsm.markack()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventmarkack: fsm.markack() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventmarkack( bottom, eventmarkack )
+
+// Request to get data has been acknowledged
+var eventsldataack: Event = document.createEvent('Event')
+eventsldataack.initEvent('sldataack', false, false)
+bottom.addEventListener('sldataack', ((event: Event) => {
+    try {
+        fsm.sldataack()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventsldataack: fsm.sldataack() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventsldataack( bottom, eventsldataack )
+
+// New startline data has arrived
+var eventnewsldata: Event = document.createEvent('Event')
+eventnewsldata.initEvent('newsldata', false, false)
+bottom.addEventListener('newsldata', ((event: Event) => {
+    try {
+        fsm.newsldata()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventnewsldata: fsm.newsldata() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventnewsldata( bottom, eventnewsldata )
+
+// Request to stop getting data has been acknowledged
+var eventsldstopack: Event = document.createEvent('Event')
+eventsldstopack.initEvent('sldstopack', false, false)
+bottom.addEventListener('sldstopack', ((event: Event) => {
+    try {
+        fsm.sldstopack()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventsldstopack: fsm.sldstopack() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventsldstopack( bottom, eventsldstopack )
+
 // Luminosity
 var eventluminsty: Event = document.createEvent('Event')
 eventluminsty.initEvent('luminsty', false, false)

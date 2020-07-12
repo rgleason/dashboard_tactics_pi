@@ -50,8 +50,8 @@ const elemBtnDropStarboard = '<button id="btnDropStarboard" type="button" class=
 var htmlBtnDropStarboard = Sanitizer.createSafeHTML(elemBtnDropStarboard)
 
 export function initButtons( that: StateMachine ) {
-    fsm = that
     console.log('racedashstart buttons initButtons()')
+    fsm = that
     $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
     $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )

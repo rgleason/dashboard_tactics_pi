@@ -64,6 +64,7 @@ enum instruState {
     JSI_GETPATH,
     JSI_SHOWDATA,
     JSI_GETDBOUT,
+    JSI_GOTUSRSL,
     JSI_NOF_STATES
 };
 enum instruHandShake {
@@ -116,6 +117,8 @@ public:
 #else
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
+
+    virtual bool userHasStartline(void){ return false; };
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;

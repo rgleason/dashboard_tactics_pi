@@ -338,6 +338,11 @@ bool DashboardInstrument_RaceStart::CheckStartLineStillValid() {
     return false;
 }
 
+// The base, abstract class requires this to pass the information to JavaScript
+bool DashboardInstrument_RaceStart::userHasStartline() {
+    return CheckStartLineStillValid();
+}
+
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_pThreadRaceStartTimer->Stop();

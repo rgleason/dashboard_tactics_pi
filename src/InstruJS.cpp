@@ -360,6 +360,19 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             else
                 break;
         case JSI_HDS_SERVING:
+            /*
+              Developer's note: please read the WebView dev. note about the state
+              machine implementation which, for now is based on one single and
+              unique JavaScript interfae module definition. The below structure
+              of if-then-else-if statements is therefore forced to recognize
+              all the commands and requests from all instrument types. Also,
+              the base class may need to define virtual service functions for
+              those, which the instrument implementation classes need to override.
+              Maybe the future versions, or new instruments can create their own,
+              specific interfaces and we can identify the common, nominating
+              functions after a while, which shall stay in the commong interface,
+              i.e. served here.
+            */
             if ( request == wxEmptyString ) {
                 m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
@@ -422,6 +435,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     }
                 }
                 m_setAllPathGraceCount--;
+                break;
+            }
+            else if ( request.CmpNoCase("getusrsl") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setusersl('",
+                    (userHasStartline() ? "true" : "false"),
+                    "');");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {

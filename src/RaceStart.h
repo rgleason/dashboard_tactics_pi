@@ -135,6 +135,9 @@ public:
                                      wxString portName, wxString stbdName);
     bool CheckForValidUserSetStartLine(void);
     bool CheckStartLineStillValid(void);
+
+    virtual bool userHasStartline(void) override;
+    
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     virtual void PushTwaHere(double data, wxString unit, long long timestamp=0LL);
