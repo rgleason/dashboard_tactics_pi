@@ -8,8 +8,8 @@
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()
 
-import {iface} from "../../src/iface"
-import {StateMachine} from "./statemachine"
+import {iface} from '../../src/iface'
+import {StateMachine} from './statemachine'
 
 var cpp: iface
 var fsm: StateMachine

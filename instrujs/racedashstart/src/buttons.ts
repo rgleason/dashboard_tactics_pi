@@ -8,7 +8,7 @@
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()
 
-import {StateMachine} from "./statemachine"
+import {StateMachine} from './statemachine'
 
 var fsm: StateMachine
 var dbglevel: number = (window as any).instrustat.debuglevel

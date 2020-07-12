@@ -5,8 +5,8 @@
 
 /*eslint camelcase: ['error', {'properties': 'never'}]*/
 
-import {iface} from "../../src/iface"
-import {StateMachine} from "./statemachine"
+import {iface} from '../../src/iface'
+import {StateMachine} from './statemachine'
 
 var cpp: iface
 var fsm: StateMachine
