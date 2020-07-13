@@ -226,7 +226,7 @@ function makeTimer() {
             $('#pnlMsgClock').addClass('panel-danger')
         }
         var htmlObj = Sanitizer.createSafeHTML( htlmObjCandidate )
-    	$('#pnlMsgClockBdy').html( Sanitizer.unwrapSafeHTML( htmlObj ) )
+        $('#pnlMsgClockBdy').html( Sanitizer.unwrapSafeHTML( htmlObj ) )
     }
 }
 
