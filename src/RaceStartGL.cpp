@@ -449,8 +449,6 @@ bool DashboardInstrument_RaceStart::CalculateGridBox(wxGLContext *pcontext, Plug
         (m_renGridSize - m_renSlineLength) / 2.;
     m_renGridLineMaxLen = 1.1 * (1.41421 * m_renGridSize); // cross the opposite line
     // avoid a division by zero in case layline is laying on the startline:
-    double stepOnStartLineMax =
-        ((m_renGridSize - m_renSlineLength) / 2.) + m_renSlineLength; // toward east
     double minPossibleDirAngle = 0.01; // avoid division by zero exception
     double dirWestOffset = getDegRange(m_renGridDirWest, m_renOppositeSlineDir);
     if ( dirWestOffset < minPossibleDirAngle ) {

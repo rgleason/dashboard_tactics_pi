@@ -4,6 +4,7 @@
  */
 
 /*eslint camelcase: ['error', {'properties': 'never'}]*/
+/*eslint new-cap: ["error", { "newIsCap": false }]*/
 
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()

@@ -45,7 +45,7 @@ export function getRetrieveSeconds(): number {
 
 export function setRetrieveSeconds( newValue: number ) {
     var nVal = newValue || null
-    if ( (nVal === null) || (nVal == 0) )
+    if ( (nVal === null) || (nVal === 0) )
         return
     retrieveSeconds = nVal
 }

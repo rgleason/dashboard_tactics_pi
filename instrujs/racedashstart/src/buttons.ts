@@ -4,6 +4,7 @@
  */
 
 /*eslint camelcase: ['error', {'properties': 'never'}]*/
+/*eslint new-cap: ["error", { "newIsCap": false }]*/
 
 import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()
@@ -109,12 +110,12 @@ export function btmarmcButtons( that: StateMachine ) {
     fadeAwayPortCenterStarboard()
     $('#grdCenter').promise().done(function() {
         console.log('racedashstart buttons btmarmcButtons(): fading over')
-        $("#grdCenter").css({ opacity: 1.0 })
-        $("#grdCenter").empty()
-        $("#grdPort").css({ opacity: 1.0 })
-        $("#grdPort").empty()
-        $("#grdStarboard").css({ opacity: 1.0 })
-        $("#grdStarboard").empty()
+        $('#grdCenter').css({ opacity: 1.0 })
+        $('#grdCenter').empty()
+        $('#grdPort').css({ opacity: 1.0 })
+        $('#grdPort').empty()
+        $('#grdStarboard').css({ opacity: 1.0 })
+        $('#grdStarboard').empty()
         initButtons( that )
     })
 }
@@ -160,12 +161,12 @@ export function btmarmedButtons( that: StateMachine ) {
     fadeAwayPortCenterStarboard()
     $('#grdCenter').promise().done(function() {
         console.log('racedashstart buttons btmarmedButtons(): fading over')
-        $("#grdCenter").css({ opacity: 1.0 })
-        $("#grdCenter").empty()
-        $("#grdStarboard").css({ opacity: 1.0 })
-        $("#grdStarboard").empty()
-        $("#grdPort").css({ opacity: 1.0 })
-        $("#grdPort").empty()
+        $('#grdCenter').css({ opacity: 1.0 })
+        $('#grdCenter').empty()
+        $('#grdStarboard').css({ opacity: 1.0 })
+        $('#grdStarboard').empty()
+        $('#grdPort').css({ opacity: 1.0 })
+        $('#grdPort').empty()
         $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
         $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArmed) )
         $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsMarkedAndArmed )
@@ -198,9 +199,9 @@ export function btmarmaButtons( that: StateMachine ) {
     }, 1000, function() { $(this).text( '' ) })
     $('#grdCenter').promise().done(function() {
         console.log('racedashstart buttons btmarmaButtons(): fading over')
-        $("#grdCenter").css({ opacity: 1.0 })
-        $("#grdCenter").empty()
-        $("#pnlCenter").remove()
+        $('#grdCenter').css({ opacity: 1.0 })
+        $('#grdCenter').empty()
+        $('#pnlCenter').remove()
         $('#pnlMsgClock').removeClass('panel-danger')
         $('#pnlMsgClock').addClass('panel-primary')
         initButtons( that )
@@ -225,7 +226,7 @@ function makeTimer() {
             $('#pnlMsgClock').addClass('panel-danger')
         }
         var htmlObj = Sanitizer.createSafeHTML( htlmObjCandidate )
-    	$("#pnlMsgClockBdy").html( Sanitizer.unwrapSafeHTML( htmlObj ) )
+    	$('#pnlMsgClockBdy').html( Sanitizer.unwrapSafeHTML( htmlObj ) )
     }
 }
 

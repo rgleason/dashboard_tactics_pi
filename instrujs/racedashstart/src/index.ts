@@ -447,7 +447,7 @@ var pollwaiting: () => void
     if ( !fsm.is('waiting') ) {
         setTimeout(pollwaiting, 100)
     }
-})(); // do _everything_ in the routing once condition met
+})() // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 
