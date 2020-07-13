@@ -188,7 +188,7 @@ export function dataQuery() {
             if ( dbglevel > 1 ) {
                 console.error(error)
                 if ( alerts )
-                    alert('DB error' + error.message);
+                    alert('DB error' + error.message)
             }
             try {
                 (window as any).iface.seterrdata()

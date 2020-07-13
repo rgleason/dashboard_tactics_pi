@@ -214,8 +214,8 @@ function makeTimer() {
         var minutes: number = Math.floor(timeLeft / 60)
         var seconds: number = Math.floor(timeLeft - (minutes * 60))
         var strSeconds: string = seconds.toString()
-    	if (seconds < 10)
-            strSeconds = "0" + strSeconds
+        if (seconds < 10)
+            strSeconds = '0' + strSeconds
         var htlmObjCandidate = '<b>' + minutes.toString() +
             '</b><span> minutes </span><b>' +
             strSeconds + '</b><span> seconds</span>'
@@ -230,7 +230,7 @@ function makeTimer() {
     }
 }
 
-setInterval(function() { makeTimer(); }, 1000);
+setInterval(function() { makeTimer(); }, 1000)
 
 $('body').on('click', '#btnFiveMinutes', function(event) {
     timeLeft = 300
