@@ -290,6 +290,86 @@ var iface = {
     getswapdisp: function() {
         return this.swapdirection
     },
+    eventgetfeet    : null,
+    elemgetfeet     : null,
+    eventnogetfeet  : null,
+    elemnogetfeet   : null,
+    getfeet         : false,
+    regeventgetfeet: function ( newelem, newevent ) {
+        this.elemgetfeet = newelem
+        this.eventgetfeet = newevent
+    },
+    regeventnogetfeet: function ( newelem, newevent ) {
+        this.elemnogetfeet = newelem
+        this.eventnogetfeet = newevent
+    },
+    setgetfeet: function( newgetfeet ) {
+        try {
+            if ( (this.eventgetfeet === null) || (this.elemgetfeet === null) ||
+                 (this.eventnogetfeet === null) || (this.elemnogetfeet === null) )
+                return
+            this.getfeet = newgetfeet
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setgetfeet - getfeet: ', this.getfeet)
+            if ( this.getfeet ) {
+                this.elemgetfeet.dispatchEvent( this.eventgetfeet )
+            }
+            else {
+                this.elemnogetfeet.dispatchEvent( this.eventnogetfeet )
+            }
+        }
+        catch (error) {
+            this.getfeet = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setgetfeet - state machine error',
+                            error)
+            return
+        }
+    },
+    getgetfeet: function() {
+        return this.getfeet
+    },
+    eventchkrdy    : null,
+    elemchkrdy     : null,
+    eventnochkrdy  : null,
+    elemnochkrdy   : null,
+    chkrdy         : false,
+    regeventchkrdy: function ( newelem, newevent ) {
+        this.elemchkrdy = newelem
+        this.eventchkrdy = newevent
+    },
+    regeventnochkrdy: function ( newelem, newevent ) {
+        this.elemnochkrdy = newelem
+        this.eventnochkrdy = newevent
+    },
+    setchkrdy: function( newchkrdy ) {
+        try {
+            if ( (this.eventchkrdy === null) || (this.elemchkrdy === null) ||
+                 (this.eventnochkrdy === null) || (this.elemnochkrdy === null) )
+                return
+            this.chkrdy = newchkrdy
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setchkrdy - chkrdy: ', this.chkrdy)
+            if ( this.chkrdy ) {
+                this.elemchkrdy.dispatchEvent( this.eventchkrdy )
+            }
+            else {
+                this.elemnochkrdy.dispatchEvent( this.eventnochkrdy )
+            }
+        }
+        catch (error) {
+            this.chkrdy = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setchkrdy - state machine error',
+                            error)
+            return
+        }
+    },
+    getchkrdy: function() {
+        return this.chkrdy
+    },
     eventusersl    : null,
     elemusersl     : null,
     eventnousersl  : null,

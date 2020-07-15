@@ -5,4 +5,5 @@ export interface iface{
     getslclosestpoint(): number
     getslwindbias(): number
     getsladvantage(): number
+    getmarkack(): boolean
 }

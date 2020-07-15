@@ -13,7 +13,6 @@ import {StateMachine} from './statemachine'
 
 var fsm: StateMachine
 var dbglevel: number = (window as any).instrustat.debuglevel
-var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
 var timeLeft: number = 300
@@ -50,13 +49,54 @@ const elemBtnDropStarboard = '<button id="btnDropStarboard" type="button" class=
 '</button>'
 var htmlBtnDropStarboard = Sanitizer.createSafeHTML(elemBtnDropStarboard)
 
+const elemLicenseModal = '<a href="#" role="button" data-toggle="modal" ' +
+'tabindex="0" data-target="#myLicense">LICENSE</a>' +
+'<div class="modal fade" id="myLicense" role="dialog">' +
+'<div class="modal-dialog modal-lg"><div class="modal-content">' +
+'<div class="modal-header">' +
+'<button type="button" class="close" data-dismiss="modal">&times;</button>' +
+'<h4 class="modal-title">MIT License</h4></div>' +
+'<div class="modal-body">' +
+'<p>Copyright &#xA9 2020 Petri Mäkijärvi' +
+'</p><p>' +
+'Permission is hereby granted, free of charge, to any person obtaining a copy ' +
+'of this software and associated documentation files (the "Software"), to deal ' +
+'in the Software without restriction, including without limitation the rights ' +
+'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell ' +
+'copies of the Software, and to permit persons to whom the Software is ' +
+'furnished to do so, subject to the following conditions:' +
+'</p><p>' +
+'The above copyright notice and this permission notice shall be included in all ' +
+'copies or substantial portions of the Software.' +
+'</p><p>' +
+'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR ' +
+'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, ' +
+'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE ' +
+'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER ' +
+'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, ' +
+'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE ' +
+'SOFTWARE.' +
+'</p>' +
+'</div>' +
+'<div class="modal-footer">' +
+'<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+'</div></div></div></div>'
+var htmlLicenseModal = Sanitizer.createSafeHTML(
+    (window as any).instrulang.rdsLicenseMsg + ' ' + elemLicenseModal )
+
 export function initButtons( that: StateMachine ) {
     console.log('racedashstart buttons initButtons()')
     fsm = that
-    $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
     $('#grdCenter').html( Sanitizer.unwrapSafeHTML(htmlPnlCenter) )
     $('#pnlCenterBdy').html( Sanitizer.unwrapSafeHTML(htmlBtnArm) )
-    $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
+    if ( (fsm.conf === null) || fsm.conf.wrnmsg ) {
+        $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
+        $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
+    }
+    else {
+        $('#pnlMsgClockBdy').html( Sanitizer.unwrapSafeHTML(htmlLicenseModal) )
+        $('#btnArm').text( (window as any).instrulang.rdsBtnAcceptTxt )
+    }
     $('#btnArm').removeClass('disabled')
     locstate = 'READY'
 }
@@ -65,10 +105,23 @@ $('body').on('click', '#btnArm', function(event) {
     console.log('racedashstart buttons event click #btnArm')
     console.log('racedashstart buttons - state: ', fsm.state)
     $('#btnArm').addClass('active')
-    if ( fsm.is('marking') || fsm.is('onemark') )
+    if ( fsm.is('marking') || fsm.is('onestbd') ||
+        fsm.is('oneport') || fsm.is('onemark') )
         fsm.btnarmc()
-    else
-        fsm.btnarmw()
+    else {
+        if ( (fsm.conf === null) || fsm.conf.wrnmsg ) {
+            fsm.btnarmw()
+            $('#btnArm').removeClass('active')
+            $('#btnArm').addClass('disabled')
+        }
+        else {
+            $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
+            $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
+            if ( fsm.conf !== null )
+                fsm.conf.wrnmsg = true
+            $('#btnArm').removeClass('active')
+        }
+    }
     console.log('racedashstart buttons - state now: ', fsm.state)
 })
 

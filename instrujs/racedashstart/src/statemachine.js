@@ -10,9 +10,35 @@ var dbglevel = window.instrustat.debuglevel
 
 import StateMachine from 'javascript-state-machine'
 import getLocInfo from '../../src/location'
-import {initButtons, btmarmwButtons, btmarmcButtons, btmarmedButtons, btmarmaButtons} from './buttons'
-import {initCppComm, cppCheckForUserStartline, cppNoUserStartline, cppUserStartline, cppDropStbdMark, cppAckStbdMark, cppDropPortMark, cppAckPortMark, cppGetData, cppAckGetData, cppStopData, cppAckStopData} from './cppStartline'
-import {initLineData, armedLineData, newLineData, quitLineData} from './linedata'
+import { initInit } from './init'
+import {getidAskClient, getidClientAnswer} from './getid'
+import {getConf, prepareConfHalt} from '../../src/conf'
+/*
+ Why this is here? Because Bootstrap v3 is not TypeScript compatible and about
+ all other modules below are TypeScript the few functions Bootstrap v3 needs
+ are initialized here: StateMachine happens also be only available in
+ JavaScript. Please not that about all other features of Bootstraps's SASS
+ version we are using are selectable in ../sass/.bootstrap.sass
+ */
+import tooltip from '../node_modules/bootstrap-sass/assets/javascripts/bootstrap/tooltip'
+import popover from '../node_modules/bootstrap-sass/assets/javascripts/bootstrap/popover'
+import modal   from '../node_modules/bootstrap-sass/assets/javascripts/bootstrap/modal'
+
+import {
+    initButtons, btmarmwButtons, btmarmcButtons, btmarmedButtons,
+    btmarmaButtons
+    } from './buttons'
+import {
+    initCppComm,
+    cppGetIsDistanceUnitFeet, cppInstruNoDistFeet, cppInstruDistFeet,
+    cppCheckForInstruRdy, cppInstruNotRdy, cppInstruRdy,
+    cppCheckForUserStartline, cppNoUserStartline, cppUserStartline,
+    cppDropStbdMark, cppAckStbdMark, cppDropPortMark, cppAckPortMark,
+    cppGetData, cppAckGetData, cppStopData, cppAckStopData
+    } from './cppStartline'
+import {
+    initLineData, armedLineData, newLineData, quitLineData
+    } from './linedata'
 import {getNewLuminosity} from './css'
 
 function dbgPrintFromTo( stateOrTransStr, lifecycle ) {
@@ -30,6 +56,8 @@ export function createStateMachine() {
             uid        : '',
             conf       : null,
             perspath   : false,
+            instrurdy  : false,
+            feet       : false,
             gotusrsl   : false,
             stbdmark   : false,
             portmark   : false,
@@ -40,11 +68,18 @@ export function createStateMachine() {
         },
         transitions: [
             { name: 'init',      from: 'window',   to: 'loading' },
-            { name: 'loaded',    from: 'loading',  to: 'waiting' },
+            { name: 'loaded',    from: 'loading',  to: 'initga'  },
+            { name: 'initok',    from: 'initga',   to: 'getid'   },
+            { name: 'setid',     from: 'getid',    to: 'hasid'   },
+            { name: 'nocfg',     from: 'hasid',    to: 'getdisf' },
+            { name: 'hascfg',    from: 'hasid',    to: 'getdisf' },
+            { name: 'getfeet',   from: 'getdisf',  to: 'waiting' },
+            { name: 'nogetfeet', from: 'getdisf',  to: 'waiting' },
             { name: 'sldstopack',from: 'waiting',  to: 'waiting' },
             { name: 'newsldata', from: 'waiting',  to: 'waiting' },
-            { name: 'btnarmw',   from: 'waiting',  to: 'getusrs' },
-            { name: 'btnarmw',   from: 'waiting',  to: 'getusrs' },
+            { name: 'btnarmw',   from: 'waiting',  to: 'isready' },
+            { name: 'chkrdy',    from: 'isready',  to: 'getusrs' },
+            { name: 'nochkrdy',  from: 'isready',  to: 'waiting' },
             { name: 'nousersl',  from: 'getusrs',  to: 'marking' },
             { name: 'usersl',    from: 'getusrs',  to: 'btnfade' },
             { name: 'btnportd1', from: 'marking',  to: 'oneport' },
@@ -62,30 +97,90 @@ export function createStateMachine() {
             { name: 'btnarmc',   from: 'onemark',  to: 'waiting' },
             { name: 'btnarma',   from: 'btnfade',  to: 'waiting' },
             { name: 'btnarma',   from: 'armed',    to: 'waiting' },
-            { name: 'luminsty',  from: 'getusrs',  to: 'getusrs' },
             { name: 'luminsty',  from: 'waiting',  to: 'waiting' },
+            { name: 'luminsty',  from: 'isready',  to: 'isready' },
+            { name: 'luminsty',  from: 'getusrs',  to: 'getusrs' },
             { name: 'luminsty',  from: 'marking',  to: 'marking' },
+            { name: 'luminsty',  from: 'oneport',  to: 'oneport' },
+            { name: 'luminsty',  from: 'onestbd',  to: 'onestbd' },
             { name: 'luminsty',  from: 'onemark',  to: 'onemark' },
+            { name: 'luminsty',  from: 'twoport',  to: 'twoport' },
+            { name: 'luminsty',  from: 'twostbd',  to: 'twostbd' },
+            { name: 'luminsty',  from: 'btnfade',  to: 'btnfade' },
             { name: 'luminsty',  from: 'armed',    to: 'armed'   },
-            { name: 'closing',   from: 'getusrs',  to: 'halt'    },
             { name: 'closing',   from: 'waiting',  to: 'halt'    },
+            { name: 'closing',   from: 'isready',  to: 'halt'    },
+            { name: 'closing',   from: 'getusrs',  to: 'halt'    },
             { name: 'closing',   from: 'marking',  to: 'halt'    },
+            { name: 'closing',   from: 'oneport',  to: 'halt'    },
+            { name: 'closing',   from: 'onestbd',  to: 'halt'    },
             { name: 'closing',   from: 'onemark',  to: 'halt'    },
+            { name: 'closing',   from: 'twoport',  to: 'halt'    },
+            { name: 'closing',   from: 'twostbd',  to: 'halt'    },
+            { name: 'closing',   from: 'btnfade',  to: 'halt'    },
             { name: 'closing',   from: 'armed',    to: 'halt'    }
         ],
         methods: {
             onWindow:   function() {
                 if ( dbglevel > 0 ) console.log('onWindow() - state')
             },
-            onLoading:  function() {
-                if ( dbglevel > 0 ) console.log('onLoading() - state')
-                if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
-            },
             onBeforeLoaded:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeLoaded() - transition')
+            },
+            onLoading:  function() {
+                if ( dbglevel > 0 ) console.log('onLoading() - state')
+                if ( dbglevel > 1 ) console.log('uid: ', this.uid )
+                if ( dbglevel > 1 ) console.log('conf: ', this.conf)
+                if ( dbglevel > 1 ) console.log('locInfo: ', this.locInfo )
+            },
+            onInitga:   function() {
+                if ( dbglevel > 0 ) console.log('onInitga() - state')
+                initInit( this )
+                initCppComm( this )
+            },
+            onGetid:    function() {
+                if ( dbglevel > 0 ) console.log('onGetid() - state')
+                getidAskClient()
+            },
+            onBeforeSetid:    function() {
+                if ( dbglevel > 0 ) console.log('onSetid() - before transition')
+                getidClientAnswer( this )
+                if ( dbglevel > 1 ) console.log('uid : ', this.uid )
+                getConf( this )
+                if ( !(this.conf === null) )
+                    if ( (this.conf.path === null) || ( this.conf.path === '') )
+                        this.conf.path = 'racedashstart' // no data path but dummy
+            },
+            onHasid:    function() {
+                if ( dbglevel > 0 ) console.log('onHasid() - state')
+            },
+            onBeforeHascfg: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onHascfg() - before transition')
+                if ( dbglevel > 2)
+                    dbgPrintFromTo( 'onBeforeNocfg', lifecycle )
+                this.perspath = false
+            },
+            onBeforeNocfg: function( lifecycle ) {
+                if ( dbglevel > 0 ) console.log('onNocfg() - before transition')
+                if ( dbglevel > 2)
+                    dbgPrintFromTo( 'onBeforeNocfg', lifecycle )
+                this.perspath = false
+            },
+            onGetdisf:   function() {
+                if ( dbglevel > 0 ) console.log('onGetdisf() - state')
+                cppGetIsDistanceUnitFeet()
                 initButtons( this )
                 initLineData( this )
-                initCppComm( this )
+            },
+            onBeforeGetfeet:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeGetfeet() - transition')
+                cppInstruDistFeet()
+                initButtons( this )
+                initLineData( this )
+            },
+            onBeforeNogetfeet:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeNogetfeet() - transition')
+                cppInstruNoDistFeet()
             },
             onWaiting:   function() {
                 if ( dbglevel > 0 ) console.log('onWaiting() - state')
@@ -97,7 +192,20 @@ export function createStateMachine() {
             },
             onBeforeBtnarmw:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeNousersl() - transition')
+                if ( this.is('waiting') )
+                    cppCheckForInstruRdy()
+            },
+            onIsready:   function() {
+                if ( dbglevel > 0 ) console.log('onIsready() - state')
+            },
+            onBeforeChkrdy:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeChkrdy() - transition')
+                cppInstruRdy()
                 cppCheckForUserStartline()
+            },
+            onBeforeNochkrdy:    function() {
+                if ( dbglevel > 0 ) console.log('onBeforeNochkrdy() - transition')
+                cppInstruNotRdy()
             },
             onGetusrs:   function() {
                 if ( dbglevel > 0 ) console.log('onGetUsrs() - state')
@@ -186,6 +294,7 @@ export function createStateMachine() {
             onBeforeClosing: function() {
                 if ( dbglevel > 0 )
                     console.log('onClosing() - before transition')
+                prepareConfHalt( this )
             }
         }
     })

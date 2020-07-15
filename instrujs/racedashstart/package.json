@@ -40,6 +40,7 @@
         "isomorphic-fetch": "^2.2.1",
         "javascript-state-machine": "3.1.0",
         "jquery": "3.5.1",
+        "popover.js": "0.2.40",
         "promise-polyfill": "^8.1.3",
         "regenerator-runtime": "^0.13.5"
     },

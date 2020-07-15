@@ -47,54 +47,54 @@ if (bottom === null) {
 }
 
 // UID and configuration file
-// var eventsetid: Event = document.createEvent('Event')
-// eventsetid.initEvent('setid', false, false)
-// bottom.addEventListener('setid', ((event: CustomEvent) => {
-//     if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
-//     try {
-//         fsm.setid()
-//     }
-//     catch( error ) {
-//         console.error(
-//             'Event:  setid: fsm.setid() transition failed, error: ',
-//             error.message, ' current state: ', fsm.state)
-//     }
-//     var pollhascfg: () => void
-//     (pollhascfg= function () {
-//         if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
-//         if ( fsm.is('hasid') ) {
-//             var hascfg = true
-//             if ( fsm.conf === null )
-//                 hascfg = false
-//             else if ( (fsm.conf.path === null) || (fsm.conf.path === '') )
-//                 hascfg = false
-//             if ( hascfg ) {
-//                 try {
-//                     fsm.hascfg()
-//                 }
-//                 catch( error ) {
-//                     console.error(
-//                         'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ',
-//                         error.message, ' current state: ', fsm.state)
-//                 }
-//             }
-//             else {
-//                 try {
-//                     fsm.nocfg()
-//                 }
-//                 catch( error ) {
-//                     console.error(
-//                         'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ',
-//                         error.message, ' current state: ', fsm.state)
-//                 }
-//             }
-//         }
-//         else {
-//             window.setTimeout(pollhascfg, 100)
-//         }
-//     })(); // do selection of the next action in the routing once ID has been set, or not
-// }) as EventListener);  // hey non-semicolon-TS-person - this is needed!
-// (window as any).iface.regeventsetid( bottom, eventsetid )
+var eventsetid: Event = document.createEvent('Event')
+eventsetid.initEvent('setid', false, false)
+bottom.addEventListener('setid', ((event: CustomEvent) => {
+    if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
+    try {
+        fsm.setid()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  setid: fsm.setid() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+    var pollhascfg: () => void
+    (pollhascfg= function () {
+        if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
+        if ( fsm.is('hasid') ) {
+            var hascfg = true
+            if ( fsm.conf === null )
+                hascfg = false
+            else if ( (fsm.conf.path === null) || (fsm.conf.path === '') )
+                hascfg = false
+            if ( hascfg ) {
+                try {
+                    fsm.hascfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.ts:  pollhascfg(): fsm.hascfg() transition failed, error: ',
+                        error.message, ' current state: ', fsm.state)
+                }
+            }
+            else {
+                try {
+                    fsm.nocfg()
+                }
+                catch( error ) {
+                    console.error(
+                        'index.ts: pollhascfg(): fsm.nocfg() transition failed, error: ',
+                        error.message, ' current state: ', fsm.state)
+                }
+            }
+        }
+        else {
+            window.setTimeout(pollhascfg, 100)
+        }
+    })(); // do selection of the next action in the routing once ID has been set, or not
+}) as EventListener);  // hey non-semicolon-TS-person - this is needed!
+(window as any).iface.regeventsetid( bottom, eventsetid )
 
 // All available paths have been set
 // var eventsetall: Event = document.createEvent('Event')
@@ -227,7 +227,7 @@ if (bottom === null) {
 //             }
 //             catch( error ) {
 //                 console.error(
-//                     'index.js:  fsm.newget() transition failed, error: ',
+//                     'index.ts:  fsm.newget() transition failed, error: ',
 //                     error.message, ' current state: ', fsm.state)
 //             }
 //         } else {
@@ -267,7 +267,7 @@ if (bottom === null) {
 //             }
 //             catch( error ) {
 //                 console.error(
-//                     'index.js:  fsm.retryget() transition failed, error: ',
+//                     'index.ts:  fsm.retryget() transition failed, error: ',
 //                     error.message, ' current state: ', fsm.state)
 //             }
 //         } else {
@@ -306,6 +306,66 @@ if (bottom === null) {
 //     }
 // }) as EventListener);
 // (window as any).iface.regeventchgconf( bottom, eventchgconf )
+
+// The instrument is set to feet unit
+var eventgetfeet: Event = document.createEvent('Event')
+eventgetfeet.initEvent('getfeet', false, false)
+bottom.addEventListener('getfeet', ((event: Event) => {
+    try {
+        fsm.getfeet()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventgetfeet: fsm.getfeet() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventgetfeet( bottom, eventgetfeet )
+
+// The instrument is not active and ready
+var eventnogetfeet: Event = document.createEvent('Event')
+eventnogetfeet.initEvent('nogetfeet', false, false)
+bottom.addEventListener('nogetfeet', ((event: Event) => {
+    try {
+        fsm.nogetfeet()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventnogetfeet: fsm.nogetfeet() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventnogetfeet( bottom, eventnogetfeet )
+
+// The instrument is active and ready
+var eventchkrdy: Event = document.createEvent('Event')
+eventchkrdy.initEvent('chkrdy', false, false)
+bottom.addEventListener('chkrdy', ((event: Event) => {
+    try {
+        fsm.chkrdy()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventchkrdy: fsm.chkrdy() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventchkrdy( bottom, eventchkrdy )
+
+// The instrument is not active and ready
+var eventnochkrdy: Event = document.createEvent('Event')
+eventnochkrdy.initEvent('nochkrdy', false, false)
+bottom.addEventListener('nochkrdy', ((event: Event) => {
+    try {
+        fsm.nochkrdy()
+    }
+    catch( error ) {
+        console.error(
+            'Event:  eventnochkrdy: fsm.nochkrdy() transition failed, error: ',
+            error.message, ' current state: ', fsm.state)
+    }
+}) as EventListener);
+(window as any).iface.regeventnochkrdy( bottom, eventnochkrdy )
 
 // A user set startline has been selected
 var eventusersl: Event = document.createEvent('Event')
@@ -439,15 +499,48 @@ bottom.addEventListener('closing', ((event: Event) => {
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to truy event driven operation */
-var pollwaiting: () => void
-(pollwaiting = function() {
+
+// var pollwaiting: () => void
+// (pollwaiting = function() {
+//     if ( dbglevel > 0 )
+//         console.log('pollinitga() - waiting for waiting-state, now: ',
+//          fsm.state)
+//     if ( !fsm.is('waiting') ) {
+//         setTimeout(pollwaiting, 100)
+//     }
+// })() // do _everything_ in the routing once condition met
+
+
+var reloadDelay:number = 2
+var pollinitga: () => void
+(pollinitga = function() {
     if ( dbglevel > 0 )
-        console.log('pollinitga() - waiting for waiting-state, now: ',
+        console.log('pollinitga() - waiting for initga, now: ',
          fsm.state)
-    if ( !fsm.is('waiting') ) {
-        setTimeout(pollwaiting, 100)
+    if ( fsm.is('initga') ) {
+        if ( reloadDelay === 0 ) {
+            try {
+                fsm.initok()
+            }
+            catch( error ) {
+                console.error(
+                    'index.ts:  fsm.initok() transition failed, error: ',
+                    error.message, ' current state: ', fsm.state)
+            }
+        }
+        else {
+            reloadDelay--
+            if ( dbglevel > 1 )
+                console.log('pollinitga() - initga+reloadDelay: ', reloadDelay)
+            setTimeout(pollinitga, 500)
+        }
     }
-})() // do _everything_ in the routing once condition met
+    else {
+        setTimeout(pollinitga, 100)
+    }
+})(); // do _everything_ in the routing once condition met
+
+
 
 /* ------------------------------------------ */
 

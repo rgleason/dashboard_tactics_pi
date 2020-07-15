@@ -1,12 +1,19 @@
 
-export interface StateMachineConf {
-    path: string
-}
+import { conf } from '../../src/conf'
+import {locationInfo} from '../../src/location'
 
 export interface StateMachine {
     init(): undefined
     loaded(): undefined
+    initok():undefined
+    setid(): undefined
+    nocfg(): undefined
+    hascfg(): undefined
+    getfeet(): undefined
+    nogetfeet(): undefined
     btnarmw(): undefined
+    chkrdy(): undefined
+    nochkrdy(): undefined
     nousersl(): undefined
     usersl(): undefined
     btnportd1(): undefined
@@ -30,11 +37,14 @@ export interface StateMachine {
     is(): undefined
     uid: string
     perspath: boolean
+    instrurdy: boolean
+    feet: boolean
     gotusrsl: boolean
     stbdmark: boolean
     portmark: boolean
     luminosity: string
-    conf: StateMachineConf
+    locInfo : locationInfo
+    conf: conf
     state: string
 }
 
