@@ -43,7 +43,6 @@ const elemPnlDistAbs = '<div id="pnlDistAbs" class="panel panel-default day">' +
 '<b><div id="pnlDistAbsBdy" class="panel-body text-center day"></div></b>' +
 '</div>'
 var htmlPnlDistAbs = Sanitizer.createSafeHTML(elemPnlDistAbs)
-var htmlPnlDistAbs = Sanitizer.createSafeHTML(elemPnlDistAbs)
 const elemDistAbsPopover = '<a id="distAbsPop" href="#" role="button" ' +
 'tabindex="1" data-toggle="popover1" data-trigger="focus" data-html="false" ' +
 'title="' + (window as any).instrulang.rdsDistAbs + '" ' +

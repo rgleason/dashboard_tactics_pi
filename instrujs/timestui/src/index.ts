@@ -99,7 +99,7 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
         else {
             window.setTimeout(pollhascfg, 100)
         }
-    })(); // do selection of the next action in the routing once ID has been set, or not
+    })() // do selection of the next action in the routing once ID has been set, or not
 }) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 (window as any).iface.regeventsetid( bottom, eventsetid )
 
@@ -216,7 +216,7 @@ bottom.addEventListener('newdata', ((event: Event) => {
     (pollshowdata = function () {
         var newDataCnt = getAddedDataCount()
         var painting: boolean = true
-        if ( newDataCnt != prevNewDataCnt) {
+        if ( newDataCnt !== prevNewDataCnt) {
             prevNewDataCnt = newDataCnt
         }
         else {
@@ -240,7 +240,7 @@ bottom.addEventListener('newdata', ((event: Event) => {
         } else {
             window.setTimeout(pollshowdata, 450)
         }
-    })(); // make the transition from newdata to getnew by polling the state
+    })() // make the transition from newdata to getnew by polling the state
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
 
@@ -383,7 +383,7 @@ var pollinitga: () => void
     else {
         setTimeout(pollinitga, 100)
     }
-})(); // do _everything_ in the routing once condition met
+})() // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 
