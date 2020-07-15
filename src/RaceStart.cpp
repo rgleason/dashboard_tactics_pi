@@ -105,7 +105,7 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_renDistanceCogToStartLine = std::nan("1");
     (void) CheckForValidStartLineGUID (
         _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
-        _T(RACESTART_NAME_WP_STARTP), _T(RACESTART_NAME_WP_STARTS) );
+        _T(RACESTART_NAME_WP_STARTPORT), _T(RACESTART_NAME_WP_STARTSTBD) );
 
     if ( !LoadConfig() )
         return;
@@ -243,7 +243,8 @@ void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
 }
 
 // This method checks if the candiate for persistent startline is valid
-bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, wxString lineName, wxString portName, wxString stbdName) {
+bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, wxString lineName, wxString portName, wxString stbdName)
+{
     if ( sGUID.IsEmpty() )
         return false;
     bool startlineAsRouteValid = true;
@@ -314,7 +315,8 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
 }
 
 // This functionmethod  is called while approaching start line area and there are _no_ marks yet
-bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine() {
+bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine()
+{
     wxString activeRouteGUID = m_pparent->GetActiveRouteGUID();
     if ( activeRouteGUID.IsEmpty() )
         return false;
@@ -326,11 +328,12 @@ bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine() {
     // There is an active route named with the matching user name nomenclature, let's study it
     return CheckForValidStartLineGUID(
         activeRouteGUID, activeRouteName,
-        _T(RACESTART_NAME_WP_STARTP_USER), _T(RACESTART_NAME_WP_STARTS_USER) );
+        _T(RACESTART_NAME_WP_STARTPORT_USER), _T(RACESTART_NAME_WP_STARTSTBD_USER) );
 }
 
 // The startline is a route and can be killed in route manager of OpenCPN
-bool DashboardInstrument_RaceStart::CheckStartLineStillValid() {
+bool DashboardInstrument_RaceStart::CheckStartLineStillValid()
+{
     std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin( m_sStartLineAsRouteGuid );
     PlugIn_Route *selectedRouteAsStartLineStillThere = rte.get();
     if ( selectedRouteAsStartLineStillThere )
@@ -338,10 +341,47 @@ bool DashboardInstrument_RaceStart::CheckStartLineStillValid() {
     return false;
 }
 
+// The JavaScript part asks if we are ready: with no data, we are not
+bool DashboardInstrument_RaceStart::instruIsReady()
+{
+    return IsAllMeasurementDataValid();
+}
+
 // The base, abstract class requires this to pass the information to JavaScript
-bool DashboardInstrument_RaceStart::userHasStartline() {
+bool DashboardInstrument_RaceStart::userHasStartline()
+{
     return CheckStartLineStillValid();
 }
+
+// User has pressed the Starboard button to drop a mark
+bool DashboardInstrument_RaceStart::dropStarboardMark()
+{
+    if ( !IsAllMeasurementDataValid() )
+        return false;
+    wxString wpGUID = _T(RACESTART_GUID_WP_STARTSTBD);
+    wxString wpName = _T(RACESTART_NAME_WP_STARTSTBD);
+    (void) DeleteSingleWaypoint ( wpGUID );
+    m_startStbdWp = new PlugIn_Waypoint(
+        m_Lat, m_Lon, _T("Symbol-Diamond-Green"),
+        wpName, wpGUID );
+    AddSingleWaypoint(m_startStbdWp, false);
+    return true;
+}
+// User has pressed the Port button to drop a mark
+bool DashboardInstrument_RaceStart::dropPortMark()
+{
+    if ( !IsAllMeasurementDataValid() )
+        return false;
+    wxString wpGUID = _T(RACESTART_GUID_WP_STARTPORT);
+    wxString wpName = _T(RACESTART_NAME_WP_STARTPORT);
+    (void) DeleteSingleWaypoint (wpGUID );
+    m_startPortWp = new PlugIn_Waypoint(
+        m_Lat, m_Lon, _T("Symbol-Diamond-Red"),
+        wpName, wpGUID );
+    AddSingleWaypoint(m_startPortWp, false);
+    return true;
+}
+
 
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {

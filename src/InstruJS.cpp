@@ -437,12 +437,62 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_setAllPathGraceCount--;
                 break;
             }
+            else if ( request.CmpNoCase("getrdy") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setchkrdy(",
+                    (instruIsReady() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
             else if ( request.CmpNoCase("getusrsl") == 0 ) {
                 wxString javascript = wxString::Format(
                     L"%s%s%s",
-                    "window.iface.setusersl('",
+                    "window.iface.setusersl(",
                     (userHasStartline() ? "true" : "false"),
-                    "');");
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("dropstbd") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmarkack(",
+                    (dropStarboardMark() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("dropport") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmarkack(",
+                    (dropPortMark() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("getsldata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setsldataack(",
+                    (sendSlData() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("stopsldata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setsldstopack(",
+                    (stopSlData() ? "true" : "false"),
+                    ");");
                 RunScript( javascript );
                 m_handshake = JSI_HDS_SERVED;
                 break;

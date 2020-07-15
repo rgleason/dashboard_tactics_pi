@@ -118,7 +118,12 @@ public:
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
 
+    virtual bool instruIsReady(void){ return false; };
     virtual bool userHasStartline(void){ return false; };
+    virtual bool dropStarboardMark(void){ return false; };
+    virtual bool dropPortMark(void){ return false; };
+    virtual bool sendSlData(void){ return false; };
+    virtual bool stopSlData(void){ return false; };
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;

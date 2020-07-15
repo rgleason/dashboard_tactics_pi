@@ -75,12 +75,12 @@
 #define RACESTART_GUID_STARTLINE_AS_ROUTE "DashT_RaceStart_0001_STARTLINE"
 #define RACESTART_NAME_STARTLINE_AS_ROUTE "DashT Startline"
 #define RACESTART_NAME_STARTLINE_AS_ROUTE_USER "My Startline"
-#define RACESTART_GUID_WP_STARTS "DashT_RaceStart_0001_STARTS"
-#define RACESTART_NAME_WP_STARTS "STARTS"
-#define RACESTART_NAME_WP_STARTS_USER "MySTARTS"
-#define RACESTART_GUID_WP_STARTP "DashT_RaceStart_0001_STARTP"
-#define RACESTART_NAME_WP_STARTP "STARTP"
-#define RACESTART_NAME_WP_STARTP_USER "MySTARTP"
+#define RACESTART_GUID_WP_STARTSTBD "DashT_RaceStart_0001_STARTSTBD"
+#define RACESTART_NAME_WP_STARTSTBD "StartS"
+#define RACESTART_NAME_WP_STARTSTBD_USER "MyStartS"
+#define RACESTART_GUID_WP_STARTPORT "DashT_RaceStart_0001_STARTPORT"
+#define RACESTART_NAME_WP_STARTPORT "StartP"
+#define RACESTART_NAME_WP_STARTPORT_USER "MyStartP"
 
 // These values for first time start only
 #define RACESTART_LAYL_LINE_WIDTH 3 // pen width
@@ -136,8 +136,11 @@ public:
     bool CheckForValidUserSetStartLine(void);
     bool CheckStartLineStillValid(void);
 
+    virtual bool instruIsReady(void) override;
     virtual bool userHasStartline(void) override;
-    
+    virtual bool dropStarboardMark(void) override;
+    virtual bool dropPortMark(void) override;
+   
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
     virtual void PushTwaHere(double data, wxString unit, long long timestamp=0LL);
