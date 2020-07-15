@@ -9,7 +9,7 @@
  SignalK Path keys: https://git.io/JvsYw
  Note that Signal K values are always in SI units (like m/s, not knots).
  Conversion to a wanted unit is made with multipier/division/offset.
- Avoid using floating point values like 0.000000003 in JavaScript!
+ Avoid using crazy floating point values like 0.000000003 in JavaScript!
  UTF8 - do _not_ change encoding, cf. degree character. Notepad++ recommended.
  Usage example: enginedjg/index.html loads a minimized version, common.min.js
         - make a copy of common.min.js by renaming it;
@@ -27,7 +27,6 @@ var  instrustat = {
     debuglevel : 5,
     alerts : true,
     alertdelay : 5,
-    rdsfeet: false,
     corsproxy: 'http://localhost:8089',
     knownpaths: [
 /*
@@ -52,7 +51,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -70,7 +70,8 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -88,7 +89,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -106,7 +108,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -124,7 +127,8 @@ var  instrustat = {
             divider    : 100000,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -142,7 +146,8 @@ var  instrustat = {
             divider    : 1000000,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
 /*  ***
     Testing revealed an anomaly between negative and postive values
@@ -168,7 +173,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -186,7 +192,8 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -204,7 +211,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -222,7 +230,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -240,7 +249,8 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -258,7 +268,8 @@ var  instrustat = {
             divider    : 1000,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -276,7 +287,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -294,7 +306,8 @@ var  instrustat = {
             divider    : 1000,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -312,7 +325,8 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -330,7 +344,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
 /*  ***
     Did not pass tests for distribution, please feel free to test
@@ -351,7 +366,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
  *** */
         {
@@ -370,7 +386,8 @@ var  instrustat = {
             divider    : 1,
             offset     : -273.2,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -388,7 +405,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : '',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
 /*
         ----- Dashboard instrument records from InfluxDB -----
@@ -420,7 +438,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -438,7 +457,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -456,7 +476,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -474,7 +495,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -492,7 +514,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -510,7 +533,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -528,7 +552,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -546,7 +571,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -564,7 +590,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
         {
             version    : 1,
@@ -582,7 +609,8 @@ var  instrustat = {
             divider    : 1,
             offset     : 0,
             dbfunc     : 'movingAverage(n: 20)',
-            dbnum      : 0
+            dbnum      : 0,
+            wrnmsg     : false
         },
 /* *********** Do not modify below this line *********** */
     ],
@@ -625,7 +653,8 @@ var  instrustat = {
             divider    : this.knownpaths[ parseInt(i) ].divider,
             offset     : this.knownpaths[ parseInt(i) ].offset,
             dbfunc     : this.knownpaths[ parseInt(i) ].dbfunc,
-            dbnum      : this.knownpaths[ parseInt(i) ].dbnum
+            dbnum      : this.knownpaths[ parseInt(i) ].dbnum,
+            wrnmsg     : this.knownpaths[ parseInt(i) ].wrnmsg
         }
     },
 }
