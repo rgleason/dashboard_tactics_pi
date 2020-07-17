@@ -77,6 +77,7 @@ void DashboardInstrument_RaceStart::ClearRendererCalcs()
     m_renGridEndPointOtherEast_lon = std::nan("1");
     m_renDistanceToStartLine = std::nan("1");
     m_renDistanceCogToStartLine = std::nan("1");
+    m_renIsOnWrongSide = true;
     m_renCogCrossingStartlinePoint_lat = std::nan("1");
     m_renCogCrossingStartlinePoint_lon = std::nan("1");
     m_renPolarDistance = std::nan("1");
@@ -90,6 +91,8 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
 {
     ClearRendererCalcs();
     if ( !(m_startStbdWp) || !(m_startPortWp) )
+        return;
+    if ( !m_dataRequestOn )
         return;
     this->RenderGLStartLine( pcontext, vp );
     this->RenderGLWindBias( pcontext, vp );
@@ -235,7 +238,7 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
             m_renLLPortDir -= 360.;
     } // then boat should be S in excpecting to start towards N sector
     else {
-        m_renLLPortDir = m_renSlineDir - 45.0 - m_renWindBias;
+        m_renLLPortDir = m_renSlineDir - 45.0 + m_renWindBias;
         if ( m_renLLPortDir < 0. )
             m_renLLPortDir += 360.0;
         m_renLLStbdDir = m_renLLPortDir - 90.0;
@@ -972,12 +975,17 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartlineGLDot(
                                     m_startWestWp->m_lat, m_startWestWp->m_lon, 
                                     &brgToWest, &distanceToWestPoint );
     double deltaFromSlineDir = getSignedDegRange( m_renSlineDir, brgToWest );
-    bool isOnWrongSide = false;
+    m_renIsOnWrongSide = false;
     if ( deltaFromSlineDir < 0. ) {
         if ( m_renbNorthSector ) {
-            isOnWrongSide = true;
-        } // then the organizer expects the boats being on the "southern" section
-    } // then we are in the "northern" 180-deg section of the startline
+            m_renIsOnWrongSide = true;
+        } // then the organizer expects the boats being on the "southern" section...
+    } // then we are in the "northern" 180-deg section of the startline, cheating
+    else {
+        if ( !m_renbNorthSector ) {
+            m_renIsOnWrongSide = true;
+        } // then the organizer expects the boats being on the "northern" section...
+    } // else we are in the "southern" 180-deg section of ths starstline, cheating
     double deltaFromOppositeSlineDir = getSignedDegRange(
         m_renOppositeSlineDir, brgToWest );
     if ( abs( deltaFromOppositeSlineDir ) < 90. ) {
@@ -995,14 +1003,15 @@ void DashboardInstrument_RaceStart::CalculateDistancesToStartlineGLDot(
         } // then the shortest distance is to the east side marker
         else {
             m_renDistanceToStartLine =
-                distanceToEastPoint * ((abs(deltaFromSlineDir) - 90.0) * M_PI / 180.);
+                distanceToEastPoint *
+                sin(abs(deltaFromSlineDir) * M_PI / 180.);
         } // else the shortest distance is a direct line to a point on startline
     } // else we are either above startline or east to it
     /*
      If we are in the "wrong side" of the startline (racing organizer's point
      of view), then do not attempt to calculate the COG distance to the startline
     */
-    if ( isOnWrongSide ) {
+    if ( m_renIsOnWrongSide ) {
         m_renDistanceCogToStartLine = std::nan("1");
         return;
     } // then on the wind side of the startling line, cheating!
@@ -1105,6 +1114,9 @@ void DashboardInstrument_RaceStart::RenderGLZeroBurn(
 
     if ( std::isnan( m_renDistanceCogToStartLine ) )
         return;
+
+    if ( m_renIsOnWrongSide )
+        return;
   
     if ( BoatPolar == nullptr ) {
         if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
@@ -1176,4 +1188,26 @@ void DashboardInstrument_RaceStart::RenderGLZeroBurn(
     glEnd();
 
     m_renZeroBurnDrawn = true;
+}
+
+void DashboardInstrument_RaceStart::getSlData(
+    wxString &sCogDist, wxString &sDist,
+    wxString &sBias, wxString &sAdv )
+{
+    if ( std::isnan( m_renDistanceCogToStartLine ) )
+        sCogDist = _T("-999.0");
+    else
+        sCogDist = wxString::Format(wxT("%f"), m_renDistanceCogToStartLine);
+    if ( std::isnan( m_renDistanceToStartLine ) )
+        sDist = _T("-999.0");
+    else
+        sDist = wxString::Format(wxT("%f"), m_renDistanceToStartLine);
+    if ( std::isnan( m_renWindBias ) )
+        sBias = _T("-999.0");
+    else
+        sBias = wxString::Format(wxT("%f"), m_renWindBias);
+    if ( std::isnan( m_renWindBiasAdvDist ) )
+        sAdv = _T("-999.0");
+    else
+        sAdv = wxString::Format(wxT("%f"), m_renWindBiasAdvDist);
 }

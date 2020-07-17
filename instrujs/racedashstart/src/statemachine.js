@@ -12,7 +12,9 @@ import StateMachine from 'javascript-state-machine'
 import getLocInfo from '../../src/location'
 import { initInit } from './init'
 import {getidAskClient, getidClientAnswer} from './getid'
-import {getConf, prepareConfHalt} from '../../src/conf'
+import {
+    getConf, memorizeSettings, prepareConfHalt
+    } from '../../src/conf'
 /*
  Why this is here? Because Bootstrap v3 is not TypeScript compatible and about
  all other modules below are TypeScript the few functions Bootstrap v3 needs
@@ -25,8 +27,8 @@ import popover from '../node_modules/bootstrap-sass/assets/javascripts/bootstrap
 import modal   from '../node_modules/bootstrap-sass/assets/javascripts/bootstrap/modal'
 
 import {
-    initButtons, btmarmwButtons, btmarmcButtons, btmarmedButtons,
-    btmarmaButtons
+    initButtons, btmarmwButtons, btmarwButtonsInstruNoChkrdyAck,
+    btmarmcButtons, btmarmedButtons, btmarmaButtons
     } from './buttons'
 import {
     initCppComm,
@@ -206,6 +208,7 @@ export function createStateMachine() {
             onBeforeNochkrdy:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeNochkrdy() - transition')
                 cppInstruNotRdy()
+                btmarwButtonsInstruNoChkrdyAck()
             },
             onGetusrs:   function() {
                 if ( dbglevel > 0 ) console.log('onGetUsrs() - state')
@@ -221,6 +224,7 @@ export function createStateMachine() {
             },
             onMarking:   function() {
                 if ( dbglevel > 0 ) console.log('onMarking() - state')
+                btmarwButtonsInstruNoChkrdyAck()
             },
             onBeforeBtnarmc:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeBtnarmc() - transition')
@@ -242,6 +246,7 @@ export function createStateMachine() {
             },
             onOnemark:   function() {
                 if ( dbglevel > 0 ) console.log('onOnemark() - state')
+                btmarwButtonsInstruNoChkrdyAck()
             },
             onBeforeBtnportd2:    function() {
                 if ( dbglevel > 0 ) console.log('onBeforeBtnportd2() - transition')

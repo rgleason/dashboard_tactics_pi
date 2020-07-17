@@ -140,6 +140,12 @@ public:
     virtual bool userHasStartline(void) override;
     virtual bool dropStarboardMark(void) override;
     virtual bool dropPortMark(void) override;
+    virtual bool sendSlData(void) override {
+        this->m_dataRequestOn = true; return true; };
+    virtual bool stopSlData(void) override {
+        this->m_dataRequestOn = false; return true; };
+    virtual void getSlData( wxString& sCogDist, wxString& sDist,
+                            wxString& sBias, wxString& sAdv ) override;
    
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
@@ -224,11 +230,13 @@ protected:
     int                  m_renZeroBurnSeconds;
     double               m_renDistanceToStartLine;
     double               m_renDistanceCogToStartLine;
+    bool                 m_renIsOnWrongSide;
     wxRealPoint          m_renCogCrossingStartlineRealPoint;
     double               m_renCogCrossingStartlinePoint_lat;
     double               m_renCogCrossingStartlinePoint_lon;
     double               m_renPolarDistance;
     bool                 m_renZeroBurnDrawn;
+    bool                 m_dataRequestOn;
     
     callbackFunction     m_pushTwaHere;
     wxString             m_pushTwaUUID;

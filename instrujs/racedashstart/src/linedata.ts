@@ -153,7 +153,7 @@ export function newLineData() {
 
     var biasStr: string = '- - -'
     var bias: number = cpp.getslwindbias()
-    if ( bias >= 0.0 )
+    if ( bias !== -999.0 )
         biasStr = bias.toFixed(0)
     $('#pnlBiasValueBdy').text( biasStr )
 

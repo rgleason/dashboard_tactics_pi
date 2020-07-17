@@ -10,6 +10,7 @@ import sanitizer from '../../src/escapeHTML'
 var Sanitizer = new sanitizer()
 
 import {StateMachine} from './statemachine'
+import {memorizeSettings} from '../../src/conf'
 
 var fsm: StateMachine
 var dbglevel: number = (window as any).instrustat.debuglevel
@@ -117,13 +118,21 @@ $('body').on('click', '#btnArm', function(event) {
         else {
             $('#pnlMsgClockBdy').text( (window as any).instrulang.rdsInitMsg )
             $('#btnArm').text( (window as any).instrulang.rdsBtnArmTxt )
-            if ( fsm.conf !== null )
+            if ( fsm.conf !== null ) {
                 fsm.conf.wrnmsg = true
+                memorizeSettings( fsm )
+            }
             $('#btnArm').removeClass('active')
         }
     }
     console.log('racedashstart buttons - state now: ', fsm.state)
 })
+
+export function btmarwButtonsInstruNoChkrdyAck( ) {
+    console.log('racedashstart buttons btmarwButtonsInstruNoChkrdyAck()')
+    $('#btnArm').removeClass('active')
+    $('#btnArm').removeClass('disabled')
+}
 
 export function btmarmwButtons( ) {
     console.log('racedashstart buttons btmarmwButtons()')

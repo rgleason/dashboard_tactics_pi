@@ -68,6 +68,7 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_pconfig = GetOCPNConfigObject();
     m_renStartLineDrawn = false;
     m_renWindBiasDrawn = false;
+    m_dataRequestOn = false;
     ClearRoutesAndWPs();
 
     /*
@@ -314,7 +315,6 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
     return startlineAsRouteValid;
 }
 
-// This functionmethod  is called while approaching start line area and there are _no_ marks yet
 bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine()
 {
     wxString activeRouteGUID = m_pparent->GetActiveRouteGUID();
@@ -347,10 +347,20 @@ bool DashboardInstrument_RaceStart::instruIsReady()
     return IsAllMeasurementDataValid();
 }
 
-// The base, abstract class requires this to pass the information to JavaScript
+// The JavaScript part asks do we have a startline?
 bool DashboardInstrument_RaceStart::userHasStartline()
 {
-    return CheckStartLineStillValid();
+    if ( !CheckStartLineStillValid() ) {
+        if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) ) {
+            return true;
+        } // then there is a user dropped marks but no user's route based marks
+        else {
+            return false;
+        } // else there is no user dropped marks or user's route based marks
+    } // no user active route based startline
+    else {
+        return true;
+    } // else OK, user's route based startline
 }
 
 // User has pressed the Starboard button to drop a mark
