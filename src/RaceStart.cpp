@@ -445,7 +445,6 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
     bool thereIsValidChange = false;
 
     wxString wpPortGUID = _T(RACESTART_GUID_WP_STARTPORT);
-    wxString wpPortName = _T(RACESTART_NAME_WP_STARTPORT);
     PlugIn_Waypoint *cmpStartPortWp = new PlugIn_Waypoint();
     cmpStartPortWp->m_lat = -999.0;
     cmpStartPortWp->m_lon = -999.0;
@@ -461,7 +460,6 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
     } // then there is a dropped waypoint for port side
 
     wxString wpStbdGUID = _T(RACESTART_GUID_WP_STARTSTBD);
-    wxString wpStbdName = _T(RACESTART_NAME_WP_STARTSTBD);
     PlugIn_Waypoint *cmpStartStbdWp = new PlugIn_Waypoint();
     cmpStartStbdWp->m_lat = -999.0;
     cmpStartStbdWp->m_lon = -999.0;
