@@ -396,12 +396,10 @@ bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
     bool thereAreValidPoints = true;
     
     wxString wpPortGUID = _T(RACESTART_GUID_WP_STARTPORT);
-    wxString wpPortName = _T(RACESTART_NAME_WP_STARTPORT);
     m_startPortWp = new PlugIn_Waypoint();
     if ( !GetSingleWaypoint( wpPortGUID, m_startPortWp ) )
         thereAreValidPoints = false;
     wxString wpStbdGUID = _T(RACESTART_GUID_WP_STARTSTBD);
-    wxString wpStbdName = _T(RACESTART_NAME_WP_STARTSTBD);
     m_startStbdWp = new PlugIn_Waypoint();
     if ( !GetSingleWaypoint( wpStbdGUID, m_startStbdWp ) )
         thereAreValidPoints = false;
