@@ -143,10 +143,8 @@ public:
     virtual bool userHasStartline(void) override;
     virtual bool dropStarboardMark(void) override;
     virtual bool dropPortMark(void) override;
-    virtual bool sendSlData(void) override {
-        this->m_dataRequestOn = true; return true; };
-    virtual bool stopSlData(void) override {
-        this->m_dataRequestOn = false; return true; };
+    virtual bool sendSlData(void) override;
+    virtual bool stopSlData(void) override;
     virtual void getSlData( wxString& sCogDist, wxString& sDist,
                             wxString& sBias, wxString& sAdv ) override;
    
@@ -241,6 +239,9 @@ protected:
     double               m_renPolarDistance;
     bool                 m_renZeroBurnDrawn;
     bool                 m_dataRequestOn;
+    bool                 m_jsCallBackAsHeartBeat;
+    bool                 m_userDropsMarks;
+    bool                 m_suggestedOldMarks;
     
     callbackFunction     m_pushTwaHere;
     wxString             m_pushTwaUUID;

@@ -69,6 +69,9 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_renStartLineDrawn = false;
     m_renWindBiasDrawn = false;
     m_dataRequestOn = false;
+    m_userDropsMarks = false;
+    m_suggestedOldMarks = false;
+    m_jsCallBackAsHeartBeat = false;
     ClearRoutesAndWPs();
 
     /*
@@ -351,7 +354,7 @@ bool DashboardInstrument_RaceStart::instruIsReady()
 // The JavaScript part asks do we have a startline?
 bool DashboardInstrument_RaceStart::userHasStartline()
 {
-    if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) )
+    if ( m_startStbdWp && m_startPortWp )
         return true;
     return false;
 }
@@ -368,6 +371,7 @@ bool DashboardInstrument_RaceStart::dropStarboardMark()
         m_Lat, m_Lon, _T("Symbol-Diamond-Green"),
         wpName, wpGUID );
     AddSingleWaypoint(m_startStbdWp, true);
+    m_userDropsMarks = true;
     return true;
 }
 // User has pressed the Port button to drop a mark
@@ -382,16 +386,39 @@ bool DashboardInstrument_RaceStart::dropPortMark()
         m_Lat, m_Lon, _T("Symbol-Diamond-Red"),
         wpName, wpGUID );
     AddSingleWaypoint(m_startPortWp, true);
+    m_userDropsMarks = true;
+    return true;
+}
+bool DashboardInstrument_RaceStart::sendSlData()
+{
+    m_dataRequestOn = true;
+    return true;
+}
+bool DashboardInstrument_RaceStart::stopSlData()
+{
+    m_dataRequestOn = false;
+    m_userDropsMarks = false;
+    m_suggestedOldMarks = false;
+    m_jsCallBackAsHeartBeat = true;
     return true;
 }
 
 bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
 {
+    if ( !m_htmlLoaded )
+        return false; // don't bug in the startup yet
+
+    if ( !m_jsCallBackAsHeartBeat )
+        return false; // nobody's awaken on the other side, do nothing
+    
     if ( CheckStartLineStillValid() )
         return false; // route based, fixed startline
 
-    if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) )
-        return false; // there is an on-going startline business
+    if ( m_userDropsMarks )
+        return false; // we can be dropping them right now
+
+    if ( m_suggestedOldMarks )
+        return false; // OK, user is already aware of this
 
     bool thereAreValidPoints = true;
     
@@ -404,8 +431,13 @@ bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
     if ( !GetSingleWaypoint( wpStbdGUID, m_startStbdWp ) )
         thereAreValidPoints = false;
 
-    if ( !thereAreValidPoints )
+    if ( !thereAreValidPoints ) {
+        delete m_startPortWp;
+        m_startPortWp = nullptr;
+        delete m_startStbdWp;
+        m_startStbdWp = nullptr;
         return false;
+    }
 
     wxString message(
         _("There is an existing startline from previous race or start. ") + "\n" +
@@ -424,10 +456,13 @@ bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
         dlg->SetExtendedMessage( messageExtended );
     } // then cannot change button lables on this platform
     int choice =  dlg->ShowModal();
+    m_suggestedOldMarks = true;
 
     if ( choice == wxID_NO ) {
         (void) DeleteSingleWaypoint( wpStbdGUID );
         (void) DeleteSingleWaypoint( wpPortGUID );
+        delete m_startPortWp;
+        delete m_startStbdWp;
         ClearRoutesAndWPs();
         return false;
     }
@@ -439,7 +474,7 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
     if ( CheckStartLineStillValid() )
         return false; // route based, fixed startline
 
-    if ( (m_startStbdWp == nullptr) || (m_startPortWp == nullptr) )
+    if ( !m_startStbdWp || !m_startPortWp )
         return false; // there is no user dropped waypoints
 
     bool thereIsValidChange = false;
