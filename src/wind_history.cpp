@@ -789,7 +789,7 @@ bool DashboardInstrument_WindDirHistory::LoadConfig(void)
   wxFileConfig *pConf = m_pconfig;
 
   if (pConf) {
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Windhistory"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/Windhistory"));
     pConf->Read(_T("Exportrate"), &m_exportInterval, 5);
     pConf->Read(_T("WindhistoryExportfile"), &m_logfile,wxEmptyString);
     return true;
@@ -805,7 +805,7 @@ bool DashboardInstrument_WindDirHistory::SaveConfig(void)
 
   if (pConf)
   {
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Windhistory"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/Windhistory"));
     pConf->Write(_T("Exportrate"), m_exportInterval);
     pConf->Write(_T("WindhistoryExportfile"), m_logfile);
     return true;

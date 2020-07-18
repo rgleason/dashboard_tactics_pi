@@ -21,7 +21,7 @@
 *   You should have received a copy of the GNU General Public License     *
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
+*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
 ***************************************************************************
 */
 
@@ -72,6 +72,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_hasRequestedId = false;
     m_setAllPathGraceCount = -1;
     m_dsDataSource = ds;
+    m_dsRequestedInSource = JSI_IS_UNDEFINED;
     m_pushHereUUID = wxEmptyString;
     m_subscribedPath = wxEmptyString;
     m_hasSchemDataCollected = false;
@@ -182,7 +183,7 @@ void InstruJS::OnClose( wxCloseEvent &event )
                     "window.iface.setclosing();");
             RunScript( javascript );
             m_istate = JSI_NO_REQUEST;
-        } // then allow the instrument code to grarcefully close
+        } // then allow the instrument code to grarcefully close if showing data
         this->m_pWebPanel->Stop();
         this->m_webpanelStopped = true;
     }
@@ -360,6 +361,19 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             else
                 break;
         case JSI_HDS_SERVING:
+            /*
+              Developer's note: please read the WebView dev. note about the state
+              machine implementation which, for now is based on one single and
+              unique JavaScript interface module definition. The below structure
+              of if-then-else-if statements is therefore forced to recognize
+              all the commands and requests from all instrument types. Also,
+              the base class may need to define virtual service functions for
+              those, which the instrument implementation classes need to override.
+              Maybe the future versions, or new instruments can create their own,
+              specific interfaces and we can identify the common, nominating
+              functions after a while, which shall stay in the commong interface,
+              i.e. served here.
+            */
             if ( request == wxEmptyString ) {
                 m_requestServed = wxEmptyString;
                 m_handshake = JSI_HDS_ACKNOWLEDGED;
@@ -385,7 +399,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_setAllPathGraceCount = JSI_GETALL_GRACETIME;
                 }
                 else if ( m_setAllPathGraceCount == 0 ) {
-                    wxString allPathsJsList = m_pparent->getAllNMEA2000JsOrderedList();
+                    wxString allPathsJsList =
+                        m_pparent->getAllNMEA2000JsOrderedList();
                     if ( allPathsJsList != wxEmptyString ) {
                         m_istate = JSI_GETALL;
                         wxString javascript =
@@ -407,7 +422,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     m_setAllPathGraceCount = JSI_GETALLDB_GRACETIME;
                 }
                 else if ( m_setAllPathGraceCount == 0 ) {
-                    wxString allDBSchemasPathsJsList = m_pparent->getAllDbSchemasJsOrderedList();
+                    wxString allDBSchemasPathsJsList =
+                        m_pparent->getAllDbSchemasJsOrderedList();
                     if ( allDBSchemasPathsJsList != wxEmptyString ) {
                         m_istate = JSI_GETDBOUT;
                         m_hasSchemDataCollected = true;
@@ -422,6 +438,84 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                     }
                 }
                 m_setAllPathGraceCount--;
+                break;
+            }
+            else if ( request.CmpNoCase("getrdy") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setchkrdy(",
+                    (instruIsReady() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("getusrsl") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setusersl(",
+                    (userHasStartline() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("dropstbd") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmarkack(",
+                    (dropStarboardMark() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("dropport") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmarkack(",
+                    (dropPortMark() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("getsldata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setsldataack(",
+                    (sendSlData() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                m_istate = JSI_SHOWDATA;
+                m_dsRequestedInSource = JSI_IS_RACESTART_STARTLINE;
+                break;
+            }
+            else if ( request.CmpNoCase("stopsldata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setsldstopack(",
+                    (stopSlData() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                m_istate = JSI_NO_REQUEST;
+                m_dsRequestedInSource = JSI_IS_UNDEFINED;
+                break;
+            }
+            else if ( request.CmpNoCase("getdisf") == 0 ) {
+                bool disfRetval = false;
+                wxString sUsrUnit = getUsrDistanceUnit_Plugin(); // get O global
+                if ( (sUsrUnit.Cmp("mi") == 0) || (sUsrUnit.Cmp("ft") == 0) )
+                     disfRetval = true;
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setgetfeet(",
+                    (disfRetval ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
@@ -443,6 +537,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                             "');");
                     RunScript( javascript );
                     m_istate = JSI_SHOWDATA;
+                    m_dsRequestedInSource = JSI_IS_INSTRUJS_DATA_SUBSCRIPTION;
                     m_handshake = JSI_HDS_SERVED;
                 } // then knows path wants to subscribe to incoming data
                 if ( (m_dsDataSource & JSI_DS_EXTERNAL_DATABASE) != 0 ) {
@@ -465,7 +560,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         m_subscribedPath = request;
                         wxString schemaJSclass =
                             m_pparent->getDbSchemaJs( &this->m_subscribedPath );
-                        wxString javascript = wxString::Format( L"%s", "window.iface.ackschema('" );
+                        wxString javascript = wxString::Format(
+                            L"%s", "window.iface.ackschema('" );
                         javascript = javascript + schemaJSclass;
                         javascript = javascript + wxString::Format( L"%s", "');" );
                         RunScript( javascript );
@@ -483,23 +579,43 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_NO_REQUEST;
         }
         if ( m_istate == JSI_SHOWDATA ) {
-            if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
-                if ( m_data != m_lastdataout ) {
-                    wxString javascript =
-                        wxString::Format(
-                            L"%s%s%s",
-                            "window.iface.newdata(",
-                            m_data,
-                            ");");
-                    RunScript( javascript );
-                    m_lastdataout = m_data;
-                    m_pparent->SendPerfSentenceToAllInstruments(
-                        OCPN_DBP_STC_SKSUBSCRIBE,
-                        m_fData,
-                        m_subscribedPath,
-                        getTimestamp() );
-                } // then do not load the system with the same script execution multiple times
-            } // then the instrument has subscribed to incoming data by subscription
+            if ( m_dsRequestedInSource == JSI_IS_INSTRUJS_DATA_SUBSCRIPTION ) {
+                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
+                    /*
+                      We not load up the system with the script execution
+                      if the subsribed data remains unchanged.
+                    */
+                    if ( m_data != m_lastdataout ) {
+                        wxString javascript =
+                            wxString::Format(
+                                L"%s%s%s",
+                                "window.iface.newdata(",
+                                m_data,
+                                ");");
+                        RunScript( javascript );
+                        m_lastdataout = m_data;
+                        m_pparent->SendPerfSentenceToAllInstruments(
+                            OCPN_DBP_STC_SKSUBSCRIBE,
+                            m_fData,
+                            m_subscribedPath,
+                            getTimestamp() );
+                    } // then send data which has changed
+                } // then subscription is valid
+            } // then subscription to single incoming data
+            else if ( m_dsRequestedInSource == JSI_IS_RACESTART_STARTLINE ) {
+                wxString sCogDist; // Course on ground distance nautical miles
+                wxString sDist;    // Shortest distance in nautical miles
+                wxString sBias;    // Windshift bias angle in degrees w/ sign
+                wxString sAdv;     // Bias caused advantage in meters
+                getSlData( sCogDist, sDist, sBias, sAdv );
+                wxString javascript =
+                    wxString::Format(
+                        L"%s%s%s%s%s%s%s%s%s",
+                        "window.iface.newsldata(",
+                        sCogDist, ",", sDist, ",", sBias, ",", sAdv,
+                        ");");
+                RunScript( javascript );
+            } // else if data source requested is startline calculated data
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {
             bool sendNewValue = false;

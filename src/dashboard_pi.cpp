@@ -147,6 +147,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     // cppcheck-suppress noCopyConstructor
     m_NMEA0183 = new NMEA0183();
     ResetAllSourcePriorities();
+    mRouteActivatedName = wxEmptyString;
+    mRouteActivatedGUID = wxEmptyString;
+    mActiveLegInfo = nullptr;
     mUTCDateTime.Set( (time_t) -1 );
     m_config_version = -1;
     mSrc_Watchdog = 2;
@@ -156,6 +159,9 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mVar_Watchdog = 2;
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mApS_Watchcat = 0;
+    mBmajorVersion_warning_given = false;
+    mBminorVersion_warning_given = false;
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
     APPLYSAVEWININIT;
@@ -173,6 +179,8 @@ dashboard_pi::~dashboard_pi( void )
     delete _img_instrument;
     delete _img_minus;
     delete _img_plus;
+    if ( !(mActiveLegInfo == nullptr) )
+        delete mActiveLegInfo;
 }
 
 int dashboard_pi::Init( void )
@@ -394,7 +402,7 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
 void dashboard_pi::OnPaneClose( wxAuiManagerEvent& event )
 {
     // if name is unique, we should use it
-    DashboardWindow *dashboard_window = (DashboardWindow *) event.pane->window;
+    DashboardWindow *dashboard_window = static_cast <DashboardWindow *>(event.pane->window);
     int cnt = 0;
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
@@ -514,6 +522,9 @@ void dashboard_pi::pSendSentenceToAllInstruments(
             dashboard_window->SendSentenceToAllInstruments(
                 st, value, unit, timestamp );
     }
+    wxString stToDashboardPath = getDashboardTacticsInstrumentIdStr( st );
+    if ( !stToDashboardPath.IsEmpty() )
+        SendDataToAllPathSubscribers ( stToDashboardPath, value, unit, timestamp );
 }
 /* Porting note: with Tactics, new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the TacticsWP
@@ -550,7 +561,9 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD)  ||
+                    (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2) ) )
+                 pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // AWS corrected or not, it is now sent, move to TW calculations
         unsigned long long st_twa, st_tws, st_tws2, st_twd;
@@ -584,7 +597,11 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            if ( !this->IsConfigSetToForcedTrueWindCalculation() )
+                pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
+            else if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD)  ||
+                         (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2) ) )
+                pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
         } // else send the sentence as it is
         // Leeway
         unsigned long long st_leeway;
@@ -629,6 +646,17 @@ void dashboard_pi::SendDataToAllPathSubscribers (
         if( dashboard_window )
             dashboard_window->SendDataToAllPathSubscribers(
                 path, value, unit, datatimestamp);
+    }
+}
+
+void dashboard_pi::callAllRegisteredGLRenderers( wxGLContext *pcontext, PlugIn_ViewPort *vp, wxString className )
+{
+    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindow *dashboard_window =
+            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        if( dashboard_window )
+            dashboard_window->callAllRegisteredGLRenderers(
+                pcontext, vp, className );
     }
 }
 
@@ -1952,35 +1980,95 @@ void dashboard_pi::SetCursorLatLon( double lat, double lon )
 
 }
 
+void dashboard_pi::SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info) {
+    if ( mActiveLegInfo )
+       *mActiveLegInfo = leg_info;
+}
+
 void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body)
 {
-    if(message_id == _T("WMM_VARIATION_BOAT"))
-    {
+    wxJSONValue  root;
+    // construct a JSON parser
+    wxJSONReader reader;
+    int numErrors = reader.Parse( message_body, &root );
+    if ( numErrors > 0 )
+        return;
+    
+    if ( message_id == _T("WMM_VARIATION_BOAT") ) {
 
-        // construct the JSON root object
-        wxJSONValue  root;
-        // construct a JSON parser
-        wxJSONReader reader;
-
-        // now read the JSON text and store it in the 'root' structure
-        // check for errors before retreiving values...
-        int numErrors = reader.Parse( message_body, &root );
-        if ( numErrors > 0 )  {
-            //              const wxArrayString& errors = reader.GetErrors();
-            return;
-        }
-
-        // get the DECL value from the JSON message
         wxString decl = root[_T("Decl")].AsString();
         double decl_val;
         decl.ToDouble(&decl_val);
 
-
-        if( mPriVar >= 4 ) {
+        if ( mPriVar >= 4 ) {
             mPriVar = 4;
             mVar = decl_val;
             mVar_Watchdog = gps_watchdog_timeout_ticks;
             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
+        }
+    }
+    else if ( message_id == _T("OCPN_RTE_ACTIVATED") ) {
+        mRouteActivatedName = root[_T("Route_activated")].AsString();  
+        mRouteActivatedGUID = root[_T("GUID")].AsString();
+        mActiveLegInfo = new Plugin_Active_Leg_Info();
+        mActiveLegInfo->wp_name = wxEmptyString;
+    }
+    else if ( message_id == _T("OCPN_RTE_DEACTIVATED") ) {
+        mRouteActivatedName = wxEmptyString;
+        mRouteActivatedGUID = wxEmptyString;
+        if ( mActiveLegInfo )
+            delete mActiveLegInfo;
+        mActiveLegInfo = nullptr;
+    }
+    else if ( message_id == _T("OpenCPN Config") ) {
+        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;
+        if ( !mBmajorVersion_warning_given ) {
+            if ( ocpnMajorVersion != PLUGIN_TARGET_OCPN_VERSION_MAJOR ) {
+                wxString message = wxString::Format(
+                    _T("%s%d%s%d"),
+                    _("This plug-in is intended for OpenCPN v"),
+                    PLUGIN_TARGET_OCPN_VERSION_MAJOR,
+                    _(".\nYou have OpenCPN v"),
+                    ocpnMajorVersion );
+                wxMessageDialog dlg(
+                    GetOCPNCanvasWindow(), message,
+                    _T("dashboard_tactics_pi message"), wxOK );
+                (void) dlg.ShowModal();
+                mBmajorVersion_warning_given = true;
+            }
+        }
+        if ( !mBminorVersion_warning_given ) {
+            int ocpnMinorVersion = root[_T("OpenCPN Version Minor")].AsInt();
+            if ( ocpnMinorVersion < PLUGIN_MINIMUM_OCPN_VERSION_MINOR ) {
+                wxString message = wxString::Format(
+                    _T("%s%d%s%d%s%d%s%d"),
+                    _("This plug-in is intended for OpenCPN v"),
+                    PLUGIN_TARGET_OCPN_VERSION_MAJOR, _T("."),
+                    PLUGIN_MINIMUM_OCPN_VERSION_MINOR,
+                    _(" or superior minor version.\nYou have OpenCPN v"),
+                    ocpnMajorVersion, _T("."), ocpnMinorVersion );
+                wxMessageDialog dlg( GetOCPNCanvasWindow(), message,
+                                     _T("dashboard_tactics_pi message"), wxOK );
+                (void) dlg.ShowModal();
+                mBminorVersion_warning_given = true;
+            }
+        }
+    }
+    else if ( message_id == _T("OCPN_OPENGL_CONFIG") ) {
+        if ( this->getTacticsDCmsgShown() ) {
+            bool bOpenGLsetupComplete = root[_T("setupComplete")].AsBool();
+            if ( !bOpenGLsetupComplete ) {
+                wxString message(
+                    _("OpenGL appears to be enabled but OpenCPN reports\n") +
+                    _("OpenGL setup not being complete.\n") +
+                    _("Chart overlay functions in this plug-in may fail.\n") +
+                    _("Please study OpenCPN log file for OpenGL error messages.") );
+                wxMessageDialog dlg(
+                    GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"),
+                    wxOK|wxICON_ERROR);
+                (void) dlg.ShowModal();
+                this->setTacticsDCmsgShownTrue();
+            }
         }
     }
 }

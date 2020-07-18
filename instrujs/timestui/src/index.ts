@@ -81,7 +81,7 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js:  pollhascfg(): fsm.hascfg() transition failed, error: ',
+                        'index.ts:  pollhascfg(): fsm.hascfg() transition failed, error: ',
                         error.message, ' current state: ', fsm.state)
                 }
             }
@@ -91,7 +91,7 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
                 }
                 catch( error ) {
                     console.error(
-                        'index.js: pollhascfg(): fsm.nocfg() transition failed, error: ',
+                        'index.ts: pollhascfg(): fsm.nocfg() transition failed, error: ',
                         error.message, ' current state: ', fsm.state)
                 }
             }
@@ -99,7 +99,7 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
         else {
             window.setTimeout(pollhascfg, 100)
         }
-    })(); // do selection of the next action in the routing once ID has been set, or not
+    })() // do selection of the next action in the routing once ID has been set, or not
 }) as EventListener);  // hey non-semicolon-TS-person - this is needed!
 (window as any).iface.regeventsetid( bottom, eventsetid )
 
@@ -216,7 +216,7 @@ bottom.addEventListener('newdata', ((event: Event) => {
     (pollshowdata = function () {
         var newDataCnt = getAddedDataCount()
         var painting: boolean = true
-        if ( newDataCnt != prevNewDataCnt) {
+        if ( newDataCnt !== prevNewDataCnt) {
             prevNewDataCnt = newDataCnt
         }
         else {
@@ -234,13 +234,13 @@ bottom.addEventListener('newdata', ((event: Event) => {
             }
             catch( error ) {
                 console.error(
-                    'index.js:  fsm.newget() transition failed, error: ',
+                    'index.ts:  fsm.newget() transition failed, error: ',
                     error.message, ' current state: ', fsm.state)
             }
         } else {
             window.setTimeout(pollshowdata, 450)
         }
-    })(); // make the transition from newdata to getnew by polling the state
+    })() // make the transition from newdata to getnew by polling the state
 }) as EventListener);
 (window as any).iface.regeventnewdata( bottom, eventnewdata )
 
@@ -274,7 +274,7 @@ bottom.addEventListener('errdata', ((event: Event) => {
             }
             catch( error ) {
                 console.error(
-                    'index.js:  fsm.retryget() transition failed, error: ',
+                    'index.ts:  fsm.retryget() transition failed, error: ',
                     error.message, ' current state: ', fsm.state)
             }
         } else {
@@ -355,7 +355,7 @@ bottom.addEventListener('closing', ((event: Event) => {
 (window as any).iface.regeventclosing( bottom, eventclosing )
 
 /* Since now no other events apart the window load(), we need to await here until
-   it has been executed, before continuing to truy event driven operation */
+   it has been executed, before continuing to try event driven operation */
 var reloadDelay:number = 2
 var pollinitga: () => void
 (pollinitga = function() {
@@ -369,7 +369,7 @@ var pollinitga: () => void
             }
             catch( error ) {
                 console.error(
-                    'index.js:  fsm.initok() transition failed, error: ',
+                    'index.ts:  fsm.initok() transition failed, error: ',
                     error.message, ' current state: ', fsm.state)
             }
         }
@@ -383,7 +383,7 @@ var pollinitga: () => void
     else {
         setTimeout(pollinitga, 100)
     }
-})(); // do _everything_ in the routing once condition met
+})() // do _everything_ in the routing once condition met
 
 /* ------------------------------------------ */
 

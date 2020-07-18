@@ -290,6 +290,242 @@ var iface = {
     getswapdisp: function() {
         return this.swapdirection
     },
+    eventgetfeet    : null,
+    elemgetfeet     : null,
+    eventnogetfeet  : null,
+    elemnogetfeet   : null,
+    getfeet         : false,
+    regeventgetfeet: function ( newelem, newevent ) {
+        this.elemgetfeet = newelem
+        this.eventgetfeet = newevent
+    },
+    regeventnogetfeet: function ( newelem, newevent ) {
+        this.elemnogetfeet = newelem
+        this.eventnogetfeet = newevent
+    },
+    setgetfeet: function( newgetfeet ) {
+        try {
+            if ( (this.eventgetfeet === null) || (this.elemgetfeet === null) ||
+                 (this.eventnogetfeet === null) || (this.elemnogetfeet === null) )
+                return
+            this.getfeet = newgetfeet
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setgetfeet - getfeet: ', this.getfeet)
+            if ( this.getfeet ) {
+                this.elemgetfeet.dispatchEvent( this.eventgetfeet )
+            }
+            else {
+                this.elemnogetfeet.dispatchEvent( this.eventnogetfeet )
+            }
+        }
+        catch (error) {
+            this.getfeet = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setgetfeet - state machine error',
+                            error)
+            return
+        }
+    },
+    getgetfeet: function() {
+        return this.getfeet
+    },
+    eventchkrdy    : null,
+    elemchkrdy     : null,
+    eventnochkrdy  : null,
+    elemnochkrdy   : null,
+    chkrdy         : false,
+    regeventchkrdy: function ( newelem, newevent ) {
+        this.elemchkrdy = newelem
+        this.eventchkrdy = newevent
+    },
+    regeventnochkrdy: function ( newelem, newevent ) {
+        this.elemnochkrdy = newelem
+        this.eventnochkrdy = newevent
+    },
+    setchkrdy: function( newchkrdy ) {
+        try {
+            if ( (this.eventchkrdy === null) || (this.elemchkrdy === null) ||
+                 (this.eventnochkrdy === null) || (this.elemnochkrdy === null) )
+                return
+            this.chkrdy = newchkrdy
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setchkrdy - chkrdy: ', this.chkrdy)
+            if ( this.chkrdy ) {
+                this.elemchkrdy.dispatchEvent( this.eventchkrdy )
+            }
+            else {
+                this.elemnochkrdy.dispatchEvent( this.eventnochkrdy )
+            }
+        }
+        catch (error) {
+            this.chkrdy = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setchkrdy - state machine error',
+                            error)
+            return
+        }
+    },
+    getchkrdy: function() {
+        return this.chkrdy
+    },
+    eventusersl    : null,
+    elemusersl     : null,
+    eventnousersl  : null,
+    elemnousersl   : null,
+    usersl         : false,
+    regeventusersl: function ( newelem, newevent ) {
+        this.elemusersl = newelem
+        this.eventusersl = newevent
+    },
+    regeventnousersl: function ( newelem, newevent ) {
+        this.elemnousersl = newelem
+        this.eventnousersl = newevent
+    },
+    setusersl: function( newusersl ) {
+        try {
+            if ( (this.eventusersl === null) || (this.elemusersl === null) ||
+                 (this.eventnousersl === null) || (this.elemnousersl === null) )
+                return
+            this.usersl = newusersl
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setusersl - usersl: ', this.usersl)
+            if ( this.usersl ) {
+                this.elemusersl.dispatchEvent( this.eventusersl )
+            }
+            else {
+                this.elemnousersl.dispatchEvent( this.eventnousersl )
+            }
+        }
+        catch (error) {
+            this.usersl = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setusersl - state machine error',
+                            error)
+            return
+        }
+    },
+    getusersl: function() {
+        return this.usersl
+    },
+    eventmarkack    : null,
+    elemmarkack     : null,
+    markacknowledged: false,
+    regeventmarkack: function ( newelem, newevent ) {
+        this.elemmarkack = newelem
+        this.eventmarkack = newevent
+    },
+    setmarkack: function( newmarkacknowledged ) {
+        try {
+            if ( (this.eventmarkack === null) || (this.elemmarkack === null) )
+                return
+            this.markacknowledged = newmarkacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setmarkack - markacknowledged: ', this.markacknowledged)
+            this.elemmarkack.dispatchEvent( this.eventmarkack )
+        }
+        catch (error) {
+            this.markacknowledged = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setmarkack - state machine error',
+                            error)
+            return
+        }
+    },
+    getmarkack: function() {
+        return this.markacknowledged
+    },
+    eventsldataack    : null,
+    elemsldataack     : null,
+    sldataacknowledged: false,
+    regeventsldataack: function ( newelem, newevent ) {
+        this.elemsldataack = newelem
+        this.eventsldataack = newevent
+    },
+    setsldataack: function( newsldataacknowledged ) {
+        try {
+            if ( (this.eventsldataack === null) || (this.elemsldataack === null) )
+                return
+            this.sldataacknowledged = newsldataacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setsldataack - sldataacknowledged: ', this.sldataacknowledged)
+            this.elemsldataack.dispatchEvent( this.eventsldataack )
+        }
+        catch (error) {
+            this.sldataacknowledged = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setsldataack - state machine error',
+                            error)
+            return
+        }
+    },
+    getsldataack: function() {
+        return this.sldataacknowledged
+    },
+    eventnewsldata    : null,
+    elemnewsldata     : null,
+    sldistancetogo    : -999.0,
+    slclosestpoint    : -999.0,
+    slwindbias        : -999.0,
+    sladvantage       : -999.0,
+    regeventnewsldata: function ( newelem, newevent ) {
+        this.elemnewsldata = newelem
+        this.eventnewsldata = newevent
+    },
+    newsldata: function( newsldistancetogo, newslclosestpoint,
+                         newslwindbias, sladvantage) {
+        this.sldistancetogo = newsldistancetogo
+        this.slclosestpoint = newslclosestpoint
+        this.slwindbias = newslwindbias
+        this.sladvantage = sladvantage
+        if ( (this.eventnewsldata === null) || (this.elemnewsldata === null) )
+            return
+        this.elemnewsldata.dispatchEvent( this.eventnewsldata )
+    },
+    getsldistancetogo: function() {
+        return this.sldistancetogo
+    },
+    getslclosestpoint: function() {
+        return this.slclosestpoint
+    },
+    getslwindbias: function() {
+        return this.slwindbias
+    },
+    getsladvantage: function() {
+        return this.sladvantage
+    },
+    eventsldstopack    : null,
+    elemsldstopack     : null,
+    sldstopacknowledged: false,
+    regeventsldstopack: function ( newelem, newevent ) {
+        this.elemsldstopack = newelem
+        this.eventsldstopack = newevent
+    },
+    setsldstopack: function( newsldstopacknowledged ) {
+        try {
+            if ( (this.eventsldstopack === null) || (this.elemsldstopack === null) )
+                return
+            this.sldstopacknowledged = newsldstopacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setsldstopack - sldstopacknowledged: ', this.sldstopacknowledged)
+            this.elemsldstopack.dispatchEvent( this.eventsldstopack )
+        }
+        catch (error) {
+            this.sldstopacknowledged = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setsldstopack - state machine error',
+                            error)
+            return
+        }
+    },
+    getsldstopack: function() {
+        return this.sldstopacknowledged
+    },
     eventluminsty : null,
     elemluminsty  : null,
     luminsty      : 'day',

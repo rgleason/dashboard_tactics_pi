@@ -30,7 +30,6 @@ using namespace std;
 
 #include <wx/glcanvas.h>
 
-
 #include "tactics_pi.h"
 
 #include "tactics_pi_ext.h"
@@ -77,7 +76,7 @@ wxString g_sCMGSynonym, g_sVMGSynonym;
 wxString g_sDataExportSeparator;
 bool     g_bDataExportUTC;
 bool     g_bDataExportClockticks;
-AvgWind* AverageWind;
+AvgWind *AverageWind;
 
 int g_iDbgRes_Polar_Status;
 
@@ -99,7 +98,6 @@ tactics_pi::tactics_pi( void )
     m_pmenu = NULL;
     // cppcheck-suppress noCopyConstructor
     m_pSkData = new SkData();
-    b_tactics_dc_message_shown = false;
 
     // please keep the below in same order than in class definition to ease the maintenance
     mHdt = NAN;
@@ -221,6 +219,7 @@ tactics_pi::tactics_pi( void )
     b_tactics_dc_message_shown = false;
     m_bToggledStateVisible = false;
     m_bToggledStateVisibleDefined = false;
+    m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE_UNKNOWN;
     m_iDbgRes_TW_Calc_AWS_STC = DBGRES_AWS_STC_UNKNOWN;
     m_iDbgRes_TW_Calc_Force = DBGRES_FORCE_UNKNOWN;
     m_iDbgRes_TW_Calc_AWS = DBGRES_MVAL_UNKNOWN;
@@ -398,24 +397,25 @@ Called by Plugin Manager on main system process cycle
 **********************************************************************/
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
+    b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
 #ifndef __linux__
     if ( !pcontext->IsOK() )
         return false;
 #endif // __linux__
-	if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
-		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glPushMatrix();
-		this->DoRenderLaylineGLOverlay(pcontext, vp);
-		this->DoRenderCurrentGLOverlay(pcontext, vp);
-		glPopMatrix();
-		glPopAttrib();
-	}
-	return true;
+    if (m_bLaylinesIsVisible || m_bDisplayCurrentOnChart || m_bShowWindbarbOnChart || m_bShowPolarOnChart){
+        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_LINE_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_HINT_BIT);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glPushMatrix();
+        this->DoRenderLaylineGLOverlay( pcontext, vp );
+        this->DoRenderCurrentGLOverlay( pcontext, vp );
+        callAllRegisteredGLRenderers( pcontext, vp );
+        glPopMatrix();
+        glPopAttrib();
+    }
+    return true;
 }
 
 bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
@@ -423,9 +423,11 @@ bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
 	if (b_tactics_dc_message_shown == false) {
         b_tactics_dc_message_shown = true;
 
-		wxString message(_("You have to turn on OpenGL to use chart overlay "));
-		wxMessageDialog dlg(GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"), wxOK);
-		dlg.ShowModal();
+		wxString message(
+            _("OpenGL is not available or it is disabled in OpenCPN.\n") +
+            _("It is needed in all chart overlay functions of this plug-in."));
+		wxMessageDialog dlg(GetOCPNCanvasWindow(), message, _T("dashboard_tactics_pi message"), wxOK|wxICON_ERROR);
+		(void) dlg.ShowModal();
 	}
 	return false;
 }
@@ -658,7 +660,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
             if ( !BoatPolar->isValid() ) {
                 if ( g_iDbgRes_Polar_Status != DBGRES_POLAR_INVALID ) {
                     wxLogMessage (
-                        "dashboard_tactics_pi: >>> Missing or invalid Polar file: no Performance data, Laylines, Polar graphs available. <<<");
+                        "dashboard_tactics_pi: >>> Missing or invalid Polar file:"
+                        "no Performance data, Laylines, Polar graphs available. <<<");
                     g_iDbgRes_Polar_Status = DBGRES_POLAR_INVALID;
                 } // then debug print
                 return;
@@ -1447,20 +1450,37 @@ false - no, do not launch the true wind calculations, continue
 true - yes, use  (and only call true wind calculations if this true)
 *********************************************************************/
 
+bool tactics_pi::IsConfigSetToForcedTrueWindCalculation()
+{
+    return g_bForceTrueWindCalculation;
+}
+
 bool tactics_pi::SendSentenceToAllInstruments_LaunchTrueWindCalculations(
         unsigned long long st, double value )
 {
     // Let's collect information about instruments providing true wind
-    if ( (st == OCPN_DBP_STC_TWA) )
+    if ( (st == OCPN_DBP_STC_TWA) && !std::isnan(value) )
         m_bTrueWindAngle_available = true;
-    if ( (st == OCPN_DBP_STC_TWS) )
+    if ( (st == OCPN_DBP_STC_TWS)  && !std::isnan(value) )
         m_bTrueWindSpeed_available = true;
-    if ( (st == OCPN_DBP_STC_TWD) ) {
-        if ( std::isnan(value) || (value == 0.0) )
-                m_bTrueWindDirection_available = false;
+    if ( (st == OCPN_DBP_STC_TWD)  && !std::isnan(value) ) {
+        m_bTrueWindDirection_available = true;
+        if ( value == 0.0 )
+            m_bTrueWindDirection_available = false;
     }
-    if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && m_bTrueWindDirection_available )
+    if ( m_bTrueWindAngle_available && m_bTrueWindSpeed_available && m_bTrueWindDirection_available ) {
+        if ( (m_iDbgRes_TW_Calc_TW_Available == DBGRES_ALLTW_AVAILABLE_UNKNOWN) ||
+             (m_iDbgRes_TW_Calc_TW_Available == DBGRES_ALLTW_AVAILABLE_WAIT) ) {
+            wxLogMessage ("dashboard_tactics_pi: Tactics true wind calculations: All TW data available as input, including TWD.");
+            m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE;
+        }
         m_bTrueWind_available = true;
+    }
+    else
+        m_iDbgRes_TW_Calc_TW_Available = DBGRES_ALLTW_AVAILABLE_WAIT;
+
+    if ( !IsConfigSetToForcedTrueWindCalculation() && m_bTrueWind_available )
+        return false;
 
     // Here's the logic depending of the data and settings
     if ( st != OCPN_DBP_STC_AWS ) { // this is the data we're waiting
@@ -2395,7 +2415,7 @@ void tactics_pi::createPNKEP_NMEA(int sentence, double data1, double data2, doub
         $PNKEP,03,x.x,x.x,x.x*hh<CR><LF>
                    |    |   \ polar speed performance TWA/TWS from 0 to 99%
                    |    \ performance upwind or downwind from 0 to 99%
-                   \ opt.VMG angle  0 à 359deg  */
+                   \ opt.VMG angle  0-359deg  */
 		nmeastr = _T("$PNKEP,03,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f", data3);
 		break;
 	case 4:

@@ -791,7 +791,7 @@ bool TacticsInstrument_StreamoutSingle::LoadConfig()
     
     if (!pConf)
         return false;
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Streamout/"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/Streamout/"));
     pConf->Read(_T("ConfigFile"), &m_configFileName, "streamout.json");
     wxString s = wxFileName::GetPathSeparator();
     wxString confPath = m_confdir + m_configFileName;
@@ -989,7 +989,7 @@ void TacticsInstrument_StreamoutSingle::SaveConfig()
     if (!pConf)
         return;
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/Streamout/"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/Streamout/"));
     pConf->Write(_T("ConfigFile"),m_configFileName);
 
     return;

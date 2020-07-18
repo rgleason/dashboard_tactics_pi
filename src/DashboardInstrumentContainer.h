@@ -46,8 +46,7 @@ enum eInstruments {
        If there will be new instruments (now after ID_DBP_I_SUNLCL), remove the same
        number of these "buffer" (between the Dashboard and Tactics)  enumeration values.
        This way, if there is opencpn.ini file with the Tactics instruments, they will not
-       point to a wrong Tactics instrument!
-    */
+       point to a wrong Tactics instrument! */
     ID_DBP_R_AAAA, ID_DBP_R_AAAB, ID_DBP_R_AAAC, ID_DBP_R_AAAD, ID_DBP_R_AAAE, ID_DBP_R_AAAF,
     ID_DBP_R_AABA, ID_DBP_R_AABB, ID_DBP_R_AABC, ID_DBP_R_AABD, ID_DBP_R_AABE, ID_DBP_R_AABF,
     /* These are the actual Tactics instrument enumerations, note _FIRST and _LAST markers;
@@ -57,11 +56,11 @@ enum eInstruments {
     ID_DBP_D_BRG, ID_DBP_I_POLSPD, ID_DBP_I_POLVMG, ID_DBP_I_POLTVMG, ID_DBP_I_POLTVMGANGLE,
     ID_DBP_I_POLCMG, ID_DBP_I_POLTCMG, ID_DBP_I_POLTCMGANGLE, ID_DBP_D_POLPERF, ID_DBP_D_AVGWIND,
     ID_DBP_D_POLCOMP, ID_DBP_V_IFLX, ID_DBP_V_INSK,
-    /* More room between the sails and engines to allow sails to expand... */
+    /* More room between the sails and engines/JavaScript to allow sails to expand... */
     ID_DBP_R_EAAA, ID_DBP_R_EAAB, ID_DBP_R_EAAC, ID_DBP_R_EAAD, ID_DBP_R_EAAE, ID_DBP_R_EAAF,
     ID_DBP_R_EABA, ID_DBP_R_EABB, ID_DBP_R_EABC, ID_DBP_R_EABD, ID_DBP_R_EABE, ID_DBP_R_EABF,
     /* JavaScript/WebView based instruments, energy, engine, database and other utilities */
-    ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,
+    ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,ID_DBP_D_RACESTA,
     /* the section end marker, do not remove */
     ID_DPB_PERF_LAST,
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and
@@ -73,6 +72,7 @@ enum eInstruments {
 bool IsTacticsInstrument( int id );
 bool IsObsolete( int id );
 wxString getInstrumentCaption( unsigned int id );
+wxString getDashboardTacticsInstrumentIdStr( unsigned long long id );
 bool getListItemForInstrument( wxListItem &item, unsigned int id );
 
 class DashboardInstrumentContainer

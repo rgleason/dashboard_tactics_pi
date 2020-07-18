@@ -26,7 +26,8 @@ export function createEmptyConf() {
         divider    : 1,
         offset     : 0,
         dbfunc     : '',
-        dbnum      : 0
+        dbnum      : 0,
+        wrnmsg     : false
     }
 }
 

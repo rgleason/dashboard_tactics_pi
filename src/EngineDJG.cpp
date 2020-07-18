@@ -157,7 +157,7 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
     // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
     wxString sFullPathHTML = "http://127.0.0.1:8080/enginedjg/";
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
+    pConf->SetPath(_T("/PlugIns/DashT/WebView/EngineDJG/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
     
     m_httpServer = this->testURLretHost( m_fullPathHTML );
@@ -181,7 +181,7 @@ void DashboardInstrument_EngineDJG::SaveConfig()
     if (!pConf)
         return;
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/EngineDJG/"));
+    pConf->SetPath(_T("/PlugIns/DashT/WebView/EngineDJG/"));
     pConf->Write(_T("instrujsURL"), m_fullPathHTML );
     
     return;

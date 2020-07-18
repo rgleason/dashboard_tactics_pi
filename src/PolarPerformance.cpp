@@ -649,7 +649,7 @@ bool TacticsInstrument_PolarPerformance::LoadConfig(void)
   wxFileConfig *pConf = m_pconfig;
 
   if (pConf) {
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/PolarPerformance"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/PolarPerformance"));
     pConf->Read(_T("Exportrate"), &m_exportInterval, 5);
     pConf->Read(_T("PolarPerformanceExportfile"), &m_logfile, wxEmptyString);
     return true;
@@ -665,7 +665,7 @@ bool TacticsInstrument_PolarPerformance::SaveConfig(void)
 
   if (pConf)
   {
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/PolarPerformance"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/PolarPerformance"));
     pConf->Write(_T("Exportrate"), m_exportInterval);
     pConf->Write(_T("PolarPerformanceExportfile"), m_logfile);
     return true;

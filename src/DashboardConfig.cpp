@@ -194,8 +194,8 @@ void dashboard_pi::LoadColorSettings( wxFileConfig *pConf )
     pConf->Read( _T("EmbossedNeedle"),         &g_bDialNeedleEmbossed,        true        );
     pConf->Read( _T("EmbosNeedleContourColor"),&g_sDialNeedleContourColor,    _T("UBLCK") );
     pConf->Read( _T("ShowRedGreenFace"),       &g_bDialShowRedGreen,          true        );
-    pConf->Read( _T("LowDegRedGreenFace"),     &g_iDialLowDegRedGreen,        0           );
-    pConf->Read( _T("HighDegRedGreenFace"),    &g_iDialHighDegRedGreen,       180         );
+    pConf->Read( _T("LowDegRedGreenFace"),     &g_iDialLowDegRedGreen,        20          );
+    pConf->Read( _T("HighDegRedGreenFace"),    &g_iDialHighDegRedGreen,       50          );
 }
 
 bool dashboard_pi::SaveConfig( void )

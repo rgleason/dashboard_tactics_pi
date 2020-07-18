@@ -126,6 +126,9 @@ SET(SRC_DASHT
     src/InstruJS.cpp
     src/TimesTUI.h
     src/TimesTUI.cpp
+    src/RaceStart.h
+    src/RaceStart.cpp 
+    src/RaceStartGL.cpp
     src/SkData.h
     src/SkData.cpp
 )

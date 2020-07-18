@@ -158,7 +158,7 @@ bool DashboardInstrument_TimesTUI::LoadConfig()
     // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
     wxString sFullPathHTML = "http://127.0.0.1:8088/timestui/";
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/TimesTUI/"));
+    pConf->SetPath(_T("/PlugIns/DashT/WebView/TimesTUI/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
 
     m_httpServer = this->testURLretHost( m_fullPathHTML );
@@ -182,7 +182,7 @@ void DashboardInstrument_TimesTUI::SaveConfig()
     if (!pConf)
         return;
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/WebView/TimesTUI/"));
+    pConf->SetPath(_T("/PlugIns/DashT/WebView/TimesTUI/"));
     pConf->Write(_T("instrujsURL"), m_fullPathHTML );
     
     return;

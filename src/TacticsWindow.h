@@ -33,6 +33,7 @@
 #ifndef  WX_PRECOMP
 #include "wx/wx.h"
 #endif //precompiled headers
+#include <wx/glcanvas.h>
 
 #include <unordered_map>
 #include <functional>
@@ -46,6 +47,11 @@ typedef std::function<void  (double, wxString, long long)> callbackFunction;
 typedef std::tuple<wxString, callbackFunction> callbackFunctionTuple;
 typedef std::pair<wxString, callbackFunctionTuple> callbackFunctionPair;
 typedef std::unordered_multimap<std::string, callbackFunctionTuple> callback_map;
+
+typedef std::function<void (wxGLContext*, PlugIn_ViewPort*)> glRendererFunction;
+typedef std::tuple<wxString, glRendererFunction> glRendererFunctionTuple;
+typedef std::pair<wxString, glRendererFunctionTuple> glRendererFunctionPair;
+typedef std::unordered_multimap<std::string, glRendererFunctionTuple> renderer_map;
 
 class TacticsWindow : public wxWindow
 {
@@ -74,12 +80,21 @@ public:
     wxString getAllNMEA2000JsOrderedList(void);
     wxString getAllDbSchemasJsOrderedList(void);
     wxString getDbSchemaJs( wxString* path );
-    void collectAllSignalKDeltaPaths(void); 
-    void collectAllDbSchemaPaths(void); 
+    void collectAllSignalKDeltaPaths(void);
+    void collectAllDbSchemaPaths(void);
+    wxString GetActiveRouteName();
+    wxString GetActiveRouteGUID();
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr();
+    wxString registerGLRenderer( wxString className, glRendererFunction renderer);
+    void unregisterGLRenderer( wxString rendererUUID );
+    void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp, wxString className = wxEmptyString );
 protected:
     std::mutex          m_mtxCallBackContainer;
     callback_map       *m_callbacks;
     SkData             *m_pSkData;
+    std::mutex          m_mtxRendererContainer;
+    renderer_map       *m_renderers;
 
 private:
     tactics_pi*         m_plugin;

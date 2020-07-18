@@ -1,4 +1,4 @@
-/* $Id: idbclient.tsx, v1.0 2019/11/30 VaderDarth Exp $
+/* $Id: idbclient.ts, v1.0 2019/11/30 VaderDarth Exp $
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
@@ -45,7 +45,7 @@ export function getRetrieveSeconds(): number {
 
 export function setRetrieveSeconds( newValue: number ) {
     var nVal = newValue || null
-    if ( (nVal === null) || (nVal == 0) )
+    if ( (nVal === null) || (nVal === 0) )
         return
     retrieveSeconds = nVal
 }
@@ -188,7 +188,7 @@ export function dataQuery() {
             if ( dbglevel > 1 ) {
                 console.error(error)
                 if ( alerts )
-                    alert('DB error' + error.message);
+                    alert('DB error' + error.message)
             }
             try {
                 (window as any).iface.seterrdata()

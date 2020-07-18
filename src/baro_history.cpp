@@ -509,7 +509,7 @@ bool DashboardInstrument_BaroHistory::LoadConfig(void)
     wxFileConfig *pConf = m_pconfig;
 
     if (pConf) {
-        pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/BaroHistory"));
+        pConf->SetPath(_T("/PlugIns/DashT/Tactics/BaroHistory"));
         pConf->Read(_T("Exportrate"), &m_exportInterval, 60);
         pConf->Read(_T("BaroHistoryExportfile"), &m_logfile, wxEmptyString);
         return true;
@@ -525,7 +525,7 @@ bool DashboardInstrument_BaroHistory::SaveConfig(void)
 
     if (pConf)
     {
-        pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/BaroHistory"));
+        pConf->SetPath(_T("/PlugIns/DashT/Tactics/BaroHistory"));
         pConf->Write(_T("Exportrate"), m_exportInterval);
         pConf->Write(_T("BaroHistoryExportfile"), m_logfile);
         return true;

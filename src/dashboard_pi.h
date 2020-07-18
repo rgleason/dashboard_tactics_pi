@@ -97,10 +97,16 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
+    void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString );
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
     void OnAuiRender( wxAuiManagerEvent& event );
+    wxString GetActiveRouteName() { return mRouteActivatedName; };
+    wxString GetActiveRouteGUID() { return mRouteActivatedGUID; };
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr() { return mActiveLegInfo; };
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
@@ -121,7 +127,8 @@ public:
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
-    void SetPluginMessage(wxString &message_id, wxString &message_body);
+    void SetActiveLegInfo(Plugin_Active_Leg_Info& leg_info);
+    void SetPluginMessage(wxString& message_id, wxString& message_body);
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
     void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
@@ -177,6 +184,9 @@ private:
     short                mPriTWA;
     short                mPriDepth;
     double               mVar;
+    wxString             mRouteActivatedName;
+    wxString             mRouteActivatedGUID;
+    Plugin_Active_Leg_Info *mActiveLegInfo;
     // FFU
     double               mSatsInView;
     double               mHdm;
@@ -193,6 +203,8 @@ private:
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
+    bool                 mBmajorVersion_warning_given;
+    bool                 mBminorVersion_warning_given;
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;

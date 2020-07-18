@@ -72,6 +72,9 @@ public:
     virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
     virtual void UpdateAuiStatus(void) = 0;
     virtual void SetToggledStateVisible(bool isvisible) final;
+    virtual void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString ) = 0;
     virtual bool TacticsRenderOverlay(
         wxDC &dc, PlugIn_ViewPort *vp) final;
     virtual bool RenderGLOverlay(
@@ -93,6 +96,7 @@ public:
     bool GetWindbarbVisibility(void);
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
+    bool IsConfigSetToForcedTrueWindCalculation(void);
 
     virtual void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
@@ -149,6 +153,9 @@ public:
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
         wxString &unit_currspd, long long &calctimestamp) final;
+    virtual wxString GetActiveRouteName() = 0;
+    virtual wxString GetActiveRouteGUID() = 0;
+    virtual Plugin_Active_Leg_Info* GetActiveLegInfoPtr() = 0;
 
     virtual void OnAvgWindUpdTimer_Tactics(void) final;
 
@@ -156,6 +163,9 @@ public:
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
 
+    bool getTacticsDCmsgShown(void) { return b_tactics_dc_message_shown; };
+    void setTacticsDCmsgShownTrue(void) { b_tactics_dc_message_shown = true; };
+    
 protected:
     SkData              *m_pSkData;
     
@@ -280,6 +290,7 @@ private:
     bool                 b_tactics_dc_message_shown;
     bool                 m_bToggledStateVisible;
     bool                 m_bToggledStateVisibleDefined;
+    int                  m_iDbgRes_TW_Calc_TW_Available;
     int                  m_iDbgRes_TW_Calc_AWS_STC;
     int                  m_iDbgRes_TW_Calc_AWS;
     int                  m_iDbgRes_TW_Calc_Force;

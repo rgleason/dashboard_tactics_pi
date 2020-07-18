@@ -849,7 +849,7 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
 
     if (!pConf)
         return false;
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/SteaminSk/"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/SteaminSk/"));
     pConf->Read(_T("ConfigFile"), &m_configFileName, "streamin-sk.json");
     wxString s = wxFileName::GetPathSeparator();
     wxString confPath = m_confdir + m_configFileName;
@@ -948,7 +948,7 @@ void TacticsInstrument_StreamInSkSingle::SaveConfig()
     if (!pConf)
         return;
 
-    pConf->SetPath(_T("/PlugIns/Dashboard/Tactics/SteaminSk/"));
+    pConf->SetPath(_T("/PlugIns/DashT/Tactics/SteaminSk/"));
     pConf->Write(_T("ConfigFile"),m_configFileName);
 
     return;

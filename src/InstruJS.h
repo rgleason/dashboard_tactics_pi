@@ -77,6 +77,11 @@ enum instruDataSource { // can be an OR of the below for multiple sources
     JSI_DS_INCOMING_DATA_SUBSCRIPTION   = 1 << 0,
     JSI_DS_EXTERNAL_DATABASE            = 1 << 1
 };
+enum incomingSources { // single data items, derived class calculated items, etc.
+    JSI_IS_UNDEFINED,
+    JSI_IS_INSTRUJS_DATA_SUBSCRIPTION,
+    JSI_IS_RACESTART_STARTLINE
+};
 
 #define JSI_GETALL_GRACETIME    8 // ticks (roughly = seconds)
 #define JSI_GETALLDB_GRACETIME 16 // ticks (roughly = seconds)
@@ -116,6 +121,18 @@ public:
 #else
     virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
+
+    virtual bool instruIsReady(void){ return false; };
+    virtual bool userHasStartline(void){ return false; };
+    virtual bool dropStarboardMark(void){ return false; };
+    virtual bool dropPortMark(void){ return false; };
+    virtual bool sendSlData(void){ return false; };
+    virtual bool stopSlData(void){ return true; };
+    virtual void getSlData( wxString& sCogDist, wxString& sDist,
+                            wxString& sBias, wxString& sAdv ) {
+        sCogDist = _T("-999.0"); sDist =  _T("-999.0");
+        sBias = _T("-999.0"); sAdv =  _T("-999.0");
+    };
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
@@ -129,6 +146,7 @@ protected:
     bool                 m_hasRequestedId;
     int                  m_setAllPathGraceCount;
     unsigned long        m_dsDataSource;
+    int                  m_dsRequestedInSource;
     wxString             m_pushHereUUID;
     wxString             m_subscribedPath;
     bool                 m_hasSchemDataCollected;

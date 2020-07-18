@@ -109,7 +109,6 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44,  // Target CMG Angle
     // Reservation for Signal K subcription based instruments (no push)
     OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // data subcription from SK srv
-
 };
 
 // These are the streaming originated mappings for signal paths
