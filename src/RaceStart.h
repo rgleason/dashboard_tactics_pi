@@ -93,6 +93,7 @@
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT 30 // below, will turn to zero = disable
 
 #define RACESTART_COG_MAX_JITTER 5 // in degrees, otherwise cannot calculate
+#define RACESTART_USER_MOVING_WP_GRACETIME_CNT 10 // about ten seconds
 
 template<typename PlugIn_Waypoint, typename Base, typename Del>
 std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
@@ -134,7 +135,9 @@ public:
     bool CheckForValidStartLineGUID( wxString sGUID, wxString lineName,
                                      wxString portName, wxString stbdName);
     bool CheckForValidUserSetStartLine(void);
+    bool CheckForPreviouslyDroppedStartLine(void);
     bool CheckStartLineStillValid(void);
+    bool CheckForMovedUserDroppedWaypoints(void);
 
     virtual bool instruIsReady(void) override;
     virtual bool userHasStartline(void) override;
@@ -170,6 +173,7 @@ protected:
     PlugIn_Waypoint     *m_startStbdWp;
     wxString             m_sStartPortWpGuid;
     PlugIn_Waypoint     *m_startPortWp;
+    int                  m_startPointMoveDelayCount;
     wxString             m_sRendererCallbackUUID;
     glRendererFunction   m_rendererIsHere;
     bool                 m_renStartLineDrawn;

@@ -237,6 +237,7 @@ void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
     m_startStbdWp = nullptr;
     m_sStartPortWpGuid = wxEmptyString;
     m_startPortWp = nullptr;
+    m_startPointMoveDelayCount = 0;
     m_startWestWp = nullptr;
     m_startEastWp = nullptr;
     m_renDistanceToStartLine = std::nan("1");
@@ -350,17 +351,9 @@ bool DashboardInstrument_RaceStart::instruIsReady()
 // The JavaScript part asks do we have a startline?
 bool DashboardInstrument_RaceStart::userHasStartline()
 {
-    if ( !CheckStartLineStillValid() ) {
-        if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) ) {
-            return true;
-        } // then there is a user dropped marks but no user's route based marks
-        else {
-            return false;
-        } // else there is no user dropped marks or user's route based marks
-    } // no user active route based startline
-    else {
+    if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) )
         return true;
-    } // else OK, user's route based startline
+    return false;
 }
 
 // User has pressed the Starboard button to drop a mark
@@ -374,7 +367,7 @@ bool DashboardInstrument_RaceStart::dropStarboardMark()
     m_startStbdWp = new PlugIn_Waypoint(
         m_Lat, m_Lon, _T("Symbol-Diamond-Green"),
         wpName, wpGUID );
-    AddSingleWaypoint(m_startStbdWp, false);
+    AddSingleWaypoint(m_startStbdWp, true);
     return true;
 }
 // User has pressed the Port button to drop a mark
@@ -388,21 +381,167 @@ bool DashboardInstrument_RaceStart::dropPortMark()
     m_startPortWp = new PlugIn_Waypoint(
         m_Lat, m_Lon, _T("Symbol-Diamond-Red"),
         wpName, wpGUID );
-    AddSingleWaypoint(m_startPortWp, false);
+    AddSingleWaypoint(m_startPortWp, true);
     return true;
 }
 
+bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
+{
+    if ( CheckStartLineStillValid() )
+        return false; // route based, fixed startline
+
+    if ( (m_startStbdWp != nullptr) && (m_startPortWp != nullptr) )
+        return false; // there is an on-going startline business
+
+    bool thereAreValidPoints = true;
+    
+    wxString wpPortGUID = _T(RACESTART_GUID_WP_STARTPORT);
+    wxString wpPortName = _T(RACESTART_NAME_WP_STARTPORT);
+    m_startPortWp = new PlugIn_Waypoint();
+    if ( !GetSingleWaypoint( wpPortGUID, m_startPortWp ) )
+        thereAreValidPoints = false;
+    wxString wpStbdGUID = _T(RACESTART_GUID_WP_STARTSTBD);
+    wxString wpStbdName = _T(RACESTART_NAME_WP_STARTSTBD);
+    m_startStbdWp = new PlugIn_Waypoint();
+    if ( !GetSingleWaypoint( wpStbdGUID, m_startStbdWp ) )
+        thereAreValidPoints = false;
+
+    if ( !thereAreValidPoints )
+        return false;
+
+    wxString message(
+        _("There is an existing startline from previous race or start. ") + "\n" +
+        _("Do you want to keep it?") + "\n"
+        );
+    wxString msgButtonYes( _("Yes - Keep") );
+    wxString msgButtonNo(  _("No - I will drop new marks") );
+    wxMessageDialog *dlg = new wxMessageDialog(
+        GetOCPNCanvasWindow(), message, _T("DashT Race Start"),
+        wxYES_NO);
+    if ( !dlg->SetYesNoLabels( ("&" + msgButtonYes),
+                               ("&" + msgButtonNo) ) ) {
+        wxString messageExtended(
+            _("Yes: Keep existing | No: I will drop new marks")
+            );
+        dlg->SetExtendedMessage( messageExtended );
+    } // then cannot change button lables on this platform
+    int choice =  dlg->ShowModal();
+
+    if ( choice == wxID_NO ) {
+        (void) DeleteSingleWaypoint( wpStbdGUID );
+        (void) DeleteSingleWaypoint( wpPortGUID );
+        ClearRoutesAndWPs();
+        return false;
+    }
+    return true;
+}
+
+bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
+{
+    if ( CheckStartLineStillValid() )
+        return false; // route based, fixed startline
+
+    if ( (m_startStbdWp == nullptr) || (m_startPortWp == nullptr) )
+        return false; // there is no user dropped waypoints
+
+    bool thereIsValidChange = false;
+
+    wxString wpPortGUID = _T(RACESTART_GUID_WP_STARTPORT);
+    wxString wpPortName = _T(RACESTART_NAME_WP_STARTPORT);
+    PlugIn_Waypoint *cmpStartPortWp = new PlugIn_Waypoint();
+    cmpStartPortWp->m_lat = -999.0;
+    cmpStartPortWp->m_lon = -999.0;
+    if ( GetSingleWaypoint( wpPortGUID, cmpStartPortWp ) ) {
+        if ( cmpStartPortWp->m_lat != -999.0 ) {
+            if ( m_startPortWp->m_lat != cmpStartPortWp->m_lat  )
+                thereIsValidChange = true;
+        }
+        if ( cmpStartPortWp->m_lon != -999.0 ) {
+            if ( m_startPortWp->m_lon != cmpStartPortWp->m_lon  )
+                thereIsValidChange = true;
+        }
+    } // then there is a dropped waypoint for port side
+
+    wxString wpStbdGUID = _T(RACESTART_GUID_WP_STARTSTBD);
+    wxString wpStbdName = _T(RACESTART_NAME_WP_STARTSTBD);
+    PlugIn_Waypoint *cmpStartStbdWp = new PlugIn_Waypoint();
+    cmpStartStbdWp->m_lat = -999.0;
+    cmpStartStbdWp->m_lon = -999.0;
+    if ( GetSingleWaypoint( wpStbdGUID, cmpStartStbdWp ) ) {
+        if ( cmpStartStbdWp->m_lat != -999.0 ) {
+            if ( m_startStbdWp->m_lat != cmpStartStbdWp->m_lat  )
+                thereIsValidChange = true;
+        }
+        if ( cmpStartStbdWp->m_lon != -999.0 ) {
+            if ( m_startStbdWp->m_lon != cmpStartStbdWp->m_lon  )
+                thereIsValidChange = true;
+        }
+    } // then there is a dropped waypoint for port side
+
+    if ( thereIsValidChange ) {
+        m_startPointMoveDelayCount++;
+        if ( m_startPointMoveDelayCount < RACESTART_USER_MOVING_WP_GRACETIME_CNT )
+            return false;
+    } // else tracking the change with a delay
+    else {
+        m_startPointMoveDelayCount = 0;
+        return false;
+    } // no change until now
+
+    wxString message(
+        _("Startline waypoint markers have been moved. ") + "\n" +
+        _("Do you want to move startline to the new location?")
+        );
+    wxString msgButtonYes( _("Yes - Move") );
+    wxString msgButtonNo(  _("No - Keep old") );
+    wxString msgButtonCancel(  _("Cancel - continue") );
+    wxMessageDialog *dlg = new wxMessageDialog(
+        GetOCPNCanvasWindow(), message, _T("DashT Race Start"),
+        wxYES_NO|wxCANCEL|wxICON_EXCLAMATION);
+    if ( !dlg->SetYesNoCancelLabels( ("&" + msgButtonYes),
+                                     ("&" + msgButtonNo),
+                                     ("&" + msgButtonCancel) ) ) {
+        wxString messageExtended(
+            _("Yes: move startline | No: keep previous | Cancel: keep on moving")
+            );
+        dlg->SetExtendedMessage( messageExtended );
+    } // then cannot change button lables on this platform
+    int choice =  dlg->ShowModal();
+
+    if ( choice == wxID_YES ) {
+        m_startStbdWp->m_lat = cmpStartStbdWp->m_lat;
+        m_startStbdWp->m_lon = cmpStartStbdWp->m_lon;
+        UpdateSingleWaypoint( m_startStbdWp );
+        m_startPortWp->m_lat = cmpStartPortWp->m_lat;
+        m_startPortWp->m_lon = cmpStartPortWp->m_lon;
+        UpdateSingleWaypoint( m_startPortWp );
+        m_startPointMoveDelayCount = 0;
+        return true;
+    }
+
+    if ( choice == wxID_NO ) {
+        UpdateSingleWaypoint( m_startStbdWp );
+        UpdateSingleWaypoint( m_startPortWp );
+    }
+
+    m_startPointMoveDelayCount = 0;
+    return false;
+}
 
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {
     m_pThreadRaceStartTimer->Stop();
     
-    if ( !(m_startLineAsRoute) )
-        (void) CheckForValidUserSetStartLine();
+    if ( !(m_startLineAsRoute) ) {
+        if ( !CheckForValidUserSetStartLine() ) {
+            (void) CheckForPreviouslyDroppedStartLine();
+            (void) CheckForMovedUserDroppedWaypoints();
+        } // then give priority to user set route based startline
+    } // then no points, maybe a user route points, or dropped points
     else {
         if ( !CheckStartLineStillValid() )
             ClearRoutesAndWPs();
-    }
+    } // else user route points, but maybe killed, meanwhile
 
     if ( !m_htmlLoaded) {
         if ( testHTTPServer( m_httpServer ) ) {
@@ -468,7 +607,8 @@ bool DashboardInstrument_RaceStart::LoadConfig()
     m_httpServer = this->testURLretHost( m_fullPathHTML );
     
     if ( m_httpServer.IsEmpty() ) {
-        wxString message( _("Malformed URL string in WebView/RaceStart ini-file entry: ") + "\n" );
+        wxString message(
+            _("Malformed URL string in WebView/RaceStart ini-file entry: ") + "\n" );
         message += m_fullPathHTML;
         wxMessageDialog *dlg = new wxMessageDialog(
             GetOCPNCanvasWindow(), message, _T("DashT Race Start"), wxOK|wxICON_ERROR);
