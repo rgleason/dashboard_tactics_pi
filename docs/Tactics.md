@@ -2,8 +2,9 @@
 
 ## Tactics active performance functions
 
-[Attached Tactics User's Guide](tactics_pi.pdf) is highly recommended reading, written by the original author
-of the algorithms. Below some key features.
+>This document is forked from [this original Tactics description](https://github.com/tom-r/tactics_pi/blob/e97aede98dc203e6ec1f1ce17c6ff19947fe1b09/README.md).
+
+[Attached Tactics User's Guide](tactics_pi.pdf) is highly recommended reading, written by [the original author of the algorithms](https://github.com/tom-r). Some key features:
 
 ### Tactics functions and instruments
 * Calculate true wind data : TWA, TWD, TWS from true heading (HDT), speed through water (STW) and app. Wind speed (AWS), with optional correction by heel-angle. Calculation is enabled via a preference setting and disables available true wind data from the bus throughout the tactics_pi plugin.
