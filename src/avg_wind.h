@@ -39,7 +39,10 @@
 #include <wx/wx.h>
 #endif
 
-#define AVG_WIND_RECORDS 1800  //30 min with 60 secs (warning: div by 0 if count == 1)
+#define AVG_WIND_RECORDS 1800 // 30 min with 60 secs (warning: div by 0 if count == 1)
+#define AVG_WIND_MIN_DEF_TIME 240   // 240 seconds = 4 minutes
+#define AVG_WIND_MAX_TIME 1800 // 1800 seconds = 30 minutes, must be <= records
+#define AVG_WIND_CLEAR_NO_DATA_CNT 5 // if data is not coming back, restart
 
 #include "instrument.h"
 #include "dial.h"
@@ -52,14 +55,15 @@ class AvgWind
 public:
     AvgWind();
     //  AvgWind(tactics_pi *parent);
-    ~AvgWind(void) {};
-    void CalcAvgWindDir(double CurWindDir);
-    void SetAvgTime(int time);
+    ~AvgWind(void);
+    void CalcAvgWindDir( double CurWindDir );
+    void SetAvgTime( int time );
+    void DataClear( bool dataInterruption = true );
     double GetAvgWindDir();
     double GetDegRangePort();
     double GetDegRangeStb();
-    double GetsignedWindDirArray(int idx);
-    double GetExpSmoothSignedWindDirArray(int idx);
+    double GetsignedWindDirArray( int idx );
+    double GetExpSmoothSignedWindDirArray( int idx );
     int GetSampleCount();
 
 protected:
@@ -118,6 +122,7 @@ protected:
     int       m_cx;
     wxSize    size;
     int       m_Legend;
+    int       m_cntNoData;
 
     wxDECLARE_EVENT_TABLE();
 

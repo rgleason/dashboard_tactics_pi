@@ -59,29 +59,55 @@ Derived and used by  AvgWindDir instrument but not only, when this instrument
 is active, the onject created by this class is available for other classes
 as well, like tactics_pi, RaceStart classes, etc. to share the information
 across the application.
- 
+
 For this calss to work, it shall be fed constantly by TWD. The class deals with
-the averaging calculations. Retrieval of the avg. wind + port & stb limits
-is provided with a set of  getter-methods.
-************************************************************************** */
+the exponential smmothing calculations. Retrieval of the calculated wind +
+port & stb limits is provided with a set of  getter-methods.
+
+Please note that, as object we get the TWD data from tactics_pi (which is
+likely to calculate it, if not available or if forced calculation selected).
+However, if the display instrument gets starvated by the same TWD data, it
+need to clear the object's calculations, otherwise funny historical skew
+will occur if data is coming back.
+
+Therefore, the object cannot exist without the average wind instrument which
+controls also the sampling time which can be selected with a slider it provides.
+***************************************************************************** */
+
 AvgWind::AvgWind()
 {
+    m_AvgTime = AVG_WIND_MIN_DEF_TIME;
+    DataClear( false ); // fresh start, not a data loss
+}
+
+AvgWind::~AvgWind()
+{
+    delete mDblsinExpSmoothWindDir;
+    delete mDblcosExpSmoothWindDir;
+}
+
+void AvgWind::DataClear( bool dataInterruption )
+{
     m_SampleCount = 0;
-    m_AvgTime = 360; //value is in Seconds --> 6 min
     m_DegRangePort = 0.0;
     m_DegRangeStb = 0.0;
-    m_AvgWindDir = NAN;
+    m_AvgWindDir = std::nan("1");
     for (int i = 0; i < AVG_WIND_RECORDS; i++) {
-        m_WindDirArray[i] = NAN;
-        m_signedWindDirArray[i] = NAN;
-        m_ExpsinSmoothArrayWindDir[i] = NAN;
-        m_ExpcosSmoothArrayWindDir[i] = NAN;
-        m_ExpSmoothSignedWindDirArray[i] = NAN;
+        m_WindDirArray[i] = std::nan("1");
+        m_signedWindDirArray[i] = std::nan("1");
+        m_ExpsinSmoothArrayWindDir[i] = std::nan("1");
+        m_ExpcosSmoothArrayWindDir[i] = std::nan("1");
+        m_ExpSmoothSignedWindDirArray[i] = std::nan("1");
+    }
+    if ( dataInterruption ) {
+        delete mDblsinExpSmoothWindDir;
+        delete mDblcosExpSmoothWindDir;
     }
     mDblsinExpSmoothWindDir = new DoubleExpSmooth(0.09);
     mDblcosExpSmoothWindDir = new DoubleExpSmooth(0.09);
 }
-void AvgWind::CalcAvgWindDir(double CurWindDir)
+
+void AvgWind::CalcAvgWindDir( double CurWindDir )
 {
     if (!wxIsNaN(CurWindDir)) {
 
@@ -168,14 +194,17 @@ void AvgWind::SetAvgTime(int time)
 {
     m_AvgTime = time; //seconds !
 }
+
 double AvgWind::GetsignedWindDirArray(int idx)
 {
     return m_signedWindDirArray[idx];
 }
+
 double AvgWind::GetExpSmoothSignedWindDirArray(int idx)
 {
     return m_ExpSmoothSignedWindDirArray[idx];
 }
+
 int  AvgWind::GetSampleCount()
 {
     return m_SampleCount;
@@ -190,8 +219,9 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
 {
     SetDrawSoloInPane(true);
     m_avgWindUpdTimer = nullptr;
-    m_WindDir = NAN;
-    m_AvgWindDir = NAN;
+    m_WindDir = std::nan("1");
+    m_cntNoData = 0;
+    m_AvgWindDir = std::nan("1");
     m_TopLineHeight = 30;
     m_TitleHeight = 10;
     m_SliderHeight = 0;
@@ -200,26 +230,28 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
     m_height = 0;
     m_cx = 0;
     m_Legend = 0;
-    m_ratioW = NAN;
-    m_ratioH = NAN;
+    m_ratioW = std::nan("1");
+    m_ratioH = std::nan("1");
     m_IsRunning = false;
     m_SampleCount = 0;
     m_Legend = 3;
-    m_AvgTime = 360; //6 min
+    m_AvgTime = AVG_WIND_MIN_DEF_TIME;
     m_DegRangePort = 0.0;
     m_DegRangeStb = 0.0;
     wxSize size = GetClientSize();
     m_cx = size.x / 2;
 
     m_AvgTimeSlider = new wxSlider(
-        this, wxID_ANY, m_AvgTime / 60, 6, 30, wxDefaultPosition,
-        wxDefaultSize,
+        this, wxID_ANY, m_AvgTime / 60,
+        AVG_WIND_MIN_DEF_TIME / 60,
+        AVG_WIND_MAX_TIME / 60,
+        wxDefaultPosition, wxDefaultSize,
         wxSL_AUTOTICKS | wxSL_BOTTOM | wxSL_HORIZONTAL |
         wxFULL_REPAINT_ON_RESIZE | wxSL_VALUE_LABEL);
     m_AvgTimeSlider->SetPageSize(2);
     m_AvgTimeSlider->SetLineSize(2);
     m_AvgTimeSlider->SetTickFreq(2);
-    m_AvgTimeSlider->SetValue(m_AvgTime/60);
+    m_AvgTimeSlider->SetValue( m_AvgTime/60 );
     m_AvgTimeSlider->Connect(
         wxEVT_COMMAND_SLIDER_UPDATED,
       wxCommandEventHandler(
@@ -232,6 +264,7 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
 }
+
 TacticsInstrument_AvgWindDir::~TacticsInstrument_AvgWindDir(void)
 {
     if ( this->m_avgWindUpdTimer ) {
@@ -249,12 +282,22 @@ void TacticsInstrument_AvgWindDir::OnClose( wxCloseEvent &event )
 void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent & event)
 {
     if ( !std::isnan(m_WindDir) ) {
+        m_cntNoData = 0;
         m_AvgWindDir = AverageWind->GetAvgWindDir();
         m_DegRangePort = AverageWind->GetDegRangePort();
         m_DegRangeStb = AverageWind->GetDegRangeStb();
         m_SampleCount = AverageWind->GetSampleCount();
     }
+    else {
+        if ( m_cntNoData >= AVG_WIND_CLEAR_NO_DATA_CNT ) {
+            AverageWind->DataClear();
+            m_cntNoData = -1;
+        }
+        else if ( m_cntNoData >= 0 )
+            m_cntNoData++;
+    }
 }
+
 void TacticsInstrument_AvgWindDir::OnAvgTimeSliderUpdated(
     wxCommandEvent& event)
 { /*
@@ -303,7 +346,8 @@ void TacticsInstrument_AvgWindDir::Draw(wxGCDC* dc)
   m_AvgTimeSlider->GetSize( &w, &m_SliderHeight );
   m_height = size.y;
 
-  dc->GetTextExtent( _T("30"), &w, &h, 0, 0, g_pFontSmall );
+  // this is not printed out, just the maximum width
+  dc->GetTextExtent( _T("99"), &w, &h, 0, 0, g_pFontSmall );
   m_Legend = w;
   m_width = size.x - 2 * m_Legend-2;
 
@@ -441,7 +485,7 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
   pointAngle_old.x = m_width / 2. +
       AverageWind->GetsignedWindDirArray( 0 ) * m_ratioW + m_Legend + 1;
   pointAngle_old.y = m_TopLineHeight + m_SliderHeight + 1;
-  pen.SetColour( wxColour( 0, 0, 255,60 ) ); //blue, opague
+  pen.SetColour( wxColour( 0, 0, 255, 60 ) ); //blue, opague
   dc->SetPen( pen );
   int samples = ( (m_SampleCount < m_AvgTime) ? m_SampleCount : m_AvgTime );
 
@@ -500,7 +544,7 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
   }
   
   //----------------------------------------------------------------------------
-  // Wind speed
+  // Wind direction
   //----------------------------------------------------------------------------
   dc->SetFont( *g_pFontData );
   if ( !m_IsRunning || std::isnan( m_WindDir ) ) {
