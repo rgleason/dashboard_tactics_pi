@@ -21,7 +21,7 @@
 *   You should have received a copy of the GNU General Public License     *
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
+*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ***************************************************************************
 */
 
@@ -52,18 +52,18 @@
 wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, DashboardInstrument)
 EVT_TIMER (myID_TICK_AVGWIND, TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)
 wxEND_EVENT_TABLE ()
-/************************************************************************************************************************
- Class for Average Wind Calculation
- The content of this class was originally part of the TacticsInstrument_AvgWindDir intrument.
- I extracted the average Wind calculation from the instrument to be able to use it in tactics_pi itself
- for the "TWA to Waypoint" instrument. Definition is now in tactics_pi, TacticsInstrument_AvgWindDir calls
- this instance of the class.
- The idea of this class is to constantly feed the live TWD into it. The class handles the calculation.
- Retrieval of the avg. wind + port & stb limits via getter-functions.
- This class is not derived from a instrument, window, ... and has no separate timer function.
- To make it work with the timescale in TacticsInstrument_AvgWindDir, it has to be called 1/s (--> separate timer in
- tactics_pi with callback function to feed the class for calculation)
-*************************************************************************************************************************/
+/* ****************************************************************************
+Class for Average Wind Calculation
+
+Derived and used by  AvgWindDir instrument but not only, when this instrument
+is active, the onject created by this class is available for other classes
+as well, like tactics_pi, RaceStart classes, etc. to share the information
+across the application.
+ 
+For this calss to work, it shall be fed constantly by TWD. The class deals with
+the averaging calculations. Retrieval of the avg. wind + port & stb limits
+is provided with a set of  getter-methods.
+************************************************************************** */
 AvgWind::AvgWind()
 {
     m_SampleCount = 0;
@@ -85,49 +85,63 @@ void AvgWind::CalcAvgWindDir(double CurWindDir)
 {
     if (!wxIsNaN(CurWindDir)) {
 
-        m_SampleCount = m_SampleCount < AVG_WIND_RECORDS ? m_SampleCount + 1 : AVG_WIND_RECORDS;
-        //fill the array, perform data shifting in case the array is completely filled.
-        // we always fill the whole array, independent of which time average is set.
-        // --> once the array is filled up, we can dynamically change the time average w/o the need to
-        // wait for another full set of data.
-        for (int i = AVG_WIND_RECORDS - 1; i > 0; i--) {
+        m_SampleCount = ( (m_SampleCount < AVG_WIND_RECORDS) ?
+                          (m_SampleCount + 1) : AVG_WIND_RECORDS );
+        /*
+          Fill in the array, perform data shifting in case the array is
+          completely filled. Always fill the whole array, independent of which
+          time average is set. Once the array is filled up, we can dynamically
+          change the time average w/o the need to wait for another full set
+          of data.
+        */
+        for ( int i = (AVG_WIND_RECORDS - 1); i > 0; i-- ) {
             m_WindDirArray[i] = m_WindDirArray[i - 1];
             m_ExpsinSmoothArrayWindDir[i] = m_ExpsinSmoothArrayWindDir[i - 1];
             m_ExpcosSmoothArrayWindDir[i] = m_ExpcosSmoothArrayWindDir[i - 1];
         }
         m_WindDirArray[0] = CurWindDir;
-        double rad = (90 - CurWindDir)*M_PI / 180.;
+        double rad = (90 - CurWindDir) * M_PI / 180.;
         if (m_SampleCount == 1) {
             mDblsinExpSmoothWindDir->SetInitVal(sin(rad));
             mDblcosExpSmoothWindDir->SetInitVal(cos(rad));
         }
 
-        m_ExpsinSmoothArrayWindDir[0] = mDblsinExpSmoothWindDir->GetSmoothVal(sin(rad));
-        m_ExpcosSmoothArrayWindDir[0] = mDblcosExpSmoothWindDir->GetSmoothVal(cos(rad));
+        m_ExpsinSmoothArrayWindDir[0] =
+            mDblsinExpSmoothWindDir->GetSmoothVal(sin(rad));
+        m_ExpcosSmoothArrayWindDir[0] =
+            mDblcosExpSmoothWindDir->GetSmoothVal(cos(rad));
 
-        //Problem Norddurchgang: 355deg - 10deg ...
-        //solution via atan2 function...
-        //calculation of arithmetical mean value
+        // Problem of north directions: 355deg - 10deg :
+        //     resolved with atan2 function...
+        // Calculation of arithmetical mean value:
         double sinAvgDir = 0.0;
         double cosAvgDir = 0.0;
         rad = 0.0;
-        int samples = m_SampleCount < m_AvgTime ? m_SampleCount : m_AvgTime;
+        int samples = ( (m_SampleCount < m_AvgTime) ? m_SampleCount : m_AvgTime );
         for (int i = 0; i < samples; i++) {
-            rad = (90. - m_WindDirArray[i])*M_PI / 180.;
+            rad = (90. - m_WindDirArray[i]) * M_PI / 180.;
             sinAvgDir += sin(rad);
             cosAvgDir += cos(rad);
         }
-        m_AvgWindDir = (90. - (atan2(sinAvgDir, cosAvgDir)*180. / M_PI) + 360.);
-        while (m_AvgWindDir >= 360) m_AvgWindDir -= 360;
-        //m_AvgDegRange ermitteln
+        m_AvgWindDir =
+            (90. - (atan2( sinAvgDir, cosAvgDir )* 180. / M_PI) + 360.);
+        while (m_AvgWindDir >= 360)
+            m_AvgWindDir -= 360;
+
+        //m_AvgDegRange definition
         m_DegRangePort = 360;
         m_DegRangeStb = -360;
 
-        for (int i = 0; i < samples && !wxIsNaN(m_WindDirArray[i]); i++) {
+        for ( int i = 0; ( (i < samples) &&
+                           !std::isnan( m_WindDirArray[i] )); i++ ) {
             double val = getSignedDegRange(m_AvgWindDir, m_WindDirArray[i]);
             m_signedWindDirArray[i] = val;
-            double smWDir = (90. - (atan2(m_ExpsinSmoothArrayWindDir[i], m_ExpcosSmoothArrayWindDir[i])*180. / M_PI) + 360.);
-            while (smWDir >= 360) smWDir -= 360;
+            double smWDir =
+                (90. - (atan2( m_ExpsinSmoothArrayWindDir[i],
+                               m_ExpcosSmoothArrayWindDir[i]) * 180. / M_PI) +
+                 360.);
+            while (smWDir >= 360)
+                smWDir -= 360;
             double smval = getSignedDegRange(m_AvgWindDir, smWDir);
             m_ExpSmoothSignedWindDirArray[i] = smval;
 
@@ -167,14 +181,15 @@ int  AvgWind::GetSampleCount()
     return m_SampleCount;
 }
 
-//************************************************************************************************************************
-// History of wind direction
-//************************************************************************************************************************
+/* *************************************************************************
+Instrument History of wind direction 
+**************************************************************************** */
 
 TacticsInstrument_AvgWindDir::TacticsInstrument_AvgWindDir(wxWindow *parent, wxWindowID id, wxString title) :
 DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
 {
     SetDrawSoloInPane(true);
+    m_avgWindUpdTimer = nullptr;
     m_WindDir = NAN;
     m_AvgWindDir = NAN;
     m_TopLineHeight = 30;
@@ -196,50 +211,71 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
     wxSize size = GetClientSize();
     m_cx = size.x / 2;
 
-    m_AvgTimeSlider = new wxSlider(this, wxID_ANY, m_AvgTime / 60, 6, 30, wxDefaultPosition, wxDefaultSize, wxSL_AUTOTICKS | wxSL_BOTTOM | wxSL_HORIZONTAL | wxFULL_REPAINT_ON_RESIZE | wxSL_VALUE_LABEL);
+    m_AvgTimeSlider = new wxSlider(
+        this, wxID_ANY, m_AvgTime / 60, 6, 30, wxDefaultPosition,
+        wxDefaultSize,
+        wxSL_AUTOTICKS | wxSL_BOTTOM | wxSL_HORIZONTAL |
+        wxFULL_REPAINT_ON_RESIZE | wxSL_VALUE_LABEL);
     m_AvgTimeSlider->SetPageSize(2);
     m_AvgTimeSlider->SetLineSize(2);
     m_AvgTimeSlider->SetTickFreq(2);
     m_AvgTimeSlider->SetValue(m_AvgTime/60);
-    m_AvgTimeSlider->Connect(wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(TacticsInstrument_AvgWindDir::OnAvgTimeSliderUpdated), NULL, this);
+    m_AvgTimeSlider->Connect(
+        wxEVT_COMMAND_SLIDER_UPDATED,
+      wxCommandEventHandler(
+          TacticsInstrument_AvgWindDir::OnAvgTimeSliderUpdated), NULL, this);
     int w =0;
     m_AvgTimeSlider->GetSize(&w, &m_SliderHeight);
 
-    //we process data 1/s ...
+    // Start the processing thread
     m_avgWindUpdTimer = new wxTimer( this, myID_TICK_AVGWIND );
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
 }
 TacticsInstrument_AvgWindDir::~TacticsInstrument_AvgWindDir(void)
 {
-  this->m_avgWindUpdTimer->Stop();
-  delete this->m_avgWindUpdTimer;
+    if ( this->m_avgWindUpdTimer ) {
+        this->m_avgWindUpdTimer->Stop();
+        delete this->m_avgWindUpdTimer;
+    }
 }
+
+void TacticsInstrument_AvgWindDir::OnClose( wxCloseEvent &event )
+{
+    if ( this->m_avgWindUpdTimer )
+        this->m_avgWindUpdTimer->Stop();
+}
+
 void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent & event)
 {
-    if (!std::isnan(m_WindDir)) {
+    if ( !std::isnan(m_WindDir) ) {
         m_AvgWindDir = AverageWind->GetAvgWindDir();
         m_DegRangePort = AverageWind->GetDegRangePort();
         m_DegRangeStb = AverageWind->GetDegRangeStb();
         m_SampleCount = AverageWind->GetSampleCount();
     }
 }
-void TacticsInstrument_AvgWindDir::OnAvgTimeSliderUpdated(wxCommandEvent& event)
-{ //Note : the slider also updates the calculation in tactics_pi. This is done on puropse !       
-  m_AvgTime = m_AvgTimeSlider->GetValue()*60;
-  AverageWind->SetAvgTime(m_AvgTime);
+void TacticsInstrument_AvgWindDir::OnAvgTimeSliderUpdated(
+    wxCommandEvent& event)
+{ /*
+    Note : the slider also updates the calculation in tactics_pi and all
+    other instruments subscribed to the shared AverageWind class object
+  */
+  m_AvgTime = m_AvgTimeSlider->GetValue() * 60;
+  AverageWind->SetAvgTime( m_AvgTime );
 }
 
 wxSize TacticsInstrument_AvgWindDir::GetSize(int orient, wxSize hint)
 {
-  wxClientDC dc(this);
+  wxClientDC dc( this );
   int w;
   dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
   if (orient == wxHORIZONTAL) {
-    return wxSize(DefaultWidth, wxMax(m_TitleHeight + 140, hint.y));
+    return wxSize( DefaultWidth, wxMax( m_TitleHeight + 140, hint.y ) );
   }
   else {
-    return wxSize(wxMax(hint.x, DefaultWidth), wxMax(m_TitleHeight + 140, hint.y));
+    return wxSize( wxMax( hint.x, DefaultWidth),
+                   wxMax( m_TitleHeight + 140, hint.y ) );
   }
 }
 void TacticsInstrument_AvgWindDir::SetData(
@@ -248,7 +284,7 @@ void TacticsInstrument_AvgWindDir::SetData(
     if (st == OCPN_DBP_STC_TWD ) { 
       m_WindDir = data;
     }
-    m_IsRunning = std::isnan(m_WindDir)? false:true;
+    m_IsRunning = ( std::isnan(m_WindDir) ? false : true );
 }
 
 void TacticsInstrument_AvgWindDir::Draw(wxGCDC* dc)
@@ -262,78 +298,95 @@ void TacticsInstrument_AvgWindDir::Draw(wxGCDC* dc)
   wxSize size = GetClientSize();
   m_cx = size.x / 2;
 
-  m_AvgTimeSlider->SetSize(10, 0, size.x-20,5);
+  m_AvgTimeSlider->SetSize( 10, 0, size.x - 20, 5 );
   int w,h;
-  m_AvgTimeSlider->GetSize(&w, &m_SliderHeight);
+  m_AvgTimeSlider->GetSize( &w, &m_SliderHeight );
   m_height = size.y;
 
-  dc->GetTextExtent(_T("30"), &w, &h, 0, 0, g_pFontSmall);
+  dc->GetTextExtent( _T("30"), &w, &h, 0, 0, g_pFontSmall );
   m_Legend = w;
   m_width = size.x - 2 * m_Legend-2;
 
   m_availableHeight = size.y - m_TopLineHeight - m_SliderHeight- 1 - h;
-  DrawBackground(dc);
-  DrawForeground(dc);
+  DrawBackground( dc );
+  DrawForeground( dc );
 
 }
 
-// *********************************************************************************
-//draw background
-// *********************************************************************************
+// *****************************************************************************
+// Draw background
+// *****************************************************************************
 void TacticsInstrument_AvgWindDir::DrawBackground(wxGCDC* dc)
 {
   wxString label;
   wxColour cl;
   wxPen pen;
-  //---------------------------------------------------------------------------------
-  // horizontal lines
-  //---------------------------------------------------------------------------------
-  GetGlobalColor(_T("UBLCK"), &cl);
-  pen.SetColour(cl);
-  pen.SetStyle(wxPENSTYLE_SOLID);
-  dc->SetPen(pen);
+  //----------------------------------------------------------------------------
+  // Draw lines
+  //----------------------------------------------------------------------------
+  GetGlobalColor( _T("UBLCK"), &cl );
+  pen.SetColour( cl );
+  pen.SetStyle( wxPENSTYLE_SOLID );
+  dc->SetPen( pen );
   int width, height;
   int time = m_AvgTime / 60;
-  cl = wxColour(0, 0, 0, 255); //black, solid
+  cl = wxColour( 0, 0, 0, 255 ); //black, solid
 
-  dc->SetTextForeground(cl);
-  dc->SetFont(*g_pFontSmall);
+  dc->SetTextForeground( cl );
+  dc->SetFont( *g_pFontSmall );
 
-  dc->DrawLine(m_cx, m_TopLineHeight + m_SliderHeight, m_cx, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight)); // the vertical center line
+  // vertical center line
+  dc->DrawLine( m_cx, m_TopLineHeight + m_SliderHeight, m_cx,
+                (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight) );
 
-  //top horzontal line
-  label = wxString::Format(_T("%2d"), 0);
-  dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label, 1, (int)(m_TopLineHeight + m_SliderHeight - height / 2.));
-  dc->DrawLine(m_Legend + 1, m_TopLineHeight + m_SliderHeight, m_Legend + 1 + m_width, m_TopLineHeight + m_SliderHeight);
-//bottom line + legend
-  label = wxString::Format(_T("%2d"), time);
-  dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label, 1, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight - height / 2.)); 
-  dc->DrawLine(m_Legend + 1, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight), m_Legend + 1 + m_width, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight));
+  // top horizontal line
+  label = wxString::Format( _T("%2d"), 0 );
+  dc->GetTextExtent( label, &width, &height, 0, 0, g_pFontSmall );
+  dc->DrawText( label, 1,
+                (int)(m_TopLineHeight + m_SliderHeight - height / 2.) );
+  dc->DrawLine( m_Legend + 1, m_TopLineHeight + m_SliderHeight, m_Legend + 1 +
+                m_width, m_TopLineHeight + m_SliderHeight );
+  // bottom line + legend
+  label = wxString::Format( _T("%2d"), time );
+  dc->GetTextExtent( label, &width, &height, 0, 0, g_pFontSmall );
+  dc->DrawText( label, 1, (int)(m_TopLineHeight + m_SliderHeight +
+                                m_availableHeight - height / 2.) ); 
+  dc->DrawLine( m_Legend + 1, (int)(m_TopLineHeight + m_SliderHeight +
+                                    m_availableHeight),
+                (m_Legend + 1 +m_width),
+                (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight) );
   int x1, x2;
-  for (int i = 1; i < time; i++){
-    if (i % 5 == 0){
-      x1 = m_cx;
-      x2 = m_cx;
-      label = wxString::Format(_T("%2d"), i);
-      dc->DrawText(label, 1, (int)(m_TopLineHeight + m_SliderHeight - height / 2. + m_availableHeight / (double)time * i));
-    }
-    else{
-      //      x1 = m_cx - 10;
-      //      x2 = m_cx + 10;
-      x1 = m_Legend + 11;
-      x2 = m_Legend + 1 + m_width - 10;
-    }
-    dc->DrawLine(m_Legend + 1 , (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight / (double)time * i), x1, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight / (double)time * i));
-    dc->DrawLine(x2, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight / (double)time * i), m_Legend + 1 + m_width, (int)(m_TopLineHeight + m_SliderHeight + m_availableHeight / (double)time * i));
-  }
+  for ( int i = 1; i < time; i++ ) {
+      if ( (i % 5) == 0 ) {
+          x1 = m_cx;
+          x2 = m_cx;
+          label = wxString::Format( _T("%2d"), i );
+          dc->DrawText(
+              label, 1,
+              (int)(m_TopLineHeight + m_SliderHeight - height / 2. +
+                    m_availableHeight / (double)time * i) );
+      }
+      else {
+          x1 = m_Legend + 11;
+          x2 = m_Legend + 1 + m_width - 10;
+      }
+      dc->DrawLine( m_Legend + 1 ,
+                    (int)(m_TopLineHeight + m_SliderHeight +
+                          m_availableHeight / (double)time * i), x1,
+                    (int)(m_TopLineHeight + m_SliderHeight +
+                          m_availableHeight / (double)time * i));
+      dc->DrawLine( x2,
+                    (int)(m_TopLineHeight + m_SliderHeight +
+                          m_availableHeight / (double)time * i),
+                    (m_Legend + 1 + m_width),
+                    (int)(m_TopLineHeight + m_SliderHeight +
+                          m_availableHeight / (double)time * i));
+  } // for time range
 }
 
-
-//*********************************************************************************
-//draw foreground
-//*********************************************************************************
+// *****************************************************************************
+// Draw foreround
+// *****************************************************************************
 void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
 {
   wxColour col;
@@ -342,68 +395,89 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
   wxPen pen;
   wxString label;
 
-  //---------------------------------------------------------------------------------
-  // average wind direction
-  //---------------------------------------------------------------------------------
-  dc->SetFont(*g_pFontData);
-  col = wxColour(255, 0, 0, 255); //red, solid
-  dc->SetTextForeground(col);
-  if (!m_IsRunning || std::isnan(m_WindDir))
+  //----------------------------------------------------------------------------
+  // Average wind direction
+  //----------------------------------------------------------------------------
+  dc->SetFont( *g_pFontData );
+  col = wxColour( 255, 0, 0, 255 ); //red, solid
+  dc->SetTextForeground( col );
+  if ( !m_IsRunning || std::isnan( m_WindDir ) )
     avgWindAngle = _T("---");
   else {
-    double dir = wxRound(m_AvgWindDir);
-    while (dir > 360) dir -= 360;
-    while (dir <0) dir += 360;
-    avgWindAngle = wxString::Format(_T("%3.0f"), dir) + DEGREE_SIGN;
+    double dir = wxRound( m_AvgWindDir );
+    while (dir > 360.)
+        dir -= 360.;
+    while (dir < 0.)
+        dir += 360.;
+    avgWindAngle = wxString::Format( _T("%3.0f" ), dir ) + DEGREE_SIGN;
   }
-  dc->GetTextExtent(avgWindAngle, &degw, &degh, 0, 0, g_pFontData);
-  dc->DrawText(avgWindAngle, m_Legend + 1+m_width / 2 - degw / 2, m_TopLineHeight + m_SliderHeight - degh);
+  dc->GetTextExtent( avgWindAngle, &degw, &degh, 0, 0, g_pFontData );
+  dc->DrawText( avgWindAngle, (m_Legend + 1 + m_width / 2 - degw / 2),
+                m_TopLineHeight + m_SliderHeight - degh );
 
-  // das WindDirArray durchgehen
-  // --> aktuelle Werte als größer/kleiner AverageWindDir, also +-Werte.
-  // min und max Werte aus dem Array (0.. m_AvgTime) ergeben den horizontalen Zoomfaktor m_ratioW
-  // Darzustellende Averagezeit m_AvgTime ergibt vertikalen Zoomfaktor ratioH
-  m_ratioH = (double)(m_availableHeight) / (double)(m_AvgTime);// Höhe durch Anzahl Sekunden
- //take the bigger value of both and double up, Average is always centered
-  double maxDegRange = 2.* wxMax(m_DegRangeStb, abs(m_DegRangePort));
+  /* WindDirArray direction
+     Actual values as variation from AverageWindDir, w/ +/- direction.
+     - min and max directions from the array (0 .. m_AvgTime of the service
+       class) resulting in the horizontal zoom factor m_ratioW.
+     - Average time to be shown m_AvgTime results in the vertical zoom factor
+       m_ratioH.
+  */
+  // height by number of seconds
+  m_ratioH =
+      static_cast<double>( m_availableHeight ) /
+      static_cast<double>( m_AvgTime );
+  // Take the biggest varition and double upl the average is always centered
+  double maxDegRange = 2.* wxMax( m_DegRangeStb,
+                                  abs( m_DegRangePort ) );
 
-  m_ratioW = double(m_width) / maxDegRange;
-  pen.SetStyle(wxPENSTYLE_SOLID);
-  //---------------------------------------------------------------------------------
-  // live direction data
-  //---------------------------------------------------------------------------------
+  m_ratioW = static_cast<double>( m_width ) / maxDegRange;
+  pen.SetStyle( wxPENSTYLE_SOLID );
+
+  //----------------------------------------------------------------------------
+  // Live direction data
+  //----------------------------------------------------------------------------
+  
   wxPoint points, pointAngle_old;
-  pointAngle_old.x = m_width / 2. + AverageWind->GetsignedWindDirArray(0) * m_ratioW + m_Legend + 1;
+  pointAngle_old.x = m_width / 2. +
+      AverageWind->GetsignedWindDirArray( 0 ) * m_ratioW + m_Legend + 1;
   pointAngle_old.y = m_TopLineHeight + m_SliderHeight + 1;
-  pen.SetColour(wxColour(0, 0, 255,60)); //blue, opague
-  dc->SetPen(pen);
-  int samples = m_SampleCount < m_AvgTime ? m_SampleCount : m_AvgTime;
+  pen.SetColour( wxColour( 0, 0, 255,60 ) ); //blue, opague
+  dc->SetPen( pen );
+  int samples = ( (m_SampleCount < m_AvgTime) ? m_SampleCount : m_AvgTime );
 
-  for (int idx = 1; idx < samples; idx++) {
-    points.x = m_width / 2. + AverageWind->GetsignedWindDirArray(idx) * m_ratioW + m_Legend + 1;
-    points.y = (int)((double)m_TopLineHeight + m_SliderHeight + 1. + (double)idx * m_ratioH);
-    dc->DrawLine(pointAngle_old,points);
+  for ( int idx = 1; idx < samples; idx++ ) {
+    points.x = m_width / 2. +
+        AverageWind->GetsignedWindDirArray(idx) * m_ratioW + m_Legend + 1;
+    points.y = static_cast<int>( static_cast<double>( m_TopLineHeight ) +
+                                 m_SliderHeight + 1. +
+                                 static_cast<double>( idx ) * m_ratioH );
+    dc->DrawLine( pointAngle_old, points );
     pointAngle_old.x = points.x;
     pointAngle_old.y = points.y;
   }
-  
-  //---------------------------------------------------------------------------------
-  //printing the exponential smoothed direction
-  //---------------------------------------------------------------------------------
-  pen.SetStyle(wxPENSTYLE_SOLID);
-  pen.SetColour(wxColour(0, 0, 255, 128));
-  pen.SetWidth(2);
-  dc->SetPen(pen);
+
+  //----------------------------------------------------------------------------
+  // Printing the exponential smoothed direction
+  //----------------------------------------------------------------------------
+  pen.SetStyle( wxPENSTYLE_SOLID );
+  pen.SetColour( wxColour( 0, 0, 255, 128 ) );
+  pen.SetWidth( 2 );
+  dc->SetPen( pen );
   wxBrush greenbrush, redbrush;
-  greenbrush.SetStyle(wxBRUSHSTYLE_SOLID);
-  greenbrush.SetColour(wxColour(0, 200, 0, 128));
-  redbrush.SetStyle(wxBRUSHSTYLE_SOLID);
-  redbrush.SetColour(wxColour(204, 41, 41, 128));
+  greenbrush.SetStyle( wxBRUSHSTYLE_SOLID );
+  greenbrush.SetColour( wxColour( 0, 200, 0, 128) ); // green opaque
+  redbrush.SetStyle( wxBRUSHSTYLE_SOLID );
+  redbrush.SetColour( wxColour( 204, 41, 41, 128 ) ); // red opaque
   wxPoint fill[4];
-  pointAngle_old.x = m_width / 2. + AverageWind->GetExpSmoothSignedWindDirArray(0) * m_ratioW + m_Legend + 1;
+  pointAngle_old.x = m_width / 2. +
+      AverageWind->GetExpSmoothSignedWindDirArray(0) * m_ratioW +
+      m_Legend + 1;
   pointAngle_old.y = m_TopLineHeight + m_SliderHeight + 1;
-  for (int idx = 1; idx < samples; idx++) {
-    points.x = m_width / 2. + AverageWind->GetExpSmoothSignedWindDirArray(idx) * m_ratioW + m_Legend + 1;
+  
+  for ( int idx = 1; idx < samples; idx++ ) {
+    points.x = m_width / 2. +
+        AverageWind->GetExpSmoothSignedWindDirArray(idx) * m_ratioW +
+        m_Legend + 1;
     points.y = m_TopLineHeight + m_SliderHeight + 1 + idx * m_ratioH;
     fill[0].x = pointAngle_old.x;
     fill[0].y = pointAngle_old.y;
@@ -413,43 +487,49 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
     fill[2].y = points.y;
     fill[3].x = m_cx;
     fill[3].y = pointAngle_old.y;
-    dc->SetPen(pen);
-    dc->DrawLine(pointAngle_old, points);
-    dc->SetPen(*wxTRANSPARENT_PEN);
-    if (points.x>=m_cx && pointAngle_old.x>=m_cx)
-       dc->SetBrush(greenbrush);
+    dc->SetPen( pen );
+    dc->DrawLine( pointAngle_old, points );
+    dc->SetPen( *wxTRANSPARENT_PEN );
+    if ( (points.x >= m_cx) && (pointAngle_old.x >= m_cx) )
+        dc->SetBrush( greenbrush );
     else
-      dc->SetBrush(redbrush);
-    dc->DrawPolygon(4,fill,0,0);
+        dc->SetBrush( redbrush );
+    dc->DrawPolygon( 4, fill, 0, 0 );
     pointAngle_old.x = points.x;
     pointAngle_old.y = points.y;
   }
   
-  //---------------------------------------------------------------------------------
-  // wind speed
-  //---------------------------------------------------------------------------------
-  dc->SetFont(*g_pFontData);
-  if (!m_IsRunning || std::isnan(m_WindDir)){
-    minAngle = _T("---");
-    maxAngle = _T("---");
+  //----------------------------------------------------------------------------
+  // Wind speed
+  //----------------------------------------------------------------------------
+  dc->SetFont( *g_pFontData );
+  if ( !m_IsRunning || std::isnan( m_WindDir ) ) {
+      minAngle = _T("---");
+      maxAngle = _T("---");
   }
-  else{
-    double leftAngle = wxRound(m_AvgWindDir + m_DegRangePort);
-    while (leftAngle > 360) leftAngle -= 360;
-    while (leftAngle <0) leftAngle += 360;
+  else {
+      double leftAngle = wxRound( m_AvgWindDir + m_DegRangePort );
+      while (leftAngle > 360.)
+          leftAngle -= 360.;
+      while (leftAngle < 0.)
+          leftAngle += 360.;
 
-    minAngle = wxString::Format(_T("%3.0f"), leftAngle) + DEGREE_SIGN;
-    double rightAngle = wxRound(m_AvgWindDir + m_DegRangeStb);
-    while (rightAngle > 360) rightAngle -= 360;
-    while (rightAngle <0) rightAngle += 360;
-    maxAngle = wxString::Format(_T("%3.0f"), rightAngle) + DEGREE_SIGN;
+      minAngle = wxString::Format( _T("%3.0f"), leftAngle ) + DEGREE_SIGN;
+      double rightAngle = wxRound( m_AvgWindDir + m_DegRangeStb );
+      while (rightAngle > 360.)
+          rightAngle -= 360;
+      while (rightAngle < 0.)
+          rightAngle += 360;
+      maxAngle = wxString::Format( _T("%3.0f"), rightAngle ) + DEGREE_SIGN;
   }
-  dc->GetTextExtent(minAngle, &degw, &degh, 0, 0, g_pFontData);
-  col = wxColour(wxColour(204, 41, 41, 128)); //red, opaque
-  dc->SetTextForeground(col);
-  dc->DrawText(minAngle, m_Legend + 1, m_TopLineHeight + m_SliderHeight - degh);
-  dc->GetTextExtent(maxAngle, &degw, &degh, 0, 0, g_pFontData);
-  col = wxColour(wxColour(0, 200, 0, 192)); //green, opaque
-  dc->SetTextForeground(col);
-  dc->DrawText(maxAngle, m_width - degw + m_Legend +1, m_TopLineHeight + m_SliderHeight - degh);
+  dc->GetTextExtent( minAngle, &degw, &degh, 0, 0, g_pFontData );
+  col = wxColour(wxColour( 204, 41, 41, 128) ); //red, opaque
+  dc->SetTextForeground( col );
+  dc->DrawText( minAngle, m_Legend + 1,
+                m_TopLineHeight + m_SliderHeight - degh );
+  dc->GetTextExtent( maxAngle, &degw, &degh, 0, 0, g_pFontData );
+  col = wxColour( wxColour( 0, 200, 0, 192 ) ); //green, opaque
+  dc->SetTextForeground( col );
+  dc->DrawText( maxAngle, m_width - degw + m_Legend +1,
+                m_TopLineHeight + m_SliderHeight - degh );
 }

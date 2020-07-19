@@ -121,6 +121,7 @@ protected:
 
     wxDECLARE_EVENT_TABLE();
 
+    void OnClose( wxCloseEvent& event );
     void Draw(wxGCDC* dc);
     void DrawBackground(wxGCDC* dc);
     void DrawForeground(wxGCDC* dc);
@@ -128,7 +129,6 @@ protected:
     void OnAvgTimeSliderUpdated(wxCommandEvent& event);
     void CalcAvgWindDir(double CurWindDir);
     void OnAvgWindUpdTimer(wxTimerEvent & event);
-    //void DrawWindSpeedScale(wxGCDC* dc);
 };
 
 #endif // __AVG_WIND_H__
