@@ -181,7 +181,7 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
 void dashboard_pi::LoadColorSettings( wxFileConfig *pConf )
 {
     pConf->Read( _T("BackgroundColor"),        &g_sDialColorBackground,       _T("DASHB") );
-    pConf->Read( _T("ForeroundColor"),         &g_sDialColorForeground,       _T("DASHF") );
+    pConf->Read( _T("ForegroundColor"),        &g_sDialColorForeground,       _T("DASHF") );
     pConf->Read( _T("LabelColor"),             &g_sDialColorLabel,            _T("DASHL") );
     pConf->Read( _T("RedColor"),               &g_sDialColorRed,              _T("DASHR") );
     pConf->Read( _T("GreenColor"),             &g_sDialColorGreen,            _T("DASHG") );
