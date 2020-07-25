@@ -13124,7 +13124,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The requirement to be able to show engine and energy system data on Dash came first into mind where a browser techniques could be useful and fast (or slow) enough for that type of data. The usage of web techniques would allow to jail break from wxWidget's bit aging GUI and move to the other end of the GUI development paradigm, <em>i.e.</em> no limits! After short R&amp;D prototyping and proof-of-concept the limitations of the run-time environment became known as well as the potential communication issues. Robustness and simplicity was put in front and a bit old fashioned web techniques were used because of the simple fact that the wxWebView itself and the back-ends it is using are not necessarily even from this decade!</p>
+<p>The requirement to be able to show engine and energy system data on DashT came first into mind where a browser techniques could be useful and fast (or slow) enough for that type of data. The usage of web techniques would allow to jail break from wxWidget's bit aging GUI and move to the other end of the GUI development paradigm, <em>i.e.</em> no limits! After short R&amp;D prototyping and proof-of-concept the limitations of the run-time environment became known as well as the potential communication issues. Robustness and simplicity was put in front and a bit old fashioned web techniques were used because of the simple fact that the wxWebView itself and the back-ends it is using are not necessarily even from this decade!</p>
 
 </div>
 </div>
@@ -13147,10 +13147,12 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Scope is in data which is originating from NMEA-2000 data bus.</p>
-<p>Excluded data sources are NMEA-2000 navigational information, NMEA-2000 status information, NMEA-0183 all, IoT, GPIO and Bluetooth LE.</p>
+<p>The scope is for engine data and which is directly coming from NMEA-2000 data.</p>
+<p>Excluded data as for now in the engine catetory are NMEA-2000 status information, NMEA-0183 all, IoT, GPIO and Bluetooth LE but this statement can evolve when new needs and instruments are invented.</p>
 <p>Data type scope is in data which can be presented as floating number, in scientific exponential format when converted to string format.</p>
 <p>Excluded data type are that of string type of status and other messages and binary status bits (0/1).</p>
+<p>The scope of NMEA-0183 data is in all navigational data which can be received from OpenCPN or directly from a Signal K node server.</p>
+<p>From the direct connection scope follow that out of the scope is Signal K data received from OpenCPN v5.2 or superior.</p>
 
 </div>
 </div>
@@ -13180,7 +13182,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Priority operating system support is Windows 10, Linux Debian 18+ LTS and Raspian on Raspberry Pi 4 or greater (armv7l).</p>
+<p>Priority operating system support is Windows 10, Linux Debian 20+ LTS and Raspian on Raspberry Pi 4 or greater (armv7l).</p>
 
 </div>
 </div>
@@ -13354,6 +13356,24 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="An-example-candidate-for-a-hybrid-C++/JS-instrument">An example candidate for a hybrid C++/JS instrument<a class="anchor-link" href="#An-example-candidate-for-a-hybrid-C++/JS-instrument">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take the example of the excellent <code>avg_wind.cpp</code> - in fact, ass DashboardInstrument, this is - like other instruments - actually a custom-control widget, derived from wxControl.</p>
+<p>Having one actual wx Widget non-static control in it (wxSlider) seems to be OK and, below we draw extra functions on canvas. However, adding more wxControls does not work - in wxControl Sizers, for example, do not work, controls would just keep piling up. If this is needed, one could move this as a specific pop-up window (since one can have only one of these, anyway).</p>
+<p>But another way could be make a hybrid AverageWind instrument. It would first have a simple instrument with canvas drawing in C++ (the actual one, it excels in that compared to what one could do in JavaScript even though in JavaScript the graphs are a <em>bit</em> easier...) would create a wxWebView based JavaScript instrument.</p>
+<p>This new class would derive from InstruJS-class and the resulting JavaScript instrument panel can show all sorts of fancy controls and derived information. However, for GTK2 based older systems it would be necessary to keep the existing avg_wind.cpp instrument. In this case, the calculating AvgWind class should be separated from avg_wind.cpp.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Implementation">Implementation<a class="anchor-link" href="#Implementation">&#182;</a></h1>
 </div>
 </div>
@@ -13392,6 +13412,172 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The class creating and using wxWebView window and communicating with the JavaScript application part of the instrument shall be an abstract class called <em>InstruJS</em>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Dealing-with-strangeness-of-wxWebView-and-environment">Dealing with strangeness of wxWebView and environment<a class="anchor-link" href="#Dealing-with-strangeness-of-wxWebView-and-environment">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>They are best dealt with in the base, <code>InstruJS</code> class. But in some cases, it is better to deal with the the vicious issues with wxWebView at the derived class level.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For example, wxWebView does not like at all (when this is written, wxWidgets v3.1.2) if one tries to load the page content and if the server is not actually there. When you move forward in the JavaScript initialization it is a core dump.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But knowing what file and from where need to be loaded, is known by the derived class. That's why the base class provides methods like <code>testURLretHost</code> and <code>testHTTPServer</code>. See examples of the derived classes how to use them.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="C++/JS-communication-concentrated-in-the-abstraction-class">C++/JS communication concentrated in the abstraction class<a class="anchor-link" href="#C++/JS-communication-concentrated-in-the-abstraction-class">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This design choice is somewhat limiting and can be later revised: this way, we need to have / will have in face of us an equivalent <code>iface.js</code> class, always the same.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The disadvantage of this is that we need to know in the C++ abstract class about the questions the JavaScript may ask or the data they may want to receive. Also, in JavaScript side, the <code>index.js</code> or <code>index.ts</code> modules need to deal with the commands via this interface they actually do not need.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Experience has shown that each JavaScript instrument is different and with freedom of choice also the requests for data or functions towards the C++ InstruJS class are almost impossible to design in advance, apart some basic functions. The <code>iface.js</code> class is increasing and increasing, and theoritically you need to revisit and rebuild all existing classes. A chore work to split the interface by recognizing the useful, common functions and instrument specific functions will be ahead if this work continues. It would also mean that the classed derived from <code>InstruJS.cpp</code> would need to be able to talk to this interface to create events on JavaScript instrument.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The advantage of this approach is that there will be less code copy paste caused duplication since many interface functions are common to each JavaScript instrument.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The second advantage is that the very complicated state machine management in the C++ side but also in the JavaScript side has at least one common nominator and, when developing a new JavaScript instrument one does not need to reinvent the complicated messaging process every time.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Complexity-of-the-state-machine-wxWidgets-vs-JavaScript">Complexity of the state machine wxWidgets vs JavaScript<a class="anchor-link" href="#Complexity-of-the-state-machine-wxWidgets-vs-JavaScript">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There are some limiting design factors like the slow execution of JavaScript code in wxWidgets via wxWebView. One wants to do less actions possible using it. That's why it is used to trigger events in the JavaScript side.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This fits nicely with the JavaScript GUI design which, itself should always be state machine driven (more about it below).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In each JavaScript instrument you can find a .dot file which is <code>Graphviz</code> input file. This .dot file can be retrieved via a function provided by the <code>iface</code> class. Take a look at the output .svg and .png files to visualize the JavaScript instrument's states and especially the transitions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You got it: part of these transitions are internal event but some of them are coming from C++ abstract class. For example, when the JavaScript instrument asks something from the OpenCPN Plug-in, the answer is first put in <code>iface</code> object and then an appropriate event is triggered.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is the most efficient way from the JavaScript side.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Unfortunately the efficiency is not so good in the C++ side, driven by wxWidgets threads, which cannot be running at full speed all the time only for this - that's why we used timer based polling. This makes the <em>InstruJS</em> class communication state machine to look pretty complex:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is the communication state machine, which is driving the sub-state machine, which is describing the state of the JavaScript instrument - or rather the <code>iface</code> object of it, the abstract class is not supposed to know other details of the instrument.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Due to monotonic polling thread, we may arrive into it at any state of the communication itself. But in most of the time, it is a new demand. So, we want to move as quickly as possible and without waiting for the next poll cycle to the next state in this case. This makes it quite complicated since, of course there are exceptions to the question-answer paradigm. For example, when path or data updates are required they are send to the instrument without further handshake, of course.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is to say that it might be necessary to revise the communication scheme so that the messaging would be split in two, allowing the derived classes to deal with their own specific communication issues with, say a derived <code>ifaceMyClass</code> interface/communication class while the actual <code>iface</code> class and the interchanges with it would be limited only to basic functions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Anyway, once the current implementation has reached the <code>serving</code> state, the functions of it are quite easy to implement, in a classical case-structure.</p>
 
 </div>
 </div>
@@ -13536,6 +13722,221 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="TypeScript">TypeScript<a class="anchor-link" href="#TypeScript">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Usage of <a href="https://www.typescriptlang.org/">TrueScript</a> is <strong>highly recommended</strong> to increase transpiling-time type and variable name checking, but only whenever it is applicable with a reasonable effort. In some real-life use cases and issues, mainly caused by IE as a WebView back-end, it is not always possible to have .ts module but .js is more usable, especially if none of the older library dependencies do not have any definition files for TypeScript. In this case, maybe the entire instrument can be written in plain JavaScript, there is no point to make this a self torture because of the past mistakes of somebody else. In most cases, you will find the mixture of the two in the current development tree and also examples how this can be done with <code>webpack</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Polyfill-and-wxWebView-back-end-compatibility">Polyfill and wxWebView back-end compatibility<a class="anchor-link" href="#Polyfill-and-wxWebView-back-end-compatibility">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Above we have addressed the issue of wxWidgets' wxWebView back-ends being so archaic and thus forcing us to use polyfill techniques so that we can use some reasonably modern libraries. In this section two approach to maintain back-end compatibility of the created bundles is explained.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>One should no underestimate the effort and the time this work take in the early phases of the project, also it requires constant attention and testing when new features are added.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Simplistic-JavaScript-for-simple-instruments">Simplistic JavaScript for simple instruments<a class="anchor-link" href="#Simplistic-JavaScript-for-simple-instruments">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>enginedjg</code> instrument is like this, simple and based on hand-picked, a bit old fashioned libraries. For example, the author has participated to the JustGage project with a PR, just in order to maintain this good project's compatibility with IE!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Also, the author has chosen the stalled <code>javascript-state-machine</code> instead of some modern state machine more adapted to run large and complex page UIs. But since the year 2018 <code>javascript-state-machine</code> works with wxWebView both on Linux and Windows while the more modern ones will not (at least without some work), it was chosen.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Even when coding manually simple JavaScript, some nerve-wracking issues appear in coding for IE and one should not be surprised of some solutions chosen to code, for example event handling - it is a fruit of trial-and-error to make it work both on Linux and Windows platforms.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some manually entered polyfills were copied from the unlimited source of good ideas in <em>stackoverflow.com</em>, typically dealing with an <em>Object</em> - see as an example the common source module <code>confvalid.js</code> for an example.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Babel-/-core-js-v3-based-polyfill-for-complex-instruments">Babel / core-js v3 based polyfill for complex instruments<a class="anchor-link" href="#Babel-/-core-js-v3-based-polyfill-for-complex-instruments">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Example for this is <code>timestui</code> graphs instrument: while, after a really long search, it was possible to find a line graph library which works also on IE (<code>tui</code>) and has a polyfill-enabled distribution, it is not always possible to find such a library.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Example is <em>influxdb-client</em> (for v2.0 DB) - it is written in TypeScript and uses the latest JavaScript techniques for asynchronous operations. Of course it is not at all compatible out of the box with IE. Decision was made to adapt the application to make mixed JavaScript / TypeScript approach, where <code>influxdb-client</code> is now downloaded as source code and integrated in TypeScript part in Webpack. Of course, only a limited part of the source code is needed from the library and only those files need to be modified, since in this application we only read values and we do not plan to write to the DB, it is done in C++ thread already.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now Babel and <a href="https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md">core-js v3</a> are used to make the polyfill.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You have take note that more or less same options are repeated in <code>webpack.config.js</code> and <code>tsconfing.json</code> for core-js: this is because the TypeScript transpiling is a process of its own, and is launched by the loader for this part of the build chain - one for TypeScript files and one for JavaScript files. We can take advantage of this having different strategy for JavaScript files (<em>entry</em> - explicit request for massive core-js usage per module) and for TypeScript file (<em>usage</em> - automatic Babel analysis and usage only of those polyfill deemed necessary for target).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Still, not everything works with Babel / core-js: <code>influxdb-client</code> uses <em>AbortController</em> object with <em>fetch</em>. It is still <em>experimental</em> according Mozilla! Well, see <code>FetchTransports.ts</code> how the author managed to make it work, after many good advises from the web, some of which were not so good...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Caveat-with-setTimeout()-based-delays-w/-core-js(?)">Caveat with setTimeout() based delays w/ core-js(?)<a class="anchor-link" href="#Caveat-with-setTimeout()-based-delays-w/-core-js(?)">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>While in <code>enginedjg</code> (non Babel/core-js based) the following works, it does not work in <code>timestui</code>. This may or it may no be Babel/core-js related but I am suspecting the heavy <em>eval()</em> based execution:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>    waits: function( limit, cnt ) {
+        alert ('waits (common): ' + limit  + ' ' + cnt)
+        console.log('waits(): limit: ', limit, ' cnt: ', cnt)
+        if ( cnt &lt;= limit) {
+            alert ('cnt (common): ' + cnt)
+            window.setTimeout(function(){window.instrustat.waits(limit, ++cnt)},1000)
+        }
+        alert ('waits (common): return: ' + limit  + ' ' + cnt)
+    }</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The below way for delay loops in <code>.ts</code> file is tested to work, but has no programmable delay:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>var poll: () =&gt; void
+(pol = function() {
+....do something to get out from this poll ...
+window.setTimeout(poll, 1000)
+})();</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is noteworthy that the below works also in <code>timestui</code> as .js - there is is no recursive calls. Of course async function returns immediately so not so obvious how to use this since await cannot be used in top-level with old browsers like IE, TypeScript does not allow it! Nerve-wracking...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>export async function test(limit) {
+    alert ('promise')
+    try {
+        let promise = new Promise((resolve, reject) =&gt; {
+            setTimeout(() =&gt; resolve("done!"), limit * 1000)
+        })
+        let result = await promise
+        alert (result)
+    } catch (e) {
+        alert(e)
+    }
+}</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Debugging this type of issues with <code>alert()</code> only (console back-end being missing on run-time is painful and misleading, since we have asynchrounous events driven from the C++, on the other hand, and database queries events dropping back at any moment, on the other hand. How to deal with this is discussed below, in debugging chapter.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Multi-language-support">Multi-language support<a class="anchor-link" href="#Multi-language-support">&#182;</a></h2>
 </div>
 </div>
@@ -13552,6 +13953,39 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>For now, simple <code>lang.js</code> file which is to be replaced with, say <code>lang-fr.js</code> file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="IDE">IDE<a class="anchor-link" href="#IDE">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://atom.io">Atom</a> and Emacs have been used but nothing prevents to use <a href="https://code.visualstudio.com">Visual Studio Code</a>, no religion!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Coding-style">Coding style<a class="anchor-link" href="#Coding-style">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Well, it may bug you but I am <strong>not using semicolons</strong> but allow that pleasure either to run-time (.js) or to TypeScript transpiler (.ts). Again, no religion here but it is for my mental switch when I change between C++ and JS/TS modules, that's all. Yes, I am careful with some exceptional cases where semicolon is mandatory (by avoiding them!).</p>
+<blockquote><p>Otherwise, <strong>soft tabs (spaces)</strong> and <strong>tab-width = 4</strong>, please!</p>
+</blockquote>
+<p>That's it. Thank you for your comprehension.</p>
 
 </div>
 </div>
@@ -13644,7 +14078,16 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW_WEBKIT">WebView specific on Linux <code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW_WEBKIT</code><a class="anchor-link" href="#WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW_WEBKIT">&#182;</a></h2>
+<h2 id="WebView-specific-on-Linux">WebView specific on Linux<a class="anchor-link" href="#WebView-specific-on-Linux">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW_WEBKIT</code></pre>
+
 </div>
 </div>
 </div>
@@ -13702,7 +14145,16 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW__IE">WebView specific on Linux <code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW__IE</code><a class="anchor-link" href="#WebView-specific-on-Linux-__WXGTK__-&amp;&amp;-wxUSE_WEBVIEW__IE">&#182;</a></h2>
+<h2 id="WebView-specific-on-Windows">WebView specific on Windows<a class="anchor-link" href="#WebView-specific-on-Windows">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>__WXGTK__ &amp;&amp; wxUSE_WEBVIEW__IE</code></pre>
+
 </div>
 </div>
 </div>
@@ -13710,6 +14162,37 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>On Windows: <code>C:\wxWidgets-3.1.2\samples\webview\vc_mswud</code> (after the build). Compiled with default settings it works for the development purposes in this project without problem.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Sticky-cache">Sticky cache<a class="anchor-link" href="#Sticky-cache">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Even using different web servers, <em>node</em> or <em>docker nginx</em> I noticed during development that after transpiling, <em>bundle.js</em> file never get updated even after restarting of <em>OpenCPN</em>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Can be annoying if new updates or fixes are installed. Anyway, really annoying for the developer.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is why you will find a separate <em>Reload()</em> polling wait after the page load in <em>InstrJS</em> class. Annoying flickering follows but since the files are small, the delays are not excessive. Anyway, I could not find a way to clean the cache in <em>WebView</em>.</p>
 
 </div>
 </div>
@@ -13732,6 +14215,482 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Linux-distros-and-WXGTKx-blues">Linux distros and WXGTKx-blues<a class="anchor-link" href="#Linux-distros-and-WXGTKx-blues">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notably wiht the <em>CMake</em> this thing can drive your crazy, from distro to distro - what works with the above method of compiling wxWidgets from scratch, that is not available for the installer.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As soon as one adds the dreaded <code>webview</code> in the list of libraries to search, problems start occurring:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>In PluginConfigure.cmake:
+             SET(wxWidgets_USE_LIBS base core net xml html adv aui webview)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First, CMake does not find the wxWidgets at all, usually. This is because the distro does not have WebView or have it in other GTK-version (3) than other wxWidgets libraires (gtk2).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To make things complicated, it just dies not telling the reason. Once you think you have fixed the issue, it is actually using GTK3 and if you do not notice (you are so happy that it links now), the resulting package installs and but does not work (it does not pass ELF-test of OpenCPN because it cannot allow either wrong wxWidgets version or different GTK-version it is itsel using (GTK2)!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p><strong>Note:</strong> This is particularly true with Continuous Integration, like with Travis - it happily links everything and build is all fine. But it is rejected by OpenCPN!</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Altenatives-horror-and-can-one-automate-it-(Ubuntu-18.04-LTS)">Altenatives-horror and can one automate it (Ubuntu 18.04 LTS)<a class="anchor-link" href="#Altenatives-horror-and-can-one-automate-it-(Ubuntu-18.04-LTS)">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take the example of Ubuntu 18.04LTS. It is particularly painful.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~$ sudo  update-alternatives --display wx-config
+wx-config - auto mode
+  link best version is /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0
+  link currently points to /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0
+  link wx-config is /usr/bin/wx-config
+/usr/lib/x86_64-linux-gnu/wx/config/base-unicode-3.0 - priority 306
+/usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0 - priority 308
+/usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0 - priority 307</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gtk2 is selected:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~$ sudo wx-config --selected-config
+gtk2-unicode-3.0</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It should be all fine, but it does not work, CMAke does not find wxWidgets! Let's make a try to GTK3:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~$ sudo  update-alternatives --config wx-config
+There are 3 choices for the alternative wx-config (providing /usr/bin/wx-config).
+
+  Selection    Path                                                  Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0   308       auto mode
+  1            /usr/lib/x86_64-linux-gnu/wx/config/base-unicode-3.0   306       manual mode
+  2            /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0   308       manual mode
+  3            /usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0   307       manual mode
+
+Press &lt;enter&gt; to keep the current choice[*], or type selection number: 3
+update-alternatives: using /usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0 to provide
+/usr/bin/wx-config (wx-config) in manual mode</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gtk3 is selected:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~$ sudo wx-config --selected-config
+gtk3-unicode-3.0</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now it builds OK</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>build$ cmake -DCMAKE_BUILD_TYPE=Release ..
+...
+-- Found wxWidgets: -L/usr/lib/x86_64-linux-gnu;-pthread;;;-lwx_baseu-3.0;-lwx_gtk3u_core-3.0;
+-lwx_baseu_net-3.0;-lwx_baseu_xml-3.0;-lwx_gtk3u_html-3.0;-lwx_gtk3u_adv-3.0;
+-lwx_gtk3u_aui-3.0;-lwx_gtk3u_webview-3.0;-lwx_gtk3u_gl-3.0 (found version "3.0.4")</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But that's not good, since OpenCPN is GTK2.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is a possibility to get the GTK2 version linking working with these CMakefile changes ( select option 2 in the update-alternatives above first ). In <em>PluginConfigure.cmake</em> :</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>-  SET(wxWidgets_USE_LIBS base core net xml html adv)
++  SET(wxWidgets_FIND_COMPONENTS base core net xml html adv)
+...
+-    FIND_PACKAGE(wxWidgets REQUIRED)
++    FIND_PACKAGE(wxWidgets COMPONENTS ${wxWidgets_FIND_COMPONENTS}</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now it works what comes to detection (but does not now build since I took the webview out for this GTK2 test).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In fact, what happens is that there is <strong>no</strong> _libwx_gtk<strong>2</strong>u<em>webview-3.0</em> only _libwx_gtk3u<em>webview-3.0</em> in Ubuntu 18.04LTS and probably not in Debian 10! I got mine in Raspberry Raspian by compiling myself.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The reason why thiere is no _libwx_gtk<strong>2</strong>u<em>webview-3.0</em> is, according to <a href="https://wiki.codelite.org/pmwiki.php/Main/WxWidgets31Binaries#toc2">this page</a> because "<em>webkitgtk2 is no longer being updated and is considered a security risk. wx3.1.3 can utilise its successor, webkit2gtk, but only for GTK+3 builds</em>".</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is necessary to make a notice about this for those who builds their own wxWidgets for GTK2 like I did for Raspberry Pi: it works and perhaps is not a risk as long as we stay local. However, people may find strange ways to put their files into, and <em>voilà</em>, you are exposed to Internet. Better is not to use GTK2, period.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p><strong>Note:</strong> From the above follows that one should automate the above configuration somehow in Continuous Integration (CI) processes - otherwise a binary is produced but it is not compatible with OpenCPN on that platform! (like it happened to me). See this script: <a href="https://git.io/JfcNi">https://git.io/JfcNi</a> - maybe it is possible, but would require some effort. Maybe it is better to let CI compile and then build for distribution anyway manually - one cannot really trust the remote binaries without making their QA, anyway.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="What-about-Ubuntu-20.04-LTS---supposedly-all-GTK3?">What about Ubuntu 20.04 LTS - supposedly all GTK3?<a class="anchor-link" href="#What-about-Ubuntu-20.04-LTS---supposedly-all-GTK3?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This being all GTK3 is scoop I learned from OpenCPN v5.1 beta testers: <a href="https://github.com/OpenCPN/OpenCPN/issues/1898">https://github.com/OpenCPN/OpenCPN/issues/1898</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="OpenCPN-v5.0-(stable)-on-Ubuntu-20.04-LTS---GTK">OpenCPN v5.0 (stable) on Ubuntu 20.04 LTS - GTK<a class="anchor-link" href="#OpenCPN-v5.0-(stable)-on-Ubuntu-20.04-LTS---GTK">&#182;</a></h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From <code>ppa:opencpn/opencpn</code>, let's inspect after:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~# apt list --installed | grep wx
+...
+libwxbase3.0-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxsvg3/focal,now 2:1.5.21+dfsg.1-1build1 amd64 [installed,automatic]
+wx3.0-i18n/focal,focal,now 3.0.4+dfsg-15build1 all [installed,automatic]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Looks, indeed that it is all GTK3, even with v5.0</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>root@pbox:~# which opencpn
+/usr/bin/opencpn
+root@pbox:~# readelf -d /usr/bin/opencpn | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwxsvg.so.3]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_gl-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_net-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_xml-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_html-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_adv-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Built-in plug-ins:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>root@pbox:/usr/lib/opencpn# readelf -d libdashboard_pi.so  | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's try with OpenCPN v5.1 beta</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>apt remove opencpn --purge
+...
+root@pbox:~# apt list --installed | grep wx</code></pre>
+<p>Clean.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>~# add-apt-repository --remove ppa:opencpn/opencpn
+~# apt update
+~# add-apt-repository ppa:bdbcat/opencpn
+~# apt update
+~# apt install opencpn</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>New installation of OpenCPN v5.1beta</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>:~# apt list --installed | grep wx
+...
+libwxbase3.0-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk-webview3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxsvg3/focal,now 2:1.5.21+dfsg.1-1build1 amd64 [installed,automatic]
+wx3.0-i18n/focal,focal,now 3.0.4+dfsg-15build1 all [installed,automatic]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's check the installed binary:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>:~# !99
+readelf -d /usr/bin/opencpn | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_gl-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_net-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_xml-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_html-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_adv-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_webview-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwxsvg.so.3]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This looks promising, there <strong>is even GTK3 WebView</strong>! Let's check the dashboard_pi plug-in:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>readelf -d libdashboard_pi.so  | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>What about <code>alternatives</code> in Ubuntu 12.04LTS?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>:/etc/alternatives# update-alternatives --display wx-config
+update-alternatives: error: no alternatives for wx-config</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Good, let's try to build, without any modification to CMake-files:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Fails, both for OpenGL and wxWidgets libraries, therefore the modifications are needed as they were done for OpenCPN in CMake-files, the old template will not work in Ubuntu 20.04LTS.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Debugging-on-the-target-system">Debugging on the target system<a class="anchor-link" href="#Debugging-on-the-target-system">&#182;</a></h1>
 </div>
 </div>
@@ -13740,6 +14699,59 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>First of all, make symbolic links from the OpenCPN plug-in installation folders into your development folder: you are going to need it since modifications by trial and error are needed when all you have is a blank screen on <strong><em>webview</em></strong> when you open your application which works damn fine on your fancy browser! You do not want to spend your life to reinstall the plug-in after every modification.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Do-not-be-shy-on-console.log/error()-and-alert()-behind-a-debug-switch">Do not be shy on console.log/error() and alert() behind a debug switch<a class="anchor-link" href="#Do-not-be-shy-on-console.log/error()-and-alert()-behind-a-debug-switch">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Secondly, do not think that putting some configuration file activated debug printing and especially alerts is unprofessional or that it somehow makes the code too big - compared to the size of the included _node<em>modules</em> libraries they present nothing! Below it is explained how to get <code>console.log()</code> shown from a remote system (often headless). However, most of the time one is developing on single machine and there is no time to set multiple systems. Or, one needs to ask the end user to debug something. In these case he code which contains the debug code incorporated, especially the user activated <code>alert()</code> pop-ups will bring you a valuable information. Like this:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>        if ( dbglevel &gt; 3 )
+            console.log ( 'showData(): sampleFrequency: ', sampleFrequency,
+                          'nofSamples: ', nofSamples,
+                          'getRetrieveSeconds(): ', getRetrieveSeconds(),
+                          'startStamp: ', startStamp,
+                          'endStamp: ', endStamp )
+        if ( (dbglevel &gt; 4) &amp;&amp; alerts )
+            alert ( 'sampleFrequency: ' + sampleFrequency + '\n' +
+                    'nofSamples: ' + nofSamples + '\n' +
+                    'getRetrieveSeconds(): ' + getRetrieveSeconds() + '\n' +
+                    'startStamp: ' + startStamp + '\n' +
+                    'endStamp: ' + endStamp )
+    }</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And when a need rise, put <code>alert()</code> breakpoints in your code as much as you feel necessary, especially if you have JavaScript and not TypeScript modules, the typos in variable names can be nerve-wracking to detect!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>In this project, we use console as first debugging tool since quasi-realtime (in JavaScript terms) and not breaking the timing behaviour of the event driven finite state machine. <code>alert()</code>is convinient though but execution stops. Therefore, please put it as secondary debugging tool, useful for the end user it they encounter problems, with one notch bigger debug level than you consider necessary for the console prints.</p>
+</blockquote>
 
 </div>
 </div>
@@ -13935,6 +14947,14 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Help!-My-fancy-application-looks-rotten-/-does-not-work-on-RPI">Help! My fancy application looks rotten / does not work on RPI<a class="anchor-link" href="#Help!-My-fancy-application-looks-rotten-/-does-not-work-on-RPI">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The title could continue ""<strong>...it gets frozen on Windows</strong>" - the main issue not being able to debug with a modern browser tools is that you do not have access to the console or its data browser and other developers tools.</p>
+
 </div>
 </div>
 </div>
@@ -14189,7 +15209,7 @@ deathTimeout: 5</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It is not mandatory to use it in exclusively "<em>local</em>" development, you can set:</p>
+<p>It is not mandatory to use it in exclusively remote, it works also on "<em>local</em>" development, you can set:</p>
 
 </div>
 </div>
@@ -14199,6 +15219,15 @@ deathTimeout: 5</code></pre>
 <div class="text_cell_render border-box-sizing rendered_html">
 
 <pre><code>&lt;!--script src="http://127.0.0.1:8081/target/target-script-min.js#anonymous"&gt;&lt;/script--&gt;</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>NOTE: With experience, WEINRE catches up better the console output of a remote system. It is therefore suggested that you run it on a separate system than the system on which you are debugging.</p>
+</blockquote>
 
 </div>
 </div>
@@ -14334,6 +15363,48 @@ deathTimeout: 5</code></pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><img src="2019-12-25_weinre_server_console_mouse_event_log.png" alt="2019-12-25_weinre_server_console_mouse_event_log.png"> <a href="img/2019-12-25_weinre_server_console_mouse_event_log.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The issues in an event driven finite state machine can only be found using debug printing on console, not with <code>alert()</code> because it stops the execution entirely. Here, WEINRE becomes valuable. For example, run <code>timestui</code> and its database access on Windows target and WEINRE on a RPI. Set the common debug level to an appropriate level and observe the <code>console.log()</code> vs. <code>consoler.error()</code> messages and if you have been systematic in you error handling, you are not a blind anymore with WebView anymore:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2020-04-18_weinre_dbg_async_events_and_fsm.png" alt="2020-04-18_weinre_dbg_async_events_and_fsm.png"> <a href="img/2020-04-18_weinre_dbg_async_events_and_fsm.png">(zoom)</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Note: do not expect WEINRE handling arrival of many console clients at the same time. It is advisable to restart the service just before you launch your OpenCPN on the remote host for its WebView debugging and using it with only target system at a time:</p>
+
+<pre><code>pi@pi:~ $ weinre
+2020-04-18T07:43:48.747Z weinre: starting server at http://localhost:8081
+2020-04-18T07:44:42.797Z weinre: target t-3: weinre: target t-3 connected to client c-1
+^C
+pi@pi:~ $ weinre
+2020-04-18T08:26:36.403Z weinre: starting server at http://localhost:8081</code></pre>
+<p>Otherwise, on the same host, it is enough to reload the WEINRE page to start a new debug sessions on the same host, on which you will start OpenCPN right after.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Note; remember that if you edit the target's <code>index.html</code> file, and then you build again with modifications, your webpack probably builds again the <code>index.html</code> file from the template. If the template does not enable the WEINRE connection, you need to manually re-enable it again after the rebuild of your project - of course, you can set for WEINRE debug in the HTML-template but do not forget to take it out before publishing since it will create a high degree of end user confusion!</p>
+</blockquote>
 
 </div>
 </div>
