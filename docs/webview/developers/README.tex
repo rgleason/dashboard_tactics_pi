@@ -384,17 +384,17 @@ earth can we do with this? :
     \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-    The requirement to be able to show engine and energy system data on Dash
-came first into mind where a browser techniques could be useful and fast
-(or slow) enough for that type of data. The usage of web techniques
-would allow to jail break from wxWidget's bit aging GUI and move to the
-other end of the GUI development paradigm, \emph{i.e.} no limits! After
-short R\&D prototyping and proof-of-concept the limitations of the
-run-time environment became known as well as the potential communication
-issues. Robustness and simplicity was put in front and a bit old
-fashioned web techniques were used because of the simple fact that the
-wxWebView itself and the back-ends it is using are not necessarily even
-from this decade!
+    The requirement to be able to show engine and energy system data on
+DashT came first into mind where a browser techniques could be useful
+and fast (or slow) enough for that type of data. The usage of web
+techniques would allow to jail break from wxWidget's bit aging GUI and
+move to the other end of the GUI development paradigm, \emph{i.e.} no
+limits! After short R\&D prototyping and proof-of-concept the
+limitations of the run-time environment became known as well as the
+potential communication issues. Robustness and simplicity was put in
+front and a bit old fashioned web techniques were used because of the
+simple fact that the wxWebView itself and the back-ends it is using are
+not necessarily even from this decade!
 
     More modern Signal K data format and especially one of the
 implementations for it, Signal K server node were chosen to provide the
@@ -410,16 +410,24 @@ derived active calculations instruments from the same source of data.
     \hypertarget{scope}{%
 \section{Scope}\label{scope}}
 
-    Scope is in data which is originating from NMEA-2000 data bus.
+    The scope is for engine data and which is directly coming from NMEA-2000
+data.
 
-Excluded data sources are NMEA-2000 navigational information, NMEA-2000
-status information, NMEA-0183 all, IoT, GPIO and Bluetooth LE.
+Excluded data as for now in the engine catetory are NMEA-2000 status
+information, NMEA-0183 all, IoT, GPIO and Bluetooth LE but this
+statement can evolve when new needs and instruments are invented.
 
 Data type scope is in data which can be presented as floating number, in
 scientific exponential format when converted to string format.
 
 Excluded data type are that of string type of status and other messages
 and binary status bits (0/1).
+
+The scope of NMEA-0183 data is in all navigational data which can be
+received from OpenCPN or directly from a Signal K node server.
+
+From the direct connection scope follow that out of the scope is Signal
+K data received from OpenCPN v5.2 or superior.
 
     \hypertarget{target-environment}{%
 \section{Target environment}\label{target-environment}}
@@ -431,7 +439,7 @@ protocol.
     \hypertarget{operating-system}{%
 \subsection{Operating System}\label{operating-system}}
 
-    Priority operating system support is Windows 10, Linux Debian 18+ LTS
+    Priority operating system support is Windows 10, Linux Debian 20+ LTS
 and Raspian on Raspberry Pi 4 or greater (armv7l).
 
     Secondary operating system targets are MacOS and Android.
@@ -540,6 +548,33 @@ methods: C++ for functions and call-backs for the Dashboard-Tactics
 plug-in integration and for performance, HTML/JavaScript to provide the
 GUI functions of the particular, developed instrument.
 
+    \hypertarget{an-example-candidate-for-a-hybrid-cjs-instrument}{%
+\subsection{An example candidate for a hybrid C++/JS
+instrument}\label{an-example-candidate-for-a-hybrid-cjs-instrument}}
+
+    Let's take the example of the excellent \texttt{avg\_wind.cpp} - in
+fact, ass DashboardInstrument, this is - like other instruments -
+actually a custom-control widget, derived from wxControl.
+
+Having one actual wx Widget non-static control in it (wxSlider) seems to
+be OK and, below we draw extra functions on canvas. However, adding more
+wxControls does not work - in wxControl Sizers, for example, do not
+work, controls would just keep piling up. If this is needed, one could
+move this as a specific pop-up window (since one can have only one of
+these, anyway).
+
+But another way could be make a hybrid AverageWind instrument. It would
+first have a simple instrument with canvas drawing in C++ (the actual
+one, it excels in that compared to what one could do in JavaScript even
+though in JavaScript the graphs are a \emph{bit} easier\ldots) would
+create a wxWebView based JavaScript instrument.
+
+This new class would derive from InstruJS-class and the resulting
+JavaScript instrument panel can show all sorts of fancy controls and
+derived information. However, for GTK2 based older systems it would be
+necessary to keep the existing avg\_wind.cpp instrument. In this case,
+the calculating AvgWind class should be separated from avg\_wind.cpp.
+
     \hypertarget{implementation}{%
 \section{Implementation}\label{implementation}}
 
@@ -561,6 +596,117 @@ and their window handling the base class shall be existing
     The class creating and using wxWebView window and communicating with the
 JavaScript application part of the instrument shall be an abstract class
 called \emph{InstruJS}.
+
+    \hypertarget{dealing-with-strangeness-of-wxwebview-and-environment}{%
+\subsubsection{Dealing with strangeness of wxWebView and
+environment}\label{dealing-with-strangeness-of-wxwebview-and-environment}}
+
+    They are best dealt with in the base, \texttt{InstruJS} class. But in
+some cases, it is better to deal with the the vicious issues with
+wxWebView at the derived class level.
+
+    For example, wxWebView does not like at all (when this is written,
+wxWidgets v3.1.2) if one tries to load the page content and if the
+server is not actually there. When you move forward in the JavaScript
+initialization it is a core dump.
+
+    But knowing what file and from where need to be loaded, is known by the
+derived class. That's why the base class provides methods like
+\texttt{testURLretHost} and \texttt{testHTTPServer}. See examples of the
+derived classes how to use them.
+
+    \hypertarget{cjs-communication-concentrated-in-the-abstraction-class}{%
+\subsubsection{C++/JS communication concentrated in the abstraction
+class}\label{cjs-communication-concentrated-in-the-abstraction-class}}
+
+    This design choice is somewhat limiting and can be later revised: this
+way, we need to have / will have in face of us an equivalent
+\texttt{iface.js} class, always the same.
+
+    The disadvantage of this is that we need to know in the C++ abstract
+class about the questions the JavaScript may ask or the data they may
+want to receive. Also, in JavaScript side, the \texttt{index.js} or
+\texttt{index.ts} modules need to deal with the commands via this
+interface they actually do not need.
+
+    \begin{quote}
+Experience has shown that each JavaScript instrument is different and
+with freedom of choice also the requests for data or functions towards
+the C++ InstruJS class are almost impossible to design in advance, apart
+some basic functions. The \texttt{iface.js} class is increasing and
+increasing, and theoritically you need to revisit and rebuild all
+existing classes. A chore work to split the interface by recognizing the
+useful, common functions and instrument specific functions will be ahead
+if this work continues. It would also mean that the classed derived from
+\texttt{InstruJS.cpp} would need to be able to talk to this interface to
+create events on JavaScript instrument.
+\end{quote}
+
+    The advantage of this approach is that there will be less code copy
+paste caused duplication since many interface functions are common to
+each JavaScript instrument.
+
+    The second advantage is that the very complicated state machine
+management in the C++ side but also in the JavaScript side has at least
+one common nominator and, when developing a new JavaScript instrument
+one does not need to reinvent the complicated messaging process every
+time.
+
+    \hypertarget{complexity-of-the-state-machine-wxwidgets-vs-javascript}{%
+\paragraph{Complexity of the state machine wxWidgets vs
+JavaScript}\label{complexity-of-the-state-machine-wxwidgets-vs-javascript}}
+
+    There are some limiting design factors like the slow execution of
+JavaScript code in wxWidgets via wxWebView. One wants to do less actions
+possible using it. That's why it is used to trigger events in the
+JavaScript side.
+
+    This fits nicely with the JavaScript GUI design which, itself should
+always be state machine driven (more about it below).
+
+    In each JavaScript instrument you can find a .dot file which is
+\texttt{Graphviz} input file. This .dot file can be retrieved via a
+function provided by the \texttt{iface} class. Take a look at the output
+.svg and .png files to visualize the JavaScript instrument's states and
+especially the transitions.
+
+    You got it: part of these transitions are internal event but some of
+them are coming from C++ abstract class. For example, when the
+JavaScript instrument asks something from the OpenCPN Plug-in, the
+answer is first put in \texttt{iface} object and then an appropriate
+event is triggered.
+
+    This is the most efficient way from the JavaScript side.
+
+    Unfortunately the efficiency is not so good in the C++ side, driven by
+wxWidgets threads, which cannot be running at full speed all the time
+only for this - that's why we used timer based polling. This makes the
+\emph{InstruJS} class communication state machine to look pretty
+complex:
+
+    There is the communication state machine, which is driving the sub-state
+machine, which is describing the state of the JavaScript instrument - or
+rather the \texttt{iface} object of it, the abstract class is not
+supposed to know other details of the instrument.
+
+    Due to monotonic polling thread, we may arrive into it at any state of
+the communication itself. But in most of the time, it is a new demand.
+So, we want to move as quickly as possible and without waiting for the
+next poll cycle to the next state in this case. This makes it quite
+complicated since, of course there are exceptions to the question-answer
+paradigm. For example, when path or data updates are required they are
+send to the instrument without further handshake, of course.
+
+    This is to say that it might be necessary to revise the communication
+scheme so that the messaging would be split in two, allowing the derived
+classes to deal with their own specific communication issues with, say a
+derived \texttt{ifaceMyClass} interface/communication class while the
+actual \texttt{iface} class and the interchanges with it would be
+limited only to basic functions.
+
+    Anyway, once the current implementation has reached the \texttt{serving}
+state, the functions of it are quite easy to implement, in a classical
+case-structure.
 
     \hypertarget{implementation-class}{%
 \subsubsection{Implementation class}\label{implementation-class}}
@@ -649,6 +795,166 @@ development area, tt is better to read a
 tutorial like this} about this dodgy subject with many opinions; the
 discussion is quite demanding in number of paragraphs\ldots{}
 
+    \hypertarget{typescript}{%
+\subsection{TypeScript}\label{typescript}}
+
+    Usage of \href{https://www.typescriptlang.org/}{TrueScript} is
+\textbf{highly recommended} to increase transpiling-time type and
+variable name checking, but only whenever it is applicable with a
+reasonable effort. In some real-life use cases and issues, mainly caused
+by IE as a WebView back-end, it is not always possible to have .ts
+module but .js is more usable, especially if none of the older library
+dependencies do not have any definition files for TypeScript. In this
+case, maybe the entire instrument can be written in plain JavaScript,
+there is no point to make this a self torture because of the past
+mistakes of somebody else. In most cases, you will find the mixture of
+the two in the current development tree and also examples how this can
+be done with \texttt{webpack}.
+
+    \hypertarget{polyfill-and-wxwebview-back-end-compatibility}{%
+\subsection{Polyfill and wxWebView back-end
+compatibility}\label{polyfill-and-wxwebview-back-end-compatibility}}
+
+    Above we have addressed the issue of wxWidgets' wxWebView back-ends
+being so archaic and thus forcing us to use polyfill techniques so that
+we can use some reasonably modern libraries. In this section two
+approach to maintain back-end compatibility of the created bundles is
+explained.
+
+    \begin{quote}
+One should no underestimate the effort and the time this work take in
+the early phases of the project, also it requires constant attention and
+testing when new features are added.
+\end{quote}
+
+    \hypertarget{simplistic-javascript-for-simple-instruments}{%
+\subsubsection{Simplistic JavaScript for simple
+instruments}\label{simplistic-javascript-for-simple-instruments}}
+
+    The \texttt{enginedjg} instrument is like this, simple and based on
+hand-picked, a bit old fashioned libraries. For example, the author has
+participated to the JustGage project with a PR, just in order to
+maintain this good project's compatibility with IE!
+
+    Also, the author has chosen the stalled
+\texttt{javascript-state-machine} instead of some modern state machine
+more adapted to run large and complex page UIs. But since the year 2018
+\texttt{javascript-state-machine} works with wxWebView both on Linux and
+Windows while the more modern ones will not (at least without some
+work), it was chosen.
+
+    Even when coding manually simple JavaScript, some nerve-wracking issues
+appear in coding for IE and one should not be surprised of some
+solutions chosen to code, for example event handling - it is a fruit of
+trial-and-error to make it work both on Linux and Windows platforms.
+
+    Some manually entered polyfills were copied from the unlimited source of
+good ideas in \emph{stackoverflow.com}, typically dealing with an
+\emph{Object} - see as an example the common source module
+\texttt{confvalid.js} for an example.
+
+    \hypertarget{babel-core-js-v3-based-polyfill-for-complex-instruments}{%
+\subsubsection{Babel / core-js v3 based polyfill for complex
+instruments}\label{babel-core-js-v3-based-polyfill-for-complex-instruments}}
+
+    Example for this is \texttt{timestui} graphs instrument: while, after a
+really long search, it was possible to find a line graph library which
+works also on IE (\texttt{tui}) and has a polyfill-enabled distribution,
+it is not always possible to find such a library.
+
+    Example is \emph{influxdb-client} (for v2.0 DB) - it is written in
+TypeScript and uses the latest JavaScript techniques for asynchronous
+operations. Of course it is not at all compatible out of the box with
+IE. Decision was made to adapt the application to make mixed JavaScript
+/ TypeScript approach, where \texttt{influxdb-client} is now downloaded
+as source code and integrated in TypeScript part in Webpack. Of course,
+only a limited part of the source code is needed from the library and
+only those files need to be modified, since in this application we only
+read values and we do not plan to write to the DB, it is done in C++
+thread already.
+
+    Now Babel and
+\href{https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md}{core-js
+v3} are used to make the polyfill.
+
+    You have take note that more or less same options are repeated in
+\texttt{webpack.config.js} and \texttt{tsconfing.json} for core-js: this
+is because the TypeScript transpiling is a process of its own, and is
+launched by the loader for this part of the build chain - one for
+TypeScript files and one for JavaScript files. We can take advantage of
+this having different strategy for JavaScript files (\emph{entry} -
+explicit request for massive core-js usage per module) and for
+TypeScript file (\emph{usage} - automatic Babel analysis and usage only
+of those polyfill deemed necessary for target).
+
+    Still, not everything works with Babel / core-js:
+\texttt{influxdb-client} uses \emph{AbortController} object with
+\emph{fetch}. It is still \emph{experimental} according Mozilla! Well,
+see \texttt{FetchTransports.ts} how the author managed to make it work,
+after many good advises from the web, some of which were not so
+good\ldots{}
+
+    \hypertarget{caveat-with-settimeout-based-delays-w-core-js}{%
+\paragraph{Caveat with setTimeout() based delays w/
+core-js(?)}\label{caveat-with-settimeout-based-delays-w-core-js}}
+
+    While in \texttt{enginedjg} (non Babel/core-js based) the following
+works, it does not work in \texttt{timestui}. This may or it may no be
+Babel/core-js related but I am suspecting the heavy \emph{eval()} based
+execution:
+
+    \begin{verbatim}
+    waits: function( limit, cnt ) {
+        alert ('waits (common): ' + limit  + ' ' + cnt)
+        console.log('waits(): limit: ', limit, ' cnt: ', cnt)
+        if ( cnt <= limit) {
+            alert ('cnt (common): ' + cnt)
+            window.setTimeout(function(){window.instrustat.waits(limit, ++cnt)},1000)
+        }
+        alert ('waits (common): return: ' + limit  + ' ' + cnt)
+    }
+\end{verbatim}
+
+    The below way for delay loops in \texttt{.ts} file is tested to work,
+but has no programmable delay:
+
+    \begin{verbatim}
+var poll: () => void
+(pol = function() {
+....do something to get out from this poll ...
+window.setTimeout(poll, 1000)
+})();
+\end{verbatim}
+
+    It is noteworthy that the below works also in \texttt{timestui} as .js -
+there is is no recursive calls. Of course async function returns
+immediately so not so obvious how to use this since await cannot be used
+in top-level with old browsers like IE, TypeScript does not allow it!
+Nerve-wracking\ldots{}
+
+    \begin{verbatim}
+export async function test(limit) {
+    alert ('promise')
+    try {
+        let promise = new Promise((resolve, reject) => {
+            setTimeout(() => resolve("done!"), limit * 1000)
+        })
+        let result = await promise
+        alert (result)
+    } catch (e) {
+        alert(e)
+    }
+}
+\end{verbatim}
+
+    \begin{quote}
+Debugging this type of issues with \texttt{alert()} only (console
+back-end being missing on run-time is painful and misleading, since we
+have asynchrounous events driven from the C++, on the other hand, and
+database queries events dropping back at any moment, on the other hand.
+How to deal with this is discussed below, in debugging chapter.
+\end{quote}
+
     \hypertarget{multi-language-support}{%
 \subsection{Multi-language support}\label{multi-language-support}}
 
@@ -658,6 +964,29 @@ https://github.com/donaldpipowitch/webpack-i18n-example
 
     For now, simple \texttt{lang.js} file which is to be replaced with, say
 \texttt{lang-fr.js} file.
+
+    \hypertarget{ide}{%
+\subsection{IDE}\label{ide}}
+
+    \href{https://atom.io}{Atom} and Emacs have been used but nothing
+prevents to use \href{https://code.visualstudio.com}{Visual Studio
+Code}, no religion!
+
+    \hypertarget{coding-style}{%
+\subsection{Coding style}\label{coding-style}}
+
+    Well, it may bug you but I am \textbf{not using semicolons} but allow
+that pleasure either to run-time (.js) or to TypeScript transpiler
+(.ts). Again, no religion here but it is for my mental switch when I
+change between C++ and JS/TS modules, that's all. Yes, I am careful with
+some exceptional cases where semicolon is mandatory (by avoiding them!).
+
+\begin{quote}
+Otherwise, \textbf{soft tabs (spaces)} and \textbf{tab-width = 4},
+please!
+\end{quote}
+
+That's it. Thank you for your comprehension.
 
     \hypertarget{character-set-specific-issues}{%
 \subsection{Character-set specific
@@ -721,9 +1050,12 @@ there are plenty of examples of its suggested usage in the code,
     Please find and collect also your findings about the wonderfully complex
 world of the WebView - on differen platforms having different back-ends!
 
-    \hypertarget{webview-specific-on-linux-__wxgtk__-wxuse_webview_webkit}{%
-\subsection{\texorpdfstring{WebView specific on Linux
-\texttt{\_\_WXGTK\_\_\ \&\&\ wxUSE\_WEBVIEW\_WEBKIT}}{WebView specific on Linux \_\_WXGTK\_\_ \&\& wxUSE\_WEBVIEW\_WEBKIT}}\label{webview-specific-on-linux-__wxgtk__-wxuse_webview_webkit}}
+    \hypertarget{webview-specific-on-linux}{%
+\subsection{WebView specific on Linux}\label{webview-specific-on-linux}}
+
+    \begin{verbatim}
+__WXGTK__ && wxUSE_WEBVIEW_WEBKIT
+\end{verbatim}
 
     You will find that the on Raspberry Pi, or on any other Linux based
 system the \texttt{wxWidgets} environment is not the same than on your
@@ -767,20 +1099,298 @@ instead, perhaps with JSON parsing.
     \texttt{contribution\ welcome}: likel, is it
 \texttt{wxUSE\_WEBVIEW\_WEBKIT} or \texttt{wxUSE\_WEBVIEW\_WEBKIT2}?
 
-    \hypertarget{webview-specific-on-linux-__wxgtk__-wxuse_webview__ie}{%
-\subsection{\texorpdfstring{WebView specific on Linux
-\texttt{\_\_WXGTK\_\_\ \&\&\ wxUSE\_WEBVIEW\_\_IE}}{WebView specific on Linux \_\_WXGTK\_\_ \&\& wxUSE\_WEBVIEW\_\_IE}}\label{webview-specific-on-linux-__wxgtk__-wxuse_webview__ie}}
+    \hypertarget{webview-specific-on-windows}{%
+\subsection{WebView specific on
+Windows}\label{webview-specific-on-windows}}
+
+    \begin{verbatim}
+__WXGTK__ && wxUSE_WEBVIEW__IE
+\end{verbatim}
 
     On Windows:
 \texttt{C:\textbackslash{}wxWidgets-3.1.2\textbackslash{}samples\textbackslash{}webview\textbackslash{}vc\_mswud}
 (after the build). Compiled with default settings it works for the
 development purposes in this project without problem.
 
+    \hypertarget{sticky-cache}{%
+\subsubsection{Sticky cache}\label{sticky-cache}}
+
+    Even using different web servers, \emph{node} or \emph{docker nginx} I
+noticed during development that after transpiling, \emph{bundle.js} file
+never get updated even after restarting of \emph{OpenCPN}.
+
+    Can be annoying if new updates or fixes are installed. Anyway, really
+annoying for the developer.
+
+    This is why you will find a separate \emph{Reload()} polling wait after
+the page load in \emph{InstrJS} class. Annoying flickering follows but
+since the files are small, the delays are not excessive. Anyway, I could
+not find a way to clean the cache in \emph{WebView}.
+
     \hypertarget{webview-specific-on-linux-wxgtk}{%
 \subsection{\texorpdfstring{WebView specific on Linux
 \textbf{WXGTK}}{WebView specific on Linux WXGTK}}\label{webview-specific-on-linux-wxgtk}}
 
     \texttt{/usr/share/doc/wx3.0-examples/examples/} Used makefile OK.
+
+    \hypertarget{linux-distros-and-wxgtkx-blues}{%
+\subsubsection{Linux distros and
+WXGTKx-blues}\label{linux-distros-and-wxgtkx-blues}}
+
+    Notably wiht the \emph{CMake} this thing can drive your crazy, from
+distro to distro - what works with the above method of compiling
+wxWidgets from scratch, that is not available for the installer.
+
+    As soon as one adds the dreaded \texttt{webview} in the list of
+libraries to search, problems start occurring:
+
+    \begin{verbatim}
+In PluginConfigure.cmake:
+             SET(wxWidgets_USE_LIBS base core net xml html adv aui webview)
+\end{verbatim}
+
+    First, CMake does not find the wxWidgets at all, usually. This is
+because the distro does not have WebView or have it in other GTK-version
+(3) than other wxWidgets libraires (gtk2).
+
+    To make things complicated, it just dies not telling the reason. Once
+you think you have fixed the issue, it is actually using GTK3 and if you
+do not notice (you are so happy that it links now), the resulting
+package installs and but does not work (it does not pass ELF-test of
+OpenCPN because it cannot allow either wrong wxWidgets version or
+different GTK-version it is itsel using (GTK2)!
+
+    \begin{quote}
+\textbf{Note:} This is particularly true with Continuous Integration,
+like with Travis - it happily links everything and build is all fine.
+But it is rejected by OpenCPN!
+\end{quote}
+
+    \hypertarget{altenatives-horror-and-can-one-automate-it-ubuntu-18.04-lts}{%
+\paragraph{Altenatives-horror and can one automate it (Ubuntu 18.04
+LTS)}\label{altenatives-horror-and-can-one-automate-it-ubuntu-18.04-lts}}
+
+    Let's take the example of Ubuntu 18.04LTS. It is particularly painful.
+
+    \begin{verbatim}
+~$ sudo  update-alternatives --display wx-config
+wx-config - auto mode
+  link best version is /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0
+  link currently points to /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0
+  link wx-config is /usr/bin/wx-config
+/usr/lib/x86_64-linux-gnu/wx/config/base-unicode-3.0 - priority 306
+/usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0 - priority 308
+/usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0 - priority 307
+\end{verbatim}
+
+    Gtk2 is selected:
+
+    \begin{verbatim}
+~$ sudo wx-config --selected-config
+gtk2-unicode-3.0
+\end{verbatim}
+
+    It should be all fine, but it does not work, CMAke does not find
+wxWidgets! Let's make a try to GTK3:
+
+    \begin{verbatim}
+~$ sudo  update-alternatives --config wx-config
+There are 3 choices for the alternative wx-config (providing /usr/bin/wx-config).
+
+  Selection    Path                                                  Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0   308       auto mode
+  1            /usr/lib/x86_64-linux-gnu/wx/config/base-unicode-3.0   306       manual mode
+  2            /usr/lib/x86_64-linux-gnu/wx/config/gtk2-unicode-3.0   308       manual mode
+  3            /usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0   307       manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 3
+update-alternatives: using /usr/lib/x86_64-linux-gnu/wx/config/gtk3-unicode-3.0 to provide
+/usr/bin/wx-config (wx-config) in manual mode
+\end{verbatim}
+
+    Gtk3 is selected:
+
+    \begin{verbatim}
+~$ sudo wx-config --selected-config
+gtk3-unicode-3.0
+\end{verbatim}
+
+    Now it builds OK
+
+    \begin{verbatim}
+build$ cmake -DCMAKE_BUILD_TYPE=Release ..
+...
+-- Found wxWidgets: -L/usr/lib/x86_64-linux-gnu;-pthread;;;-lwx_baseu-3.0;-lwx_gtk3u_core-3.0;
+-lwx_baseu_net-3.0;-lwx_baseu_xml-3.0;-lwx_gtk3u_html-3.0;-lwx_gtk3u_adv-3.0;
+-lwx_gtk3u_aui-3.0;-lwx_gtk3u_webview-3.0;-lwx_gtk3u_gl-3.0 (found version "3.0.4")
+\end{verbatim}
+
+    But that's not good, since OpenCPN is GTK2.
+
+    There is a possibility to get the GTK2 version linking working with
+these CMakefile changes ( select option 2 in the update-alternatives
+above first ). In \emph{PluginConfigure.cmake} :
+
+    \begin{verbatim}
+-  SET(wxWidgets_USE_LIBS base core net xml html adv)
++  SET(wxWidgets_FIND_COMPONENTS base core net xml html adv)
+...
+-    FIND_PACKAGE(wxWidgets REQUIRED)
++    FIND_PACKAGE(wxWidgets COMPONENTS ${wxWidgets_FIND_COMPONENTS}
+\end{verbatim}
+
+    Now it works what comes to detection (but does not now build since I
+took the webview out for this GTK2 test).
+
+    In fact, what happens is that there is \textbf{no}
+\emph{libwx\_gtk\textbf{2}u\_webview-3.0} only
+\emph{libwx\_gtk3u\_webview-3.0} in Ubuntu 18.04LTS and probably not in
+Debian 10! I got mine in Raspberry Raspian by compiling myself.
+
+    The reason why thiere is no \emph{libwx\_gtk\textbf{2}u\_webview-3.0}
+is, according to
+\href{https://wiki.codelite.org/pmwiki.php/Main/WxWidgets31Binaries\#toc2}{this
+page} because ``\emph{webkitgtk2 is no longer being updated and is
+considered a security risk. wx3.1.3 can utilise its successor,
+webkit2gtk, but only for GTK+3 builds}''.
+
+    It is necessary to make a notice about this for those who builds their
+own wxWidgets for GTK2 like I did for Raspberry Pi: it works and perhaps
+is not a risk as long as we stay local. However, people may find strange
+ways to put their files into, and \emph{voilà}, you are exposed to
+Internet. Better is not to use GTK2, period.
+
+    \begin{quote}
+\textbf{Note:} From the above follows that one should automate the above
+configuration somehow in Continuous Integration (CI) processes -
+otherwise a binary is produced but it is not compatible with OpenCPN on
+that platform! (like it happened to me). See this script:
+https://git.io/JfcNi - maybe it is possible, but would require some
+effort. Maybe it is better to let CI compile and then build for
+distribution anyway manually - one cannot really trust the remote
+binaries without making their QA, anyway.
+\end{quote}
+
+    \hypertarget{what-about-ubuntu-20.04-lts---supposedly-all-gtk3}{%
+\paragraph{What about Ubuntu 20.04 LTS - supposedly all
+GTK3?}\label{what-about-ubuntu-20.04-lts---supposedly-all-gtk3}}
+
+    This being all GTK3 is scoop I learned from OpenCPN v5.1 beta testers:
+https://github.com/OpenCPN/OpenCPN/issues/1898
+
+    \hypertarget{opencpn-v5.0-stable-on-ubuntu-20.04-lts---gtk}{%
+\subparagraph{OpenCPN v5.0 (stable) on Ubuntu 20.04 LTS -
+GTK}\label{opencpn-v5.0-stable-on-ubuntu-20.04-lts---gtk}}
+
+    From \texttt{ppa:opencpn/opencpn}, let's inspect after:
+
+    \begin{verbatim}
+~# apt list --installed | grep wx
+...
+libwxbase3.0-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxsvg3/focal,now 2:1.5.21+dfsg.1-1build1 amd64 [installed,automatic]
+wx3.0-i18n/focal,focal,now 3.0.4+dfsg-15build1 all [installed,automatic]
+\end{verbatim}
+
+    Looks, indeed that it is all GTK3, even with v5.0
+
+    \begin{verbatim}
+root@pbox:~# which opencpn
+/usr/bin/opencpn
+root@pbox:~# readelf -d /usr/bin/opencpn | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwxsvg.so.3]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_gl-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_net-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_xml-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_html-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_adv-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]
+\end{verbatim}
+
+    Built-in plug-ins:
+
+    \begin{verbatim}
+root@pbox:/usr/lib/opencpn# readelf -d libdashboard_pi.so  | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]
+\end{verbatim}
+
+    Let's try with OpenCPN v5.1 beta
+
+    \begin{verbatim}
+apt remove opencpn --purge
+...
+root@pbox:~# apt list --installed | grep wx
+\end{verbatim}
+
+Clean.
+
+    \begin{verbatim}
+~# add-apt-repository --remove ppa:opencpn/opencpn
+~# apt update
+~# add-apt-repository ppa:bdbcat/opencpn
+~# apt update
+~# apt install opencpn
+\end{verbatim}
+
+    New installation of OpenCPN v5.1beta
+
+    \begin{verbatim}
+:~# apt list --installed | grep wx
+...
+libwxbase3.0-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk-webview3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxgtk3.0-gtk3-0v5/focal,now 3.0.4+dfsg-15build1 amd64 [installed,automatic]
+libwxsvg3/focal,now 2:1.5.21+dfsg.1-1build1 amd64 [installed,automatic]
+wx3.0-i18n/focal,focal,now 3.0.4+dfsg-15build1 all [installed,automatic]
+\end{verbatim}
+
+    Let's check the installed binary:
+
+    \begin{verbatim}
+:~# !99
+readelf -d /usr/bin/opencpn | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_gl-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_net-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu_xml-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_html-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_adv-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_webview-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwxsvg.so.3]
+\end{verbatim}
+
+    This looks promising, there \textbf{is even GTK3 WebView}! Let's check
+the dashboard\_pi plug-in:
+
+    \begin{verbatim}
+readelf -d libdashboard_pi.so  | grep wx
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_aui-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_gtk3u_core-3.0.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libwx_baseu-3.0.so.0]
+\end{verbatim}
+
+    What about \texttt{alternatives} in Ubuntu 12.04LTS?
+
+    \begin{verbatim}
+:/etc/alternatives# update-alternatives --display wx-config
+update-alternatives: error: no alternatives for wx-config
+\end{verbatim}
+
+    Good, let's try to build, without any modification to CMake-files:
+
+    \begin{quote}
+Fails, both for OpenGL and wxWidgets libraries, therefore the
+modifications are needed as they were done for OpenCPN in CMake-files,
+the old template will not work in Ubuntu 20.04LTS.
+\end{quote}
 
     \hypertarget{debugging-on-the-target-system}{%
 \section{Debugging on the target
@@ -792,6 +1402,54 @@ modifications by trial and error are needed when all you have is a blank
 screen on \textbf{\emph{webview}} when you open your application which
 works damn fine on your fancy browser! You do not want to spend your
 life to reinstall the plug-in after every modification.
+
+    \hypertarget{do-not-be-shy-on-console.logerror-and-alert-behind-a-debug-switch}{%
+\subsection{Do not be shy on console.log/error() and alert() behind a
+debug
+switch}\label{do-not-be-shy-on-console.logerror-and-alert-behind-a-debug-switch}}
+
+    Secondly, do not think that putting some configuration file activated
+debug printing and especially alerts is unprofessional or that it
+somehow makes the code too big - compared to the size of the included
+\emph{node\_modules} libraries they present nothing! Below it is
+explained how to get \texttt{console.log()} shown from a remote system
+(often headless). However, most of the time one is developing on single
+machine and there is no time to set multiple systems. Or, one needs to
+ask the end user to debug something. In these case he code which
+contains the debug code incorporated, especially the user activated
+\texttt{alert()} pop-ups will bring you a valuable information. Like
+this:
+
+    \begin{verbatim}
+        if ( dbglevel > 3 )
+            console.log ( 'showData(): sampleFrequency: ', sampleFrequency,
+                          'nofSamples: ', nofSamples,
+                          'getRetrieveSeconds(): ', getRetrieveSeconds(),
+                          'startStamp: ', startStamp,
+                          'endStamp: ', endStamp )
+        if ( (dbglevel > 4) && alerts )
+            alert ( 'sampleFrequency: ' + sampleFrequency + '\n' +
+                    'nofSamples: ' + nofSamples + '\n' +
+                    'getRetrieveSeconds(): ' + getRetrieveSeconds() + '\n' +
+                    'startStamp: ' + startStamp + '\n' +
+                    'endStamp: ' + endStamp )
+    }
+\end{verbatim}
+
+    And when a need rise, put \texttt{alert()} breakpoints in your code as
+much as you feel necessary, especially if you have JavaScript and not
+TypeScript modules, the typos in variable names can be nerve-wracking to
+detect!
+
+    \begin{quote}
+In this project, we use console as first debugging tool since
+quasi-realtime (in JavaScript terms) and not breaking the timing
+behaviour of the event driven finite state machine. \texttt{alert()}is
+convinient though but execution stops. Therefore, please put it as
+secondary debugging tool, useful for the end user it they encounter
+problems, with one notch bigger debug level than you consider necessary
+for the console prints.
+\end{quote}
 
     \hypertarget{performance-issues}{%
 \subsection{Performance issues}\label{performance-issues}}
@@ -906,6 +1564,11 @@ on a RPI 4 for communication tasks:
     \hypertarget{help-my-fancy-application-looks-rotten-does-not-work-on-rpi}{%
 \section{Help! My fancy application looks rotten / does not work on
 RPI}\label{help-my-fancy-application-looks-rotten-does-not-work-on-rpi}}
+
+    The title could continue "``\textbf{\ldots it gets frozen on Windows}''
+- the main issue not being able to debug with a modern browser tools is
+that you do not have access to the console or its data browser and other
+developers tools.
 
     Let's consider our design constraints first: we are developing for
 cross-platform, limited or old-fashioned web application run-time
@@ -1036,12 +1699,18 @@ test environments you would add the following line in your HTML:
 <!--script src="http://192.168.8.103:8081/target/target-script-min.js#anonymous"></script-->
 \end{verbatim}
 
-    It is not mandatory to use it in exclusively ``\emph{local}''
-development, you can set:
+    It is not mandatory to use it in exclusively remote, it works also on
+``\emph{local}'' development, you can set:
 
     \begin{verbatim}
 <!--script src="http://127.0.0.1:8081/target/target-script-min.js#anonymous"></script-->
 \end{verbatim}
+
+    \begin{quote}
+NOTE: With experience, WEINRE catches up better the console output of a
+remote system. It is therefore suggested that you run it on a separate
+system than the system on which you are debugging.
+\end{quote}
 
     Open the your application's HTML-file in \emph{webview} browser - drag
 and drop works.
@@ -1110,6 +1779,51 @@ Internet Explorer and hit key \textbf{F12}! See
 
     \includegraphics{2019-12-25_weinre_server_console_mouse_event_log.png}
 \href{img/2019-12-25_weinre_server_console_mouse_event_log.png}{(zoom)}
+
+    The issues in an event driven finite state machine can only be found
+using debug printing on console, not with \texttt{alert()} because it
+stops the execution entirely. Here, WEINRE becomes valuable. For
+example, run \texttt{timestui} and its database access on Windows target
+and WEINRE on a RPI. Set the common debug level to an appropriate level
+and observe the \texttt{console.log()} vs.~\texttt{consoler.error()}
+messages and if you have been systematic in you error handling, you are
+not a blind anymore with WebView anymore:
+
+    \includegraphics{2020-04-18_weinre_dbg_async_events_and_fsm.png}
+\href{img/2020-04-18_weinre_dbg_async_events_and_fsm.png}{(zoom)}
+
+    \begin{quote}
+Note: do not expect WEINRE handling arrival of many console clients at
+the same time. It is advisable to restart the service just before you
+launch your OpenCPN on the remote host for its WebView debugging and
+using it with only target system at a time:
+\end{quote}
+
+\begin{verbatim}
+pi@pi:~ $ weinre
+2020-04-18T07:43:48.747Z weinre: starting server at http://localhost:8081
+2020-04-18T07:44:42.797Z weinre: target t-3: weinre: target t-3 connected to client c-1
+^C
+pi@pi:~ $ weinre
+2020-04-18T08:26:36.403Z weinre: starting server at http://localhost:8081
+\end{verbatim}
+
+\begin{quote}
+Otherwise, on the same host, it is enough to reload the WEINRE page to
+start a new debug sessions on the same host, on which you will start
+OpenCPN right after.
+\end{quote}
+
+    \begin{quote}
+Note; remember that if you edit the target's \texttt{index.html} file,
+and then you build again with modifications, your webpack probably
+builds again the \texttt{index.html} file from the template. If the
+template does not enable the WEINRE connection, you need to manually
+re-enable it again after the rebuild of your project - of course, you
+can set for WEINRE debug in the HTML-template but do not forget to take
+it out before publishing since it will create a high degree of end user
+confusion!
+\end{quote}
 
     Rudimentary? Yes, but supposing that your algorithms are already tested
 elsewhere, WEINRE allows you to have the necessary tools to avoid

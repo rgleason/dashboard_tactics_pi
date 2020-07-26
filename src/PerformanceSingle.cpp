@@ -65,23 +65,24 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(Dashboa
 	: DashboardInstrument( (wxWindow *) pparent, id, title, cap_flag )
 {
     m_pparent = pparent;
-    mTWS = NAN;
-    mTWA = NAN;
-    mSTW = NAN;
-    mCMG = NAN;
-    mSOG = NAN;
-    mCOG = NAN;
+    mTWS = std::nan("1");
+    mTWA = std::nan("1");
+    mSTW = std::nan("1");
+    mCMG = std::nan("1");
+    mSOG = std::nan("1");
+    mCOG = std::nan("1");
     mBRG = -1;
-    mHDT = NAN;
-    mTWD = NAN;
-    m_lat = NAN;
-    m_lon = NAN;
+    mHDT = std::nan("1");
+    mTWD = std::nan("1");
+    m_lat = std::nan("1");
+    m_lon = std::nan("1");
     stwunit = _T("");
     m_displaytype = 0;
     m_data = _T("---");
     m_format = format;
     m_DataHeight = 0;
     m_pconfig = GetOCPNConfigObject();
+    (void) LoadConfig();
 }
 /***********************************************************************************
 
@@ -151,7 +152,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
 
     if (st == OCPN_DBP_STC_STW){
         if (std::isnan(data))
-            mSTW = NAN;
+            mSTW = std::nan("1");
         else
             //convert to knots first
             mSTW = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
@@ -165,7 +166,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
     }
     else if (st == OCPN_DBP_STC_SOG){
         if (std::isnan(data))
-            mSOG = NAN;
+            mSOG = std::nan("1");
         else
             //convert to knots first
             mSOG = fromUsrSpeed_Plugin(data, g_iDashSpeedUnit);
@@ -181,7 +182,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
     }
     else if (st == OCPN_DBP_STC_TWS){
         if (std::isnan(data))
-            mTWS = NAN;
+            mTWS = std::nan("1");
         else
             //convert to knots
             mTWS = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
@@ -322,7 +323,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
         else {
             //TargetxMG targetCMG = BoatPolar->Calc_TargetCMG(mTWS, mTWD, mBRG);
             TargetxMG TCMGMax, TCMGMin;
-            TCMGMax.TargetSpeed = NAN;
+            TCMGMax.TargetSpeed = std::nan("1");
             if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG>=0)
                 BoatPolar->Calc_TargetCMG2 (mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
             //if (!std::isnan(targetCMG.TargetSpeed) && targetCMG.TargetSpeed > 0) {
@@ -358,7 +359,7 @@ void TacticsInstrument_PerformanceSingle::SetData(
         else {
             if (!std::isnan(mSTW) && mBRG >= 0 && !std::isnan(mHDT)) {
                 TargetxMG TCMGMax, TCMGMin;
-                TCMGMax.TargetAngle = NAN;
+                TCMGMax.TargetAngle = std::nan("1");
                 if (!std::isnan(mTWS) && !std::isnan(mTWD) && mBRG >= 0) {
                     BoatPolar->Calc_TargetCMG2(mTWS, mTWD, mBRG, &TCMGMax, &TCMGMin);
                 }
@@ -380,35 +381,54 @@ void TacticsInstrument_PerformanceSingle::SetData(
             }
         }
     }
-    else if (m_displaytype == TWAMARK){
-        double avWnd = AverageWind->GetAvgWindDir();
-        while (avWnd > 360) avWnd -= 360;
-        while (avWnd < 0) avWnd += 360;
-        double port = avWnd + AverageWind->GetDegRangePort();
-        while (port > 360) port -= 360;
-        while (port < 0) port += 360;
-        double stb = avWnd + AverageWind->GetDegRangeStb();
-        while (stb > 360) stb -= 360;
-        while (stb < 0) stb += 360;
-        //wxLogMessage("avWnd=%.0f %.0f %.0f", port,avWnd,stb);
-        /* original :
-           if (mBRG>=0 && !wxIsNaN(mTWD)) {
-           double markBrG = getDegRange(mBRG, mTWD);
-           m_data = wxString::Format("%.0f",(double) markBrG) + _T("\u00B0");
-           }*/
+    else if (m_displaytype == TWAMARK) {
+        if ( !AverageWind ) {
+            wxLogMessage (
+                "dashboard_tactics_pi: TacticsInstrument_PerformanceSingle: "
+                "No AverageWind service available. Cannot start instr. TWAMARK.");
+            return;
+        } // then sanity check for out-of tactics_pi usage
+        bool useShortAvg = m_twamarkUseShortAvg;
+        if (  useShortAvg && ( AverageWind->GetShortAvgTime() == 0 ) )
+            useShortAvg = false; // then defined but not available
+        double avWnd = ( useShortAvg ?
+                         AverageWind->GetShortAvgWindDir() :
+                         AverageWind->GetAvgWindDir() );
+        while (avWnd > 360)
+            avWnd -= 360;
+        while (avWnd < 0)
+            avWnd += 360;
+        double port = avWnd +
+            ( useShortAvg ?
+              AverageWind->GetShortDegRangePort() :
+              AverageWind->GetDegRangePort() );
+        while (port > 360)
+            port -= 360;
+        while (port < 0)
+            port += 360;
+        double stb = avWnd +
+             ( useShortAvg ?
+               AverageWind->GetShortDegRangeStb() :
+               AverageWind->GetDegRangeStb() );
+        while (stb > 360)
+            stb -= 360;
+        while (stb < 0)
+            stb += 360;
         if (mBRG >= 0 && !std::isnan(mTWD) && !std::isnan(avWnd) ) {
-            // double markBrG = getDegRange(mBRG, mTWD); // not used anywhere
-            // do the rounding inside the function to keep it somehow in sync with the AvgWind instrument ...
-            double AvgMarkBrG = getDegRange(mBRG, wxRound(avWnd));
-            double leftMarkBrG = getDegRange(mBRG, wxRound(port));
-            double rightMarkBrG = getDegRange(mBRG, wxRound(stb));
+            // do the rounding inside the function to keep it
+            // in sync with the AvgWind instrument ...
+            double AvgMarkBrG = getDegRange( mBRG, wxRound( avWnd ));
+            double leftMarkBrG = getDegRange( mBRG, wxRound( port ) );
+            double rightMarkBrG = getDegRange( mBRG, wxRound( stb ) );
                 
             if (leftMarkBrG > rightMarkBrG) {
                 double tmp = leftMarkBrG;
                 leftMarkBrG = rightMarkBrG;
                 rightMarkBrG = tmp;
             }
-            m_data = wxString::Format("%.0f", (double)leftMarkBrG) + _T("\u00B0") + wxString::Format(" - %.0f", (double)AvgMarkBrG) + _T("\u00B0")+ wxString::Format(" - %.0f", (double)rightMarkBrG) + _T("\u00B0");
+            m_data = wxString::Format("%.0f", (double)leftMarkBrG) + _T("\u00B0") +
+                wxString::Format(" - %.0f", (double)AvgMarkBrG) + _T("\u00B0") +
+                wxString::Format(" - %.0f", (double)rightMarkBrG) + _T("\u00B0");
 
             wxLongLong wxllNowMs = wxGetUTCTimeMillis();
             m_pparent->SendPerfSentenceToAllInstruments(
@@ -426,4 +446,18 @@ void TacticsInstrument_PerformanceSingle::SetData(
 void TacticsInstrument_PerformanceSingle::timeoutEvent()
 {
     m_data = _T("---");
+}
+
+bool TacticsInstrument_PerformanceSingle::LoadConfig()
+{
+    wxFileConfig *pConf = m_pconfig;
+    
+    if (!pConf)
+        return false;
+
+    pConf->SetPath( _T("/PlugIns/DashT/Tactics/Performance/") );
+    pConf->Read( _T("TwaMarkUseShortAvgWind"), &m_twamarkUseShortAvg, true );
+    pConf->Write( _T("TwaMarkUseShortAvgWind"), m_twamarkUseShortAvg );
+
+    return true;
 }

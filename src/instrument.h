@@ -144,6 +144,8 @@ public:
         ) = 0;
     void SetDrawSoloInPane(bool value);
     void MouseEvent( wxMouseEvent &event );
+    void OnClose( wxCloseEvent& event );
+    void OnDPBITimerTick(wxTimerEvent &event);
       
     int               instrumentTypeId;
 
@@ -157,8 +159,6 @@ protected:
 private:
     bool m_drawSoloInPane;
     wxTimer *m_DPBITickTimer;
-    void OnClose( wxCloseEvent& event );
-    void OnDPBITimerTick(wxTimerEvent &event);
     wxDECLARE_EVENT_TABLE();
 };
 

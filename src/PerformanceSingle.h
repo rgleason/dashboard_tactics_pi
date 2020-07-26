@@ -65,19 +65,20 @@ public:
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
     void timeoutEvent(void) override;
     void SetDisplayType(int displaytype);
-    double mTWS;
-    double mTWA;
-    double mSTW;
-    double mCMG;
-    double mSOG;
-    double mCOG;
-    double mBRG;
-    double mHDT;
-    double mTWD;
-    double m_lat;
-    double m_lon;
-    wxString stwunit;
-    int m_displaytype;
+    double            mTWS;
+    double            mTWA;
+    double            mSTW;
+    double            mCMG;
+    double            mSOG;
+    double            mCOG;
+    double            mBRG;
+    double            mHDT;
+    double            mTWD;
+    double            m_lat;
+    double            m_lon;
+    wxString          stwunit;
+    int               m_displaytype;
+    bool              m_twamarkUseShortAvg;
 
 protected:
     wxString          m_data;
@@ -85,6 +86,8 @@ protected:
     int               m_DataHeight;
     
     void Draw(wxGCDC* dc);
+    bool LoadConfig(void);
+
 private :
     wxFileConfig      *m_pconfig;
     DashboardWindow   *m_pparent;
