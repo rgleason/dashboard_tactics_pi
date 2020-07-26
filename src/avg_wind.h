@@ -122,7 +122,12 @@ public:
     TacticsInstrument_AvgWindDir(wxWindow *parent, wxWindowID id, wxString title);
     ~TacticsInstrument_AvgWindDir(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
-    virtual void timeoutEvent(void){};
+    void timeoutEvent(void) override;
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+    virtual void derivedTimeoutEvent(void){};
+#else
+    virtual void derivedTimeoutEvent(void);
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
     wxSize GetSize(int orient, wxSize hint);
     virtual wxSize DoGetBestSize() const override;
 
@@ -165,6 +170,7 @@ protected:
     void DrawBackground(wxGCDC* dc);
     void DrawForeground(wxGCDC* dc);
     double GetAvgWindDir();
+    void DataClear();
     void OnAvgTimeSliderUpdated(wxCommandEvent& event);
     void CalcAvgWindDir(double CurWindDir);
     void OnAvgWindUpdTimer(wxTimerEvent & event);

@@ -47,13 +47,24 @@
 #include "dashboard_pi_ext.h"
 
 #include "plugin_ids.h"
-
-
-// wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, DashboardInstrument)
+/* Note about static event tables in derived class: a choice has been made
+   by the developer to use static event teble in the class DashboardInstrument.
+   Most of the derived instruments, like dials do not use events. However,
+   if static event tables are preferred in the derived classes, like
+   in the TacticsInstrument_AvgWindDir, it must be noted that they do
+   override the DashboardInstrument's timeout timer and close event
+   handling. This is a design decision in order to avoid sometime confusing
+   dynamic bindings. One needs to define who is doing what: here we deal
+   both with the close event and timeout event. For close event, we do not
+   need the base class. For the the timeout event, yes, we need to call
+   its timertick method ourselves to make our derived timeout event
+   to work! This is just for the record, in case you are wondering why this..
+*/
 wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, wxControl)
 EVT_TIMER (myID_TICK_AVGWIND, TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)
 EVT_CLOSE (TacticsInstrument_AvgWindDir::OnClose)
 wxEND_EVENT_TABLE ()
+
 /* ****************************************************************************
 Class for Average Wind Calculation
 
@@ -346,6 +357,7 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
     m_WindDir = std::nan("1");
     m_cntNoData = 0;
     m_AvgWindDir = std::nan("1");
+    m_ShortAvgWindDir = std::nan("1");
     m_TopLineHeight = 30;
     m_TitleHeight = 10;
     m_avgSliderHeight = 0;
@@ -364,6 +376,8 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_TWD)
     m_ShortAvgTime = AVG_WIND_MIN_DEF_TIME * SHORT_AVG_WIND_DEF_PERCENTAGE / 100;
     m_DegRangePort = 0.0;
     m_DegRangeStb = 0.0;
+    m_ShortDegRangePort = 0.0;
+    m_ShortDegRangeStb = 0.0;
     wxSize size = GetClientSize();
     m_cx = size.x / 2;
 
@@ -411,8 +425,29 @@ void TacticsInstrument_AvgWindDir::OnClose( wxCloseEvent &event )
     SaveConfig();
 }
 
-void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent & event)
+void TacticsInstrument_AvgWindDir::DataClear() // shared clear Tactics/DashT
 {
+    m_WindDir = std::nan("1");
+    m_IsRunning = false;
+    if ( AverageWind ) {
+        if ( m_cntNoData != -1 ) {
+            AverageWind->DataClear( true ); // signal data interruption
+            m_cntNoData = -1; // avoid several clear by our own tick thread
+        }
+    }
+    m_DegRangePort = 0.0;
+    m_AvgWindDir = std::nan("1");
+    m_ShortAvgWindDir = std::nan("1");
+    m_DegRangeStb = 0.0;
+    m_ShortDegRangePort = 0.0;
+    m_ShortDegRangeStb = 0.0;
+    m_SampleCount = 0;
+    m_ShortSampleCount = 0;
+}
+
+void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent &event)
+{
+    OnDPBITimerTick( event );
     if ( !std::isnan(m_WindDir) ) {
         m_cntNoData = 0;
         m_AvgWindDir = AverageWind->GetAvgWindDir();
@@ -426,7 +461,7 @@ void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent & event)
     }
     else {
         if ( m_cntNoData >= AVG_WIND_CLEAR_NO_DATA_CNT ) {
-            AverageWind->DataClear();
+            DataClear(); // then a bit longer data interruption
             m_cntNoData = -1;
         }
         else if ( m_cntNoData >= 0 )
@@ -464,13 +499,23 @@ wxSize TacticsInstrument_AvgWindDir::GetSize(int orient, wxSize hint)
                        wxMax( m_TitleHeight + 140, hint.y ) );
     }
 }
+
 void TacticsInstrument_AvgWindDir::SetData(
     unsigned long long st, double data, wxString unit, long long timestamp)
 {
+    if ( !std::isnan( data ) )
+        setTimestamp( timestamp );
+
     if (st == OCPN_DBP_STC_TWD ) { 
         m_WindDir = data; // Live wind
     }
     m_IsRunning = ( std::isnan(m_WindDir) ? false : true );
+}
+
+void TacticsInstrument_AvgWindDir::timeoutEvent() // for DashT only
+{
+    DataClear();
+    this->derivedTimeoutEvent();
 }
 
 void TacticsInstrument_AvgWindDir::Draw(wxGCDC* dc)
@@ -485,7 +530,7 @@ void TacticsInstrument_AvgWindDir::Draw(wxGCDC* dc)
   m_cx = size.x / 2;
   m_height = size.y;
 
-  m_avgTimeSlider->SetSize( 10, 0, size.x - 20, 5 );
+  m_avgTimeSlider->SetSize( 10, 0, size.x - 20, 50 );
   int w;
   m_avgTimeSlider->GetSize( &w, &m_avgSliderHeight );
 
@@ -664,14 +709,15 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
         wxPoint pointShortPort, pointShortPort_old;
         wxPoint pointShortAvg, pointShortAvg_old;
         wxPoint pointShortStb, pointShortStb_old;
+        double diffShortAndNormalAvg = getSignedDegRange(
+            m_AvgWindDir, m_ShortAvgWindDir );
         pointShortPort_old.x = m_width / 2. +
             m_ShortDegRangePort * m_ratioW + m_avgLegendW + 1;
         if ( pointShortPort_old.x <= m_avgLegendW )
             pointShortPort_old.x = m_avgLegendW;
         pointShortPort_old.y = m_TopLineHeight + m_avgSliderHeight + 1;
         pointShortAvg_old.x = m_width / 2. +
-            getSignedDegRange(
-                m_AvgWindDir, m_ShortAvgWindDir ) * m_ratioW + m_avgLegendW + 1;
+             diffShortAndNormalAvg * m_ratioW + m_avgLegendW + 1;
         if ( pointShortAvg_old.x <= m_avgLegendW )
             pointShortAvg_old.x = m_avgLegendW;
         if ( pointShortAvg_old.x >= (m_width - m_avgLegendW) )
@@ -703,7 +749,10 @@ void TacticsInstrument_AvgWindDir::DrawForeground(wxGCDC* dc)
                 static_cast<double>( m_TopLineHeight ) +
                 m_avgSliderHeight + 1. +
                 static_cast<double>( idx ) * m_ratioH );
-            pen.SetColour( wxColour ( 255, 0, 0, 178 ) ); // red, opaqueness
+            if ( diffShortAndNormalAvg <= 0. )
+                pen.SetColour( wxColour ( 255, 0, 0, 178 ) ); // red, opaquen
+            else
+                pen.SetColour( wxColour ( 0, 200, 0, 178 ) ); // green, opaque
             pen.SetWidth( 5 );
             dc->SetPen( pen );
             dc->DrawLine( pointShortAvg_old, pointShortAvg );
