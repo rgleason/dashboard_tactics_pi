@@ -115,7 +115,7 @@ void AvgWind::DataClear( bool dataInterruption )
     for (int i = 0; i < AVG_WIND_RECORDS; i++) {
         m_WindDirArray[i] = std::nan("1");
         m_signedWindDirArray[i] = std::nan("1");
-        m_signedShortWindDirArray[i] = std::nan("1");
+        m_ExpSmoothSignedWindDirArray[i] = std::nan("1");
         m_ExpsinSmoothArrayWindDir[i] = std::nan("1");
         m_ExpcosSmoothArrayWindDir[i] = std::nan("1");
     }
