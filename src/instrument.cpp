@@ -38,8 +38,8 @@
 
 #include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (DashboardInstrument,wxControl)
-    EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
-   EVT_CLOSE (DashboardInstrument::OnClose)
+EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
+EVT_CLOSE (DashboardInstrument::OnClose)
 wxEND_EVENT_TABLE ()
 
 //----------------------------------------------------------------
