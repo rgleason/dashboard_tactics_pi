@@ -103,13 +103,17 @@ void AvgWind::DataClear( bool dataInterruption )
     m_ShortDegRangeStb = 0.0;
     for (int i = 0; i < AVG_WIND_RECORDS; i++) {
         m_WindDirArray[i] = std::nan("1");
-        m_ShortWindDirArray[i] = std::nan("1");
         m_signedWindDirArray[i] = std::nan("1");
         m_signedShortWindDirArray[i] = std::nan("1");
         m_ExpsinSmoothArrayWindDir[i] = std::nan("1");
         m_ExpcosSmoothArrayWindDir[i] = std::nan("1");
-        m_ExpSmoothSignedWindDirArray[i] = std::nan("1");
+    }
+    for (int i = 0; i < SHORT_AVG_WIND_RECORDS; i++) {
+        m_ShortWindDirArray[i] = std::nan("1");
+        m_signedShortWindDirArray[i] = std::nan("1");
         m_ExpSmoothSignedShortWindDirArray[i] = std::nan("1");
+        m_ExpsinSmoothArrayShortWindDir[i] = std::nan("1");
+        m_ExpcosSmoothArrayShortWindDir[i] = std::nan("1");
     }
     if ( dataInterruption ) {
         delete mDblsinExpSmoothWindDir;
