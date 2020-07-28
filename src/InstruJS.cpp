@@ -51,9 +51,9 @@ using namespace std::placeholders;
 extern int GetRandomNumber(int, int);
 
 wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
-   EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
-   EVT_SIZE (InstruJS::OnSize)
-   EVT_CLOSE (InstruJS::OnClose)
+EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
+EVT_SIZE (InstruJS::OnSize)
+EVT_CLOSE (InstruJS::OnClose)
 wxEND_EVENT_TABLE ()
 
 //************************************************************************************************************************
