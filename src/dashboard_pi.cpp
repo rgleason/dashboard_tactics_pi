@@ -2039,9 +2039,12 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         if ( root.HasMember("isSkipped") ) {
             mWpArrivedIsSkipped = root[_T("isSkipped")].AsBool();
             mWpArrivedName = root[_T("WP_arrived")].AsString();
-            if ( !root.HasMember("Next_WP") ) {
+            if ( root.HasMember("Next_WP") ) {
+                mWpArrivedGUID = wxEmptyString;
+            } // then the GUID of the arrived WP will be overwritten, clear it
+            else {
                 mWpArrivedGUID = root[_T("GUID")].AsString();
-            } // then the GUID of the arrived WP is not overwritten, record it
+            } // else the GUID of the arrived WP will not be overwritten
         } // then there was an active point to which we have arrived
         if ( root.HasMember("Next_WP") ) {
             mWpArrivedNextName = root[_T("Next_WP")].AsString();

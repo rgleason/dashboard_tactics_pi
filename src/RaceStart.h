@@ -70,7 +70,7 @@
 #define RACESTART_H_MIN_WIDTH  RACESTART_H_WIDTH
 #define RACESTART_H_MIN_HEIGHT (RACESTART_H_TITLEH + RACESTART_H_HEIGHT + RACESTART_H_BOTTOM)
 
-#define RACESTART_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, and it appears
+#define RACESTART_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server
 
 #define RACESTART_GUID_STARTLINE_AS_ROUTE "DashT_RaceStart_0001_STARTLINE"
 #define RACESTART_NAME_STARTLINE_AS_ROUTE "DashT Startline"
@@ -95,28 +95,14 @@
 #define RACESTART_COG_MAX_JITTER 5 // in degrees, otherwise cannot calculate
 #define RACESTART_USER_MOVING_WP_GRACETIME_CNT 10 // about ten seconds
 
-template<typename PlugIn_Waypoint, typename Base, typename Del>
-std::unique_ptr<PlugIn_Waypoint, Del> static_unique_ptr_cast_waypoint(
-    std::unique_ptr<Base, Del>&& p )
-{
-    auto d = static_cast<PlugIn_Waypoint *>(p.release());
-    return std::unique_ptr<PlugIn_Waypoint, Del>(d, std::move(p.get_deleter()));
-}
-template<typename PlugIn_Route, typename Base, typename Del>
-std::unique_ptr<PlugIn_Route, Del> static_unique_ptr_cast_route(
-    std::unique_ptr<Base, Del>&& p )
-{
-    auto d = static_cast<PlugIn_Route *>(p.release());
-    return std::unique_ptr<PlugIn_Route, Del>(d, std::move(p.get_deleter()));
-}
-//+------------------------------------------------------------------------------
+//+------------------------------------------------------------------------
 //|
 //| CLASS:
 //|    DashboardInstrument_RaceStart
 //|
 //| DESCRIPTION:
 //|    This instrument provides assistance for race start line tactics
-//+------------------------------------------------------------------------------
+//+------------------------------------------------------------------------
 
 class DashboardInstrument_RaceStart : public InstruJS
 {
@@ -150,11 +136,16 @@ public:
    
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    virtual void PushTwaHere(double data, wxString unit, long long timestamp=0LL);
-    virtual void PushTwsHere(double data, wxString unit, long long timestamp=0LL);
-    virtual void PushCogHere(double data, wxString unit, long long timestamp=0LL);
-    virtual void PushLatHere(double data, wxString unit, long long timestamp=0LL);
-    virtual void PushLonHere(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushTwaHere(
+        double data, wxString unit, long long timestamp=0LL);
+    virtual void PushTwsHere(
+        double data, wxString unit, long long timestamp=0LL);
+    virtual void PushCogHere(
+        double data, wxString unit, long long timestamp=0LL);
+    virtual void PushLatHere(
+        double data, wxString unit, long long timestamp=0LL);
+    virtual void PushLonHere(
+        double data, wxString unit, long long timestamp=0LL);
     
 protected:
     TacticsWindow       *m_pparent;

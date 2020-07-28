@@ -129,6 +129,9 @@ SET(SRC_DASHT
     src/RaceStart.h
     src/RaceStart.cpp 
     src/RaceStartGL.cpp
+    src/RaceMark.h
+    src/RaceMark.cpp 
+    src/RaceMarkGL.cpp
     src/SkData.h
     src/SkData.cpp
 )

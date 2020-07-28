@@ -46,6 +46,7 @@
 #include "EngineDJG.h"
 #include "TimesTUI.h"
 #include "RaceStart.h"
+#include "RaceMark.h"
 
 #include "dashboard_pi_ext.h"
 
@@ -764,20 +765,26 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_D_ENGDJG:
             if ( ids.IsEmpty() )
-                ids = GetUUID();
-            instrument = new DashboardInstrument_EngineDJG( // Dial instrument
+                ids = GetUUID();  // Dial instrument
+            instrument = new DashboardInstrument_EngineDJG(
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
         case ID_DBP_D_TSETUI:
             if ( ids.IsEmpty() )
-                ids = GetUUID();
-            instrument = new DashboardInstrument_TimesTUI( // Time-series DB graph
+                ids = GetUUID(); // Time-series DB graph
+            instrument = new DashboardInstrument_TimesTUI( 
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
         case ID_DBP_D_RACESTA:
             if ( ids.IsEmpty() )
-                ids = GetUUID();
-            instrument = new DashboardInstrument_RaceStart( // Start line tactician
+                ids = GetUUID();  // Start line tactician
+            instrument = new DashboardInstrument_RaceStart(
+                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+            break;
+        case ID_DBP_D_RACEMRK:
+            if ( ids.IsEmpty() )
+                ids = GetUUID();  // Race mark  tactician
+            instrument = new DashboardInstrument_RaceMark(
                 this, wxID_ANY, ids, m_plugin->m_colorScheme );
             break;
         }

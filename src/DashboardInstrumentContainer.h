@@ -60,7 +60,7 @@ enum eInstruments {
     ID_DBP_R_EAAA, ID_DBP_R_EAAB, ID_DBP_R_EAAC, ID_DBP_R_EAAD, ID_DBP_R_EAAE, ID_DBP_R_EAAF,
     ID_DBP_R_EABA, ID_DBP_R_EABB, ID_DBP_R_EABC, ID_DBP_R_EABD, ID_DBP_R_EABE, ID_DBP_R_EABF,
     /* JavaScript/WebView based instruments, energy, engine, database and other utilities */
-    ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,ID_DBP_D_RACESTA,
+    ID_DBP_D_ENGDJG, ID_DBP_D_TSETUI,ID_DBP_D_RACESTA,ID_DBP_D_RACEMRK,
     /* the section end marker, do not remove */
     ID_DPB_PERF_LAST,
     ID_DBP_LAST_ENTRY /* This has a reference in one of the routines; defining a "LAST_ENTRY" and

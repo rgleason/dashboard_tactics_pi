@@ -113,7 +113,8 @@ public:
     virtual void setColorScheme ( PI_ColorScheme cs ) override;
     virtual void restartInstrument(void) { m_webPanelSuspended = false; };
     virtual void stopScript(void); // if overriding OnClose(), call this
-    virtual void PushData(double data, wxString unit, long long timestamp=0LL);
+    virtual void PushData(
+        double data, wxString unit, long long timestamp=0LL);
 
     void timeoutEvent(void) override;
 #ifndef __DERIVEDTIMEOUTJS_OVERRIDE__
@@ -130,8 +131,19 @@ public:
     virtual bool stopSlData(void){ return true; };
     virtual void getSlData( wxString& sCogDist, wxString& sDist,
                             wxString& sBias, wxString& sAdv ) {
-        sCogDist = _T("-999.0"); sDist =  _T("-999.0");
-        sBias = _T("-999.0"); sAdv =  _T("-999.0");
+        sCogDist = _T("-999.0"); sDist = _T("-999.0");
+        sBias = _T("-999.0"); sAdv = _T("-999.0");
+    };
+    virtual bool userHasActiveRoute(void){ return false; };
+    virtual bool sendRmData(void){ return false; };
+    virtual bool stopRmData(void){ return true; };
+    virtual void getRmData(
+        wxString& nextLegTwaAvg, wxString& nextLegTwaShortAvg,
+        wxString& nextNextLegTwaAvg, wxString& nextNextLegTwaShortAvg ) {
+        nextLegTwaAvg = _T("-999.0");
+        nextLegTwaShortAvg = _T("-999.0");
+        nextNextLegTwaAvg = _T("-999.0");
+        nextNextLegTwaShortAvg =  _T("-999.0");
     };
     
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
