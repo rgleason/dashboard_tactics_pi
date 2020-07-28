@@ -123,11 +123,11 @@ public:
     ~TacticsInstrument_AvgWindDir(void);
     void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
     void timeoutEvent(void) override;
-#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#ifndef __DERIVEDTIMEOUTAW_OVERRIDE__
     virtual void derivedTimeoutEvent(void){};
 #else
     virtual void derivedTimeoutEvent(void);
-#endif // __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUTAW_OVERRIDE__
     wxSize GetSize(int orient, wxSize hint);
     virtual wxSize DoGetBestSize() const override;
 
