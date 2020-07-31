@@ -109,3 +109,17 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
     TemperatureValue = (TemperatureValue - 32.0) / 1.8;
     return;
 }
+
+void CopyPlugInWaypointWithoutHyperlinks(
+    PlugIn_Waypoint *src, PlugIn_Waypoint *dst )
+{
+    dst->m_lat = src->m_lat;
+    dst->m_lon = src->m_lon;
+    dst->m_GUID = src->m_GUID;
+    dst->m_MarkName = src->m_MarkName;
+    dst->m_MarkDescription = src->m_MarkDescription;
+    dst->m_CreateTime = src->m_CreateTime;
+    dst->m_IsVisible = src->m_IsVisible;
+    dst->m_IconName = src->m_IconName;
+    dst->m_HyperlinkList = nullptr;
+}

@@ -30,9 +30,14 @@
 
 #include <wx/string.h>
 
+#include "ocpn_plugin.h"
+
 int GetRandomNumber( int range_min, int range_max );
 wxString GetUUID( void );
 wxString MakeName( void );
-void checkNMEATemperatureDataAndUnit( double& TemperatureValue, wxString& TemperatureUnitOfMeasurement );
+void checkNMEATemperatureDataAndUnit(
+    double& TemperatureValue, wxString& TemperatureUnitOfMeasurement );
+void CopyPlugInWaypointWithoutHyperlinks(
+    PlugIn_Waypoint *src, PlugIn_Waypoint *dst );
 
 #endif // __DASHBOARDFUNCTIONS_H__
