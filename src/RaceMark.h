@@ -98,6 +98,11 @@ public:
     
     bool CheckForValidActiveRoute(void);
     bool CheckRouteStillValid(void);
+    bool CheckForActivatedWp(void);
+    int  PollForNextActiveRouteWp(void);
+    bool ChangeToNextTargetMark(void);
+    void ChangeNextAndNextNextMarks(void);
+    bool CheckWpStillValid( wxString sGUID );
 
     virtual bool instruIsReady(void) override;
     virtual bool userHasActiveRoute(void) override;
@@ -130,33 +135,48 @@ protected:
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
     wxString             m_httpServer;
-    wxString             m_sRaceAsRouteGuid;
-    PlugIn_Route        *m_raceAsRoute;
+    wxString             m_raceAsRouteGuid;
+    wxString             m_raceAsRouteName;
+    PlugIn_Route        *m_raceAsRoute; // per method ptr, non-NAN = a route exists
+    wxString             m_targetWpName;
+    wxString             m_targetWpGuid;
+    PlugIn_Waypoint     *m_targetWp;
+    wxString             m_previousWpName;
+    wxString             m_previousWpGuid;
+    PlugIn_Waypoint     *m_previousWp;
+    double               m_previousWpBearing;
+    wxString             m_nextWpName;
+    wxString             m_nextWpGuid;
+    PlugIn_Waypoint     *m_nextWp;
+    wxString             m_nextNextWpName;
+    wxString             m_nextNextWpGuid;
+    PlugIn_Waypoint     *m_nextNextWp;
     bool                 m_dataRequestOn;
     bool                 m_jsCallBackAsHeartBeat;
     glRendererFunction   m_rendererIsHere;
-    wxString             m_sRendererCallbackUUID;
+    wxString             m_rendererCallbackUUID;
     
-    callbackFunction     m_fPushTwaHere;
-    wxString             m_fPushTwaUUID;
-    double               m_Twa;
-    callbackFunction     m_fPushTwsHere;
-    wxString             m_fPushTwsUUID;
-    double               m_Tws;
-    callbackFunction     m_fPushCogHere;
-    wxString             m_fPushCogUUID;
-    double               m_Cog;
-    callbackFunction     m_fPushLatHere;
-    wxString             m_fPushLatUUID;
-    double               m_Lat;
     callbackFunction     m_fPushLonHere;
     wxString             m_fPushLonUUID;
     double               m_Lon;
+    callbackFunction     m_fPushLatHere;
+    wxString             m_fPushLatUUID;
+    double               m_Lat;
+    callbackFunction     m_fPushCogHere;
+    wxString             m_fPushCogUUID;
+    double               m_Cog;
+    callbackFunction     m_fPushTwsHere;
+    wxString             m_fPushTwsUUID;
+    double               m_Tws;
+    callbackFunction     m_fPushTwaHere;
+    wxString             m_fPushTwaUUID;
+    double               m_Twa;
 
 
     wxDECLARE_EVENT_TABLE();
 
-    void ClearRoutesAndWPs(void);
+    void ClearRoutesAndWPs( bool ctor = false );
+    void ClearNextAndNextNextWpsOnly( bool ctor = false );
     void ClearRendererCalcs(void);
     void OnThreadTimerTick(wxTimerEvent& event);
     void OnClose(wxCloseEvent& event);
