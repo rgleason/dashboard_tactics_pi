@@ -116,6 +116,8 @@ enum PI_ColorScheme
       PI_N_COLOR_SCHEMES
 };
 
+#ifndef __DOCTEST__
+
 class PlugIn_ViewPort
 {
       public:
@@ -137,6 +139,8 @@ class PlugIn_ViewPort
 
             bool     bValid;                 // This VP is valid
 };
+
+#endif // NOT __DOCTEST__
 
 class PlugIn_Position_Fix
 {
@@ -273,6 +277,7 @@ typedef struct _ExtentPI{
 #define      PI_HEADER_ONLY      1
 #define      PI_THUMB_ONLY       2
 
+#ifndef __DOCTEST__
 
 // ----------------------------------------------------------------------------
 // PlugInChartBase
@@ -589,6 +594,10 @@ public:
     /*Provide active leg data to plugins*/
     virtual void SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info);
 };
+
+
+#endif // NOT __DOCTEST__
+
 //------------------------------------------------------------------
 //      Route and Waypoint PlugIn support
 //
@@ -604,16 +613,31 @@ public:
 
 WX_DECLARE_LIST(Plugin_Hyperlink, Plugin_HyperlinkList);
 
-
-
 class DECL_EXP PlugIn_Waypoint
 {
 public:
+#ifdef __DOCTEST__
+     PlugIn_Waypoint() {};
+     PlugIn_Waypoint(double lat, double lon,
+                const wxString& icon_ident, const wxString& wp_name,
+                const wxString& GUID = _T("") ) {
+         m_lat = lat;
+         m_lon = lon;
+         m_IconName = icon_ident;
+         m_MarkName = wp_name;
+         m_GUID = GUID;
+         m_MarkDescription = wxEmptyString;
+         m_CreateTime = wxDateTime::Now();
+         m_IsVisible = true;
+         m_HyperlinkList = nullptr;
+     }
+#else
     PlugIn_Waypoint();
     PlugIn_Waypoint(double lat, double lon,
                     const wxString& icon_ident, const wxString& wp_name,
                     const wxString& GUID = _T("") );
-    ~PlugIn_Waypoint();
+#endif // __DOCTEST__
+~PlugIn_Waypoint();
 
     double             m_lat;
     double             m_lon;
@@ -662,6 +686,7 @@ public:
 };
 
 
+#ifndef __DOCTEST__
 
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn CallBack API Definition
@@ -1382,5 +1407,7 @@ extern DECL_EXP int GetLatLonFormat(void);
 
 // API 1.17
 extern "C"  DECL_EXP void ZeroXTE();
+
+#endif // NOT __DOCTEST__
 
 #endif //_PLUGIN_H_
