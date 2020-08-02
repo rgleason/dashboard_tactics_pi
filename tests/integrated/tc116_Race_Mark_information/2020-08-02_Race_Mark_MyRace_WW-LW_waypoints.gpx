@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="OpenCPN" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns:opencpn="http://www.opencpn.org">
+  <wpt lat="50.793108032" lon="-178.891106228">
+    <time>2020-07-27T20:13:37Z</time>
+    <name>1A</name>
+    <sym>Marks-Race-Tetrahedron-Mark1</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>73ccffff-be6d-4631-82cd-84cd3e770000</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="true" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.792910649" lon="-178.894384881">
+    <time>2020-07-27T20:13:53Z</time>
+    <name>1B</name>
+    <sym>Marks-Race-Tetrahedron-Mark1</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>1c5d0000-9f2f-4b29-a29e-e86d61b4ffff</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.778921328" lon="-178.893696890">
+    <time>2020-07-27T20:14:12Z</time>
+    <name>2A</name>
+    <sym>Marks-Race-Tetrahedron-Mark2</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>5828ffff-f9ed-4e79-96e6-1c6a0f390000</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.783473333" lon="-178.891376667">
+    <time>2020-07-27T20:16:16Z</time>
+    <name>Finish</name>
+    <sym>Marks-Race-Finish</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>63eaffff-c293-44b8-9896-91895a6bffff</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.784853333" lon="-178.891233333">
+    <time>2020-08-01T16:29:24Z</time>
+    <name>Start</name>
+    <sym>Marks-Race-Start</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>24d30000-ec5b-47c6-a436-2d9e11270000</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.784088333" lon="-178.893703333">
+    <time>2020-07-18T15:44:06Z</time>
+    <name>StartP</name>
+    <sym>Symbol-Diamond-Red</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>DashT_RaceStart_0001_STARTPORT</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:shared>1</opencpn:shared>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+  <wpt lat="50.784081667" lon="-178.881963333">
+    <time>2020-07-18T15:43:39Z</time>
+    <name>StartS</name>
+    <sym>Marks-Race-Committee-Start-Boat</sym>
+    <type>WPT</type>
+    <extensions>
+      <opencpn:guid>DashT_RaceStart_0001_STARTSTBD</opencpn:guid>
+      <opencpn:viz_name>1</opencpn:viz_name>
+      <opencpn:arrival_radius>0.050</opencpn:arrival_radius>
+      <opencpn:waypoint_range_rings visible="false" number="0" step="1" units="0" colour="#FF0000" />
+      <opencpn:scale_min_max UseScale="false" ScaleMin="2147483646" ScaleMax="0" />
+    </extensions>
+  </wpt>
+</gpx>
