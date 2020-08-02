@@ -37,8 +37,8 @@ using namespace std;
 
 #include <wx/version.h>
 
-#include "dashboard_pi.h"
 #include "RaceMark.h"
+#include "tactics_pi_ext.h"
 using namespace std::placeholders;
 
 #include "DashboardFunctions.h"
@@ -67,8 +67,9 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
     m_fullPathHTML = wxEmptyString;
     m_pconfig = GetOCPNConfigObject();
     m_dataRequestOn = false;
+    m_overlayPauseRequestOn = false;
     m_jsCallBackAsHeartBeat = false;
-    ClearRoutesAndWPs( true ); // mark coming from constructor...
+    ClearRoutesAndWPs( true ); // for constructor, do not delete objects.
 
     /*
       Subcscribe to some interesting data, for compatibility reasons
@@ -76,6 +77,10 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
       they are considered having passing first through OpenCPN. This way,
       this instrument can be used both with OpenCPN and Signal K with no
       modifications.
+      NOTE: We do not use, necessarily all the data, but for consistency
+            in development of Race-series instruments, we subcscribe in
+            those all to the same data. Anyway, they allow the instrument
+            to detect timeouts.
     */
     m_Twa = std::nan("1");
     m_fPushTwaHere = std::bind(
@@ -230,12 +235,13 @@ void DashboardInstrument_RaceMark::ClearRoutesAndWPs( bool ctor )
         delete m_previousWp;
     m_previousWp = nullptr;
     m_previousWpBearing = std::nan("1");
+    m_previousWpDistance = std::nan("1");
     m_targetWpName = wxEmptyString;
     m_targetWpGuid = wxEmptyString;
     if ( m_targetWp && !ctor )
         delete m_targetWp;
     m_targetWp = nullptr;
-    ClearNextAndNextNextWpsOnly();
+    ClearNextAndNextNextWpsOnly( ctor );
 }
 
 void DashboardInstrument_RaceMark::ClearNextAndNextNextWpsOnly( bool ctor )
@@ -245,6 +251,14 @@ void DashboardInstrument_RaceMark::ClearNextAndNextNextWpsOnly( bool ctor )
     if ( m_nextWp && !ctor )
         delete m_nextWp;
     m_nextWp = nullptr;
+    m_nextWpLegBearing = std::nan("1");
+    m_nextWpLegDistance = std::nan("1");
+    m_nextWpLegAvgTwa = std::nan("1");
+    m_nextWpLegShortAvgTwa = std::nan("1");
+    m_nextNextWpLegBearing = std::nan("1");
+    m_nextNextWpLegDistance = std::nan("1");
+    m_nextNextWpLegAvgTwa = std::nan("1");
+    m_nextNextWpLegShortAvgTwa = std::nan("1");
     m_nextNextWpName = wxEmptyString;
     m_nextNextWpGuid = wxEmptyString;
     if ( m_nextNextWp && !ctor )
@@ -278,13 +292,18 @@ bool DashboardInstrument_RaceMark::CheckRouteStillValid()
     std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin(
         m_raceAsRouteGuid );
     PlugIn_Route *selectedRouteAsRaceRouteStillThere = rte.get();
-    if ( selectedRouteAsRaceRouteStillThere )
+    if ( selectedRouteAsRaceRouteStillThere ) {
+        wxString activeRouteGUID = m_pparent->GetActiveRouteGUID();
+        if ( activeRouteGUID.IsEmpty() )
+            return false;
+        if ( selectedRouteAsRaceRouteStillThere->m_GUID != activeRouteGUID )
+            return false;
         return true;
+    } // then route is still there, is it active, or if it is, is the same?
     return false;
 }
 
-
-// It is the route manager not us who activate the next waypoint
+// It is the route manager not us who activates the next waypoint
 bool DashboardInstrument_RaceMark::CheckForActivatedWp()
 {
     wxString activatedWpGUID = m_pparent->GetWpActivatedGUID();
@@ -309,13 +328,65 @@ bool DashboardInstrument_RaceMark::CheckForActivatedWp()
     return true;
 }
 
+#define __UpdateActiveRtePtr__  if ( !(m_raceAsRoute) ) \
+        return false; \
+    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin( \
+        m_raceAsRouteGuid ); \
+    m_raceAsRoute = rte.get(); \
+    if ( !(m_raceAsRoute) ) \
+        return false;
+
+bool DashboardInstrument_RaceMark::UpdatePreviousWpFromNewTarget()
+{
+    __UpdateActiveRtePtr__
+
+    Plugin_WaypointList::iterator iter;
+    int targetPos = -1;
+    for ( iter = m_raceAsRoute->pWaypointList->begin();
+          iter != m_raceAsRoute->pWaypointList->end(); ++iter ) {
+
+        PlugIn_Waypoint *wpNode = *iter;
+        targetPos += 1;
+        if ( wpNode ) {
+            if ( wpNode->m_GUID == m_targetWpGuid ) {
+                if ( targetPos == 0 )
+                    return false;
+                --iter;
+                PlugIn_Waypoint *wpPrev = *iter;
+                if ( wpPrev ) { // this pointer we do not entirely trust
+                    m_previousWpGuid = wpPrev->m_GUID;
+                    std::unique_ptr<PlugIn_Waypoint> rte = GetWaypoint_Plugin(
+                        m_previousWpGuid );
+                    PlugIn_Waypoint *newWp = rte.get();
+                    if ( m_previousWp ) {
+                        delete m_previousWp;
+                        m_previousWp = nullptr;
+                    }
+                    if ( newWp ) {
+                        m_previousWp = new PlugIn_Waypoint();
+                        CopyPlugInWaypointWithoutHyperlinks( newWp, m_previousWp );
+                        m_previousWpName = m_previousWp->m_MarkName;
+                    } // then a valid "next" wp pointer
+                    else {
+                        m_previousWpName = wxEmptyString;
+                        m_previousWpGuid = wxEmptyString;
+                    } // else not a valid pointer do not continue
+                } // then there is a "next" waypoint
+                break;
+            } // then current target mark found
+        } // then valid waypoint node
+    } // for search the next waypoint from the route waypoint list container
+    return true;
+}
+
 // Poll for a change in the active waypoint, being moved to next by route mgr.
 int DashboardInstrument_RaceMark::PollForNextActiveRouteWp()
 {
     /*
       Note: one needs to use Name, not GUID for "Arrived" WP, see dashboard_pi,
       which contains the reverse engineered interpretation of routemanp.cpp
-      (of O) messages.
+      (of O) messages. There is an issue with GUID overrwriting: in O <= v5.2
+      the  arrived wp's GUID is overwritten by the next wp's GUID.
     */
     wxString arrivedWpName = m_pparent->GetWpArrivedName();
     if ( arrivedWpName.IsEmpty() )
@@ -324,23 +395,33 @@ int DashboardInstrument_RaceMark::PollForNextActiveRouteWp()
         wxString arrivedNextWpName = m_pparent->GetWpArrivedNextName();
         if ( arrivedNextWpName.IsEmpty() )
             return -1;
+        if ( arrivedNextWpName == m_targetWpName )
+            return 0; // wrong alert or maybe the message is not complete
         return 1;
     } // then we have reached the next mark
     else {
-        return 0;
-    } // else require that we turn around marks in right order
+        if ( arrivedWpName == m_previousWpName )
+            return 0;
+        return 2;
+    } /*  else, in polling by name, set by an event, we get the previous
+          waypoint as arrived, until we arrive to the next target point */
 }
 
 // Reorganize the waypoints upon arrival to the mark
 bool DashboardInstrument_RaceMark::ChangeToNextTargetMark()
 {
+    wxString arrivedNextGUID = m_pparent->GetWpArrivedNextGUID();
+    if ( arrivedNextGUID == m_targetWpGuid )
+        return false;
+    
     // previous mark
-    m_previousWpName    = m_targetWpName;
-    m_previousWpGuid    = m_targetWpGuid;
-    m_previousWp        = m_targetWp;
-    m_previousWpBearing = std::nan("1");
+    m_previousWpName     = m_targetWpName;
+    m_previousWpGuid     = m_targetWpGuid;
+    m_previousWp         = m_targetWp;
+    m_previousWpBearing  = std::nan("1");
+    m_previousWpDistance = std::nan("1");
     // new target
-    m_targetWpGuid = m_pparent->GetWpArrivedNextGUID();
+    m_targetWpGuid = arrivedNextGUID;
     std::unique_ptr<PlugIn_Waypoint> wpt = GetWaypoint_Plugin(
         m_targetWpGuid );
     PlugIn_Waypoint *newWp = wpt.get();
@@ -357,48 +438,65 @@ bool DashboardInstrument_RaceMark::ChangeToNextTargetMark()
     return true;
 }
 
-// Analyze the route a bit further and update the next and the "next next" legs
-void  DashboardInstrument_RaceMark::ChangeNextAndNextNextMarks()
+bool DashboardInstrument_RaceMark::CalculateBearingFromNewTargetToPreviousMark()
 {
-    if ( !(m_raceAsRoute) )
-        return; // then abandon if an active routing has not been found yet
-    // find the active route again, in a local copy, keep marker updated
-    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin(
-        m_raceAsRouteGuid );
-    m_raceAsRoute = rte.get();
-    if ( !(m_raceAsRoute) )
-        return ; // then, meanwhile, the route has disappeared?
+    if ( !(m_previousWp) || !(m_targetWp) )
+        return false;
+    DistanceBearingMercator_Plugin(
+        m_previousWp->m_lat, m_previousWp->m_lon, // "to"
+        m_targetWp->m_lat, m_targetWp->m_lon, // "from"
+        &m_previousWpBearing, &m_previousWpDistance ); // result
+    return true;
+}
+
+// Analyze the route a bit further and update the next and the "next next" legs
+bool  DashboardInstrument_RaceMark::ChangeNextAndNextNextMarks()
+{
+    __UpdateActiveRtePtr__
 
     ClearNextAndNextNextWpsOnly();
+    int maxIdxWaypoints = ( m_raceAsRoute->pWaypointList->GetCount() - 1 );
+    int idxWaypoint = -1;
     Plugin_WaypointList::iterator iter;
     for ( iter = m_raceAsRoute->pWaypointList->begin();
           iter != m_raceAsRoute->pWaypointList->end(); ++iter ) {
 
+        idxWaypoint++;
         PlugIn_Waypoint *wpNode = *iter;
         if ( wpNode ) {
             if ( wpNode->m_GUID == m_targetWpGuid ) {
+                if ( idxWaypoint >= maxIdxWaypoints )
+                    break;
                 ++iter;
+                idxWaypoint++;
                 PlugIn_Waypoint *wpNext = *iter;
                 if ( wpNext ) { // this pointer we do not entirely trust
                     m_nextWpGuid = wpNext->m_GUID;
                     std::unique_ptr<PlugIn_Waypoint> rte = GetWaypoint_Plugin(
                         m_nextWpGuid );
                     PlugIn_Waypoint *newWp = rte.get();
-                    if ( m_nextWp )
+                    if ( m_nextWp ) {
                         delete m_nextWp;
+                        m_nextWp =  nullptr;
+                    }
                     if ( newWp ) {
                         m_nextWp = new PlugIn_Waypoint();
                         CopyPlugInWaypointWithoutHyperlinks( newWp, m_nextWp );
                         m_nextWpName = m_nextWp->m_MarkName;
+                        if ( idxWaypoint >= maxIdxWaypoints )
+                            break;
                         ++iter;
+                        idxWaypoint++;
                         PlugIn_Waypoint *wpNextNext = *iter;
                         if ( wpNextNext ) {
                             m_nextNextWpGuid = wpNextNext->m_GUID;
                             std::unique_ptr<PlugIn_Waypoint> rte =
                                 GetWaypoint_Plugin( m_nextNextWpGuid );
                             newWp = rte.get();
-                            if ( m_nextNextWp )
+                            if ( m_nextNextWp ) {
                                 delete m_nextNextWp;
+                                m_nextNextWp = nullptr;
+                            }
                             if ( newWp ) {
                                 m_nextNextWp = new PlugIn_Waypoint();
                                 CopyPlugInWaypointWithoutHyperlinks(
@@ -420,6 +518,39 @@ void  DashboardInstrument_RaceMark::ChangeNextAndNextNextMarks()
             } // then current target mark found
         } // then valid waypoint node
     } // for search the next waypoint from the route waypoint list container
+    return true;
+}
+
+bool  DashboardInstrument_RaceMark::PeekTwaOnNextAndNextNextLegs()
+{
+    if ( !(m_targetWp) || !(m_nextWp) )
+        return false;
+    DistanceBearingMercator_Plugin(
+        m_nextWp->m_lat, m_nextWp->m_lon, // "to"
+        m_targetWp->m_lat, m_targetWp->m_lon, // "from"
+        &m_nextWpLegBearing, &m_nextWpLegDistance ); // result
+    if ( !(AverageWind) )
+        return false;
+    double avgWindDir = AverageWind->GetAvgWindDir();
+    m_nextWpLegAvgTwa = getDegRange(
+        m_nextWpLegBearing, avgWindDir );
+    double avgShortWindDir = AverageWind->GetShortAvgWindDir();
+    m_nextWpLegShortAvgTwa = getDegRange(
+        m_nextWpLegBearing, avgShortWindDir );
+
+    if ( !(m_nextNextWp) )
+        return true;
+    
+     DistanceBearingMercator_Plugin(
+        m_nextNextWp->m_lat, m_nextNextWp->m_lon, // "to"
+        m_nextWp->m_lat, m_nextWp->m_lon, // "from"
+        &m_nextNextWpLegBearing, &m_nextNextWpLegDistance ); // result
+    m_nextNextWpLegAvgTwa = getDegRange(
+        m_nextNextWpLegBearing, avgWindDir );
+    m_nextNextWpLegShortAvgTwa = getDegRange(
+        m_nextNextWpLegBearing, avgShortWindDir );
+
+    return true;
 }
 
 // The race is a route and can be killed in route manager of OpenCPN
@@ -479,20 +610,26 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
         } // then a route has disappeared, meanwhile
         else {
             if ( !(m_targetWp) ) {
-                CheckForActivatedWp();
+                if ( CheckForActivatedWp() ) {
+                    (void) UpdatePreviousWpFromNewTarget();
+                    (void) CalculateBearingFromNewTargetToPreviousMark();
+                } // then there is a new active waypoint
             } // then we do not have yet the next mark as target
             if ( m_targetWp ) {
+                (void) PeekTwaOnNextAndNextNextLegs(); // keep updating
                 if ( !CheckWpStillValid( m_targetWpGuid ) ) {
                     ClearRoutesAndWPs();
                 } // then the waypoint we thing as next target has disappeared
                 int targetArrivalStatus = PollForNextActiveRouteWp();
                 if ( targetArrivalStatus < 0 ) {
                     ClearRoutesAndWPs();
-                } // then arrived or an issue with the arrival to the mark
+                } // then arrived to the end (or an issue with the arrival)
                 else {
                     if ( targetArrivalStatus > 0 ) {
                         if ( ChangeToNextTargetMark() ) {
-                            ChangeNextAndNextNextMarks();
+                            (void) CalculateBearingFromNewTargetToPreviousMark();
+                            (void) ChangeNextAndNextNextMarks();
+                            (void) PeekTwaOnNextAndNextNextLegs();
                         } // then successfull change to the next target mark
                         else {
                             ClearRoutesAndWPs();
@@ -502,10 +639,16 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
                                 "timer thread - Error: "
                                 "routing status reports inconsistency in arrived / "
                                 "next route WP GUIDs/names - please report details "
-                                "of your route." );
+                                "of your route and at which point things went wrong. "
+                                "Please check also that all your race waypoints "
+                                "do have a unique name: unique GUIDs cannot be used "
+                                "for detection of an arrived waypoint as for now "
+                                "due to an issue in OpenCPN <= v5.2 (at least)"
+                                );
                             wxString message(
-                                _("Sorry, cannot determine what is the next mark") +
-                                "\n" + _("Check that all waypoints have a name.") );
+                                _("Sorry, cannot determine what is the next mark.") +
+                                "\n" +
+                                _("Check that all waypoints have a unique name.") );
                             wxMessageDialog *dlg = new wxMessageDialog(
                                 GetOCPNCanvasWindow(), message,
                                 _T("DashT Race Mark"), wxOK|wxICON_ERROR);
@@ -542,7 +685,9 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
              to be loaded */
         else {
             m_goodHttpServerDetects = 0;
-            m_pThreadRaceMarkTimer->Start( GetRandomNumber( 8000,11000 ),
+            // m_pThreadRaceMarkTimer->Start( GetRandomNumber( 8000,11000 ),
+            //                                 wxTIMER_CONTINUOUS);
+            m_pThreadRaceMarkTimer->Start( GetRandomNumber( 800,1100 ),
                                             wxTIMER_CONTINUOUS);
         }  // else need to wait until a server appears
     } // then there is not page loaded keep on trying
@@ -596,7 +741,41 @@ bool DashboardInstrument_RaceMark::LoadConfig()
     }
 
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceMark/") );
-       
+
+    pConf->Read( _T("LaylineWidth"), &m_renLaylineWidth,
+                 RACEMARK_RUNGLINE_WIDTH );
+    m_renDrawLaylines = true;
+    if ( m_renLaylineWidth <= 0 ) {
+        m_renLaylineWidth = 0;
+        m_renDrawLaylines = false;
+    }
+    pConf->Read( _T("RungStep"), &m_renRungStep, RACEMARK_LADDER_RUNG_STEP );
+    m_renRungStep = abs(m_renRungStep);
+    if ( m_renRungStep < RACEMARK_LADDER_RUNG_STEP_MINIMUM )
+        m_renRungStep = RACEMARK_LADDER_RUNG_STEP_MINIMUM;
+    pConf->Read( _T("RungLineWidth"), &m_renRungLineWidth,
+                 RACEMARK_RUNGLINE_WIDTH );
+    if ( m_renRungLineWidth < 0 )
+        m_renRungLineWidth = 0;
+    m_renDrawRungs = true;
+    if ( m_renRungLineWidth == 0 )
+        m_renDrawRungs = false;
+    pConf->Read( _T("AvgWindLineWidth"), &m_renAvgWindLineWidth,
+                 RACEMARK_AVGWINDLINE_WIDTH );
+    if ( m_renAvgWindLineWidth < 0 )
+        m_renAvgWindLineWidth = 0;
+    m_renDrawAvgWind = true;
+    if ( m_renAvgWindLineWidth == 0 )
+        m_renDrawAvgWind = false;
+    pConf->Read( _T("ShortAvgWindRungLineWidth"), &m_renShortAvgWindRungLineWidth,
+                 RACEMARK_SHORTAVGWINDRUNGLINE_WIDTH );
+    if ( m_renShortAvgWindRungLineWidth < 0 )
+        m_renShortAvgWindRungLineWidth = 0;
+    m_renDrawShortAvgWindRungs = true;
+    if ( m_renShortAvgWindRungLineWidth == 0 )
+        m_renDrawShortAvgWindRungs = false;
+
+    
     return true;
 }
 
@@ -610,6 +789,12 @@ void DashboardInstrument_RaceMark::SaveConfig()
     pConf->SetPath(_T("/PlugIns/DashT/WebView/RaceMark/"));
     pConf->Write(_T("instrujsURL"), m_fullPathHTML );
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceMark/") );
-    
+    pConf->Write( _T("LaylineWidth"), m_renLaylineWidth );
+    pConf->Write( _T("RungStep"), m_renRungStep ); 
+    pConf->Write( _T("RungLineWidth"), m_renRungLineWidth ); 
+    pConf->Write( _T("AvgWindLineWidth"), m_renAvgWindLineWidth );
+    pConf->Write( _T("ShortAvgWindRungLineWidth"),
+                  m_renShortAvgWindRungLineWidth );
+
     return;
 }

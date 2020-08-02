@@ -72,6 +72,13 @@
 
 #define RACEMARK_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server
 
+// These values for first time start only
+#define RACEMARK_RUNGLINE_WIDTH 2 // pen width
+#define RACEMARK_LADDER_RUNG_STEP 0.053996 // 100 meters in nautical mile
+#define RACEMARK_LADDER_RUNG_STEP_MINIMUM 0.00486 // 9 meters in nautical miles
+#define RACEMARK_AVGWINDLINE_WIDTH 3 // pen width
+#define RACEMARK_SHORTAVGWINDRUNGLINE_WIDTH 1 // pen width
+
 //+------------------------------------------------------------------------
 //|
 //| CLASS:
@@ -99,9 +106,12 @@ public:
     bool CheckForValidActiveRoute(void);
     bool CheckRouteStillValid(void);
     bool CheckForActivatedWp(void);
+    bool UpdatePreviousWpFromNewTarget(void);
     int  PollForNextActiveRouteWp(void);
     bool ChangeToNextTargetMark(void);
-    void ChangeNextAndNextNextMarks(void);
+    bool CalculateBearingFromNewTargetToPreviousMark(void);
+    bool ChangeNextAndNextNextMarks(void);
+    bool PeekTwaOnNextAndNextNextLegs(void);
     bool CheckWpStillValid( wxString sGUID );
 
     virtual bool instruIsReady(void) override;
@@ -137,24 +147,70 @@ protected:
     wxString             m_httpServer;
     wxString             m_raceAsRouteGuid;
     wxString             m_raceAsRouteName;
-    PlugIn_Route        *m_raceAsRoute; // per method ptr, non-NAN = a route exists
+    PlugIn_Route        *m_raceAsRoute; // per method ptr, tells a route exists
     wxString             m_targetWpName;
     wxString             m_targetWpGuid;
     PlugIn_Waypoint     *m_targetWp;
     wxString             m_previousWpName;
     wxString             m_previousWpGuid;
     PlugIn_Waypoint     *m_previousWp;
-    double               m_previousWpBearing;
+    double               m_previousWpBearing; // note: from target to previous
+    double               m_previousWpDistance;
     wxString             m_nextWpName;
     wxString             m_nextWpGuid;
     PlugIn_Waypoint     *m_nextWp;
+    double               m_nextWpLegBearing;
+    double               m_nextWpLegDistance;
+    double               m_nextWpLegAvgTwa;
+    double               m_nextWpLegShortAvgTwa;
     wxString             m_nextNextWpName;
     wxString             m_nextNextWpGuid;
     PlugIn_Waypoint     *m_nextNextWp;
+    double               m_nextNextWpLegBearing;
+    double               m_nextNextWpLegDistance;
+    double               m_nextNextWpLegAvgTwa;
+    double               m_nextNextWpLegShortAvgTwa;
     bool                 m_dataRequestOn;
+    bool                 m_overlayPauseRequestOn;
     bool                 m_jsCallBackAsHeartBeat;
     glRendererFunction   m_rendererIsHere;
     wxString             m_rendererCallbackUUID;
+
+    bool                 m_renDrawLaylines;
+    int                  m_renLaylineWidth;
+    bool                 m_renDrawRungs;
+    int                  m_renRungLineWidth;
+    double               m_renRungStep;
+    bool                 m_renDrawAvgWind;
+    int                  m_renAvgWindLineWidth;
+    bool                 m_renDrawShortAvgWindRungs;
+    int                  m_renShortAvgWindRungLineWidth;
+    double               m_renAvgWindDir;
+    double               m_renAvgWindDirWindward;
+    double               m_renShortAvgWindDir;
+    double               m_renShortAvgWindDirWindward;
+    double               m_renTargetPoint_lat;
+    double               m_renTargetPoint_lon;
+    wxPoint              m_renTargetPoint;
+    wxPoint              m_renAvgWindLineEndPoint;
+    wxPoint              m_renShortAvgWindLineEndPoint;
+    double               m_renAvgWindRightPlaneDir;
+    double               m_renShortAvgWindRightPlaneDir;
+    double               m_renAvgWindLeftPlaneDir;
+    double               m_renShortAvgWindLeftPlaneDir;
+    double               m_renLLlen;
+    double               m_renLLStbdDir;
+    wxPoint              m_renLLStbdEndPoint;
+    double               m_renShortLLStbdDir;
+    wxPoint              m_renShortLLStbdEndPoint;
+    double               m_renLLPortDir;
+    wxPoint              m_renLLPortEndPoint;
+    double               m_renShortLLPortDir;
+    wxPoint              m_renShortLLPortEndPoint;
+    wxPoint              m_renShortAvgWindLeftCrossPoint;
+    wxPoint              m_renShortAvgWindRightCrossPoint;
+    bool                 m_renWindwardLeg;
+    bool                 m_renReachingLeg;
     
     callbackFunction     m_fPushLonHere;
     wxString             m_fPushLonUUID;
@@ -183,6 +239,15 @@ protected:
     bool LoadConfig(void);
     void SaveConfig(void);
     bool IsAllMeasurementDataValid(void);
+    bool WindRenderingConditions(void);
+    void RenderGLAvgWindToWp( wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLLaylinesOnTargetWp(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLAvgWindLadderRungs(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp );
+    void RenderGLShortAvgWindLadderRungs(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp );
+
 };
 
 #endif // __RACEMARK_H__
