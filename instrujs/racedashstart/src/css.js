@@ -17,33 +17,12 @@ export function getNewLuminosity( that ) {
 
         that.luminosity  = newluminosity
 
-        // var newclass = 'instrument ' + newluminosity
-        // var elem = document.getElementById('instrument')
-        // var oldclass = elem.className
-        // if ( !(newclass === oldclass) )
-        //     elem.className = newclass
-        //
-        // if ( hasProportionalFontSupport() )
-        //     newclass = 'skpath propl ' + newluminosity
-        // else
-        //     newclass = 'skpath fixed ' + newluminosity
-        // elem = document.getElementById('skPath')
-        // oldclass = elem.className
-        // if ( !(newclass === oldclass) )
-        //     elem.className = newclass
-        //
-        // if ( hasProportionalFontSupport() )
-        //     newclass = 'numchart propl ' + newluminosity
-        // else
-        //     newclass = 'numchart fixed ' + newluminosity
-        // elem = document.getElementById('cTpVal') // see chart.js tooltip tmpl.
-        // if ( !(elem === null) )  {
-        //     oldclass = elem.className
-        //     if ( !(newclass === oldclass) )
-        //         elem.className = newclass
-        // }
-        //
-        // document.getElementById('bottom').className = 'bottom ' + that.luminosity
+        var newclass = 'instrument ' + newluminosity
+        var elem = document.getElementById('instrument')
+        var oldclass = elem.className
+        if ( !(newclass === oldclass) )
+            elem.className = newclass
+        document.getElementById('bottom').className = 'bottom ' + that.luminosity
     }
     return
 }
