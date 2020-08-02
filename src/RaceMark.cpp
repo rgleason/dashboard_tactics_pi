@@ -486,7 +486,7 @@ bool  DashboardInstrument_RaceMark::ChangeNextAndNextNextMarks()
                         if ( idxWaypoint >= maxIdxWaypoints )
                             break;
                         ++iter;
-                        idxWaypoint++;
+                        // idxWaypoint++; // yes, codacy, I know it is useless!
                         PlugIn_Waypoint *wpNextNext = *iter;
                         if ( wpNextNext ) {
                             m_nextNextWpGuid = wpNextNext->m_GUID;
