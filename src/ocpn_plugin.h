@@ -616,28 +616,11 @@ WX_DECLARE_LIST(Plugin_Hyperlink, Plugin_HyperlinkList);
 class DECL_EXP PlugIn_Waypoint
 {
 public:
-#ifdef __DOCTEST__
-     PlugIn_Waypoint() {};
-     PlugIn_Waypoint(double lat, double lon,
-                const wxString& icon_ident, const wxString& wp_name,
-                const wxString& GUID = _T("") ) {
-         m_lat = lat;
-         m_lon = lon;
-         m_IconName = icon_ident;
-         m_MarkName = wp_name;
-         m_GUID = GUID;
-         m_MarkDescription = wxEmptyString;
-         m_CreateTime = wxDateTime::Now();
-         m_IsVisible = true;
-         m_HyperlinkList = nullptr;
-     }
-#else
     PlugIn_Waypoint();
     PlugIn_Waypoint(double lat, double lon,
                     const wxString& icon_ident, const wxString& wp_name,
                     const wxString& GUID = _T("") );
-#endif // __DOCTEST__
-~PlugIn_Waypoint();
+    ~PlugIn_Waypoint();
 
     double             m_lat;
     double             m_lon;

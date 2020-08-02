@@ -97,6 +97,24 @@ TEST_CASE( "Temperature unit conversion" ) {
         CHECK( tempValue == tempRefValue );
     }
 }
+/*
+  In order not to require opencpn-executable being actually tested (it could
+  take some...), emulate here a few of its pluginmanger.cpp constructors.
+*/
+PlugIn_Waypoint::PlugIn_Waypoint() {};
+PlugIn_Waypoint::PlugIn_Waypoint(double lat, double lon,
+                const wxString& icon_ident, const wxString& wp_name,
+                const wxString& GUID) {
+    m_lat = lat;
+    m_lon = lon;
+    m_IconName = icon_ident;
+    m_MarkName = wp_name;
+    m_GUID = GUID;
+    m_MarkDescription = wxEmptyString;
+    m_CreateTime = wxDateTime::Now();
+    m_IsVisible = true;
+    m_HyperlinkList = nullptr;
+}
 TEST_CASE( "PlugIn_Waypoint object copy" ) {
     double lat = 35.244;
     double lon = -129.99;
