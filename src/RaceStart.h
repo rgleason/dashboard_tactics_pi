@@ -83,9 +83,10 @@
 #define RACESTART_NAME_WP_STARTPORT_USER "MyStartP"
 
 // These values for first time start only
-#define RACESTART_LAYL_LINE_WIDTH 3 // pen width
+#define RACESTART_LAYLINE_WIDTH 3 // pen width
 #define RACESTART_GRID_SIZE 1. // in nautical miles
 #define RACESTART_GRID_STEP 0.026998 // 50 meters in nautical miles
+#define RACESTART_GRID_STEP_MINIMUM 0.00486 // 9 meters in nautical miles
 #define RACESTART_GRID_BOLD_INTERVAL 2 // 1 all bold, 2 every 2nd bold, etc.
 #define RACESTART_GRID_LINE_WIDTH 1 // pen width
 #define RACESTART_ZERO_BURN_BY_POLAR_SECONDS 60

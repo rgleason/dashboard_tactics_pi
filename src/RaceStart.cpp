@@ -670,7 +670,7 @@ bool DashboardInstrument_RaceStart::LoadConfig()
 
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
     pConf->Read( _T("LaylineWidth"), &m_renLaylineWidth,
-                 RACESTART_LAYL_LINE_WIDTH );
+                 RACESTART_LAYLINE_WIDTH );
     m_renDrawLaylines = true;
     if ( m_renLaylineWidth <= 0 ) {
         m_renLaylineWidth = 0;
@@ -682,8 +682,8 @@ bool DashboardInstrument_RaceStart::LoadConfig()
         m_renGridSize = RACESTART_GRID_SIZE;
     pConf->Read( _T("GridStep"), &m_renGridStep, RACESTART_GRID_STEP );
     m_renGridStep = abs(m_renGridStep);
-    if ( m_renGridStep == 0. )
-        m_renGridStep = RACESTART_GRID_STEP;
+    if ( m_renGridStep < RACESTART_GRID_STEP_MINIMUM )
+        m_renGridStep = RACESTART_GRID_STEP_MINIMUM;
     pConf->Read( _T("GridLineWidth"), &m_renGridLineWidth,
                  RACESTART_GRID_LINE_WIDTH );
     if ( m_renGridLineWidth < 0 )
