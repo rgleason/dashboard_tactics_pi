@@ -2031,6 +2031,9 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
     else if ( message_id == _T("OCPN_RTE_DEACTIVATED") ) {
         ClearActiveRouteMessages();
     }
+    else if ( message_id == _T("OCPN_RTE_ENDED") ) {
+        ClearActiveRouteMessages();
+    }
     else if ( message_id == _T("OCPN_WPT_ACTIVATED") ) {
         mWpActivatedName = root[_T("WP_activated")].AsString();
         mWpActivatedGUID = root[_T("GUID")].AsString();
@@ -2041,7 +2044,8 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
             mWpArrivedName = root[_T("WP_arrived")].AsString();
             if ( root.HasMember("Next_WP") ) {
                 mWpArrivedGUID = wxEmptyString;
-            } // then the GUID of the arrived WP will be overwritten, clear it
+            } /* then the GUID of the arrived WP will be overwritten(!),
+                 in O <= v5.2 - OK, clear it. */
             else {
                 mWpArrivedGUID = root[_T("GUID")].AsString();
             } // else the GUID of the arrived WP will not be overwritten
@@ -2050,6 +2054,10 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
             mWpArrivedNextName = root[_T("Next_WP")].AsString();
             mWpArrivedNextGUID = root[_T("GUID")].AsString();
         } // then there is next waypoint on the route
+        else {
+            mWpArrivedNextName = wxEmptyString;
+            mWpArrivedNextGUID = wxEmptyString;
+        }
     }
     else if ( message_id == _T("OpenCPN Config") ) {
         int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;
