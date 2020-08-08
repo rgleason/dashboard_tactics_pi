@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- developer's section, see ../docs/webview/developers, comment out for production -->
+        <!-- script src="http://192.168.8.103:8081/target/target-script-min.js#anonymous"></script -->
+        <!-- end of the developer section -->
+        <script src='../lang.js'></script>
+        <script src='../common.min.js'></script>
+        <script src='../confstat.js'></script>
+    <link href="bundle.css" rel="stylesheet"></head>
+    <!-- 315x1159px -->
+    <body id="instrument" class="instrument day">
+            <div id="rowUpper" class="row">
+                <div id="grdUpperLeft" class="col-sm-6">
+                    <div id="pnlMsgClock" class="panel panel-primary day">
+                        <div id="pnlMsgHeader" class="panel-heading text-center day">
+                            DashT Race Mark
+                        </div>
+                        <div id="pnlMsgBody" class="panel-body text-center day">
+                            Loading...
+                        </div>
+                    </div>
+                <div id="grdUpperRight" class="col-sm-6">
+                </div>
+            </div>
+            <div id="rowLower" class="row">
+                <div id="grdTable" class="col-sm-12">
+                    <table class="table table-bordered table-hover day">
+                        <thead>
+                            <tr>
+                              <th rowspan="2" class="success text-center">Leg</th>
+                              <th rowspan="2" class="info text-center">TWA</th>
+                              <th colspan="2" class="info text-center">TWA avg.</th>
+                              <th rowspan="2" class="info text-center">Current</th>
+                            </tr>
+                            <tr>
+                              <th class="info text-center">short</th>
+                              <th class="info text-center">long</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="success text-center">This</td>
+                              <td class="active text-center">45.5</td>
+                              <td class="active text-center">46.7</td>
+                              <td class="active text-center">48.7</td>
+                              <td class="active text-center">13.7</td>
+                            </tr>
+                            <tr>
+                                <td class="success text-center">Next</td>
+                                <td class="active text-center">55.5</td>
+                                <td class="active text-center">56.7</td>
+                                <td class="active text-center">58.7</td>
+                                <td class="active text-center">22.7</td>
+                            </tr>
+                            <tr>
+                                <td class="success text-center">Next + 1</td>
+                                <td class="active text-center">105.5</td>
+                                <td class="active text-center">106.7</td>
+                                <td class="active text-center">107.7</td>
+                                <td class="active text-center">-18.7</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                </div>
+            </div>
+        </div>
+        <div id="bottom" class="bottom day"></div>
+  <script type="text/javascript" src="bundle.js"></script></body>
+</html>
