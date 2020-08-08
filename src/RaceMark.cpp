@@ -77,10 +77,6 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
       they are considered having passing first through OpenCPN. This way,
       this instrument can be used both with OpenCPN and Signal K with no
       modifications.
-      NOTE: We do not use, necessarily all the data, but for consistency
-            in development of Race-series instruments, we subcscribe in
-            those all to the same data. Anyway, they allow the instrument
-            to detect timeouts.
     */
     m_Twa = std::nan("1");
     m_fPushTwaHere = std::bind(
@@ -92,11 +88,16 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
         &DashboardInstrument_RaceMark::PushTwsHere, this, _1, _2, _3 );
     m_fPushTwsUUID = m_pparent->subscribeTo (
         _T("OCPN_DBP_STC_TWS"), m_fPushTwsHere );
-    m_Cog = std::nan("1");
+    m_Cur = std::nan("1");
     m_fPushCogHere = std::bind(
         &DashboardInstrument_RaceMark::PushCogHere, this, _1, _2, _3 );
     m_fPushCogUUID = m_pparent->subscribeTo (
         _T("OCPN_DBP_STC_COG"), m_fPushCogHere );
+    m_Cur = std::nan("1");
+    m_fPushCurHere = std::bind(
+        &DashboardInstrument_RaceMark::PushCurHere, this, _1, _2, _3 );
+    m_fPushCurUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_CURRSPD"), m_fPushCurHere );
     m_Lat = std::nan("1");
     m_fPushLatHere = std::bind(
         &DashboardInstrument_RaceMark::PushLatHere, this, _1, _2, _3 );
@@ -139,6 +140,8 @@ DashboardInstrument_RaceMark::~DashboardInstrument_RaceMark(void)
         this->m_pparent->unsubscribeFrom( m_fPushTwsUUID );
     if ( !this->m_fPushCogUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushCogUUID );
+    if ( !this->m_fPushCurUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushCurUUID );
     if ( !this->m_fPushLatUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushLatUUID ); 
     if ( !this->m_fPushLonUUID.IsEmpty() )
@@ -163,6 +166,9 @@ void DashboardInstrument_RaceMark::OnClose( wxCloseEvent &event )
     if ( !this->m_fPushCogUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushCogUUID );
     this->m_fPushCogUUID = wxEmptyString;
+    if ( !this->m_fPushCurUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushCurUUID );
+    this->m_fPushCurUUID = wxEmptyString;
     if ( !this->m_fPushLatUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushLatUUID );
     this->m_fPushLatUUID = wxEmptyString;
@@ -175,7 +181,7 @@ void DashboardInstrument_RaceMark::derivedTimeoutEvent()
     m_data = L"0.0";
     m_Lon = std::nan("1");
     m_Lat = std::nan("1");
-    m_Cog = std::nan("1");
+    m_Cur = std::nan("1");
     m_Tws = std::nan("1");
     m_Twa = std::nan("1");
     derived2TimeoutEvent();
@@ -183,8 +189,8 @@ void DashboardInstrument_RaceMark::derivedTimeoutEvent()
 
 bool DashboardInstrument_RaceMark::IsAllMeasurementDataValid()
 {
-    if ( !std::isnan(m_Lat) && !std::isnan(m_Lon) &&
-         !std::isnan(m_Tws) && !std::isnan(m_Twa) && !std::isnan(m_Cog) )
+    if ( !std::isnan(m_Lat) && !std::isnan(m_Lon) && !std::isnan(m_Cog) &&
+         !std::isnan(m_Tws) && !std::isnan(m_Twa) && !std::isnan(m_Cur) )
         return true;
     return false;
 }
@@ -210,6 +216,12 @@ void DashboardInstrument_RaceMark::PushCogHere(
     double data, wxString unit, long long timestamp)
 {
     __RACEMARK_CHECK_DATA__(Cog)
+}
+
+void DashboardInstrument_RaceMark::PushCurHere(
+    double data, wxString unit, long long timestamp)
+{
+    __RACEMARK_CHECK_DATA__(Cur)
 }
 
 void DashboardInstrument_RaceMark::PushLatHere(
@@ -685,9 +697,7 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
              to be loaded */
         else {
             m_goodHttpServerDetects = 0;
-            // m_pThreadRaceMarkTimer->Start( GetRandomNumber( 8000,11000 ),
-            //                                 wxTIMER_CONTINUOUS);
-            m_pThreadRaceMarkTimer->Start( GetRandomNumber( 800,1100 ),
+            m_pThreadRaceMarkTimer->Start( GetRandomNumber( 8000,11000 ),
                                             wxTIMER_CONTINUOUS);
         }  // else need to wait until a server appears
     } // then there is not page loaded keep on trying

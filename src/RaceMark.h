@@ -131,6 +131,8 @@ public:
         double data, wxString unit, long long timestamp=0LL);
     virtual void PushCogHere(
         double data, wxString unit, long long timestamp=0LL);
+    virtual void PushCurHere(
+        double data, wxString unit, long long timestamp=0LL);
     virtual void PushLatHere(
         double data, wxString unit, long long timestamp=0LL);
     virtual void PushLonHere(
@@ -221,6 +223,9 @@ protected:
     callbackFunction     m_fPushCogHere;
     wxString             m_fPushCogUUID;
     double               m_Cog;
+    callbackFunction     m_fPushCurHere;
+    wxString             m_fPushCurUUID;
+    double               m_Cur;
     callbackFunction     m_fPushTwsHere;
     wxString             m_fPushTwsUUID;
     double               m_Tws;
