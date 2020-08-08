@@ -4,7 +4,7 @@ Fixes #
 
 _Briefly describe your proposed changes:_
 
-## Checklist (put X when sure, otherwise leave open
+## Checklist (change to [X] when sure)
 
   - [ ] You are committing a branch which starts with a 'pr', such as 'pr151', 'pr200'
   - [ ] A test has been added if appropriate
