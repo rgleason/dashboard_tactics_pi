@@ -80,11 +80,35 @@ enum instruDataSource { // can be an OR of the below for multiple sources
 enum incomingSources { // single data items, derived class calculated items, etc.
     JSI_IS_UNDEFINED,
     JSI_IS_INSTRUJS_DATA_SUBSCRIPTION,
-    JSI_IS_RACESTART_STARTLINE
+    JSI_IS_RACESTART_STARTLINE,
+    JSI_IS_RACESTART_MARK
 };
 
 #define JSI_GETALL_GRACETIME    8 // ticks (roughly = seconds)
 #define JSI_GETALLDB_GRACETIME 16 // ticks (roughly = seconds)
+
+class raceRouteJSData
+{
+public:
+    wxString hasActiveRoute;
+    wxString instruIsReady;
+    wxString mark1Name;
+    wxString mark2Name;
+    wxString mark3Name;
+    wxString thisLegTwa;
+    wxString thisLegTwaShortAvg;
+    wxString thisLegTwaAvg;
+    wxString thisLegCurrent;
+    wxString nextLegTwa;
+    wxString nextLegTwaShortAvg;
+    wxString nextLegTwaAvg;
+    wxString nextLegCurrent;
+    wxString nextNextLegTwa;
+    wxString nextNextLegTwaShortAvg;
+    wxString nextNextLegTwaAvg;
+    wxString nextNextLegCurrent;
+    wxString bearingBack;
+};
 
 //+------------------------------------------------------------------------------
 //|
@@ -124,6 +148,8 @@ public:
 #endif // __DERIVEDTIMEOUTJS_OVERRIDE__
 
     virtual bool instruIsReady(void){ return false; };
+    virtual bool hideChartOverlay(void){ return true; };
+    virtual bool showChartOverlay(void){ return false; };
     virtual bool userHasStartline(void){ return false; };
     virtual bool dropStarboardMark(void){ return false; };
     virtual bool dropPortMark(void){ return false; };
@@ -137,15 +163,8 @@ public:
     virtual bool userHasActiveRoute(void){ return false; };
     virtual bool sendRmData(void){ return false; };
     virtual bool stopRmData(void){ return true; };
-    virtual void getRmData(
-        wxString& nextLegTwaAvg, wxString& nextLegTwaShortAvg,
-        wxString& nextNextLegTwaAvg, wxString& nextNextLegTwaShortAvg ) {
-        nextLegTwaAvg = _T("-999.0");
-        nextLegTwaShortAvg = _T("-999.0");
-        nextNextLegTwaAvg = _T("-999.0");
-        nextNextLegTwaShortAvg =  _T("-999.0");
-    };
-    
+    virtual raceRouteJSData* getRmDataPtr(void) { return nullptr; };
+
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     virtual void FitIn(void) final;

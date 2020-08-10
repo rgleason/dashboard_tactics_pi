@@ -428,7 +428,7 @@ var iface = {
             this.elemmarkack.dispatchEvent( this.eventmarkack )
         }
         catch (error) {
-            this.markacknowledged = 0
+            this.markacknowledged = false
             if ( ifacedbglevel > 1 )
                 console.log('iface.setmarkack - state machine error',
                             error)
@@ -456,7 +456,7 @@ var iface = {
             this.elemsldataack.dispatchEvent( this.eventsldataack )
         }
         catch (error) {
-            this.sldataacknowledged = 0
+            this.sldataacknowledged = false
             if ( ifacedbglevel > 1 )
                 console.log('iface.setsldataack - state machine error',
                             error)
@@ -516,7 +516,7 @@ var iface = {
             this.elemsldstopack.dispatchEvent( this.eventsldstopack )
         }
         catch (error) {
-            this.sldstopacknowledged = 0
+            this.sldstopacknowledged = false
             if ( ifacedbglevel > 1 )
                 console.log('iface.setsldstopack - state machine error',
                             error)
@@ -525,6 +525,218 @@ var iface = {
     },
     getsldstopack: function() {
         return this.sldstopacknowledged
+    },
+    eventmrkdataack    : null,
+    elemmrkdataack     : null,
+    mrkdataacknowledged: false,
+    regeventmrkdataack: function ( newelem, newevent ) {
+        this.elemmrkdataack = newelem
+        this.eventmrkdataack = newevent
+    },
+    setmrkdataack: function( newmrkdataacknowledged ) {
+        try {
+            if ( (this.eventmrkdataack === null) || (this.elemmrkdataack === null) )
+                return
+            this.mrkdataacknowledged = newmrkdataacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setmrkdataack - mrkdataacknowledged: ', this.mrkdataacknowledged)
+            this.elemmrkdataack.dispatchEvent( this.eventmrkdataack )
+        }
+        catch (error) {
+            this.mrkdataacknowledged = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setmrkdataack - state machine error',
+                            error)
+            return
+        }
+    },
+    elemnewmrkdata     : null,
+    elemnewmrkdata     : null,
+    mrkhasactiveroute  : false,
+    mrkinstrurdy       : false,
+    mrk1name           : '- - -',
+    mrk2name           : '- - -',
+    mrk3name           : '- - -',
+    mrk1twalive        : -999.0,
+    mrk1twashort       : -999.0,
+    mrk1twalong        : -999.0,
+    mrk1current        : -999.0,
+    mrk2twalive        : -999.0,
+    mrk2twashort       : -999.0,
+    mrk2twalong        : -999.0,
+    mrk2current        : -999.0,
+    mrk3twalive        : -999.0,
+    mrk3twashort       : -999.0,
+    mrk3twalong        : -999.0,
+    mrk3current        : -999.0,
+    mrkbrgback         : -999.0,
+    regeventnewmrkdata: function ( newelem, newevent ) {
+        this.elemnewmrkdata = newelem
+        this.eventnewmrkdata = newevent
+    },
+    eventmrkdataack    : null,
+    elemmrkdataack     : null,
+    mrkdataacknowledged: false,
+    regeventmrkdataack: function ( newelem, newevent ) {
+        this.elemmrkdataack = newelem
+        this.eventmrkdataack = newevent
+    },
+    setmrkdataack: function( newmrkdataacknowledged ) {
+        try {
+            if ( (this.eventmrkdataack === null) || (this.elemmrkdataack === null) )
+                return
+            this.mrkdataacknowledged = newmrkdataacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setmrkdataack - mrkdataacknowledged: ', this.mrkdataacknowledged)
+            this.elemmrkdataack.dispatchEvent( this.eventmrkdataack )
+        }
+        catch (error) {
+            this.mrkdataacknowledged = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setmrkdataack - state machine error',
+                            error)
+            return
+        }
+    },
+    getmrkdataack: function() {
+        return this.mrkdataacknowledged
+    },
+    newmrkdata: function( hasactiveroute, instrurdy,
+            mark1name, mark2name, mark3name,
+            twa1live, twa1short, twa1long, current1,
+            twa2live, twa2short, twa2long, current2,
+            twa3live, twa3short, twa3long, current3,
+            bearingback ) {
+        this.mrkhasactiveroute = hasactiveroute
+        this.mrkinstrurdy = instrurdy
+        this.mrk1name = mark1name
+        this.mrk2name = mark2name
+        this.mrk3name = mark3name
+        this.mrk1twalive = twa1live
+        this.mrk1twashort = twa1short
+        this.mrk1twalong = twa1long
+        this.mrk1current = current1
+        this.mrk2twalive = twa2live
+        this.mrk2twashort = twa2short
+        this.mrk2twalong = twa2long
+        this.mrk2current = current2
+        this.mrk3twalive = twa3live
+        this.mrk3twashort = twa3short
+        this.mrk3twalong = twa3long
+        this.mrk3current = current3
+        this.mrkbrgback = bearingback
+        if ( (this.eventnewmrkdata === null) || (this.elemnewmrkdata === null) )
+            return
+        this.elemnewmrkdata.dispatchEvent( this.eventnewmrkdata )
+    },
+    getmrkhasactiveroute: function() {
+        return this.mrkhasactiveroute
+    },
+    getmrkmrkinstrurdy: function() {
+        return this.mrkinstrurdy
+    },
+    getmrk1name: function() {
+        return this.mrk1name
+    },
+    getmrk2name: function() {
+        return this.mrk2name
+    },
+    getmrk3name: function() {
+        return this.mrk3name
+    },
+    getmrk1twalive: function() {
+        return this.mrk1twalive
+    },
+    getmrk1twashort: function() {
+        return this.mrk1twashort
+    },
+    getmrk1twalong: function() {
+        return this.mrk1twalong
+    },
+    getmrk1current: function() {
+        return this.mrk1current
+    },
+    getmrk2twalive: function() {
+        return this.mrk2twalive
+    },
+    getmrk2twashort: function() {
+        return this.mrk2twashort
+    },
+    getmrk2twalong: function() {
+        return this.mrk2twalong
+    },
+    getmrk2current: function() {
+        return this.mrk2current
+    },
+    getmrk3twalive: function() {
+        return this.mrk3twalive
+    },
+    getmrk3twashort: function() {
+        return this.mrk3twashort
+    },
+    getmrk3twalong: function() {
+        return this.mrk3twalong
+    },
+    getmrk3current: function() {
+        return this.mrk3current
+    },
+    getmrkbrgback: function() {
+        return this.mrkbrgback
+    },
+    eventmrkmteaack    : null,
+    elemmrkmteaack     : null,
+    mrkmteaacknowledged: false,
+    regeventmrkmteaack: function ( newelem, newevent ) {
+        this.elemmrkmteaack = newelem
+        this.eventmrkmteaack = newevent
+    },
+    setmrkmteaack: function( newmrkmteaacknowledged ) {
+        try {
+            if ( (this.eventmrkmteaack === null) || (this.elemmrkmteaack === null) )
+                return
+            this.mrkmteaacknowledged = newmrkmteaacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setmrkmteaack - mrkmteaacknowledged: ', this.mrkmteaacknowledged)
+            this.elemmrkmteaack.dispatchEvent( this.eventmrkmteaack )
+        }
+        catch (error) {
+            this.mrkmteaacknowledged = false
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setmrkmteaack - state machine error',
+                            error)
+            return
+        }
+    },
+    eventmrkumteack    : null,
+    elemmrkumteack     : null,
+    mrkumteacknowledged: false,
+    regeventmrkumteack: function ( newelem, newevent ) {
+        this.elemmrkumteack = newelem
+        this.eventmrkumteack = newevent
+    },
+    setmrkumteack: function( newmrkumteacknowledged ) {
+        try {
+            if ( (this.eventmrkumteack === null) || (this.elemmrkumteack === null) )
+                return
+            this.mrkumteacknowledged = newmrkumteacknowledged
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setmrkumteack - mrkumteacknowledged: ', this.mrkumteacknowledged)
+            this.elemmrkumteack.dispatchEvent( this.eventmrkumteack )
+        }
+        catch (error) {
+            this.mrkumteacknowledged = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setmrkumteack - state machine error',
+                            error)
+            return
+        }
+    },
+    getmrkumteack: function() {
+        return this.mrkumteacknowledged
     },
     eventluminsty : null,
     elemluminsty  : null,

@@ -47,23 +47,23 @@
   See enginedjg.css: skpath, gauge and bottom classes for the ratios.
 */
 #ifdef __WXMSW__
-#define RACEMARK_V_TITLEH    18
-#define RACEMARK_V_WIDTH    900
-#define RACEMARK_V_HEIGHT   200
-#define RACEMARK_V_BOTTOM    25
-#define RACEMARK_H_TITLEH    19
-#define RACEMARK_H_WIDTH    900
-#define RACEMARK_H_HEIGHT   200
-#define RACEMARK_H_BOTTOM    25
+#define RACEMARK_V_TITLEH     1
+#define RACEMARK_V_WIDTH    800 // below this Bootstrap changes to extra small 
+#define RACEMARK_V_HEIGHT   195
+#define RACEMARK_V_BOTTOM     1
+#define RACEMARK_H_TITLEH     1
+#define RACEMARK_H_WIDTH    800
+#define RACEMARK_H_HEIGHT   195
+#define RACEMARK_H_BOTTOM     1
 #else
-#define RACEMARK_V_TITLEH    18
-#define RACEMARK_V_WIDTH    900
-#define RACEMARK_V_HEIGHT   200
-#define RACEMARK_V_BOTTOM    25
-#define RACEMARK_H_TITLEH    19
-#define RACEMARK_H_WIDTH    900
-#define RACEMARK_H_HEIGHT   200
-#define RACEMARK_H_BOTTOM    25
+#define RACEMARK_V_TITLEH     1
+#define RACEMARK_V_WIDTH    800
+#define RACEMARK_V_HEIGHT   195
+#define RACEMARK_V_BOTTOM     1
+#define RACEMARK_H_TITLEH     1
+#define RACEMARK_H_WIDTH    800
+#define RACEMARK_H_HEIGHT   195
+#define RACEMARK_H_BOTTOM     1
 #endif // ifdef __WXMSW__
 #define RACEMARK_V_MIN_WIDTH  RACEMARK_V_WIDTH
 #define RACEMARK_V_MIN_HEIGHT (RACEMARK_V_TITLEH + RACEMARK_V_HEIGHT + RACEMARK_V_BOTTOM)
@@ -112,26 +112,23 @@ public:
     bool CalculateBearingFromNewTargetToPreviousMark(void);
     bool ChangeNextAndNextNextMarks(void);
     bool PeekTwaOnNextAndNextNextLegs(void);
+    bool ThisLegDataUpdate(void);
     bool CheckWpStillValid( wxString sGUID );
 
     virtual bool instruIsReady(void) override;
     virtual bool userHasActiveRoute(void) override;
     virtual bool sendRmData(void) override;
     virtual bool stopRmData(void) override;
-    virtual void getRmData(
-        wxString& nextLegTwaAvg, wxString& nextLegTwaShortAvg,
-        wxString& nextNextLegTwaAvg, wxString& nextNextLegTwaShortAvg )
-        override;
+    virtual bool hideChartOverlay(void) override;
+    virtual bool showChartOverlay(void) override;
+
+    virtual raceRouteJSData* getRmDataPtr(void) override;
 
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     void DoRenderGLOverLay(wxGLContext* pcontext, PlugIn_ViewPort* vp );
-    virtual void PushTwaHere(
+    virtual void PushTwdHere(
         double data, wxString unit, long long timestamp=0LL);
-    virtual void PushTwsHere(
-        double data, wxString unit, long long timestamp=0LL);
-    virtual void PushCogHere(
-        double data, wxString unit, long long timestamp=0LL);
-    virtual void PushCurHere(
+    virtual void PushCurDirHere(
         double data, wxString unit, long long timestamp=0LL);
     virtual void PushLatHere(
         double data, wxString unit, long long timestamp=0LL);
@@ -147,12 +144,19 @@ protected:
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
     wxString             m_httpServer;
+    raceRouteJSData     *m_raceRouteJSData;
     wxString             m_raceAsRouteGuid;
     wxString             m_raceAsRouteName;
     PlugIn_Route        *m_raceAsRoute; // per method ptr, tells a route exists
     wxString             m_targetWpName;
     wxString             m_targetWpGuid;
     PlugIn_Waypoint     *m_targetWp;
+    double               m_thisWpLegBearing;
+    double               m_thisWpLegDistance;
+    double               m_thisWpLegTwa;
+    double               m_thisWpLegAvgTwa;
+    double               m_thisWpLegShortAvgTwa;
+    double               m_thisWpLegCurrent;
     wxString             m_previousWpName;
     wxString             m_previousWpGuid;
     PlugIn_Waypoint     *m_previousWp;
@@ -163,15 +167,19 @@ protected:
     PlugIn_Waypoint     *m_nextWp;
     double               m_nextWpLegBearing;
     double               m_nextWpLegDistance;
+    double               m_nextWpLegTwa;
     double               m_nextWpLegAvgTwa;
     double               m_nextWpLegShortAvgTwa;
+    double               m_nextWpLegCurrent;
     wxString             m_nextNextWpName;
     wxString             m_nextNextWpGuid;
     PlugIn_Waypoint     *m_nextNextWp;
     double               m_nextNextWpLegBearing;
     double               m_nextNextWpLegDistance;
+    double               m_nextNextWpLegTwa;
     double               m_nextNextWpLegAvgTwa;
     double               m_nextNextWpLegShortAvgTwa;
+    double               m_nextNextWpLegCurrent;
     bool                 m_dataRequestOn;
     bool                 m_overlayPauseRequestOn;
     bool                 m_jsCallBackAsHeartBeat;
@@ -220,18 +228,13 @@ protected:
     callbackFunction     m_fPushLatHere;
     wxString             m_fPushLatUUID;
     double               m_Lat;
-    callbackFunction     m_fPushCogHere;
-    wxString             m_fPushCogUUID;
-    double               m_Cog;
-    callbackFunction     m_fPushCurHere;
-    wxString             m_fPushCurUUID;
-    double               m_Cur;
-    callbackFunction     m_fPushTwsHere;
-    wxString             m_fPushTwsUUID;
-    double               m_Tws;
-    callbackFunction     m_fPushTwaHere;
-    wxString             m_fPushTwaUUID;
-    double               m_Twa;
+    callbackFunction     m_fPushCurDirHere;
+    wxString             m_fPushCurDirUUID;
+    double               m_CurDir;
+    double               m_CurDirOpposite;
+    callbackFunction     m_fPushTwdHere;
+    wxString             m_fPushTwdUUID;
+    double               m_Twd;
 
 
     wxDECLARE_EVENT_TABLE();

@@ -69,8 +69,8 @@ void DashboardInstrument_RaceMark::DoRenderGLOverLay(
     ClearRendererCalcs();
     if ( !(m_raceAsRoute) )
         return;
-    // if ( !m_dataRequestOn )
-    //     return;
+    if ( !m_dataRequestOn )
+         return;
     if ( m_overlayPauseRequestOn )
         return;
     if ( !(m_targetWp) )

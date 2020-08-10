@@ -159,7 +159,7 @@ export function createStateMachine() {
             onBeforeHascfg: function( lifecycle ) {
                 if ( dbglevel > 0 ) console.log('onHascfg() - before transition')
                 if ( dbglevel > 2)
-                    dbgPrintFromTo( 'onBeforeNocfg', lifecycle )
+                    dbgPrintFromTo( 'onBeforeHascfg', lifecycle )
                 this.perspath = false
             },
             onBeforeNocfg: function( lifecycle ) {

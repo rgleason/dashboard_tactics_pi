@@ -41,7 +41,7 @@ var instrulang = {
                 'No Warranties and Limitation of Liability.',
     rdsBtnAcceptTxt: 'Accept',
     rdsInitMsg: 'Check that instrument, average wind and position data ' +
-                'is available before arriving to the start area.',
+                'are available before arriving to the start area.',
     rdsBtnArmTxt: 'Start',
     rdsDropMarksMsg: 'Drop the startline end marks',
     rdsDropPortBtn: 'Port',
@@ -64,6 +64,31 @@ var instrulang = {
     rdsWindBiasAdv: 'Advantage',
     rdsWindBiasAdvPopover: 'Windshift caused bias distance from the disadvantaged mark ' +
                            'to the end of the biased startline.',
-    rdsAllTimeBurned: 'RACE IS ON'
+    rdsAllTimeBurned: 'RACE IS ON',
+    rdmRaceMarkHideChart: 'Chart Off',
+    rdmRaceMarkShowOnChart: 'Chart On',
+    rdmRaceMarkTblColTitle: 'L E G', // note: keep it short!
+    rdmRaceMarkTblColTitlePopover: 'First leg name is defined by the previous OpenCPN route mark name, ' +
+                                   'next leg names are defined by the successive route mark names.',
+    rdmRoute: 'route',
+    rdmRteBrg: 'rte.brg.',
+    rdmTwaNow: 'TWA',
+    rdmTwaNowPopover: 'Actual True Wind Angle to the leg route bearing',
+    rdmTwaAvg: 'TWA avg.',
+    rdmTwaAvgPopover: 'Averaged and exponentially smoothed True Wind Angle to the leg route bearing, ' +
+                      'both short and long intergration times available below.',
+    rdmTwaAvgShort: 'short',
+    rdmTwaAvgShortPopover: 'A fraction of the overall integration time, as set in Average Wind Instrument',
+    rdmTwaAvgLong: 'long',
+    rdmTwaAvgLongPopover: 'Overall intergration time, selected in the Average Wind Instrument',
+    rdmCurrent: 'Current',
+    rdmCurrentPopover: 'Actual, actively calculated current angle to the leg route bearing.',
+    rdmInitMsg: 'Waiting for an activated race route.',
+    rdmInitMsgPopover: 'Create the race route with the OpenCPN route editor. ' +
+                       'Use unique names for each mark. Set small arrival radius. ' +
+                       'Do not connect end and start points. Activate the route.',
+    rdmInstruNotRdy: 'The DashT Mark instrument is not ready.',
+    rdmCheckRequiredData: 'Check for the required data: twd/avgwind/current/lat/lon :',
+    rdmCheckAvgInstru: 'Average Wind instrument must be running (can be minimized)'
 }
 window.instrulang = instrulang

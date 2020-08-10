@@ -9,28 +9,11 @@ export interface StateMachine {
     setid(): undefined
     nocfg(): undefined
     hascfg(): undefined
-    getfeet(): undefined
-    nogetfeet(): undefined
-    btnarmw(): undefined
-    chkrdy(): undefined
-    nochkrdy(): undefined
-    nousersl(): undefined
-    usersl(): undefined
-    btnportd1(): undefined
-    oneport(): undefined
-    btnstbdd1(): undefined
-    onestbd(): undefined
-    btnportd2(): undefined
-    twoport(): undefined
-    btnstbdd2(): undefined
-    twostbd(): undefined
-    markack(): undefined
-    sldataack(): undefined
-    newsldata(): undefined
-    sldstopack(): undefined
-    btnfaded(): undefined
-    btnarmc(): undefined
-    btnarma(): undefined
+    mrkdataack(): undefined
+    newmrkdata(): undefined
+    mrkdstopack(): undefined
+    actvrte(): undefined
+    noroute(): undefined
     luminsty(): undefined
     closing(): undefined
     is(a:string): boolean
@@ -38,10 +21,7 @@ export interface StateMachine {
     uid: string
     perspath: boolean
     instrurdy: boolean
-    feet: boolean
-    gotusrsl: boolean
-    stbdmark: boolean
-    portmark: boolean
+    activeroute: boolean
     luminosity: string
     locInfo : locationInfo
     conf: conf

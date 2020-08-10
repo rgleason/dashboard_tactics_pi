@@ -47,7 +47,7 @@ catch( error ) {
                   error.message)
 }
 
-// Create the transitional events (the IE way, sorry!) for clieant messages
+// Create the transitional events (the IE way, sorry!) for client messages
 var bottom: HTMLElement | null = document.getElementById( 'bottom' )
 if (bottom === null) {
     throw 'timestui: init: no element: bottom'

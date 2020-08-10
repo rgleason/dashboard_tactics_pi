@@ -69,6 +69,7 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
     m_dataRequestOn = false;
     m_overlayPauseRequestOn = false;
     m_jsCallBackAsHeartBeat = false;
+    m_raceRouteJSData = new raceRouteJSData;
     ClearRoutesAndWPs( true ); // for constructor, do not delete objects.
 
     /*
@@ -78,26 +79,17 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
       this instrument can be used both with OpenCPN and Signal K with no
       modifications.
     */
-    m_Twa = std::nan("1");
-    m_fPushTwaHere = std::bind(
-        &DashboardInstrument_RaceMark::PushTwaHere, this, _1, _2, _3 );
-    m_fPushTwaUUID = m_pparent->subscribeTo (
-        _T("OCPN_DBP_STC_TWA"),m_fPushTwaHere );
-    m_Tws = std::nan("1");
-    m_fPushTwsHere = std::bind(
-        &DashboardInstrument_RaceMark::PushTwsHere, this, _1, _2, _3 );
-    m_fPushTwsUUID = m_pparent->subscribeTo (
-        _T("OCPN_DBP_STC_TWS"), m_fPushTwsHere );
-    m_Cur = std::nan("1");
-    m_fPushCogHere = std::bind(
-        &DashboardInstrument_RaceMark::PushCogHere, this, _1, _2, _3 );
-    m_fPushCogUUID = m_pparent->subscribeTo (
-        _T("OCPN_DBP_STC_COG"), m_fPushCogHere );
-    m_Cur = std::nan("1");
-    m_fPushCurHere = std::bind(
-        &DashboardInstrument_RaceMark::PushCurHere, this, _1, _2, _3 );
-    m_fPushCurUUID = m_pparent->subscribeTo (
-        _T("OCPN_DBP_STC_CURRSPD"), m_fPushCurHere );
+    m_Twd = std::nan("1");
+    m_fPushTwdHere = std::bind(
+        &DashboardInstrument_RaceMark::PushTwdHere, this, _1, _2, _3 );
+    m_fPushTwdUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_TWD"),m_fPushTwdHere );
+    m_CurDir = std::nan("1");
+    m_CurDirOpposite = std::nan("1");
+    m_fPushCurDirHere = std::bind(
+        &DashboardInstrument_RaceMark::PushCurDirHere, this, _1, _2, _3 );
+    m_fPushCurDirUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_CURRDIR"), m_fPushCurDirHere );
     m_Lat = std::nan("1");
     m_fPushLatHere = std::bind(
         &DashboardInstrument_RaceMark::PushLatHere, this, _1, _2, _3 );
@@ -134,19 +126,16 @@ DashboardInstrument_RaceMark::~DashboardInstrument_RaceMark(void)
     if ( !this->m_rendererCallbackUUID.IsEmpty() )
         this->m_pparent->unregisterGLRenderer(
             this->m_rendererCallbackUUID );
-    if ( !this->m_fPushTwaUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushTwaUUID );
-    if ( !this->m_fPushTwsUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushTwsUUID );
-    if ( !this->m_fPushCogUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushCogUUID );
-    if ( !this->m_fPushCurUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushCurUUID );
+    if ( !this->m_fPushTwdUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushTwdUUID );
+    if ( !this->m_fPushCurDirUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushCurDirUUID );
     if ( !this->m_fPushLatUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushLatUUID ); 
     if ( !this->m_fPushLonUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushLonUUID );
     ClearRoutesAndWPs();
+    delete this->m_raceRouteJSData;
     return;
 }
 void DashboardInstrument_RaceMark::OnClose( wxCloseEvent &event )
@@ -157,18 +146,12 @@ void DashboardInstrument_RaceMark::OnClose( wxCloseEvent &event )
         this->m_pparent->unregisterGLRenderer(
             this->m_rendererCallbackUUID );
     this->m_rendererCallbackUUID = wxEmptyString;
-    if ( !this->m_fPushTwaUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushTwaUUID );
-    this->m_fPushTwaUUID = wxEmptyString;
-    if ( !this->m_fPushTwsUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushTwsUUID );
-    this->m_fPushTwsUUID = wxEmptyString;
-    if ( !this->m_fPushCogUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushCogUUID );
-    this->m_fPushCogUUID = wxEmptyString;
-    if ( !this->m_fPushCurUUID.IsEmpty() )
-        this->m_pparent->unsubscribeFrom( m_fPushCurUUID );
-    this->m_fPushCurUUID = wxEmptyString;
+    if ( !this->m_fPushTwdUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushTwdUUID );
+    this->m_fPushTwdUUID = wxEmptyString;
+    if ( !this->m_fPushCurDirUUID.IsEmpty() )
+        this->m_pparent->unsubscribeFrom( m_fPushCurDirUUID );
+    this->m_fPushCurDirUUID = wxEmptyString;
     if ( !this->m_fPushLatUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_fPushLatUUID );
     this->m_fPushLatUUID = wxEmptyString;
@@ -181,16 +164,16 @@ void DashboardInstrument_RaceMark::derivedTimeoutEvent()
     m_data = L"0.0";
     m_Lon = std::nan("1");
     m_Lat = std::nan("1");
-    m_Cur = std::nan("1");
-    m_Tws = std::nan("1");
-    m_Twa = std::nan("1");
+    m_CurDir = std::nan("1");
+    m_CurDirOpposite = std::nan("1");
+    m_Twd = std::nan("1");
     derived2TimeoutEvent();
 }
 
 bool DashboardInstrument_RaceMark::IsAllMeasurementDataValid()
 {
-    if ( !std::isnan(m_Lat) && !std::isnan(m_Lon) && !std::isnan(m_Cog) &&
-         !std::isnan(m_Tws) && !std::isnan(m_Twa) && !std::isnan(m_Cur) )
+    if ( !std::isnan(m_Lat) && !std::isnan(m_Lon) &&
+         !std::isnan(m_Twd) && !std::isnan(m_CurDir) )
         return true;
     return false;
 }
@@ -200,28 +183,23 @@ bool DashboardInstrument_RaceMark::IsAllMeasurementDataValid()
 m_##__INSDATA__ = data;
 
 
-void DashboardInstrument_RaceMark::PushTwaHere(
+void DashboardInstrument_RaceMark::PushTwdHere(
     double data, wxString unit, long long timestamp)
 {
-    __RACEMARK_CHECK_DATA__(Twa)
+    __RACEMARK_CHECK_DATA__(Twd)
 }
 
-void DashboardInstrument_RaceMark::PushTwsHere(
+void DashboardInstrument_RaceMark::PushCurDirHere(
     double data, wxString unit, long long timestamp)
 {
-    __RACEMARK_CHECK_DATA__(Tws)
-}
-
-void DashboardInstrument_RaceMark::PushCogHere(
-    double data, wxString unit, long long timestamp)
-{
-    __RACEMARK_CHECK_DATA__(Cog)
-}
-
-void DashboardInstrument_RaceMark::PushCurHere(
-    double data, wxString unit, long long timestamp)
-{
-    __RACEMARK_CHECK_DATA__(Cur)
+    __RACEMARK_CHECK_DATA__(CurDir)
+        if ( std::isnan( data ) )
+            m_CurDirOpposite = std::nan("1");
+        else {
+            m_CurDirOpposite = data - 180.0;
+            if ( m_CurDirOpposite < 0. )
+                m_CurDirOpposite += 360.;
+        }
 }
 
 void DashboardInstrument_RaceMark::PushLatHere(
@@ -241,6 +219,12 @@ void DashboardInstrument_RaceMark::ClearRoutesAndWPs( bool ctor )
     m_raceAsRouteGuid = wxEmptyString;
     m_raceAsRouteName = wxEmptyString;
     m_raceAsRoute = nullptr; // do not delete, is volatile anyway
+    m_thisWpLegBearing = std::nan("1");
+    m_thisWpLegDistance = std::nan("1");
+    m_thisWpLegTwa = std::nan("1");
+    m_thisWpLegAvgTwa = std::nan("1");
+    m_thisWpLegShortAvgTwa = std::nan("1");
+    m_thisWpLegCurrent = std::nan("1");
     m_previousWpName = wxEmptyString;
     m_previousWpGuid = wxEmptyString;
     if ( m_previousWp && !ctor )
@@ -253,6 +237,22 @@ void DashboardInstrument_RaceMark::ClearRoutesAndWPs( bool ctor )
     if ( m_targetWp && !ctor )
         delete m_targetWp;
     m_targetWp = nullptr;
+
+    m_raceRouteJSData->hasActiveRoute = "false";
+    if ( ctor )
+        m_raceRouteJSData->instruIsReady = "false";
+    else
+        m_raceRouteJSData->instruIsReady =
+            IsAllMeasurementDataValid() ? "true" : "false";
+    m_raceRouteJSData->mark1Name = "- - -";
+    m_raceRouteJSData->mark2Name = "- - -";
+    m_raceRouteJSData->mark3Name = "- - -";
+    m_raceRouteJSData->thisLegTwa = "-999.0";
+    m_raceRouteJSData->thisLegTwaShortAvg = "-999.0";
+    m_raceRouteJSData->thisLegTwaAvg = "-999.0";
+    m_raceRouteJSData->thisLegCurrent = "-999.0";
+    m_raceRouteJSData->bearingBack = "-999.0";
+
     ClearNextAndNextNextWpsOnly( ctor );
 }
 
@@ -265,17 +265,30 @@ void DashboardInstrument_RaceMark::ClearNextAndNextNextWpsOnly( bool ctor )
     m_nextWp = nullptr;
     m_nextWpLegBearing = std::nan("1");
     m_nextWpLegDistance = std::nan("1");
+    m_nextWpLegTwa = std::nan("1");
     m_nextWpLegAvgTwa = std::nan("1");
     m_nextWpLegShortAvgTwa = std::nan("1");
+    m_nextWpLegCurrent =  std::nan("1");
     m_nextNextWpLegBearing = std::nan("1");
     m_nextNextWpLegDistance = std::nan("1");
+    m_nextNextWpLegTwa = std::nan("1");
     m_nextNextWpLegAvgTwa = std::nan("1");
     m_nextNextWpLegShortAvgTwa = std::nan("1");
+    m_nextNextWpLegCurrent =  std::nan("1");
     m_nextNextWpName = wxEmptyString;
     m_nextNextWpGuid = wxEmptyString;
     if ( m_nextNextWp && !ctor )
         delete m_nextNextWp;
     m_nextNextWp = nullptr;
+
+    m_raceRouteJSData->nextLegTwa = "-999.0";
+    m_raceRouteJSData->nextLegTwaShortAvg = "-999.0";
+    m_raceRouteJSData->nextLegTwaAvg = "-999.0";
+    m_raceRouteJSData->nextLegCurrent = "-999.0";
+    m_raceRouteJSData->nextNextLegTwa = "-999.0";
+    m_raceRouteJSData->nextNextLegTwaShortAvg = "-999.0";
+    m_raceRouteJSData->nextNextLegTwaAvg = "-999.0";
+    m_raceRouteJSData->nextNextLegCurrent = "-999.0";
 }
 
 bool DashboardInstrument_RaceMark::CheckForValidActiveRoute()
@@ -455,6 +468,10 @@ bool DashboardInstrument_RaceMark::CalculateBearingFromNewTargetToPreviousMark()
     if ( !(m_previousWp) || !(m_targetWp) )
         return false;
     DistanceBearingMercator_Plugin(
+        m_targetWp->m_lat, m_targetWp->m_lon, // "to"
+        m_previousWp->m_lat, m_previousWp->m_lon, // "from"
+        &m_thisWpLegBearing, &m_thisWpLegDistance ); // result
+    DistanceBearingMercator_Plugin(
         m_previousWp->m_lat, m_previousWp->m_lon, // "to"
         m_targetWp->m_lat, m_targetWp->m_lon, // "from"
         &m_previousWpBearing, &m_previousWpDistance ); // result
@@ -533,14 +550,34 @@ bool  DashboardInstrument_RaceMark::ChangeNextAndNextNextMarks()
     return true;
 }
 
+bool  DashboardInstrument_RaceMark::ThisLegDataUpdate()
+{
+    if ( !CalculateBearingFromNewTargetToPreviousMark() )
+        return false;
+    m_thisWpLegTwa = getDegRange( m_thisWpLegBearing, m_Twd );
+    if ( !(AverageWind) )
+        return false;
+    double avgWindDir = AverageWind->GetAvgWindDir();
+    m_thisWpLegAvgTwa = getDegRange(
+        m_thisWpLegBearing, avgWindDir );
+    double avgShortWindDir = AverageWind->GetShortAvgWindDir();
+    m_thisWpLegShortAvgTwa = getDegRange(
+        m_thisWpLegBearing, avgShortWindDir );
+    m_thisWpLegCurrent = getDegRange(
+        m_thisWpLegBearing, m_CurDirOpposite );
+    return true;
+}
+
 bool  DashboardInstrument_RaceMark::PeekTwaOnNextAndNextNextLegs()
 {
     if ( !(m_targetWp) || !(m_nextWp) )
         return false;
+    // Waypoints can move
     DistanceBearingMercator_Plugin(
         m_nextWp->m_lat, m_nextWp->m_lon, // "to"
         m_targetWp->m_lat, m_targetWp->m_lon, // "from"
         &m_nextWpLegBearing, &m_nextWpLegDistance ); // result
+    m_nextWpLegTwa = getDegRange( m_nextWpLegBearing, m_Twd );
     if ( !(AverageWind) )
         return false;
     double avgWindDir = AverageWind->GetAvgWindDir();
@@ -549,6 +586,8 @@ bool  DashboardInstrument_RaceMark::PeekTwaOnNextAndNextNextLegs()
     double avgShortWindDir = AverageWind->GetShortAvgWindDir();
     m_nextWpLegShortAvgTwa = getDegRange(
         m_nextWpLegBearing, avgShortWindDir );
+    m_nextWpLegCurrent = getDegRange(
+        m_nextWpLegBearing, m_CurDirOpposite );
 
     if ( !(m_nextNextWp) )
         return true;
@@ -557,11 +596,14 @@ bool  DashboardInstrument_RaceMark::PeekTwaOnNextAndNextNextLegs()
         m_nextNextWp->m_lat, m_nextNextWp->m_lon, // "to"
         m_nextWp->m_lat, m_nextWp->m_lon, // "from"
         &m_nextNextWpLegBearing, &m_nextNextWpLegDistance ); // result
+    m_nextNextWpLegTwa = getDegRange( m_nextNextWpLegBearing, m_Twd );
     m_nextNextWpLegAvgTwa = getDegRange(
         m_nextNextWpLegBearing, avgWindDir );
     m_nextNextWpLegShortAvgTwa = getDegRange(
         m_nextNextWpLegBearing, avgShortWindDir );
-
+    m_nextNextWpLegCurrent = getDegRange(
+        m_nextNextWpLegBearing, m_CurDirOpposite );
+   
     return true;
 }
 
@@ -600,14 +642,69 @@ bool DashboardInstrument_RaceMark::stopRmData()
     m_jsCallBackAsHeartBeat = true;
     return true;
 }
-void DashboardInstrument_RaceMark::getRmData(
-    wxString &nextLegTwaAvg, wxString &nextLegTwaShortAvg,
-    wxString &nextNextLegTwaAvg, wxString &nextNextLegTwaShortAvg )
+bool DashboardInstrument_RaceMark::hideChartOverlay()
 {
-    nextLegTwaAvg = wxEmptyString;
-    nextLegTwaShortAvg = wxEmptyString;
-    nextNextLegTwaAvg = wxEmptyString;
-    nextNextLegTwaShortAvg = wxEmptyString;
+    m_overlayPauseRequestOn = true;
+    return true;
+}
+bool DashboardInstrument_RaceMark::showChartOverlay()
+{
+    m_overlayPauseRequestOn = false;
+    m_jsCallBackAsHeartBeat = true;
+    return true;
+}
+raceRouteJSData *DashboardInstrument_RaceMark::getRmDataPtr()
+{
+    m_raceRouteJSData->hasActiveRoute = m_raceAsRoute ? "true" : "false";
+    m_raceRouteJSData->instruIsReady =
+        IsAllMeasurementDataValid() ? "true" : "false";
+    m_raceRouteJSData->mark1Name =
+        m_previousWpName.IsEmpty() ? "- - -" : m_previousWpName;
+    m_raceRouteJSData->mark2Name =
+        m_targetWpName.IsEmpty() ? "- - -" : m_targetWpName;
+    m_raceRouteJSData->mark3Name =
+        m_nextWpName.IsEmpty() ? "- - -" : m_nextWpName;
+    m_raceRouteJSData->thisLegTwa =
+        std::isnan( m_thisWpLegTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_thisWpLegTwa );
+    m_raceRouteJSData->thisLegTwaShortAvg =
+        std::isnan( m_thisWpLegShortAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_thisWpLegShortAvgTwa );
+    m_raceRouteJSData->thisLegTwaAvg =
+        std::isnan( m_thisWpLegAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_thisWpLegAvgTwa );
+    m_raceRouteJSData->thisLegCurrent =
+        std::isnan( m_thisWpLegCurrent ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_thisWpLegCurrent );
+    m_raceRouteJSData->nextLegTwa =
+        std::isnan( m_nextWpLegTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextWpLegTwa );
+    m_raceRouteJSData->nextLegTwaShortAvg =
+        std::isnan( m_nextWpLegShortAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextWpLegShortAvgTwa );
+    m_raceRouteJSData->nextLegTwaAvg =
+        std::isnan( m_nextWpLegAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextWpLegAvgTwa );
+    m_raceRouteJSData->nextLegCurrent =
+        std::isnan( m_nextWpLegCurrent ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextWpLegCurrent );
+    m_raceRouteJSData->nextNextLegTwa =
+        std::isnan( m_nextNextWpLegTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextNextWpLegTwa );
+    m_raceRouteJSData->nextNextLegTwaShortAvg = std::isnan(
+        m_nextNextWpLegShortAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextNextWpLegShortAvgTwa );
+    m_raceRouteJSData->nextNextLegTwaAvg = std::isnan(
+        m_nextNextWpLegAvgTwa ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextNextWpLegAvgTwa );
+    m_raceRouteJSData->nextNextLegCurrent = std::isnan(
+        m_nextNextWpLegCurrent ) ? "-999.0" :
+        wxString::Format( wxT("%f"), m_nextNextWpLegCurrent );
+    m_raceRouteJSData->bearingBack = std::isnan(
+        m_previousWpBearing ) ? "-999.0" :
+        wxString::Format( wxT("%f"),  m_previousWpBearing );
+
+    return m_raceRouteJSData;
 }
 
 void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
@@ -628,6 +725,7 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
                 } // then there is a new active waypoint
             } // then we do not have yet the next mark as target
             if ( m_targetWp ) {
+                (void) ThisLegDataUpdate(); // keep updating
                 (void) PeekTwaOnNextAndNextNextLegs(); // keep updating
                 if ( !CheckWpStillValid( m_targetWpGuid ) ) {
                     ClearRoutesAndWPs();
@@ -704,7 +802,7 @@ void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
     else {
         m_pThreadRaceMarkTimer->Start( GetRandomNumber( 800,1100 ),
                                         wxTIMER_CONTINUOUS);
-    } //else keep on polling for the startline changes
+    } //else keep on polling for the route changes
 
 }
 

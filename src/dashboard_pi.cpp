@@ -1396,8 +1396,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_PITCH, xdrdata, xdrunit);
                         }
-                        else if ((m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
-                                 (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("Heel Angle")))
+                        else if (
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("HEEL")) ||
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name ==
+                             _T("Heel Angle")))
                         {
                             if (m_NMEA0183->Xdr.TransducerInfo[i].Data > 0) {
                                 xdrunit = L"\u00B0r";

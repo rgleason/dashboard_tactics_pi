@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
 @charset "UTF-8";
-/* In older (v3) Bootstrap it is quite difficult to chnage theme without
+/* In older (v3) Bootstrap it is quite difficult to change theme without
    reloading. That's why we use a third party dark theme right on:
    npm --save install bootswatch@3.4.1 */
 /* Import only the modules of Bootstrap we are going to use */

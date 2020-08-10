@@ -17,6 +17,8 @@ import unloadWebKitIEScrollBars from './unloadwebkitiescrollbars'
 import {createStateMachine} from './statemachine'
 import visualize from '../../src/state-machine-visualize'
 
+import { instruNotRdyAlert, cppAckMuteChart, cppAckResumeChart } from './cppMark'
+
 if ( dbglevel > 0 )
     console.log('index.ts - creating the finite state machine')
 var fsm = createStateMachine()
@@ -40,7 +42,7 @@ catch( error ) {
                   error.message)
 }
 
-// Create the transitional events (the IE way, sorry!) for clieant messages
+// Create the transitional events (the IE way, sorry!) for client messages
 var bottom: HTMLElement | null = document.getElementById( 'bottom' )
 if (bottom === null) {
     throw 'racedashstart: init: no element: bottom'
@@ -307,155 +309,90 @@ bottom.addEventListener('setid', ((event: CustomEvent) => {
 // }) as EventListener);
 // (window as any).iface.regeventchgconf( bottom, eventchgconf )
 
-// The instrument is set to feet unit
-var eventgetfeet: Event = document.createEvent('Event')
-eventgetfeet.initEvent('getfeet', false, false)
-bottom.addEventListener('getfeet', ((event: Event) => {
-    try {
-        fsm.getfeet()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventgetfeet: fsm.getfeet() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventgetfeet( bottom, eventgetfeet )
-
-// The instrument is not active and ready
-var eventnogetfeet: Event = document.createEvent('Event')
-eventnogetfeet.initEvent('nogetfeet', false, false)
-bottom.addEventListener('nogetfeet', ((event: Event) => {
-    try {
-        fsm.nogetfeet()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventnogetfeet: fsm.nogetfeet() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventnogetfeet( bottom, eventnogetfeet )
-
-// The instrument is active and ready
-var eventchkrdy: Event = document.createEvent('Event')
-eventchkrdy.initEvent('chkrdy', false, false)
-bottom.addEventListener('chkrdy', ((event: Event) => {
-    try {
-        fsm.chkrdy()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventchkrdy: fsm.chkrdy() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventchkrdy( bottom, eventchkrdy )
-
-// The instrument is not active and ready
-var eventnochkrdy: Event = document.createEvent('Event')
-eventnochkrdy.initEvent('nochkrdy', false, false)
-bottom.addEventListener('nochkrdy', ((event: Event) => {
-    try {
-        fsm.nochkrdy()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventnochkrdy: fsm.nochkrdy() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventnochkrdy( bottom, eventnochkrdy )
-
-// A user set startline has been selected
-var eventusersl: Event = document.createEvent('Event')
-eventusersl.initEvent('usersl', false, false)
-bottom.addEventListener('usersl', ((event: Event) => {
-    try {
-        fsm.usersl()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventusersl: fsm.usersl() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventusersl( bottom, eventusersl )
-
-// No user set startline has been selected
-var eventnousersl: Event = document.createEvent('Event')
-eventnousersl.initEvent('nousersl', false, false)
-bottom.addEventListener('nousersl', ((event: Event) => {
-    try {
-        fsm.nousersl()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventnousersl: fsm.nousersl() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventnousersl( bottom, eventnousersl )
-
-// Dropped marked has been acknowledged
-var eventmarkack: Event = document.createEvent('Event')
-eventmarkack.initEvent('markack', false, false)
-bottom.addEventListener('markack', ((event: Event) => {
-    try {
-        fsm.markack()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventmarkack: fsm.markack() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventmarkack( bottom, eventmarkack )
 
 // Request to get data has been acknowledged
-var eventsldataack: Event = document.createEvent('Event')
-eventsldataack.initEvent('sldataack', false, false)
-bottom.addEventListener('sldataack', ((event: Event) => {
+var eventmrkdataack: Event = document.createEvent('Event')
+eventmrkdataack.initEvent('mrkdataack', false, false)
+bottom.addEventListener('mrkdataack', ((event: Event) => {
     try {
-        fsm.sldataack()
+        fsm.mrkdataack()
     }
     catch( error ) {
         console.error(
-            'Event:  eventsldataack: fsm.sldataack() transition failed, error: ',
+            'Event:  eventmrkdataack: fsm.mrkdataack() transition failed, error: ',
             error.message, ' current state: ', fsm.state)
     }
 }) as EventListener);
-(window as any).iface.regeventsldataack( bottom, eventsldataack )
+(window as any).iface.regeventmrkdataack( bottom, eventmrkdataack )
 
-// New startline data has arrived
-var eventnewsldata: Event = document.createEvent('Event')
-eventnewsldata.initEvent('newsldata', false, false)
-bottom.addEventListener('newsldata', ((event: Event) => {
-    try {
-        fsm.newsldata()
+// New set of  data and back-end process status information has arrived
+var eventnewmrkdata: Event = document.createEvent('Event')
+var instruHasBeenRdy: boolean = true;
+var pollingGoingOnMsgDone: boolean = false;
+eventnewmrkdata.initEvent('newmrkdata', false, false)
+bottom.addEventListener('newmrkdata', ((event: Event) => {
+    // alert user if the instrument are not receiving data
+    var instOK: boolean = (window as any).iface.getmrkmrkinstrurdy()
+    if ( !instOK && instruHasBeenRdy )
+        instruNotRdyAlert()
+    instruHasBeenRdy = instOK
+    // survey by polling the active route and change state accordingly
+    var activeRte: boolean = (window as any).iface.getmrkhasactiveroute()
+    console.log( 'activeRte: ', activeRte, ' fsm.state: ', fsm.state )
+    if ( fsm.is('running') && activeRte && instOK ) {
+        try {
+            fsm.newmrkdata()
+        }
+        catch( error ) {
+            console.error(
+                'Event:  eventnewmrkdata: fsm.newmrkdata() transition failed, error: ',
+                error.message, ' current state: ', fsm.state)
+        }
     }
-    catch( error ) {
-        console.error(
-            'Event:  eventnewsldata: fsm.newsldata() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
+    else if ( fsm.is('waiting') && activeRte ) {
+        try {
+            fsm.actvrte()
+        }
+        catch( error ) {
+            console.error(
+                'Event:  eventnewmrkdata: fsm.actvrte() transition failed, error: ',
+                error.message, ' current state: ', fsm.state)
+        }
+    }
+    else if ( fsm.is('running') && !activeRte ) {
+        try {
+            fsm.noroute()
+        }
+        catch( error ) {
+            console.error(
+                'Event:  eventnewmrkdata: fsm.noroute() transition failed, error: ',
+                error.message, ' current state: ', fsm.state)
+        }
+    }
+    else if ( !pollingGoingOnMsgDone) {
+        console.log(
+            'Event:  eventnewmrkdata: polling has started, current state: ',
+            fsm.state)
+        pollingGoingOnMsgDone = true;
     }
 }) as EventListener);
-(window as any).iface.regeventnewsldata( bottom, eventnewsldata )
+(window as any).iface.regeventnewmrkdata( bottom, eventnewmrkdata )
 
-// Request to stop getting data has been acknowledged
-var eventsldstopack: Event = document.createEvent('Event')
-eventsldstopack.initEvent('sldstopack', false, false)
-bottom.addEventListener('sldstopack', ((event: Event) => {
-    try {
-        fsm.sldstopack()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  eventsldstopack: fsm.sldstopack() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
+// Request to mute the chart overlay - just clear after the acknowledgement
+var eventmrkmteaack: Event = document.createEvent('Event')
+eventmrkmteaack.initEvent('mrkmteaack', false, false)
+bottom.addEventListener('mrkmteaack', ((event: Event) => {
+    cppAckMuteChart()
 }) as EventListener);
-(window as any).iface.regeventsldstopack( bottom, eventsldstopack )
+(window as any).iface.regeventmrkmteaack( bottom, eventmrkmteaack )
+
+// Request to unmute the chart overlay - just clear after the acknowledgement
+var eventmrkumteack: Event = document.createEvent('Event')
+eventmrkumteack.initEvent('mrkumteack', false, false)
+bottom.addEventListener('mrkumteack', ((event: Event) => {
+    cppAckResumeChart()
+}) as EventListener);
+(window as any).iface.regeventmrkumteack( bottom, eventmrkumteack )
 
 // Luminosity
 var eventluminsty: Event = document.createEvent('Event')
