@@ -43,10 +43,10 @@ before_build:
   - mkdir build
   - cd build
   - ps: Start-FileDownload https://github.com/canne/dashboard_pi/releases/download/0.0.1/opencpn.lib
-  - cmake -T v141_xp ..
+  - cmake -T v141 ..
 
 build_script:
-  - cmake --build . --target package --config release
+  - cmake --build . --target package --config Release
 
 test_script:
   - cmd: ctest -j2
