@@ -373,7 +373,7 @@ bottom.addEventListener('newmrkdata', ((event: Event) => {
         console.log(
             'Event:  eventnewmrkdata: polling has started, current state: ',
             fsm.state)
-        pollingGoingOnMsgDone = true;
+        pollingGoingOnMsgDone = true
     }
 }) as EventListener);
 (window as any).iface.regeventnewmrkdata( bottom, eventnewmrkdata )
