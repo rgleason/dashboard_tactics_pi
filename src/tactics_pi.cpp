@@ -837,6 +837,7 @@ bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *
 {
 	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
 #ifndef __linux__
+//what IsOK?
     if ( !pcontext->IsOK() )
         return false;
 #endif // __linux__

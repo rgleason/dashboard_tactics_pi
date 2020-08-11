@@ -58,7 +58,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "TBD")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
-   set(VERSION_PATCH 2)
+   set(VERSION_PATCH 3)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -70,7 +70,7 @@ ELSE (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "TBD")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 5)
-   set(VERSION_PATCH 11)
+   set(VERSION_PATCH 12)
    set(VERSION_TWEAK 0)   
    set(SHORT_DESCRIPTION "Dashboard")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
@@ -107,7 +107,7 @@ set(CLOUDSMITH_USER "opencpn")
 
 # Set if yourCloudsmith Base Repository name does not match your Git Repository name.
 # set(CLOUDSMITH_BASE_REPOSITORY "opencpn-plugins") #Rick's customization
-set (CLOUDSMITH_BASE_REPOSITORY "testplugin")  #without the pi 
+set (CLOUDSMITH_BASE_REPOSITORY "dashboardtactics")  #without the pi 
 
 set(XML_INFO_URL "https://opencpn.org/OpenCPN/plugins/dashboardtactics.html")
 set(XML_SUMMARY ${SHORT_DESCRIPTION})
