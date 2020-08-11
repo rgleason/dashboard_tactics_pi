@@ -327,8 +327,8 @@ bottom.addEventListener('mrkdataack', ((event: Event) => {
 
 // New set of  data and back-end process status information has arrived
 var eventnewmrkdata: Event = document.createEvent('Event')
-var instruHasBeenRdy: boolean = true;
-var pollingGoingOnMsgDone: boolean = false;
+var instruHasBeenRdy: boolean = true
+var pollingGoingOnMsgDone: boolean = false
 eventnewmrkdata.initEvent('newmrkdata', false, false)
 bottom.addEventListener('newmrkdata', ((event: Event) => {
     // alert user if the instrument are not receiving data

@@ -526,33 +526,8 @@ var iface = {
     getsldstopack: function() {
         return this.sldstopacknowledged
     },
+    elemnewmrkdata     : null,
     eventmrkdataack    : null,
-    elemmrkdataack     : null,
-    mrkdataacknowledged: false,
-    regeventmrkdataack: function ( newelem, newevent ) {
-        this.elemmrkdataack = newelem
-        this.eventmrkdataack = newevent
-    },
-    setmrkdataack: function( newmrkdataacknowledged ) {
-        try {
-            if ( (this.eventmrkdataack === null) || (this.elemmrkdataack === null) )
-                return
-            this.mrkdataacknowledged = newmrkdataacknowledged
-            if ( ifacedbglevel > 0 )
-                console.log(
-                    'iface.setmrkdataack - mrkdataacknowledged: ', this.mrkdataacknowledged)
-            this.elemmrkdataack.dispatchEvent( this.eventmrkdataack )
-        }
-        catch (error) {
-            this.mrkdataacknowledged = false
-            if ( ifacedbglevel > 1 )
-                console.log('iface.setmrkdataack - state machine error',
-                            error)
-            return
-        }
-    },
-    elemnewmrkdata     : null,
-    elemnewmrkdata     : null,
     mrkhasactiveroute  : false,
     mrkinstrurdy       : false,
     mrk1name           : '- - -',
@@ -571,13 +546,11 @@ var iface = {
     mrk3twalong        : -999.0,
     mrk3current        : -999.0,
     mrkbrgback         : -999.0,
+    mrkdataacknowledged: false,
     regeventnewmrkdata: function ( newelem, newevent ) {
         this.elemnewmrkdata = newelem
         this.eventnewmrkdata = newevent
     },
-    eventmrkdataack    : null,
-    elemmrkdataack     : null,
-    mrkdataacknowledged: false,
     regeventmrkdataack: function ( newelem, newevent ) {
         this.elemmrkdataack = newelem
         this.eventmrkdataack = newevent

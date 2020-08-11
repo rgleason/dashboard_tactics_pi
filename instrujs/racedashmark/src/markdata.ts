@@ -18,18 +18,6 @@ var dbglevel: number = (window as any).instrustat.debuglevel
 var alerts: boolean = (window as any).instrustat.alerts
 
 var locstate: string = ''
-var thisleg_twa: number = -999.9
-var thisleg_twa_avg_short: number = -999.9
-var thisleg_twa_avg_long: number = -999.9
-var nextleg_current: number = -999.9
-var nextleg_twa: number = -999.9
-var nextleg_twa_avg_short: number = -999.9
-var nextleg_twa_avg_long: number = -999.9
-var nextleg_current: number = -999.9
-var next2leg_twa: number = -999.9
-var next2leg_twa_avg_short: number = -999.9
-var next2leg_twa_avg_long: number = -999.9
-var next2leg_current: number = -999.9
 
 export function initMarkData( that: StateMachine ) {
     console.log('racedashstart markdata initMarkData()')
@@ -198,7 +186,7 @@ export function newMarkData() {
 
     var bearingBackStr: string = '- - -'
     var bearingBack: number = cpp.getmrkbrgback()
-    if ( bearingBack != -999.0 ) {
+    if ( bearingBack !== -999.0 ) {
         bearingBackStr = (window as any).instrulang.rdmRteBrg +
             '&#x2193;&nbsp;' + bearingBack.toFixed(0) + '&#x00b0;'
     }
@@ -210,7 +198,7 @@ export function newMarkData() {
 
     var mrk1TwaLiveStr: string = '- - -'
     var mrk1TwaLive: number = cpp.getmrk1twalive()
-    if ( mrk1TwaLive != -999.0 ) {
+    if ( mrk1TwaLive !== -999.0 ) {
         mrk1TwaLiveStr = mrk1TwaLive.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk1TwaLiveStr )
@@ -218,7 +206,7 @@ export function newMarkData() {
 
     var mrk1TwaShortStr: string = '- - -'
     var mrk1TwaShort: number = cpp.getmrk1twashort()
-    if ( mrk1TwaShort != -999.0 ) {
+    if ( mrk1TwaShort !== -999.0 ) {
         mrk1TwaShortStr = mrk1TwaShort.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk1TwaShortStr )
@@ -226,7 +214,7 @@ export function newMarkData() {
 
     var mrk1TwaLongStr: string = '- - -'
     var mrk1TwaLong: number = cpp.getmrk1twalong()
-    if ( mrk1TwaLong != -999.0 ) {
+    if ( mrk1TwaLong !== -999.0 ) {
         mrk1TwaLongStr = mrk1TwaLong.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk1TwaLongStr )
@@ -234,7 +222,7 @@ export function newMarkData() {
 
     var mrk1CurrentStr: string = '- - -'
     var mrk1Current: number = cpp.getmrk1current()
-    if ( mrk1Current != -999.0 ) {
+    if ( mrk1Current !== -999.0 ) {
         mrk1CurrentStr = mrk1Current.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk1CurrentStr )
@@ -245,7 +233,7 @@ export function newMarkData() {
 
     var mrk2TwaLiveStr: string = '- - -'
     var mrk2TwaLive: number = cpp.getmrk2twalive()
-    if ( mrk2TwaLive != -999.0 ) {
+    if ( mrk2TwaLive !== -999.0 ) {
         mrk2TwaLiveStr = mrk2TwaLive.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk2TwaLiveStr )
@@ -253,7 +241,7 @@ export function newMarkData() {
 
     var mrk2TwaShortStr: string = '- - -'
     var mrk2TwaShort: number = cpp.getmrk2twashort()
-    if ( mrk2TwaShort != -999.0 ) {
+    if ( mrk2TwaShort !== -999.0 ) {
         mrk2TwaShortStr = mrk2TwaShort.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk2TwaShortStr )
@@ -261,7 +249,7 @@ export function newMarkData() {
 
     var mrk2TwaLongStr: string = '- - -'
     var mrk2TwaLong: number = cpp.getmrk2twalong()
-    if ( mrk2TwaLong != -999.0 ) {
+    if ( mrk2TwaLong !== -999.0 ) {
         mrk2TwaLongStr = mrk2TwaLong.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk2TwaLongStr )
@@ -269,7 +257,7 @@ export function newMarkData() {
 
     var mrk2CurrentStr: string = '- - -'
     var mrk2Current: number = cpp.getmrk2current()
-    if ( mrk2Current != -999.0 ) {
+    if ( mrk2Current !== -999.0 ) {
         mrk2CurrentStr = mrk2Current.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk2CurrentStr )
@@ -280,7 +268,7 @@ export function newMarkData() {
 
     var mrk3TwaLiveStr: string = '- - -'
     var mrk3TwaLive: number = cpp.getmrk3twalive()
-    if ( mrk3TwaLive != -999.0 ) {
+    if ( mrk3TwaLive !== -999.0 ) {
         mrk3TwaLiveStr = mrk3TwaLive.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk3TwaLiveStr )
@@ -288,7 +276,7 @@ export function newMarkData() {
 
     var mrk3TwaShortStr: string = '- - -'
     var mrk3TwaShort: number = cpp.getmrk3twashort()
-    if ( mrk3TwaShort != -999.0 ) {
+    if ( mrk3TwaShort !== -999.0 ) {
         mrk3TwaShortStr = mrk3TwaShort.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk3TwaShortStr )
@@ -296,7 +284,7 @@ export function newMarkData() {
 
     var mrk3TwaLongStr: string = '- - -'
     var mrk3TwaLong: number = cpp.getmrk3twalong()
-    if ( mrk3TwaLong != -999.0 ) {
+    if ( mrk3TwaLong !== -999.0 ) {
         mrk3TwaLongStr = mrk3TwaLong.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk3TwaLongStr )
@@ -304,7 +292,7 @@ export function newMarkData() {
 
     var mrk3CurrentStr: string = '- - -'
     var mrk3Current: number = cpp.getmrk3current()
-    if ( mrk3Current != -999.0 ) {
+    if ( mrk3Current !== -999.0 ) {
         mrk3CurrentStr = mrk3Current.toFixed(0) + '&#x00b0;'
     }
     sanitizedStr = Sanitizer.createSafeHTML( mrk3CurrentStr )
