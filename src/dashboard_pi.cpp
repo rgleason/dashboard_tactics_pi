@@ -519,9 +519,9 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
 #ifdef _TACTICSPI_H_
-    tactics_pi(), wxTimer( this ), opencpn_plugin_112( ppimgr )
+    tactics_pi(), wxTimer( this ), opencpn_plugin_116( ppimgr )
 #else
-     wxTimer( this ), opencpn_plugin_16( ppimgr )
+     wxTimer( this ), opencpn_plugin_116( ppimgr )
 #endif // _TACTICSPI_H_
 {
 #ifdef _TACTICSPI_H_
@@ -789,12 +789,12 @@ void dashboard_pi::OnAvgWindUpdTimer(wxTimerEvent &event)
 
 int dashboard_pi::GetAPIVersionMajor()
 {
-    return MY_API_VERSION_MAJOR;
+    return OCPN_API_VERSION_MAJOR;
 }
 
 int dashboard_pi::GetAPIVersionMinor()
 {
-    return MY_API_VERSION_MINOR;
+    return OCPN_API_VERSION_MINOR;
 }
 
 int dashboard_pi::GetPlugInVersionMajor()
@@ -834,35 +834,17 @@ wxString dashboard_pi::GetCommonNameVersion()
 
 wxString dashboard_pi::GetCommonName()
 {
-#ifdef _TACTICSPI_H_
-    wxString retstr( s_common_name );
-    return retstr;
-#else
-    return _("Dashboard");
-#endif // _TACTICSPI_H_
+    return _T(PLUGIN_COMMON_NAME);	
 }
-
 
 wxString dashboard_pi::GetShortDescription()
 {
-#ifdef _TACTICSPI_H_
-    return _("Dashboard and Tactics");
-#else
-    return _("Dashboard");
-#endif // _TACTICSPI_H_
-    
+    return _(PLUGIN_SHORT_DESCRIPTION);   
 }
 
 wxString dashboard_pi::GetLongDescription()
 {
-#ifdef _TACTICSPI_H_
-    return _("Dashboard PlugIn with Tactics for OpenCPN\n\
-Provides navigation instruments enhanced with performance functions and alternative input/output functions.");
-#else
-    return _("Dashboard PlugIn for OpenCPN\n\
-Provides navigation instrument display from NMEA source.");
-#endif // _TACTICSPI_H_
-
+   return _(PLUGIN_LONG_DESCRIPTION);	
 }
 
 #ifdef _TACTICSPI_H_
