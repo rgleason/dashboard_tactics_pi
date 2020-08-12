@@ -35,7 +35,7 @@ catch( error ) {
     console.error('index.js: fsm.init() transition failed, error: ', error)
 }
 
-// Create the transitional events (the IE way, sorry!) for clieant messages
+// Create the transitional events (the IE way, sorry!) for client messages
 var bottom = document.getElementById ('bottom' )
 
 // UID and configuration file

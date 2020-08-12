@@ -47,45 +47,32 @@
 #include "dashboard_pi_ext.h"
 
 #include "plugin_ids.h"
-/* Note about static event tables in derived class: a choice has been made
-   by the developer to use static event teble in the class DashboardInstrument.
-   Most of the derived instruments, like dials do not use events. However,
-   if static event tables are preferred in the derived classes, like
-   in the TacticsInstrument_AvgWindDir, it must be noted that they do
-   override the DashboardInstrument's timeout timer and close event
-   handling. This is a design decision in order to avoid sometime confusing
-   dynamic bindings. One needs to define who is doing what: here we deal
-   both with the close event and timeout event. For close event, we do not
-   need the base class. For the the timeout event, yes, we need to call
-   its timertick method ourselves to make our derived timeout event
-   to work! This is just for the record, in case you are wondering why this..
-*/
-wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, wxControl)
-EVT_TIMER (myID_TICK_AVGWIND, TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)
+wxBEGIN_EVENT_TABLE (TacticsInstrument_AvgWindDir, DashboardInstrument)
+EVT_TIMER (myID_TICK_AVGWIND,
+           TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer)
 EVT_CLOSE (TacticsInstrument_AvgWindDir::OnClose)
 wxEND_EVENT_TABLE ()
 
-/* ****************************************************************************
+/* ***************************************************************************
 Class for Average Wind Calculation
 
-Derived and used by  AvgWindDir instrument but not only, when this instrument
-is active, the onject created by this class is available for other classes
-as well, like tactics_pi, RaceStart classes, etc. to share the information
-across the application.
+Derived and used by  AvgWindDir instrument but not only, when this
+instrument is active, the onject created by this class is available for other classes as well, like tactics_pi, RaceStart classes, etc. to share
+the information across the application (i.e. the plug-in).
 
-For this calss to work, it shall be fed constantly by TWD. The class deals with
-the exponential smmothing calculations. Retrieval of the calculated wind +
-port & stb limits is provided with a set of  getter-methods.
+For this calss to work, it shall be fed constantly by TWD. The class deals
+with the exponential smmothing calculations. Retrieval of the calculated
+wind + port & stb limits is provided with a set of getter-methods.
 
 Please note that, as object we get the TWD data from tactics_pi (which is
 likely to calculate it, if not available or if forced calculation selected).
 However, if the display instrument gets starvated by the same TWD data, it
-need to clear the object's calculations, otherwise funny historical skew
+needs to clear the object's calculations, otherwise funny historical skew
 will occur if data is coming back.
 
 Therefore, the object cannot exist without the average wind instrument which
 controls also the sampling time which can be selected with a slider it provides.
-***************************************************************************** */
+*****************************************************************************/
 
 AvgWind::AvgWind()
 {
@@ -447,7 +434,6 @@ void TacticsInstrument_AvgWindDir::DataClear() // shared clear Tactics/DashT
 
 void TacticsInstrument_AvgWindDir::OnAvgWindUpdTimer(wxTimerEvent &event)
 {
-    OnDPBITimerTick( event );
     if ( !std::isnan(m_WindDir) ) {
         m_cntNoData = 0;
         m_AvgWindDir = AverageWind->GetAvgWindDir();

@@ -225,6 +225,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2b24 DashT Line Chart");
     case ID_DBP_D_RACESTA:
 		return _(L"\u2b24 DashT Race Start");
+    case ID_DBP_D_RACEMRK:
+		return _(L"\u2b24 DashT Race Mark");
     }
     return wxEmptyString;
 }

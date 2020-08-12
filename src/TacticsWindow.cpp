@@ -260,6 +260,41 @@ wxString TacticsWindow::GetActiveRouteGUID()
     return m_plugin->GetActiveRouteGUID();
 }
 
+wxString TacticsWindow::GetWpActivatedName()
+{
+    return m_plugin->GetWpActivatedName();
+}
+
+wxString TacticsWindow::GetWpActivatedGUID()
+{
+    return m_plugin->GetWpActivatedGUID();
+}
+
+bool TacticsWindow::GetWpArrivedIsSkipped()
+{
+    return m_plugin->GetWpArrivedIsSkipped();
+}
+
+wxString TacticsWindow::GetWpArrivedName()
+{
+    return m_plugin->GetWpArrivedName();
+}
+
+wxString TacticsWindow::GetWpArrivedGUID()
+{
+    return m_plugin->GetWpArrivedGUID();
+}
+
+wxString TacticsWindow::GetWpArrivedNextName()
+{
+    return m_plugin->GetWpArrivedNextName();
+}
+
+wxString TacticsWindow::GetWpArrivedNextGUID()
+{
+    return m_plugin->GetWpArrivedNextGUID();
+}
+
 Plugin_Active_Leg_Info* TacticsWindow::GetActiveLegInfoPtr()
 {
     return m_plugin->GetActiveLegInfoPtr();

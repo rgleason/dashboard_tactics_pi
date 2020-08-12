@@ -100,7 +100,7 @@ void DashboardInstrument_RaceStart::DoRenderGLOverLay(
     this->RenderGLGrid( pcontext, vp );
     this->CalculateDistancesToStartlineGLDot( pcontext, vp );
     this->RenderGLZeroBurn(  pcontext, vp );
-    glFlush();
+
 }
 
 void DashboardInstrument_RaceStart::RenderGLStartLine(
@@ -244,7 +244,7 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
         m_renLLStbdDir = m_renLLPortDir - 90.0;
         if ( m_renLLStbdDir < 0. )
             m_renLLStbdDir += 360.0;
-    } // then boat should be N in excpecting to start towards S sector
+    } // else boat should be N in excpecting to start towards S sector
 
     if ( !CalculateGridBox( pcontext, vp ) ) {
         ClearRendererCalcs();
@@ -255,7 +255,7 @@ void DashboardInstrument_RaceStart::RenderGLLaylines(
             m_renLaylinesCalculated = true;
             return;
     }
-    // calculate the righ lenght for the layline so that it ends with the grid
+    // calculate the right lenght for the layline so that it ends with the grid
     double llWestStbd_lat;
     double llWestStbd_lon;
     PositionBearingDistanceMercator_Plugin(

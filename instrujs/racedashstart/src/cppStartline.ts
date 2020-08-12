@@ -1,4 +1,4 @@
-/* $Id: cppcomm.ts, v1.0 2019/11/30 VaderDarth Exp $
+/* $Id: cppStartline.ts, v1.0 2019/11/30 VaderDarth Exp $
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */

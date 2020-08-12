@@ -147,9 +147,8 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     // cppcheck-suppress noCopyConstructor
     m_NMEA0183 = new NMEA0183();
     ResetAllSourcePriorities();
-    mRouteActivatedName = wxEmptyString;
-    mRouteActivatedGUID = wxEmptyString;
     mActiveLegInfo = nullptr;
+    ClearActiveRouteMessages();
     mUTCDateTime.Set( (time_t) -1 );
     m_config_version = -1;
     mSrc_Watchdog = 2;
@@ -179,7 +178,7 @@ dashboard_pi::~dashboard_pi( void )
     delete _img_instrument;
     delete _img_minus;
     delete _img_plus;
-    if ( !(mActiveLegInfo == nullptr) )
+    if ( mActiveLegInfo )
         delete mActiveLegInfo;
 }
 
@@ -1397,8 +1396,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_PITCH, xdrdata, xdrunit);
                         }
-                        else if ((m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
-                                 (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("Heel Angle")))
+                        else if (
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("ROLL")) ||
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name == _T("HEEL")) ||
+                            (m_NMEA0183->Xdr.TransducerInfo[i].Name ==
+                             _T("Heel Angle")))
                         {
                             if (m_NMEA0183->Xdr.TransducerInfo[i].Data > 0) {
                                 xdrunit = L"\u00B0r";
@@ -1985,6 +1987,22 @@ void dashboard_pi::SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info) {
        *mActiveLegInfo = leg_info;
 }
 
+void dashboard_pi::ClearActiveRouteMessages()
+{
+    mRouteActivatedName = wxEmptyString;
+    mRouteActivatedGUID = wxEmptyString;
+    mWpActivatedName = wxEmptyString;
+    mWpActivatedGUID = wxEmptyString;
+    mWpArrivedName = wxEmptyString;
+    mWpArrivedGUID = wxEmptyString;
+    mWpArrivedIsSkipped = false;
+    mWpArrivedNextName = wxEmptyString;
+    mWpArrivedNextGUID = wxEmptyString;
+    if ( mActiveLegInfo )
+        delete mActiveLegInfo;
+    mActiveLegInfo = nullptr;
+}
+
 void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body)
 {
     wxJSONValue  root;
@@ -2014,11 +2032,35 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         mActiveLegInfo->wp_name = wxEmptyString;
     }
     else if ( message_id == _T("OCPN_RTE_DEACTIVATED") ) {
-        mRouteActivatedName = wxEmptyString;
-        mRouteActivatedGUID = wxEmptyString;
-        if ( mActiveLegInfo )
-            delete mActiveLegInfo;
-        mActiveLegInfo = nullptr;
+        ClearActiveRouteMessages();
+    }
+    else if ( message_id == _T("OCPN_RTE_ENDED") ) {
+        ClearActiveRouteMessages();
+    }
+    else if ( message_id == _T("OCPN_WPT_ACTIVATED") ) {
+        mWpActivatedName = root[_T("WP_activated")].AsString();
+        mWpActivatedGUID = root[_T("GUID")].AsString();
+    }
+    else if ( message_id == _T("OCPN_WPT_ARRIVED") ) {
+        if ( root.HasMember("isSkipped") ) {
+            mWpArrivedIsSkipped = root[_T("isSkipped")].AsBool();
+            mWpArrivedName = root[_T("WP_arrived")].AsString();
+            if ( root.HasMember("Next_WP") ) {
+                mWpArrivedGUID = wxEmptyString;
+            } /* then the GUID of the arrived WP will be overwritten(!),
+                 in O <= v5.2 - OK, clear it. */
+            else {
+                mWpArrivedGUID = root[_T("GUID")].AsString();
+            } // else the GUID of the arrived WP will not be overwritten
+        } // then there was an active point to which we have arrived
+        if ( root.HasMember("Next_WP") ) {
+            mWpArrivedNextName = root[_T("Next_WP")].AsString();
+            mWpArrivedNextGUID = root[_T("GUID")].AsString();
+        } // then there is next waypoint on the route
+        else {
+            mWpArrivedNextName = wxEmptyString;
+            mWpArrivedNextGUID = wxEmptyString;
+        }
     }
     else if ( message_id == _T("OpenCPN Config") ) {
         int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;

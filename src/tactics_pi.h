@@ -155,6 +155,13 @@ public:
         wxString &unit_currspd, long long &calctimestamp) final;
     virtual wxString GetActiveRouteName() = 0;
     virtual wxString GetActiveRouteGUID() = 0;
+    virtual wxString GetWpActivatedName() = 0;
+    virtual wxString GetWpActivatedGUID() = 0;
+    virtual bool GetWpArrivedIsSkipped() = 0;
+    virtual wxString GetWpArrivedName() = 0;
+    virtual wxString GetWpArrivedGUID() = 0;
+    virtual wxString GetWpArrivedNextName() = 0;
+    virtual wxString GetWpArrivedNextGUID() = 0;
     virtual Plugin_Active_Leg_Info* GetActiveLegInfoPtr() = 0;
 
     virtual void OnAvgWindUpdTimer_Tactics(void) final;

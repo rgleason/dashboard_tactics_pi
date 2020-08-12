@@ -84,6 +84,13 @@ public:
     void collectAllDbSchemaPaths(void);
     wxString GetActiveRouteName();
     wxString GetActiveRouteGUID();
+    wxString GetWpActivatedName();
+    wxString GetWpActivatedGUID();
+    bool GetWpArrivedIsSkipped();
+    wxString GetWpArrivedName();
+    wxString GetWpArrivedGUID();
+    wxString GetWpArrivedNextName();
+    wxString GetWpArrivedNextGUID();
     Plugin_Active_Leg_Info* GetActiveLegInfoPtr();
     wxString registerGLRenderer( wxString className, glRendererFunction renderer);
     void unregisterGLRenderer( wxString rendererUUID );

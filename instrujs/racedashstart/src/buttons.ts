@@ -26,9 +26,9 @@ var htmlPnlCenter = Sanitizer.createSafeHTML(elemPnlCenter)
 const elemBtnArm = '<button id="btnArm" type="button" class="btn btn-lg btn-warning disabled">' +
 '</button>'
 var htmlBtnArm = Sanitizer.createSafeHTML(elemBtnArm)
-const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-lg btn-primary disabled">' +
+const elemBtnArmed = '<button id="btnFiveMinutes" type="button" class="btn btn-lg btn-info disabled">' +
 '</button>' +
-'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-lg btn-info disabled">' +
+'&nbsp;<button id="btnFourMinutes" type="button" class="btn btn-lg btn-primary disabled">' +
 '</button>' +
 '&nbsp;<button id="btnArmedQuit" type="button" class="btn btn-sm btn-warning disabled">' +
 '</div>'

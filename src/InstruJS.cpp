@@ -51,9 +51,9 @@ using namespace std::placeholders;
 extern int GetRandomNumber(int, int);
 
 wxBEGIN_EVENT_TABLE (InstruJS, DashboardInstrument)
-   EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
-   EVT_SIZE (InstruJS::OnSize)
-   EVT_CLOSE (InstruJS::OnClose)
+EVT_TIMER (myID_TICK_INSTRUJS, InstruJS::OnThreadTimerTick)
+EVT_SIZE (InstruJS::OnSize)
+EVT_CLOSE (InstruJS::OnClose)
 wxEND_EVENT_TABLE ()
 
 //************************************************************************************************************************
@@ -239,7 +239,8 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
         m_webpanelCreateWait = true;
         // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
         m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ) , wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
+                                       wxTIMER_CONTINUOUS);
     }
 }
 
@@ -250,8 +251,10 @@ void InstruJS::FitIn()
         m_lastSize = newSize;
         if ( m_webpanelCreated || m_webpanelCreateWait ) {
             m_pWebPanel->SetSize( newSize );
-            /* Note: do not call here Layout() even this is used also by OnSize() event:
-               the WebPanel is attached to the DashboardWindow object's (top level) sizer */
+            /* Note: do not call here Layout() even this is used also by
+               OnSize() event:
+               the WebPanel is attached to the DashboardWindow object's
+               (top level) sizer */
         }
     }
 }
@@ -268,7 +271,8 @@ void InstruJS::suspendInstrument()
     if ( instrIsRunning() ) {
         m_pThreadInstruJSTimer->Stop();
         m_webPanelSuspended = true;
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ),
+                                       wxTIMER_CONTINUOUS);
     } // then running, can be suspended but keep thread running
 }
 
@@ -299,7 +303,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     m_pThreadInstruJSTimer->Stop();
     m_threadRunning = true;
-    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) ) {
+    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) &&
+         m_pWebPanel ) {
         // see  ../instrujs/src/iface.js for the interface,
         // see  ../instrujs/<instrument>/src/statemachine.js for the states
         wxString request = wxEmptyString;
@@ -504,6 +509,50 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_dsRequestedInSource = JSI_IS_UNDEFINED;
                 break;
             }
+            else if ( request.CmpNoCase("getmrkdata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmrkdataack(",
+                    (sendRmData() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                m_istate = JSI_SHOWDATA;
+                m_dsRequestedInSource = JSI_IS_RACESTART_MARK;
+                break;
+            }
+            else if ( request.CmpNoCase("stopmrkdata") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmrkdataack(",
+                    (stopRmData() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                m_istate = JSI_SHOWDATA;
+                m_dsRequestedInSource = JSI_IS_UNDEFINED;
+                break;
+            }
+            else if ( request.CmpNoCase("mutechart") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmrkmteaack(",
+                    (hideChartOverlay() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
+            else if ( request.CmpNoCase("resumechart") == 0 ) {
+                wxString javascript = wxString::Format(
+                    L"%s%s%s",
+                    "window.iface.setmrkumteack(",
+                    (showChartOverlay() ? "true" : "false"),
+                    ");");
+                RunScript( javascript );
+                m_handshake = JSI_HDS_SERVED;
+                break;
+            }
             else if ( request.CmpNoCase("getdisf") == 0 ) {
                 bool disfRetval = false;
                 wxString sUsrUnit = getUsrDistanceUnit_Plugin(); // get O global
@@ -528,7 +577,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         m_pparent->unsubscribeFrom ( m_pushHereUUID );
                     m_data = wxString::Format( m_format, 0.0 );
                     m_subscribedPath = request;
-                    m_pushHereUUID = m_pparent->subscribeTo ( m_subscribedPath, m_pushHere );
+                    m_pushHereUUID = m_pparent->subscribeTo (
+                        m_subscribedPath, m_pushHere );
                     wxString javascript =
                         wxString::Format(
                             L"%s%s%s",
@@ -554,7 +604,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                             } // then there are schemas
                         } // else then gracetime passed
                         m_setAllPathGraceCount--;
-                    } // then this is instrument with a memory of its path, needs schemas
+                    } // then instrument with a memory of its path, needs schemas
                     if ( m_hasSchemDataCollected ) {
                         m_istate = JSI_GETPATH;
                         m_subscribedPath = request;
@@ -567,8 +617,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         RunScript( javascript );
                         m_istate = JSI_SHOWDATA;
                         m_handshake = JSI_HDS_SERVED;
-                    } // has got all DB'd paths, now wants a DB schema of one of those
-                } // then a data source from external database, needs a schems for path
+                    } // has got all DB paths, now wants a DB schema of one of those
+                } // then a data source from external database, needs a schema
                 break;
             }
             else
@@ -616,6 +666,53 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         ");");
                 RunScript( javascript );
             } // else if data source requested is startline calculated data
+            else if ( m_dsRequestedInSource == JSI_IS_RACESTART_MARK ) {
+                raceRouteJSData *rd = getRmDataPtr();
+                if ( rd ) {
+                    wxString javascript =
+                        wxString::Format( L"%s", "window.iface.newmrkdata(" );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->hasActiveRoute, ",", rd->instruIsReady, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s%s%s%s",
+                            "'", rd->mark1Name, "','", rd->mark2Name, "','",
+                            rd->mark3Name, "'," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->thisLegTwa, ",", rd->thisLegTwaShortAvg, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->thisLegTwaAvg, ",", rd->thisLegCurrent, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->nextLegTwa, ",", rd->nextLegTwaShortAvg, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->nextLegTwaAvg, ",", rd->nextLegCurrent, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->nextNextLegTwa, ",",
+                            rd->nextNextLegTwaShortAvg, "," );
+                    javascript +=
+                        wxString::Format(
+                            L"%s%s%s%s",
+                            rd->nextNextLegTwaAvg, ",",
+                            rd->nextNextLegCurrent, "," );
+                    javascript +=
+                        wxString::Format( L"%s", rd->bearingBack );
+                    javascript +=
+                        wxString::Format( L"%s", ");");
+                    RunScript( javascript );
+                } // then there is a structure filled by derived class
+            } // else if data source requested is startline calculated data
         } // the instrument is ready for data
         if ( m_hasRequestedId ) {
             bool sendNewValue = false;
@@ -661,7 +758,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             } // then page is reloaded
         } // then poll until page reloaded - to make sure to have the latest .js versions
 
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 2900,3099 ), wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
+                                       wxTIMER_CONTINUOUS);
 
     } // else the webpanel is not yet loaded / scripts are not running
 

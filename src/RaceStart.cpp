@@ -78,37 +78,45 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
       Subcscribe to some interesting data, for compatibility reasons
       we use OpenCPN Dashboard paths, so if there is Signal K paths
       they are considered having passing first through OpenCPN. This way,
-      this instrument can be used both with OpenCPN and Signal K with no mods.
+      this instrument can be used both with OpenCPN and Signal K with no
+      modifications.
     */
     m_Twa = std::nan("1");
     m_pushTwaHere = std::bind(
         &DashboardInstrument_RaceStart::PushTwaHere, this, _1, _2, _3 );
-    m_pushTwaUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWA"), m_pushTwaHere );
+    m_pushTwaUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_TWA"), m_pushTwaHere );
     m_Tws = std::nan("1");
     m_pushTwsHere = std::bind(
         &DashboardInstrument_RaceStart::PushTwsHere, this, _1, _2, _3 );
-    m_pushTwsUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_TWS"), m_pushTwsHere );
+    m_pushTwsUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_TWS"), m_pushTwsHere );
     m_Cog = std::nan("1");
     m_pushCogHere = std::bind(
         &DashboardInstrument_RaceStart::PushCogHere, this, _1, _2, _3 );
-    m_pushCogUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_COG"), m_pushCogHere );
+    m_pushCogUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_COG"), m_pushCogHere );
     m_Lat = std::nan("1");
     m_pushLatHere = std::bind(
         &DashboardInstrument_RaceStart::PushLatHere, this, _1, _2, _3 );
-    m_pushLatUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_LAT"), m_pushLatHere );
+    m_pushLatUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_LAT"), m_pushLatHere );
     m_Lon = std::nan("1");
     m_pushLonHere = std::bind(
         &DashboardInstrument_RaceStart::PushLonHere, this, _1, _2, _3 );
-    m_pushLonUUID = m_pparent->subscribeTo ( _T("OCPN_DBP_STC_LON"), m_pushLonHere );
+    m_pushLonUUID = m_pparent->subscribeTo (
+        _T("OCPN_DBP_STC_LON"), m_pushLonHere );
     
     /* 
-       Startline set by us as a "route" with two waypoints, it is persistant,
-       check if it is there right now when this instrument is started.
+       Startline set by us as a "route" with two waypoints, it is
+       persistant, check if it is there right now when this instrument is
+       started.
     */
     m_renDistanceToStartLine = std::nan("1");
     m_renDistanceCogToStartLine = std::nan("1");
     (void) CheckForValidStartLineGUID (
-        _T(RACESTART_GUID_STARTLINE_AS_ROUTE), _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
+        _T(RACESTART_GUID_STARTLINE_AS_ROUTE),
+        _T(RACESTART_NAME_STARTLINE_AS_ROUTE),
         _T(RACESTART_NAME_WP_STARTPORT), _T(RACESTART_NAME_WP_STARTSTBD) );
 
     if ( !LoadConfig() )
@@ -124,7 +132,8 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
 
     if ( !m_fullPathHTML.IsEmpty() ) {
         m_pThreadRaceStartTimer = new wxTimer( this, myID_TICK_RACESTART );
-        wxMilliSleep( GetRandomNumber( 800,1600 ) ); // avoid start loading all instruments simultaneously
+        // avoid start loading all instruments simultaneously
+        wxMilliSleep( GetRandomNumber( 800,1600 ) );
         m_pThreadRaceStartTimer->Start(1000, wxTIMER_CONTINUOUS);
     } // then a reason to launch InstruJS, there is a page to load
 }
@@ -133,7 +142,8 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
     this->m_pThreadRaceStartTimer->Stop();
     delete this->m_pThreadRaceStartTimer;
     if ( !this->m_sRendererCallbackUUID.IsEmpty() )
-        this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
+        this->m_pparent->unregisterGLRenderer(
+            this->m_sRendererCallbackUUID );
     if ( !this->m_pushTwaUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushTwaUUID );
     if ( !this->m_pushTwsUUID.IsEmpty() )
@@ -144,7 +154,6 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
         this->m_pparent->unsubscribeFrom( m_pushLatUUID ); 
     if ( !this->m_pushLonUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushLonUUID ); 
-    SaveConfig();
     return;
 }
 void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
@@ -152,7 +161,8 @@ void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
     this->m_pThreadRaceStartTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
     if ( !this->m_sRendererCallbackUUID.IsEmpty() )
-        this->m_pparent->unregisterGLRenderer( this->m_sRendererCallbackUUID );
+        this->m_pparent->unregisterGLRenderer(
+            this->m_sRendererCallbackUUID );
     this->m_sRendererCallbackUUID = wxEmptyString;
     if ( !this->m_pushTwaUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushTwaUUID );
@@ -166,6 +176,7 @@ void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
     if ( !this->m_pushLatUUID.IsEmpty() )
         this->m_pparent->unsubscribeFrom( m_pushLatUUID );
     this->m_pushLatUUID = wxEmptyString;
+    SaveConfig();
     event.Skip(); // Destroy() must be called
 }
 
@@ -190,44 +201,39 @@ bool DashboardInstrument_RaceStart::IsAllMeasurementDataValid()
     return false;
 }
 
+#define __RACESTART_CHECK_DATA__(__INSDATA__) if ( !std::isnan(data) ) \
+    setTimestamp( timestamp ); \
+m_##__INSDATA__ = data;
+
+
 void DashboardInstrument_RaceStart::PushTwaHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) )
-        setTimestamp( timestamp );
-    m_Twa = data;
+    __RACESTART_CHECK_DATA__(Twa)
 }
 
 void DashboardInstrument_RaceStart::PushTwsHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) )
-        setTimestamp( timestamp );
-    m_Tws = data;
+    __RACESTART_CHECK_DATA__(Tws)
 }
 
 void DashboardInstrument_RaceStart::PushCogHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) )
-        setTimestamp( timestamp );
-    m_Cog = data;
+    __RACESTART_CHECK_DATA__(Cog)
 }
 
 void DashboardInstrument_RaceStart::PushLatHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) )
-        setTimestamp( timestamp );
-    m_Lat = data;
+    __RACESTART_CHECK_DATA__(Lat)
 }
 
 void DashboardInstrument_RaceStart::PushLonHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(data) )
-        setTimestamp( timestamp );
-    m_Lon = data;
+    __RACESTART_CHECK_DATA__(Lon)
 }
 
 void DashboardInstrument_RaceStart::ClearRoutesAndWPs()
@@ -254,7 +260,8 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
         return false;
     bool startlineAsRouteValid = true;
     m_sStartLineAsRouteGuid = sGUID;
-    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin( m_sStartLineAsRouteGuid );
+    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin(
+        m_sStartLineAsRouteGuid );
     m_startLineAsRoute = rte.get();
     if ( m_startLineAsRoute ) {
         if ( !(m_startLineAsRoute->pWaypointList) )
@@ -291,7 +298,9 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
                             else
                                 startlineAsRouteValid = false;
                         } // then starborad side waypoint
-                        else if ( secondWp->m_MarkName.CmpNoCase( portName ) == 0 ) {
+                        else if (
+                            secondWp->m_MarkName.CmpNoCase( portName ) == 0
+                            ) {
                             if ( m_sStartPortWpGuid.IsEmpty() ) {
                                 m_sStartPortWpGuid = secondWp->m_GUID;
                                 m_startPortWp = secondWp;
@@ -315,7 +324,7 @@ bool DashboardInstrument_RaceStart::CheckForValidStartLineGUID( wxString sGUID, 
     m_startEastWp = nullptr;
     if ( !startlineAsRouteValid ) {
         ClearRoutesAndWPs();
-    } // then  some points given by routing, possibly, but can't map them to start
+    } // then  some points given by route, possibly, but can't map them to start
     return startlineAsRouteValid;
 }
 
@@ -327,18 +336,22 @@ bool DashboardInstrument_RaceStart::CheckForValidUserSetStartLine()
     wxString activeRouteName = m_pparent->GetActiveRouteName();
     if ( activeRouteName.IsEmpty() )
         return false;
-    if ( activeRouteName.CmpNoCase( _T(RACESTART_NAME_STARTLINE_AS_ROUTE_USER) ) != 0 )
+    if ( activeRouteName.CmpNoCase(
+             _T(RACESTART_NAME_STARTLINE_AS_ROUTE_USER) ) != 0 )
         return false;
-    // There is an active route named with the matching user name nomenclature, let's study it
+    // There is an active route named with the matching user name
+    // nomenclature, let's study it
     return CheckForValidStartLineGUID(
         activeRouteGUID, activeRouteName,
-        _T(RACESTART_NAME_WP_STARTPORT_USER), _T(RACESTART_NAME_WP_STARTSTBD_USER) );
+        _T(RACESTART_NAME_WP_STARTPORT_USER),
+        _T(RACESTART_NAME_WP_STARTSTBD_USER) );
 }
 
 // The startline is a route and can be killed in route manager of OpenCPN
 bool DashboardInstrument_RaceStart::CheckStartLineStillValid()
 {
-    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin( m_sStartLineAsRouteGuid );
+    std::unique_ptr<PlugIn_Route> rte = GetRoute_Plugin(
+        m_sStartLineAsRouteGuid );
     PlugIn_Route *selectedRouteAsStartLineStillThere = rte.get();
     if ( selectedRouteAsStartLineStillThere )
         return true;
@@ -440,8 +453,8 @@ bool DashboardInstrument_RaceStart::CheckForPreviouslyDroppedStartLine()
     }
 
     wxString message(
-        _("There is an existing startline from previous race or start. ") + "\n" +
-        _("Do you want to keep it?") + "\n"
+        _("There is an existing startline from previous race or start. ") +
+        "\n" + _("Do you want to keep it?") + "\n"
         );
     wxString msgButtonYes( _("Yes - Keep") );
     wxString msgButtonNo(  _("No - I will drop new marks") );
@@ -511,7 +524,9 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
 
     if ( thereIsValidChange ) {
         m_startPointMoveDelayCount++;
-        if ( m_startPointMoveDelayCount < RACESTART_USER_MOVING_WP_GRACETIME_CNT )
+        if (
+            m_startPointMoveDelayCount < RACESTART_USER_MOVING_WP_GRACETIME_CNT
+            )
             return false;
     } // else tracking the change with a delay
     else {
@@ -533,7 +548,8 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
                                      ("&" + msgButtonNo),
                                      ("&" + msgButtonCancel) ) ) {
         wxString messageExtended(
-            _("Yes: move startline | No: keep previous | Cancel: keep on moving")
+            _("Yes: move startline | No: keep previous | "
+              "Cancel: keep on moving")
             );
         dlg->SetExtendedMessage( messageExtended );
     } // then cannot change button lables on this platform
@@ -577,7 +593,8 @@ void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
     if ( !m_htmlLoaded) {
         if ( testHTTPServer( m_httpServer ) ) {
             if ( (m_goodHttpServerDetects == -1) ||
-                 (m_goodHttpServerDetects >= RACESTART_WAIT_NEW_HTTP_SERVER_TICKS) ) {
+                 (m_goodHttpServerDetects >=
+                  RACESTART_WAIT_NEW_HTTP_SERVER_TICKS) ) {
                 wxSize thisSize = wxControl::GetSize();
                 wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
                 SetInitialSize ( thisFrameInitSize );
@@ -587,13 +604,15 @@ void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
                 m_htmlLoaded= true;
                 m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ),
                                                 wxTIMER_CONTINUOUS);
-            } // then either a straigth start with server or detected a stable server
+            } /* then either a straigth start with server or detected
+                 a stable server */
             else {
                 m_goodHttpServerDetects += 1;
                 m_pThreadRaceStartTimer->Start( GetRandomNumber( 800,1100 ),
                                                 wxTIMER_CONTINUOUS);
             }
-        } // then there is a server serving the page, can ask content to be loaded
+        } /* then there is a server serving the page, can ask content
+             to be loaded */
         else {
             m_goodHttpServerDetects = 0;
             m_pThreadRaceStartTimer->Start( GetRandomNumber( 8000,11000 ),
@@ -639,16 +658,19 @@ bool DashboardInstrument_RaceStart::LoadConfig()
     
     if ( m_httpServer.IsEmpty() ) {
         wxString message(
-            _("Malformed URL string in WebView/RaceStart ini-file entry: ") + "\n" );
+            _("Malformed URL string in WebView/RaceStart ini-file entry: ")
+            + "\n" );
         message += m_fullPathHTML;
         wxMessageDialog *dlg = new wxMessageDialog(
-            GetOCPNCanvasWindow(), message, _T("DashT Race Start"), wxOK|wxICON_ERROR);
+            GetOCPNCanvasWindow(), message, _T("DashT Race Start"),
+            wxOK|wxICON_ERROR);
         (void) dlg->ShowModal();
         m_fullPathHTML = wxEmptyString;
     }
 
     pConf->SetPath( _T("/PlugIns/DashT/Race/RaceStart/") );
-    pConf->Read( _T("LaylineWidth"), &m_renLaylineWidth, RACESTART_LAYL_LINE_WIDTH );
+    pConf->Read( _T("LaylineWidth"), &m_renLaylineWidth,
+                 RACESTART_LAYLINE_WIDTH );
     m_renDrawLaylines = true;
     if ( m_renLaylineWidth <= 0 ) {
         m_renLaylineWidth = 0;
@@ -660,22 +682,28 @@ bool DashboardInstrument_RaceStart::LoadConfig()
         m_renGridSize = RACESTART_GRID_SIZE;
     pConf->Read( _T("GridStep"), &m_renGridStep, RACESTART_GRID_STEP );
     m_renGridStep = abs(m_renGridStep);
-    if ( m_renGridStep == 0. )
-        m_renGridStep = RACESTART_GRID_STEP;
-    pConf->Read( _T("GridLineWidth"), &m_renGridLineWidth, RACESTART_GRID_LINE_WIDTH );
+    if ( m_renGridStep < RACESTART_GRID_STEP_MINIMUM )
+        m_renGridStep = RACESTART_GRID_STEP_MINIMUM;
+    pConf->Read( _T("GridLineWidth"), &m_renGridLineWidth,
+                 RACESTART_GRID_LINE_WIDTH );
     if ( m_renGridLineWidth < 0 )
         m_renGridLineWidth = 0;
     m_renDrawGrid = true;
     if ( m_renGridLineWidth == 0 )
         m_renDrawGrid = false;
-     pConf->Read( _T("GridBoldInterval"), &m_renGridBoldInterval, RACESTART_GRID_BOLD_INTERVAL );
+     pConf->Read( _T("GridBoldInterval"), &m_renGridBoldInterval,
+                  RACESTART_GRID_BOLD_INTERVAL );
     if ( m_renGridBoldInterval < 1 )
         m_renGridBoldInterval = 1;
-    pConf->Read( _T("ZeroBurnSeconds"), &m_renZeroBurnSeconds, RACESTART_ZERO_BURN_BY_POLAR_SECONDS );
+    pConf->Read( _T("ZeroBurnSeconds"), &m_renZeroBurnSeconds,
+                 RACESTART_ZERO_BURN_BY_POLAR_SECONDS );
     m_renZeroBurnSeconds = abs(m_renZeroBurnSeconds);
-    if ( m_renZeroBurnSeconds > RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT )
-        m_renZeroBurnSeconds = RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT;
-    if ( m_renZeroBurnSeconds < RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT )
+    if ( m_renZeroBurnSeconds >
+         RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT )
+        m_renZeroBurnSeconds =
+            RACESTART_ZERO_BURN_BY_POLAR_SECONDS_UPPER_LIMIT;
+    if ( m_renZeroBurnSeconds <
+         RACESTART_ZERO_BURN_BY_POLAR_SECONDS_LOWER_LIMIT )
         m_renZeroBurnSeconds = 0;
        
     return true;

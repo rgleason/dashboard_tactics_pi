@@ -106,7 +106,15 @@ public:
     void OnAuiRender( wxAuiManagerEvent& event );
     wxString GetActiveRouteName() { return mRouteActivatedName; };
     wxString GetActiveRouteGUID() { return mRouteActivatedGUID; };
-    Plugin_Active_Leg_Info* GetActiveLegInfoPtr() { return mActiveLegInfo; };
+    wxString GetWpActivatedName() { return mWpActivatedName; };
+    wxString GetWpActivatedGUID() { return mWpActivatedGUID; };
+    bool GetWpArrivedIsSkipped() { return mWpArrivedIsSkipped; };
+    wxString GetWpArrivedName() { return mWpArrivedName; };
+    wxString GetWpArrivedGUID() { return mWpArrivedGUID; };
+    wxString GetWpArrivedNextName() { return mWpArrivedNextName; };
+    wxString GetWpArrivedNextGUID() { return mWpArrivedNextGUID; };
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr() {
+        return mActiveLegInfo; };
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
@@ -186,6 +194,13 @@ private:
     double               mVar;
     wxString             mRouteActivatedName;
     wxString             mRouteActivatedGUID;
+    wxString             mWpActivatedName;
+    wxString             mWpActivatedGUID;
+    wxString             mWpArrivedName;
+    wxString             mWpArrivedGUID;
+    bool                 mWpArrivedIsSkipped;
+    wxString             mWpArrivedNextName;
+    wxString             mWpArrivedNextGUID;
     Plugin_Active_Leg_Info *mActiveLegInfo;
     // FFU
     double               mSatsInView;
@@ -211,6 +226,7 @@ private:
 
 protected:
     DECLARE_EVENT_TABLE();
+    void ClearActiveRouteMessages();
 };
   
 
