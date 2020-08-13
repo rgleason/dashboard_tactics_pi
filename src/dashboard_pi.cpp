@@ -74,6 +74,22 @@ int g_iDashWindSpeedUnit;
 int g_iDashTemperatureUnit;
 int g_iUTCOffset;
 double g_dDashDBTOffset;
+int      g_sTitleFontSize;
+wxString g_sTitleFontFamily;
+wxString g_sTitleFontStyle;
+wxString g_sTitleFontWeight;
+int      g_sDataFontSize;
+wxString g_sDataFontFamily;
+wxString g_sDataFontStyle;
+wxString g_sDataFontWeight;
+int      g_sLabelFontSize;
+wxString g_sLabelFontFamily;
+wxString g_sLabelFontStyle;
+wxString g_sLabelFontWeight;
+int      g_sSmallFontSize;
+wxString g_sSmallFontFamily;
+wxString g_sSmallFontStyle;
+wxString g_sSmallFontWeight;
 wxString g_sDialColorBackground;
 wxString g_sDialColorForeground;
 wxString g_sDialColorLabel;
@@ -186,10 +202,14 @@ int dashboard_pi::Init( void )
 {
     AddLocaleCatalog( _T("opencpn-dashboard_tactics_pi") );
 
-    g_pFontTitle = new wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
-    g_pFontData = new wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-    g_pFontLabel = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-    g_pFontSmall = new wxFont( 8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+    g_pFontTitle = new wxFont(
+        10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
+    g_pFontData = new wxFont(
+        14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+    g_pFontLabel = new wxFont(
+        8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+    g_pFontSmall = new wxFont(
+        8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );    
 
     m_pauimgr = GetFrameAuiManager();
     m_pluginFrame = m_pauimgr->GetManagedWindow();
@@ -210,7 +230,7 @@ int dashboard_pi::Init( void )
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
     LoadConfig();
-
+    
 #ifdef OCPN_USE_SVG
     m_toolbar_item_id = InsertPlugInToolSVG(
         this->GetCommonName(),

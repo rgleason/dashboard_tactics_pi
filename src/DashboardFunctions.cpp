@@ -123,3 +123,46 @@ void CopyPlugInWaypointWithoutHyperlinks(
     dst->m_IconName = src->m_IconName;
     dst->m_HyperlinkList = nullptr;
 }
+
+wxFontFamily GetFontFamily( wxString postfix )
+{
+    if ( postfix.CmpNoCase( _T("SWISS") ) == 0 )
+        return wxFONTFAMILY_SWISS;
+    else if ( postfix.CmpNoCase( _T("TELETYPE") ) == 0 )
+        return wxFONTFAMILY_TELETYPE;
+    else if ( postfix.CmpNoCase( _T("MODERN") ) == 0 )
+        return wxFONTFAMILY_MODERN;
+    else if ( postfix.CmpNoCase( _T("ROMAN") ) == 0 )
+        return wxFONTFAMILY_ROMAN;
+    else if ( postfix.CmpNoCase( _T("DECORATIVE") ) == 0 )
+        return wxFONTFAMILY_DECORATIVE;
+    else if ( postfix.CmpNoCase( _T("SCRIPT") ) == 0 )
+        return wxFONTFAMILY_SCRIPT;
+    return wxFONTFAMILY_DEFAULT;
+}
+
+wxFontStyle GetFontStyle( wxString postfix )
+{
+    if ( postfix.CmpNoCase( _T("NORMAL") ) == 0 )
+        return wxFONTSTYLE_NORMAL;
+    if ( postfix.CmpNoCase( _T("ITALIC") ) == 0 )
+        return wxFONTSTYLE_ITALIC;
+    if ( postfix.CmpNoCase( _T("SLANT") ) == 0 )
+        return wxFONTSTYLE_SLANT;
+    if ( postfix.CmpNoCase( _T("MAX") ) == 0 )
+        return wxFONTSTYLE_MAX;
+    return wxFONTSTYLE_NORMAL;
+}
+
+wxFontWeight GetFontWeight( wxString postfix )
+{
+    if ( postfix.CmpNoCase( _T("NORMAL") ) == 0 )
+        return wxFONTWEIGHT_NORMAL;
+    if ( postfix.CmpNoCase( _T("LIGHT") ) == 0 )
+        return wxFONTWEIGHT_LIGHT;
+    if ( postfix.CmpNoCase( _T("BOLD") ) == 0 )
+        return wxFONTWEIGHT_BOLD;
+    if ( postfix.CmpNoCase( _T("MAX") ) == 0 )
+        return wxFONTWEIGHT_MAX;
+    return wxFONTWEIGHT_NORMAL;
+}

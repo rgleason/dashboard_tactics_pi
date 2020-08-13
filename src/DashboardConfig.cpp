@@ -46,6 +46,33 @@ bool dashboard_pi::LoadConfig( void )
     wxFileConfig *pConf = static_cast <wxFileConfig *>(m_pconfig);
 
     if( pConf ) {
+        // get non-hard coded default fonts
+        pConf->SetPath( _T("/PlugIns/DashT/Fonts") );
+        LoadFontSettings( pConf );
+        if ( g_pFontTitle )
+            delete g_pFontTitle;
+        g_pFontTitle = new wxFont( g_sTitleFontSize,
+                                   GetFontFamily( g_sTitleFontFamily ),
+                                   GetFontStyle( g_sTitleFontStyle ),
+                                   GetFontWeight( g_sTitleFontWeight ) );
+        if ( g_pFontData )
+            delete g_pFontData;
+        g_pFontData = new wxFont(  g_sDataFontSize,
+                                   GetFontFamily( g_sDataFontFamily ),
+                                   GetFontStyle( g_sDataFontStyle ),
+                                   GetFontWeight( g_sDataFontWeight ) );
+        if ( g_pFontLabel )
+            delete g_pFontLabel;
+        g_pFontLabel = new wxFont( g_sLabelFontSize,
+                                   GetFontFamily( g_sLabelFontFamily ),
+                                   GetFontStyle( g_sLabelFontStyle ),
+                                   GetFontWeight( g_sLabelFontWeight ) );
+        if ( g_pFontSmall )
+            delete g_pFontSmall;
+        g_pFontSmall = new wxFont( g_sSmallFontSize,
+                                   GetFontFamily( g_sSmallFontFamily ),
+                                   GetFontStyle( g_sSmallFontStyle ),
+                                   GetFontWeight( g_sSmallFontWeight ) );
         pConf->SetPath( _T("/PlugIns/DashT") );
         LoadDashboardBasePart( pConf );
         LoadDashboardInstruments( pConf );
@@ -107,8 +134,11 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
             for( int i = 0; i < i_cnt; i++ ) {
                 int id;
                 wxString ids;
-                pConf->Read( wxString::Format( _T("Instrument%d"), i + 1 ), &id, -1 );
-                pConf->Read( wxString::Format( _T("InstrumentID%d"), i + 1 ), &ids, _T("") );
+                pConf->Read( wxString::Format(
+                                 _T("Instrument%d"), i + 1 ), &id, -1 );
+                pConf->Read( wxString::Format(
+                                 _T("InstrumentID%d"), i + 1 ), &ids,
+                             _T("") );
                 if( id != -1 ) {
                     ar.Add( id );
                     idar.Add ( ids );
@@ -132,7 +162,8 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
         m_config_version = 2;
         bool b_onePersisted = false;
         for( int i = 0; i < d_cnt; i++ ) {
-            pConf->SetPath( wxString::Format( _T("/PlugIns/DashT/Dashboard%d"), i + 1 ) );
+            pConf->SetPath( wxString::Format(
+                                _T("/PlugIns/DashT/Dashboard%d"), i + 1 ) );
             wxString name;
             pConf->Read( _T("Name"), &name, MakeName() );
             wxString caption;
@@ -150,8 +181,10 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
             for( int j = 0; j < i_cnt; j++ ) {
                 int id;
                 wxString ids;
-                pConf->Read( wxString::Format( _T("Instrument%d"), j + 1 ), &id, -1 );
-                pConf->Read( wxString::Format( _T("InstrumentID%d"), j + 1 ), &ids, _T("") );
+                pConf->Read( wxString::Format( _T("Instrument%d"), j + 1 ),
+                             &id, -1 );
+                pConf->Read( wxString::Format( _T("InstrumentID%d"),
+                                               j + 1 ), &ids, _T("") );
                 if( id != -1 ) {
                     ar.Add( id );
                     idar.Add ( ids );
@@ -180,22 +213,74 @@ void dashboard_pi::LoadDashboardInstruments( wxFileConfig *pConf )
 
 void dashboard_pi::LoadColorSettings( wxFileConfig *pConf )
 {
-    pConf->Read( _T("BackgroundColor"),        &g_sDialColorBackground,       _T("DASHB") );
-    pConf->Read( _T("ForegroundColor"),        &g_sDialColorForeground,       _T("DASHF") );
-    pConf->Read( _T("LabelColor"),             &g_sDialColorLabel,            _T("DASHL") );
-    pConf->Read( _T("RedColor"),               &g_sDialColorRed,              _T("DASHR") );
-    pConf->Read( _T("GreenColor"),             &g_sDialColorGreen,            _T("DASHG") );
-    pConf->Read( _T("IllustrationsColor1"),    &g_sDialColorIs1,              _T("DASH1") );
-    pConf->Read( _T("IllustrationsColor2"),    &g_sDialColorIs2,              _T("DASH2") );
-    pConf->Read( _T("NeedleColor"),            &g_sDialNeedleColor,           _T("DASHN") );
-    pConf->Read( _T("SecondNeedleColor"),      &g_sDialSecondNeedleColor,     _T("BLUE3") );
-    pConf->Read( _T("CentralCircleColor"),     &g_sDialCentralCircleColor,    _T("UBLCK") );
-    pConf->Read( _T("CompassBackgroundColor"), &g_sDialColorCompassBackgound, _T("COMP1") );
-    pConf->Read( _T("EmbossedNeedle"),         &g_bDialNeedleEmbossed,        true        );
-    pConf->Read( _T("EmbosNeedleContourColor"),&g_sDialNeedleContourColor,    _T("UBLCK") );
-    pConf->Read( _T("ShowRedGreenFace"),       &g_bDialShowRedGreen,          true        );
-    pConf->Read( _T("LowDegRedGreenFace"),     &g_iDialLowDegRedGreen,        20          );
-    pConf->Read( _T("HighDegRedGreenFace"),    &g_iDialHighDegRedGreen,       50          );
+    pConf->Read( _T("BackgroundColor"),
+                 &g_sDialColorBackground,       _T("DASHB") );
+    pConf->Read( _T("ForegroundColor"),
+                 &g_sDialColorForeground,       _T("DASHF") );
+    pConf->Read( _T("LabelColor"),
+                 &g_sDialColorLabel,            _T("DASHL") );
+    pConf->Read( _T("RedColor"),
+                 &g_sDialColorRed,              _T("DASHR") );
+    pConf->Read( _T("GreenColor"),
+                 &g_sDialColorGreen,            _T("DASHG") );
+    pConf->Read( _T("IllustrationsColor1"),
+                 &g_sDialColorIs1,              _T("DASH1") );
+    pConf->Read( _T("IllustrationsColor2"),
+                 &g_sDialColorIs2,              _T("DASH2") );
+    pConf->Read( _T("NeedleColor"),
+                 &g_sDialNeedleColor,           _T("DASHN") );
+    pConf->Read( _T("SecondNeedleColor"),
+                 &g_sDialSecondNeedleColor,     _T("BLUE3") );
+    pConf->Read( _T("CentralCircleColor"),
+                 &g_sDialCentralCircleColor,    _T("UBLCK") );
+    pConf->Read( _T("CompassBackgroundColor"),
+                 &g_sDialColorCompassBackgound, _T("COMP1") );
+    pConf->Read( _T("EmbossedNeedle"),
+                 &g_bDialNeedleEmbossed,        true        );
+    pConf->Read( _T("EmbosNeedleContourColor"),
+                 &g_sDialNeedleContourColor,    _T("UBLCK") );
+    pConf->Read( _T("ShowRedGreenFace"),
+                 &g_bDialShowRedGreen,          true        );
+    pConf->Read( _T("LowDegRedGreenFace"),
+                 &g_iDialLowDegRedGreen,        20          );
+    pConf->Read( _T("HighDegRedGreenFace"),
+                 &g_iDialHighDegRedGreen,       50          );
+}
+
+void dashboard_pi::LoadFontSettings( wxFileConfig *pConf )
+{
+    pConf->Read( _T("TitleFontSize"),
+                 &g_sTitleFontSize,      10 );
+    pConf->Read( _T("TitleFontFamily"),
+                 &g_sTitleFontFamily,    _T("SWISS"));
+    pConf->Read( _T("TitleFontStyle"),
+                 &g_sTitleFontStyle,     _T("ITALIC"));
+    pConf->Read( _T("TitleFontWeight"),
+                 &g_sTitleFontWeight,    _T("wxNORMAL"));
+    pConf->Read( _T("DataFontSize"),
+                 &g_sDataFontSize,       14 );
+    pConf->Read( _T("DataFontFamily"),
+                 &g_sDataFontFamily,     _T("TELETYPE"));
+    pConf->Read( _T("DataFontStyle"),
+                 &g_sDataFontStyle,      _T("NORMAL"));
+    pConf->Read( _T("DataFontWeight"),
+                 &g_sDataFontWeight,     _T("BOLD"));
+    pConf->Read( _T("LabelFontSize"),
+                 &g_sLabelFontSize,      8 );
+    pConf->Read( _T("LabelFontFamily"),
+                 &g_sLabelFontFamily,    _T("TELETYPE"));
+    pConf->Read( _T("LabelFontStyle"),
+                 &g_sLabelFontStyle,     _T("NORMAL"));
+    pConf->Read( _T("LabelFontWeight"),
+                 &g_sLabelFontWeight,    _T("NORMAL"));
+    pConf->Read( _T("SmallFontSize"),
+                 &g_sSmallFontSize,      8 );
+    pConf->Read( _T("SmallFontFamily"),
+                 &g_sSmallFontFamily,    _T("TELETYPE"));
+    pConf->Read( _T("SmallFontStyle"),
+                 &g_sSmallFontStyle,     _T("NORMAL"));
+    pConf->Read( _T("SmallFontWeight"),
+                 &g_sSmallFontWeight,    _T("NORMAL"));
 }
 
 bool dashboard_pi::SaveConfig( void )
@@ -205,6 +290,8 @@ bool dashboard_pi::SaveConfig( void )
         pConf->SetPath( _T("/PlugIns/DashT") );
         SaveDashboardBasePart( pConf );
         SaveDashboardInstruments( pConf );
+        pConf->SetPath( _T("/PlugIns/DashT/Fonts") );
+        SaveFontSettings( pConf );
         pConf->SetPath( _T("/PlugIns/DashT/Colors") );
         SaveColorSettings( pConf );
         pConf->SetPath( _T("/PlugIns/DashT") );
@@ -267,10 +354,31 @@ void dashboard_pi::SaveColorSettings( wxFileConfig *pConf )
     pConf->Write( _T("NeedleColor"),            g_sDialNeedleColor );
     pConf->Write( _T("SecondNeedleColor"),      g_sDialSecondNeedleColor );
     pConf->Write( _T("CentralCircleColor"),     g_sDialCentralCircleColor );
-    pConf->Write( _T("CompassBackgroundColor"), g_sDialColorCompassBackgound);
+    pConf->Write( _T("CompassBackgroundColor"),
+                  g_sDialColorCompassBackgound);
     pConf->Write( _T("EmbossedNeedle"),         g_bDialNeedleEmbossed );
     pConf->Write( _T("EmbosNeedleContourColor"),g_sDialNeedleContourColor );
     pConf->Write( _T("ShowRedGreenFace"),       g_bDialShowRedGreen );
     pConf->Write( _T("LowDegRedGreenFace"),     g_iDialLowDegRedGreen );
     pConf->Write( _T("HighDegRedGreenFace"),    g_iDialHighDegRedGreen );
+}
+
+void dashboard_pi::SaveFontSettings( wxFileConfig *pConf )
+{
+    pConf->Write( _T("TitleFontSize"),   g_sTitleFontSize );
+    pConf->Write( _T("TitleFontFamily"), g_sTitleFontFamily );
+    pConf->Write( _T("TitleFontStyle"),  g_sTitleFontStyle );
+    pConf->Write( _T("TitleFontWeight"), g_sTitleFontWeight );
+    pConf->Write( _T("DataFontSize"),    g_sDataFontSize );
+    pConf->Write( _T("DataFontFamily"),  g_sDataFontFamily );
+    pConf->Write( _T("DataFontStyle"),   g_sDataFontStyle );
+    pConf->Write( _T("DataFontWeight"),  g_sDataFontWeight );
+    pConf->Write( _T("LabelFontSize"),   g_sLabelFontSize );
+    pConf->Write( _T("LabelFontFamily"), g_sLabelFontFamily );
+    pConf->Write( _T("LabelFontStyle"),  g_sLabelFontStyle );
+    pConf->Write( _T("LabelFontWeight"), g_sLabelFontWeight );
+    pConf->Write( _T("SmallFontSize"),   g_sSmallFontSize );
+    pConf->Write( _T("SmallFontFamily"), g_sSmallFontFamily );
+    pConf->Write( _T("SmallFontStyle"),  g_sSmallFontStyle );
+    pConf->Write( _T("SmallFontWeight"), g_sSmallFontWeight );
 }

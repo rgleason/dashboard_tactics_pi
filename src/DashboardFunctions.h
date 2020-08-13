@@ -29,6 +29,7 @@
 #define __DASHBOARDFUNCTIONS_H__
 
 #include <wx/string.h>
+#include <wx/font.h>
 
 #include "ocpn_plugin.h"
 
@@ -38,6 +39,9 @@ wxString MakeName( void );
 void checkNMEATemperatureDataAndUnit(
     double& TemperatureValue, wxString& TemperatureUnitOfMeasurement );
 void CopyPlugInWaypointWithoutHyperlinks(
-    PlugIn_Waypoint *src, PlugIn_Waypoint *dst );
+    PlugIn_Waypoint *src, PlugIn_Waypoint* dst );
+wxFontFamily GetFontFamily( wxString postfix );
+wxFontStyle GetFontStyle( wxString postfix );
+wxFontWeight GetFontWeight( wxString postfix );
 
 #endif // __DASHBOARDFUNCTIONS_H__

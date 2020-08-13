@@ -137,4 +137,56 @@ TEST_CASE( "PlugIn_Waypoint object copy" ) {
     CHECK( src->m_IsVisible == dst->m_IsVisible );
     CHECK( icon == dst->m_IconName );
     CHECK( dst->m_HyperlinkList == nullptr );
-}
+};
+TEST_CASE( "Get FontFamily" ) {
+    int testVal = (int) GetFontFamily( _T("SWISS") );
+    CHECK( testVal == (int) wxFONTFAMILY_SWISS );
+    testVal = (int) GetFontFamily( _T("swiss") );
+    CHECK( testVal == (int) wxFONTFAMILY_SWISS );
+    testVal = (int) GetFontFamily( _T("Swiss") );
+    CHECK( testVal == (int) wxFONTFAMILY_SWISS );
+    testVal = (int) GetFontFamily( _T("TELETYPE") );
+    CHECK( testVal == (int) wxFONTFAMILY_TELETYPE );
+    testVal = (int) GetFontFamily( _T("MODERN") );
+    CHECK( testVal == (int) wxFONTFAMILY_MODERN );
+    testVal = (int) GetFontFamily( _T("ROMAN") );
+    CHECK( testVal == (int) wxFONTFAMILY_ROMAN );
+    testVal = (int) GetFontFamily( _T("DECORATIVE") );
+    CHECK( testVal == (int) wxFONTFAMILY_DECORATIVE );
+    testVal = (int) GetFontFamily( _T("SCRIPT") );
+    CHECK( testVal == (int) wxFONTFAMILY_SCRIPT );
+    testVal = (int) GetFontFamily( _T("") );
+    CHECK( testVal == (int) wxFONTFAMILY_DEFAULT );
+};
+TEST_CASE( "Get FontStyle" ) {
+    int testVal = (int) GetFontStyle( _T("NORMAL") );
+    CHECK( testVal == (int) wxFONTSTYLE_NORMAL );
+    testVal = (int) GetFontStyle( _T("normal") );
+    CHECK( testVal == (int) wxFONTSTYLE_NORMAL );
+    testVal = (int) GetFontStyle( _T("Normal") );
+    CHECK( testVal == (int) wxFONTSTYLE_NORMAL );
+    testVal = (int) GetFontStyle( _T("ITALIC") );
+    CHECK( testVal == (int) wxFONTSTYLE_ITALIC );
+    testVal = (int) GetFontStyle( _T("SLANT") );
+    CHECK( testVal == (int) wxFONTSTYLE_SLANT );
+    testVal = (int) GetFontStyle( _T("MAX") );
+    CHECK( testVal == (int) wxFONTSTYLE_MAX );
+    testVal = (int) GetFontStyle( _T("") );
+    CHECK( testVal == (int) wxFONTSTYLE_NORMAL );
+};
+TEST_CASE( "Get FontWeight" ) {
+    int testVal = (int) GetFontWeight( _T("NORMAL") );
+    CHECK( testVal == (int) wxFONTWEIGHT_NORMAL );
+    testVal = (int) GetFontWeight( _T("normal") );
+    CHECK( testVal == (int) wxFONTWEIGHT_NORMAL );
+    testVal = (int) GetFontWeight( _T("Normal") );
+    CHECK( testVal == (int) wxFONTWEIGHT_NORMAL );
+    testVal = (int) GetFontWeight( _T("LIGHT") );
+    CHECK( testVal == (int) wxFONTWEIGHT_LIGHT );
+    testVal = (int) GetFontWeight( _T("BOLD") );
+    CHECK( testVal == (int) wxFONTWEIGHT_BOLD );
+    testVal = (int) GetFontWeight( _T("MAX") );
+    CHECK( testVal == (int) wxFONTWEIGHT_MAX );
+    testVal = (int) GetFontWeight( _T("") );
+    CHECK( testVal == (int) wxFONTWEIGHT_NORMAL );
+};

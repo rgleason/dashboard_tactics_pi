@@ -161,7 +161,9 @@ private:
     void LoadDashboardInstruments( wxFileConfig* pConf );
     void SaveDashboardInstruments( wxFileConfig* pConf );
     void LoadColorSettings( wxFileConfig* pConf );
+    void LoadFontSettings( wxFileConfig* pConf );
     void SaveColorSettings( wxFileConfig* pConf );
+    void SaveFontSettings( wxFileConfig* pConf );
     wxString GetCommonNameVersion(void);  
     wxString GetNameVersion(void);
 
