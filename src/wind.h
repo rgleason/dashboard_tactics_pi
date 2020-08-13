@@ -41,6 +41,9 @@
     #include <wx/wx.h>
 #endif
 
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+#define __DERIVEDTIMEOUT_OVERRIDE__
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
 //+------------------------------------------------------------------------------
@@ -56,13 +59,9 @@ class DashboardInstrument_Wind: public DashboardInstrument_Dial
 {
 public:
     DashboardInstrument_Wind( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                              unsigned long long cap_flag
-#else
-                                             int cap_flag
-#endif // _TACTICSPI_H_
         );
-    
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_Wind(void){}
 
 private:
@@ -75,13 +74,9 @@ class DashboardInstrument_WindCompass: public DashboardInstrument_Dial
 {
 public:
     DashboardInstrument_WindCompass( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                      unsigned long long cap_flag
-#else
-                                     int cap_flag
-#endif // _TACTICSPI_H_
         );
-
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_WindCompass(void){}
 
 private:
@@ -94,13 +89,9 @@ class DashboardInstrument_TrueWindAngle: public DashboardInstrument_Dial
 {
 public:
     DashboardInstrument_TrueWindAngle( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                        unsigned long long cap_flag
-#else
-                                       int cap_flag
-#endif // _TACTICSPI_H_
         );
-    
+    void derivedTimeoutEvent(void) override {};
     ~DashboardInstrument_TrueWindAngle(void){}
 
 private:
@@ -117,19 +108,11 @@ class DashboardInstrument_AppTrueWindAngle : public DashboardInstrument_Dial
 {
 public:
 	DashboardInstrument_AppTrueWindAngle(wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                          unsigned long long cap_flag
-#else
-                                         int cap_flag
-#endif // _TACTICSPI_H_
         );
-    
+    void derivedTimeoutEvent(void) override;
 	~DashboardInstrument_AppTrueWindAngle(void){}
-#ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
-#else
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
 
 private:
 
@@ -138,10 +121,8 @@ protected:
     double m_MainValueTrue;
 	double m_ExtraValueApp;
     double m_ExtraValueTrue;
-#ifdef _TACTICSPI_H_
     double m_TWD;
     wxString m_TWDUnit;
-#endif // #endif // _TACTICSPI_H_
 	wxString m_ExtraValueAppUnit;
     wxString m_ExtraValueTrueUnit;
     wxString m_MainValueAppUnit;

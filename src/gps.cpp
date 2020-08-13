@@ -25,9 +25,6 @@
  ***************************************************************************
  */
 
-#include "gps.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -41,8 +38,12 @@
     #include <wx/wx.h>
 #endif
 
-// Required deg2rad
-#include "dial.h"
+#include "gps.h"
+
+#include "TacticsFunctions.h" // deg2rad()
+#include "dial.h" // ANGLE_OFFSET
+
+#include "dashboard_pi_ext.h"
 
 DashboardInstrument_GPS::DashboardInstrument_GPS( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_GPS)
@@ -105,19 +106,19 @@ void DashboardInstrument_GPS::DrawFrame(wxGCDC* dc)
       wxSize size = GetClientSize();
       wxColour cb;
 
-      GetGlobalColor(_T("DASHB"), &cb);
+      GetGlobalColor( g_sDialColorBackground, &cb );
       dc->SetTextBackground(cb);
       dc->SetBackgroundMode(wxSOLID);
 
       wxColour cl;
-      GetGlobalColor(_T("DASHL"), &cl);
+      GetGlobalColor( g_sDialColorLabel, &cl);
       dc->SetTextForeground(cl);
       dc->SetBrush(*wxTRANSPARENT_BRUSH);
 
       wxPen pen;
       pen.SetStyle(wxPENSTYLE_SOLID);
       wxColour cf;
-      GetGlobalColor(_T("DASHF"), &cf);
+      GetGlobalColor( g_sDialColorForeground, &cf);
       pen.SetColour(cf);
       pen.SetWidth(1);
       dc->SetPen(pen);
@@ -189,12 +190,12 @@ void DashboardInstrument_GPS::DrawBackground(wxGCDC* dc)
       wxBitmap tbm( dc->GetSize().x, height, -1 );
       wxMemoryDC tdc( tbm );
       wxColour c2;
-      GetGlobalColor( _T("DASHB"), &c2 );
+      GetGlobalColor( g_sDialColorBackground, &c2 );
       tdc.SetBackground( c2 );
       tdc.Clear();
 
       tdc.SetFont(*g_pFontSmall );
-      GetGlobalColor( _T("DASHF"), &cl );
+      GetGlobalColor( g_sDialColorForeground, &cl );
       tdc.SetTextForeground( cl );
 
       for (int idx = 0; idx < 12; idx++)
@@ -211,19 +212,19 @@ void DashboardInstrument_GPS::DrawBackground(wxGCDC* dc)
 void DashboardInstrument_GPS::DrawForeground( wxGCDC* dc )
 {
     wxColour cl;
-    GetGlobalColor( _T("DASHL"), &cl );
+    GetGlobalColor( g_sDialColorLabel, &cl );
     wxBrush brush( cl );
     dc->SetBrush( brush );
     dc->SetPen( *wxTRANSPARENT_PEN);
     dc->SetTextBackground( cl );
 
     wxColor cf;
-    GetGlobalColor( _T("DASHF"), &cf );
+    GetGlobalColor( g_sDialColorForeground, &cf );
     dc->SetTextForeground( cf );
     dc->SetBackgroundMode( wxSOLID );
 
     wxColour cb;
-    GetGlobalColor( _T("DASHB"), &cb );
+    GetGlobalColor( g_sDialColorBackground, &cb );
 
     for( int idx = 0; idx < 12; idx++ ) {
         if( m_SatInfo[idx].SignalToNoiseRatio ) {

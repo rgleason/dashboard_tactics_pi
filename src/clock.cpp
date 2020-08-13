@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-#include "clock.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -40,13 +38,13 @@
     #include <wx/wx.h>
 #endif
 
+#include "clock.h"
+
+#include "dashboard_pi_ext.h"
+
 DashboardInstrument_Clock::DashboardInstrument_Clock(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag,
-#else
-    int cap_flag,
-#endif // _TACTICSPI_H_
     wxString format ) :
       DashboardInstrument_Single( parent, id, title, cap_flag, format )
 {
@@ -72,11 +70,7 @@ wxSize DashboardInstrument_Clock::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Clock::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st, double data, wxString unit, long long timestamp)
-#else
-    int, double, wxString )
-#endif // _TACTICSPI_H_
 {
     // Nothing to do here but we want to override the default
     return;
@@ -112,17 +106,11 @@ wxString DashboardInstrument_Clock::GetDisplayTime( wxDateTime UTCtime )
 DashboardInstrument_CPUClock::DashboardInstrument_CPUClock( wxWindow *parent, wxWindowID id, wxString title, wxString format ) :
     DashboardInstrument_Clock( parent, id, title, OCPN_DBP_STC_LAT | OCPN_DBP_STC_LON | OCPN_DBP_STC_CLK, format )
 {
-#ifdef _TACTICSPI_H_
     m_data = wxEmptyString;
-#endif // _TACTICSPI_H_
 }
 
 void DashboardInstrument_CPUClock::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st, double data, wxString unit, long long timestamp)
-#else
-    int, double, wxString)
-#endif // _TACTICSPI_H_
 {
     // Nothing to do here but we want to override the default
     return;
@@ -155,20 +143,12 @@ wxSize DashboardInstrument_Moon::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Moon::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
      double value, wxString format
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     if( st == OCPN_DBP_STC_LAT ) {
         m_hemisphere = (value < 0 ? _T("S") : _T("N") );
     }
@@ -182,7 +162,7 @@ void DashboardInstrument_Moon::Draw(wxGCDC* dc)
     wxColour cl0, cl1, cl2;
 
     dc->SetPen( *wxTRANSPARENT_PEN );
-    GetGlobalColor(_T("DASHL"), &cl0);
+    GetGlobalColor( g_sDialColorLabel, &cl0 );
     dc->SetBrush(cl0);
     wxPoint points[3];
     points[0].x = 5;
@@ -199,9 +179,9 @@ void DashboardInstrument_Moon::Draw(wxGCDC* dc)
     /* Moon phases are seen upside-down on the southern hemisphere */
     int startangle = ( m_hemisphere == _("N") ? -90 : 90 );
 
-    GetGlobalColor(_T("DASH2"), &cl0);
-    GetGlobalColor(_T("DASH1"), &cl1);
-    GetGlobalColor(_T("DASHF"), &cl2);
+    GetGlobalColor( g_sDialColorIs2, &cl0 );
+    GetGlobalColor( g_sDialColorIs1, &cl1 );
+    GetGlobalColor( g_sDialColorForeground, &cl2 );
 
     dc->SetBrush(cl0);
     dc->DrawCircle( x, y, m_radius );
@@ -337,7 +317,7 @@ void DashboardInstrument_Sun::Draw(wxGCDC* dc)
       wxColour cl;
 
       dc->SetFont(*g_pFontData);
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl );
       dc->SetTextForeground(cl);
 
       dc->DrawText(m_sunrise, 10, m_TitleHeight);
@@ -369,20 +349,12 @@ void DashboardInstrument_Sun::SetUtcTime( wxDateTime data )
 }
 
 void DashboardInstrument_Sun::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
      double data, wxString format
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     if( st == OCPN_DBP_STC_LAT )
     {
         m_lat = data;
@@ -516,7 +488,6 @@ Inputs:
       double coshris = (cosZenith - (sinDecris * sin(DEGREE * latit))) / (cosDecris * cos(DEGREE * latit));
       double coshset = (cosZenith - (sinDecset * sin(DEGREE * latit))) / (cosDecset * cos(DEGREE * latit));
       bool neverrises = false;
-#ifdef _TACTICSPI_H_
       if (coshris > 1.0) {
           neverrises = true;
           coshris = 1.0;
@@ -525,12 +496,7 @@ Inputs:
           neverrises = true;
           coshris = -1.0;
       }
-#else
-      if (coshris > 1) neverrises = true;
-      if (coshris < -1) neverrises = true; //nohal - it's cosine - even value lower than -1 is ilegal... correct me if i'm wrong
-#endif // _TACTICSPI_H_
       bool neversets = false;
-#ifdef _TACTICSPI_H_
       if (coshset > 1.0) {
           neversets = true;
           coshset = 1.0;
@@ -539,10 +505,6 @@ Inputs:
           neversets = true;
           coshset = -1.0;
       }
-#else
-      if (coshset < -1) neversets = true;
-      if (coshset > 1) neversets = true; //nohal - it's cosine - even value greater than 1 is ilegal... correct me if i'm wrong
-#endif // _TACTICSPI_H_
 /*
 7b. finish calculating H and convert into hours
 

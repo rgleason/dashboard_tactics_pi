@@ -51,11 +51,6 @@
 #include "wx/list.h"
 #include "wx/arrstr.h"
 
-#ifdef _INCLUDE_TACTICS_PI_
-#ifndef _TACTICSPI_H_
-#define _TACTICSPI_H_
-#endif // _TACTICSPI_H_
-#endif // _INCLUDE_TACTICS_PI_
 
 /*
 ** Turn off the warning about precompiled headers, it is rather annoying

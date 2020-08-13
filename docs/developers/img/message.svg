@@ -5,9 +5,9 @@
      width="600" height="24"
 >
   <text font-size="16" x="10" y="20">
-    <tspan fill="blue">----&gt; Developer? </tspan>
-    <tspan fill="blue">Making a bug fix? </tspan>
+    <tspan fill="blue">----&gt; Developer: </tspan>
+    <tspan fill="blue">A PR for v1.5.11? </tspan>
     <tspan fill="red">Read Me First </tspan>
-    <tspan fill="blue">and save time! &lt;----</tspan>
+    <tspan fill="blue">and save time: this is v2.0.0 alpha branch! &lt;----</tspan>
   </text>
 </svg>

@@ -24,13 +24,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
  ***************************************************************************
  */
-#ifdef _TACTICSPI_H_
 using namespace std;
-#endif // _TACTICSPI_H_
 
 #include "from_ownship.h"
 
-extern int g_iDashDistanceUnit;
+#include "dashboard_pi_ext.h"
 
 //----------------------------------------------------------------
 //
@@ -39,17 +37,10 @@ extern int g_iDashDistanceUnit;
 //----------------------------------------------------------------
 DashboardInstrument_FromOwnship::DashboardInstrument_FromOwnship(
     wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag1,
     unsigned long long cap_flag2,
     unsigned long long cap_flag3,
     unsigned long long cap_flag4
-#else
-    int cap_flag1,
-    int cap_flag2,
-    int cap_flag3,
-    int cap_flag4
-#endif // _TACTICSPI_H_
     )
     :DashboardInstrument(pparent, id, title, cap_flag1 | cap_flag2 | cap_flag3 | cap_flag4)
 {
@@ -73,7 +64,7 @@ void DashboardInstrument_FromOwnship::Draw(wxGCDC* dc)
 
     dc->SetFont(*g_pFontData);
     //dc.SetTextForeground(pFontMgr->GetFontColor(_T("Dashboard Data")));
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorBackground, &cl);
     dc->SetTextForeground(cl);
 
     dc->DrawText(m_data1, 10, m_TitleHeight);
@@ -81,22 +72,14 @@ void DashboardInstrument_FromOwnship::Draw(wxGCDC* dc)
 }
 
 void DashboardInstrument_FromOwnship::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     if ( std::isnan( data ) )
         return;
     setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     
     if (st == m_cap_flag1)
     {
@@ -127,13 +110,11 @@ void DashboardInstrument_FromOwnship::SetData(
     Refresh(false);
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_FromOwnship::timeoutEvent()
 {
     m_data1 =_T("---");
     m_data2 =_T("---");
 }
-#endif // _TACTICSPI_H_
 
 wxSize DashboardInstrument_FromOwnship::GetSize( int orient, wxSize hint )
 {

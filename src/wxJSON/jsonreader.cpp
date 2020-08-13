@@ -14,7 +14,7 @@
 #define wxDEBUG_LEVEL 0
 #endif
 
-#include <wx/jsonreader.h>
+#include "jsonreader.h"
 
 #include <wx/mstream.h>
 #include <wx/sstream.h>
@@ -241,6 +241,7 @@ wxJSONReader::wxJSONReader( int flags, int maxErrors )
 {
     m_flags     = flags;
     m_maxErrors = maxErrors;
+    m_peekChar  = -1;
     m_noUtf8    = false;
 #if !defined( wxJSON_USE_UNICODE )
     // in ANSI builds we can suppress UTF-8 conversion for both the writer and the reader

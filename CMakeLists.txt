@@ -33,6 +33,7 @@
 
 set(CMLOC "CMakeLists: ")
 
+
 # define minimum cmake version
 cmake_minimum_required(VERSION 3.1.1)
 if(COMMAND cmake_policy)
@@ -58,7 +59,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "TBD")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
-   set(VERSION_PATCH 3)
+   set(VERSION_PATCH 4)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -76,7 +77,7 @@ ELSE (TACTICS_INSTRUMENTS)
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
 ENDIF (TACTICS_INSTRUMENTS)
 set(CPACK_PACKAGE_CONTACT "TBD")
-set(VERSION_DATE "08/11/2020")
+set(VERSION_DATE "08/13/2020")
 set(OCPN_MIN_VERSION "ov50")
 set(OCPN_API_VERSION_MAJOR 1)
 set(OCPN_API_VERSION_MINOR 16)
@@ -166,8 +167,21 @@ include("PluginConfigure")
 
 add_definitions(-DUSE_S57)
 
-SET(SRC_DASHBOARD
+SET(SRC_DASHT
     src/dashboard_pi.h
+    src/DashboardConfig.cpp
+    src/DashboardFunctions.h
+    src/DashboardFunctions.cpp
+    src/DashboardWindow.h
+    src/DashboardWindowContainer.h
+    src/DashboardWindow.h
+    src/DashboardWindow.cpp
+    src/AddInstrumentDlg.h
+    src/AddInstrumentDlg.cpp
+    src/DashboardInstrumentContainer.h
+    src/DashboardInstrumentContainer.cpp
+    src/DashboardPreferencesDialog.h
+    src/DashboardPreferencesDialog.cpp
     src/dashboard_pi.cpp
     src/instrument.cpp
     src/instrument.h
@@ -199,32 +213,61 @@ SET(SRC_DASHBOARD
     src/from_ownship.h
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
-    include/wx/json_defs.h
-    include/wx/jsonreader.h
-    include/wx/jsonval.h
-    include/wx/jsonwriter.h
+    src/wxJSON/json_defs.h
+    src/wxJSON/jsonreader.h
+    src/wxJSON/jsonval.h
+    src/wxJSON/jsonwriter.h
+    src/tactics_pi.h
+    src/tactics_pi.cpp
+    src/TacticsConfig.cpp
+    src/TacticsWindow.h
+    src/TacticsWindow.cpp
+    src/TacticsPreferencesDialog.h
+    src/TacticsPreferencesDialog.cpp
+    src/TacticsEnums.h
+    src/TacticsStructs.h
+    src/TacticsFunctions.h
+    src/TacticsFunctions.cpp
+    src/ExpSmooth.h
+    src/ExpSmooth.cpp
+    src/DoubleExpSmooth.h
+    src/DoubleExpSmooth.cpp
+    src/Polar.h
+    src/Polar.cpp
+    src/PerformanceSingle.h
+    src/PerformanceSingle.cpp
+    src/PolarPerformance.h
+    src/PolarPerformance.cpp
+    src/StreamInSkSingle.h
+    src/StreamInSkSingle.cpp
+    src/wxJSON/jsonwriter.cpp
+    src/StreamoutSchema.h
+    src/LineProtocol.h
+    src/StreamoutSingle.h
+    src/StreamoutSingle.cpp
+    src/plugin_ids.h
+    src/bearingcompass.h
+    src/bearingcompass.cpp
+    src/polarcompass.h
+    src/polarcompass.cpp
+    src/avg_wind.h
+    src/avg_wind.cpp
+    src/EngineDJG.h
+    src/EngineDJG.cpp
+    src/InstruJS.h
+    src/InstruJS.cpp
+    src/TimesTUI.h
+    src/TimesTUI.cpp
+    src/RaceStart.h
+    src/RaceStart.cpp 
+    src/RaceStartGL.cpp
+    src/RaceMark.h
+    src/RaceMark.cpp 
+    src/RaceMarkGL.cpp
+    src/SkData.h
+    src/SkData.cpp
 	api-16/ocpn_plugin.h
 )
-
-IF (TACTICS_INSTRUMENTS)
-  SET(SRC_TACTICS
-      src/tactics_pi.h
-      src/tactics_pi.cpp
-      src/performance.h
-      src/performance.cpp
-      src/streamin-sk.h
-      src/streamin-sk.cpp
-      src/streamout.h
-      src/streamout.cpp
-      src/plugin_ids.h
-      src/bearingcompass.h
-      src/bearingcompass.cpp
-      src/polarcompass.h
-      src/polarcompass.cpp
-      src/avg_wind.h
-      src/avg_wind.cpp
-  )
-ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -295,6 +338,7 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
+SET(SRC ${SRC_DASHT} ${SRC_NMEA0183})
 
 add_definitions(-DPLUGIN_USE_SVG)
 
@@ -316,7 +360,6 @@ else(PI_JSON_SCHEMA_VALIDATOR)
     message(STATUS "${CMLOC}Not using JSON Schema validation - warning invalid JSON 'may' cause unexpected crashes")
 endif(PI_JSON_SCHEMA_VALIDATOR)
 
-
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/api-16/)
 
 IF (TACTICS_INSTRUMENTS)
@@ -325,7 +368,9 @@ ELSE (TACTICS_INSTRUMENTS)
   set(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
 ENDIF (TACTICS_INSTRUMENTS)
 
+
 add_library(${PACKAGE_NAME} SHARED ${SRC} )
+
 
 add_definitions(-DTIXML_USE_STL)
 
@@ -358,6 +403,8 @@ endif(UNIX AND NOT APPLE)
 include("PluginInstall")
 include("PluginLocalization")
 include("PluginPackage")
+
+ADD_SUBDIRECTORY("tests")
 ##=================================
 ##
 ## ----- do not change section above - needed to configure build process ----- ##

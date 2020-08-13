@@ -1,0 +1,39 @@
+
+$radgradstart: #fff;
+$radgradstop : #858383;
+$radgradstartdusk: $radgradstop;
+$radgradstopdusk: #4d4d4d;
+$radgradstartnight: #665d5d;
+$radgradstopnight: #000;
+
+$skpathcolorday   : #232b99;
+$skpathcolordusk  : #e0e0e4;
+$skpathcolornight : #6168c2;
+
+$skbotmcolorday: $skpathcolorday;
+$skbotmcolordusk: $skpathcolordusk;
+$skbotmcolornight: $skpathcolornight;
+$skbotfsize: 14px;
+$skbottalign: left;
+$ifontfamily : "Helvetica", sans-serif;
+
+html {
+    width: 100%;
+    height: 100%;
+    font-size: 10px;
+}
+
+.instrument {
+}
+.instrument.day {
+    background: radial-gradient(circle,$radgradstart 0%, $radgradstop 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstart 0%, $radgradstop 100%) no-repeat;
+}
+.instrument.dusk {
+    background: radial-gradient(circle,$radgradstartdusk 0%, $radgradstopdusk 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstartdusk 0%, $radgradstopdusk 100%) no-repeat;
+}
+.instrument.night {
+    background: radial-gradient(circle,$radgradstartnight 0%, $radgradstopnight 100%) no-repeat;
+    background: -webkit-radial-gradient(circle,$radgradstartnight 0%, $radgradstopnight 100%) no-repeat;
+}

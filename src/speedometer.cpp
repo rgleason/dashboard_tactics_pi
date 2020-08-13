@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-#include "speedometer.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -40,16 +38,14 @@
     #include <wx/wx.h>
 #endif
 
+#include "speedometer.h"
+
 // Not much to do here most of the default dial values are fine.
 // Note the default AngleStart = 225 and AngleRange = 270 set here.
 
 DashboardInstrument_Speedometer::DashboardInstrument_Speedometer(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag,
-#else
-    int cap_flag,
-#endif // _TACTICSPI_H_
     int s_value, int e_value) : DashboardInstrument_Dial(
         parent, id, title, cap_flag, 225, 270, s_value, e_value)
 {
