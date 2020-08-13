@@ -1408,7 +1408,7 @@ void TacticsInstrument_PolarPerformance::SetData(
 void TacticsInstrument_PolarPerformance::OnPolarPerfUpdTimer(wxTimerEvent & event)
 {
 //    if (!wxIsNaN(m_STW) && !wxIsNaN(m_TWA) && !wxIsNaN(m_TWS)) {
-      if (!wxIsNaN(m_STW) && !wxIsNaN(m_TWA) && !wxIsNaN(m_TWS)) {
+      if (!stn::IsNaN(m_STW) && !wxIsNaN(m_TWA) && !wxIsNaN(m_TWS)) {
         double m_PolarSpeed = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
 
         if (wxIsNaN(m_PolarSpeed))
