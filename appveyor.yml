@@ -1,5 +1,7 @@
-clone_folder: c:\project\dashboard_tactics_pi
-shallow_clone: true
+clone_folder: c:\project\ocpn_project
+shallow_clone: false
+clone_depth: 10
+
 image:
 - Visual Studio 2017
 
@@ -53,9 +55,6 @@ build_script:
   - python -m pip install -q cloudsmith-cli
   - bash ../build/cloudsmith-upload.sh
 
-test_script:
-  - cmd: ctest -j2
-    
 artifacts:
   - path: 'build\*.exe'
     name: installer
