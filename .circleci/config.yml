@@ -1,7 +1,7 @@
 version: 2.1
-orbs:
-    cloudsmith: cloudsmith/cloudsmith@1.0.4
-    python: circleci/python@0.3.0
+# orbs:
+#    cloudsmith: cloudsmith/cloudsmith@1.0.4
+#    python: circleci/python@0.3.0
 jobs:
     build-armhf-stretch:
         machine: true
