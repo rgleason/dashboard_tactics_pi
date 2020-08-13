@@ -26,8 +26,6 @@
  ***************************************************************************
  */
 
-#include "compass.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -41,13 +39,12 @@
     #include <wx/wx.h>
 #endif
 
+#include "compass.h"
+
+
 DashboardInstrument_Compass::DashboardInstrument_Compass(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag
-#else
-    int cap_flag
-#endif // _TACTICSPI_H_
     ) : DashboardInstrument_Dial(
         parent, id, title, cap_flag, 0, 360, 0, 360)
 {
@@ -57,22 +54,30 @@ DashboardInstrument_Compass::DashboardInstrument_Compass(
 }
 
 void DashboardInstrument_Compass::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
+    if ( std::isnan( data ) ) {
+        if (st == m_MainValueCap)
+        {
+            m_AngleStart = 0;
+            m_MainValue = std::nan("1");
+            m_MainValueUnit = _T("");
+        }
+        else if (st == m_ExtraValueCap)
+        {
+            m_ExtraValue = std::nan("1");
+            m_ExtraValueUnit = _T("");
+        }
+        return;
+    }
+
     setTimestamp( timestamp );
+
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
-#endif // _TACTICSPI_H_
     if (st == m_MainValueCap)
     {
         // Rotate the rose
@@ -88,15 +93,10 @@ void DashboardInstrument_Compass::SetData(
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Compass::derivedTimeoutEvent()
 {
-    m_MainValue = static_cast<double>(m_s_value);
-    m_MainValueUnit = _T("");
-    m_ExtraValue = 0.0;
-    m_ExtraValueUnit = _T("");
+    return;
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Compass::DrawBackground(wxGCDC* dc)
 {

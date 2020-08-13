@@ -43,44 +43,42 @@
 
 class RMB : public RESPONSE
 {
+    
+public:
+    
+    RMB();
+    virtual ~RMB();
 
-   public:
+    /*
+    ** Data
+    */
 
-      RMB();
-      virtual ~RMB();
+    NMEA0183_BOOLEAN IsDataValid;
+    double           CrossTrackError;
+    LEFTRIGHT        DirectionToSteer;
+    wxString          To;
+    wxString          From;
+    LATLONG          DestinationPosition;
+    double           RangeToDestinationNauticalMiles;
+    double           BearingToDestinationDegreesTrue;
+    double           DestinationClosingVelocityKnots;
+    NMEA0183_BOOLEAN IsArrivalCircleEntered;
+    wxString         FAA_ModeIndicator;
+    bool             isVersion2dot3OrLater;
 
-      /*
-      ** Data
-      */
+    /*
+    ** Methods
+    */
 
-      NMEA0183_BOOLEAN IsDataValid;
-      double           CrossTrackError;
-      LEFTRIGHT        DirectionToSteer;
-      wxString          To;
-      wxString          From;
-      LATLONG          DestinationPosition;
-      double           RangeToDestinationNauticalMiles;
-      double           BearingToDestinationDegreesTrue;
-      double           DestinationClosingVelocityKnots;
-      NMEA0183_BOOLEAN IsArrivalCircleEntered;
-#ifdef _TACTICSPI_H_
-       wxString         FAA_ModeIndicator;
-       bool             isVersion2dot3OrLater;
-#endif // _TACTICSPI_H_
+    virtual void Empty( void );
+    virtual bool Parse( const SENTENCE& sentence );
+    virtual bool Write( SENTENCE& sentence );
 
-      /*
-      ** Methods
-      */
+    /*
+    ** Operators
+    */
 
-      virtual void Empty( void );
-      virtual bool Parse( const SENTENCE& sentence );
-      virtual bool Write( SENTENCE& sentence );
-
-      /*
-      ** Operators
-      */
-
-      virtual const RMB& operator = ( const RMB &source );
+    virtual const RMB& operator = ( const RMB &source );
 };
 
 #endif // RMB_CLASS_HEADER

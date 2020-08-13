@@ -416,6 +416,7 @@ endif(
     AND NOT APPLE
     AND NOT QT_ANDROID)
 
+
 # On Android, PlugIns need a specific linkage set....
 if(QT_ANDROID)
     # These libraries are needed to create PlugIns on Android.

@@ -42,133 +42,30 @@
 #include <wx/aui/aui.h>
 #include <wx/fontpicker.h>
 #include <wx/unichar.h>
-//wx2.9 #include <wx/wrapsizer.h>
+
 #include "ocpn_plugin.h"
 
-#ifdef _INCLUDE_TACTICS_PI_
-#ifndef _TACTICSPI_H_
 #include "tactics_pi.h"
-#endif // _TACTICSPI_H_
-#endif // _INCLUDE_TACTICS_PI_
-
-//Move to CMakeLists.txt
-//#ifdef _TACTICSPI_H_
-#include "version.h"
-//#else
-//#define     PLUGIN_VERSION_MAJOR    1
-//#define     PLUGIN_VERSION_MINOR    5
-//#endif // _TACTICSPI_H_
 
 #include "nmea0183/nmea0183.h"
-#include "instrument.h"
-#include "speedometer.h"
-#include "compass.h"
-#include "wind.h"
-#include "rudder_angle.h"
+
 #include "gps.h"
-#include "depth.h"
-#include "clock.h"
-#include "wind_history.h"
-#include "baro_history.h"
-#include "from_ownship.h"
+
 #include "iirfilter.h"
 
-class DashboardWindow;
-class DashboardWindowContainer;
-class DashboardInstrumentContainer;
+#include "DashboardWindowContainer.h"
 
 #define DASHBOARD_TOOL_POSITION -1          // Request default positioning of toolbar tool
 
 #define gps_watchdog_timeout_ticks  10
 
-#ifdef _TACTICSPI_H_
-// Incoming NMEA-2000 PGNs Dashboard inspects
-#define PGN_ENG_PARAM_RAP 127488
-#define PGN_ENG_PARAM_DYN 127489 
-// Signal K conversions, see https://git.io/JeYry
-#define DEG_IN_RAD 0.0174532925
-#define RAD_IN_DEG 57.2957795
-#define CELCIUS_IN_KELVIN 273.15
-#define MS_IN_KNOTS 1.943844
-#define KM_IN_NM 0.539956803
-#define PA_IN_BAR 100000
-#endif // _TACTICSPI_H_
-
-class DashboardWindowContainer
-{
-public:
-    DashboardWindowContainer(DashboardWindow *dashboard_window, wxString name, wxString caption, wxString orientation, wxArrayInt inst) {
-        m_pDashboardWindow = dashboard_window; m_sName = name; m_sCaption = caption; m_sOrientation = orientation; m_aInstrumentList = inst; m_bIsVisible = false; m_bIsDeleted = false; }
-
-#ifdef _TACTICSPI_H_
-    DashboardWindowContainer( DashboardWindowContainer *sourcecont ) {
-            m_pDashboardWindow = sourcecont->m_pDashboardWindow;
-            m_bIsVisible       = sourcecont->m_bIsVisible;
-            m_bIsDeleted       = sourcecont->m_bIsDeleted;
-            m_bPersVisible     = sourcecont->m_bPersVisible;
-            m_sName            = sourcecont->m_sName;
-            m_sCaption         = sourcecont->m_sCaption;
-            m_sOrientation     = sourcecont->m_sOrientation;
-            m_aInstrumentList  = sourcecont->m_aInstrumentList;
-    }
-#endif // _TACTICSPI_H_
- 
-    ~DashboardWindowContainer(){}
-
-DashboardWindow              *m_pDashboardWindow;
-    bool                      m_bIsVisible;
-    bool                      m_bIsDeleted;
-    bool                      m_bPersVisible;  // Persists visibility, even when Dashboard tool is toggled off.
-    wxString                  m_sName;
-    wxString                  m_sCaption;
-    wxString                  m_sOrientation;
-    wxArrayInt                m_aInstrumentList;
-};
-
-class DashboardInstrumentContainer
-{
-public:
-    DashboardInstrumentContainer(int id, DashboardInstrument *instrument,
-#ifdef _TACTICSPI_H_
-    unsigned long long capa
-#else
-    int capa
-#endif // _TACTICSPI_H_
-        ) {
-        m_ID = id; m_pInstrument = instrument; m_cap_flag = capa;
-    }
-    ~DashboardInstrumentContainer(){ delete m_pInstrument; }
-
-    DashboardInstrument    *m_pInstrument;
-    int                     m_ID;
-#ifdef _TACTICSPI_H_
-    unsigned long long      m_cap_flag;
-#else
-    int                     m_cap_flag;
-#endif // _TACTICSPI_H_
-};
-
-//    Dynamic arrays of pointers need explicit macros in wx261
-#ifdef __WX261
-WX_DEFINE_ARRAY_PTR(DashboardWindowContainer *, wxArrayOfDashboard);
-WX_DEFINE_ARRAY_PTR(DashboardInstrumentContainer *, wxArrayOfInstrument);
-#else
-WX_DEFINE_ARRAY(DashboardWindowContainer *, wxArrayOfDashboard);
-WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
-#endif
 
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
 
-class dashboard_pi : public
-//Changed for Plugin Manager
-#ifdef _TACTICSPI_H_
-    tactics_pi, wxTimer, opencpn_plugin_116
-#else
-    wxTimer, opencpn_plugin_116
-#endif // _TACTICSPI_H_
+class dashboard_pi : public tactics_pi, wxTimer, opencpn_plugin_117
 {
 public:
     dashboard_pi(void *ppimgr);
@@ -178,18 +75,19 @@ public:
     int Init(void);
     bool DeInit(void);
 
+    void ResetAllSourcePriorities();
     void Notify();
 
     int GetAPIVersionMajor();
     int GetAPIVersionMinor();
     int GetPlugInVersionMajor();
     int GetPlugInVersionMinor();
+    int GetPlugInVersionPatch();
     wxBitmap *GetPlugInBitmap();
     wxString GetCommonName();
     wxString GetShortDescription();
     wxString GetLongDescription();
 
-#ifdef _TACTICSPI_H_
     wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
@@ -197,24 +95,33 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
-#else
-    void SendSentenceToAllInstruments(
-        int st, double value, wxString unit);
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
+    void SendDataToAllPathSubscribers(
+        wxString path, double value, wxString unit, long long timestamp );
+    void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString );
     bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
     bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
     void OnAvgWindUpdTimer(wxTimerEvent& event);
-#endif // _TACTICSPI_H_
+    void OnAuiRender( wxAuiManagerEvent& event );
+    wxString GetActiveRouteName() { return mRouteActivatedName; };
+    wxString GetActiveRouteGUID() { return mRouteActivatedGUID; };
+    wxString GetWpActivatedName() { return mWpActivatedName; };
+    wxString GetWpActivatedGUID() { return mWpActivatedGUID; };
+    bool GetWpArrivedIsSkipped() { return mWpArrivedIsSkipped; };
+    wxString GetWpArrivedName() { return mWpArrivedName; };
+    wxString GetWpArrivedGUID() { return mWpArrivedGUID; };
+    wxString GetWpArrivedNextName() { return mWpArrivedNextName; };
+    wxString GetWpArrivedNextGUID() { return mWpArrivedNextGUID; };
+    Plugin_Active_Leg_Info* GetActiveLegInfoPtr() {
+        return mActiveLegInfo; };
 
     //    The optional method overrides
     void SetNMEASentence(wxString &sentence);
-#ifdef _TACTICSPI_H_
     void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
         wxString* src=NULL, int pgn=0, wxString* path=NULL, double value=NAN, wxString* valStr=NULL,
         long long timestamp=0LL, wxString* key=NULL);
-#endif // _TACTICSPI_H_
     void SetPositionFix(PlugIn_Position_Fix &pfix);
     void SetCursorLatLon(double lat, double lon);
     int GetToolbarToolCount(void);
@@ -228,41 +135,44 @@ public:
     void ShowDashboard( size_t id, bool visible );
     int GetToolbarItemId(){ return m_toolbar_item_id; }
     int GetDashboardWindowShownCount();
-    void SetPluginMessage(wxString &message_id, wxString &message_body);
-#ifdef _TACTICSPI_H_
+    void SetActiveLegInfo(Plugin_Active_Leg_Info& leg_info);
+    void SetPluginMessage(wxString& message_id, wxString& message_body);
     wxWindow *pGetPluginFrame(void) { return m_pluginFrame; }
     void ApplyConfig( bool init=false );
-#endif // _TACTICSPI_H_
+    void SetApplySaveWinRequest(void) { mApS_Watchcat = 1; }
+    //#define APPLYSAVEWININIT       mApS_Watchcat=-1; // no OnAuiRender() at init (fast, but will hit later on docked items)
+#define APPLYSAVEWINREQUESTED  mApS_Watchcat==1
+#define APPLYSAVEWINRUNNING    mApS_Watchcat!=0
+#define APPLYSAVEWINSERVED     mApS_Watchcat=0
+#define APPLYSAVEWININIT       APPLYSAVEWINSERVED    // OnAuiRender() capture handled at init, slower/reliable docked items)
 
-#ifdef _TACTICSPI_H_
     int                m_nofStreamOut;
     std::mutex         m_mtxNofStreamOut;
     wxString           m_echoStreamerShow;
     int                m_nofStreamInSk;
     std::mutex         m_mtxNofStreamInSk;
     wxString           m_echoStreamerInSkShow;
-#endif // _TACTICSPI_H_
+    PI_ColorScheme     m_colorScheme;
     
 private:
     bool LoadConfig(void);
-#ifndef _TACTICSPI_H_
-    void ApplyConfig(void);
-#endif // _TACTICSPI_H_
-#ifdef _TACTICSPI_H_
+    void LoadDashboardBasePart( wxFileConfig* pConf );
+    void SaveDashboardBasePart( wxFileConfig* pConf );
+    void LoadDashboardInstruments( wxFileConfig* pConf );
+    void SaveDashboardInstruments( wxFileConfig* pConf );
+    void LoadColorSettings( wxFileConfig* pConf );
+    void SaveColorSettings( wxFileConfig* pConf );
     wxString GetCommonNameVersion(void);  
-    wxString GetNameVersion(void);  
-#endif // _TACTICSPI_H_ 
+    wxString GetNameVersion(void);
 
     void SendSatInfoToAllInstruments(int cnt, int seq, SAT_INFO sats[4]);
     void SendUtcTimeToAllInstruments( wxDateTime value );
 
-#ifdef _TACTICSPI_H_
     bool                 m_bToggledStateVisible;
     int                  m_iPlugInRequirements;
     wxWindow            *m_pluginFrame;
     static const char   *s_common_name;
     wxTimer             *m_avgWindUpdTimer;
-#endif // _TACTICSPI_H_
     wxFileConfig        *m_pconfig;
     wxAuiManager        *m_pauimgr;
     int                  m_toolbar_item_id;
@@ -271,7 +181,7 @@ private:
     int                  m_show_id;
     int                  m_hide_id;
 
-    NMEA0183             m_NMEA0183;                 // Used to parse NMEA Sentences
+    NMEA0183            *m_NMEA0183;
     short                mPriPosition;
     short                mPriCOGSOG;
     short                mPriHeadingM;
@@ -282,111 +192,43 @@ private:
     short                mPriTWA;
     short                mPriDepth;
     double               mVar;
+    wxString             mRouteActivatedName;
+    wxString             mRouteActivatedGUID;
+    wxString             mWpActivatedName;
+    wxString             mWpActivatedGUID;
+    wxString             mWpArrivedName;
+    wxString             mWpArrivedGUID;
+    bool                 mWpArrivedIsSkipped;
+    wxString             mWpArrivedNextName;
+    wxString             mWpArrivedNextGUID;
+    Plugin_Active_Leg_Info *mActiveLegInfo;
     // FFU
     double               mSatsInView;
     double               mHdm;
     wxDateTime           mUTCDateTime;
     int                  m_config_version;
     wxString             m_VDO_accumulator;
+    int                  mSrc_Watchdog;
     int                  mHDx_Watchdog;
     int                  mHDT_Watchdog;
     int                  mGPS_Watchdog;
     int                  mVar_Watchdog;
-#ifdef _TACTICSPI_H_
     int                  mStW_Watchdog;
     int                  mSiK_Watchdog;
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
-#endif // _TACTICSPI_H_
+    int                  mApS_Watchcat;
+    bool                 mBmajorVersion_warning_given;
+    bool                 mBminorVersion_warning_given;
 
     iirfilter            mSOGFilter;
     iirfilter            mCOGFilter;
 
 protected:
-#ifdef _TACTICSPI_H_
     DECLARE_EVENT_TABLE();
-#endif // _TACTICSPI_H_
+    void ClearActiveRouteMessages();
 };
   
-class DashboardPreferencesDialog : public
-#ifdef _TACTICSPI_H_
-    TacticsPreferencesDialog
-#else
-    wxDialog
-#endif // _TACTICSPI_H_
-{
-public:
-    DashboardPreferencesDialog( wxWindow *pparent, wxWindowID id, wxArrayOfDashboard config
-#ifdef _TACTICSPI_H_
-                                , wxString commonName, wxString nameVersion, wxPoint pos = wxDefaultPosition
-#endif // _TACTICSPI_H_
-        );
-    ~DashboardPreferencesDialog() {}
-
-    void OnCloseDialog(wxCloseEvent& event);
-    void OnDashboardSelected(wxListEvent& event);
-    void OnDashboardAdd(wxCommandEvent& event);
-    void OnDashboardDelete(wxCommandEvent& event);
-    void OnInstrumentSelected(wxListEvent& event);
-    void OnInstrumentAdd(wxCommandEvent& event);
-    void OnInstrumentEdit(wxCommandEvent& event);
-    void OnInstrumentDelete(wxCommandEvent& event);
-    void OnInstrumentUp(wxCommandEvent& event);
-    void OnInstrumentDown(wxCommandEvent& event);
-    void SaveDashboardConfig();
-
-    wxArrayOfDashboard            m_Config;
-#ifdef _TACTICSPI_H_
-    wxNotebook                   *m_itemNotebook;
-#endif // _TACTICSPI_H_
-    wxFontPickerCtrl             *m_pFontPickerTitle;
-    wxFontPickerCtrl             *m_pFontPickerData;
-    wxFontPickerCtrl             *m_pFontPickerLabel;
-    wxFontPickerCtrl             *m_pFontPickerSmall;
-    wxSpinCtrl                   *m_pSpinSpeedMax;
-    wxSpinCtrl                   *m_pSpinCOGDamp;
-    wxSpinCtrl                   *m_pSpinSOGDamp;
-    wxChoice                     *m_pChoiceUTCOffset;
-    wxChoice                     *m_pChoiceSpeedUnit;
-    wxChoice                     *m_pChoiceDepthUnit;
-    wxSpinCtrlDouble             *m_pSpinDBTOffset;
-    wxChoice                     *m_pChoiceDistanceUnit;
-    wxChoice                     *m_pChoiceWindSpeedUnit;
-#ifdef _TACTICSPI_H_
-    wxChoice                     *m_pChoiceTemperatureUnit;
-#endif // _TACTICSPI_H_
-
-private:
-    void UpdateDashboardButtonsState(void);
-    void UpdateButtonsState(void);
-    int                           curSel;
-    wxListCtrl                   *m_pListCtrlDashboards;
-    wxBitmapButton               *m_pButtonAddDashboard;
-    wxBitmapButton               *m_pButtonDeleteDashboard;
-    wxPanel                      *m_pPanelDashboard;
-    wxTextCtrl                   *m_pTextCtrlCaption;
-    wxCheckBox                   *m_pCheckBoxIsVisible;
-    wxChoice                     *m_pChoiceOrientation;
-    wxListCtrl                   *m_pListCtrlInstruments;
-    wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
-    wxButton                     *m_pButtonDelete;
-    wxButton                     *m_pButtonUp;
-    wxButton                     *m_pButtonDown;
-};
-
-class AddInstrumentDlg : public wxDialog
-{
-public:
-    AddInstrumentDlg(wxWindow *pparent, wxWindowID id);
-    ~AddInstrumentDlg() {}
-
-    unsigned int GetInstrumentAdded();
-
-private:
-    wxListCtrl*                   m_pListCtrlInstruments;
-
-};
 
 enum
 {
@@ -399,59 +241,6 @@ enum
     ID_DASH_VERTICAL,
     ID_DASH_HORIZONTAL,
     ID_DASH_UNDOCK
-};
-
-class DashboardWindow : public
-#ifdef _TACTICSPI_H_
-    TacticsWindow
-#else
-    wxWindow
-#endif // _TACTICSPI_H_
-{
-public:
-    DashboardWindow(
-        wxWindow *pparent, wxWindowID id, wxAuiManager *auimgr,
-        dashboard_pi* plugin,
-        int orient, DashboardWindowContainer* mycont
-#ifdef _TACTICSPI_H_
-        , wxString commonName
-#endif // _TACTICSPI_H_
-        );
-    ~DashboardWindow();
-
-    void SetColorScheme( PI_ColorScheme cs );
-    void SetSizerOrientation( int orient );
-    int GetSizerOrientation();
-    void OnSize( wxSizeEvent& evt );
-    void OnContextMenu( wxContextMenuEvent& evt );
-    void OnContextMenuSelect( wxCommandEvent& evt );
-    bool isInstrumentListEqual( const wxArrayInt& list );
-    void SetInstrumentList( wxArrayInt list );
-    void SendSentenceToAllInstruments(
-#ifdef _TACTICSPI_H_
-        unsigned long long st,
-#else
-        int st,
-#endif // _TACTICSPI_H_
-       double value, wxString unit
-#ifdef _TACTICSPI_H_
-        , long long timestamp=0LL
-#endif // _TACTICSPI_H_
-        );
-    void SendSatInfoToAllInstruments( int cnt, int seq, SAT_INFO sats[4] );
-    void SendUtcTimeToAllInstruments( wxDateTime value );
-    void ChangePaneOrientation( int orient, bool updateAUImgr );
-    /*TODO: OnKeyPress pass event to main window or disable focus*/
-
-    DashboardWindowContainer* m_Container;
-
-private:
-    wxAuiManager         *m_pauimgr;
-    dashboard_pi*         m_plugin;
-
-    //wx2.9      wxWrapSizer*          itemBoxSizer;
-    wxBoxSizer*          itemBoxSizer;
-    wxArrayOfInstrument  m_ArrayOfInstrument;
 };
 
 #endif

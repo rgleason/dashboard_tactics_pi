@@ -1,0 +1,24 @@
+@use '../sass/instrujs';
+@use '../sass/menu';
+/* In older (v3) Bootstrap it is quite difficult to change theme without
+   reloading. That's why we use a third party dark theme right on:
+   npm --save install bootswatch@3.4.1 */
+@import "~bootswatch/darkly/variables";
+/* Import only the modules of Bootstrap we are going to use */
+@import '_bootstrap.scss';
+/* Apply the dark theme */
+@import "~bootswatch/darkly/bootswatch";
+
+/* Bottom part is an interprocess communication (IPC) data field */
+.bottom {
+    top: 0px;
+    margin-left: 1%;
+    width: 98%;
+    height: 3%;
+    font-size: instrujs.$skbotfsize;
+    text-align: instrujs.$skbottalign;
+    font-family: instrujs.$ifontfamily;
+}
+.bottom.day   { color: instrujs.$skbotmcolorday; }
+.bottom.dusk  { color: instrujs.$skbotmcolordusk; }
+.bottom.night { color: instrujs.$skbotmcolornight; }

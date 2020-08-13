@@ -25,11 +25,6 @@
  ***************************************************************************
  */
 
-#include "depth.h"
-#include "wx28compat.h"
-extern int g_iDashDepthUnit;
-
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -43,12 +38,16 @@ extern int g_iDashDepthUnit;
     #include <wx/wx.h>
 #endif
 
+#include "depth.h"
+
+#include "dashboard_pi_ext.h"
+
 DashboardInstrument_Depth::DashboardInstrument_Depth( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument(parent, id, title, OCPN_DBP_STC_DPT | OCPN_DBP_STC_TMP)
 {
     m_MaxDepth = 0;
-    m_Depth = 0;
-    m_DepthUnit = getUsrDistanceUnit_Plugin( g_iDashDepthUnit );
+    m_Depth = std::nan("1");
+    m_DepthUnit = _T("");
     m_Temp = _T("--");
     for (int idx = 0; idx < DEPTH_RECORD_COUNT; idx++)
     {
@@ -69,48 +68,50 @@ wxSize DashboardInstrument_Depth::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Depth::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
-    setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     if (st == OCPN_DBP_STC_DPT)
     {
-        m_Depth = data;
+        if ( !std::isnan( data ) ) {
+            m_Depth = data;
         
-        for (int idx = 1; idx < DEPTH_RECORD_COUNT; idx++)
-        {
-            m_ArrayDepth[idx-1] = m_ArrayDepth[idx];
+            for (int idx = 1; idx < DEPTH_RECORD_COUNT; idx++) {
+                m_ArrayDepth[idx-1] = m_ArrayDepth[idx];
+            }
+            m_ArrayDepth[DEPTH_RECORD_COUNT-1] = data;
+            m_DepthUnit = unit;
         }
-        m_ArrayDepth[DEPTH_RECORD_COUNT-1] = data;
-        m_DepthUnit = unit;
+        else {
+            m_Depth = std::nan("1");
+            m_DepthUnit = _T("");
+        }
     }
     else if (st == OCPN_DBP_STC_TMP)
     {
-        m_Temp = wxString::Format(_T("%.1f"), data)+DEGREE_SIGN+unit;
+        if ( !std::isnan( data ) )
+            m_Temp = wxString::Format(_T("%.1f"), data)+DEGREE_SIGN+unit;
+        else
+            m_Temp = _T("--");
     }
+
+    setTimestamp( timestamp );
+
 }
-#ifdef _TACTICSPI_H_
+
 void DashboardInstrument_Depth::timeoutEvent()
 {
     m_MaxDepth = 0;
-    m_Depth = 0;
+    m_Depth = std::nan("1");
+    m_DepthUnit = _T("");
     m_Temp = _T("--");
     for (int idx = 0; idx < DEPTH_RECORD_COUNT; idx++)
     {
         m_ArrayDepth[idx] = 0;
     }
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Depth::Draw(wxGCDC* dc)
 {
@@ -123,12 +124,12 @@ void DashboardInstrument_Depth::DrawBackground(wxGCDC* dc)
     wxSize size = GetClientSize();
     wxColour cl;
 
-    GetGlobalColor(_T("DASHL"), &cl);
+    GetGlobalColor( g_sDialColorLabel, &cl) ;
     dc->SetTextForeground(cl);
 
     wxPen pen;
     pen.SetStyle(wxPENSTYLE_SOLID);
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorForeground, &cl );
     pen.SetColour(cl);
     pen.SetWidth(1);
     dc->SetPen(pen);
@@ -175,7 +176,7 @@ void DashboardInstrument_Depth::DrawForeground(wxGCDC* dc)
     wxSize size = GetClientSize();
     wxColour cl;
 
-    GetGlobalColor(_T("DASHL"), &cl);
+    GetGlobalColor( g_sDialColorLabel, &cl );
     wxBrush brush;
     brush.SetStyle(wxBRUSHSTYLE_SOLID);
     brush.SetColour(cl);
@@ -199,10 +200,10 @@ void DashboardInstrument_Depth::DrawForeground(wxGCDC* dc)
     points[DEPTH_RECORD_COUNT+1].y = 140;
     dc->DrawPolygon(DEPTH_RECORD_COUNT+2, points);
       
-    GetGlobalColor(_T("DASHF"), &cl);
+    GetGlobalColor( g_sDialColorForeground, &cl );
     dc->SetTextForeground( cl );
     dc->SetFont(*g_pFontData);
-    dc->DrawText(wxString::Format(_T("%.1f "), m_Depth)+m_DepthUnit, 10, m_TitleHeight);
+    dc->DrawText( (std::isnan( m_Depth ) ? _T("") : wxString::Format(_T("%.1f "), m_Depth))+m_DepthUnit, 10, m_TitleHeight);
 
     dc->SetFont(*g_pFontLabel);
     int width, height;

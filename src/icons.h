@@ -6,32 +6,20 @@
 #ifndef WX_PRECOMP
 #	include <wx/wx.h>
 #endif
-#include "dashboard_pi.h"
 
 extern void initialize_images(void);
 
-#ifdef _TACTICSPI_H_
 extern wxBitmap *_img_dashboard_tactics_pi; // if needed, separate icons can be created...
 extern wxBitmap *_img_dashboard_tactics;    // ... if built-in dashboard has a copyright.
-#else
-extern wxBitmap *_img_dashboard_pi;
-extern wxBitmap *_img_dashboard;
-#endif // _TACTICSPI_H_
 extern wxBitmap *_img_dial;
 extern wxBitmap *_img_instrument;
 extern wxBitmap *_img_minus;
 extern wxBitmap *_img_plus;
 
 #ifdef OCPN_USE_SVG
-#ifdef _TACTICSPI_H_
 extern wxString _svg_dashboard_tactics;
 extern wxString _svg_dashboard_tactics_rollover;
 extern wxString _svg_dashboard_tactics_toggled;
-#else
-extern wxString _svg_dashboard;
-extern wxString _svg_dashboard_rollover;
-extern wxString _svg_dashboard_toggled;
-#endif // _TACTICSPI_H_
 #endif //  OCPN_USE_SVG
 
 #endif /* ICONS_H */

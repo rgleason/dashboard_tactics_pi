@@ -34,27 +34,15 @@
   #include "wx/wx.h"
 #endif //precompiled headers
 
-#include <wx/notebook.h>
-#include <wx/fileconf.h>
-#include <wx/listctrl.h>
-#include <wx/imaglist.h>
-#include <wx/spinctrl.h>
-#include <wx/aui/aui.h>
-#include <wx/fontpicker.h>
-#include <wx/glcanvas.h>
 #include <mutex>
 
 #include "ocpn_plugin.h"
-#include "instrument.h"
-#include "performance.h"
-#include "bearingcompass.h"
-#include "avg_wind.h"
-#include "polarcompass.h"
-#include "streamout.h"
-#include "streamin-sk.h"
 
-class Polar;
-class AvgWind;
+#include "TacticsStructs.h"
+#include "ExpSmooth.h"
+#include "DoubleExpSmooth.h"
+
+#include "SkData.h"
 
 #define aws_watchdog_timeout_ticks 10
 #define brg_watchdog_timeout_ticks 10
@@ -63,24 +51,6 @@ class AvgWind;
 #define vmg_watchdog_timeout_ticks 10
 #define CURR_RECORD_COUNT 20
 #define COGRANGE 60
-
-enum dbgTrueWindStartAWS_STC {
-    DBGRES_AWS_STC_UNKNOWN, DBGRES_AWS_STC_WAIT, DBGRES_AWS_STC_AVAILABLE_INVALID, DBGRES_AWS_STC_AVAILABLE };
-enum dbgTrueWindStartForce {
-    DBGRES_FORCE_UNKNOWN, DBGRES_FORCE_SELECTED_TW_AVAILABLE, DBGRES_FORCE_SELECTED_NO_TW_AVAILABLE,
-    DBGRES_FORCE_SELECTED_NO_TWD_AVAILABLE, DBGRES_FORCE_NOT_SELECTED_TW_AVAILABLE,
-    DBGRES_FORCE_NOT_SELECTED_NO_TW_AVAILABLE };
-enum dbgTrueWindStartMval {
-    DBGRES_MVAL_UNKNOWN, DBGRES_MVAL_INVALID, DBGRES_MVAL_AVAILABLE, DBGRES_MVAL_IS_ZERO, DBGRES_MVAL_IS_NEG };
-enum dbgTrueWindExecStat {
-    DBGRES_EXEC_UNKNOWN, DBGRES_EXEC_FALSE, DBGRES_EXEC_TWDONLY_TRUE, DBGRES_EXEC_TRUE };
-enum dbgPolarStat {
-    DBGRES_POLAR_UNKNOWN, DBGRES_POLAR_INVALID, DBGRES_POLAR_VALID };
-
-//----------------------------------------------------------------------------------------------------------
-//    The PlugIn Class Definition
-//----------------------------------------------------------------------------------------------------------
-
 
 class tactics_pi
 {
@@ -102,6 +72,9 @@ public:
     virtual bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) = 0;
     virtual void UpdateAuiStatus(void) = 0;
     virtual void SetToggledStateVisible(bool isvisible) final;
+    virtual void callAllRegisteredGLRenderers(
+        wxGLContext* pcontext, PlugIn_ViewPort* vp,
+        wxString className = wxEmptyString ) = 0;
     virtual bool TacticsRenderOverlay(
         wxDC &dc, PlugIn_ViewPort *vp) final;
     virtual bool RenderGLOverlay(
@@ -123,6 +96,7 @@ public:
     bool GetWindbarbVisibility(void);
     bool GetCurrentVisibility(void);
     bool GetPolarVisibility(void);
+    bool IsConfigSetToForcedTrueWindCalculation(void);
 
     virtual void SetNMEASentence(
         wxString& sentence, wxString* type=NULL, wxString* sentenceId=NULL, wxString* talker=NULL,
@@ -179,6 +153,16 @@ public:
         wxString &unit_currdir,
         unsigned long long &st_currspd, double &value_currspd,
         wxString &unit_currspd, long long &calctimestamp) final;
+    virtual wxString GetActiveRouteName() = 0;
+    virtual wxString GetActiveRouteGUID() = 0;
+    virtual wxString GetWpActivatedName() = 0;
+    virtual wxString GetWpActivatedGUID() = 0;
+    virtual bool GetWpArrivedIsSkipped() = 0;
+    virtual wxString GetWpArrivedName() = 0;
+    virtual wxString GetWpArrivedGUID() = 0;
+    virtual wxString GetWpArrivedNextName() = 0;
+    virtual wxString GetWpArrivedNextGUID() = 0;
+    virtual Plugin_Active_Leg_Info* GetActiveLegInfoPtr() = 0;
 
     virtual void OnAvgWindUpdTimer_Tactics(void) final;
 
@@ -186,8 +170,13 @@ public:
     static wxString get_sVMGSynonym(void);
     void set_m_bDisplayCurrentOnChart(bool value) {m_bDisplayCurrentOnChart = value;}
 
+    bool getTacticsDCmsgShown(void) { return b_tactics_dc_message_shown; };
+    void setTacticsDCmsgShownTrue(void) { b_tactics_dc_message_shown = true; };
+    
+protected:
+    SkData              *m_pSkData;
+    
 private:
-
     opencpn_plugin      *m_hostplugin;
     wxFileConfig        *m_hostplugin_pconfig;
     wxString             m_hostplugin_config_path;
@@ -274,6 +263,7 @@ private:
     double               mPredictedSoG;
     double               mPercentTargetVMGupwind;
     double               mPercentTargetVMGdownwind;
+    double               mPercentUserTargetSpeed;
     TargetxMG            tvmg;
     TargetxMG            tcmg;
     double               mVMGGain;
@@ -307,6 +297,7 @@ private:
     bool                 b_tactics_dc_message_shown;
     bool                 m_bToggledStateVisible;
     bool                 m_bToggledStateVisibleDefined;
+    int                  m_iDbgRes_TW_Calc_TW_Available;
     int                  m_iDbgRes_TW_Calc_AWS_STC;
     int                  m_iDbgRes_TW_Calc_AWS;
     int                  m_iDbgRes_TW_Calc_Force;
@@ -336,94 +327,6 @@ private:
 
 };
 
-class TacticsPreferencesDialog : public wxDialog
-{
-public:
-    TacticsPreferencesDialog(
-        wxWindow *pparent, wxWindowID id, const wxString derivtitle, wxPoint pos = wxDefaultPosition );
-    ~TacticsPreferencesDialog() {}
-
-    virtual void TacticsPreferencesInit(
-        wxNotebook *itemNotebook, int border_size) final;
-    virtual void TacticsPreferencesPanel(void) final;
-    virtual void SaveTacticsConfig(void) final;
-
-    void SelectPolarFile(wxCommandEvent& event);
-    void OnAWSAWACorrectionUpdated(wxCommandEvent& event);
-    void OnManualHeelUpdate(wxCommandEvent& event);
-
-    wxNotebook                   *m_itemNotebook;
-    int                           m_border_size;
-
-    wxSpinCtrlDouble             *m_alphaDeltCoG; //TR
-    wxSpinCtrlDouble             *m_alphaLaylineDampFactor;//TR
-    wxSpinCtrl                   *m_minLayLineWidth;//TR
-    wxSpinCtrl                   *m_maxLayLineWidth;//TR
-    wxSpinCtrlDouble             *m_LeewayFactor;//TR
-    wxSpinCtrl                   *m_AlphaCurrDir; //TR
-    wxSpinCtrlDouble             *m_fixedLeeway;//TR
-    wxButton                     *m_buttonLoadPolar;//TR
-    wxButton                     *m_buttonPrefsApply;//TR
-    wxTextCtrl                   *m_pTextCtrlPolar; //TR
-    wxSpinCtrlDouble             *m_pLaylineLength; //TR
-    wxSpinCtrlDouble             *m_heel5_45;
-    wxSpinCtrlDouble             *m_heel5_90;
-    wxSpinCtrlDouble             *m_heel5_135;
-    wxSpinCtrlDouble             *m_heel10_45;
-    wxSpinCtrlDouble             *m_heel10_90;
-    wxSpinCtrlDouble             *m_heel10_135;
-    wxSpinCtrlDouble             *m_heel15_45;
-    wxSpinCtrlDouble             *m_heel15_90;
-    wxSpinCtrlDouble             *m_heel15_135;
-    wxSpinCtrlDouble             *m_heel20_45;
-    wxSpinCtrlDouble             *m_heel20_90;
-    wxSpinCtrlDouble             *m_heel20_135;
-    wxSpinCtrlDouble             *m_heel25_45;
-    wxSpinCtrlDouble             *m_heel25_90;
-    wxSpinCtrlDouble             *m_heel25_135;
-    wxTextCtrl                   *m_UseHeelSensor;
-    wxCheckBox                   *m_CurrentOnChart;
-    wxRadioButton                *m_ButtonLeewayFactor;
-    wxRadioButton                *m_ButtonFixedLeeway;
-    wxRadioButton                *m_ButtonHeelInput;
-    wxRadioButton                *m_ButtonUseHeelSensor;
-    wxCheckBox                   *m_CorrectSTWwithLeeway;
-    wxCheckBox                   *m_CorrectAWwithHeel;
-    wxCheckBox                   *m_ForceTrueWindCalculation;
-    wxCheckBox                   *m_UseSOGforTWCalc;
-    wxCheckBox                   *m_ShowWindbarbOnChart;
-    wxCheckBox                   *m_ShowPolarOnChart;
-    wxRadioButton                *m_ButtonExpNKE;
-    wxCheckBox                   *m_ExpPerfData01;
-    wxCheckBox                   *m_ExpPerfData02;
-    wxCheckBox                   *m_ExpPerfData03;
-    wxCheckBox                   *m_ExpPerfData04;
-    wxCheckBox                   *m_ExpPerfData05;
-    wxCheckBox                   *m_ExpFileData01;
-    wxCheckBox                   *m_ExpFileData02;
-    wxTextCtrl                   *m_pDataExportSeparator;
-    wxCheckBox                   *m_PersistentChartPolarAnimation;
-private:
-    void UpdateTacticsButtonsState(void);
-    void UpdateButtonsState(void);
-    wxFileConfig     *m_pconfig;
-
-    int                           curSel;
-    wxListCtrl                   *m_pListCtrlTacticss;
-    wxBitmapButton               *m_pButtonAddTactics;
-    wxBitmapButton               *m_pButtonDeleteTactics;
-    wxPanel                      *m_pPanelTactics;
-    wxTextCtrl                   *m_pTextCtrlCaption;
-    wxCheckBox                   *m_pCheckBoxIsVisible;
-    wxChoice                     *m_pChoiceOrientation;
-    wxListCtrl                   *m_pListCtrlInstruments;
-    wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
-    wxButton                     *m_pButtonDelete;
-    wxButton                     *m_pButtonUp;
-    wxButton                     *m_pButtonDown;
-};
-
 enum eIdDashTacticsContextMenu {
     ID_DASH_TACTICS_PREFS_START = 10000,
     ID_DASH_LAYLINE,
@@ -431,31 +334,6 @@ enum eIdDashTacticsContextMenu {
     ID_DASH_POLAR,
     ID_DASH_WINDBARB,
     ID_DASH_TACTICS_PREFS_END
-};
-
-class TacticsWindow : public wxWindow
-{
-public:
-    TacticsWindow(
-        wxWindow *pparent, wxWindowID id,
-        tactics_pi *tactics, const wxString derivtitle );
-    ~TacticsWindow();
-
-    virtual void InsertTacticsIntoContextMenu (
-        wxMenu *contextMenu ) final;
-    virtual void TacticsInContextMenuAction (
-        const int eventId ) final;
-
-    void SendPerfSentenceToAllInstruments(
-        unsigned long long st, double value, wxString unit, long long timestamp );
-    void SetUpdateSignalK(
-        wxString* type, wxString* sentenceId, wxString* talker, wxString* src, int pgn,
-        wxString* path, double value, wxString* valStr, long long timestamp, wxString* key=NULL);
-
-private:
-
-    tactics_pi*         m_plugin;
-
 };
 
 #endif

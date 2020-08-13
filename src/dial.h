@@ -69,10 +69,8 @@ typedef enum
       DIAL_POSITION_TOPRIGHT,
       DIAL_POSITION_BOTTOMLEFT,
       DIAL_POSITION_BOTTOMRIGHT
-#ifdef _TACTICSPI_H_
       ,
       DIAL_POSITION_TOPINSIDE
-#endif // _TACTICSPI_H_
 } DialPositionOption;
 
 extern double rad2deg(double angle);
@@ -91,17 +89,12 @@ class DashboardInstrument_Dial: public DashboardInstrument
 {
 public:
     DashboardInstrument_Dial( wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                               unsigned long long cap_flag,
-#else
-                              int cap_flag,
-#endif // _TACTICSPI_H_
                               int s_angle, int r_angle, int s_value, int e_value);
 
     ~DashboardInstrument_Dial(void){}
 
     wxSize GetSize( int orient, wxSize hint );
-#ifdef _TACTICSPI_H_
     virtual void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     virtual void timeoutEvent(void);
 #ifndef __DERIVEDTIMEOUT_OVERRIDE__
@@ -109,9 +102,6 @@ public:
 #else
     virtual void derivedTimeoutEvent(void);
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
-#else
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
     void SetOptionMarker(double step, DialMarkerOption option, int offset) {
         m_MarkerStep = step; m_MarkerOption = option; m_MarkerOffset = offset;
     }
@@ -122,11 +112,7 @@ public:
         m_MainValueFormat = format; m_MainValueOption = option;
     }
     void SetOptionExtraValue(
-#ifdef _TACTICSPI_H_
         unsigned long long cap,
-#else
-        int cap,
-#endif // _TACTICSPI_H_
         wxString format, DialPositionOption option) {
         m_ExtraValueCap = cap; m_cap_flag |= cap; m_ExtraValueFormat = format; m_ExtraValueOption = option;
     }
@@ -140,24 +126,17 @@ protected:
     int m_AngleStart;
     int m_AngleRange;
     double m_MainValue;
-#ifdef _TACTICSPI_H_
     unsigned long long m_MainValueCap;
+    unsigned long long m_s_cap_flag;
     int m_s_angle;
     int m_s_value;
-#else
-    int m_MainValueCap;
-#endif // _TACTICSPI_H_
     double m_MainValueMin;
     double m_MainValueMax;
     wxString m_MainValueFormat;
     wxString m_MainValueUnit;
     DialPositionOption m_MainValueOption;
     double m_ExtraValue;
-#ifdef _TACTICSPI_H_
     unsigned long long m_ExtraValueCap;
-#else
-    int m_ExtraValueCap;
-#endif // _TACTICSPI_H_
     wxString m_ExtraValueFormat;
     wxString m_ExtraValueUnit;
     DialPositionOption m_ExtraValueOption;
@@ -180,6 +159,8 @@ protected:
 /* Shared functions */
 void DrawCompassRose( wxGCDC* dc, int cx, int cy, int radius, int startangle, bool showlabels );
 void DrawBoat( wxGCDC* dc, int cx, int cy, int radius );
+void DrawNeedleHub( wxGCDC* dc, int cx, int cy, int radius, bool dataAvailable );
+void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString ocpnColorCode );
 
 #endif // __Dial_H__
 
