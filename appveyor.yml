@@ -39,7 +39,7 @@ install:
 
 before_build:
   - cd c:\project\ocpn_project
-  - cd cmake\buildwin
+  - cd buildwin
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/opencpnplugins/opencpn_packaging_data/PVW32Con.exe
   - cd ..
   - rm -rf build && mkdir build && cd build
