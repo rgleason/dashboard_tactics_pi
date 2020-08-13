@@ -1407,10 +1407,11 @@ void TacticsInstrument_PolarPerformance::SetData(
 //*********************************************************************************
 void TacticsInstrument_PolarPerformance::OnPolarPerfUpdTimer(wxTimerEvent & event)
 {
-    if (!wxIsNaN(m_STW) && !wxIsNaN(m_TWA) && !wxIsNaN(m_TWS)) {
+//    if (!wxIsNaN(m_STW) && !wxIsNaN(m_TWA) && !wxIsNaN(m_TWS)) {
+      if (!stn::isnan(m_STW) && !stn::isnan(m_TWA) && !stn::isnan(m_TWS)) {
         double m_PolarSpeed = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
 
-        if (wxIsNaN(m_PolarSpeed))
+        if (stn::isnan(m_PolarSpeed))
             m_PercentUnit = _T("no polar data");
         else if (m_PolarSpeed == 0)
             m_PercentUnit = _T("--");

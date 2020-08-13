@@ -1171,8 +1171,8 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
                 PositionBearingDistanceMercator_Plugin(lat, lon, currdir, currspd_kts, &curlat, &curlon);
                 DistanceBearingMercator_Plugin(curlat, curlon, mlat, mlon, &target_tacklinedir, &act_sog);
                 //smooth target_tacklinedir, continue whith smoothed value
-                if (wxIsNaN(m_ExpSmtarget_tacklinedir)) m_ExpSmtarget_tacklinedir = target_tacklinedir;
-
+//          if (wxIsNaN(m_ExpSmtarget_tacklinedir)) m_ExpSmtarget_tacklinedir = target_tacklinedir;
+                if (std::isnan(m_ExpSmtarget_tacklinedir)) m_ExpSmtarget_tacklinedir = target_tacklinedir;
                 double myrad3 = (90 - target_tacklinedir)*M_PI / 180.;
                 mExpSmSintarget_tacklinedir->SetAlpha(g_dalphaLaylinedDampFactor);
                 mExpSmCostarget_tacklinedir->SetAlpha(g_dalphaLaylinedDampFactor);
