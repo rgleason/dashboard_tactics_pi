@@ -36,14 +36,14 @@ jobs:
     - run: npm install
     - run: npm run build
 #    - run: npm test
-  racestart:
+  racedashstart:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./instrujs/racestart
+        working-directory: ./instrujs/racedashstart
     steps:
     - uses: actions/checkout@v2
-    - name: racestart
+    - name: racedashstart
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
@@ -73,7 +73,7 @@ jobs:
         working-directory: ./instrujs/timestui
     steps:
     - uses: actions/checkout@v2
-    - name: racestart
+    - name: timestui
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
