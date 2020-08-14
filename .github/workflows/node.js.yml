@@ -21,26 +21,17 @@ on:
       - '**.html'
 
 jobs:
-  build:
-
-    strategy:
-      matrix:
-        js-instruments: ['./instrujs/racedashmark']
-
+  racedashmark:
     runs-on: ubuntu-latest
-    env:
-      working-directory: {{ matrix.js-instruments }}
-
+    defaults:
+      run:
+        working-directory: ./instrujs/racedashmark
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: racedashmark
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
     - run: npm ci
-      working-directory: ${{ env.working-directory }}
     - run: npm run build --if-present
-      working-directory: ${{ env.working-directory }}
 #    - run: npm test
-      env:
-        CI: true
