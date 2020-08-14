@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        js-instruments: './instrujs/racedashmark'
+        js-instruments: ['./instrujs/racedashmark']
 
     runs-on: ubuntu-latest
 
