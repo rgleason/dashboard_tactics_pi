@@ -17,6 +17,5 @@ po/*.rule
 node_modules
 *.swp
 npm-debug.log
-package-lock.json
 yarn.lock
 
