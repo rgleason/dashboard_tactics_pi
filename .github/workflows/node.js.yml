@@ -21,6 +21,36 @@ on:
       - '**.html'
 
 jobs:
+  enginedjg:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/enginedjg
+    steps:
+    - uses: actions/checkout@v2
+    - name: racestart
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+#    - run: pwd; ls -l
+    - run: npm install
+    - run: npm run build
+#    - run: npm test
+  racestart:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/racestart
+    steps:
+    - uses: actions/checkout@v2
+    - name: racestart
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+#    - run: pwd; ls -l
+    - run: npm install
+    - run: npm run build
+#    - run: npm test
   racedashmark:
     runs-on: ubuntu-latest
     defaults:
@@ -29,6 +59,21 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: racedashmark
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+#    - run: pwd; ls -l
+    - run: npm install
+    - run: npm run build
+#    - run: npm test
+  timestui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/timestui
+    steps:
+    - uses: actions/checkout@v2
+    - name: racestart
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
