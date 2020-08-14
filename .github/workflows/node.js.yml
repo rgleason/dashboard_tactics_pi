@@ -4,15 +4,21 @@
 name: Node.js CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ dev200 ]
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.scss'
+      - '**.html'
   pull_request:
-    branches: [ dev200 ]
-  paths:
-    - '**.js'
-    - '**.ts'
-    - '**.scss'
-    - '**.html'
+    branches: [ pr200 ]
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.scss'
+      - '**.html'
 
 jobs:
   build:
