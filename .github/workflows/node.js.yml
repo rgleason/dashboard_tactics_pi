@@ -32,8 +32,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-#    - run: pwd; ls -l
-    - run: npm install
+    - run: npm ci
     - run: npm run build
 #    - run: npm test
   racedashstart:
@@ -47,10 +46,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-#    - run: pwd; ls -l
-    - run: npm install
+    - run: npm ci
     - run: npm run build
-#    - run: npm test
   racedashmark:
     runs-on: ubuntu-latest
     defaults:
@@ -62,10 +59,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-#    - run: pwd; ls -l
-    - run: npm install
+    - run: npm ci
     - run: npm run build
-#    - run: npm test
   timestui:
     runs-on: ubuntu-latest
     defaults:
@@ -77,7 +72,5 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-#    - run: pwd; ls -l
-    - run: npm install
+    - run: npm ci
     - run: npm run build
-#    - run: npm test
