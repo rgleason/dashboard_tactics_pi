@@ -23,15 +23,12 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
-    env:
-      matrix:  
-        js-instruments: './instrujs/racedashmark'
-
     strategy:
       matrix:
         node-version: '12.x'
+        js-instruments: './instrujs/racedashmark'
+
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
