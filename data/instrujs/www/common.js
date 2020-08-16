@@ -18,13 +18,13 @@
         - or, modify enginedjg/index.html to load your own file, no problem!
         - issues? open the index.html in a browser, hit Shift+Ctrl+I and reload;
                   * Console gives you the reason why it does not load anymore:
-                  * Look for messages in red, a typo, missing comma?
+                  * Look for messages in r e d: a typo, missing comma?
         - note: next update/reinstallation overrides this file, keep backups!
 */
 
 var  instrustat = {
     theme : 'default',
-    debuglevel : 5,
+    debuglevel : 1,
     alerts : true,
     alertdelay : 5,
     corsproxy: 'http://localhost:8089',
