@@ -16,7 +16,8 @@ engines:
      - src/clock.cpp
 exclude_paths:
   - 'instrujs/**/webpack.config.js'
-  - 'instrujs/src/influxdb-client/**'
+  - 'instrujs/timestui/influxdb-client/**'
+  - 'instrujs/timestui/_babel-ts-loader_*'
   - 'instrujs/**/src/bootstrap-sass.d.ts'
   - 'data/instrujs/www/*.min.js'
   - 'data/instrujs/www/**/bundle.js'
