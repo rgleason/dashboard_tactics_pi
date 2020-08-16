@@ -10,6 +10,7 @@
     "awesomeTypescriptLoaderOptions": {
         "useBabel": true,
         "babelOptions": {
+            "babelrc": false,
             "presets": [
               ["@babel/preset-env", {
                   "useBuiltIns": "usage",

@@ -2,8 +2,8 @@
  * OpenCPN dashboard_tactics plug-in
  * Licensed under MIT - see distribution.
  */
-import InfluxDB from '../../src/influxdb-client/packages/core/src/InfluxDB'
-import FluxTableMetaData from '../../src/influxdb-client/packages/core/src/query/FluxTableMetaData'
+import InfluxDB from '../influxdb-client/packages/core/src/InfluxDB'
+import FluxTableMetaData from '../influxdb-client/packages/core/src/query/FluxTableMetaData'
 // import {url, token, org, bucket} from './env'
 
 import DbSchema from '../../src/dbschema'
