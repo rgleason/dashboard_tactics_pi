@@ -4,8 +4,6 @@ const Extract = require('mini-css-extract-plugin')
 const Compresseur = require('terser-webpack-plugin')
 const HtmlInstaller = require('html-webpack-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const http = path.resolve(__dirname, 'node_modules/stream-http/index.js')
-const url = path.resolve(__dirname, 'node_modules/url-parse/index.js')
 
 // This is main configuration object that tells Webpackw what to do.
 module.exports = {
@@ -19,23 +17,54 @@ module.exports = {
         filename: 'bundle.js'
     },
     resolve: {
-      extensions: ['.js', '.ts', '.tsx'],
-      alias: {
-          http, https: http,
-          url: url,
-          corejs: path.resolve(__dirname, 'node_modules/core-js'),
-          zlib$: path.resolve(__dirname, 'node_modules/browserify-zlib/lib/index.js'),
-          InfluxDB$: path.resolve(__dirname, './influxdb-client/packages/core/src/InfluxDB.ts'),
-          FluxTableMetaData$: path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableMetaData.ts'),
-          DbSchema$: path.resolve(__dirname, '../src/dbschema.ts')
-
-      }
+        extensions: ['.js', '.ts', '.tsx'],
+        alias: {
+            idbclient: path.resolve(__dirname, './src/idbclient.ts'),
+            InfluxDB$: path.resolve(__dirname, './influxdb-client/packages/core/src/InfluxDB.ts'),
+            FluxTableMetaData$: path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableMetaData.ts'),
+        }
     },
     module: {
         rules: [
             // Browserify / polyfill InfluxDB javascript client query part
             {
                 test: /\.ts?$/,
+                exclude: [
+                    /(node_modules)/,
+                    path.resolve(__dirname, './influxdb-client'),
+                    path.resolve(__dirname, './src'),
+                    path.resolve(__dirname, '../src')
+                ],
+                include: [
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/InfluxDB.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/errors.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/options.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/QueryApi.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/ChunksToLines.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/completeCommunicationObserver.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/linesToTables.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/Logger.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/ObservableQuery.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/RetryBuffer.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/retryStrategy.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/QueryApiImpl.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/WriteApiImpl.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/impl/browser/FetchTransport.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/observable/symbol.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/observable/types.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableColumn.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableMetaData.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/util/currentTime.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/util/escape.ts'),
+                    path.resolve(__dirname, './influxdb-client/packages/core/src/util/LineSplitter.ts')
+                    ],
+                resolve: {
+                    plugins: [
+                        new TsconfigPathsPlugin({
+                                configFile: 'tsconfig_influx.json'
+                        })
+                    ],
+                },
                 use: [
                     {
                         loader: 'babel-loader',
@@ -58,43 +87,9 @@ module.exports = {
                     {
                         loader: 'ts-loader',
                             options: {
-                                // ATTENTION: read the comment in _babel-ts-loader_tsconfig_influxclient.json
-                                configFile: 'tsconfig_influxclient.json'
+                                configFile: 'tsconfig_influx.json'
                             }
                     }
-                ],
-                resolve: {
-                    plugins: [
-                        new TsconfigPathsPlugin({
-                        })
-                    ],
-                },
-                include: [path.resolve(__dirname, './influxdb-client/packages/core/src/InfluxDB.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/errors.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/options.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/QueryApi.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/ChunksToLines.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/completeCommunicationObserver.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/linesToTables.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/Logger.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/ObservableQuery.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/RetryBuffer.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/retryStrategy.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/QueryApiImpl.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/WriteApiImpl.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/node/nodeChunkCombiner.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/impl/node/NodeHttpTransport.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/observable/symbol.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/observable/types.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableColumn.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/query/FluxTableMetaData.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/util/currentTime.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/util/escape.ts'),
-                          path.resolve(__dirname, './influxdb-client/packages/core/src/util/LineSplitter.ts'),
-                         ],
-                exclude: [
-                    /(node_modules)/,
-                    path.resolve(__dirname, './influxdb-client')
                 ]
             },
            // The DashT code
@@ -137,7 +132,7 @@ module.exports = {
                     {
                         loader: 'ts-loader',
                             options: {
-                                configFile: 'tsconfig_influxclient.json'
+                                configFile: 'tsconfig.json'
                             }
                     }
                 ]
@@ -152,22 +147,26 @@ module.exports = {
                 include: [path.resolve(__dirname, './src'),
                           path.resolve(__dirname, '../src')
                          ],
-                loader: 'babel-loader',
-                options: {
-                    "presets": [
-                      ["@babel/preset-env", {
-                          "useBuiltIns": "entry",
-                          "corejs": {"version": 3, "proposals": true},
-                          "debug": true,
-                          "targets": {
-                              "ie": "11",
-                              "safari": "6"
-                          }
-                      }]
-                    ],
-                    plugins: ['@babel/plugin-transform-runtime'],
-                    cacheDirectory: true
-                }
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            "presets": [
+                              ["@babel/preset-env", {
+                                  "useBuiltIns": "entry",
+                                  "corejs": {"version": 3, "proposals": true},
+                                  "debug": true,
+                                  "targets": {
+                                      "ie": "11",
+                                      "safari": "6"
+                                  }
+                              }]
+                            ],
+                            plugins: ['@babel/plugin-transform-runtime'],
+                            cacheDirectory: true
+                        }
+                    }
+                ]
             },
             {
                 test:/\.(sa|sc|c)ss$/,

@@ -1,26 +1,32 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 
 export interface PostSignoutRequest {}
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignout
+ * Signout API
  */
-export class SignoutAPI extends APIBase {
+export class SignoutAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates SignoutAPI from an influxDB object.
+   * Creates SignoutAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * Expire the current session.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignout
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignout }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postSignout(
     request?: PostSignoutRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request('POST', `/api/v2/signout`, request, requestOptions)
+    return this.base.request('POST', `/api/v2/signout`, request, requestOptions)
   }
 }

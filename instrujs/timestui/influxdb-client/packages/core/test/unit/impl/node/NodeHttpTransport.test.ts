@@ -118,7 +118,7 @@ describe('NodeHttpTransport', () => {
                 200,
                 new Readable({
                   read(): any {
-                    const encode = !!(extras.headers || {})['accept-encoding']
+                    const encode = !!(extras.headers ?? {})['accept-encoding']
                     if (encode) {
                       this.push(
                         responseRead ? null : zlib.gzipSync(responseData)
@@ -135,7 +135,7 @@ describe('NodeHttpTransport', () => {
                     _res: any,
                     _body: any
                   ): string =>
-                    (extras.headers || {})['accept-encoding'] || 'identity',
+                    (extras.headers ?? {})['accept-encoding'] ?? 'identity',
                 },
               ])
               .persist()
@@ -298,6 +298,21 @@ describe('NodeHttpTransport', () => {
             expect(e)
               .property('body')
               .to.length(1000)
+          })
+      })
+      it(`uses X-Influxdb-Error header when no body is returned`, async () => {
+        const errorMessage = 'this is a header error message'
+        nock(transportOptions.url)
+          .get('/test')
+          .reply(500, '', {'X-Influxdb-Error': errorMessage})
+        await sendTestData(transportOptions, {method: 'GET'})
+          .then(() => {
+            throw new Error('must not succeed')
+          })
+          .catch((e: any) => {
+            expect(e)
+              .property('body')
+              .equals(errorMessage)
           })
       })
       it(`is aborted before the whole response arrives`, async () => {

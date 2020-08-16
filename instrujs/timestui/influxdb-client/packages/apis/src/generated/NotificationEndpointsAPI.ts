@@ -1,3 +1,4 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   LabelMapping,
@@ -56,36 +57,33 @@ export interface DeleteNotificationEndpointsIDLabelsIDRequest {
   labelID: string
 }
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpoints
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationEndpoint
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationEndpointsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationEndpointsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationEndpointIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsIDLabelsID
+ * NotificationEndpoints API
  */
-export class NotificationEndpointsAPI extends APIBase {
+export class NotificationEndpointsAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates NotificationEndpointsAPI from an influxDB object.
+   * Creates NotificationEndpointsAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * Get all notification endpoints.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpoints
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpoints }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationEndpoints(
     request: GetNotificationEndpointsRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationEndpoints> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/notificationEndpoints${this.queryString(request, [
+      `/api/v2/notificationEndpoints${this.base.queryString(request, [
         'offset',
         'limit',
         'orgID',
@@ -96,15 +94,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Add a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationEndpoint
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationEndpoint }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   createNotificationEndpoint(
     request: CreateNotificationEndpointRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationEndpoint> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/notificationEndpoints`,
       request,
@@ -114,15 +113,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Get a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationEndpointsID(
     request: GetNotificationEndpointsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationEndpoint> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/notificationEndpoints/${request.endpointID}`,
       request,
@@ -131,15 +131,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Update a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationEndpointsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationEndpointsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   putNotificationEndpointsID(
     request: PutNotificationEndpointsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationEndpoint> {
-    return this.request(
+    return this.base.request(
       'PUT',
       `/api/v2/notificationEndpoints/${request.endpointID}`,
       request,
@@ -149,15 +150,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Update a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationEndpointsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationEndpointsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchNotificationEndpointsID(
     request: PatchNotificationEndpointsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationEndpoint> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/notificationEndpoints/${request.endpointID}`,
       request,
@@ -167,15 +169,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Delete a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteNotificationEndpointsID(
     request: DeleteNotificationEndpointsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/notificationEndpoints/${request.endpointID}`,
       request,
@@ -184,15 +187,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * List all labels for a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationEndpointsIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationEndpointsIDLabels(
     request: GetNotificationEndpointsIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/notificationEndpoints/${request.endpointID}/labels`,
       request,
@@ -201,15 +205,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Add a label to a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationEndpointIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationEndpointIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postNotificationEndpointIDLabels(
     request: PostNotificationEndpointIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/notificationEndpoints/${request.endpointID}/labels`,
       request,
@@ -219,15 +224,16 @@ export class NotificationEndpointsAPI extends APIBase {
   }
   /**
    * Delete a label from a notification endpoint.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsIDLabelsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationEndpointsIDLabelsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteNotificationEndpointsIDLabelsID(
     request: DeleteNotificationEndpointsIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/notificationEndpoints/${request.endpointID}/labels/${request.labelID}`,
       request,

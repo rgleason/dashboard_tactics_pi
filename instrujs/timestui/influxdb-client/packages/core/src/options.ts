@@ -1,4 +1,5 @@
 import {Transport} from './transport'
+import WriteApi from './WriteApi'
 
 /**
  * Option for the communication with InfluxDB server.
@@ -25,16 +26,33 @@ export const DEFAULT_ConnectionOptions: Partial<ConnectionOptions> = {
 export interface RetryDelayStrategyOptions {
   /** include random milliseconds when retrying HTTP calls */
   retryJitter: number
-  /** minimum delay when retrying write  */
+  /** minimum delay when retrying write (milliseconds) */
   minRetryDelay: number
-  /** maximum delay when retrying write  */
+  /** maximum delay when retrying write (milliseconds) */
   maxRetryDelay: number
+  /** base for the exponential retry delay, the next delay is computed as `minRetryDelay * exponentialBase^(attempts-1) + random(retryJitter)` */
+  exponentialBase: number
 }
 
 /**
  * Options that configure strategy for retrying failed InfluxDB write operations.
  */
 export interface WriteRetryOptions extends RetryDelayStrategyOptions {
+  /**
+   * writeFailed is called to inform about write error
+   * @param this - the instance of the API that failed
+   * @param error - write error
+   * @param lines - failed lines
+   * @param attempts - a number of failed attempts to write the lines
+   * @returns a Promise to force the API to use it as a result of the flush operation,
+   * void/undefined to continue with default retry mechanism
+   */
+  writeFailed(
+    this: WriteApi,
+    error: Error,
+    lines: Array<string>,
+    attempts: number
+  ): Promise<void> | void
   /** max number of retries when write fails */
   maxRetries: number
   /** the maximum size of retry-buffer (in lines) */
@@ -42,44 +60,48 @@ export interface WriteRetryOptions extends RetryDelayStrategyOptions {
 }
 
 /**
- * Options used by [[WriteApi]] .
+ * Options used by {@link WriteApi} .
  */
 export interface WriteOptions extends WriteRetryOptions {
   /** max number of records to send in a batch   */
   batchSize: number
   /** delay between data flushes in milliseconds, at most `batch size` records are sent during flush  */
   flushInterval: number
+  /** default tags, unescaped */
+  defaultTags?: Record<string, string>
 }
 
 /** default RetryDelayStrategyOptions */
 export const DEFAULT_RetryDelayStrategyOptions = Object.freeze({
   retryJitter: 200,
-  minRetryDelay: 1000,
-  maxRetryDelay: 15000,
+  minRetryDelay: 5000,
+  maxRetryDelay: 180000,
+  exponentialBase: 5,
 })
 
 /** default writeOptions */
 export const DEFAULT_WriteOptions: WriteOptions = Object.freeze({
   batchSize: 1000,
   flushInterval: 60000,
-  maxRetries: 2,
+  writeFailed: function() {},
+  maxRetries: 3,
   maxBufferLines: 32_000,
   ...DEFAULT_RetryDelayStrategyOptions,
 })
 
 /**
- * Options used by [[InfluxDB]] .
+ * Options used by {@link InfluxDB} .
  */
 export interface ClientOptions extends ConnectionOptions {
-  /** to override default writing options */
+  /** supplies and overrides default writing options */
   writeOptions?: Partial<WriteOptions>
-  /** to specify custom transport */
+  /** specifies custom transport */
   transport?: Transport
 }
 
 /**
  * Precission for write operations.
- * @see <a href="https://v2.docs.influxdata.com/v2.0/api/#operation/PostWrite">https://v2.docs.influxdata.com/v2.0/api/#operation/PostWrite</a>
+ * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostWrite }
  */
 export const enum WritePrecision {
   /** nanosecond */
@@ -93,10 +115,12 @@ export const enum WritePrecision {
 }
 
 /**
- * Settings that control the way of how a [[Point]] is serialized
+ * Settings that control the way of how a {@link Point} is serialized
  * to a protocol line.
  */
 export interface PointSettings {
   defaultTags?: {[key: string]: string}
-  convertTime?: (value: string | undefined) => string | undefined
+  convertTime?: (
+    value: string | number | Date | undefined
+  ) => string | undefined
 }

@@ -1,3 +1,0 @@
-/influxdb-client/.*
-/influxdb-client/*
-!/influxdb-client/packages

@@ -1,3 +1,4 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   AddResourceMemberRequestBody,
@@ -66,6 +67,7 @@ export interface GetTasksIDRunsRequest {
 }
 export interface PostTasksIDRunsRequest {
   taskID: string
+  /** entity body */
   body: RunManually
 }
 export interface GetTasksIDRunsIDRequest {
@@ -145,48 +147,33 @@ export interface DeleteTasksIDOwnersIDRequest {
   taskID: string
 }
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasks
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasks
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchTasksID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRuns
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRuns
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDRunsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRunsIDRetry
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLogs
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsIDLogs
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDLabelsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDMembersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDOwnersID
+ * Tasks API
  */
-export class TasksAPI extends APIBase {
+export class TasksAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates TasksAPI from an influxDB object.
+   * Creates TasksAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * List all tasks.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasks
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasks }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasks(
     request?: GetTasksRequest,
     requestOptions?: RequestOptions
   ): Promise<Tasks> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/tasks${this.queryString(request, [
+      `/api/v2/tasks${this.base.queryString(request, [
         'name',
         'after',
         'user',
@@ -201,15 +188,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Create a new task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasks
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasks }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasks(
     request: PostTasksRequest,
     requestOptions?: RequestOptions
   ): Promise<Task> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks`,
       request,
@@ -219,15 +207,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Retrieve a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksID(
     request: GetTasksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Task> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}`,
       request,
@@ -236,15 +225,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Update a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchTasksID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchTasksID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchTasksID(
     request: PatchTasksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Task> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/tasks/${request.taskID}`,
       request,
@@ -254,15 +244,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Delete a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteTasksID(
     request: DeleteTasksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/tasks/${request.taskID}`,
       request,
@@ -271,17 +262,18 @@ export class TasksAPI extends APIBase {
   }
   /**
    * List runs for a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRuns
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRuns }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDRuns(
     request: GetTasksIDRunsRequest,
     requestOptions?: RequestOptions
   ): Promise<Runs> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/tasks/${request.taskID}/runs${this.queryString(request, [
+      `/api/v2/tasks/${request.taskID}/runs${this.base.queryString(request, [
         'after',
         'limit',
         'afterTime',
@@ -293,15 +285,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Manually start a task run, overriding the current schedule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRuns
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRuns }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasksIDRuns(
     request: PostTasksIDRunsRequest,
     requestOptions?: RequestOptions
   ): Promise<Run> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks/${request.taskID}/runs`,
       request,
@@ -311,15 +304,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Retrieve a single run for a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDRunsID(
     request: GetTasksIDRunsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Run> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/runs/${request.runID}`,
       request,
@@ -328,15 +322,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Cancel a running task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDRunsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDRunsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteTasksIDRunsID(
     request: DeleteTasksIDRunsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/tasks/${request.taskID}/runs/${request.runID}`,
       request,
@@ -345,15 +340,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Retry a task run.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRunsIDRetry
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDRunsIDRetry }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasksIDRunsIDRetry(
     request: PostTasksIDRunsIDRetryRequest,
     requestOptions?: RequestOptions
   ): Promise<Run> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks/${request.taskID}/runs/${request.runID}/retry`,
       request,
@@ -362,15 +358,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Retrieve all logs for a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLogs
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLogs }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDLogs(
     request: GetTasksIDLogsRequest,
     requestOptions?: RequestOptions
   ): Promise<Logs> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/logs`,
       request,
@@ -379,15 +376,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Retrieve all logs for a run.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsIDLogs
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDRunsIDLogs }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDRunsIDLogs(
     request: GetTasksIDRunsIDLogsRequest,
     requestOptions?: RequestOptions
   ): Promise<Logs> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/runs/${request.runID}/logs`,
       request,
@@ -396,15 +394,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * List all labels for a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDLabels(
     request: GetTasksIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/labels`,
       request,
@@ -413,15 +412,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Add a label to a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasksIDLabels(
     request: PostTasksIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks/${request.taskID}/labels`,
       request,
@@ -431,15 +431,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Delete a label from a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDLabelsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDLabelsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteTasksIDLabelsID(
     request: DeleteTasksIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/tasks/${request.taskID}/labels/${request.labelID}`,
       request,
@@ -448,15 +449,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * List all task members.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDMembers(
     request: GetTasksIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMembers> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/members`,
       request,
@@ -465,15 +467,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Add a member to a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasksIDMembers(
     request: PostTasksIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMember> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks/${request.taskID}/members`,
       request,
@@ -483,15 +486,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Remove a member from a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDMembersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDMembersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteTasksIDMembersID(
     request: DeleteTasksIDMembersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/tasks/${request.taskID}/members/${request.userID}`,
       request,
@@ -500,15 +504,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * List all owners of a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTasksIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getTasksIDOwners(
     request: GetTasksIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwners> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/tasks/${request.taskID}/owners`,
       request,
@@ -517,15 +522,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Add an owner to a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTasksIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postTasksIDOwners(
     request: PostTasksIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwner> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/tasks/${request.taskID}/owners`,
       request,
@@ -535,15 +541,16 @@ export class TasksAPI extends APIBase {
   }
   /**
    * Remove an owner from a task.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDOwnersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTasksIDOwnersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteTasksIDOwnersID(
     request: DeleteTasksIDOwnersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/tasks/${request.taskID}/owners/${request.userID}`,
       request,

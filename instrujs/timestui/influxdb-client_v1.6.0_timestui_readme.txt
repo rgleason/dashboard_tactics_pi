@@ -1,0 +1,58 @@
+In package.json, a fixed version:
+
+------------
+"@influxdata/influxdb-client": "1.6.0",
+
+- But this is only the node-version, so pro-forma only: we need to download
+  the package and browserify / polyfill for IE11 (!) ourselves!
+
+  ATTENTION: GET vs OPTIONS - where v1.0 was using GET method to retrieve
+                              data and status information, (since InfluxDB
+                              alpha versions allowed it), this version
+                              is using OPTIONS (allowed together with POST).
+                              This has an impact to theCORS proxy settings
+                              in nginx.conf.
+
+Modified, for browserify:
+
+--------------------------
+influxdb-client\packages\core\src\InfluxDB.ts
+
+Line 6:
+// replaced by ./impl/browser/FetchTransport in browser builds
+// import TransportImpl from './impl/node/NodeHttpTransport'
+import FetchTransport from './impl/browser/FetchTransport'
+
+Line 35:
+// this.transport = this._options.transport || new TransportImpl(this._options)
+this.transport = this._options.transport || new FetchTransport(this._options)
+
+--------------------------
+influxdb-client\packages\core\src\impl\browser\FetchTransport.ts
+
+(inserted - one needs isomorphic-fetch for IE11 in runtime)
+// IE11 AbortController:
+import 'isomorphic-fetch'
+import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'
+
+--------------------------
+influxdb-client\packages\core\src\observable\index.ts
+Defined in tsconfig.json
+  "baseUrl": ".",
+  ...
+  "paths": {
+      "observable": ["./influxdb-client/packages/core/src/observable/index.ts"]
+      "query": ["./influxdb-client/packages/core/src/query/index.ts"]
+   }
+ Then _everywhere_ where it they are referred with relative path,
+ like "./observable", or "../observable", one needs to change to "observable",
+ or to "query", respectively
+influxdb-client\packages\core\src\QueryApi.ts
+influxdb-client\packages\core\src\impl\QueryApiImpl.ts
+  but in
+influxdb-client\packages\core\src\impl\ObservableQuery.ts
+  it must be
+} from '../observable/index'
+  (don't ask why)
+
+  --------------------------

@@ -8,17 +8,6 @@
         "strictPropertyInitialization": false,
         "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
         "sourceMap": true,
-        "paths": {
-            /* ATTENTION: this kind of manual polyfill and it actually works as replacement..
-               BUT: there is no *.d.ts description file, of course! and TS FAILS!
-               This is why I have moved in DashT v2.0 back to awesome-ts-loader, which is
-               dead in development. But it allows to _incorporate_ the Babel/core-js
-               polyfilling and as long as it works, let's not fix it... */
-            "zlib": ["../../../../node_modules/browserify-zlib/lib/index.js"],
-            "url": ["../../../../node_modules/url-parse/index.js"],
-            "http": ["../../../../node_modules/stream-http/index.js"],
-            "https": ["../../../../node_modules/stream-http/index.js"]
-        }
     },
     "files": [
         "./influxdb-client/packages/core/src/InfluxDB.ts",
@@ -34,8 +23,7 @@
         "./influxdb-client/packages/core/src/impl/retryStrategy.ts",
         "./influxdb-client/packages/core/src/impl/QueryApiImpl.ts",
         "./influxdb-client/packages/core/src/impl/WriteApiImpl.ts",
-        "./influxdb-client/packages/core/src/impl/node/nodeChunkCombiner.ts",
-        "./influxdb-client/packages/core/src/impl/node/NodeHttpTransport.ts",
+        "./influxdb-client/packages/core/src/impl/browser/FetchTransport.ts",
         "./influxdb-client/packages/core/src/observable/symbol.ts",
         "./influxdb-client/packages/core/src/observable/types.ts",
         "./influxdb-client/packages/core/src/query/FluxTableColumn.ts",

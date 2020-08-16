@@ -1,0 +1,19 @@
+{
+    "exclude": ["node_modules", "**/*"],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "strict": true,
+        "target": "es2015",
+        "resolveJsonModule": false,
+        "strictPropertyInitialization": false,
+        "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
+        "sourceMap": true,
+        "paths": {
+            "idbclient": ["./src/idbclient.ts"]
+        }
+    },
+    "files": [
+        "./src/index.ts",
+        "./src/idbclient.ts"
+    ]
+}

@@ -4,10 +4,11 @@
 export interface RetryDelayStrategy {
   /**
    * Returns delay for a next retry
-   * @param error reason for retrying
-   * @return milliseconds
+   * @param error - reason for retrying
+   * @param failedAttempts - a count of already failed attempts, 1 being the first
+   * @returns milliseconds to wait before retrying
    */
-  nextDelay(error?: Error): number
+  nextDelay(error?: Error, failedAttempts?: number): number
   /** Implementation should reset its state, this is mandatory to call upon success.  */
   success(): void
 }
@@ -22,16 +23,18 @@ export interface RetriableDecision {
   canRetry(): boolean
   /**
    * Get the delay in milliseconds to retry the action.
-   * @return  0 to let the implementation decide, miliseconds delay otherwise
+   * @returns 0 to let the implementation decide, miliseconds delay otherwise
    */
   retryAfter(): number
 }
 
 const retriableStatusCodes = [404, 408, 425, 429, 500, 502, 503, 504]
+/** isStatusCodeRetriable checks whether the supplied HTTP status code is retriable. */
 export function isStatusCodeRetriable(statusCode: number): boolean {
   return retriableStatusCodes.includes(statusCode)
 }
 
+/** IllegalArgumentError is thrown when illegal argument is supplied. */
 export class IllegalArgumentError extends Error {
   /* istanbul ignore next */
   constructor(message: string) {
@@ -96,8 +99,9 @@ const RETRY_CODES = [
 ]
 
 /**
- * Tests the error to know whether a possible HTTP call can be retried.
- * @param error Test whether the givver e
+ * Tests the error in order to know if an HTTP call can be retried.
+ * @param error - error to test
+ * @returns true for a retriable error
  */
 export function canRetryHttpCall(error: any): boolean {
   if (!error) {
@@ -131,6 +135,7 @@ export function getRetryDelay(error?: Error, retryJitter?: number): number {
   }
 }
 
+/** RequestTimedOutError indicates request timeout in the communication with the server */
 export class RequestTimedOutError extends Error implements RetriableDecision {
   /* istanbul ignore next because of super() not being covered */
   constructor() {
@@ -146,6 +151,7 @@ export class RequestTimedOutError extends Error implements RetriableDecision {
   }
 }
 
+/** AbortError indicates that the communication with the server was aborted */
 export class AbortError extends Error implements RetriableDecision {
   /* istanbul ignore next because of super() not being covered */
   constructor() {

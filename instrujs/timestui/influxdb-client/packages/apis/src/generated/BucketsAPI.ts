@@ -1,3 +1,4 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   AddResourceMemberRequestBody,
@@ -6,7 +7,6 @@ import {
   LabelMapping,
   LabelResponse,
   LabelsResponse,
-  OperationLogs,
   PostBucketRequest,
   ResourceMember,
   ResourceMembers,
@@ -90,49 +90,34 @@ export interface DeleteBucketsIDOwnersIDRequest {
   /** The bucket ID. */
   bucketID: string
 }
-export interface GetBucketsIDLogsRequest {
-  /** The bucket ID. */
-  bucketID: string
-  offset?: number
-  limit?: number
-}
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBuckets
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBuckets
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchBucketsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDLabelsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDMembersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDOwnersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDLogs
+ * Buckets API
  */
-export class BucketsAPI extends APIBase {
+export class BucketsAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates BucketsAPI from an influxDB object.
+   * Creates BucketsAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * List all buckets.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBuckets
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetBuckets }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getBuckets(
     request?: GetBucketsRequest,
     requestOptions?: RequestOptions
   ): Promise<Buckets> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/buckets${this.queryString(request, [
+      `/api/v2/buckets${this.base.queryString(request, [
         'offset',
         'limit',
         'org',
@@ -145,15 +130,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Create a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBuckets
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostBuckets }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postBuckets(
     request: PostBucketsRequest,
     requestOptions?: RequestOptions
   ): Promise<Bucket> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/buckets`,
       request,
@@ -163,15 +149,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Retrieve a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getBucketsID(
     request: GetBucketsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Bucket> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/buckets/${request.bucketID}`,
       request,
@@ -180,15 +167,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Update a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchBucketsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchBucketsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchBucketsID(
     request: PatchBucketsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Bucket> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/buckets/${request.bucketID}`,
       request,
@@ -198,15 +186,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Delete a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteBucketsID(
     request: DeleteBucketsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/buckets/${request.bucketID}`,
       request,
@@ -215,15 +204,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * List all labels for a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getBucketsIDLabels(
     request: GetBucketsIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/buckets/${request.bucketID}/labels`,
       request,
@@ -232,15 +222,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Add a label to a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postBucketsIDLabels(
     request: PostBucketsIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/buckets/${request.bucketID}/labels`,
       request,
@@ -250,15 +241,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * delete a label from a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDLabelsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDLabelsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteBucketsIDLabelsID(
     request: DeleteBucketsIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/buckets/${request.bucketID}/labels/${request.labelID}`,
       request,
@@ -267,15 +259,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * List all users with member privileges for a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getBucketsIDMembers(
     request: GetBucketsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMembers> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/buckets/${request.bucketID}/members`,
       request,
@@ -284,15 +277,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Add a member to a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postBucketsIDMembers(
     request: PostBucketsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMember> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/buckets/${request.bucketID}/members`,
       request,
@@ -302,15 +296,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Remove a member from a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDMembersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDMembersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteBucketsIDMembersID(
     request: DeleteBucketsIDMembersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/buckets/${request.bucketID}/members/${request.userID}`,
       request,
@@ -319,15 +314,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * List all owners of a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getBucketsIDOwners(
     request: GetBucketsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwners> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/buckets/${request.bucketID}/owners`,
       request,
@@ -336,15 +332,16 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Add an owner to a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostBucketsIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postBucketsIDOwners(
     request: PostBucketsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwner> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/buckets/${request.bucketID}/owners`,
       request,
@@ -354,37 +351,18 @@ export class BucketsAPI extends APIBase {
   }
   /**
    * Remove an owner from a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDOwnersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteBucketsIDOwnersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteBucketsIDOwnersID(
     request: DeleteBucketsIDOwnersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/buckets/${request.bucketID}/owners/${request.userID}`,
-      request,
-      requestOptions
-    )
-  }
-  /**
-   * Retrieve operation logs for a bucket.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetBucketsIDLogs
-   */
-  getBucketsIDLogs(
-    request: GetBucketsIDLogsRequest,
-    requestOptions?: RequestOptions
-  ): Promise<OperationLogs> {
-    return this.request(
-      'GET',
-      `/api/v2/buckets/${request.bucketID}/logs${this.queryString(request, [
-        'offset',
-        'limit',
-      ])}`,
       request,
       requestOptions
     )

@@ -1,5 +1,6 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
-import {OperationLogs, PasswordResetBody, User, Users} from './types'
+import {PasswordResetBody, User, Users} from './types'
 
 export interface GetUsersRequest {}
 export interface PostUsersRequest {
@@ -20,58 +21,52 @@ export interface DeleteUsersIDRequest {
   /** The ID of the user to delete. */
   userID: string
 }
-export interface PutUsersIDPasswordRequest {
+export interface PostUsersIDPasswordRequest {
   /** The user ID. */
   userID: string
   auth: {user: string; password: string}
   /** New password */
   body: PasswordResetBody
 }
-export interface GetUsersIDLogsRequest {
-  /** The user ID. */
-  userID: string
-  offset?: number
-  limit?: number
-}
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostUsers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchUsersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteUsersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutUsersIDPassword
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsersIDLogs
+ * Users API
  */
-export class UsersAPI extends APIBase {
+export class UsersAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates UsersAPI from an influxDB object.
+   * Creates UsersAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * List all users.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getUsers(
     request?: GetUsersRequest,
     requestOptions?: RequestOptions
   ): Promise<Users> {
-    return this.request('GET', `/api/v2/users`, request, requestOptions)
+    return this.base.request('GET', `/api/v2/users`, request, requestOptions)
   }
   /**
    * Create a user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostUsers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostUsers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postUsers(
     request: PostUsersRequest,
     requestOptions?: RequestOptions
   ): Promise<User> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/users`,
       request,
@@ -81,15 +76,16 @@ export class UsersAPI extends APIBase {
   }
   /**
    * Retrieve a user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getUsersID(
     request: GetUsersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<User> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/users/${request.userID}`,
       request,
@@ -98,15 +94,16 @@ export class UsersAPI extends APIBase {
   }
   /**
    * Update a user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchUsersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchUsersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchUsersID(
     request: PatchUsersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<User> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/users/${request.userID}`,
       request,
@@ -116,15 +113,16 @@ export class UsersAPI extends APIBase {
   }
   /**
    * Delete a user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteUsersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteUsersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteUsersID(
     request: DeleteUsersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/users/${request.userID}`,
       request,
@@ -133,40 +131,21 @@ export class UsersAPI extends APIBase {
   }
   /**
    * Update a password.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutUsersIDPassword
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostUsersIDPassword }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
-  putUsersIDPassword(
-    request: PutUsersIDPasswordRequest,
+  postUsersIDPassword(
+    request: PostUsersIDPasswordRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
-      'PUT',
+    return this.base.request(
+      'POST',
       `/api/v2/users/${request.userID}/password`,
       request,
       requestOptions,
       'application/json'
-    )
-  }
-  /**
-   * Retrieve operation logs for a user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetUsersIDLogs
-   */
-  getUsersIDLogs(
-    request: GetUsersIDLogsRequest,
-    requestOptions?: RequestOptions
-  ): Promise<OperationLogs> {
-    return this.request(
-      'GET',
-      `/api/v2/users/${request.userID}/logs${this.queryString(request, [
-        'offset',
-        'limit',
-      ])}`,
-      request,
-      requestOptions
     )
   }
 }

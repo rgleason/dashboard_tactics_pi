@@ -1,3 +1,4 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {PasswordResetBody, User} from './types'
 
@@ -8,39 +9,44 @@ export interface PutMePasswordRequest {
   body: PasswordResetBody
 }
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetMe
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutMePassword
+ * Me API
  */
-export class MeAPI extends APIBase {
+export class MeAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates MeAPI from an influxDB object.
+   * Creates MeAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * Return the current authenticated user.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetMe
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetMe }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getMe(
     request?: GetMeRequest,
     requestOptions?: RequestOptions
   ): Promise<User> {
-    return this.request('GET', `/api/v2/me`, request, requestOptions)
+    return this.base.request('GET', `/api/v2/me`, request, requestOptions)
   }
   /**
    * Update a password.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutMePassword
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutMePassword }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   putMePassword(
     request: PutMePasswordRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'PUT',
       `/api/v2/me/password`,
       request,

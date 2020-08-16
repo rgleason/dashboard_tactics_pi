@@ -1,26 +1,23 @@
-// import "core-js"
-// import "regenerator-runtime/runtime.js"
-
-import FluxTableColumn from './FluxTableColumn'
+import FluxTableColumn, {ColumnType} from './FluxTableColumn'
 import {IllegalArgumentError} from '../errors'
 
 const identity = (x: string): any => x
 /**
- * A dictionary of serializers of particular types returned by a flux query
- * @see https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/#valid-data-types
+ * A dictionary of serializers of particular types returned by a flux query.
+ * See {@link https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/#valid-data-types }
  */
-export const typeSerializers: {[key: string]: (val: string) => any} = {
+export const typeSerializers: Record<ColumnType, (val: string) => any> = {
   boolean: (x: string): any => x === 'true',
-  unsignedLong: identity,
-  long: identity,
-  double: (x: string): any => +x,
+  unsignedLong: (x: string): any => (x === '' ? null : +x),
+  long: (x: string): any => (x === '' ? null : +x),
+  double: (x: string): any => (x === '' ? null : +x),
   string: identity,
   base64Binary: identity,
-  dateTime: identity,
-  duration: identity,
+  dateTime: (x: string): any => (x === '' ? null : x),
+  duration: (x: string): any => (x === '' ? null : x),
 }
 /**
- * Represents metadata of a flux <a href="http://bit.ly/flux-spec#table">table</a>.
+ * Represents metadata of a {@link http://bit.ly/flux-spec#table | flux table}.
  */
 export default class FluxTableMetaData {
   /**
@@ -33,8 +30,10 @@ export default class FluxTableMetaData {
   }
   /**
    * Gets columns by name
-   * @param label table column or [[invalidColumn]]
-   */
+   * @param label - column label
+   * @returns table column
+   * @throws IllegalArgumentError if column is not found
+   **/
   column(label: string): FluxTableColumn {
     for (let i = 0; i < this.columns.length; i++) {
       const col = this.columns[i]
@@ -44,7 +43,7 @@ export default class FluxTableMetaData {
   }
   /**
    * Creates an object out of the supplied values with the help of columns .
-   * @param values values for each column
+   * @param values - a row with data for each column
    */
   toObject(values: string[]): {[key: string]: any} {
     const acc: any = {}
@@ -54,9 +53,7 @@ export default class FluxTableMetaData {
       if (val === '' && column.defaultValue) {
         val = column.defaultValue
       }
-      acc[column.label] = (
-        typeSerializers[column.dataType as string] || identity
-      )(val)
+      acc[column.label] = (typeSerializers[column.dataType] ?? identity)(val)
     }
     return acc
   }

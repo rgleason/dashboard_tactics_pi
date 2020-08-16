@@ -1,10 +1,7 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   AddResourceMemberRequestBody,
-  LabelMapping,
-  LabelResponse,
-  LabelsResponse,
-  OperationLogs,
   Organization,
   Organizations,
   ResourceMember,
@@ -21,6 +18,8 @@ export interface GetOrgsRequest {
   org?: string
   /** Filter organizations to a specific organization ID. */
   orgID?: string
+  /** Filter organizations to a specific user ID. */
+  userID?: string
 }
 export interface PostOrgsRequest {
   /** Organization to create */
@@ -39,22 +38,6 @@ export interface PatchOrgsIDRequest {
 export interface DeleteOrgsIDRequest {
   /** The ID of the organization to delete. */
   orgID: string
-}
-export interface GetOrgsIDLabelsRequest {
-  /** The organization ID. */
-  orgID: string
-}
-export interface PostOrgsIDLabelsRequest {
-  /** The organization ID. */
-  orgID: string
-  /** Label to add */
-  body: LabelMapping
-}
-export interface DeleteOrgsIDLabelsIDRequest {
-  /** The organization ID. */
-  orgID: string
-  /** The label ID. */
-  labelID: string
 }
 export interface GetOrgsIDSecretsRequest {
   /** The organization ID. */
@@ -98,73 +81,54 @@ export interface PostOrgsIDOwnersRequest {
   /** User to add as owner */
   body: AddResourceMemberRequestBody
 }
-export interface DeleteOrgsIDOwnersIDRequest {
-  /** The ID of the owner to remove. */
-  userID: string
-  /** The organization ID. */
-  orgID: string
-}
-export interface GetOrgsIDLogsRequest {
-  /** The organization ID. */
-  orgID: string
-  offset?: number
-  limit?: number
-}
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgs
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgs
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDLabelsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDSecrets
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsIDSecrets
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDSecrets
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDMembers
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDMembersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDOwners
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDOwnersID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDLogs
+ * Orgs API
  */
-export class OrgsAPI extends APIBase {
+export class OrgsAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates OrgsAPI from an influxDB object.
+   * Creates OrgsAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * List all organizations.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgs
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgs }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getOrgs(
     request?: GetOrgsRequest,
     requestOptions?: RequestOptions
   ): Promise<Organizations> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/orgs${this.queryString(request, ['org', 'orgID'])}`,
+      `/api/v2/orgs${this.base.queryString(request, [
+        'org',
+        'orgID',
+        'userID',
+      ])}`,
       request,
       requestOptions
     )
   }
   /**
    * Create an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgs
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgs }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postOrgs(
     request: PostOrgsRequest,
     requestOptions?: RequestOptions
   ): Promise<Organization> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/orgs`,
       request,
@@ -174,15 +138,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Retrieve an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getOrgsID(
     request: GetOrgsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Organization> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/orgs/${request.orgID}`,
       request,
@@ -191,15 +156,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Update an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchOrgsID(
     request: PatchOrgsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Organization> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/orgs/${request.orgID}`,
       request,
@@ -209,15 +175,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Delete an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteOrgsID(
     request: DeleteOrgsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/orgs/${request.orgID}`,
       request,
@@ -225,68 +192,17 @@ export class OrgsAPI extends APIBase {
     )
   }
   /**
-   * List all labels for a organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDLabels
-   */
-  getOrgsIDLabels(
-    request: GetOrgsIDLabelsRequest,
-    requestOptions?: RequestOptions
-  ): Promise<LabelsResponse> {
-    return this.request(
-      'GET',
-      `/api/v2/orgs/${request.orgID}/labels`,
-      request,
-      requestOptions
-    )
-  }
-  /**
-   * Add a label to an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDLabels
-   */
-  postOrgsIDLabels(
-    request: PostOrgsIDLabelsRequest,
-    requestOptions?: RequestOptions
-  ): Promise<LabelResponse> {
-    return this.request(
-      'POST',
-      `/api/v2/orgs/${request.orgID}/labels`,
-      request,
-      requestOptions,
-      'application/json'
-    )
-  }
-  /**
-   * Delete a label from an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDLabelsID
-   */
-  deleteOrgsIDLabelsID(
-    request: DeleteOrgsIDLabelsIDRequest,
-    requestOptions?: RequestOptions
-  ): Promise<void> {
-    return this.request(
-      'DELETE',
-      `/api/v2/orgs/${request.orgID}/labels/${request.labelID}`,
-      request,
-      requestOptions
-    )
-  }
-  /**
    * List all secret keys for an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDSecrets
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDSecrets }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getOrgsIDSecrets(
     request: GetOrgsIDSecretsRequest,
     requestOptions?: RequestOptions
   ): Promise<SecretKeysResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/orgs/${request.orgID}/secrets`,
       request,
@@ -295,15 +211,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Update secrets in an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsIDSecrets
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchOrgsIDSecrets }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchOrgsIDSecrets(
     request: PatchOrgsIDSecretsRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/orgs/${request.orgID}/secrets`,
       request,
@@ -313,15 +230,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Delete secrets from an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDSecrets
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDSecrets }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postOrgsIDSecrets(
     request: PostOrgsIDSecretsRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/orgs/${request.orgID}/secrets/delete`,
       request,
@@ -331,15 +249,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * List all members of an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getOrgsIDMembers(
     request: GetOrgsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMembers> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/orgs/${request.orgID}/members`,
       request,
@@ -348,15 +267,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Add a member to an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDMembers
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDMembers }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postOrgsIDMembers(
     request: PostOrgsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMember> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/orgs/${request.orgID}/members`,
       request,
@@ -366,15 +286,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Remove a member from an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDMembersID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDMembersID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteOrgsIDMembersID(
     request: DeleteOrgsIDMembersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/orgs/${request.orgID}/members/${request.userID}`,
       request,
@@ -383,15 +304,16 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * List all owners of an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getOrgsIDOwners(
     request: GetOrgsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwners> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/orgs/${request.orgID}/owners`,
       request,
@@ -400,57 +322,21 @@ export class OrgsAPI extends APIBase {
   }
   /**
    * Add an owner to an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDOwners
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostOrgsIDOwners }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postOrgsIDOwners(
     request: PostOrgsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwner> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/orgs/${request.orgID}/owners`,
       request,
       requestOptions,
       'application/json'
-    )
-  }
-  /**
-   * Remove an owner from an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteOrgsIDOwnersID
-   */
-  deleteOrgsIDOwnersID(
-    request: DeleteOrgsIDOwnersIDRequest,
-    requestOptions?: RequestOptions
-  ): Promise<void> {
-    return this.request(
-      'DELETE',
-      `/api/v2/orgs/${request.orgID}/owners/${request.userID}`,
-      request,
-      requestOptions
-    )
-  }
-  /**
-   * Retrieve operation logs for an organization.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetOrgsIDLogs
-   */
-  getOrgsIDLogs(
-    request: GetOrgsIDLogsRequest,
-    requestOptions?: RequestOptions
-  ): Promise<OperationLogs> {
-    return this.request(
-      'GET',
-      `/api/v2/orgs/${request.orgID}/logs${this.queryString(request, [
-        'offset',
-        'limit',
-      ])}`,
-      request,
-      requestOptions
     )
   }
 }

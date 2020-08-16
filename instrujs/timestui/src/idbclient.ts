@@ -15,6 +15,10 @@ var alerts: boolean = (window as any).instrustat.alerts
 var locstate: string = ''
 var jsonCollectedData: string[] = []
 var retJsonArray: string[] = []
+// This OK only if no simultaneous writer socket _and_ no CORS:
+// let url: string = 'http://' + schma.url
+// Otherwise we shall access through a CORS proxy:
+var url: string = (window as any).instrustat.corsproxy
 
 var retrieveSeconds: number = 300
 
@@ -50,7 +54,7 @@ export function setRetrieveSeconds( newValue: number ) {
     retrieveSeconds = nVal
 }
 /*
- Reason why we do not manage time backwards relative is two folded:
+ The reason why we do not manage time backwards relative is two folded:
  1) The server time, especially on Hyper-V Docker is not perhaps same as there
  2) We make provisions to allow methods to retrieve slises from the history
  */
@@ -108,13 +112,16 @@ export function dataQuery() {
         return
     }
 
-    // This OK only if no simultaneous writer socket _and_ no CORS:
-    // let url: string = 'http://' + schma.url
-    // Otherwise we shall access through a CORS proxy
-    let url:string = (window as any).instrustat.corsproxy
-
     let token: string = schma.token
     let org: string = schma.org
+
+    if ( (dbglevel > 6) && alerts )
+        alert(
+            'dataQuery() - creating queryAPI:\n' +
+            'url: ' + url + '\n' +
+            'org: ' + org + '\n' +
+            'token: ' + token
+            )
 
     var queryApi = new InfluxDB({url, token}).getQueryApi(org)
     var fQry: string = 'from(bucket:"'+ schma.bucket + '")\n'
@@ -188,7 +195,7 @@ export function dataQuery() {
             if ( dbglevel > 1 ) {
                 console.error(error)
                 if ( alerts )
-                    alert('DB error' + error.message)
+                    alert('DB error: ' + error.message)
             }
             try {
                 (window as any).iface.seterrdata()

@@ -57,6 +57,8 @@ function generateTypes(operation: Operation): string {
   if (operation.bodyParam) {
     if (operation.bodyParam.description) {
       retVal += `  /** ${operation.bodyParam.description} */\n`
+    } else {
+      retVal += `  /** entity body */\n`
     }
     const bodyType = getBodyType(operation)
     retVal += `  body: ${bodyType}\n`
@@ -92,21 +94,22 @@ function requestRequired(operation: Operation): boolean {
 function generateClass(
   apiKey: string,
   apiName: string,
-  operations: Operation[]
+  operations: Operation[],
+  apiLabel: string
 ): string {
-  let classDef = '/**\n'
-  for (const operation of operations) {
-    classDef += ` * @see https://v2.docs.influxdata.com/v2.0/api/#operation/${getOperationId(
-      operation
-    )}\n`
-  }
-  classDef += ` */
-export class ${apiName} extends APIBase {
+  let classDef = `/**
+ * ${apiLabel} API
+ */
+export class ${apiName} {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates ${apiName} from an influxDB object.
+   * Creates ${apiName}
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }`
 
   for (const operation of operations) {
@@ -124,23 +127,24 @@ export class ${apiName} extends APIBase {
       classDef += '\n  /**'
     }
     classDef += `
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/${opId}
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/${opId} }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   ${decapitalize1(opId)}(request${
       requestRequired(operation) ? '' : '?'
     }: ${opId}Request, requestOptions?: RequestOptions): Promise<${getReturnType(
       operation
     )}> {
-    return this.request('${operation.operation.toUpperCase()}', \`${
+    return this.base.request('${operation.operation.toUpperCase()}', \`${
       operation.server
     }${operation.path.replace(
       /\{([^}]*)\}/g,
       (_match, param) => '${request.' + param + '}'
     )}${
       operation.queryParams.length
-        ? '${this.queryString(request,[' +
+        ? '${this.base.queryString(request,[' +
           operation.queryParams.map(x => "'" + x.name + "'").join(',') +
           '])}'
         : ''
@@ -161,8 +165,10 @@ export function generateApi(
   apiKey: string,
   operations: Operation[]
 ): {apiName: string; code: string} {
-  const apiName = (apiKey ? capitalize1(apiKey) : 'Root') + 'API'
-  let code = `import {APIBase, RequestOptions} from '../APIBase'\n`
+  const apiLabel = apiKey ? capitalize1(apiKey) : 'Root'
+  const apiName = apiLabel + 'API'
+  let code = `import {InfluxDB} from '@influxdata/influxdb-client'\n`
+  code += `import {APIBase, RequestOptions} from '../APIBase'\n`
   const typesCollector = new TypesCollector()
   for (const operation of operations) {
     typesCollector.add(getReturnType(operation))
@@ -176,6 +182,6 @@ export function generateApi(
     code += generateTypes(operation)
     code += '\n'
   }
-  code += generateClass(apiKey, apiName, operations)
+  code += generateClass(apiKey, apiName, operations, apiLabel)
   return {apiName, code}
 }

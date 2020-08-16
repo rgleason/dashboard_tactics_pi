@@ -9,6 +9,7 @@ import {
   InfluxDB,
 } from '../../src'
 import {collectLogging, CollectedLogs} from '../util'
+import Logger from '../../src/impl/Logger'
 
 const clientOptions: ClientOptions = {
   url: 'http://fake:9999',
@@ -56,7 +57,7 @@ describe('WriteApi', () => {
     })
     it('can be closed and flushed without any data', async () => {
       await subject.close().catch(e => expect.fail('should not happen', e))
-      await subject.flush().catch(e => expect.fail('should not happen', e))
+      await subject.flush(true).catch(e => expect.fail('should not happen', e))
     })
     it('fails on close without server connection', async () => {
       subject.writeRecord('test value=1')
@@ -85,10 +86,9 @@ describe('WriteApi', () => {
     let subject: WriteApi
     let logs: CollectedLogs
     function useSubject(writeOptions: Partial<WriteOptions>): void {
-      subject = createApi(ORG, BUCKET, PRECISION, {
-        retryJitter: 0,
-        ...writeOptions,
-      })
+      subject = new InfluxDB({
+        ...clientOptions,
+      }).getWriteApi(ORG, BUCKET, PRECISION, writeOptions)
     }
     beforeEach(() => {
       // logs = collectLogging.decorate()
@@ -125,13 +125,38 @@ describe('WriteApi', () => {
         expect(logs.warn).is.deep.equal([])
       })
     })
+    it('does not retry write when writeFailed handler returns a Promise', async () => {
+      useSubject({
+        maxRetries: 3,
+        batchSize: 1,
+        writeFailed: (error: Error, lines: string[], attempts: number) => {
+          Logger.warn(
+            `CUSTOMERRORHANDLING ${!!error} ${lines.length} ${attempts}`,
+            undefined
+          )
+          return Promise.resolve()
+        },
+      })
+      subject.writeRecord('test value=1')
+      await subject.close().then(() => {
+        expect(logs.error).length(0)
+        expect(logs.warn).is.deep.equal([
+          ['CUSTOMERRORHANDLING true 1 1', undefined],
+        ])
+      })
+    })
     it('uses the pre-configured batchSize', async () => {
       useSubject({flushInterval: 0, maxRetries: 0, batchSize: 2})
       subject.writeRecords(['test value=1', 'test value=2', 'test value=3'])
       await new Promise(resolve => setTimeout(resolve, 10)) // wait for HTTP to finish
-      subject.dispose()
+      let count = subject.dispose()
       expect(logs.error).to.length(1)
       expect(logs.warn).to.length(0)
+      expect(count).equals(1)
+      count = subject.dispose() // dispose is idempotent
+      expect(logs.error).to.length(1) // no more errorrs
+      expect(logs.warn).to.length(0)
+      expect(count).equals(1)
     })
   })
   describe('flush on background', () => {
@@ -171,9 +196,9 @@ describe('WriteApi', () => {
     function useSubject(writeOptions: Partial<WriteOptions>): void {
       subject = createApi(ORG, BUCKET, WritePrecision.ns, {
         retryJitter: 0,
-
+        defaultTags: {xtra: '1'},
         ...writeOptions,
-      }).useDefaultTags({xtra: '1'})
+      })
     }
     beforeEach(() => {
       // logs = collectLogging.decorate()
@@ -209,21 +234,23 @@ describe('WriteApi', () => {
       expect(logs.error).to.length(0)
       expect(logs.warn).to.length(1)
       subject.writePoints([
-        new Point('test'), // will be ignored
+        new Point('test'), // will be ignored + warning
         new Point('test').floatField('value', 2),
         new Point('test').floatField('value', 3),
         new Point('test').floatField('value', 4).timestamp('1'),
+        new Point('test').floatField('value', 5).timestamp(2.1),
+        new Point('test').floatField('value', 6).timestamp(new Date(3)),
+        new Point('test')
+          .floatField('value', 7)
+          .timestamp((false as any) as string), // server decides what to do with such values
       ])
       await new Promise(resolve => setTimeout(resolve, 10)) // wait for background flush and HTTP to finish
-      expect(logs.error).to.length(0)
-      expect(logs.warn).to.length(2)
-      await new Promise(resolve => setTimeout(resolve, 10)) // wait for background flush
       expect(logs.error).to.length(0)
       expect(logs.warn).to.length(2)
       expect(messages).to.have.length(2)
       expect(messages[0]).to.equal('test,t=\\ ,xtra=1 value=1')
       const lines = messages[1].split('\n')
-      expect(lines).has.length(3)
+      expect(lines).has.length(6)
       expect(lines[0]).to.satisfy((line: string) =>
         line.startsWith('test,xtra=1 value=2')
       )
@@ -237,10 +264,9 @@ describe('WriteApi', () => {
         String(Date.now()).length + 6 // nanosecond precision
       )
       expect(lines[2]).to.be.equal('test,xtra=1 value=4 1')
-      lines.forEach(_line => {})
-      await subject.flush().then(() => {
-        expect(logs.error).to.length(0)
-      })
+      expect(lines[3]).to.be.equal('test,xtra=1 value=5 2')
+      expect(lines[4]).to.be.equal('test,xtra=1 value=6 3000000')
+      expect(lines[5]).to.be.equal('test,xtra=1 value=7 false')
     })
   })
 })

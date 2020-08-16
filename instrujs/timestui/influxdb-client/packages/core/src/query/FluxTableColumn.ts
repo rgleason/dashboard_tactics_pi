@@ -1,5 +1,5 @@
 /**
- * Type of query result column, see https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/#valid-data-types
+ * Type of query result column, see {@link https://v2.docs.influxdata.com/v2.0/reference/syntax/annotated-csv/#valid-data-types }
  */
 export type ColumnType =
   | 'boolean'
@@ -11,6 +11,9 @@ export type ColumnType =
   | 'dateTime'
   | 'duration'
 
+/**
+ * FluxTableColumnLike provides metadata of a flux table column.
+ */
 export interface FluxTableColumnLike {
   /**
    * Label (e.g., "_start", "_stop", "_time").
@@ -33,7 +36,7 @@ export interface FluxTableColumnLike {
   defaultValue?: string
 }
 /**
- * Column metadata of a flux <a href="http://bit.ly/flux-spec#table">table</a>.
+ * Column metadata class of a {@link http://bit.ly/flux-spec#table | flux table} column.
  */
 export default class FluxTableColumn {
   /**
@@ -58,20 +61,20 @@ export default class FluxTableColumn {
 
   /**
    * Index of this column in the row array
-   * @return index
    */
   index: number
 
   /**
    * Creates a flux table column from an object supplied.
-   * @param object
+   * @param object - source object
+   * @returns column instance
    */
   static from(object: FluxTableColumnLike): FluxTableColumn {
     const retVal = new FluxTableColumn()
     retVal.label = object.label
     retVal.dataType = object.dataType as ColumnType
     retVal.group = Boolean(object.group)
-    retVal.defaultValue = object.defaultValue || ''
+    retVal.defaultValue = object.defaultValue ?? ''
     return retVal
   }
 }

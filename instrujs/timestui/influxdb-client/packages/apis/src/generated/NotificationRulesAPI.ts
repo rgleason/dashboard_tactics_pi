@@ -1,3 +1,4 @@
+import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   FluxResponse,
@@ -65,37 +66,33 @@ export interface GetNotificationRulesIDQueryRequest {
   ruleID: string
 }
 /**
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRules
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationRule
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationRulesID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationRulesID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationRuleIDLabels
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesIDLabelsID
- * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDQuery
+ * NotificationRules API
  */
-export class NotificationRulesAPI extends APIBase {
+export class NotificationRulesAPI {
+  // internal
+  private base: APIBase
+
   /**
-   * Creates NotificationRulesAPI from an influxDB object.
+   * Creates NotificationRulesAPI
+   * @param influxDB - an instance that knows how to communicate with InfluxDB server
    */
-  constructor(influxDB: any) {
-    super(influxDB)
+  constructor(influxDB: InfluxDB) {
+    this.base = new APIBase(influxDB)
   }
   /**
    * Get all notification rules.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRules
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRules }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationRules(
     request: GetNotificationRulesRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationRules> {
-    return this.request(
+    return this.base.request(
       'GET',
-      `/api/v2/notificationRules${this.queryString(request, [
+      `/api/v2/notificationRules${this.base.queryString(request, [
         'offset',
         'limit',
         'orgID',
@@ -108,15 +105,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Add a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationRule
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/CreateNotificationRule }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   createNotificationRule(
     request: CreateNotificationRuleRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationRule> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/notificationRules`,
       request,
@@ -126,15 +124,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Get a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationRulesID(
     request: GetNotificationRulesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationRule> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/notificationRules/${request.ruleID}`,
       request,
@@ -143,15 +142,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Update a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationRulesID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutNotificationRulesID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   putNotificationRulesID(
     request: PutNotificationRulesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationRule> {
-    return this.request(
+    return this.base.request(
       'PUT',
       `/api/v2/notificationRules/${request.ruleID}`,
       request,
@@ -161,15 +161,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Update a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationRulesID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchNotificationRulesID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   patchNotificationRulesID(
     request: PatchNotificationRulesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<NotificationRule> {
-    return this.request(
+    return this.base.request(
       'PATCH',
       `/api/v2/notificationRules/${request.ruleID}`,
       request,
@@ -179,15 +180,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Delete a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteNotificationRulesID(
     request: DeleteNotificationRulesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/notificationRules/${request.ruleID}`,
       request,
@@ -196,15 +198,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * List all labels for a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationRulesIDLabels(
     request: GetNotificationRulesIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/notificationRules/${request.ruleID}/labels`,
       request,
@@ -213,15 +216,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Add a label to a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationRuleIDLabels
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostNotificationRuleIDLabels }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   postNotificationRuleIDLabels(
     request: PostNotificationRuleIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.request(
+    return this.base.request(
       'POST',
       `/api/v2/notificationRules/${request.ruleID}/labels`,
       request,
@@ -231,15 +235,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Delete label from a notification rule.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesIDLabelsID
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteNotificationRulesIDLabelsID }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   deleteNotificationRulesIDLabelsID(
     request: DeleteNotificationRulesIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.request(
+    return this.base.request(
       'DELETE',
       `/api/v2/notificationRules/${request.ruleID}/labels/${request.labelID}`,
       request,
@@ -248,15 +253,16 @@ export class NotificationRulesAPI extends APIBase {
   }
   /**
    * Get a notification rule query.
-   * @param request
-   * @return promise of response
-   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDQuery
+   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetNotificationRulesIDQuery }
+   * @param request - request parameters and body (if supported)
+   * @param requestOptions - optional transport options
+   * @returns promise of response
    */
   getNotificationRulesIDQuery(
     request: GetNotificationRulesIDQueryRequest,
     requestOptions?: RequestOptions
   ): Promise<FluxResponse> {
-    return this.request(
+    return this.base.request(
       'GET',
       `/api/v2/notificationRules/${request.ruleID}/query`,
       request,
