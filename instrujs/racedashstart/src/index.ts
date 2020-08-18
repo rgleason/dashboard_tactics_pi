@@ -63,12 +63,6 @@ if (bottom === null) {
     throw 'racedashstart: init: no element: bottom'
 }
 
-// Create the transitional events (the IE way, sorry!) for client messages
-var bottom: HTMLElement | null = document.getElementById( 'bottom' )
-if (bottom === null) {
-    throw 'racedashstart: init: no element: bottom'
-}
-
 // Initiate and set the event handling on events available on iface.js
 initIfaceOps ( fsm, bottom )
 // get the ID and conf if available
