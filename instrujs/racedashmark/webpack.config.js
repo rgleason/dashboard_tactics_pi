@@ -22,12 +22,18 @@ module.exports = {
                 test: /\.ts?$/,
                 loader: ['awesome-typescript-loader'],
                 include: [path.resolve(__dirname, './src'),
+                          path.resolve(__dirname, '../src')
                          ],
                 exclude: [/(node_modules)/]
             },
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
+                include: [path.resolve(__dirname, './src'),
+                          path.resolve(__dirname, '../src'),
+                          path.resolve(__dirname, './node_modules/bootstrap-sass/assets/javascripts/bootstrap')
+                         ],
+                exclude: [/(node_modules)/],
                 options: {
                     "presets": [
                       ["@babel/preset-env", {
@@ -42,12 +48,7 @@ module.exports = {
                     ],
                     plugins: ['@babel/plugin-transform-runtime'],
                     cacheDirectory: true
-                },
-                exclude: [/(node_modules)/],
-                include: [path.resolve(__dirname, './src'),
-                          path.resolve(__dirname, '../src'),
-                          path.resolve(__dirname, './node_modules/bootstrap-sass/assets/javascripts/bootstrap')
-                         ],
+                }
             },
             {
                 test:/\.(sa|sc|c)ss$/,

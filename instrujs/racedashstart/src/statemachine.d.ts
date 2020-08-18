@@ -31,6 +31,21 @@ export interface StateMachine {
     btnfaded(): undefined
     btnarmc(): undefined
     btnarma(): undefined
+    setall(): undefined
+    setalldb(): undefined
+    rescan(): undefined
+    selected(): undefined
+    acksubs(): undefined
+    ackschema(): undefined
+    getnew(): undefined
+    newdata(): undefined
+    chgconf(): undefined
+    retryget(): undefined
+    mrkdataack(): undefined
+    newmrkdata(): undefined
+    mrkmteaack(): undefined
+    mrkumteack(): undefined
+    swapdisp(): undefined
     luminsty(): undefined
     closing(): undefined
     is(a:string): boolean

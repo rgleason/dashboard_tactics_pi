@@ -193,35 +193,6 @@ var iface = {
             return
         }
     },
-    eventchgconf    : null,
-    elemchgconf     : null,
-    chgconfpath     : '',
-    regeventchgconf: function ( newelem, newevent ) {
-        this.elemchgconf = newelem
-        this.eventchgconf = newevent
-    },
-    setchgconf: function( newpath ) {
-        try {
-            if ( (this.eventchgconf === null) || (this.elemchgconf === null) )
-                return
-            this.chgconfpath = newpath
-            if ( ifacedbglevel > 0 )
-                console.log('iface.setchgconf - chgconfpath: ', this.chgconfpath)
-            this.elemchgconf.dispatchEvent( this.eventchgconf )
-        }
-        catch (error) {
-            this.chgconfpath = ''
-            if ( ifacedbglevel > 1 )
-                console.log('iface.setchgconf - state machine error',
-                            error)
-            return
-        }
-    },
-    getchgconf: function() {
-        if ( (this.chgconfpath === null) || (this.chgconfpath === '') )
-            return ''
-        return this.chgconfpath
-    },
     eventnewdata    : null,
     elemnewdata     : null,
     value           : 0.0,
@@ -251,6 +222,35 @@ var iface = {
             return
         this.elemerrdata.dispatchEvent( this.eventerrdata )
     },
+    eventchgconf    : null,
+    elemchgconf     : null,
+    chgconfpath     : '',
+    regeventchgconf: function ( newelem, newevent ) {
+        this.elemchgconf = newelem
+        this.eventchgconf = newevent
+    },
+    setchgconf: function( newpath ) {
+        try {
+            if ( (this.eventchgconf === null) || (this.elemchgconf === null) )
+                return
+            this.chgconfpath = newpath
+            if ( ifacedbglevel > 0 )
+                console.log('iface.setchgconf - chgconfpath: ', this.chgconfpath)
+            this.elemchgconf.dispatchEvent( this.eventchgconf )
+        }
+        catch (error) {
+            this.chgconfpath = ''
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setchgconf - state machine error',
+                            error)
+            return
+        }
+    },
+    getchgconf: function() {
+        if ( (this.chgconfpath === null) || (this.chgconfpath === '') )
+            return ''
+        return this.chgconfpath
+    },
     eventretryget    : null,
     elemretryget     : null,
     regeventretryget: function ( newelem, newevent ) {
@@ -261,34 +261,6 @@ var iface = {
         if ( (this.eventretryget === null) || (this.elemretryget === null) )
             return
         this.elemretryget.dispatchEvent( this.eventretryget )
-    },
-    eventswapdisp    : null,
-    elemswapdisp     : null,
-    swapdirection    : 0,
-    regeventswapdisp: function ( newelem, newevent ) {
-        this.elemswapdisp = newelem
-        this.eventswapdisp = newevent
-    },
-    setswapdisp: function( newswapdirection ) {
-        try {
-            if ( (this.eventswapdisp === null) || (this.elemswapdisp === null) )
-                return
-            this.swapdirection = newswapdirection
-            if ( ifacedbglevel > 0 )
-                console.log(
-                    'iface.setswapdisp - swapdirection: ', this.swapdirection)
-            this.elemswapdisp.dispatchEvent( this.eventswapdisp )
-        }
-        catch (error) {
-            this.swapdirection = 0
-            if ( ifacedbglevel > 1 )
-                console.log('iface.setswapdisp - state machine error',
-                            error)
-            return
-        }
-    },
-    getswapdisp: function() {
-        return this.swapdirection
     },
     eventgetfeet    : null,
     elemgetfeet     : null,
@@ -683,6 +655,9 @@ var iface = {
             return
         }
     },
+    getmrkmteaack: function() {
+        return this.mrkmteaacknowledged
+    },
     eventmrkumteack    : null,
     elemmrkumteack     : null,
     mrkumteacknowledged: false,
@@ -728,6 +703,34 @@ var iface = {
         if ( (this.luminsty === null) || (this.luminsty === '') )
             return ''
         return this.luminsty
+    },
+    eventswapdisp    : null,
+    elemswapdisp     : null,
+    swapdirection    : 0,
+    regeventswapdisp: function ( newelem, newevent ) {
+        this.elemswapdisp = newelem
+        this.eventswapdisp = newevent
+    },
+    setswapdisp: function( newswapdirection ) {
+        try {
+            if ( (this.eventswapdisp === null) || (this.elemswapdisp === null) )
+                return
+            this.swapdirection = newswapdirection
+            if ( ifacedbglevel > 0 )
+                console.log(
+                    'iface.setswapdisp - swapdirection: ', this.swapdirection)
+            this.elemswapdisp.dispatchEvent( this.eventswapdisp )
+        }
+        catch (error) {
+            this.swapdirection = 0
+            if ( ifacedbglevel > 1 )
+                console.log('iface.setswapdisp - state machine error',
+                            error)
+            return
+        }
+    },
+    getswapdisp: function() {
+        return this.swapdirection
     },
     eventclosing    : null,
     elemclosing     : null,

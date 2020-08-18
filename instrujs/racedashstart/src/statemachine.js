@@ -120,7 +120,15 @@ export function createStateMachine() {
             { name: 'closing',   from: 'twoport',  to: 'halt'    },
             { name: 'closing',   from: 'twostbd',  to: 'halt'    },
             { name: 'closing',   from: 'btnfade',  to: 'halt'    },
-            { name: 'closing',   from: 'armed',    to: 'halt'    }
+            { name: 'closing',   from: 'armed',    to: 'halt'    },
+            // ignored transitions available in the iface.js
+            { name: 'setall',     from: 'halt',    to: 'halt'    },
+            { name: 'acksubs',    from: 'halt',    to: 'halt'    },
+            { name: 'chgconf',    from: 'halt',    to: 'halt'    },
+            { name: 'mrkdataack', from: 'halt',    to: 'halt'    },
+            { name: 'newmrkdata', from: 'halt',    to: 'halt'    },
+            { name: 'mrkmteaack', from: 'halt',    to: 'halt'    },
+            { name: 'mrkumteack', from: 'halt',    to: 'halt'    }
         ],
         methods: {
             onWindow:   function() {

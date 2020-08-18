@@ -72,7 +72,21 @@ export function createStateMachine() {
             { name: 'luminsty',   from: 'running',  to: 'running' },
             { name: 'closing',    from: 'getack',   to: 'halt'    },
             { name: 'closing',    from: 'waiting',  to: 'halt'    },
-            { name: 'closing',    from: 'running',  to: 'halt'    }
+            { name: 'closing',    from: 'running',  to: 'halt'    },
+            // ignored transitions available in the iface.js
+            { name: 'setall',     from: 'halt',     to: 'halt'    },
+            { name: 'acksubs',    from: 'halt',     to: 'halt'    },
+            { name: 'chgconf',    from: 'halt',     to: 'halt'    },
+            { name: 'getfeet',    from: 'halt',     to: 'halt'    },
+            { name: 'nogetfeet',  from: 'halt',     to: 'halt'    },
+            { name: 'chkrdy',     from: 'halt',     to: 'halt'    },
+            { name: 'nochkrdy',   from: 'halt',     to: 'halt'    },
+            { name: 'usersl',     from: 'halt',     to: 'halt'    },
+            { name: 'nousersl',   from: 'halt',     to: 'halt'    },
+            { name: 'markack',    from: 'halt',     to: 'halt'    },
+            { name: 'sldataack',  from: 'halt',     to: 'halt'    },
+            { name: 'newsldata',  from: 'halt',     to: 'halt'    },
+            { name: 'sldstopack', from: 'halt',     to: 'halt'    }
         ],
         methods: {
             onWindow:   function() {
