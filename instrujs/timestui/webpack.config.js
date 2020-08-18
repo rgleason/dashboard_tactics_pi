@@ -32,6 +32,10 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
+                include: [path.resolve(__dirname, './src'),
+                          path.resolve(__dirname, '../src')
+                         ],
+                exclude: [/(node_modules)/],
                 options: {
                     "presets": [
                       ["@babel/preset-env", {
@@ -46,11 +50,7 @@ module.exports = {
                     ],
                     plugins: ['@babel/plugin-transform-runtime'],
                     cacheDirectory: true
-                },
-                include: [path.resolve(__dirname, './src'),
-                          path.resolve(__dirname, '../src')
-                         ],
-                exclude: [/(node_modules)/],
+                }
             },
             {
                 test:/\.(sa|sc|c)ss$/,

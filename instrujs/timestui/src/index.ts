@@ -8,6 +8,22 @@ console.log('timestui ', packagename(), ' ', version())
 var dbglevel = (window as any).instrustat.debuglevel
 
 import '../../src/iface.js'
+// High level  operations available on iface.js
+import {
+    initIfaceOps, askWaitGetUID, ignoreSetAllPathsEvent, createSetAllDbEvent,
+    createSetRescanEvent, createSetSelectedEvent,
+    ignoreAckSubscriptionEvent, createAckDbSchemaEvent,
+    ignoreSetGetNewEvent, createSetRetryGetEvent, createSetChgConfEvent,
+    ignoreSetSwapDispEvent, createSetLuminosityEvent, createSetClosingEvent,
+    ignoreSetGetFeetEvent, ignoreSetGetNoFeetEvent,
+    ignoreSetChkRdyEvent, ignoreSetChkNoRdyEvent,
+    ignoreSetUserslEvent, ignoreSetNoUserslEvent,
+    ignoreSetMarkAckEvent, ignoreSetDataAckEvent,
+    ignoreSetNewSlDataEvent, ignoreSetSldStopEvent,
+    ignoreSetMrkDataAckEvent, ignoreSetNewMrkDataEvent,
+    ignoreSetMarkMuteEvent, ignoreSetMarkUnMuteEvent
+} from '../../src/ifaceops'
+
 import '../sass/style.scss'
 import {setSkPathFontResizingStyle} from './css'
 
@@ -53,144 +69,26 @@ if (bottom === null) {
     throw 'timestui: init: no element: bottom'
 }
 
-// UID and configuration file
-var eventsetid: Event = document.createEvent('Event')
-eventsetid.initEvent('setid', false, false)
-bottom.addEventListener('setid', ((event: CustomEvent) => {
-    if ( dbglevel > 1 ) console.log('pollhascfg() - attempt to setid() transition.')
-    try {
-        fsm.setid()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  setid: fsm.setid() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-    var pollhascfg: () => void
-    (pollhascfg= function () {
-        if ( dbglevel > 1 ) console.log('pollhascfg() - waiting on "hasid" state')
-        if ( fsm.is('hasid') ) {
-            var hascfg = true
-            if ( fsm.conf === null )
-                hascfg = false
-            else if ( (fsm.conf.path === null) || (fsm.conf.path === '') )
-                hascfg = false
-            if ( hascfg ) {
-                try {
-                    fsm.hascfg()
-                }
-                catch( error ) {
-                    console.error(
-                        'index.ts:  pollhascfg(): fsm.hascfg() transition failed, error: ',
-                        error.message, ' current state: ', fsm.state)
-                }
-            }
-            else {
-                try {
-                    fsm.nocfg()
-                }
-                catch( error ) {
-                    console.error(
-                        'index.ts: pollhascfg(): fsm.nocfg() transition failed, error: ',
-                        error.message, ' current state: ', fsm.state)
-                }
-            }
-        }
-        else {
-            window.setTimeout(pollhascfg, 100)
-        }
-    })() // do selection of the next action in the routing once ID has been set, or not
-}) as EventListener);  // hey non-semicolon-TS-person - this is needed!
-(window as any).iface.regeventsetid( bottom, eventsetid )
+// Initiate and set the event handling on events available on iface.js
+initIfaceOps ( fsm, bottom )
 
-// All available paths have been set
-var eventsetall: Event = document.createEvent('Event')
-eventsetall.initEvent('setall', false, false)
-bottom.addEventListener('setall', ((event: Event) => {
-    console.error(
-        'Event:  setall: error: timestui does not require all paths')
-}) as EventListener);  // hey non-semicolon-TS-person - this is needed!
-(window as any).iface.regeventsetall( bottom, eventsetall )
+askWaitGetUID()
 
-// All available DB schema paths have been set
-var eventsetalldb: Event = document.createEvent('Event')
-eventsetalldb.initEvent('setalldb', false, false)
-bottom.addEventListener('setalldb', ((event: Event) => {
-    try {
-        fsm.setalldb()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  setalldb: fsm.setalldb() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventsetalldb( bottom, eventsetalldb )
+ignoreSetAllPathsEvent()
 
-// DB path did not contain wanted path, rescan
-var eventrescan: Event = document.createEvent('Event')
-eventrescan.initEvent('rescan', false, false)
-bottom.addEventListener('rescan', ((event: Event) => {
-    try {
-        fsm.rescan()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  rescan: fsm.rescan() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventrescan( bottom, eventrescan )
+createSetAllDbEvent()
 
-// Selection of a path has been made
-var eventselected: Event = document.createEvent('Event')
-eventselected.initEvent('selected', false, false)
-bottom.addEventListener('selected', ((event: Event) => {
-    try {
-        fsm.selected()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  selected: fsm.selected() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventselected( bottom, eventselected )
+createSetRescanEvent()
 
-// Selection of a path has been acknowledged
-var eventacksubs: Event = document.createEvent('Event')
-eventacksubs.initEvent('acksubs', false, false)
-bottom.addEventListener('acksubs', ((event: Event) => {
-    console.error(
-        'Event:  acksubs: error: timestui does not ask for path subscription')
-}) as EventListener);
-(window as any).iface.regeventacksubs( bottom, eventacksubs )
+createSetSelectedEvent()
 
-// Requested database schema is now available
-var eventackschema: Event = document.createEvent('Event')
-eventackschema.initEvent('ackschema', false, false)
-bottom.addEventListener('ackschema', ((event: Event) => {
-    try {
-        fsm.ackschema()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  ackschema: fsm.ackschema() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventackschema( bottom, eventackschema )
+ignoreAckSubscriptionEvent()
 
-// Request to fetch new data from DB (pro-forma, see pollshowdata())
-var eventgetnew: Event = document.createEvent('Event')
-eventgetnew.initEvent('getnew', false, false)
-bottom.addEventListener('getnew', ((event: Event) => {
-    console.error(
-            'Event: getnew: this should not be triggered from outside!')
-}) as EventListener);
-(window as any).iface.regeventgetnew( bottom, eventgetnew )
+createAckDbSchemaEvent()
 
-// New data is availale
+ignoreSetGetNewEvent() // see pollshowdata()
+
+// New data is available - keep up the data streaming by transitional states
 var eventnewdata: Event = document.createEvent('Event')
 eventnewdata.initEvent('newdata', false, false)
 bottom.addEventListener('newdata', ((event: Event) => {
@@ -285,74 +183,34 @@ bottom.addEventListener('errdata', ((event: Event) => {
 (window as any).iface.regeventerrdata( bottom, eventerrdata )
 
 // Retry Asynchronous data retrieval from DB
-var eventretryget: Event = document.createEvent('Event')
-eventretryget.initEvent('retryget', false, false)
-bottom.addEventListener('retryget', ((event: Event) => {
-    try {
-        fsm.retryget()
-    }
-    catch( error ) {
-        console.error(
-            'Event: retryget: fsm.retryget() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventretryget( bottom, eventretryget )
+createSetRetryGetEvent()
 
-// Change of configuration has been requested
-var eventchgconf: Event = document.createEvent('Event')
-eventchgconf.initEvent('chgconf', false, false)
-bottom.addEventListener('chgconf', ((event: Event) => {
-    try {
-        fsm.chgconf()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  chgconf: fsm.chgconf() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventchgconf( bottom, eventchgconf )
+createSetChgConfEvent()
 
-// Luminosity
-var eventluminsty: Event = document.createEvent('Event')
-eventluminsty.initEvent('luminsty', false, false)
-bottom.addEventListener('luminsty', ((event: Event) => {
-    try {
-        fsm.luminsty()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  luminsty: fsm.luminsty() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventluminsty( bottom, eventluminsty )
-
+// Common housekeeping requests
+createSetLuminosityEvent()
 // Keyboard event requires to swap the display format
 kbdInit()
-var eventswapdisp: Event = document.createEvent('Event')
-eventswapdisp.initEvent('swapdisp', false, false)
-bottom.addEventListener('swapdisp', ((event: Event) => {
-    console.error(
-        'Event:  swapdisp: error: timestui does not deal with this event (for now)')
-}) as EventListener);
-(window as any).iface.regeventswapdisp( bottom, eventswapdisp )
-
+// Not served (yet)
+ignoreSetSwapDispEvent()
 // The instrument has a persistent configuration object, close gracefully
-var eventclosing: Event = document.createEvent('Event')
-eventclosing.initEvent('closing', false, false)
-bottom.addEventListener('closing', ((event: Event) => {
-    try {
-        fsm.closing()
-    }
-    catch( error ) {
-        console.error(
-            'Event:  closing: fsm.closing() transition failed, error: ',
-            error.message, ' current state: ', fsm.state)
-    }
-}) as EventListener);
-(window as any).iface.regeventclosing( bottom, eventclosing )
+createSetClosingEvent()
+
+// Let's register to events not used here - better have a handler, though
+ignoreSetGetFeetEvent()
+ignoreSetGetNoFeetEvent()
+ignoreSetChkRdyEvent()
+ignoreSetChkNoRdyEvent()
+ignoreSetUserslEvent()
+ignoreSetNoUserslEvent()
+ignoreSetMarkAckEvent()
+ignoreSetDataAckEvent()
+ignoreSetNewSlDataEvent()
+ignoreSetSldStopEvent()
+ignoreSetMrkDataAckEvent()
+ignoreSetNewMrkDataEvent()
+ignoreSetMarkMuteEvent()
+ignoreSetMarkUnMuteEvent()
 
 /* Since now no other events apart the window load(), we need to await here until
    it has been executed, before continuing to try event driven operation */

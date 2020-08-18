@@ -3,13 +3,15 @@
         "baseUrl": ".",
         "strict": true,
         "target": "es2015",
+        "module": "commonjs",
         "resolveJsonModule": false,
         "strictPropertyInitialization": false,
         "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
         "types": ["node"],
         "paths": {
             "observable": ["./influxdb-client/packages/core/src/observable/index.ts"],
-            "query": ["./influxdb-client/packages/core/src/query/index.ts"]
+            "query": ["./influxdb-client/packages/core/src/query/index.ts"],
+            "instrumentFiniteStateMachine": ["./src/statemachine"]
         }
     },
     "awesomeTypescriptLoaderOptions": {
