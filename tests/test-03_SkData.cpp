@@ -54,7 +54,7 @@ TEST_CASE( "Constructor" ) {
         SkData *copyskdata = new SkData( (*skdata) );
         wxJSONValue pCopyRetJSON;
         pCopyRetJSON["context"] = sself;
-        wxString defCopySchemas = skdata->getAllSubscriptionsJSON( pCopyRetJSON );
+        wxString defCopySchemas = copyskdata->getAllSubscriptionsJSON( pCopyRetJSON );
         CHECK( !defCopySchemas.IsEmpty() );
         CHECK( pCopyRetJSON["subscribe"][0].HasMember("path") );
         CHECK( pCopyRetJSON["subscribe"].Size() == 25 );
