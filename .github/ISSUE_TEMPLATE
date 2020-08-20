@@ -7,7 +7,21 @@ I have installed the software for which I am reporting the issues from:
   - [ ] OpenCPN's plug-in manager
     - [ ] Plug-in manager version's issue reported in [CF DashT thread](https://www.cruisersforum.com/forums/f134/dashboard-tactics-dash-t-226601.html)
   
-  ## Expected Behavior
+## Specifications
+
+- OpenCPN Version: 
+- DashT Version: 
+- Operating System :
+  - [ ] Windows
+  - [ ] Linux
+    - [ ] Ubuntu
+    - [ ] RPI
+    - [ ] Debian
+    - [ ] Fedora
+    - [ ] Other: ____
+- Operating System Version :
+
+## Expected Behavior
 
 <!--- If you're describing a bug, tell us what should happen -->
 <!--- If you're suggesting a change/improvement, tell us how it should work -->
@@ -33,9 +47,4 @@ I have installed the software for which I am reporting the issues from:
 
 Screenshots, zipped log files or VDR recordings
 
-## Specifications
-
-- OpenCPN Version: 
-- DashT Version: 
-  * Installed with OpenCPN Plug-In Manager? Yes / No / Don't know
-- Platform (Win/Linux/RPI/MacOS + version) : 
+ 
