@@ -22,7 +22,7 @@ copyright = '2020, Petri Mäkijärvi'
 author = 'Petri Mäkijärvi'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.99.101'
+release = 'v2.0-beta01'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,7 +32,6 @@ release = 'v1.99.101'
 # ones.
 extensions = [
     'nbsphinx',
-    'sphinx_copybutton',  # for "copy to clipboard" buttons
     'sphinx.ext.mathjax',  # for math equations
     'sphinx_gallery.load_style',  # load CSS for gallery (needs SG >= 0.6)
     'sphinx_last_updated_by_git',  # get "last updated" from Git
