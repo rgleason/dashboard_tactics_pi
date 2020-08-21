@@ -31,3 +31,4 @@ exclude_paths:
   - 'tests/**/test*.cpp'
   - '.github/*.md'
   - 'docs/**/*.md'
+  - 'docs/**/*.py'
