@@ -33,7 +33,6 @@ release = 'v2.0-beta01'
 extensions = [
     'nbsphinx',
     'sphinx.ext.mathjax',  # for math equations
-    'sphinx_last_updated_by_git',  # get "last updated" from Git
 ]
 
 # Add any paths that contain templates here, relative to this directory.
