@@ -15,6 +15,7 @@ engines:
      - src/avg_wind.cpp
      - src/clock.cpp
 exclude_paths:
+  - .github/workflows/**'
   - 'instrujs/**/webpack.config.js'
   - 'instrujs/timestui/influxdb-client/**'
   - 'instrujs/timestui/_babel-ts-loader_*'
