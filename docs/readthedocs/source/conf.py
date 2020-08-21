@@ -33,7 +33,6 @@ release = 'v2.0-beta01'
 extensions = [
     'nbsphinx',
     'sphinx.ext.mathjax',  # for math equations
-    'sphinx_gallery.load_style',  # load CSS for gallery (needs SG >= 0.6)
     'sphinx_last_updated_by_git',  # get "last updated" from Git
 ]
 
