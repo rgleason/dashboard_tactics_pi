@@ -1,0 +1,6 @@
+formats: all
+python:
+  version: 3
+  install:
+    - requirements: docs/readthedocs/requirements.txt
+  system_packages: true
