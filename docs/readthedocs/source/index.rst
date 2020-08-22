@@ -10,6 +10,8 @@ Welcome to DashT
    introduction
    installation
    gettingstarted
+   nmea0183data
+   dashinst/dashinst
    enginedjg/enginedjg
 
 Indices and tables
