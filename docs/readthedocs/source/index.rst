@@ -8,6 +8,8 @@ Welcome to DashT
    :caption: Contents:
 
    introduction
+   installation
+   gettingstarted
    enginedjg/enginedjg
 
 Indices and tables
