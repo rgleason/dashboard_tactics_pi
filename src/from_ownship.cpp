@@ -61,14 +61,40 @@ DashboardInstrument_FromOwnship::DashboardInstrument_FromOwnship(
 void DashboardInstrument_FromOwnship::Draw(wxGCDC* dc)
 {
     wxColour cl;
+#ifdef __WXMSW__
+	wxBitmap tbm(dc->GetSize().x, (2 * m_DataHeight), -1);
+	wxMemoryDC tdc(tbm);
+	wxColour c2;
+	GetGlobalColor( g_sDialColorBackground, &c2 );
+	tdc.SetBackground(c2);
+	tdc.Clear();
+
+	tdc.SetFont(*g_pFontData);
+	GetGlobalColor( g_sDialColorForeground, &cl) ;
+	tdc.SetTextForeground(cl);
+
+    wxString twoLineData = wxEmptyString;
+    twoLineData = m_data1;
+    twoLineData += "\n";
+    twoLineData += m_data2;
+
+	tdc.DrawText(twoLineData, 10, 0);
+
+	tdc.SelectObject(wxNullBitmap);
+
+	dc->DrawBitmap(tbm, 0, m_TitleHeight, false);
+
+#else
 
     dc->SetFont(*g_pFontData);
-    //dc.SetTextForeground(pFontMgr->GetFontColor(_T("Dashboard Data")));
     GetGlobalColor( g_sDialColorBackground, &cl);
     dc->SetTextForeground(cl);
 
     dc->DrawText(m_data1, 10, m_TitleHeight);
     dc->DrawText(m_data2, 10, m_TitleHeight + m_DataHeight);
+
+#endif
+
 }
 
 void DashboardInstrument_FromOwnship::SetData(
@@ -99,13 +125,23 @@ void DashboardInstrument_FromOwnship::SetData(
     }
     else
         return;
-    if ( s_lat < 99999999 && s_lon < 99999999 )
-    {
+    if ( s_lat < 99999999 && s_lon < 99999999 ) {
         double brg,dist;
         DistanceBearingMercator_Plugin(c_lat, c_lon, s_lat, s_lon, &brg, &dist);
-        m_data1.Printf(_T("%03d ") + DEGREE_SIGN,(int)brg);
-        m_data2.Printf(_T("%3.2f %s"), toUsrDistance_Plugin(dist, g_iDashDistanceUnit), getUsrDistanceUnit_Plugin(g_iDashDistanceUnit).c_str());
-    }
+        if ( std::isnan( brg ) || std::isnan( dist ) ) {
+            this->timeoutEvent();
+        } // then at least one value cannot be calculated
+        else {
+            m_data1.Printf( _T("%03d ") + DEGREE_SIGN,
+                            static_cast<int>( brg ) );
+            m_data2.Printf( _T("%3.2f %s"),
+                           toUsrDistance_Plugin(
+                               dist,
+                               g_iDashDistanceUnit),
+                           getUsrDistanceUnit_Plugin(
+                               g_iDashDistanceUnit).c_str() );
+        } // else valid distance and direction calculated
+    } // then lat and lon are making sense
 	  	
     Refresh(false);
 }
