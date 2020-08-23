@@ -4,7 +4,7 @@ Welcome to DashT
 ================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    introduction
@@ -12,6 +12,7 @@ Welcome to DashT
    gettingstarted
    nmea0183data
    dashinst/dashinst
+   tactics/tactics
    enginedjg/enginedjg
 
 Indices and tables
