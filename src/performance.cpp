@@ -27,9 +27,11 @@
 #include <cmath>
 using namespace std;
 
+#include <wx/wxprec.h>
+
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
-#endif
+#endif //precompiled headers
 
 #include <wx/dir.h>
 #include <wx/filefn.h>
