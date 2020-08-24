@@ -54,15 +54,15 @@
 #ifdef _TACTICSPI_H_
 #include "version.h"
 #else
-#define     PLUGIN_VERSION_MAJOR    1
-#define     PLUGIN_VERSION_MINOR    5
+//#define     PLUGIN_VERSION_MAJOR    1
+//#define     PLUGIN_VERSION_MINOR    5
 #endif // _TACTICSPI_H_
 
-#define     MY_API_VERSION_MAJOR    1
+//#define     MY_API_VERSION_MAJOR    1
 #ifdef _TACTICSPI_H_
-#define     MY_API_VERSION_MINOR    12
+//#define     MY_API_VERSION_MINOR    12
 #else
-#define     MY_API_VERSION_MINOR    6
+//#define     MY_API_VERSION_MINOR    6
 #endif // _TACTICSPI_H_
 
 #include "nmea0183/nmea0183.h"
@@ -170,9 +170,9 @@ WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
 
 class dashboard_pi : public
 #ifdef _TACTICSPI_H_
-    tactics_pi, wxTimer, opencpn_plugin_112
+    tactics_pi, wxTimer, opencpn_plugin_116
 #else
-    wxTimer, opencpn_plugin_16
+    wxTimer, opencpn_plugin_116
 #endif // _TACTICSPI_H_
 {
 public:
