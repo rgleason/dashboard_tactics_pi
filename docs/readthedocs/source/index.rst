@@ -18,6 +18,4 @@ Welcome to DashT
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
