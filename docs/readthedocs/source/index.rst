@@ -13,6 +13,7 @@ Welcome to DashT
    nmea0183data
    dashinst/dashinst
    tactics/tactics
+   signalk/signalk
    enginedjg/enginedjg
 
 Indices and tables
