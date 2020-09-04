@@ -32,8 +32,8 @@ const Logger: Logger = {
 
 /**
  * Sets custom logger.
- * @param logger - logger to use
- * @returns previous logger
+ * @param logger new logger
+ * @return previous logger
  */
 export function setLogger(logger: Logger): Logger {
   const previous = provider

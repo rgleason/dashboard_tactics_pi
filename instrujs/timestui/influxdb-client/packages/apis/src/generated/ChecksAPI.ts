@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   Check,
@@ -62,33 +61,37 @@ export interface GetChecksIDQueryRequest {
   checkID: string
 }
 /**
- * Checks API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecks
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateCheck
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutChecksID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchChecksID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostChecksIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksIDLabelsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDQuery
  */
-export class ChecksAPI {
-  // internal
-  private base: APIBase
-
+export class ChecksAPI extends APIBase {
   /**
-   * Creates ChecksAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates ChecksAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Get all checks.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecks }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecks
    */
   getChecks(
     request: GetChecksRequest,
     requestOptions?: RequestOptions
   ): Promise<Checks> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/checks${this.base.queryString(request, [
+      `/api/v2/checks${this.queryString(request, [
         'offset',
         'limit',
         'orgID',
@@ -99,16 +102,15 @@ export class ChecksAPI {
   }
   /**
    * Add new check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/CreateCheck }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/CreateCheck
    */
   createCheck(
     request: CreateCheckRequest,
     requestOptions?: RequestOptions
   ): Promise<Check> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/checks`,
       request,
@@ -118,16 +120,15 @@ export class ChecksAPI {
   }
   /**
    * Get a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksID
    */
   getChecksID(
     request: GetChecksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Check> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/checks/${request.checkID}`,
       request,
@@ -136,16 +137,15 @@ export class ChecksAPI {
   }
   /**
    * Update a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutChecksID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutChecksID
    */
   putChecksID(
     request: PutChecksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Check> {
-    return this.base.request(
+    return this.request(
       'PUT',
       `/api/v2/checks/${request.checkID}`,
       request,
@@ -155,16 +155,15 @@ export class ChecksAPI {
   }
   /**
    * Update a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchChecksID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchChecksID
    */
   patchChecksID(
     request: PatchChecksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Check> {
-    return this.base.request(
+    return this.request(
       'PATCH',
       `/api/v2/checks/${request.checkID}`,
       request,
@@ -174,16 +173,15 @@ export class ChecksAPI {
   }
   /**
    * Delete a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksID
    */
   deleteChecksID(
     request: DeleteChecksIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/checks/${request.checkID}`,
       request,
@@ -192,16 +190,15 @@ export class ChecksAPI {
   }
   /**
    * List all labels for a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDLabels
    */
   getChecksIDLabels(
     request: GetChecksIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/checks/${request.checkID}/labels`,
       request,
@@ -210,16 +207,15 @@ export class ChecksAPI {
   }
   /**
    * Add a label to a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostChecksIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostChecksIDLabels
    */
   postChecksIDLabels(
     request: PostChecksIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/checks/${request.checkID}/labels`,
       request,
@@ -229,16 +225,15 @@ export class ChecksAPI {
   }
   /**
    * Delete label from a check.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksIDLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteChecksIDLabelsID
    */
   deleteChecksIDLabelsID(
     request: DeleteChecksIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/checks/${request.checkID}/labels/${request.labelID}`,
       request,
@@ -247,16 +242,15 @@ export class ChecksAPI {
   }
   /**
    * Get a check query.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDQuery }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetChecksIDQuery
    */
   getChecksIDQuery(
     request: GetChecksIDQueryRequest,
     requestOptions?: RequestOptions
   ): Promise<FluxResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/checks/${request.checkID}/query`,
       request,

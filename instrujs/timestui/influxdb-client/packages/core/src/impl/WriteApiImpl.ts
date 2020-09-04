@@ -1,3 +1,6 @@
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
+
 import WriteApi from '../WriteApi'
 import {
   WritePrecision,
@@ -10,7 +13,7 @@ import Logger from './Logger'
 import {HttpError, RetryDelayStrategy} from '../errors'
 import Point from '../Point'
 import {escape} from '../util/escape'
-import {currentTime, dateToProtocolTimestamp} from '../util/currentTime'
+import {currentTime} from '../util/currentTime'
 import {createRetryDelayStrategy} from './retryStrategy'
 import RetryBuffer from './RetryBuffer'
 
@@ -66,7 +69,6 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
   }
   private _timeoutHandle: any = undefined
   private currentTime: () => string
-  private dateToProtocolTimestamp: (d: Date) => string
 
   retryBuffer: RetryBuffer
   retryStrategy: RetryDelayStrategy
@@ -86,10 +88,6 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
       ...writeOptions,
     }
     this.currentTime = currentTime[precision]
-    this.dateToProtocolTimestamp = dateToProtocolTimestamp[precision]
-    if (this.writeOptions.defaultTags) {
-      this.useDefaultTags(this.writeOptions.defaultTags)
-    }
 
     const scheduleNextSend = (): void => {
       if (this.writeOptions.flushInterval > 0) {
@@ -134,18 +132,6 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
       return new Promise<void>((resolve, reject) => {
         this.transport.send(this.httpPath, lines.join('\n'), this.sendOptions, {
           error(error: Error): void {
-            const failedAttempts = self.writeOptions.maxRetries + 2 - attempts
-            // call the writeFailed listener and check if we can retry
-            const onRetry = self.writeOptions.writeFailed.call(
-              self,
-              error,
-              lines,
-              failedAttempts
-            )
-            if (onRetry) {
-              onRetry.then(resolve, reject)
-              return
-            }
             if (
               !self.closed &&
               attempts > 1 &&
@@ -153,20 +139,20 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
                 (error as HttpError).statusCode >= 429)
             ) {
               Logger.warn(
-                `Write to InfluxDB failed (remaining attempts: ${attempts -
+                `Write to influx DB failed (remaining attempts: ${attempts -
                   1}).`,
                 error
               )
               self.retryBuffer.addLines(
                 lines,
                 attempts - 1,
-                self.retryStrategy.nextDelay(error, failedAttempts)
+                self.retryStrategy.nextDelay(error)
               )
               reject(error)
-              return
+            } else {
+              Logger.error(`Write to influx DB failed.`, error)
+              reject(error)
             }
-            Logger.error(`Write to InfluxDB failed.`, error)
-            reject(error)
           },
           complete(): void {
             self.retryStrategy.success()
@@ -203,11 +189,9 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
       this.writePoint(points[i])
     }
   }
-  async flush(withRetryBuffer?: boolean): Promise<void> {
+  async flush(): Promise<void> {
     await this.writeBuffer.flush()
-    if (withRetryBuffer) {
-      return await this.retryBuffer.flush()
-    }
+    return await this.retryBuffer.flush()
   }
   close(): Promise<void> {
     const retVal = this.writeBuffer.flush().finally(() => {
@@ -222,10 +206,9 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
     })
     return retVal
   }
-  dispose(): number {
+  dispose(): void {
     this._clearFlushTimeout()
     this.closed = true
-    return this.retryBuffer.close() + this.writeBuffer.length
   }
 
   // PointSettings
@@ -239,18 +222,11 @@ export default class WriteApiImpl implements WriteApi, PointSettings {
     })
     return this
   }
-  convertTime(value: string | number | Date | undefined): string | undefined {
-    if (value === undefined) {
-      return this.currentTime()
-    } else if (typeof value === 'string') {
-      return value.length > 0 ? value : undefined
-    } else if (value instanceof Date) {
-      return this.dateToProtocolTimestamp(value)
-    } else if (typeof value === 'number') {
-      return String(Math.floor(value))
+  convertTime(value: string | undefined): string | undefined {
+    if (typeof value === 'string') {
+      return value ? value : undefined
     } else {
-      // Logger.warn(`unsupported timestamp value: ${value}`)
-      return String(value)
+      return this.currentTime()
     }
   }
 }

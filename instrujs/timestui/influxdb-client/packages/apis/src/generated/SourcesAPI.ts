@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {Buckets, HealthCheck, Source, Sources} from './types'
 
@@ -35,49 +34,49 @@ export interface GetSourcesIDBucketsRequest {
   org?: string
 }
 /**
- * Sources API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSources
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSources
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchSourcesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteSourcesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDHealth
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDBuckets
  */
-export class SourcesAPI {
-  // internal
-  private base: APIBase
-
+export class SourcesAPI extends APIBase {
   /**
-   * Creates SourcesAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates SourcesAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Get all sources.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetSources }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSources
    */
   getSources(
     request?: GetSourcesRequest,
     requestOptions?: RequestOptions
   ): Promise<Sources> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/sources${this.base.queryString(request, ['org'])}`,
+      `/api/v2/sources${this.queryString(request, ['org'])}`,
       request,
       requestOptions
     )
   }
   /**
    * Creates a source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostSources }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSources
    */
   postSources(
     request: PostSourcesRequest,
     requestOptions?: RequestOptions
   ): Promise<Source> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/sources`,
       request,
@@ -87,16 +86,15 @@ export class SourcesAPI {
   }
   /**
    * Get a source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesID
    */
   getSourcesID(
     request: GetSourcesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Source> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/sources/${request.sourceID}`,
       request,
@@ -105,16 +103,15 @@ export class SourcesAPI {
   }
   /**
    * Update a Source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchSourcesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchSourcesID
    */
   patchSourcesID(
     request: PatchSourcesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Source> {
-    return this.base.request(
+    return this.request(
       'PATCH',
       `/api/v2/sources/${request.sourceID}`,
       request,
@@ -124,16 +121,15 @@ export class SourcesAPI {
   }
   /**
    * Delete a source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteSourcesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteSourcesID
    */
   deleteSourcesID(
     request: DeleteSourcesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/sources/${request.sourceID}`,
       request,
@@ -142,16 +138,15 @@ export class SourcesAPI {
   }
   /**
    * Get the health of a source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDHealth }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDHealth
    */
   getSourcesIDHealth(
     request: GetSourcesIDHealthRequest,
     requestOptions?: RequestOptions
   ): Promise<HealthCheck> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/sources/${request.sourceID}/health`,
       request,
@@ -160,20 +155,19 @@ export class SourcesAPI {
   }
   /**
    * Get buckets in a source.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDBuckets }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetSourcesIDBuckets
    */
   getSourcesIDBuckets(
     request: GetSourcesIDBucketsRequest,
     requestOptions?: RequestOptions
   ): Promise<Buckets> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/sources/${
-        request.sourceID
-      }/buckets${this.base.queryString(request, ['org'])}`,
+      `/api/v2/sources/${request.sourceID}/buckets${this.queryString(request, [
+        'org',
+      ])}`,
       request,
       requestOptions
     )

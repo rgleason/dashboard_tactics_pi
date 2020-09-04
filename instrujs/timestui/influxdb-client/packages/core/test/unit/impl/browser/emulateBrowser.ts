@@ -14,7 +14,7 @@ function createResponse({
     statusText: `X${status}X`,
     headers: {
       get(key: string): string | undefined {
-        return headers[key] ?? headers[key.toLowerCase()]
+        return headers[key] || headers[key.toLowerCase()]
       },
       forEach(fn: (value: string, key: string) => void): void {
         Object.keys(headers).forEach((key: string) => {
@@ -28,10 +28,8 @@ function createResponse({
     },
     json(): Promise<any> {
       if (typeof body === 'string') {
-        if (body === 'error') return Promise.reject(new Error('error data'))
-        return Promise.resolve(body).then(body =>
-          body ? JSON.parse(body) : ''
-        )
+        if (body == 'error') return Promise.reject(new Error('error data'))
+        return Promise.resolve(JSON.parse(body))
       } else {
         return Promise.reject(new Error('String body expected, but ' + body))
       }
@@ -40,7 +38,7 @@ function createResponse({
   if (typeof body === 'string') {
     retVal.text = function(): Promise<string> {
       if (typeof body === 'string') {
-        if (body === 'error') return Promise.reject(new Error('error data'))
+        if (body == 'error') return Promise.reject(new Error('error data'))
         return Promise.resolve(body)
       } else {
         return Promise.reject(new Error('String body expected, but ' + body))

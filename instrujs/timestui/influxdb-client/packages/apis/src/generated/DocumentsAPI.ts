@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   Document,
@@ -51,32 +50,34 @@ export interface DeleteDocumentsTemplatesIDLabelsIDRequest {
   labelID: string
 }
 /**
- * Documents API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplates
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplates
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutDocumentsTemplatesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplatesIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesIDLabelsID
  */
-export class DocumentsAPI {
-  // internal
-  private base: APIBase
-
+export class DocumentsAPI extends APIBase {
   /**
-   * Creates DocumentsAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates DocumentsAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplates }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplates
    */
   getDocumentsTemplates(
     request?: GetDocumentsTemplatesRequest,
     requestOptions?: RequestOptions
   ): Promise<Documents> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/documents/templates${this.base.queryString(request, [
+      `/api/v2/documents/templates${this.queryString(request, [
         'org',
         'orgID',
       ])}`,
@@ -86,16 +87,15 @@ export class DocumentsAPI {
   }
   /**
    * Create a template.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplates }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplates
    */
   postDocumentsTemplates(
     request: PostDocumentsTemplatesRequest,
     requestOptions?: RequestOptions
   ): Promise<Document> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/documents/templates`,
       request,
@@ -104,16 +104,15 @@ export class DocumentsAPI {
     )
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesID
    */
   getDocumentsTemplatesID(
     request: GetDocumentsTemplatesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Document> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/documents/templates/${request.templateID}`,
       request,
@@ -121,16 +120,15 @@ export class DocumentsAPI {
     )
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutDocumentsTemplatesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutDocumentsTemplatesID
    */
   putDocumentsTemplatesID(
     request: PutDocumentsTemplatesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Document> {
-    return this.base.request(
+    return this.request(
       'PUT',
       `/api/v2/documents/templates/${request.templateID}`,
       request,
@@ -140,16 +138,15 @@ export class DocumentsAPI {
   }
   /**
    * Delete a template.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesID
    */
   deleteDocumentsTemplatesID(
     request: DeleteDocumentsTemplatesIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/documents/templates/${request.templateID}`,
       request,
@@ -158,16 +155,15 @@ export class DocumentsAPI {
   }
   /**
    * List all labels for a template.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetDocumentsTemplatesIDLabels
    */
   getDocumentsTemplatesIDLabels(
     request: GetDocumentsTemplatesIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/documents/templates/${request.templateID}/labels`,
       request,
@@ -176,16 +172,15 @@ export class DocumentsAPI {
   }
   /**
    * Add a label to a template.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplatesIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDocumentsTemplatesIDLabels
    */
   postDocumentsTemplatesIDLabels(
     request: PostDocumentsTemplatesIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/documents/templates/${request.templateID}/labels`,
       request,
@@ -195,16 +190,15 @@ export class DocumentsAPI {
   }
   /**
    * Delete a label from a template.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesIDLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteDocumentsTemplatesIDLabelsID
    */
   deleteDocumentsTemplatesIDLabelsID(
     request: DeleteDocumentsTemplatesIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/documents/templates/${request.templateID}/labels/${request.labelID}`,
       request,

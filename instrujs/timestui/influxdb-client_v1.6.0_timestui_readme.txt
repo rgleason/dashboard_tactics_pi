@@ -1,4 +1,21 @@
-In package.json, a fixed version:
+As for now: In package.json, a fixed version: 1.0.0 ! Why?
+
+Because I have been only able to polyfill that version for IE11!
+It is needed in Windows version of OpenCPN / wxWidgets / wxWebView.
+
+I manage to browserify v1.6.0 for Chrome based browsers alright.
+
+But for IE11 the same method (you can see here) fails - I suspect
+(but I am not sure that it is the 'extends' some base class like Error which
+is not liked by IE11. See this promising poly-fill
+https://github.com/WebReflection/custom-elements#readme
+but I gave up since there is no idea how to get it working with TypeScript...
+)
+Anyway, version v1.0.0 for perfectly both on Linux and Windows so
+as long it is working, we keep it like that and no effort is put on this
+for now - maybe time will fix the issue somewhere else).
+
+For the record, here is how I _did_ browserify successfully v1.6.0:
 
 ------------
 "@influxdata/influxdb-client": "1.6.0",

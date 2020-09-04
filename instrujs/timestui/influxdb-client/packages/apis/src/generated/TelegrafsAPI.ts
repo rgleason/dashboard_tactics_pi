@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   AddResourceMemberRequestBody,
@@ -85,48 +84,55 @@ export interface DeleteTelegrafsIDOwnersIDRequest {
   telegrafID: string
 }
 /**
- * Telegrafs API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafs
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafs
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutTelegrafsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDLabelsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDMembers
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDMembers
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDMembersID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDOwners
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDOwners
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDOwnersID
  */
-export class TelegrafsAPI {
-  // internal
-  private base: APIBase
-
+export class TelegrafsAPI extends APIBase {
   /**
-   * Creates TelegrafsAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates TelegrafsAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafs }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafs
    */
   getTelegrafs(
     request?: GetTelegrafsRequest,
     requestOptions?: RequestOptions
   ): Promise<Telegrafs> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/telegrafs${this.base.queryString(request, ['orgID'])}`,
+      `/api/v2/telegrafs${this.queryString(request, ['orgID'])}`,
       request,
       requestOptions
     )
   }
   /**
    * Create a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafs }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafs
    */
   postTelegrafs(
     request: PostTelegrafsRequest,
     requestOptions?: RequestOptions
   ): Promise<Telegraf> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/telegrafs`,
       request,
@@ -136,16 +142,15 @@ export class TelegrafsAPI {
   }
   /**
    * Retrieve a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsID
    */
   getTelegrafsID(
     request: GetTelegrafsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<string> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/telegrafs/${request.telegrafID}`,
       request,
@@ -154,16 +159,15 @@ export class TelegrafsAPI {
   }
   /**
    * Update a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PutTelegrafsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PutTelegrafsID
    */
   putTelegrafsID(
     request: PutTelegrafsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<Telegraf> {
-    return this.base.request(
+    return this.request(
       'PUT',
       `/api/v2/telegrafs/${request.telegrafID}`,
       request,
@@ -173,16 +177,15 @@ export class TelegrafsAPI {
   }
   /**
    * Delete a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsID
    */
   deleteTelegrafsID(
     request: DeleteTelegrafsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/telegrafs/${request.telegrafID}`,
       request,
@@ -191,16 +194,15 @@ export class TelegrafsAPI {
   }
   /**
    * List all labels for a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDLabels
    */
   getTelegrafsIDLabels(
     request: GetTelegrafsIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/telegrafs/${request.telegrafID}/labels`,
       request,
@@ -209,16 +211,15 @@ export class TelegrafsAPI {
   }
   /**
    * Add a label to a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDLabels
    */
   postTelegrafsIDLabels(
     request: PostTelegrafsIDLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/telegrafs/${request.telegrafID}/labels`,
       request,
@@ -228,16 +229,15 @@ export class TelegrafsAPI {
   }
   /**
    * Delete a label from a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDLabelsID
    */
   deleteTelegrafsIDLabelsID(
     request: DeleteTelegrafsIDLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/telegrafs/${request.telegrafID}/labels/${request.labelID}`,
       request,
@@ -246,16 +246,15 @@ export class TelegrafsAPI {
   }
   /**
    * List all users with member privileges for a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDMembers }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDMembers
    */
   getTelegrafsIDMembers(
     request: GetTelegrafsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMembers> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/telegrafs/${request.telegrafID}/members`,
       request,
@@ -264,16 +263,15 @@ export class TelegrafsAPI {
   }
   /**
    * Add a member to a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDMembers }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDMembers
    */
   postTelegrafsIDMembers(
     request: PostTelegrafsIDMembersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceMember> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/telegrafs/${request.telegrafID}/members`,
       request,
@@ -283,16 +281,15 @@ export class TelegrafsAPI {
   }
   /**
    * Remove a member from a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDMembersID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDMembersID
    */
   deleteTelegrafsIDMembersID(
     request: DeleteTelegrafsIDMembersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/telegrafs/${request.telegrafID}/members/${request.userID}`,
       request,
@@ -301,16 +298,15 @@ export class TelegrafsAPI {
   }
   /**
    * List all owners of a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDOwners }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetTelegrafsIDOwners
    */
   getTelegrafsIDOwners(
     request: GetTelegrafsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwners> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/telegrafs/${request.telegrafID}/owners`,
       request,
@@ -319,16 +315,15 @@ export class TelegrafsAPI {
   }
   /**
    * Add an owner to a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDOwners }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostTelegrafsIDOwners
    */
   postTelegrafsIDOwners(
     request: PostTelegrafsIDOwnersRequest,
     requestOptions?: RequestOptions
   ): Promise<ResourceOwner> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/telegrafs/${request.telegrafID}/owners`,
       request,
@@ -338,16 +333,15 @@ export class TelegrafsAPI {
   }
   /**
    * Remove an owner from a Telegraf config.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDOwnersID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteTelegrafsIDOwnersID
    */
   deleteTelegrafsIDOwnersID(
     request: DeleteTelegrafsIDOwnersIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/telegrafs/${request.telegrafID}/owners/${request.userID}`,
       request,

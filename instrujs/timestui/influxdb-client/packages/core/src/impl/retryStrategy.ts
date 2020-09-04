@@ -17,28 +17,17 @@ export class RetryStrategyImpl implements RetryDelayStrategy {
     this.success()
   }
 
-  nextDelay(error?: Error, failedAttempts?: number): number {
+  nextDelay(error?: Error): number {
     const delay = getRetryDelay(error)
     if (delay && delay > 0) {
-      return delay + Math.round(Math.random() * this.options.retryJitter)
+      return Math.min(
+        delay + Math.round(Math.random() * this.options.retryJitter),
+        this.options.maxRetryDelay
+      )
     } else {
-      let delay = this.currentDelay
-      if (failedAttempts && failedAttempts > 0) {
-        // compute delay
-        delay = this.options.minRetryDelay
-        for (let i = 1; i < failedAttempts; i++) {
-          delay = delay * this.options.exponentialBase
-          if (delay >= this.options.maxRetryDelay) {
-            break
-          }
-        }
-        return (
-          Math.min(Math.max(delay, 1), this.options.maxRetryDelay) +
-          Math.round(Math.random() * this.options.retryJitter)
-        )
-      } else if (this.currentDelay) {
+      if (this.currentDelay) {
         this.currentDelay = Math.min(
-          Math.max(this.currentDelay * this.options.exponentialBase, 1) +
+          Math.max(this.currentDelay * 2, 1) +
             Math.round(Math.random() * this.options.retryJitter),
           this.options.maxRetryDelay
         )
@@ -56,9 +45,8 @@ export class RetryStrategyImpl implements RetryDelayStrategy {
 }
 
 /**
- * Creates a new instance of retry strategy.
- * @param options - retry options
- * @returns retry strategy implementation
+ * Creates a new instance of retry strategy
+ * @param options retry options
  */
 export function createRetryDelayStrategy(
   options?: Partial<RetryDelayStrategyOptions>

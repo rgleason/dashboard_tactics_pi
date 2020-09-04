@@ -196,62 +196,6 @@
             "type": "OnboardingResponse"
           }
         ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/setup/user",
-    "operation": "post",
-    "operationId": "PostSetupUser",
-    "basicAuth": false,
-    "summary": "Set up a new user, org and bucket",
-    "positionalParams": [],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [],
-    "bodyParam": {
-      "description": "Source to create",
-      "required": true,
-      "mediaType": "application/json",
-      "type": "OnboardingRequest"
-    },
-    "responses": [
-      {
-        "code": "201",
-        "description": "Created default user, bucket, org",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "OnboardingResponse"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
       }
     ]
   },
@@ -635,350 +579,6 @@
       {
         "code": "404",
         "description": "Template not found",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/dbrps",
-    "operation": "get",
-    "operationId": "GetDBRPs",
-    "basicAuth": false,
-    "summary": "List all database retention policy mappings",
-    "positionalParams": [],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [
-      {
-        "name": "orgID",
-        "description": "Specifies the organization ID to filter on",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "id",
-        "description": "Specifies the mapping ID to filter on",
-        "type": "string"
-      },
-      {
-        "name": "bucketID",
-        "description": "Specifies the bucket ID to filter on",
-        "type": "string"
-      },
-      {
-        "name": "default",
-        "description": "Specifies filtering on default",
-        "type": "any"
-      },
-      {
-        "name": "db",
-        "description": "Specifies the database to filter on",
-        "type": "string"
-      },
-      {
-        "name": "rp",
-        "description": "Specifies the retention policy to filter on",
-        "type": "string"
-      }
-    ],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "200",
-        "description": "A list of all database retention policy mappings",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "DBRPs"
-          }
-        ]
-      },
-      {
-        "code": "400",
-        "description": "if any of the parameter passed is invalid",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/dbrps",
-    "operation": "post",
-    "operationId": "PostDBRP",
-    "basicAuth": false,
-    "summary": "Add a database retention policy mapping",
-    "positionalParams": [],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [],
-    "bodyParam": {
-      "description": "The database retention policy mapping to add",
-      "required": true,
-      "mediaType": "application/json",
-      "type": "DBRP"
-    },
-    "responses": [
-      {
-        "code": "201",
-        "description": "Database retention policy mapping created",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "DBRP"
-          }
-        ]
-      },
-      {
-        "code": "400",
-        "description": "if any of the IDs in the mapping is invalid",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/dbrps/{dbrpID}",
-    "operation": "get",
-    "operationId": "GetDBRPsID",
-    "basicAuth": false,
-    "summary": "Retrieve a database retention policy mapping",
-    "positionalParams": [
-      {
-        "name": "dbrpID",
-        "description": "The database retention policy mapping ID",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [
-      {
-        "name": "orgID",
-        "description": "Specifies the organization ID of the mapping",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "200",
-        "description": "The database retention policy requested",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "DBRP"
-          }
-        ]
-      },
-      {
-        "code": "400",
-        "description": "if any of the IDs passed is invalid",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/dbrps/{dbrpID}",
-    "operation": "patch",
-    "operationId": "PatchDBRPID",
-    "basicAuth": false,
-    "summary": "Update a database retention policy mapping",
-    "positionalParams": [
-      {
-        "name": "dbrpID",
-        "description": "The database retention policy mapping.",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [
-      {
-        "name": "orgID",
-        "description": "Specifies the organization ID of the mapping",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "bodyParam": {
-      "description": "Database retention policy update to apply",
-      "required": true,
-      "mediaType": "application/json",
-      "type": "DBRPUpdate"
-    },
-    "responses": [
-      {
-        "code": "200",
-        "description": "An updated mapping",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "DBRP"
-          }
-        ]
-      },
-      {
-        "code": "400",
-        "description": "if any of the IDs passed is invalid",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "404",
-        "description": "The mapping was not found",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/dbrps/{dbrpID}",
-    "operation": "delete",
-    "operationId": "DeleteDBRPID",
-    "basicAuth": false,
-    "summary": "Delete a database retention policy",
-    "positionalParams": [
-      {
-        "name": "dbrpID",
-        "description": "The database retention policy mapping",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [
-      {
-        "name": "orgID",
-        "description": "Specifies the organization ID of the mapping",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "204",
-        "description": "Delete has been accepted",
-        "mediaTypes": []
-      },
-      {
-        "code": "400",
-        "description": "if any of the IDs passed is invalid",
         "mediaTypes": [
           {
             "mediaType": "application/json",
@@ -3979,7 +3579,7 @@
       },
       {
         "name": "id",
-        "description": "List of dashboard IDs to return. If both `id` and `owner` are specified, only `id` is used.",
+        "description": "List of dashboard IDs to return. If both `id and `owner` are specified, only `id` is used.",
         "type": "any"
       },
       {
@@ -4156,7 +3756,7 @@
       "description": "Patching of a dashboard",
       "required": true,
       "mediaType": "application/json",
-      "type": "{\n  /** optional, when provided will replace the name */\n  name?: string;\n  /** optional, when provided will replace the description */\n  description?: string;\n  /** optional, when provided will replace all existing cells with the cells provided */\n  cells?: CellWithViewProperties;\n}"
+      "type": "Dashboard"
     },
     "responses": [
       {
@@ -5075,6 +4675,65 @@
         "code": "204",
         "description": "Owner removed",
         "mediaTypes": []
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/dashboards/{dashboardID}/logs",
+    "operation": "get",
+    "operationId": "GetDashboardsIDLogs",
+    "basicAuth": false,
+    "summary": "Retrieve operation logs for a dashboard",
+    "positionalParams": [
+      {
+        "name": "dashboardID",
+        "description": "The dashboard ID.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "offset",
+        "required": false,
+        "type": "number"
+      },
+      {
+        "name": "limit",
+        "required": false,
+        "type": "number"
+      }
+    ],
+    "bodyParam": null,
+    "responses": [
+      {
+        "code": "200",
+        "description": "Operation logs for the dashboard",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "OperationLogs"
+          }
+        ]
       },
       {
         "code": "default",
@@ -6350,6 +6009,65 @@
   },
   {
     "server": "/api/v2",
+    "path": "/buckets/{bucketID}/logs",
+    "operation": "get",
+    "operationId": "GetBucketsIDLogs",
+    "basicAuth": false,
+    "summary": "Retrieve operation logs for a bucket",
+    "positionalParams": [
+      {
+        "name": "bucketID",
+        "description": "The bucket ID.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "offset",
+        "required": false,
+        "type": "number"
+      },
+      {
+        "name": "limit",
+        "required": false,
+        "type": "number"
+      }
+    ],
+    "bodyParam": null,
+    "responses": [
+      {
+        "code": "200",
+        "description": "Operation logs for the bucket",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "OperationLogs"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
     "path": "/orgs",
     "operation": "get",
     "operationId": "GetOrgs",
@@ -6373,11 +6091,6 @@
       {
         "name": "orgID",
         "description": "Filter organizations to a specific organization ID.",
-        "type": "string"
-      },
-      {
-        "name": "userID",
-        "description": "Filter organizations to a specific user ID.",
         "type": "string"
       }
     ],
@@ -6563,6 +6276,166 @@
       {
         "name": "orgID",
         "description": "The ID of the organization to delete.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [],
+    "bodyParam": null,
+    "responses": [
+      {
+        "code": "204",
+        "description": "Delete has been accepted",
+        "mediaTypes": []
+      },
+      {
+        "code": "404",
+        "description": "Organization not found",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/orgs/{orgID}/labels",
+    "operation": "get",
+    "operationId": "GetOrgsIDLabels",
+    "basicAuth": false,
+    "summary": "List all labels for a organization",
+    "positionalParams": [
+      {
+        "name": "orgID",
+        "description": "The organization ID.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [],
+    "bodyParam": null,
+    "responses": [
+      {
+        "code": "200",
+        "description": "A list of all labels for an organization",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "LabelsResponse"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/orgs/{orgID}/labels",
+    "operation": "post",
+    "operationId": "PostOrgsIDLabels",
+    "basicAuth": false,
+    "summary": "Add a label to an organization",
+    "positionalParams": [
+      {
+        "name": "orgID",
+        "description": "The organization ID.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [],
+    "bodyParam": {
+      "description": "Label to add",
+      "required": true,
+      "mediaType": "application/json",
+      "type": "LabelMapping"
+    },
+    "responses": [
+      {
+        "code": "201",
+        "description": "Returns the created label",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "LabelResponse"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/orgs/{orgID}/labels/{labelID}",
+    "operation": "delete",
+    "operationId": "DeleteOrgsIDLabelsID",
+    "basicAuth": false,
+    "summary": "Delete a label from an organization",
+    "positionalParams": [
+      {
+        "name": "orgID",
+        "description": "The organization ID.",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "labelID",
+        "description": "The label ID.",
         "required": true,
         "type": "string"
       }
@@ -7022,210 +6895,39 @@
   },
   {
     "server": "/api/v2",
-    "path": "/stacks",
-    "operation": "get",
-    "operationId": "ListStacks",
-    "basicAuth": false,
-    "summary": "Grab a list of installed InfluxDB Templates",
-    "positionalParams": [],
-    "headerParams": [],
-    "queryParams": [
-      {
-        "name": "orgID",
-        "description": "The organization id of the stacks",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "name",
-        "description": "A collection of names to filter the list by.",
-        "type": "string"
-      },
-      {
-        "name": "stackID",
-        "description": "A collection of stackIDs to filter the list by.",
-        "type": "string"
-      }
-    ],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "200",
-        "description": "Influx stacks found",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "{\n  stacks?: Stack[];\n}"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/stacks",
-    "operation": "post",
-    "operationId": "CreateStack",
-    "basicAuth": false,
-    "summary": "Create a new stack",
-    "positionalParams": [],
-    "headerParams": [],
-    "queryParams": [],
-    "bodyParam": {
-      "description": "Stack to create.",
-      "required": true,
-      "mediaType": "application/json",
-      "type": "{\n  orgID?: string;\n  name?: string;\n  description?: string;\n  urls?: string[];\n}"
-    },
-    "responses": [
-      {
-        "code": "201",
-        "description": "InfluxDB Stack created",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Stack"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/stacks/{stack_id}",
-    "operation": "get",
-    "operationId": "ReadStack",
-    "basicAuth": false,
-    "summary": "Grab a stack by its ID",
-    "positionalParams": [
-      {
-        "name": "stack_id",
-        "description": "The stack id",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "headerParams": [],
-    "queryParams": [],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "200",
-        "description": "Read an influx stack by ID",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Stack"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/stacks/{stack_id}",
-    "operation": "patch",
-    "operationId": "UpdateStack",
-    "basicAuth": false,
-    "summary": "Update an InfluxDB Stack",
-    "positionalParams": [
-      {
-        "name": "stack_id",
-        "description": "The stack id",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "headerParams": [],
-    "queryParams": [],
-    "bodyParam": {
-      "description": "Influx stack to update.",
-      "required": true,
-      "mediaType": "application/json",
-      "type": "{\n  name?: string;\n  description?: string;\n  templateURLs?: string[];\n  additionalResources?: Array<{\n  resourceID: string;\n  kind: string;\n  templateMetaName?: string;\n}>;\n}"
-    },
-    "responses": [
-      {
-        "code": "200",
-        "description": "Influx stack updated",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Stack"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/stacks/{stack_id}",
+    "path": "/orgs/{orgID}/owners/{userID}",
     "operation": "delete",
-    "operationId": "DeleteStack",
+    "operationId": "DeleteOrgsIDOwnersID",
     "basicAuth": false,
-    "summary": "Delete a stack and remove all its associated resources",
+    "summary": "Remove an owner from an organization",
     "positionalParams": [
       {
-        "name": "stack_id",
-        "description": "The stack id",
+        "name": "userID",
+        "description": "The ID of the owner to remove.",
         "required": true,
         "type": "string"
-      }
-    ],
-    "headerParams": [],
-    "queryParams": [
+      },
       {
         "name": "orgID",
-        "description": "The organization id of the user",
+        "description": "The organization ID.",
         "required": true,
         "type": "string"
       }
     ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [],
     "bodyParam": null,
     "responses": [
       {
         "code": "204",
-        "description": "Stack and all its associated resources are deleted",
+        "description": "Owner removed",
         "mediaTypes": []
       },
       {
@@ -7242,30 +6944,48 @@
   },
   {
     "server": "/api/v2",
-    "path": "/stacks/{stack_id}/uninstall",
-    "operation": "post",
-    "operationId": "UninstallStack",
+    "path": "/orgs/{orgID}/logs",
+    "operation": "get",
+    "operationId": "GetOrgsIDLogs",
     "basicAuth": false,
-    "summary": "Uninstall an InfluxDB Stack",
+    "summary": "Retrieve operation logs for an organization",
     "positionalParams": [
       {
-        "name": "stack_id",
-        "description": "The stack id",
+        "name": "orgID",
+        "description": "The organization ID.",
         "required": true,
         "type": "string"
       }
     ],
-    "headerParams": [],
-    "queryParams": [],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "offset",
+        "required": false,
+        "type": "number"
+      },
+      {
+        "name": "limit",
+        "required": false,
+        "type": "number"
+      }
+    ],
     "bodyParam": null,
     "responses": [
       {
         "code": "200",
-        "description": "Influx stack uninstalled",
+        "description": "Operation logs for the organization",
         "mediaTypes": [
           {
             "mediaType": "application/json",
-            "type": "Stack"
+            "type": "OperationLogs"
           }
         ]
       },
@@ -7283,18 +7003,57 @@
   },
   {
     "server": "/api/v2",
-    "path": "/templates/apply",
+    "path": "/packages",
     "operation": "post",
-    "operationId": "ApplyTemplate",
+    "operationId": "CreatePkg",
     "basicAuth": false,
-    "summary": "Apply or dry-run an InfluxDB Template",
+    "summary": "Create a new Influx package",
+    "positionalParams": [],
+    "headerParams": [],
+    "queryParams": [],
+    "bodyParam": {
+      "description": "Influx package to create.",
+      "required": false,
+      "mediaType": "application/json",
+      "type": "PkgCreate"
+    },
+    "responses": [
+      {
+        "code": "200",
+        "description": "Influx package created",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Pkg"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/packages/apply",
+    "operation": "post",
+    "operationId": "ApplyPkg",
+    "basicAuth": false,
+    "summary": "Apply or dry-run an Influx package",
     "positionalParams": [],
     "headerParams": [],
     "queryParams": [],
     "bodyParam": {
       "required": true,
       "mediaType": "application/json",
-      "type": "TemplateApply"
+      "type": "PkgApply"
     },
     "responses": [
       {
@@ -7303,7 +7062,7 @@
         "mediaTypes": [
           {
             "mediaType": "application/json",
-            "type": "TemplateSummary"
+            "type": "PkgSummary"
           }
         ]
       },
@@ -7313,50 +7072,7 @@
         "mediaTypes": [
           {
             "mediaType": "application/json",
-            "type": "TemplateSummary"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
-    "path": "/templates/export",
-    "operation": "post",
-    "operationId": "ExportTemplate",
-    "basicAuth": false,
-    "summary": "Export a new Influx Template",
-    "positionalParams": [],
-    "headerParams": [],
-    "queryParams": [],
-    "bodyParam": {
-      "description": "Export resources as an InfluxDB template.",
-      "required": false,
-      "mediaType": "application/json",
-      "type": "TemplateExport"
-    },
-    "responses": [
-      {
-        "code": "200",
-        "description": "InfluxDB template created",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Template"
-          },
-          {
-            "mediaType": "application/x-yaml",
-            "type": "Template"
+            "type": "PkgSummary"
           }
         ]
       },
@@ -8180,47 +7896,6 @@
   },
   {
     "server": "/api/v2",
-    "path": "/flags",
-    "operation": "get",
-    "operationId": "GetFlags",
-    "basicAuth": false,
-    "summary": "Return the feature flags for the currently authenticated user",
-    "positionalParams": [],
-    "headerParams": [
-      {
-        "name": "Zap-Trace-Span",
-        "description": "OpenTracing span context",
-        "required": false,
-        "type": "string"
-      }
-    ],
-    "queryParams": [],
-    "bodyParam": null,
-    "responses": [
-      {
-        "code": "200",
-        "description": "Feature flags for the currently authenticated user",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Flags"
-          }
-        ]
-      },
-      {
-        "code": "default",
-        "description": "Unexpected error",
-        "mediaTypes": [
-          {
-            "mediaType": "application/json",
-            "type": "Error"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "server": "/api/v2",
     "path": "/me",
     "operation": "get",
     "operationId": "GetMe",
@@ -8835,8 +8510,8 @@
   {
     "server": "/api/v2",
     "path": "/users/{userID}/password",
-    "operation": "post",
-    "operationId": "PostUsersIDPassword",
+    "operation": "put",
+    "operationId": "PutUsersIDPassword",
     "basicAuth": true,
     "summary": "Update a password",
     "positionalParams": [
@@ -8871,6 +8546,65 @@
       {
         "code": "default",
         "description": "Unsuccessful authentication",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "Error"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "server": "/api/v2",
+    "path": "/users/{userID}/logs",
+    "operation": "get",
+    "operationId": "GetUsersIDLogs",
+    "basicAuth": false,
+    "summary": "Retrieve operation logs for a user",
+    "positionalParams": [
+      {
+        "name": "userID",
+        "description": "The user ID.",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "headerParams": [
+      {
+        "name": "Zap-Trace-Span",
+        "description": "OpenTracing span context",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "offset",
+        "required": false,
+        "type": "number"
+      },
+      {
+        "name": "limit",
+        "required": false,
+        "type": "number"
+      }
+    ],
+    "bodyParam": null,
+    "responses": [
+      {
+        "code": "200",
+        "description": "Operation logs for the user",
+        "mediaTypes": [
+          {
+            "mediaType": "application/json",
+            "type": "OperationLogs"
+          }
+        ]
+      },
+      {
+        "code": "default",
+        "description": "Unexpected error",
         "mediaTypes": [
           {
             "mediaType": "application/json",

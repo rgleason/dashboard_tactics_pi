@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {DeletePredicateRequest} from './types'
 
@@ -15,33 +14,28 @@ export interface PostDeleteRequest {
   bucketID?: string
 }
 /**
- * Delete API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDelete
  */
-export class DeleteAPI {
-  // internal
-  private base: APIBase
-
+export class DeleteAPI extends APIBase {
   /**
-   * Creates DeleteAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates DeleteAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Delete time series data from InfluxDB.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostDelete }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostDelete
    */
   postDelete(
     request: PostDeleteRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'POST',
-      `/api/v2/delete${this.base.queryString(request, [
+      `/api/v2/delete${this.queryString(request, [
         'org',
         'bucket',
         'orgID',

@@ -30,7 +30,7 @@ describe('FluxTableMetaData', () => {
     const columns: FluxTableColumn[] = [
       FluxTableColumn.from({
         label: 'a',
-        defaultValue: '1',
+        defaultValue: 'def',
         dataType: 'long',
         group: false,
       }),
@@ -39,26 +39,21 @@ describe('FluxTableMetaData', () => {
       }),
     ]
     const subject = new FluxTableMetaData(columns)
-    expect(subject.toObject(['', ''])).to.deep.equal({a: 1, b: ''})
-    expect(subject.toObject(['2', 'y'])).to.deep.equal({a: 2, b: 'y'})
-    expect(subject.toObject(['3', 'y', 'z'])).to.deep.equal({a: 3, b: 'y'})
-    expect(subject.toObject(['4'])).to.deep.equal({a: 4})
+    expect(subject.toObject(['', ''])).to.deep.equal({a: 'def', b: ''})
+    expect(subject.toObject(['x', 'y'])).to.deep.equal({a: 'x', b: 'y'})
+    expect(subject.toObject(['x', 'y', 'z'])).to.deep.equal({a: 'x', b: 'y'})
+    expect(subject.toObject(['x'])).to.deep.equal({a: 'x'})
   })
   const serializationTable: Array<[ColumnType | undefined, string, any]> = [
     ['boolean', 'false', false],
     ['boolean', 'true', true],
-    ['unsignedLong', '1', 1],
-    ['unsignedLong', '', null],
-    ['long', '1', 1],
-    ['long', '', null],
+    ['unsignedLong', '1', '1'],
+    ['long', '1', '1'],
     ['double', '1', 1],
-    ['double', '', null],
     ['string', '1', '1'],
     ['base64Binary', '1', '1'],
     ['dateTime', '1', '1'],
-    ['dateTime', '', null],
     ['duration', '1', '1'],
-    ['duration', '', null],
     [undefined, '1', '1'],
   ]
   for (const entry of serializationTable) {

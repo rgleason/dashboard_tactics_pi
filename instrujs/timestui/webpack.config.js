@@ -98,7 +98,8 @@ module.exports = {
         ],
     },
     resolve: {
-      extensions: ['.js', '.ts', '.tsx']
+      extensions: ['.js', '.ts', '.tsx'],
+      modules: ['./node_modules', '../timestui/node_modules']
     },
     optimization: {
         minimizer: [

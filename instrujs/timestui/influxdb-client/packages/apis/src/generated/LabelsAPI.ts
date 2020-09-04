@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   LabelCreateRequest,
@@ -30,49 +29,47 @@ export interface DeleteLabelsIDRequest {
   labelID: string
 }
 /**
- * Labels API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostLabels
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabelsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchLabelsID
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteLabelsID
  */
-export class LabelsAPI {
-  // internal
-  private base: APIBase
-
+export class LabelsAPI extends APIBase {
   /**
-   * Creates LabelsAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates LabelsAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Get all labels.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabels
    */
   getLabels(
     request?: GetLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelsResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
-      `/api/v2/labels${this.base.queryString(request, ['orgID'])}`,
+      `/api/v2/labels${this.queryString(request, ['orgID'])}`,
       request,
       requestOptions
     )
   }
   /**
    * Create a label.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostLabels }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostLabels
    */
   postLabels(
     request: PostLabelsRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/labels`,
       request,
@@ -82,16 +79,15 @@ export class LabelsAPI {
   }
   /**
    * Get a label.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetLabelsID
    */
   getLabelsID(
     request: GetLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/labels/${request.labelID}`,
       request,
@@ -100,16 +96,15 @@ export class LabelsAPI {
   }
   /**
    * Update a label.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PatchLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PatchLabelsID
    */
   patchLabelsID(
     request: PatchLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<LabelResponse> {
-    return this.base.request(
+    return this.request(
       'PATCH',
       `/api/v2/labels/${request.labelID}`,
       request,
@@ -119,16 +114,15 @@ export class LabelsAPI {
   }
   /**
    * Delete a label.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteLabelsID }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/DeleteLabelsID
    */
   deleteLabelsID(
     request: DeleteLabelsIDRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request(
+    return this.request(
       'DELETE',
       `/api/v2/labels/${request.labelID}`,
       request,

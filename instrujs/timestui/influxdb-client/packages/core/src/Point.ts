@@ -1,18 +1,23 @@
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
+
 import {escape} from './util/escape'
 import {PointSettings} from './options'
 /**
- * Point defines values of a single measurement.
+ * Point defines the values that will be written to the database.
+ * <a href="http://bit.ly/influxdata-point">See Go Implementation</a>.
  */
 export default class Point {
   private name: string
   private tags: {[key: string]: string} = {}
   private fields: {[key: string]: string} = {}
-  private time: string | number | Date | undefined
+  private time: string | undefined
 
   /**
    * Create a new Point with specified a measurement name.
    *
-   * @param measurementName - the measurement name
+   * @param measurementName the measurement name
+   * @return new instance of {@link Point}
    */
   constructor(measurementName?: string) {
     if (measurementName) this.name = measurementName
@@ -21,8 +26,8 @@ export default class Point {
   /**
    * Sets point's measurement.
    *
-   * @param name - measurement name
-   * @returns this
+   * @param name measurement name
+   * @return new instance of {@link Point}
    */
   public measurement(name: string): Point {
     this.name = name
@@ -32,9 +37,9 @@ export default class Point {
   /**
    * Adds a tag.
    *
-   * @param name - tag name
-   * @param value - tag value
-   * @returns this
+   * @param name  tag name
+   * @param value tag value
+   * @return this
    */
   public tag(name: string, value: string): Point {
     this.tags[name] = value
@@ -44,9 +49,9 @@ export default class Point {
   /**
    * Adds a boolean field.
    *
-   * @param field - field name
-   * @param value - field value
-   * @returns this
+   * @param field field name
+   * @param value field value
+   * @return this
    */
   public booleanField(name: string, value: boolean | any): Point {
     this.fields[name] = value ? 'T' : 'F'
@@ -56,9 +61,9 @@ export default class Point {
   /**
    * Adds an integer field.
    *
-   * @param name - field name
-   * @param value - field value
-   * @returns this
+   * @param name field name
+   * @param value field value
+   * @return this
    */
   public intField(name: string, value: number | any): Point {
     if (typeof value !== 'number') {
@@ -77,9 +82,9 @@ export default class Point {
   /**
    * Adds a number field.
    *
-   * @param name - field name
-   * @param value - field value
-   * @returns this
+   * @param name field name
+   * @param value field value
+   * @return this
    */
   public floatField(name: string, value: number | any): Point {
     if (typeof value !== 'number') {
@@ -98,9 +103,9 @@ export default class Point {
   /**
    * Adds a string field.
    *
-   * @param name - field name
-   * @param value - field value
-   * @returns this
+   * @param name field name
+   * @param value field value
+   * @return this
    */
   public stringField(name: string, value: string | any): Point {
     if (value !== null && value !== undefined) {
@@ -111,26 +116,16 @@ export default class Point {
   }
 
   /**
-   * Sets point time. A string or number value can be used
-   * to carry an int64 value of a precision that depends
-   * on WriteApi, nanoseconds by default. An undefined value
-   * generates a local timestamp using the client's clock.
-   * An empty string can be used to let the server assign
-   * the timestamp.
+   * Sets point time.
    *
-   * @param value - point time
-   * @returns this
+   * @param value point time
+   * @return this
    */
-  public timestamp(value: Date | number | string | undefined): Point {
+  public timestamp(value: string | undefined): Point {
     this.time = value
     return this
   }
 
-  /**
-   * Creates an InfluxDB protocol line out of this instance.
-   * @param settings - settings define the exact representation of point time and can also add default tags
-   * @returns an InfxluDB protocol line out of this instance
-   */
   public toLineProtocol(settings?: PointSettings): string | undefined {
     if (!this.name) return undefined
     let fieldsLine = ''
@@ -169,7 +164,6 @@ export default class Point {
       time !== undefined ? ' ' + time : ''
     }`
   }
-
   toString(): string {
     const line = this.toLineProtocol(undefined)
     return line ? line : `invalid point: ${JSON.stringify(this, undefined)}`

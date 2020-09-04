@@ -3,9 +3,4 @@ export {
   typeSerializers,
 } from './FluxTableMetaData'
 export {default as FluxResultObserver} from './FluxResultObserver'
-export {
-  default as FluxTableColumn,
-  ColumnType,
-  FluxTableColumnLike,
-} from './FluxTableColumn'
-export * from './flux'
+export {default as FluxTableColumn, ColumnType} from './FluxTableColumn'

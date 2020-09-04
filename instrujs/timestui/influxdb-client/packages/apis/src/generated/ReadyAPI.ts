@@ -1,33 +1,27 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {Ready} from './types'
 
 export interface GetReadyRequest {}
 /**
- * Ready API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetReady
  */
-export class ReadyAPI {
-  // internal
-  private base: APIBase
-
+export class ReadyAPI extends APIBase {
   /**
-   * Creates ReadyAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates ReadyAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Get the readiness of an instance at startup.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetReady }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetReady
    */
   getReady(
     request?: GetReadyRequest,
     requestOptions?: RequestOptions
   ): Promise<Ready> {
-    return this.base.request('GET', `/ready`, request, requestOptions)
+    return this.request('GET', `/ready`, request, requestOptions)
   }
 }

@@ -12,7 +12,9 @@ var Sanitizer = sanitizer()
 
 import { rollDisplayToSelection } from './disp'
 import { getPathDefaultsIfNew } from '../../src/conf'
-import { getRetrieveSeconds, setRetrieveSeconds, setIdbClientForRetry, getCollectedDataJSON } from './idbclient'
+import {
+    getRetrieveSeconds, setRetrieveSeconds, setIdbClientForRetry,
+    getCollectedDataJSON } from './idbclient'
 import { showDataTimesTuiChart, getSecondsPerPointDraw } from './chart'
 
 var dbglevel = window.instrustat.debuglevel

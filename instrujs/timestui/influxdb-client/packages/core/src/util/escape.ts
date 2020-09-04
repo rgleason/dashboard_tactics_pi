@@ -11,7 +11,7 @@ const escapeChar = '\\'
  *
  * sqlstring is made available under the following license:
  *
- *   Copyright (c) 2012 Felix Geisendörfer (felix\@debuggable.com) and contributors
+ *   Copyright (c) 2012 Felix Geisendörfer (felix@debuggable.com) and contributors
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
@@ -35,13 +35,8 @@ const escapeChar = '\\'
 class Escaper {
   private _re: RegExp
 
-  constructor(
-    private config: {[p: string]: EscaperConfig},
-    private wrap: string = ''
-  ) {
-    const patterns = Object.keys(config)
-      .join('|')
-      .replace(reEscape, '\\$&')
+  constructor(chars: string[], private wrap: string = '') {
+    const patterns = chars.join('').replace(reEscape, '\\$&')
     this._re = new RegExp('[' + patterns + ']', 'g')
   }
 
@@ -56,11 +51,7 @@ class Escaper {
     let match = this._re.exec(val)
 
     while (match) {
-      const matched = match[0]
-      const toEscape = this.config[matched].escapeChar
-      const toReplace = this.config[matched].replaceChar
-      escapedVal += val.slice(chunkIndex, match.index)
-      escapedVal += toReplace != undefined ? toReplace : toEscape + matched
+      escapedVal += val.slice(chunkIndex, match.index) + escapeChar + match[0]
       chunkIndex = this._re.lastIndex
       match = this._re.exec(val)
     }
@@ -77,61 +68,21 @@ class Escaper {
   }
 }
 
-class EscaperConfig {
-  escapeChar?: string
-  replaceChar?: string
-
-  constructor(escapeChar?: string, replaceChar?: string) {
-    this.escapeChar = escapeChar
-    this.replaceChar = replaceChar
-  }
-}
-
-const escaperConfig = new EscaperConfig(escapeChar)
-
 const bindEsc = (e: Escaper): ((val: string) => string) => e.escape.bind(e)
 
-/**
- * Provides functions escape specific parts in InfluxDB line protocol.
- */
 export const escape = {
   /**
    * Measurement escapes measurement names.
    */
-  measurement: bindEsc(
-    new Escaper({
-      ',': escaperConfig,
-      ' ': escaperConfig,
-      '\n': new EscaperConfig(undefined, '\\n'),
-      '\r': new EscaperConfig(undefined, '\\r'),
-      '\t': new EscaperConfig(undefined, '\\t'),
-    })
-  ),
+  measurement: bindEsc(new Escaper([',', ' '])),
 
   /**
    * Quoted escapes quoted values, such as database names.
    */
-  quoted: bindEsc(
-    new Escaper(
-      {
-        '"': escaperConfig,
-        '\\\\': escaperConfig,
-      },
-      '"'
-    )
-  ),
+  quoted: bindEsc(new Escaper(['"', '\\\\'], '"')),
 
   /**
    * TagEscaper escapes tag keys, tag values, and field keys.
    */
-  tag: bindEsc(
-    new Escaper({
-      ',': escaperConfig,
-      '=': escaperConfig,
-      ' ': escaperConfig,
-      '\n': new EscaperConfig(undefined, '\\n'),
-      '\r': new EscaperConfig(undefined, '\\r'),
-      '\t': new EscaperConfig(undefined, '\\t'),
-    })
-  ),
+  tag: bindEsc(new Escaper([',', '=', ' '])),
 }

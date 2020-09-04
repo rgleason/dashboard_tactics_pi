@@ -1,6 +1,9 @@
+// import "core-js"
+// import "regenerator-runtime/runtime.js"
 // IE11 AbortController:
 import 'isomorphic-fetch'
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Transport,
@@ -70,12 +73,6 @@ export default class FetchTransport implements Transport {
           return response
             .text()
             .then((text: string) => {
-              if (!text) {
-                const headerError = response.headers.get('x-influxdb-error')
-                if (headerError) {
-                  text = headerError
-                }
-              }
               observer.error(
                 new HttpError(
                   response.status,
@@ -133,12 +130,6 @@ export default class FetchTransport implements Transport {
       Logger.warn('Unable to read error body', _e)
     }
     if (status >= 300) {
-      if (!data) {
-        const headerError = headers.get('x-influxdb-error')
-        if (headerError) {
-          data = headerError
-        }
-      }
       throw new HttpError(
         status,
         response.statusText,
@@ -167,7 +158,7 @@ export default class FetchTransport implements Transport {
         ...this.defaultHeaders,
         ...headers,
       },
-      credentials: 'omit' as 'omit',
+      credentials: 'include' as 'include',
       // allow to specify custom options, such as signal, in SendOptions
       ...other,
     })

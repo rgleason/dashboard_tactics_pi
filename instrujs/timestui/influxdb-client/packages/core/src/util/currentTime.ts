@@ -1,3 +1,5 @@
+import {WritePrecision} from '../options'
+
 declare let process: any
 const zeroPadding = '000000000'
 let useHrTime = false
@@ -75,22 +77,12 @@ function seconds(): string {
  * depending on the js platform in use.
  */
 export const currentTime = Object.freeze({
-  s: seconds as () => string,
-  ms: millis as () => string,
-  us: micros as () => string,
-  ns: nanos as () => string,
-  seconds: seconds as () => string,
-  millis: millis as () => string,
-  micros: micros as () => string,
-  nanos: nanos as () => string,
+  [String(WritePrecision.s)]: seconds,
+  [String(WritePrecision.ms)]: millis,
+  [String(WritePrecision.us)]: micros,
+  [String(WritePrecision.ns)]: nanos,
+  seconds,
+  millis,
+  micros,
+  nanos,
 })
-
-/**
- * dateToProtocolTimestamp provides converters for JavaScript Date to InfluxDB Write Protocol Timestamp. Keys are supported precisions.
- */
-export const dateToProtocolTimestamp = {
-  s: (d: Date): string => `${Math.floor(d.getTime() / 1000)}`,
-  ms: (d: Date): string => `${d.getTime()}`,
-  us: (d: Date): string => `${d.getTime()}000`,
-  ns: (d: Date): string => `${d.getTime()}000000`,
-}

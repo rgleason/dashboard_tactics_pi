@@ -13,7 +13,7 @@ import {
 } from '../../transport'
 import Cancellable from '../../util/Cancellable'
 import nodeChunkCombiner from './nodeChunkCombiner'
-import {zlib} from 'zlib'
+import zlib from 'zlib'
 import completeCommunicationObserver from '../completeCommunicationObserver'
 import {CLIENT_LIB_VERSION} from '../version'
 
@@ -47,7 +47,7 @@ export class NodeHttpTransport implements Transport {
   ) => http.ClientRequest
   /**
    * Creates a node transport using for the client options supplied.
-   * @param connectionOptions - connection options
+   * @param connectionOptions client options
    */
   constructor(private connectionOptions: ConnectionOptions) {
     const url = parse(connectionOptions.url)
@@ -73,11 +73,12 @@ export class NodeHttpTransport implements Transport {
   /**
    * Sends data to server and receives communication events via communication callbacks.
    *
-   * @param path - HTTP request  path
-   * @param body - message body
-   * @param headers - HTTP headers
-   * @param method - HTTP method
-   * @param callbacks - communication callbacks
+   * @param path HTTP path
+   * @param body  message body
+   * @param headers HTTP headers
+   * @param method HTTP method
+   * @param callbacks communication callbacks
+   * @return a handle that can cancel the communication
    */
   send(
     path: string,
@@ -95,11 +96,10 @@ export class NodeHttpTransport implements Transport {
   /**
    * Sends data to the server and receives decoded result. The type of the result depends on
    * response's content-type (deserialized json, text).
-
-   * @param path - HTTP path
-   * @param requestBody - request body
-   * @param options - send options
-   * @returns Promise of response body
+  
+   * @param path HTTP path
+   * @param requestBody  request body
+   * @param options  send options
    */
   request(path: string, body: any, options: SendOptions): Promise<any> {
     if (!body) {
@@ -140,11 +140,11 @@ export class NodeHttpTransport implements Transport {
   /**
    * Creates configuration for a specific request.
    *
-   * @param path - API path starting with '/' and containing also query parameters
-   * @param headers - HTTP headers to use
-   * @param method - HTTP method
-   * @param body - request body, will be utf-8 encoded
-   * @returns a configuration object that is suitable for making the request
+   * @param path API path starting with '/' and containing also query parameters
+   * @param headers HTTP headers to use
+   * @param method HTTP method
+   * @param body request body, will be utf-8 encoded
+   * @return configuration suitable for making the request
    */
   private createRequestMessage(
     path: string,
@@ -194,8 +194,8 @@ export class NodeHttpTransport implements Transport {
         listeners.error(new AbortError())
       })
       listeners.responseStarted(res.headers)
-      /* istanbul ignore next statusCode is optional in http.IncomingMessage */
-      const statusCode = res.statusCode ?? 600
+      const statusCode =
+        res.statusCode || /* istanbul ignore next safety check */ 600
       const contentEncoding = res.headers['content-encoding']
       let responseData
       if (contentEncoding === 'gzip') {
@@ -214,10 +214,7 @@ export class NodeHttpTransport implements Transport {
             res.resume()
           }
         })
-        responseData.on('end', () => {
-          if (body === '' && !!res.headers['x-influxdb-error']) {
-            body = res.headers['x-influxdb-error'].toString()
-          }
+        responseData.on('end', () =>
           listeners.error(
             new HttpError(
               statusCode,
@@ -226,7 +223,7 @@ export class NodeHttpTransport implements Transport {
               res.headers['retry-after']
             )
           )
-        })
+        )
       } else {
         responseData.on('data', data => {
           if (cancellable.isCancelled()) {

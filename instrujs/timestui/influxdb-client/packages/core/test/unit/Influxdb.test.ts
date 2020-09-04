@@ -28,20 +28,6 @@ describe('InfluxDB', () => {
         token: 'b',
       })
     })
-    it('is created from string url with trailing slash', () => {
-      expect(
-        (new InfluxDB('http://localhost:9999/') as any)._options
-      ).to.deep.equal({
-        url: 'http://localhost:9999',
-      })
-    })
-    it('is created from configuration with url with trailing slash', () => {
-      expect(
-        (new InfluxDB({url: 'http://localhost:9999/'}) as any)._options
-      ).to.deep.equal({
-        url: 'http://localhost:9999',
-      })
-    })
     it('fails on null arg', () => {
       expect(() => new InfluxDB((null as unknown) as ClientOptions)).to.throw(
         'No url or configuration specified!'
@@ -60,29 +46,10 @@ describe('InfluxDB', () => {
     it('fails on unsupported protocol', () => {
       expect(
         () =>
-          new InfluxDB({
+          new InfluxDB(({
             url: 'ws://localhost:9999?token=b',
-          })
+          } as ClientOptions) as ClientOptions)
       ).to.throw('Unsupported')
-    })
-    it('creates instance with transport initialized', () => {
-      expect(
-        new InfluxDB({
-          url: 'http://localhost:9999',
-        })
-      ).has.property('transport')
-      expect(
-        new InfluxDB(({
-          url: 'http://localhost:9999',
-          transport: null,
-        } as any) as ClientOptions)
-      ).has.property('transport')
-      expect(
-        new InfluxDB(({
-          url: 'http://localhost:9999',
-          transport: {} as Transport,
-        } as any) as ClientOptions)
-      ).has.property('transport')
     })
   })
   describe('apis', () => {

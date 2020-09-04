@@ -29,7 +29,6 @@ export interface Routes {
   }
   variables?: string
   me?: string
-  flags?: string
   orgs?: string
   query?: {
     self?: string
@@ -80,6 +79,7 @@ export interface User {
   status?: 'active' | 'inactive'
   readonly links?: {
     self?: string
+    logs?: string
   }
 }
 
@@ -93,6 +93,7 @@ export interface Organization {
     buckets?: Link
     tasks?: Link
     dashboards?: Link
+    logs?: Link
   }
   readonly id?: string
   name: string
@@ -112,6 +113,8 @@ export interface Bucket {
   readonly links?: {
     /** URL to retrieve labels for this bucket */
     labels?: Link
+    /** URL to retrieve operation logs for this bucket */
+    logs?: Link
     /** URL to retrieve members that can read this bucket */
     members?: Link
     /** URL to retrieve parent organization for this bucket */
@@ -187,37 +190,34 @@ export interface AuthorizationUpdateRequest {
 
 export interface Permission {
   action: 'read' | 'write'
-  resource: Resource
-}
-
-export interface Resource {
-  type:
-    | 'authorizations'
-    | 'buckets'
-    | 'dashboards'
-    | 'orgs'
-    | 'sources'
-    | 'tasks'
-    | 'telegrafs'
-    | 'users'
-    | 'variables'
-    | 'scrapers'
-    | 'secrets'
-    | 'labels'
-    | 'views'
-    | 'documents'
-    | 'notificationRules'
-    | 'notificationEndpoints'
-    | 'checks'
-    | 'dbrp'
-  /** If ID is set that is a permission for a specific resource. if it is not set it is a permission for all resources of that resource type. */
-  id?: string
-  /** Optional name of the resource if the resource has a name field. */
-  name?: string
-  /** If orgID is set that is a permission for all resources owned my that org. if it is not set it is a permission for all resources of that resource type. */
-  orgID?: string
-  /** Optional name of the organization of the organization with orgID. */
-  org?: string
+  resource: {
+    type:
+      | 'authorizations'
+      | 'buckets'
+      | 'dashboards'
+      | 'orgs'
+      | 'sources'
+      | 'tasks'
+      | 'telegrafs'
+      | 'users'
+      | 'variables'
+      | 'scrapers'
+      | 'secrets'
+      | 'labels'
+      | 'views'
+      | 'documents'
+      | 'notificationRules'
+      | 'notificationEndpoints'
+      | 'checks'
+    /** If ID is set that is a permission for a specific resource. if it is not set it is a permission for all resources of that resource type. */
+    id?: string
+    /** Optional name of the resource if the resource has a name field. */
+    name?: string
+    /** If orgID is set that is a permission for all resources owned my that org. if it is not set it is a permission for all resources of that resource type. */
+    orgID?: string
+    /** Optional name of the organization of the organization with orgID. */
+    org?: string
+  }
 }
 
 export interface Documents {
@@ -288,38 +288,6 @@ export interface LabelMapping {
 
 export interface LabelResponse {
   label?: Label
-  links?: Links
-}
-
-export interface DBRPs {
-  notificationEndpoints?: DBRP[]
-  links?: Links
-}
-
-export interface DBRP {
-  /** the mapping identifier */
-  readonly id?: string
-  /** the organization ID that owns this mapping. */
-  orgID: string
-  /** the organization that owns this mapping. */
-  org: string
-  /** the bucket ID used as target for the translation. */
-  bucketID: string
-  /** InfluxDB v1 database */
-  database: string
-  /** InfluxDB v1 retention policy */
-  retention_policy: string
-  /** Specify if this mapping represents the default retention policy for the database specificed. */
-  default?: boolean
-  links?: Links
-}
-
-export interface DBRPUpdate {
-  /** InfluxDB v1 database */
-  database?: string
-  /** InfluxDB v1 retention policy */
-  retention_policy?: string
-  default?: boolean
   links?: Links
 }
 
@@ -515,8 +483,6 @@ export interface HealthCheck {
   message?: string
   checks?: HealthCheck[]
   status: 'pass' | 'fail'
-  version?: string
-  commit?: string
 }
 
 export interface Sources {
@@ -579,6 +545,7 @@ export type Dashboard = CreateDashboardRequest & {
     cells?: Link
     members?: Link
     owners?: Link
+    logs?: Link
     labels?: Link
     org?: Link
   }
@@ -622,6 +589,7 @@ export type DashboardWithViewProperties = CreateDashboardRequest & {
     cells?: Link
     members?: Link
     owners?: Link
+    logs?: Link
     labels?: Link
     org?: Link
   }
@@ -654,7 +622,6 @@ export type ViewProperties =
   | HeatmapViewProperties
 
 export interface LinePlusSingleStatProperties {
-  timeFormat?: string
   type: 'line-plus-single-stat'
   queries: DashboardQuery[]
   /** Colors define color encoding of data into a visualization */
@@ -668,7 +635,6 @@ export interface LinePlusSingleStatProperties {
   xColumn?: string
   yColumn?: string
   shadeBelow?: boolean
-  hoverDimension?: 'auto' | 'x' | 'y' | 'xy'
   position: 'overlaid' | 'stacked'
   prefix: string
   suffix: string
@@ -691,7 +657,6 @@ export interface BuilderConfig {
   functions?: BuilderFunctionsType[]
   aggregateWindow?: {
     period?: string
-    fillValues?: boolean
   }
 }
 
@@ -788,7 +753,6 @@ export interface XYViewProperties {
   xColumn?: string
   yColumn?: string
   shadeBelow?: boolean
-  hoverDimension?: 'auto' | 'x' | 'y' | 'xy'
   position: 'overlaid' | 'stacked'
   geom: XYGeom
 }
@@ -896,7 +860,7 @@ export interface CheckViewProperties {
   check?: Check
   queries: DashboardQuery[]
   /** Colors define color encoding of data into a visualization */
-  colors: DashboardColor[]
+  colors: string[]
 }
 
 export type Check = CheckDiscriminator
@@ -1086,6 +1050,23 @@ export interface View {
   readonly id?: string
   name: string
   properties: ViewProperties
+}
+
+export interface OperationLogs {
+  logs?: OperationLog[]
+  links?: Links
+}
+
+export interface OperationLog {
+  /** A description of the event that occurred. */
+  description?: string
+  /** Time event occurred, RFC3339Nano. */
+  time?: string
+  /** ID of the user who operated the event. */
+  userID?: string
+  links?: {
+    user?: Link
+  }
 }
 
 /**
@@ -1500,8 +1481,6 @@ export interface Query {
   /** The type of query. Must be "flux". */
   type?: 'flux'
   dialect?: Dialect
-  /** Specifies the time that should be reported as "now" in the query. Default is the server's now time. */
-  now?: string
 }
 
 /**
@@ -1542,7 +1521,7 @@ export interface InfluxQLQuery {
 }
 
 export interface PostBucketRequest {
-  orgID: string
+  orgID?: string
   name: string
   description?: string
   rp?: string
@@ -1567,137 +1546,86 @@ export interface SecretKeys {
 
 export type Secrets = any
 
-export interface Stack {
-  id?: string
-  orgID?: string
-  readonly createdAt?: string
-  events?: Array<{
-    eventType?: string
+export interface PkgCreate {
+  orgIDs?: string[]
+  resources?: {
+    id: string
+    kind:
+      | 'bucket'
+      | 'check'
+      | 'dashboard'
+      | 'label'
+      | 'notification_endpoint'
+      | 'notification_rule'
+      | 'task'
+      | 'telegraf'
+      | 'variable'
     name?: string
-    description?: string
-    sources?: string[]
-    resources?: Array<{
-      apiVersion?: string
-      resourceID?: string
-      kind?: TemplateKind
-      templateMetaName?: string
-      associations?: Array<{
-        kind?: TemplateKind
-        metaName?: string
-      }>
-      links?: {
-        self?: string
-      }
-    }>
-    urls?: string[]
-    readonly updatedAt?: string
-  }>
-}
-
-export type TemplateKind =
-  | 'Bucket'
-  | 'Check'
-  | 'CheckDeadman'
-  | 'CheckThreshold'
-  | 'Dashboard'
-  | 'Label'
-  | 'NotificationEndpoint'
-  | 'NotificationEndpointHTTP'
-  | 'NotificationEndpointPagerDuty'
-  | 'NotificationEndpointSlack'
-  | 'NotificationRule'
-  | 'Task'
-  | 'Telegraf'
-  | 'Variable'
-
-export interface TemplateApply {
-  dryRun?: boolean
-  orgID?: string
-  stackID?: string
-  template?: {
-    contentType?: string
-    sources?: string[]
-    contents?: Template
   }
-  templates?: Array<{
-    contentType?: string
-    sources?: string[]
-    contents?: Template
-  }>
-  envRefs?: any
-  secrets?: any
-  remotes?: Array<{
-    url: string
-    contentType?: string
-  }>
-  actions?: Array<
-    | {
-        action?: 'skipKind'
-        properties?: {
-          kind: TemplateKind
-        }
-      }
-    | {
-        action?: 'skipResource'
-        properties?: {
-          kind: TemplateKind
-          resourceTemplateName: string
-        }
-      }
-  >
 }
 
-export type Template = Array<{
+export type Pkg = Array<{
   apiVersion?: string
-  kind?: TemplateKind
+  kind?:
+    | 'Bucket'
+    | 'CheckDeadman'
+    | 'CheckThreshold'
+    | 'Dashboard'
+    | 'Label'
+    | 'NotificationEndpointHTTP'
+    | 'NotificationEndpointPagerDuty'
+    | 'NotificationEndpointSlack'
+    | 'NotificationRule'
+    | 'NotificationEndpointHTTP'
+    | 'Task'
+    | 'Telegraf'
+    | 'Variable'
   meta?: {
     name?: string
   }
   spec?: any
 }>
 
-export interface TemplateSummary {
-  sources?: string[]
-  stackID?: string
+export interface PkgApply {
+  dryRun?: boolean
+  orgID?: string
+  package?: Pkg
+  packages?: Pkg[]
+  secrets?: any
+  remotes?: Array<{
+    url: string
+    contentType?: string
+  }>
+}
+
+export interface PkgSummary {
   summary?: {
     buckets?: Array<{
       id?: string
       orgID?: string
-      kind?: TemplateKind
-      templateMetaName?: string
       name?: string
       description?: string
       retentionPeriod?: number
-      labelAssociations?: TemplateSummaryLabel[]
-      envReferences?: TemplateEnvReferences
+      labelAssociations?: PkgSummaryLabel[]
     }>
     checks?: Array<
       CheckDiscriminator & {
-        kind?: TemplateKind
-        templateMetaName?: string
-        labelAssociations?: TemplateSummaryLabel[]
-        envReferences?: TemplateEnvReferences
+        labelAssociations?: PkgSummaryLabel[]
       }
     >
+    labels?: PkgSummaryLabel[]
     dashboards?: Array<{
       id?: string
       orgID?: string
-      kind?: TemplateKind
-      templateMetaName?: string
       name?: string
       description?: string
-      labelAssociations?: TemplateSummaryLabel[]
-      charts?: TemplateChart[]
-      envReferences?: TemplateEnvReferences
+      labelAssociations?: PkgSummaryLabel[]
+      charts?: PkgChart[]
     }>
-    labels?: TemplateSummaryLabel[]
     labelMappings?: Array<{
-      status?: string
-      resourceTemplateMetaName?: string
       resourceName?: string
       resourceID?: string
       resourceType?: string
-      labelTemplateMetaName?: string
       labelName?: string
       labelID?: string
     }>
@@ -1705,18 +1633,13 @@ export interface TemplateSummary {
     missingSecrets?: string[]
     notificationEndpoints?: Array<
       NotificationEndpointDiscrimator & {
-        kind?: TemplateKind
-        templateMetaName?: string
-        labelAssociations?: TemplateSummaryLabel[]
-        envReferences?: TemplateEnvReferences
+        labelAssociations?: PkgSummaryLabel[]
       }
     >
     notificationRules?: Array<{
-      kind?: TemplateKind
-      templateMetaName?: string
       name?: string
       description?: string
-      endpointTemplateMetaName?: string
+      endpointName?: string
       endpointID?: string
       endpointType?: string
       every?: string
@@ -1732,12 +1655,9 @@ export interface TemplateSummary {
         value?: string
         operator?: string
       }>
-      labelAssociations?: TemplateSummaryLabel[]
-      envReferences?: TemplateEnvReferences
+      labelAssociations?: PkgSummaryLabel[]
     }>
     tasks?: Array<{
-      kind?: TemplateKind
-      templateMetaName?: string
       id?: string
       name?: string
       cron?: string
@@ -1746,231 +1666,131 @@ export interface TemplateSummary {
       offset?: string
       query?: string
       status?: string
-      envReferences?: TemplateEnvReferences
     }>
     telegrafConfigs?: Array<
       TelegrafRequest & {
-        kind?: TemplateKind
-        templateMetaName?: string
-        labelAssociations?: TemplateSummaryLabel[]
-        envReferences?: TemplateEnvReferences
+        labelAssociations?: PkgSummaryLabel[]
       }
     >
     variables?: Array<{
-      kind?: TemplateKind
-      templateMetaName?: string
       id?: string
       orgID?: string
       name?: string
       description?: string
       arguments?: VariableProperties
-      labelAssociations?: TemplateSummaryLabel[]
-      envReferences?: TemplateEnvReferences
+      labelAssociations?: PkgSummaryLabel[]
     }>
   }
   diff?: {
     buckets?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
       id?: string
-      templateMetaName?: string
+      name?: string
       new?: {
-        name?: string
         description?: string
         retentionRules?: RetentionRules
       }
       old?: {
-        name?: string
         description?: string
         retentionRules?: RetentionRules
       }
     }>
     checks?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
       id?: string
-      templateMetaName?: string
+      name?: string
       new?: CheckDiscriminator
       old?: CheckDiscriminator
     }>
     dashboards?: Array<{
-      stateStatus?: string
-      id?: string
-      kind?: TemplateKind
-      templateMetaName?: string
-      new?: {
-        name?: string
-        description?: string
-        charts?: TemplateChart[]
-      }
-      old?: {
-        name?: string
-        description?: string
-        charts?: TemplateChart[]
-      }
+      name?: string
+      description?: string
+      charts?: PkgChart[]
     }>
     labels?: Array<{
-      stateStatus?: string
-      kind?: TemplateKind
       id?: string
-      templateMetaName?: string
+      name?: string
       new?: {
-        name?: string
         color?: string
         description?: string
       }
       old?: {
-        name?: string
         color?: string
         description?: string
       }
     }>
     labelMappings?: Array<{
-      status?: string
+      isNew?: boolean
       resourceType?: string
       resourceID?: string
-      resourceTemplateMetaName?: string
       resourceName?: string
       labelID?: string
-      labelTemplateMetaName?: string
       labelName?: string
     }>
     notificationEndpoints?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
       id?: string
-      templateMetaName?: string
+      name?: string
       new?: NotificationEndpointDiscrimator
       old?: NotificationEndpointDiscrimator
     }>
     notificationRules?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
-      id?: string
-      templateMetaName?: string
-      new?: {
-        name?: string
-        description?: string
-        endpointName?: string
-        endpointID?: string
-        endpointType?: string
-        every?: string
-        offset?: string
-        messageTemplate?: string
-        status?: string
-        statusRules?: Array<{
-          currentLevel?: string
-          previousLevel?: string
-        }>
-        tagRules?: Array<{
-          key?: string
-          value?: string
-          operator?: string
-        }>
-      }
-      old?: {
-        name?: string
-        description?: string
-        endpointName?: string
-        endpointID?: string
-        endpointType?: string
-        every?: string
-        offset?: string
-        messageTemplate?: string
-        status?: string
-        statusRules?: Array<{
-          currentLevel?: string
-          previousLevel?: string
-        }>
-        tagRules?: Array<{
-          key?: string
-          value?: string
-          operator?: string
-        }>
-      }
+      name?: string
+      description?: string
+      endpointName?: string
+      endpointID?: string
+      endpointType?: string
+      every?: string
+      offset?: string
+      messageTemplate?: string
+      status?: string
+      statusRules?: Array<{
+        currentLevel?: string
+        previousLevel?: string
+      }>
+      tagRules?: Array<{
+        key?: string
+        value?: string
+        operator?: string
+      }>
     }>
     tasks?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
-      id?: string
-      templateMetaName?: string
-      new?: {
-        name?: string
-        cron?: string
-        description?: string
-        every?: string
-        offset?: string
-        query?: string
-        status?: string
-      }
-      old?: {
-        name?: string
-        cron?: string
-        description?: string
-        every?: string
-        offset?: string
-        query?: string
-        status?: string
-      }
+      name?: string
+      cron?: string
+      description?: string
+      every?: string
+      offset?: string
+      query?: string
+      status?: string
     }>
-    telegrafConfigs?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
-      id?: string
-      templateMetaName?: string
-      new?: TelegrafRequest
-      old?: TelegrafRequest
-    }>
+    telegrafConfigs?: TelegrafRequest[]
     variables?: Array<{
-      kind?: TemplateKind
-      stateStatus?: string
       id?: string
-      templateMetaName?: string
+      name?: string
       new?: {
-        name?: string
         description?: string
         args?: VariableProperties
       }
       old?: {
-        name?: string
         description?: string
         args?: VariableProperties
       }
     }>
   }
   errors?: Array<{
-    kind?: TemplateKind
+    kind?: string
     reason?: string
     fields?: string[]
     indexes?: number[]
   }>
 }
 
-export interface TemplateSummaryLabel {
+export interface PkgSummaryLabel {
   id?: string
   orgID?: string
-  kind?: TemplateKind
-  templateMetaName?: string
   name?: string
-  properties?: {
-    color?: string
-    description?: string
-  }
-  envReferences?: TemplateEnvReferences
+  description?: string
+  retentionPeriod?: string
 }
 
-export type TemplateEnvReferences = Array<{
-  /** Field the environment reference corresponds too */
-  resourceField: string
-  /** Key identified as environment reference and is the key identified in the template */
-  envRefKey: string
-  /** Value provided to fulfill reference */
-  value?: string
-  /** Default value that will be provided for the reference when no value is provided */
-  defaultValue?: string | number | number | boolean
-}>
-
-export interface TemplateChart {
+export interface PkgChart {
   xPos?: number
   yPos?: number
   height?: number
@@ -2032,22 +1852,6 @@ export type HTTPNotificationEndpoint = NotificationEndpointBase & {
   contentTemplate?: string
   /** Customized headers. */
   headers?: any
-}
-
-export interface TemplateExport {
-  stackID?: string
-  orgIDs?: Array<{
-    orgID?: string
-    resourceFilters?: {
-      byLabel?: string[]
-      byResourceKind?: TemplateKind[]
-    }
-  }>
-  resources?: {
-    id: string
-    kind: TemplateKind
-    name?: string
-  }
 }
 
 export interface Tasks {
@@ -2149,6 +1953,7 @@ export interface Run {
   readonly links?: {
     self?: string
     task?: string
+    logs?: string
     retry?: string
   }
 }
@@ -2168,8 +1973,6 @@ export interface LogEvent {
   /** A description of the event that occurred. */
   readonly message?: string
 }
-
-export type Flags = any
 
 export interface PasswordResetBody {
   password: string

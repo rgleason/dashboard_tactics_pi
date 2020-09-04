@@ -1,4 +1,3 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 import {
   ASTResponse,
@@ -32,30 +31,29 @@ export interface PostQueryRequest {
   orgID?: string
 }
 /**
- * Query API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAst
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestions
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestionsName
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAnalyze
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQuery
  */
-export class QueryAPI {
-  // internal
-  private base: APIBase
-
+export class QueryAPI extends APIBase {
   /**
-   * Creates QueryAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates QueryAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAst }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAst
    */
   postQueryAst(
     request: PostQueryAstRequest,
     requestOptions?: RequestOptions
   ): Promise<ASTResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/query/ast`,
       request,
@@ -64,16 +62,15 @@ export class QueryAPI {
     )
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestions }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestions
    */
   getQuerySuggestions(
     request?: GetQuerySuggestionsRequest,
     requestOptions?: RequestOptions
   ): Promise<FluxSuggestions> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/query/suggestions`,
       request,
@@ -81,16 +78,15 @@ export class QueryAPI {
     )
   }
   /**
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestionsName }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/GetQuerySuggestionsName
    */
   getQuerySuggestionsName(
     request: GetQuerySuggestionsNameRequest,
     requestOptions?: RequestOptions
   ): Promise<FluxSuggestion> {
-    return this.base.request(
+    return this.request(
       'GET',
       `/api/v2/query/suggestions/${request.name}`,
       request,
@@ -99,16 +95,15 @@ export class QueryAPI {
   }
   /**
    * Analyze an InfluxQL or Flux query.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAnalyze }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQueryAnalyze
    */
   postQueryAnalyze(
     request: PostQueryAnalyzeRequest,
     requestOptions?: RequestOptions
   ): Promise<AnalyzeQueryResponse> {
-    return this.base.request(
+    return this.request(
       'POST',
       `/api/v2/query/analyze`,
       request,
@@ -118,18 +113,17 @@ export class QueryAPI {
   }
   /**
    * Query InfluxDB.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostQuery }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostQuery
    */
   postQuery(
     request: PostQueryRequest,
     requestOptions?: RequestOptions
   ): Promise<string> {
-    return this.base.request(
+    return this.request(
       'POST',
-      `/api/v2/query${this.base.queryString(request, ['org', 'orgID'])}`,
+      `/api/v2/query${this.queryString(request, ['org', 'orgID'])}`,
       request,
       requestOptions,
       'application/json'

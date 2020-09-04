@@ -26,6 +26,7 @@ export default class LineSplitter {
 
   /**
    * Sets the reuse flag and returns this.
+   * @param line
    */
   withReuse(): LineSplitter {
     this.reuse = true
@@ -35,8 +36,8 @@ export default class LineSplitter {
   /**
    * Splits the supplied line to elements that are separated by
    * comma with values possibly escaped within double quotes ("value")
-   * @param line - line
-   * @returns array of splitted parts
+   * @param line line
+   * @return
    */
   splitLine(line: string | undefined | null): string[] {
     if (line === null || line === undefined) {

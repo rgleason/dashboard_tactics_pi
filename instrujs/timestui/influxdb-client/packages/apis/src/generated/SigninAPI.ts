@@ -1,34 +1,28 @@
-import {InfluxDB} from '@influxdata/influxdb-client'
 import {APIBase, RequestOptions} from '../APIBase'
 
 export interface PostSigninRequest {
   auth: {user: string; password: string}
 }
 /**
- * Signin API
+ * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignin
  */
-export class SigninAPI {
-  // internal
-  private base: APIBase
-
+export class SigninAPI extends APIBase {
   /**
-   * Creates SigninAPI
-   * @param influxDB - an instance that knows how to communicate with InfluxDB server
+   * Creates SigninAPI from an influxDB object.
    */
-  constructor(influxDB: InfluxDB) {
-    this.base = new APIBase(influxDB)
+  constructor(influxDB: any) {
+    super(influxDB)
   }
   /**
    * Exchange basic auth credentials for session.
-   * See {@link https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignin }
-   * @param request - request parameters and body (if supported)
-   * @param requestOptions - optional transport options
-   * @returns promise of response
+   * @param request
+   * @return promise of response
+   * @see https://v2.docs.influxdata.com/v2.0/api/#operation/PostSignin
    */
   postSignin(
     request: PostSigninRequest,
     requestOptions?: RequestOptions
   ): Promise<void> {
-    return this.base.request('POST', `/api/v2/signin`, request, requestOptions)
+    return this.request('POST', `/api/v2/signin`, request, requestOptions)
   }
 }
