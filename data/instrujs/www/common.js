@@ -413,14 +413,16 @@ var  instrustat = {
         For instruments reading time series (historical) data,like timesTUI
         These records are WYGIWYG (what you get is what you get):
         - the units are not recorded in InfluxDB, only values
-        - the values are those coming into the plug-in
-        - typically, the NMEA-0183 sentences coming via OpenCPN
-        - (timestamps at arrival to DashT)
+        - the values are those coming into the DashT plug-in:
+          * typically, the NMEA-0183 sentences coming via OpenCPN
+            - timestamps at data arrival to the DashT
+            - thus consider, for example wind speed being in knots, not m/s
+            - this may be different in your boat, of course - select here
         - or, NMEA-2000 sentences from Signal K server node
-        - (timestamp are those of Signal K server node)
-        - thus consider, for example wind speed being in knots, not m/s
-        - this may be different in your boat, of course - select here
+         * timestamp are those of Signal K server node
+         * value are in SI units
         - database function(s) can be given for server side calculations
+          * in this case, set a meaningful number of decimals
  */
         {
             version    : 1,
@@ -429,7 +431,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -467,7 +469,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -505,7 +507,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -524,7 +526,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -543,7 +545,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -562,7 +564,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
@@ -600,7 +602,7 @@ var  instrustat = {
             symbol     : '',
             unit       : 'kn',
             display    : 'chart',
-            decimals   : 1,
+            decimals   : 2,
             minval     : 0,
             loalert    : 0,
             hialert    : 0,
