@@ -449,17 +449,24 @@ void DashboardPreferencesDialog::OnDashboardSelected( wxListEvent& event )
 void DashboardPreferencesDialog::UpdateDashboardButtonsState()
 {
     long item = -1;
-    item = m_pListCtrlDashboards->GetNextItem( item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
-    bool enable = ( item != -1 );
-
-    //  Disable the Dashboard Delete button if the parent(Dashboard) of this dialog is selected.
+    bool enable = false;
+    item = m_pListCtrlDashboards->GetNextItem(
+        item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
+    if ( item != -1 )
+        enable = true;
+    /*
+      Originally: Disable the Dashboard Delete button if the parent(Dashboard)
+      of this dialog is selected.
+    */
     bool delete_enable = enable;
-    if( item != -1 ) {
+    if ( enable ) {
         /*
-          In this implemenation the dialog parent is the plugin, not any particular dashboard window
-          so that we can destroy even the window from which we the dialog was started from.
-          However, let's follow the principle to always leave at least one window to be consistent
-          with the Dashboard-only code. It is also practical, and less confusing!
+          In this implemenation the dialog parent is the plugin, not any
+          particular dashboard window is the ownwer of this dialog,
+          so that we can destroy even the window from which we the dialog
+          was started from. However, let's follow the principle to always
+          leave at least one _visible_ window to be somewhat consistent with
+          the original Dashboard. It is also practical, and less confusing!
         */
         int NumberOfItemsLeft = (int) m_pListCtrlDashboards->GetItemCount();
         if ( NumberOfItemsLeft <= 1)
