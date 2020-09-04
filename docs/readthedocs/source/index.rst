@@ -15,6 +15,9 @@ Welcome to DashT
    tactics/tactics
    signalk/signalk
    enginedjg/enginedjg
+   influxdb/influxdb
+   idbout/idbout
+   linechart/linechart
 
 Indices and tables
 ==================
