@@ -18,6 +18,8 @@ Welcome to DashT
    influxdb/influxdb
    idbout/idbout
    linechart/linechart
+   racestart/racestart
+   racemark/racemark
 
 Indices and tables
 ==================
