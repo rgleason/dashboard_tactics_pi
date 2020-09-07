@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'DashT - Advanced OpenCPN Dashboard'
+project = 'DashT - OpenCPN Overlay Plug-in'
 copyright = '2020, Petri Mäkijärvi'
 author = 'Petri Mäkijärvi'
 

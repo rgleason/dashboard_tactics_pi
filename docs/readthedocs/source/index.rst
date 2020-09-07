@@ -1,4 +1,4 @@
-.. DashT - Advanced OpenCPN Dashboard documentation master file
+.. DashT - Advanced OpenCPN Overlay plug-in
 
 Welcome to DashT
 ================
@@ -20,6 +20,7 @@ Welcome to DashT
    linechart/linechart
    racestart/racestart
    racemark/racemark
+   tweaks/tweaks
 
 Indices and tables
 ==================

@@ -100,12 +100,12 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     //--------------------
     wxStaticText* itemStaticText20 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Layline width damping factor [0.025-1]:  "),
                                                       wxDefaultPosition, wxDefaultSize, 0);
-    itemStaticText20->SetToolTip(_("The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\nThe idea is to display the COG range where you're sailing to.\n Low values mean high damping."));
+    itemStaticText20->SetToolTip(_("The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\nThe idea is to display the COG range where you're sailing to."));
     itemFlexGridSizer05->Add(itemStaticText20, 0, wxEXPAND | wxALL, m_border_size);
     m_alphaDeltCoG = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0.025, 1, g_dalphaDeltCoG, 0.001);
     itemFlexGridSizer05->Add(m_alphaDeltCoG, 0, wxALIGN_LEFT, 0);
     m_alphaDeltCoG->SetValue(g_dalphaDeltCoG);
-    m_alphaDeltCoG->SetToolTip(_("Width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\nThe idea is to display the range where you're sailing to.\n Low values mean high damping."));
+    m_alphaDeltCoG->SetToolTip(_("The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\nThe idea is to display the range where you're sailing to."));
 
     //--------------------
     wxStaticText* itemStaticText19 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("Layline length on Chart [nm]:  "),
@@ -314,7 +314,7 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     m_ForceTrueWindCalculation = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Force True Wind Calculation"));
     itemFlexGridSizer10->Add(m_ForceTrueWindCalculation, 0, wxEXPAND, 5);
     m_ForceTrueWindCalculation->SetValue(g_bForceTrueWindCalculation);
-    m_ForceTrueWindCalculation->SetToolTip(_("Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the whole plugin even if there is True Wind data available via NMEA."));
+    m_ForceTrueWindCalculation->SetToolTip(_("Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the whole plugin even if there is True Wind data available via NMEA or Signal K."));
 
     //--------------------
     m_UseSOGforTWCalc = new wxCheckBox(itemPanelNotebook03, wxID_ANY, _("Use SOG instead of STW for True Wind Calc."));
