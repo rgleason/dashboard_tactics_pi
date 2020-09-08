@@ -6,8 +6,8 @@
 >
   <text font-size="16" x="10" y="20">
     <tspan fill="blue">----&gt; All user </tspan>
-    <tspan fill="blue">documentation is now in </tspan>
+    <tspan fill="blue">docs now in </tspan>
     <tspan fill="red">readthedocs.io </tspan>
-    <tspan fill="blue">in HTML/PDF/EPUB - look for this branch. &lt;----</tspan>
+    <tspan fill="blue">in HTML/PDF/EPUB &lt;----</tspan>
   </text>
 </svg>
