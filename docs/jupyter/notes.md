@@ -27,4 +27,8 @@ Most difficult is to have images in the PDF like in the HTML or Jupyter versions
 
 For the last, conversion part, I took this [annotated screenshot](img/Annotation_2019-10-12_125711_Jupyter-LaTeX-TeXworks-PDF_with_images.png)
 
+## Jupyter Lab and readthedocs
+
+Jupyter Lab is used also to create the user documents for readthe docs. The procedure is quite similar to the above, only that we do not create PDF locally, only HTML for format testing with 'make html' or 'force' batch files - the readthedocs will take care of that once you commit to the repository which is linked with readthedocs site.
+
 

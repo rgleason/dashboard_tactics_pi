@@ -5,9 +5,9 @@
      width="600" height="24"
 >
   <text font-size="16" x="10" y="20">
-    <tspan fill="blue">----&gt; Developer: </tspan>
-    <tspan fill="blue">A PR for v1.5.11? </tspan>
-    <tspan fill="red">Read Me First </tspan>
-    <tspan fill="blue">and save time: this is v2.0.0 alpha branch! &lt;----</tspan>
+    <tspan fill="blue">----&gt; All user </tspan>
+    <tspan fill="blue">documentation is now in </tspan>
+    <tspan fill="red">readthedocs.io </tspan>
+    <tspan fill="blue">in HTML/PDF/EPUB - look for this branch. &lt;----</tspan>
   </text>
 </svg>
