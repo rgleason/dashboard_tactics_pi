@@ -1,5 +1,5 @@
 <a href="https://dashboard-tactics-pi.readthedocs.io"><img src="docs/developers/img/message.svg" /></a><br />
-# _DashT_ - an OpenCPN plug-in with Dashboard, Tactics, Engine/Energy dials and Time Series DB functions with history line graphs
+# _DashT_ - an OpenCPN plug-in with Dashboard, Tactics, Race, Engine/Energy, Signal K, Time Series DB and Line Graphs
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings) [![Documentation Status](https://readthedocs.org/projects/dashboard-tactics-pi/badge/?version=dev200)](https://dashboard-tactics-pi.readthedocs.io/en/dev200/?badge=dev200)
 
@@ -7,17 +7,21 @@ _dashboard_tactics_pi_ in your OpenCPN plug-in catalog.
 
 ## Introduction
 
-_DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure. This version, of which you can find installation packages for early adopters in [Releases](https://github.com/canne/dashboard_tactics_pi/releases) continues this philosophy and presents new features by collecting timestamped open data and making it available to external applications and data retrieval systems.
+_DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.5.11) was a forerunner in diversifying the data connectivity of a OpenCPN plug-in to enable direct network connections to resources available in a modern boat's computer and network infrastructure. This version, of which you can find installation packages in [Releases](https://github.com/canne/dashboard_tactics_pi/releases) continues this philosophy and presents new features by collecting timestamped open data and making it available to external applications and data retrieval systems.
 
-OpenCPN versionis embracing from the v5.2 onwards the open marine data format [Signal K](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This hopefully encourage you to consider to install the fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). As before, it is fully supported by _DashT_ as an alternative and direct data source, allowing the creation of enhancements which are not present in the traditional OpenCPN Dashboard:
+Like _DashT_, the _OpenCPN_ itself is embracing, from the v5.2 onwards the open marine data format [Signal K](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This hopefully encourage you to consider to install the fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). As before, it is fully supported by _DashT_ as an alternative and direct data source, allowing the creation of enhancements which are not present in the traditional OpenCPN Dashboard:
 
 * OpenCPN's Dashboard integrated
 
-* Tactics and performance functions intergrated
+* Tactics and performance functions integrated
 
   * No need to swap between the two plug-ins!
   
->Dashboard and Tactics instruments do not require Signal K data but they work also with NMEA-0183 data from OpenCPN alone
+* Race start line and windward/leeward assistance
+
+  * Wind shifts, Zero Burn, ladder rungs, laylines, current, all!
+  
+>Dashboard and Tactics instruments do not require Signal K data but they work also with NMEA-0183 data from _OpenCPN_ like Dashboard/Tactics. But read below:
 
 * Signal K data input streaming
 
@@ -44,7 +48,7 @@ OpenCPN versionis embracing from the v5.2 onwards the open marine data format [S
   
     * Enhances post-race analysis and off-line polar calculations with high sampling rate and accurately timestamped data
 
-* Over 100 pages of documentation in HTML/PDF/EPUB format at [readthedocs](https://dashboard-tactics-pi.readthedocs.io)
+* Over 100 pages of documentation is waiting you in HTML/PDF/EPUB format at [readthedocs](https://dashboard-tactics-pi.readthedocs.io)
 
   * Developer's information with performance analysis and debugging tips in same format within this repository
 
