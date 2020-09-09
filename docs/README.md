@@ -3,4 +3,4 @@
 
 ## Available documentation
 
-[https://dashboard-tactics-pi.readthedocs.io]
+[readthedocs](https://dashboard-tactics-pi.readthedocs.io)
