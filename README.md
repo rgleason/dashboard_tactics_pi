@@ -11,6 +11,8 @@ _DashT_ [v1.5.11](https://github.com/canne/dashboard_tactics_pi/releases/tag/v1.
 
 Like _DashT_, the _OpenCPN_ itself is embracing, from the v5.2 onwards the open marine data format [Signal K](https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:supplementary_software:signalk). This hopefully encourage you to consider to install the fast, ubiquitous and reliable Signal K data format source in your boat's infrastructure: [Signal K server node](https://github.com/SignalK/signalk-server-node). As before, it is fully supported by _DashT_ as an alternative and direct data source, allowing the creation of enhancements which are not present in the traditional OpenCPN Dashboard:
 
+## Features
+
 * OpenCPN's Dashboard integrated
 
 * Tactics and performance functions integrated
