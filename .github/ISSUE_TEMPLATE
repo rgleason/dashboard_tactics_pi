@@ -5,7 +5,7 @@ I have installed the software for which I am reporting the issues from:
   - [ ] This repo's [Releases](https://github.com/canne/dashboard_tactics_pi/releases)
   - [ ] Your own fork and build [Link](https://github.com/USER/REPO)
   - [ ] OpenCPN's plug-in manager
-    - [ ] Plug-in manager version's issue reported in [CF DashT thread](https://www.cruisersforum.com/forums/f134/dashboard-tactics-dash-t-226601.html)
+    - [ ] Plug-in manager issue reported in [CF DashT thread](https://www.cruisersforum.com/forums/f134/dashboard-tactics-dash-t-226601.html)
   
 ## Specifications
 
@@ -23,10 +23,14 @@ I have installed the software for which I am reporting the issues from:
 
 ## Expected Behavior
 
+- [ ] As described in the [doc](https://dashboard-tactics-pi.readthedocs.io/CHAPTER.html#SECTION) ( [example](https://dashboard-tactics-pi.readthedocs.io/en/dev200/enginedjg/enginedjg.html#Subscribe-to-data) )
+
 <!--- If you're describing a bug, tell us what should happen -->
 <!--- If you're suggesting a change/improvement, tell us how it should work -->
 
 ## Current Behavior
+
+- [ ] I've been following [troubleshooting](https://dashboard-tactics-pi.readthedocs.io/CHAPTER.html#SECTION) ( [example](https://dashboard-tactics-pi.readthedocs.io/en/dev200/enginedjg/enginedjg.html#Subscribe-to-data) )
 
 <!--- If describing a bug, tell us what happens instead of the expected behavior -->
 <!--- If suggesting a change/improvement, explain the difference from current behavior -->
