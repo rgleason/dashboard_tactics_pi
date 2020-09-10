@@ -4,7 +4,7 @@ Hi, thank you for considering a contribution to the _DasthT_ plug-in project!
 
 Thank you filling in the fields in the proposed template as much as you can. All information provided will help greatly!
 
-Referring to a respective section in the documentation helps to understand the expected behavior.
+Referring to a respective section in the [documentation](https://dashboard-tactics-pi.readthedocs.io) helps to understand the expected behavior.
 
 ## Making pull requests
 
