@@ -6,6 +6,7 @@ version: 2
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
+  builder: html
   configuration: docs/readthedocs/source/conf.py
 
 formats: all
