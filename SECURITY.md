@@ -1,6 +1,6 @@
 # Security Policy
 
-https://dashboard-tactics-pi.readthedocs.io - search "Security"
+[readthedocs.io](https://dashboard-tactics-pi.readthedocs.io) - search "Security"
 
 ## Supported Versions
 
@@ -13,8 +13,6 @@ For this reason, it is adviced to use always the latest stable version or the la
 | 1.98.x  | :x:                |
 | 1.99.x  | :white_check_mark: |
 
-
 ## Reporting a Vulnerability
 
-https://github.com/canne/dashboard_tactics_pi/issues
-
+[Issues](https://github.com/canne/dashboard_tactics_pi/issues)
