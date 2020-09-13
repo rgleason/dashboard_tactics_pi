@@ -1,0 +1,20 @@
+# Security Policy
+
+https://dashboard-tactics-pi.readthedocs.io - search "Security"
+
+## Supported Versions
+
+Only the latest released version, the development versions called _beta_ used to prepare the next release receive security updates.
+For this reason, it is adviced to use always the latest stable version or the latest _beta_ version for security enhancements.
+
+| Version | Supported          |
+| ------- | ------------------ |
+| <=1.5.1 | :x:                |
+| 1.98.x  | :x:                |
+| 1.99.x  | :white_check_mark: |
+
+
+## Reporting a Vulnerability
+
+https://github.com/canne/dashboard_tactics_pi/issues
+
