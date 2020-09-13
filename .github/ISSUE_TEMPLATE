@@ -1,3 +1,12 @@
+<!--- https://dashboard-tactics-pi.readthedocs.io/ -->
+
+<!--- Thank you in advance for the detailed report which will help to improve DashT OpenCPN  plug-in    -->
+<!--- This is FOSS, where "F" stands for "free" - please contribute by taking the time to fill in below -->
+
+## Security Priority
+
+  - [ ] This is a report related to [Security](github.com/canne/dashboard_tactics_ptyi/security)
+
 ## Installation checklist (change to [X] when sure)
 
 I have installed the software for which I am reporting the issues from:
@@ -42,6 +51,7 @@ I have installed the software for which I am reporting the issues from:
 
 ## Steps/Code to Reproduce the Problem
 
+<!--- This would be a BIG time saver, thank you! -->
 1. step1
 1. ...
 
@@ -49,6 +59,6 @@ I have installed the software for which I am reporting the issues from:
 // ... code or configuration
 ```
 
-Screenshots, zipped log files or VDR recordings
+SCREENSHOTS, (zipped) log files, VDR recordings or Signal K logs.
 
  
