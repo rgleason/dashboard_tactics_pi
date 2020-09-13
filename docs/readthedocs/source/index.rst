@@ -21,6 +21,8 @@ Welcome to DashT
    racestart/racestart
    racemark/racemark
    tweaks/tweaks
+   security
+   privacy
 
 Indices and tables
 ==================
