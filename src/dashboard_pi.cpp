@@ -873,28 +873,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         0.0 != m_NMEA0183->Hdg.MagneticVariationDegrees)
                     {
                         mPriVar = 2;
-                        /* Porting note: I am bit puzzled by this: here we override the mVar
-                           which was initially provided by O, in Plugin_Position_Fix().
-                           So, we trust the instrument. Fine. But Plugin_Position_Fix()
-                           is called by some timer, probably every second like everything
-                           in O. It will override mVar, which is used later on in
-                           calculations for _STC_HDT. Which sets the mHdt in tactics_pi.
-                           mHdt is used about in every algorithm. Now, if WMM-model value
-                           and the instrument do not agree, the below leads to a toggling
-                           mVar value, and as consequence to toggling mHdt value in Tactics.
-                        */
                         if( m_NMEA0183->Hdg.MagneticVariationDirection == East )
                             mVar =  m_NMEA0183->Hdg.MagneticVariationDegrees;
                         else if( m_NMEA0183->Hdg.MagneticVariationDirection == West )
                             mVar = -m_NMEA0183->Hdg.MagneticVariationDegrees;
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, mVar, _T("\u00B0") );
-                        /* Porting note: Why not rearm the mVar_Watchdog?
-                           Answer: it does not matter. We get anyway the mVar from O's 'fix'
-                           which distributes it to all plugins including us. Here it
-                           is the priority #1 mVar source, so the others do not really
-                           never get used, unless O itself fails at some point to
-                           interpret NMEA-sentences.
-                        */
                         mVar_Watchdog = gps_watchdog_timeout_ticks;
                     }
 
