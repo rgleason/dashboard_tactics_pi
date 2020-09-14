@@ -27,6 +27,13 @@
 static const wxChar* writerTraceMask = _T("traceWriter");
 #endif
 
+/*
+  CWE-136 Security implementation for
+  cppcheck-suppress ConfigurationNotChecked
+*/
+const char *wxJSONWriter::defNothing = "";
+const char *wxJSONWriter::defDoubleFmt = "%.10g";
+
 /*! \class wxJSONWriter
  \brief The JSON document writer
 
@@ -209,7 +216,7 @@ wxJSONWriter::wxJSONWriter( int style, int indent, int step )
     }
     // set the default format string for doubles as
     // 10 significant digits and suppress trailing ZEROes
-    SetDoubleFmtString( "%.10g") ;
+    SetDoubleFmtString( _T("defDoubleFmt") ) ;
 
 #if !defined( wxJSON_USE_UNICODE )
     // in ANSI builds we can suppress UTF-8 conversion for both the writer and the reader
@@ -316,10 +323,16 @@ wxJSONWriter::Write( const wxJSONValue& value, wxOutputStream& os )
  is because the JSON writer always procudes UTF-8 encoded text and decimal
  digits in UTF-8 are made of only one UTF-8 code-unit (1 byte).
 */
+/*
+  CWE-136 Security implementation justifying
+  cppcheck-suppress ConfigurationNotChecked
+*/
 void
-wxJSONWriter::SetDoubleFmtString( const char* fmt )
+wxJSONWriter::SetDoubleFmtString( wxString constSelector )
 {
-    m_fmt = (char*) fmt;
+    m_fmt = this->defNothing;
+    if ( constSelector.CmpNoCase("defdoublefmt") == 0 )
+        m_fmt = this->defDoubleFmt;
 }
 
 
@@ -761,6 +774,7 @@ wxJSONWriter::WriteStringValue( wxOutputStream& os, const wxString& str )
         // if the character is a control character that is not identified by a
         // lowercase letter, we should escape it
         if ( !shouldEscape && ch < 32 )  {
+            // CWE-119/CWE-120 : sprintf() uses const 8 and const fmt string
             char b[8];
             // cppcheck-suppress ConfigurationNotChecked
             snprintf( b, 8, "\\u%04X", (int) ch );
@@ -917,6 +931,7 @@ int
 wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
 {
     int r = 0;
+    // CWE-119/CWE-120 : wxASSERT macro used in debugging, otherwise brute force 32
     char buffer[32];        // need to store 64-bits integers (max 20 digits)
 
     wxJSONRefData* data = value.GetRefData();
@@ -940,6 +955,8 @@ wxJSONWriter::WriteIntValue( wxOutputStream& os, const wxJSONValue& value )
     wxCharBuffer safebuff = cbData;
     len = safebuff.length();
     wxASSERT( len < 32 );
+    if ( len > 32 ) // CWE-119/CWE-120 : brute force fix
+        len = 32;
     memcpy( buffer, cbData, len );
     buffer[len] = 0;
 #endif
@@ -975,6 +992,7 @@ wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
         os.PutC( '+' );
     }
 
+    // CWE-119/CWE-120 : wxASSERT macro used in debugging, otherwise brute force 32
     char buffer[32];        // need to store 64-bits integers (max 20 digits)
     wxJSONRefData* data = value.GetRefData();
     wxASSERT( data );
@@ -997,6 +1015,8 @@ wxJSONWriter::WriteUIntValue( wxOutputStream& os, const wxJSONValue& value )
     wxCharBuffer safebuff = cbData;
     len = safebuff.length();
     wxASSERT( len < 32 );
+    if ( len > 32 ) // CWE-119/CWE-120 : brute force fix
+        len = 32;
     memcpy( buffer, cbData, len );
     buffer[len] = 0;
 #endif
@@ -1029,6 +1049,11 @@ wxJSONWriter::WriteDoubleValue( wxOutputStream& os, const wxJSONValue& value )
 {
     int r = 0;
 
+    /*
+      CWE-119/CWE-120 : two folded risk mitigation:
+      1) sprintf() uses const 32,
+      2) m_fmt is now a pointer to static const string defined in this module
+    */
     char buffer[32];
     wxJSONRefData* data = value.GetRefData();
     wxASSERT( data );
@@ -1131,6 +1156,7 @@ int
 wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
 {
 #define MAX_BYTES_PER_ROW   20
+    // CWE-119/CWE-120 : addressed below
     char str[16];
 
     // if STYLED and SPLIT_STRING flags are set, the function writes 20 bytes on every row
@@ -1164,12 +1190,15 @@ wxJSONWriter::WriteMemoryBuff( wxOutputStream& os, const wxMemoryBuffer& buff )
         ++ptr;
 
         if ( asArray )  {
+            // CWE-119/CWE-120 : sprintf() uses static size, const char fmt
             // cppcheck-suppress ConfigurationNotChecked
             snprintf( str, 14, "%d", c );
             wxCharBuffer safelen = str;
             size_t len = safelen.length();
             wxASSERT( len <= 3 );
             wxASSERT( len >= 1 );
+            if ( len > 15 ) // CWE-119/CWE-120 : brute force fix
+                len = 15;
             str[len] = ',';
             // do not write the comma char for the last element
             if ( i < buffLen - 1 )    {

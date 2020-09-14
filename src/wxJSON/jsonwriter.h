@@ -55,7 +55,7 @@ public:
 
     void Write( const wxJSONValue& value, wxString& str );
     void Write( const wxJSONValue& value, wxOutputStream& os );
-    void SetDoubleFmtString( const char* fmt );
+    void SetDoubleFmtString( wxString selector );
 
 protected:
 
@@ -105,7 +105,9 @@ private:
     bool  m_noUtf8;
 
     // The format string for printing doubles
-    char* m_fmt;
+    const char* m_fmt;
+    static const char* defNothing;
+    static const char* defDoubleFmt;
 };
 
 

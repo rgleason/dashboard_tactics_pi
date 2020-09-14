@@ -1133,6 +1133,7 @@ wxJSONReader::ReadString( wxInputStream& is, wxJSONValue& val )
     // the char last read is the opening qoutes (")
 
     wxMemoryBuffer utf8Buff;
+    // CWE-119 / CWE-120: ensured that ReadUES() uses index no greater than [4]
     char ues[8];        // stores a Unicode Escaped Esquence: \uXXXX
 
     int ch = 0;
@@ -1575,6 +1576,7 @@ wxJSONReader::AppendUES( wxMemoryBuffer& utf8Buff, const char* uesBuffer )
               __PRETTY_FUNCTION__, uesBuffer, l );
 
     wchar_t ch = (wchar_t) l;
+    // CWE-119/CWE-120 : wxConvUTF8.FromWChar() uses constant src and dst lenghts
     char buffer[16];
     size_t len = wxConvUTF8.FromWChar( buffer, 10, &ch, 1 );
 
@@ -1585,7 +1587,7 @@ wxJSONReader::AppendUES( wxMemoryBuffer& utf8Buff, const char* uesBuffer )
     }
     utf8Buff.AppendData( buffer, len );
 
-    // sould never fail
+    // should never fail
     wxASSERT( len != wxCONV_FAILED );
     return 0;
 }
@@ -1795,6 +1797,7 @@ wxJSONReader::ConvertCharByChar( wxString& s, const wxMemoryBuffer& utf8Buffer )
     char* buffEnd = buff + len;
 
     int result = 0;
+    // CWE-119/CWE-120 : fix applied below to limit index to 15
     char temp[16];    // the UTF-8 code-point
 
     while ( buff < buffEnd )    {
@@ -1806,6 +1809,9 @@ wxJSONReader::ConvertCharByChar( wxString& s, const wxMemoryBuffer& utf8Buffer )
             if ( buff >= buffEnd )    {
                 break;
             }
+            if ( i > 15 )    { // CWE-119/CWE-120 bulletproof fix
+                break;
+            }
             temp[i] = *buff;    // the first UTF-8 code-unit
             ++buff;
         }
@@ -1813,6 +1819,7 @@ wxJSONReader::ConvertCharByChar( wxString& s, const wxMemoryBuffer& utf8Buffer )
         //    break;
         //}
         // now convert 'temp' to a wide-character
+        // CWE-119/CWE-120 : addressed below in wxConvUTF8.ToWChar() with const. 10
         wchar_t dst[10];
         size_t outLength = wxConvUTF8.ToWChar( dst, 10, temp, numBytes );
 
