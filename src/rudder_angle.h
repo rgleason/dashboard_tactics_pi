@@ -52,8 +52,10 @@ public:
     DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title);
     ~DashboardInstrument_RudderAngle(void){}
 
-    wxSize GetSize( int orient, wxSize hint );
-    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    wxSize GetSize( int orient, wxSize hint ) override;
+    void SetData(
+        unsigned long long st, double data, wxString unit,
+        long long timestamp=0LL) override;
     void derivedTimeoutEvent(void) override;
 
 private:

@@ -82,7 +82,7 @@ public:
 private:
 
 protected:
-    void DrawBackground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
 };
 
 class DashboardInstrument_TrueWindAngle: public DashboardInstrument_Dial

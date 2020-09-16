@@ -25,8 +25,6 @@
 ***************************************************************************
 */
 
-using namespace std;
-
 #include "tactics_pi.h"
 
 #include "tactics_pi_ext.h"

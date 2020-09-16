@@ -24,8 +24,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
  ***************************************************************************
  */
-using namespace std;
-
 #include "from_ownship.h"
 
 #include "dashboard_pi_ext.h"

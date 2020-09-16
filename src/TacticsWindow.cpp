@@ -25,8 +25,6 @@
 ***************************************************************************
 */
 
-using namespace std;
-
 #include <mutex>
 
 #include "TacticsWindow.h"

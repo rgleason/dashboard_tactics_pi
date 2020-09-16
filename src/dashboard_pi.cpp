@@ -25,8 +25,6 @@
  ***************************************************************************
  */
 
-using namespace std;
-
 #include <climits>
 #include <cstdint>
 #include <cmath>

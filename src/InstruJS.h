@@ -165,7 +165,7 @@ public:
     virtual bool stopRmData(void){ return true; };
     virtual raceRouteJSData* getRmDataPtr(void) { return nullptr; };
 
-    virtual wxSize GetSize( int orient, wxSize hint ) = 0;
+    virtual wxSize GetSize( int orient, wxSize hint ) override = 0;
     virtual void OnPaint(wxPaintEvent& WXUNUSED(event)) final;
     virtual void FitIn(void) final;
     
