@@ -67,7 +67,7 @@ public:
 private:
 
 protected:
-    void DrawBackground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
 };
 
 class DashboardInstrument_WindCompass: public DashboardInstrument_Dial
@@ -98,7 +98,7 @@ private:
 
 protected:
 
-    void DrawBackground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
 };
 /*****************************************************************************
 Apparent & True wind angle combined in one dial instrument

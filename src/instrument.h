@@ -215,7 +215,7 @@ protected:
     unsigned long long     m_cap_flag2;
     int               m_DataHeight;
 
-    void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc) override;
 };
 
 #endif
