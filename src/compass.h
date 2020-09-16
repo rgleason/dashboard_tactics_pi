@@ -72,8 +72,8 @@ public:
 private:
 
 protected:
-    void DrawBackground(wxGCDC* dc);
-    void DrawForeground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
+    void DrawForeground(wxGCDC* dc) override;
 };
 
 #endif // __Compass_H__

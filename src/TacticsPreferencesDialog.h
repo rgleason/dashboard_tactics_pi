@@ -111,24 +111,6 @@ public:
     wxTextCtrl                   *m_pDataExportSeparator;
     wxCheckBox                   *m_PersistentChartPolarAnimation;
 private:
-    void UpdateTacticsButtonsState(void);
-    void UpdateButtonsState(void);
-    wxFileConfig     *m_pconfig;
-
-    int                           curSel;
-    wxListCtrl                   *m_pListCtrlTacticss;
-    wxBitmapButton               *m_pButtonAddTactics;
-    wxBitmapButton               *m_pButtonDeleteTactics;
-    wxPanel                      *m_pPanelTactics;
-    wxTextCtrl                   *m_pTextCtrlCaption;
-    wxCheckBox                   *m_pCheckBoxIsVisible;
-    wxChoice                     *m_pChoiceOrientation;
-    wxListCtrl                   *m_pListCtrlInstruments;
-    wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
-    wxButton                     *m_pButtonDelete;
-    wxButton                     *m_pButtonUp;
-    wxButton                     *m_pButtonDown;
 };
 
 #endif

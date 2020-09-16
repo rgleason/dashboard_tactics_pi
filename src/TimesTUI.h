@@ -86,13 +86,15 @@ public:
         TacticsWindow *pparent, wxWindowID id, wxString ids,
         PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_TimesTUI(void);
-    void SetData(unsigned long long, double, wxString, long long timestamp=0LL );
+    void SetData(
+        unsigned long long, double, wxString,
+        long long timestamp=0LL ) override;
 #ifndef __TIMESTUI_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derived2TimeoutEvent(void){};
 #else
     virtual void derived2TimeoutEvent(void) = 0;
 #endif // __TIMESTUI_DERIVEDTIMEOUT_OVERRIDE__
-    virtual void derivedTimeoutEvent(void);
+    virtual void derivedTimeoutEvent(void) override;
     virtual wxSize GetSize( int orient, wxSize hint ) override;
     bool LoadConfig(void);
     void SaveConfig(void);

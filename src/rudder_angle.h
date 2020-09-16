@@ -59,8 +59,8 @@ public:
 private:
 
 protected:
-    void DrawFrame(wxGCDC* dc);
-            void DrawBackground(wxGCDC* dc);
+    void DrawFrame(wxGCDC* dc) override;
+    void DrawBackground(wxGCDC* dc) override;
 };
 
 #endif // __RudderAngle_H__

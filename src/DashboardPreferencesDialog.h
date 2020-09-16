@@ -89,7 +89,7 @@ private:
     wxChoice                     *m_pChoiceOrientation;
     wxListCtrl                   *m_pListCtrlInstruments;
     wxButton                     *m_pButtonAdd;
-    wxButton                     *m_pButtonEdit;
+    // TODO Insturemnt Properties wxButton                     *m_pButtonEdit;
     wxButton                     *m_pButtonDelete;
     wxButton                     *m_pButtonUp;
     wxButton                     *m_pButtonDown;

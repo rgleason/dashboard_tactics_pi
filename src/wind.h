@@ -112,7 +112,9 @@ public:
         );
     void derivedTimeoutEvent(void) override;
 	~DashboardInstrument_AppTrueWindAngle(void){}
-    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
+    void SetData(
+        unsigned long long st, double data, wxString unit,
+        long long timestamp=0LL) override;
 
 private:
 
@@ -131,10 +133,12 @@ protected:
     DialPositionOption m_MainValueOption2;
     DialPositionOption m_ExtraValueOption1;
     DialPositionOption m_ExtraValueOption2;
-	void DrawBackground(wxGCDC* dc);
-	virtual void Draw(wxGCDC* dc);
-	virtual void DrawForeground(wxGCDC* dc);
-	virtual void DrawData(wxGCDC* dc, double value, wxString unit, wxString format, DialPositionOption position);
+	void DrawBackground(wxGCDC* dc) override;
+	virtual void Draw(wxGCDC* dc) override;
+	virtual void DrawForeground(wxGCDC* dc) override;
+	virtual void DrawData(
+        wxGCDC* dc, double value, wxString unit, wxString format,
+        DialPositionOption position) override;
 
 
 };

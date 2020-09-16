@@ -112,13 +112,15 @@ public:
         TacticsWindow *pparent, wxWindowID id, wxString ids,
         PI_ColorScheme cs, wxString format = "" );
     ~DashboardInstrument_RaceStart(void);
-    void SetData(unsigned long long, double, wxString, long long timestamp=0LL ){;};
+    void SetData(
+        unsigned long long, double, wxString,
+        long long timestamp=0LL ) override {;};
 #ifndef __RACESTART_DERIVEDTIMEOUT_OVERRIDE__
     virtual void derived2TimeoutEvent(void){};
 #else
     virtual void derived2TimeoutEvent(void) = 0;
 #endif // __RACESTART_DERIVEDTIMEOUT_OVERRIDE__
-    virtual void derivedTimeoutEvent(void);
+    virtual void derivedTimeoutEvent(void) override;
     bool CheckForValidStartLineGUID( wxString sGUID, wxString lineName,
                                      wxString portName, wxString stbdName);
     bool CheckForValidUserSetStartLine(void);

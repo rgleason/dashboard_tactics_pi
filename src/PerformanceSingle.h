@@ -61,8 +61,10 @@ public:
     TacticsInstrument_PerformanceSingle(DashboardWindow *pparent, wxWindowID id, wxString title, unsigned long long cap, wxString format);
     ~TacticsInstrument_PerformanceSingle(){}
 
-    wxSize GetSize(int orient, wxSize hint);
-    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    wxSize GetSize(int orient, wxSize hint) override;
+    void SetData(
+        unsigned long long st, double data, wxString unit,
+        long long timestamp=0LL) override;
     void timeoutEvent(void) override;
     void SetDisplayType(int displaytype);
     double            mTWS;
@@ -85,7 +87,7 @@ protected:
     wxString          m_format;
     int               m_DataHeight;
     
-    void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc) override;
     bool LoadConfig(void);
 
 private :

@@ -66,7 +66,9 @@ public:
 
     ~TacticsInstrument_BearingCompass(void){ SaveConfig(); }
 
-    void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL) override;
+    void SetData(
+        unsigned long long st, double data, wxString unit,
+        long long timestamp=0LL) override;
     void derivedTimeoutEvent(void) override;
     bool SaveConfig(void);
     double m_Bearing;
@@ -108,8 +110,8 @@ private:
     wxFileConfig     *m_pconfig;
 
 protected:
-    void DrawBackground(wxGCDC* dc);
-    void DrawForeground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
+    void DrawForeground(wxGCDC* dc) override;
     void DrawBearing(wxGCDC* dc);
     void DrawWindAngles(wxGCDC* dc);
     //void DrawPolar(wxGCDC* dc);
@@ -117,8 +119,10 @@ protected:
     void DrawTargetAngle(wxGCDC* dc, double TargetAngle, wxString color1, int size);
     void DrawCurrent(wxGCDC* dc);
     void DrawLaylines(wxGCDC* dc);
-    virtual void DrawData(wxGCDC* dc, double value, wxString unit, wxString format, DialPositionOption position);
-    virtual void Draw(wxGCDC* dc);
+    virtual void DrawData(
+        wxGCDC* dc, double value, wxString unit, wxString format,
+        DialPositionOption position) override;
+    virtual void Draw(wxGCDC* dc) override;
     void CalculateLaylineDegreeRange(void);
 };
 

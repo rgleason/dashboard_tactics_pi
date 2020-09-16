@@ -170,12 +170,12 @@ public:
                                wxString format);
     ~DashboardInstrument_Single(){}
 
-    wxSize GetSize( int orient, wxSize hint );
+    wxSize GetSize( int orient, wxSize hint ) override;
     void SetData(
         unsigned long long st,
         double data, wxString unit
         , long long timestamp=0LL
-        );
+        ) override;
     void timeoutEvent(void) override;
 #ifndef __DERIVEDTIMEOUT_OVERRIDE__
     virtual void derivedTimeoutEvent(void){};
@@ -188,7 +188,7 @@ protected:
     wxString          m_format;
     int               m_DataHeight;
 
-    void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc) override;
 };
 
 class DashboardInstrument_Position : public DashboardInstrument
@@ -200,12 +200,12 @@ public:
           );
     ~DashboardInstrument_Position(){}
     
-    wxSize GetSize( int orient, wxSize hint );
+    wxSize GetSize( int orient, wxSize hint ) override;
     void SetData(
         unsigned long long st,
         double data, wxString unit
         , long long timestamp=0LL
-        );
+        ) override;
     void timeoutEvent(void) override;
 
 protected:
