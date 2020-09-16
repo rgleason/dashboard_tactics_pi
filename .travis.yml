@@ -55,7 +55,7 @@ notifications:
 git:
   depth: 10
 before_install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
+- if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
 addons:
   apt:
     sources:
