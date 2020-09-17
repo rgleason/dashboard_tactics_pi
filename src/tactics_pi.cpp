@@ -25,7 +25,6 @@
 ***************************************************************************
 */
 
-using namespace std;
 #include <unordered_map>
 
 #include <wx/glcanvas.h>
