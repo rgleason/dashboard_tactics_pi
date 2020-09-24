@@ -113,13 +113,21 @@ But knowing what file and from where need to be loaded, is known by the derived 
 
 This design choice is somewhat limiting and can be later revised: this way, we need to have / will have in face of us an equivalent `iface.js` class, always the same.
 
-The disadvantage of this is that we need to know in the C++ abstract class about the questions the JavaScript may ask or the data they may want to receive. Also, in JavaScript side, the `index.js` or `index.ts` modules need to deal with the commands via this interface they actually do not need.
-
->Experience has shown that each JavaScript instrument is different and with freedom of choice also the requests for data or functions towards the C++ InstruJS class are almost impossible to design in advance, apart some basic functions. The `iface.js` class is increasing and increasing, and theoritically you need to revisit and rebuild all existing classes. A chore work to split the interface by recognizing the useful, common functions and instrument specific functions will be ahead if this work continues. It would also mean that the classed derived from `InstruJS.cpp` would need to be able to talk to this interface to create events on JavaScript instrument.
+#### Advantages of InstruJS.cpp/iface.js
 
 The advantage of this approach is that there will be less code copy paste caused duplication since many interface functions are common to each JavaScript instrument.
 
 The second advantage is that the very complicated state machine management in the C++ side but also in the JavaScript side has at least one common nominator and, when developing a new JavaScript instrument one does not need to reinvent the complicated messaging process every time.
+
+The third advantage is that a common nominator _iface.js_ interface would allow to write an interface to a NodeJS-process which - in turn - could be made to **enable an instrument service outside of the OpenCPN ecosystem**, on a browser of the telephone in the cockpit, for example.
+
+#### Disvantages of InstruJS.cpp/iface.js
+
+The disadvantage of this is that we need to know in the C++ abstract class about the questions the JavaScript may ask or the data they may want to receive. Also, in JavaScript side, the `index.js` or `index.ts` modules need to deal with the commands via this interface they actually do not need.
+
+>Experience has shown that each JavaScript instrument is different and with freedom of choice also the requests for data or functions towards the C++ InstruJS class are almost impossible to design in advance, apart some basic functions. The `iface.js` class is increasing and increasing, and theoritically you need to revisit and rebuild all existing classes.
+
+>A chore work to split the interface by recognizing the useful, common functions and instrument specific functions will be ahead if this work continues. It would also mean that the classed derived from `InstruJS.cpp` would need to be able to talk to this interface to create events on JavaScript instrument.
 
 #### Complexity of the state machine wxWidgets vs JavaScript
 
@@ -332,7 +340,7 @@ Even using different web servers, _node_ or _docker nginx_ I noticed during deve
 
 Can be annoying if new updates or fixes are installed. Anyway, really annoying for the developer.
 
-This is why you will find a separate _Reload()_ polling wait after the page load in _InstrJS_ class. Annoying flickering follows but since the files are small, the delays are not excessive. Anyway, I could not find a way to clean the cache in _WebView_.
+This is why you will find a separate _Reload()_ polling wait after the page load in _InstruJS_ class. Annoying flickering follows but since the files are small, the delays are not excessive. Anyway, I could not find a way to clean the cache in _WebView_.
 
 ## WebView specific on Linux __WXGTK__
 
@@ -648,6 +656,8 @@ There is, however a solution. It is not developed any more (since 2017) but it s
 >**Attention vulnerabilities** - _weinre_ module has its development stopped and it is as such a very vulnerable product. Use `npm audit` to see the details of those. Make sure to use --save-dev switch when installing to use it only for occasional debugging during the development phase.
 
 While waiting the new tools, I archived [this paper](pdf/debugging_mobile_javascript_with_WEINRE_ibm_blog_2011.pdf) ([2011](https://www.ibm.com/developerworks/community/blogs/94e7fded-7162-445e-8ceb-97a2140866a9/entry/debugging_mobile_javascript_with_weinre?lang=en)) which nicely explains the remote portable device debugging concept and what you can expect and what you cannot expect from WEINRE.
+
+>**NOTE**: One can do most of the static debugging, still using modern browser's developer's tools: they memorize nicely the repetitive _iface_. structure commands which allows attributing an uid, etc. to the module under the test. It is tedious but very useful since the console messages are your best friend. Only that I have no other way than Weinre to get anything out from a running wxWebView application running the same code but an _alert()_. WEINRE _may_ help you to resolve a tricky dynamic problem. Or not.
 
 ## Installating WEINRE on RPI
 

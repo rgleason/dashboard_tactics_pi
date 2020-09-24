@@ -623,6 +623,30 @@ class}\label{cjs-communication-concentrated-in-the-abstraction-class}}
 way, we need to have / will have in face of us an equivalent
 \texttt{iface.js} class, always the same.
 
+    \hypertarget{advantages-of-instrujs.cppiface.js}{%
+\paragraph{Advantages of
+InstruJS.cpp/iface.js}\label{advantages-of-instrujs.cppiface.js}}
+
+    The advantage of this approach is that there will be less code copy
+paste caused duplication since many interface functions are common to
+each JavaScript instrument.
+
+    The second advantage is that the very complicated state machine
+management in the C++ side but also in the JavaScript side has at least
+one common nominator and, when developing a new JavaScript instrument
+one does not need to reinvent the complicated messaging process every
+time.
+
+    The third advantage is that a common nominator \emph{iface.js} interface
+would allow to write an interface to a NodeJS-process which - in turn -
+could be made to \textbf{enable an instrument service outside of the
+OpenCPN ecosystem}, on a browser of the telephone in the cockpit, for
+example.
+
+    \hypertarget{disvantages-of-instrujs.cppiface.js}{%
+\paragraph{Disvantages of
+InstruJS.cpp/iface.js}\label{disvantages-of-instrujs.cppiface.js}}
+
     The disadvantage of this is that we need to know in the C++ abstract
 class about the questions the JavaScript may ask or the data they may
 want to receive. Also, in JavaScript side, the \texttt{index.js} or
@@ -635,22 +659,16 @@ with freedom of choice also the requests for data or functions towards
 the C++ InstruJS class are almost impossible to design in advance, apart
 some basic functions. The \texttt{iface.js} class is increasing and
 increasing, and theoritically you need to revisit and rebuild all
-existing classes. A chore work to split the interface by recognizing the
-useful, common functions and instrument specific functions will be ahead
-if this work continues. It would also mean that the classed derived from
+existing classes.
+\end{quote}
+
+    \begin{quote}
+A chore work to split the interface by recognizing the useful, common
+functions and instrument specific functions will be ahead if this work
+continues. It would also mean that the classed derived from
 \texttt{InstruJS.cpp} would need to be able to talk to this interface to
 create events on JavaScript instrument.
 \end{quote}
-
-    The advantage of this approach is that there will be less code copy
-paste caused duplication since many interface functions are common to
-each JavaScript instrument.
-
-    The second advantage is that the very complicated state machine
-management in the C++ side but also in the JavaScript side has at least
-one common nominator and, when developing a new JavaScript instrument
-one does not need to reinvent the complicated messaging process every
-time.
 
     \hypertarget{complexity-of-the-state-machine-wxwidgets-vs-javascript}{%
 \paragraph{Complexity of the state machine wxWidgets vs
@@ -1123,7 +1141,7 @@ never get updated even after restarting of \emph{OpenCPN}.
 annoying for the developer.
 
     This is why you will find a separate \emph{Reload()} polling wait after
-the page load in \emph{InstrJS} class. Annoying flickering follows but
+the page load in \emph{InstruJS} class. Annoying flickering follows but
 since the files are small, the delays are not excessive. Anyway, I could
 not find a way to clean the cache in \emph{WebView}.
 
@@ -1605,6 +1623,17 @@ paper}
 (\href{https://www.ibm.com/developerworks/community/blogs/94e7fded-7162-445e-8ceb-97a2140866a9/entry/debugging_mobile_javascript_with_weinre?lang=en}{2011})
 which nicely explains the remote portable device debugging concept and
 what you can expect and what you cannot expect from WEINRE.
+
+    \begin{quote}
+\textbf{NOTE}: One can do most of the static debugging, still using
+modern browser's developer's tools: they memorize nicely the repetitive
+\emph{iface}. structure commands which allows attributing an uid, etc.
+to the module under the test. It is tedious but very useful since the
+console messages are your best friend. Only that I have no other way
+than Weinre to get anything out from a running wxWebView application
+running the same code but an \emph{alert()}. WEINRE \emph{may} help you
+to resolve a tricky dynamic problem. Or not.
+\end{quote}
 
     \hypertarget{installating-weinre-on-rpi}{%
 \subsection{Installating WEINRE on

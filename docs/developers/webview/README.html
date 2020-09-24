@@ -13465,17 +13465,7 @@ $( document ).ready(function(){
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The disadvantage of this is that we need to know in the C++ abstract class about the questions the JavaScript may ask or the data they may want to receive. Also, in JavaScript side, the <code>index.js</code> or <code>index.ts</code> modules need to deal with the commands via this interface they actually do not need.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>Experience has shown that each JavaScript instrument is different and with freedom of choice also the requests for data or functions towards the C++ InstruJS class are almost impossible to design in advance, apart some basic functions. The <code>iface.js</code> class is increasing and increasing, and theoritically you need to revisit and rebuild all existing classes. A chore work to split the interface by recognizing the useful, common functions and instrument specific functions will be ahead if this work continues. It would also mean that the classed derived from <code>InstruJS.cpp</code> would need to be able to talk to this interface to create events on JavaScript instrument.</p>
-</blockquote>
-
+<h4 id="Advantages-of-InstruJS.cpp/iface.js">Advantages of InstruJS.cpp/iface.js<a class="anchor-link" href="#Advantages-of-InstruJS.cpp/iface.js">&#182;</a></h4>
 </div>
 </div>
 </div>
@@ -13491,6 +13481,47 @@ $( document ).ready(function(){
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The second advantage is that the very complicated state machine management in the C++ side but also in the JavaScript side has at least one common nominator and, when developing a new JavaScript instrument one does not need to reinvent the complicated messaging process every time.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The third advantage is that a common nominator <em>iface.js</em> interface would allow to write an interface to a NodeJS-process which - in turn - could be made to <strong>enable an instrument service outside of the OpenCPN ecosystem</strong>, on a browser of the telephone in the cockpit, for example.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Disvantages-of-InstruJS.cpp/iface.js">Disvantages of InstruJS.cpp/iface.js<a class="anchor-link" href="#Disvantages-of-InstruJS.cpp/iface.js">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The disadvantage of this is that we need to know in the C++ abstract class about the questions the JavaScript may ask or the data they may want to receive. Also, in JavaScript side, the <code>index.js</code> or <code>index.ts</code> modules need to deal with the commands via this interface they actually do not need.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Experience has shown that each JavaScript instrument is different and with freedom of choice also the requests for data or functions towards the C++ InstruJS class are almost impossible to design in advance, apart some basic functions. The <code>iface.js</code> class is increasing and increasing, and theoritically you need to revisit and rebuild all existing classes.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>A chore work to split the interface by recognizing the useful, common functions and instrument specific functions will be ahead if this work continues. It would also mean that the classed derived from <code>InstruJS.cpp</code> would need to be able to talk to this interface to create events on JavaScript instrument.</p>
+</blockquote>
 
 </div>
 </div>
@@ -14192,7 +14223,7 @@ window.setTimeout(poll, 1000)
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This is why you will find a separate <em>Reload()</em> polling wait after the page load in <em>InstrJS</em> class. Annoying flickering follows but since the files are small, the delays are not excessive. Anyway, I could not find a way to clean the cache in <em>WebView</em>.</p>
+<p>This is why you will find a separate <em>Reload()</em> polling wait after the page load in <em>InstruJS</em> class. Annoying flickering follows but since the files are small, the delays are not excessive. Anyway, I could not find a way to clean the cache in <em>WebView</em>.</p>
 
 </div>
 </div>
@@ -15011,6 +15042,15 @@ update-alternatives: error: no alternatives for wx-config</code></pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>While waiting the new tools, I archived <a href="pdf/debugging_mobile_javascript_with_WEINRE_ibm_blog_2011.pdf">this paper</a> (<a href="https://www.ibm.com/developerworks/community/blogs/94e7fded-7162-445e-8ceb-97a2140866a9/entry/debugging_mobile_javascript_with_weinre?lang=en">2011</a>) which nicely explains the remote portable device debugging concept and what you can expect and what you cannot expect from WEINRE.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p><strong>NOTE</strong>: One can do most of the static debugging, still using modern browser's developer's tools: they memorize nicely the repetitive <em>iface</em>. structure commands which allows attributing an uid, etc. to the module under the test. It is tedious but very useful since the console messages are your best friend. Only that I have no other way than Weinre to get anything out from a running wxWebView application running the same code but an <em>alert()</em>. WEINRE <em>may</em> help you to resolve a tricky dynamic problem. Or not.</p>
+</blockquote>
 
 </div>
 </div>
