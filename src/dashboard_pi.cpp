@@ -1641,10 +1641,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 
             else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
                 if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
-                    // Note: value from Signal K is SI units, thus hPa already
-                    if ( (value > 800) && (value < 1100) ) {
+                    // Note: value from Signal K is SI units Pa, convet to hPa
+                    double hPaPressure = value / 100.;
+                    if ( (hPaPressure > 800) && (hPaPressure < 1100) ) {
                         SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
-                                                      value,
+                                                      hPaPressure,
                                                       _T("hPa"),
                                                       timestamp );
                     } // then valid pressure in hPa
