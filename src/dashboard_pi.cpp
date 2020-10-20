@@ -1092,6 +1092,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             }
                             SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
                                                           m_twaangle, m_twaunit);
+                            this->SetNMEASentence_Arm_TWD_Watchdog();
                             SendSentenceToAllInstruments( OCPN_DBP_STC_TWS,
                                                           toUsrSpeed_Plugin( m_NMEA0183->Mwv.WindSpeed * m_wSpeedFactor,
                                                                              g_iDashWindSpeedUnit ),
@@ -1327,14 +1328,12 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     vwtunit = m_NMEA0183->Vwt.DirectionOfWind == Left ? L"\u00B0lr" : L"\u00B0rl";
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
                                                   m_NMEA0183->Vwt.WindDirectionMagnitude, vwtunit );
+                    this->SetNMEASentence_Arm_TWD_Watchdog();
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_TWS, toUsrSpeed_Plugin(
                             m_NMEA0183->Vwt.WindSpeedKnots, g_iDashWindSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ) );
-                    /*
-                      double           m_NMEA0183->Vwt.WindSpeedms;
-                      double           m_NMEA0183->Vwt.WindSpeedKmh;
-                    */
+                    this->SetNMEASentence_Arm_TWS_Watchdog();
                 }
             }
         }
@@ -1711,6 +1710,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                                       std::abs( value ) * RAD_IN_DEG,
                                                       ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
                                                       timestamp );
+                        this->SetNMEASentence_Arm_TWD_Watchdog();
                     } // TWA priority
                 }
             } // MWV
