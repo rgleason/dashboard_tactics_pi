@@ -111,14 +111,8 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // data subcription from SK srv
 };
 
-// These are the streaming originated mappings for signal paths
-typedef std::tuple<wxString, wxString, wxString> sigPathLangTuple; // path, title, description
-typedef std::vector<sigPathLangTuple> sigPathLangVector;
-
-
 #define DBP_I_TIMER_TICK      1000 // in milliseconds
 #define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
-
 
 class DashboardInstrument : public wxControl
 {

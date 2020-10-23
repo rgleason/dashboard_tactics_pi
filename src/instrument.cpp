@@ -220,6 +220,7 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
     }
 }
 
+
 //----------------------------------------------------------------
 //
 //    DashboardInstrument_Simple Implementation
