@@ -367,7 +367,7 @@ void dashboard_pi::Notify()
         SendSatInfoToAllInstruments( 0, 2, sats );
         SendSatInfoToAllInstruments( 0, 3, sats );
 
-        mSatsInView = 0;
+        mSatsInView = 0.;
         SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, 0, _T("") );
         mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
@@ -1514,10 +1514,15 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 
             else if ( sentenceId->CmpNoCase(_T("GGA")) == 0 ) { // https://git.io/JeYWl
                 if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
-                    if ( valStr->CmpNoCase(_T("DGNSS fix")) == 0 ) {
+                    if ( valStr->CmpNoCase(_T("GNSS fix")) == 0 ) {
                         mSiK_navigationGnssMethodQuality = 1;
                     }
-                }
+                    else {
+                        mSiK_navigationGnssMethodQuality = 0;
+                        mSatsInView = 0;
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                    }
+               }
                 else if ( mSiK_navigationGnssMethodQuality > 0 ) {
                     if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
                         if( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
@@ -1536,6 +1541,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     }
                     else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
                         mSatsInView = value;
+                        SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                        mGPS_Watchdog = gps_watchdog_timeout_ticks;
                     }
                 }
             } // GGA
@@ -1788,14 +1795,6 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                 getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                                 timestamp );
                         }
-                        else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
-                            mPriCOGSOG = 3;
-                            SendSentenceToAllInstruments(
-                                OCPN_DBP_STC_MCOG,
-                                value * RAD_IN_DEG,
-                                _T("\u00B0M"),
-                                timestamp );
-                        }
                     } // mPriCOGSOG
                 } // then COGSOG contents
                 else if ( path->CmpNoCase(_T("navigation.datetime")) == 0 ) {
@@ -1850,12 +1849,12 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // VHW
 
-            else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS
+            else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS (was nm here, now meters)
                 if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
                     // Note: value from Signal K is "as received", i.e. nautical miles
                     if ( value >= 0.0 )
                         SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                                      toUsrDistance_Plugin( value,
+                                                      toUsrDistance_Plugin( (value * M_IN_NM),
                                                                             g_iDashDistanceUnit ),
                                                       getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
                                                       timestamp );
@@ -1863,7 +1862,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
                     if ( value >= 0.0 )
                         SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                                      toUsrDistance_Plugin( value,
+                                                      toUsrDistance_Plugin( (value * M_IN_NM),
                                                                             g_iDashDistanceUnit ),
                                                       getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
                                                       timestamp );
@@ -1961,11 +1960,24 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             }
 
             else if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
-                if ( valStr->CmpNoCase(_T("DGNSS fix")) == 0 ) {
+                if ( valStr->CmpNoCase(_T("GNSS fix")) == 0 ) {
                     mSiK_navigationGnssMethodQuality = 1;
+                }
+                else {
+                    mSiK_navigationGnssMethodQuality = 0;
+                    mSatsInView = 0;
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
                 }
             }
 
+           else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
+                if ( mSiK_navigationGnssMethodQuality > 0 ) {
+                    mSatsInView = value;
+                    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                    mGPS_Watchdog = gps_watchdog_timeout_ticks;
+                }
+           }
+            
             else if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
                 if ( mSiK_navigationGnssMethodQuality > 0 ) {
                     if ( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
@@ -2170,6 +2182,15 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // mPriCOGSOG
             } // then COGSOG contents
 
+            else if ( path->CmpNoCase(_T("navigation.courseOverGroundMagnetic")) == 0 ) {
+                mPriCOGSOG = 3;
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_MCOG,
+                    value * RAD_IN_DEG,
+                    _T("\u00B0M"),
+                    timestamp );
+            }
+           
             else if ( path->CmpNoCase(_T("navigation.datetime")) == 0 ) {
                 if( mPriDateTime >= 3 ) {
                     mPriDateTime = 3;
@@ -2196,10 +2217,10 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             }
 
             else if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
-                // Note: value from Signal K is "as received", i.e. nautical miles
+                // Note: value from Signal K is meters here
                 if ( value >= 0.0 )
                     SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                                  toUsrDistance_Plugin( value,
+                                                  toUsrDistance_Plugin( (value * M_IN_NM),
                                                                         g_iDashDistanceUnit ),
                                                   getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
                                                   timestamp );
@@ -2207,7 +2228,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
                 if ( value >= 0.0 )
                     SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                                  toUsrDistance_Plugin( value,
+                                                  toUsrDistance_Plugin( (value * M_IN_NM),
                                                                         g_iDashDistanceUnit ),
                                                   getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
                                                   timestamp );
