@@ -145,6 +145,9 @@ public:
 
 protected:
     long long          previousTimestamp;
+    long long          deltaOfTimeStamps;
+    long long          previousGoodDeltaTs;
+    int                sameGoodDeltaTsCnt;
     unsigned long long m_cap_flag;
     int               m_TitleHeight;
     wxString          m_title;

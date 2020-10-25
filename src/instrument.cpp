@@ -78,6 +78,9 @@ DashboardInstrument::DashboardInstrument( wxWindow *pparent, wxWindowID id, wxSt
 #endif
       m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
       previousTimestamp = 0LL;
+      deltaOfTimeStamps = LLONG_MAX;
+      previousGoodDeltaTs = 0LL;
+      sameGoodDeltaTsCnt = 0;
       m_DPBITickTimer->Start( DBP_I_TIMER_TICK, wxTIMER_CONTINUOUS );
 }
 
@@ -97,8 +100,15 @@ void DashboardInstrument::OnClose( wxCloseEvent &event )
 }
 void DashboardInstrument::setTimestamp( long long ts )
 {
-    if ( ts != 0LL )
+    if ( ts != 0LL ) {
+        if ( previousTimestamp > 0LL) 
+            deltaOfTimeStamps = ts - previousTimestamp;
         previousTimestamp = ts;
+    }
+    else {
+        if ( previousTimestamp > 0LL)
+            deltaOfTimeStamps = LLONG_MIN; // stopped
+    }
 }
 long long DashboardInstrument::getTimestamp()
 {
@@ -107,13 +117,25 @@ long long DashboardInstrument::getTimestamp()
 void DashboardInstrument::OnDPBITimerTick( wxTimerEvent &event )
 {
     if (previousTimestamp == 0LL)
-        return;
-    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-    long long  llNowMs = wxllNowMs.GetValue();
-    if ( (llNowMs - previousTimestamp) >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
+        return; // no timestamps yet
+    if (deltaOfTimeStamps == LLONG_MAX)
+        return; // no at least two timestamps yet
+    // Note: we use relative time, not "now" because of play-back plug-ins
+    if ( deltaOfTimeStamps == previousGoodDeltaTs )
+        sameGoodDeltaTsCnt++;
+    else
+        sameGoodDeltaTsCnt = 0;
+    if ( ( deltaOfTimeStamps >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) ||
+         ( deltaOfTimeStamps < 0LL ) || // time running backwards
+         ( sameGoodDeltaTsCnt >= DBP_I_DATA_TIMEOUT ) ) {
         this->timeoutEvent();
-        previousTimestamp = llNowMs;
+        previousTimestamp = 0LL;
+        deltaOfTimeStamps = LLONG_MAX;
+        previousGoodDeltaTs = 0LL;
+        sameGoodDeltaTsCnt = 0;
     }
+    else
+        previousGoodDeltaTs = deltaOfTimeStamps;
 }
 
 
