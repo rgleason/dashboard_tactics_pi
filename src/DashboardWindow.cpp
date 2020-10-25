@@ -384,7 +384,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_STW:
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_STW, _T("%.2f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_STW, _T("%5.2f") );
             break;
         case ID_DBP_I_HDT: //true heading
             // TODO: Option True or Magnetic
@@ -406,7 +406,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_AWS:
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_AWS, _T("%.2f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_AWS, _T("%5.2f") );
             break;
         case ID_DBP_D_AWS:
             instrument = new DashboardInstrument_Speedometer( this, wxID_ANY,
@@ -454,7 +454,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_TMP: //water temperature
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_TMP, _T("%2.1f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_TMP, _T("%.1f") );
             break;
         case ID_DBP_I_MDA: //barometric pressure
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
@@ -472,16 +472,16 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_ATMP: //air temperature
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_ATMP, _T("%2.1f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_ATMP, _T("%.1f") );
             break;
         case ID_DBP_I_VLW1: // Trip Log
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_VLW1, _T("%2.1f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_VLW1, _T("%.1f") );
             break;
 
         case ID_DBP_I_VLW2: // Sum Log
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_VLW2, _T("%2.1f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_VLW2, _T("%.1f") );
             break;
 
         case ID_DBP_I_TWA: //true wind angle
@@ -494,7 +494,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_TWS: // true wind speed
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
-                                                         getInstrumentCaption( id ), OCPN_DBP_STC_TWS, _T("%2.2f") );
+                                                         getInstrumentCaption( id ), OCPN_DBP_STC_TWS, _T("%5.2f") );
             break;
         case ID_DBP_I_AWA: //apparent wind angle
             instrument = new DashboardInstrument_Single( this, wxID_ANY,
@@ -560,11 +560,11 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             break;
         case ID_DBP_I_PITCH:
             instrument = new DashboardInstrument_Single(this, wxID_ANY,
-                                                        getInstrumentCaption(id), OCPN_DBP_STC_PITCH, _T("%2.1f"));
+                                                        getInstrumentCaption(id), OCPN_DBP_STC_PITCH, _T("%3.1f"));
             break;
         case ID_DBP_I_HEEL:
             instrument = new DashboardInstrument_Single(this, wxID_ANY,
-                                                        getInstrumentCaption(id), OCPN_DBP_STC_HEEL, _T("%2.1f"));
+                                                        getInstrumentCaption(id), OCPN_DBP_STC_HEEL, _T("%4.1f"));
             break;
             // any clock display with "LCL" in the format string is converted from UTC to local TZ
         case ID_DBP_I_SUNLCL:
@@ -581,17 +581,17 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
 			break;
 		case ID_DBP_I_CURRDIR:
 			instrument = new DashboardInstrument_Single(this, wxID_ANY,
-				getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%2.0f"));
+				getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%3.0f"));
 			break;
 		case ID_DBP_I_CURRSPD:
 			instrument = new DashboardInstrument_Single(this, wxID_ANY,
-				getInstrumentCaption(id), OCPN_DBP_STC_CURRSPD, _T("%2.2f"));
+				getInstrumentCaption(id), OCPN_DBP_STC_CURRSPD, _T("%4.1f"));
 			break;
         case ID_DBP_I_LEEWAY:
             instrument = new DashboardInstrument_Single(
                 this, wxID_ANY,
                 getInstrumentCaption(id), OCPN_DBP_STC_LEEWAY,
-                _T("%2.1f"));
+                _T("%3.1f"));
             break;
         case ID_DBP_D_BRG:  // Bearing Compass
             instrument = new TacticsInstrument_BearingCompass(
