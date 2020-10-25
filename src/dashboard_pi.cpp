@@ -2075,14 +2075,17 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             }
 
             else if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
-                // Note: value from Signal K is SI units, thus we receive m/s
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_AWS,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                this->SetNMEASentence_Arm_AWS_Watchdog();
+                if( mPriAWA >= 1 ) {
+                    mPriAWA = 1;
+                    // Note: value from Signal K is SI units, thus we receive m/s
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_AWS,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    this->SetNMEASentence_Arm_AWS_Watchdog();
+                } // AWA priority
             }
 
             else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
@@ -2097,19 +2100,22 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             }
 
             else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_TWS,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_TWS2,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
-                                       g_iDashWindSpeedUnit ),
-                    getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
-                    timestamp );
-                this->SetNMEASentence_Arm_TWS_Watchdog();
+                if( mPriTWA >= 1 ) {
+                    mPriTWA = 1;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_TWS,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_TWS2,
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashWindSpeedUnit ),
+                        getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
+                        timestamp );
+                    this->SetNMEASentence_Arm_TWS_Watchdog();
+                } // TWA priority
             }
 
             else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
