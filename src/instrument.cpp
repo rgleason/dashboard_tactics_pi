@@ -103,7 +103,8 @@ void DashboardInstrument::setTimestamp( long long ts )
     if ( ts != 0LL ) {
         if ( previousTimestamp > 0LL) { 
             deltaOfTimeStamps = ts - previousTimestamp;
-            receivedTimeStamp = true;
+            if ( deltaOfTimeStamps > 0LL )
+                receivedTimeStamp = true;
         }
         previousTimestamp = ts;
     }
