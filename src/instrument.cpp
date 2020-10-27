@@ -79,7 +79,7 @@ DashboardInstrument::DashboardInstrument( wxWindow *pparent, wxWindowID id, wxSt
       m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
       previousTimestamp = 0LL;
       deltaOfTimeStamps = LLONG_MAX;
-      previousGoodDeltaTs = 0LL;
+      receivedTimeStamp = false;
       sameGoodDeltaTsCnt = 0;
       m_DPBITickTimer->Start( DBP_I_TIMER_TICK, wxTIMER_CONTINUOUS );
 }
@@ -101,8 +101,10 @@ void DashboardInstrument::OnClose( wxCloseEvent &event )
 void DashboardInstrument::setTimestamp( long long ts )
 {
     if ( ts != 0LL ) {
-        if ( previousTimestamp > 0LL) 
+        if ( previousTimestamp > 0LL) { 
             deltaOfTimeStamps = ts - previousTimestamp;
+            receivedTimeStamp = true;
+        }
         previousTimestamp = ts;
     }
     else {
@@ -121,21 +123,21 @@ void DashboardInstrument::OnDPBITimerTick( wxTimerEvent &event )
     if (deltaOfTimeStamps == LLONG_MAX)
         return; // no at least two timestamps yet
     // Note: we use relative time, not "now" because of play-back plug-ins
-    if ( deltaOfTimeStamps == previousGoodDeltaTs )
-        sameGoodDeltaTsCnt++;
-    else
+    if ( receivedTimeStamp ) {
+        receivedTimeStamp = false;
         sameGoodDeltaTsCnt = 0;
+    }
+    else
+        sameGoodDeltaTsCnt++;
     if ( ( deltaOfTimeStamps >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) ||
          ( deltaOfTimeStamps < 0LL ) || // time running backwards
          ( sameGoodDeltaTsCnt >= DBP_I_DATA_TIMEOUT ) ) {
         this->timeoutEvent();
         previousTimestamp = 0LL;
         deltaOfTimeStamps = LLONG_MAX;
-        previousGoodDeltaTs = 0LL;
+        receivedTimeStamp = false;
         sameGoodDeltaTsCnt = 0;
     }
-    else
-        previousGoodDeltaTs = deltaOfTimeStamps;
 }
 
 
