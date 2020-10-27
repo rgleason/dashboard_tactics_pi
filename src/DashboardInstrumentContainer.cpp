@@ -406,6 +406,8 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
 	case ID_DBP_D_POLCOMP:
     case ID_DBP_D_ENGDJG:
     case ID_DBP_D_TSETUI:
+    case ID_DBP_D_RACESTA:
+    case ID_DBP_D_RACEMRK:
         item.SetImage( 1 );
         break;
     }

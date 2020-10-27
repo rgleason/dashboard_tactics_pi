@@ -2,5 +2,5 @@ export function packagename() {
     return 'instrujs'
 }
 export function version() {
-    return 'v0.0.1'
+    return 'v2.0.0'
 }
