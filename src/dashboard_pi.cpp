@@ -2252,6 +2252,7 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         mPriPosition = 1;
         SendSentenceToAllInstruments( OCPN_DBP_STC_LAT, pfix.Lat, _T("SDMM") );
         SendSentenceToAllInstruments( OCPN_DBP_STC_LON, pfix.Lon, _T("SDMM") );
+        mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
     if( mPriCOGSOG >= 1 ) {
         double dMagneticCOG;
