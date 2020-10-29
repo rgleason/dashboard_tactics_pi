@@ -228,15 +228,21 @@ void TacticsPreferencesDialog::TacticsPreferencesPanel()
     wxStaticText* itemStaticText23ws15 = new wxStaticText(itemPanelNotebook03, wxID_ANY, _("15 kn"), wxDefaultPosition, wxDefaultSize, 0);
     itemFlexGridSizer07->Add(itemStaticText23ws15, 0, wxEXPAND | wxALL, m_border_size);
 
-    m_heel15_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][1], 0.1);
+    // ORG    m_heel15_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][1], 0.1);
+    m_heel15_45 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(110, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][1], 0.1);
+    //
     itemFlexGridSizer07->Add(m_heel15_45, 0, wxALIGN_LEFT, 0);
     m_heel15_45->SetValue(g_dheel[3][1]);
     //--------------------
-    m_heel15_90 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][2], 0.1);
+    // ORG m_heel15_90 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][2], 0.1);
+    m_heel15_90 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(110, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][2], 0.1);
+    //
     itemFlexGridSizer07->Add(m_heel15_90, 0, wxALIGN_LEFT, 0);
     m_heel15_90->SetValue(g_dheel[3][2]);
     //--------------------
-    m_heel15_135 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][3], 0.1);
+    // ORG m_heel15_135 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][3], 0.1);
+    m_heel15_135 = new wxSpinCtrlDouble(itemPanelNotebook03, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(110, -1), wxSP_ARROW_KEYS, 0, 60, g_dheel[3][3], 0.1);
+    //
     itemFlexGridSizer07->Add(m_heel15_135, 0, wxALIGN_LEFT, 0);
     m_heel15_135->SetValue(g_dheel[3][3]);
     //--------------------
