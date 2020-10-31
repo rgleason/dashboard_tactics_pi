@@ -1424,7 +1424,16 @@ statistical calculation instruments.
 void tactics_pi::SendPerfSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp ) {
     // use the shortcut to instruments, i.e. not making callbacks to this module
-    pSendSentenceToAllInstruments( st, value, unit, timestamp );
+    long long datatimestamp = timestamp;
+    if ( (timestamp > 0LL) && this->getIsUntrustedLocalTime() ) {
+        wxDateTime lastUTCfromGNSS = this->getGNSSuTCDateTime();
+        wxLongLong lastGNSSlocStamp = this->getGNSSreceivedAtLocalMs();
+        wxLongLong msElapsedSinceLastGNSStime = timestamp - lastGNSSlocStamp;
+        wxLongLong msEstimatedTimestamp =
+            lastUTCfromGNSS.GetValue() + msElapsedSinceLastGNSStime;
+        datatimestamp = msEstimatedTimestamp.GetValue();
+    } // then localtime timestamp needs to be corrected to GNSS-based
+    pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
 }
 
 /********************************************************************
@@ -1794,8 +1803,10 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
             st_twd = OCPN_DBP_STC_TWD;
             value_twd = mTWD;
             unit_twd = _T("\u00B0T");
-            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-            calctimestamp = wxllNowMs.GetValue();
+            if ( calctimestamp == 0LL ) {
+                wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                calctimestamp = wxllNowMs.GetValue();
+            } // then the CPU time can be used in timestamps, otherwise the client builds them
             if ( ( m_iDbgRes_TW_Calc_Exe != DBGRES_EXEC_TWDONLY_TRUE ) ) {
                 wxLogMessage (
                     "dashboard_tactics_pi: Tactics true wind calculations: standstill TWD only requested, "
@@ -1911,8 +1922,10 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedTrueWind(
     st_twd = OCPN_DBP_STC_TWD;
     value_twd = mTWD;
     unit_twd = _T("\u00B0T");
-    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-    calctimestamp = wxllNowMs.GetValue();
+    if ( calctimestamp == 0LL ) {
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        calctimestamp = wxllNowMs.GetValue();
+    } // then the CPU time can be used in timestamps, otherwise the client builds them
     if ( ( m_iDbgRes_TW_Calc_Exe != DBGRES_EXEC_TRUE ) ) {
         wxLogMessage (
             "dashboard_tactics_pi: Tactics true wind calculations: algorithm is running and returning now TWA %f '%s', TWS %f '%s, TWD %f '%s'.",
@@ -2098,8 +2111,10 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedLeeway(
         st_leeway = OCPN_DBP_STC_LEEWAY;
         value_leeway = mLeeway;
         unit_leeway = mHeelUnit;
-        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        calctimestamp = wxllNowMs.GetValue();
+        if ( calctimestamp == 0LL ) {
+            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+            calctimestamp = wxllNowMs.GetValue();
+        } // then the CPU time can be used in timestamps, otherwise the client builds them
         return true;
     }
     return false;
@@ -2212,8 +2227,10 @@ bool tactics_pi::SendSentenceToAllInstruments_GetCalculatedCurrent(
             value_currspd = toUsrSpeed_Plugin(
                 m_ExpSmoothCurrSpd, g_iDashSpeedUnit);
             unit_currspd = getUsrSpeedUnit_Plugin(g_iDashSpeedUnit);
-            wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-            calctimestamp = wxllNowMs.GetValue();
+            if ( calctimestamp == 0LL ) {
+                wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+                calctimestamp = wxllNowMs.GetValue();
+            } // then the CPU time can be used in timestamps, otherwise the client builds them
             return true;
         }
         else{

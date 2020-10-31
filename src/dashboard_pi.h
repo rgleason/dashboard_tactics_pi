@@ -95,6 +95,9 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
+    bool getIsUntrustedLocalTime(void) { return mUntrustedLocalTime; };
+    wxDateTime getGNSSuTCDateTime(void) { return mUTCDateTime; };
+    wxLongLong getGNSSreceivedAtLocalMs(void) { return mGNSSreceivedAtLocalMs; };
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
     void callAllRegisteredGLRenderers(
@@ -208,6 +211,10 @@ private:
     double               mSatsInView;
     double               mHdm;
     wxDateTime           mUTCDateTime;
+    wxLongLong           mGNSSreceivedAtLocalMs;
+    wxLongLong           mGNSSvsLocalTimeDeltaMs;
+    bool                 mUntrustedLocalTime;
+    bool                 mLogUntrustedLocalTimeNotify;
     int                  m_config_version;
     wxString             m_VDO_accumulator;
     int                  mSrc_Watchdog;

@@ -114,7 +114,7 @@ void TacticsWindow::TacticsInContextMenuAction ( const int eventId )
 void TacticsWindow::SendPerfSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp )
 {
-    m_plugin->SendSentenceToAllInstruments( st, value, unit, timestamp );
+    m_plugin->SendPerfSentenceToAllInstruments( st, value, unit, timestamp );
 }
 void TacticsWindow::SetUpdateSignalK(
         wxString *type, wxString *sentenceId, wxString *talker, wxString *src, int pgn,

@@ -105,6 +105,10 @@ void DashboardInstrument::setTimestamp( long long ts )
             deltaOfTimeStamps = ts - previousTimestamp;
             if ( deltaOfTimeStamps > 0LL )
                 receivedTimeStamp = true;
+            else if ( deltaOfTimeStamps < 0LL ) {
+                if ( llabs( deltaOfTimeStamps ) > DBP_I_TIMER_TICK )
+                    deltaOfTimeStamps = LLONG_MIN; // a blast from past!
+            }
         }
         previousTimestamp = ts;
     }

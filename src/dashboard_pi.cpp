@@ -164,6 +164,10 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mActiveLegInfo = nullptr;
     ClearActiveRouteMessages();
     mUTCDateTime.Set( (time_t) -1 );
+    mGNSSreceivedAtLocalMs = 0LL;
+    mGNSSvsLocalTimeDeltaMs = 0LL;
+    mUntrustedLocalTime = false;
+    mLogUntrustedLocalTimeNotify = false;
     m_config_version = -1;
     mSrc_Watchdog = 2;
     mHDx_Watchdog = 2;
@@ -314,6 +318,30 @@ void dashboard_pi::ResetAllSourcePriorities()
 void dashboard_pi::Notify()
 {
 
+    wxLongLong cpuTimeNowMsUTC = wxGetUTCTimeMillis();
+    mGNSSvsLocalTimeDeltaMs = mUTCDateTime.GetValue() - cpuTimeNowMsUTC;
+    if ( mGNSSvsLocalTimeDeltaMs.Abs() >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
+        mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
+        if ( !mLogUntrustedLocalTimeNotify ) {
+            int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
+            wxLogMessage("dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                         "difference >= %i ms. Is this a recording playback? Accuracy "
+                         "of calculated values timestamps is now reduced to the last "
+                         "received GNSS (GPS) time.", gteThan );
+            mLogUntrustedLocalTimeNotify = true;
+        }
+    }
+    else {
+        mUntrustedLocalTime = false; // CPU withing reasonable limit
+        if ( mLogUntrustedLocalTimeNotify ) {
+            int lessThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
+            wxLogMessage("dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                         "difference returned to be < %i ms. Considering this accurate "
+                         "enough to timestamp calculated values with CPU time.", lessThan );
+            mLogUntrustedLocalTimeNotify = false;
+        }
+    }
+    
     SendUtcTimeToAllInstruments( mUTCDateTime );
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
@@ -564,7 +592,15 @@ void dashboard_pi::SendSentenceToAllInstruments(
     long long datatimestamp = timestamp;
     if ( datatimestamp == 0LL ) {
         wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        datatimestamp = wxllNowMs.GetValue();
+        if ( mUntrustedLocalTime ) {
+            wxLongLong msElapsedSinceLastGNSStime = wxllNowMs - mGNSSreceivedAtLocalMs;
+            wxLongLong msEstimatedTimestamp =
+                mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
+            datatimestamp = msEstimatedTimestamp.GetValue();
+        }
+        else {
+            datatimestamp = wxllNowMs.GetValue();
+        }
     } // then, oops, the source has no timestamps of its own, let's make one
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
@@ -586,7 +622,9 @@ void dashboard_pi::SendSentenceToAllInstruments(
         unsigned long long st_twa, st_tws, st_tws2, st_twd;
         double value_twa, value_tws, value_twd;
         wxString unit_twa, unit_tws, unit_twd;
-        long long calctimestamp;
+        long long calctimestamp = 0LL;
+        if ( mUntrustedLocalTime )
+            calctimestamp = datatimestamp;
         if (this->SendSentenceToAllInstruments_GetCalculatedTrueWind (
                 st, value, unit,
                 st_twa, value_twa, unit_twa,
@@ -624,7 +662,9 @@ void dashboard_pi::SendSentenceToAllInstruments(
         unsigned long long st_leeway;
         double value_leeway;
         wxString unit_leeway;
-        long long calctimestamp;
+        long long calctimestamp = 0LL;
+        if ( mUntrustedLocalTime )
+            calctimestamp = datatimestamp;
         if (this->SendSentenceToAllInstruments_GetCalculatedLeeway (
                 st_leeway, value_leeway, unit_leeway, calctimestamp)) {
             pSendSentenceToAllInstruments( st_leeway, value_leeway,
@@ -634,6 +674,9 @@ void dashboard_pi::SendSentenceToAllInstruments(
         unsigned long long st_currdir, st_currspd;
         double value_currdir, value_currspd;
         wxString unit_currdir, unit_currspd;
+        calctimestamp = 0LL;
+        if ( mUntrustedLocalTime )
+            calctimestamp = datatimestamp;
         if (this->SendSentenceToAllInstruments_GetCalculatedCurrent (
                 st, (perfCorrections ? distvalue : value), (perfCorrections ? distunit : unit),
                 st_currdir, value_currdir, unit_currdir,
@@ -809,6 +852,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         // Not in use, we need the date too.
                         //mPriDateTime = 4;
                         //mUTCDateTime.ParseFormat( m_NMEA0183->Gga.UTCTime.c_str(), _T("%H%M%S") );
+                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
 
                     mSatsInView = m_NMEA0183->Gga.NumberOfSatellitesInUse;
@@ -843,6 +887,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         // Not in use, we need the date too.
                         //mPriDateTime = 5;
                         //mUTCDateTime.ParseFormat( m_NMEA0183->Gll.UTCTime.c_str(), _T("%H%M%S") );
+                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
             }
@@ -1220,6 +1265,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriDateTime = 3;
                         wxString dt = m_NMEA0183->Rmc.Date + m_NMEA0183->Rmc.UTCTime;
                         mUTCDateTime.ParseFormat( dt.c_str(), _T("%d%m%y%H%M%S") );
+                        mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
             }
@@ -1443,6 +1489,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                m_NMEA0183->Zda.Day );
                     dt.Append( m_NMEA0183->Zda.UTCTime );
                     mUTCDateTime.ParseFormat( dt.c_str(), _T("%Y%m%d%H%M%S") );
+                    mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                 }
             }
         }
@@ -1520,7 +1567,10 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     else {
                         mSiK_navigationGnssMethodQuality = 0;
                         mSatsInView = 0;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_SAT,
+                            mSatsInView, _T(""),
+                            timestamp );
                     }
                }
                 else if ( mSiK_navigationGnssMethodQuality > 0 ) {
@@ -1529,19 +1579,20 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             mPriPosition = 3;
                             if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                                 SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                              value,
-                                                              _T("SDMM"),
+                                                              value, _T("SDMM"),
                                                               timestamp );
                             if ( key->CmpNoCase(_T("latitude")) == 0 )
                                 SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                              value,
-                                                              _T("SDMM"),
+                                                              value, _T("SDMM"),
                                                               timestamp );
                         }
                     }
                     else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
                         mSatsInView = value;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_SAT,
+                            mSatsInView, _T(""),
+                            timestamp );
                         mGPS_Watchdog = gps_watchdog_timeout_ticks;
                     }
                 }
@@ -1554,13 +1605,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriPosition = 2;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                         else if ( key->CmpNoCase(_T("latitude")) == 0 )
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                     }
                 }
@@ -1588,8 +1637,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                 mPriVar = 2;
                                 mVar = value * RAD_IN_DEG;
                                 SendSentenceToAllInstruments( OCPN_DBP_STC_HMV,
-                                                              mVar,
-                                                              _T("\u00B0"),
+                                                              mVar, _T("\u00B0"),
                                                               timestamp );
                                 mVar_Watchdog = gps_watchdog_timeout_ticks;
                             }
@@ -1604,8 +1652,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     else if (heading >= 360.0)
                         heading -= 360;
                     SendSentenceToAllInstruments(OCPN_DBP_STC_HDT,
-                                                 heading,
-                                                 _T("\u00B0"),
+                                                 heading, _T("\u00B0"),
                                                  timestamp );
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
                 }
@@ -1618,8 +1665,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             mPriHeadingM = 2;
                             mHdm = value * RAD_IN_DEG;
                             SendSentenceToAllInstruments( OCPN_DBP_STC_HDM,
-                                                          mHdm,
-                                                          _T("\u00B0M"),
+                                                          mHdm, _T("\u00B0M"),
                                                           timestamp );
                             mHDx_Watchdog = gps_watchdog_timeout_ticks;
                         }
@@ -1634,8 +1680,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             mPriHeadingM = 1;
                             mHdm = value * RAD_IN_DEG;
                             SendSentenceToAllInstruments( OCPN_DBP_STC_HDT,
-                                                          mHdm,
-                                                          _T("\u00B0T"),
+                                                          mHdm, _T("\u00B0T"),
                                                           timestamp );
                             mHDT_Watchdog = gps_watchdog_timeout_ticks;
                         }
@@ -1651,8 +1696,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     double hPaPressure = value / 100.;
                     if ( (hPaPressure > 800) && (hPaPressure < 1100) ) {
                         SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
-                                                      hPaPressure,
-                                                      _T("hPa"),
+                                                      hPaPressure, _T("hPa"),
                                                       timestamp );
                     } // then valid pressure in hPa
                     // Note: Dashboard does not deal with other values in MDA as for now so we skip them
@@ -1666,8 +1710,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
                     checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
-                                                  TemperatureValue,
-                                                  TemperatureUnitOfMeasurement,
+                                                  TemperatureValue, TemperatureUnitOfMeasurement,
                                                   timestamp );
                 }
             } // MTW
@@ -1752,8 +1795,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_DTW,
-                        value * KM_IN_NM,
-                        _T("Nm"),
+                        value * KM_IN_NM, _T("Nm"),
                         timestamp );
                 }
             } // RMB
@@ -1764,13 +1806,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriPosition = 4;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                         else if ( key->CmpNoCase(_T("latitude")) == 0 )
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                     } // selected by (low) priority
                 }
@@ -1800,8 +1840,12 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 else if ( path->CmpNoCase(_T("navigation.datetime")) == 0 ) {
                     if( mPriDateTime >= 3 ) {
                         mPriDateTime = 3;
-                        wxString datetime = *valStr;
-                        mUTCDateTime.ParseISOCombined( datetime.BeforeLast('.') ); // rfc3359 not understood
+                        bool parseError;
+                        wxDateTime msParsedDateTime = parseRfc3359UTC( valStr, parseError );
+                        if ( !parseError ) {
+                            mUTCDateTime = msParsedDateTime;
+                            mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
+                        }
                     } // mPriDateTime
                 } // then date/time update received with the above data
             } // RMC
@@ -1810,8 +1854,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_RSA,
-                        value * RAD_IN_DEG,
-                        _T("\u00B0"),
+                        value * RAD_IN_DEG, _T("\u00B0"),
                         timestamp );
                 }
             } // RSA
@@ -1822,8 +1865,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriHeadingT = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_HDT,
-                            value * RAD_IN_DEG,
-                            _T("\u00B0T"),
+                            value * RAD_IN_DEG, _T("\u00B0T"),
                             timestamp );
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
                     } // priority activation
@@ -1833,8 +1875,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriHeadingM = 3;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_HDM,
-                            value * RAD_IN_DEG,
-                            _T("\u00B0M"),
+                            value * RAD_IN_DEG, _T("\u00B0M"),
                             timestamp );
                         mHDx_Watchdog = gps_watchdog_timeout_ticks;
                     } // priority activation
@@ -1925,7 +1966,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             */
         } // then NMEA-0183 delta from Signal K
 
-        else {  // Else another data source, like NMEA-2000 on SignalK
+        else {  // Else another data source on SignalK, like NMEA-2000
 
             if ( this->m_pSkData->isSubscribedToAllPaths() )
                 this->m_pSkData->UpdateNMEA2000PathList( path, key );
@@ -1966,14 +2007,20 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 else {
                     mSiK_navigationGnssMethodQuality = 0;
                     mSatsInView = 0;
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_SAT,
+                        mSatsInView, _T(""),
+                        timestamp );
                 }
             }
 
            else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
                 if ( mSiK_navigationGnssMethodQuality > 0 ) {
                     mSatsInView = value;
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_SAT,
+                        mSatsInView, _T(""),
+                        timestamp );
                     mGPS_Watchdog = gps_watchdog_timeout_ticks;
                 }
            }
@@ -1984,13 +2031,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriPosition = 3;
                         if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                         if ( key->CmpNoCase(_T("latitude")) == 0 )
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LAT,
-                                                          value,
-                                                          _T("SDMM"),
+                                                          value, _T("SDMM"),
                                                           timestamp );
                     }
                 }
@@ -2031,8 +2076,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     else if (heading >= 360.0)
                         heading -= 360;
                     SendSentenceToAllInstruments(OCPN_DBP_STC_HDT,
-                                                 heading,
-                                                 _T("\u00B0"),
+                                                 heading, _T("\u00B0"),
                                                  timestamp );
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
                 }
@@ -2044,8 +2088,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriHeadingM = 1;
                         mHdm = value * RAD_IN_DEG;
                         SendSentenceToAllInstruments( OCPN_DBP_STC_HDT,
-                                                      mHdm,
-                                                      _T("\u00B0T"),
+                                                      mHdm, _T("\u00B0T"),
                                                       timestamp );
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
                     }
@@ -2057,8 +2100,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 double hPaPressure = value / 100.;
                 if ( (hPaPressure > 800) && (hPaPressure < 1100) ) {
                     SendSentenceToAllInstruments( OCPN_DBP_STC_MDA,
-                                                  hPaPressure,
-                                                  _T("hPa"),
+                                                  hPaPressure, _T("hPa"),
                                                   timestamp );
                 } // then valid pressure in hPa
             }
@@ -2160,8 +2202,7 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_DTW,
-                    value * KM_IN_NM,
-                    _T("Nm"),
+                    value * KM_IN_NM, _T("Nm"),
                     timestamp );
             }
 
@@ -2200,16 +2241,19 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             else if ( path->CmpNoCase(_T("navigation.datetime")) == 0 ) {
                 if( mPriDateTime >= 3 ) {
                     mPriDateTime = 3;
-                    wxString datetime = *valStr;
-                    mUTCDateTime.ParseISOCombined( datetime.BeforeLast('.') ); // rfc3359 not understood
+                    bool parseError;
+                    wxDateTime msParsedDateTime = parseRfc3359UTC( valStr, parseError );
+                    if ( !parseError ) {
+                        mUTCDateTime = msParsedDateTime;
+                        mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
+                    }
                 } // mPriDateTime
             } // then date/time update received with the above data
 
             else if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_RSA,
-                    value * RAD_IN_DEG,
-                    _T("\u00B0"),
+                    value * RAD_IN_DEG, _T("\u00B0"),
                     timestamp );
             }
 
@@ -2273,10 +2317,11 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
             SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, pfix.Var, _T("\u00B0") );
         }
     }
-    if( mPriDateTime >= 6 ) { //We prefer the GPS datetime
+    if( mPriDateTime >= 6 ) { // priority is given to data from GNSS
         mPriDateTime = 6;
         mUTCDateTime.Set( pfix.FixTime );
         mUTCDateTime = mUTCDateTime.ToUTC();
+        mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
     }
     mSatsInView = pfix.nSats;
     //    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );

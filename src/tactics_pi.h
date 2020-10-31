@@ -131,6 +131,9 @@ public:
         unsigned long long st, double value, wxString unit, long long timestamp=0LL ) = 0;
     virtual void pSendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL) = 0;
+    virtual bool getIsUntrustedLocalTime(void) = 0;
+    virtual wxDateTime getGNSSuTCDateTime(void) = 0;
+    virtual wxLongLong getGNSSreceivedAtLocalMs(void) = 0;
     virtual void SendPerfSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(
