@@ -190,3 +190,19 @@ TEST_CASE( "Get FontWeight" ) {
     testVal = (int) GetFontWeight( _T("") );
     CHECK( testVal == (int) wxFONTWEIGHT_NORMAL );
 };
+TEST_CASE( "RFC3359 format date/time string parsing." ) {
+    wxString testval1 = L"2014-08-15T19:06:37.688Z";
+    wxLongLong testexcp1 = 1408129597688;
+    bool parseError = true;
+    wxDateTime testtime1 = parseRfc3359UTC( &testval1, parseError );
+    CHECK ( parseError == false );
+    wxLongLong testretval1 = testtime1.GetValue();
+    CHECK ( testretval1 == testexcp1 );
+    wxString testval2 = L"2014-08-15T19:06:37.68800Z";
+    wxLongLong testexcp2 = 1408129597688;
+    parseError = true;
+    wxDateTime testtime2 = parseRfc3359UTC( &testval2, parseError );
+    CHECK ( parseError == false );
+    wxLongLong testretval2 = testtime2.GetValue();
+    CHECK ( testretval2 == testexcp2 );
+};

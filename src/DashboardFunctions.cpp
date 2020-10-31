@@ -28,6 +28,9 @@
 #include <cmath>
 #include <random>
 
+#include <wx/log.h>
+#include <wx/time.h> 
+
 #include "DashboardFunctions.h"
 
 #include "dashboard_pi_ext.h"
@@ -163,4 +166,45 @@ wxFontWeight GetFontWeight( wxString postfix )
     if ( postfix.CmpNoCase( _T("MAX") ) == 0 )
         return wxFONTWEIGHT_MAX;
     return wxFONTWEIGHT_NORMAL;
+}
+
+wxDateTime parseRfc3359UTC( wxString *rfc3359UTCmsStr, bool &parseError, int verbosity )
+{
+    /* Excpected input RFC3359 with three digits for milliseconds:
+       L"2014-08-15T19:06:37.688Z" - extra characters (microseconds), if any
+       between the last ms digit and the 'Z' delimiter will be truncated.
+       For this example, the return value would be 1408129597688 .
+       In case of failure (check parseError) returns wxGetUTCTimeMillis() */
+    wxDateTime utcS;
+    wxLongLong wxLLms;
+    long long  LLms;
+    if ( verbosity > 5) {
+        wxLogMessage("dashboard_tactics_pi: DEBUG : parseRfc3359UTC() : got : %s", *rfc3359UTCmsStr );
+    }
+    if ( utcS.ParseISOCombined( rfc3359UTCmsStr->BeforeLast('.') ) ) { // rfc3359 not understood
+        utcS = utcS.FromTimezone(wxDateTime::UTC); // (w/ DST):the "Z", still no ms
+        wxLLms = utcS.GetValue();
+        LLms = wxLLms.GetValue();
+        wxString utcMs = rfc3359UTCmsStr->AfterLast('.');
+        utcMs = utcMs.BeforeLast('Z');
+        utcMs = utcMs.Truncate(3); // milliseconds only
+        long long retMs;
+        (void) utcMs.ToLongLong( &retMs );
+        LLms += retMs;
+        wxLLms = LLms;
+        if ( verbosity > 5) {
+            wxString sBuffer = wxLLms.ToString();
+            wxString pLL = sBuffer.wc_str();
+            wxLogMessage("dashboard_tactics_pi: DEBUG : parseRfc3359UTC() : returns : %s", pLL );
+        }
+        parseError = false;
+        return wxDateTime( wxLLms );
+    }
+    else {
+        parseError = true; 
+        if ( verbosity > 5) {
+            wxLogMessage("dashboard_tactics_pi: DEBUG : parseRfc3359UTC() : ParseISOCombined() : returns false." );
+        }
+        return wxDateTime( wxGetUTCTimeMillis() );
+    }
 }

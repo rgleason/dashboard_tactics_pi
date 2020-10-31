@@ -43,5 +43,6 @@ void CopyPlugInWaypointWithoutHyperlinks(
 wxFontFamily GetFontFamily( wxString postfix );
 wxFontStyle GetFontStyle( wxString postfix );
 wxFontWeight GetFontWeight( wxString postfix );
+wxDateTime parseRfc3359UTC( wxString* rfc3359UTCmsStr, bool& parseError, int verbosity = 0 );
 
 #endif // __DASHBOARDFUNCTIONS_H__
