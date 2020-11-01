@@ -7,7 +7,7 @@ echo "Launch a simple, local http-server to provide DashT EngineDJG dials"
 
 if [ -z "$1" ]
 then
-    PORT=8088
+    PORT=8080
 else
     PORT=$1
 fi
