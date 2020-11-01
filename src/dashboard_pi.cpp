@@ -519,14 +519,15 @@ wxString dashboard_pi::GetCommonName()
 
 wxString dashboard_pi::GetShortDescription()
 {
-    return _T("Dashboard w/ Tactics,EngineD,DB");
+    return _T("Dashboard,Engine,Energy,Sailing,Race,SignalK,InfluxDB");
 }
 
 wxString dashboard_pi::GetLongDescription()
 {
-    return _("Dashboard PlugIn with Tactics for OpenCPN\n\
-Provides navigation and engine instrument, sailing performance tools with SignalK and time based DB connections.");
-
+    return _("DashT - an Advanced plug-in for OpenCPN:\n"
+             "- Navigation, engine/energy\n"
+             "- Sailing performance and race\n"
+             "- SignalK and InfluxDB.");
 }
 
 wxString dashboard_pi::GetStandardPath()
@@ -1211,18 +1212,20 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     if( mPriCOGSOG >= 3 ) {
                         mPriCOGSOG = 3;
                         if( m_NMEA0183->Rmc.SpeedOverGroundKnots < 999. ) {
-                            SendSentenceToAllInstruments( OCPN_DBP_STC_SOG,
-                                                          toUsrSpeed_Plugin(
-                                                              mSOGFilter.filter(m_NMEA0183->Rmc.SpeedOverGroundKnots),
-                                                              g_iDashSpeedUnit ),
-                                                          getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_SOG,
+                                toUsrSpeed_Plugin(
+                                    mSOGFilter.filter (m_NMEA0183->Rmc.SpeedOverGroundKnots ),
+                                    g_iDashSpeedUnit ),
+                                getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
                         } else {
                             //->SetData(_T("---"));
                         }
                         if( m_NMEA0183->Rmc.TrackMadeGoodDegreesTrue < 999. ) {
                             SendSentenceToAllInstruments(
-                                OCPN_DBP_STC_COG, mCOGFilter.filter(
-                                    m_NMEA0183->Rmc.TrackMadeGoodDegreesTrue), _T("\u00B0") );
+                                OCPN_DBP_STC_COG,
+                                mCOGFilter.filter( m_NMEA0183->Rmc.TrackMadeGoodDegreesTrue ),
+                                _T("\u00B0") );
                         } else {
                             //->SetData(_T("---"));
                         }
@@ -1236,8 +1239,10 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                 dMagneticCOG = mCOGFilter.get() + m_NMEA0183->Rmc.MagneticVariation;
                                 if ( dMagneticCOG > 360.0 ) dMagneticCOG = dMagneticCOG - 360.0;
                             }
-                            SendSentenceToAllInstruments( OCPN_DBP_STC_MCOG,
-                                                          dMagneticCOG, _T("\u00B0M") );
+                            SendSentenceToAllInstruments(
+                                OCPN_DBP_STC_MCOG,
+                                dMagneticCOG,
+                                _T("\u00B0M") );
                         } else {
                             //->SetData(_T("---"));
                         }
@@ -1319,15 +1324,18 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     if( m_NMEA0183->Vtg.SpeedKnots < 999. ) {
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_SOG, toUsrSpeed_Plugin(
-                                mSOGFilter.filter(m_NMEA0183->Vtg.SpeedKnots), g_iDashSpeedUnit ),
+                                mSOGFilter.filter(m_NMEA0183->Vtg.SpeedKnots),
+                                g_iDashSpeedUnit ),
                             getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
                     } else {
                         //->SetData(_T("---"));
                     }
                     // Vtg.SpeedKilometersPerHour;
                     if( m_NMEA0183->Vtg.TrackDegreesTrue < 999. ) {
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_COG,
-                                                      mCOGFilter.filter(m_NMEA0183->Vtg.TrackDegreesTrue), _T("\u00B0") );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_COG,
+                            mCOGFilter.filter(m_NMEA0183->Vtg.TrackDegreesTrue),
+                            _T("\u00B0") );
                     } else {
                         //->SetData(_T("---"));
                     }
@@ -1505,12 +1513,18 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     SendSentenceToAllInstruments( OCPN_DBP_STC_LON, gpd.Lon, _T("SDMM") );
                     
                 SendSentenceToAllInstruments(
-                    OCPN_DBP_STC_SOG, toUsrSpeed_Plugin(
-                        mSOGFilter.filter(gpd.Sog), g_iDashSpeedUnit),
-                    getUsrSpeedUnit_Plugin(g_iDashSpeedUnit));
-                SendSentenceToAllInstruments( OCPN_DBP_STC_COG, mCOGFilter.filter(gpd.Cog), _T("\u00B0") );
+                    OCPN_DBP_STC_SOG,
+                    toUsrSpeed_Plugin( mSOGFilter.filter(gpd.Sog), g_iDashSpeedUnit ),
+                    getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
+                SendSentenceToAllInstruments(
+                    OCPN_DBP_STC_COG,
+                    mCOGFilter.filter( gpd.Cog ),
+                    _T("\u00B0") );
                 if( !std::isnan(gpd.Hdt) ) {
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_HDT, gpd.Hdt, _T("\u00B0T") );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_HDT,
+                        gpd.Hdt,
+                        _T("\u00B0T") );
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
                 }
             }
@@ -1830,8 +1844,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             mPriCOGSOG = 3;
                             SendSentenceToAllInstruments(
                                 OCPN_DBP_STC_SOG,
-                                toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
-                                                   g_iDashSpeedUnit ),
+                                toUsrSpeed_Plugin(
+                                    mSOGFilter.filter( value * MS_IN_KNOTS ), g_iDashSpeedUnit ),
                                 getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                                 timestamp );
                         }
@@ -2221,8 +2235,9 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mPriCOGSOG = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_SOG,
-                            toUsrSpeed_Plugin( mSOGFilter.filter( value * MS_IN_KNOTS ),
-                                               g_iDashSpeedUnit ),
+                            toUsrSpeed_Plugin(
+                                mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                g_iDashSpeedUnit ),
                             getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                             timestamp );
                     }
@@ -2298,23 +2313,35 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         SendSentenceToAllInstruments( OCPN_DBP_STC_LON, pfix.Lon, _T("SDMM") );
         mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
-    if( mPriCOGSOG >= 1 ) {
+    if( mPriCOGSOG >= 1 && !std::isnan( pfix.Cog ) && !std::isnan( pfix.Sog ) ) {
         double dMagneticCOG;
         mPriCOGSOG = 1;
-        SendSentenceToAllInstruments( OCPN_DBP_STC_SOG, toUsrSpeed_Plugin( mSOGFilter.filter(pfix.Sog), g_iDashSpeedUnit ), getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
-        SendSentenceToAllInstruments( OCPN_DBP_STC_COG, mCOGFilter.filter(pfix.Cog), _T("\u00B0") );
-        dMagneticCOG = mCOGFilter.get() - pfix.Var;
-        if ( dMagneticCOG < 0.0 ) dMagneticCOG = 360.0 + dMagneticCOG;
-        if ( dMagneticCOG > 360.0 ) dMagneticCOG = dMagneticCOG - 360.0;
-        SendSentenceToAllInstruments( OCPN_DBP_STC_MCOG, dMagneticCOG , _T("\u00B0M") );
+        SendSentenceToAllInstruments(
+            OCPN_DBP_STC_SOG,
+            toUsrSpeed_Plugin( mSOGFilter.filter(pfix.Sog), g_iDashSpeedUnit ),
+            getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ) );
+        SendSentenceToAllInstruments(
+            OCPN_DBP_STC_COG,
+            mCOGFilter.filter(pfix.Cog),
+            _T("\u00B0") );
+        if ( !std::isnan( pfix.Var ) ) {
+            dMagneticCOG = mCOGFilter.get() - pfix.Var;
+            if ( dMagneticCOG < 0.0 ) dMagneticCOG = 360.0 + dMagneticCOG;
+            if ( dMagneticCOG > 360.0 ) dMagneticCOG = dMagneticCOG - 360.0;
+            SendSentenceToAllInstruments( OCPN_DBP_STC_MCOG,
+                                          dMagneticCOG ,
+                                          _T("\u00B0M") );
+        }
     }
     if( mPriVar >= 1 ) {
         if( !std::isnan( pfix.Var ) ){
             mPriVar = 1;
             mVar = pfix.Var;
             mVar_Watchdog = gps_watchdog_timeout_ticks;
-
-            SendSentenceToAllInstruments( OCPN_DBP_STC_HMV, pfix.Var, _T("\u00B0") );
+            SendSentenceToAllInstruments(
+                OCPN_DBP_STC_HMV,
+                pfix.Var,
+                _T("\u00B0") );
         }
     }
     if( mPriDateTime >= 6 ) { // priority is given to data from GNSS
