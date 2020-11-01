@@ -55,12 +55,12 @@
 #define ENGINEDJG_H_BOTTOM     9
 #else
 #define ENGINEDJG_V_TITLEH    18
-#define ENGINEDJG_V_WIDTH    230
-#define ENGINEDJG_V_HEIGHT   230
+#define ENGINEDJG_V_WIDTH    170
+#define ENGINEDJG_V_HEIGHT    90
 #define ENGINEDJG_V_BOTTOM     8
 #define ENGINEDJG_H_TITLEH    19
-#define ENGINEDJG_H_WIDTH    250
-#define ENGINEDJG_H_HEIGHT   230
+#define ENGINEDJG_H_WIDTH    170
+#define ENGINEDJG_H_HEIGHT    90
 #define ENGINEDJG_H_BOTTOM     9
 #endif // ifdef __WXMSW__
 #define ENGINEDJG_V_MIN_WIDTH  ENGINEDJG_V_WIDTH
@@ -68,7 +68,7 @@
 #define ENGINEDJG_H_MIN_WIDTH  ENGINEDJG_H_WIDTH
 #define ENGINEDJG_H_MIN_HEIGHT (ENGINEDJG_H_TITLEH + ENGINEDJG_H_HEIGHT + ENGINEDJG_H_BOTTOM)
 
-#define ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, and it appears               
+#define ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, wait for it
 
 //+------------------------------------------------------------------------------
 //|

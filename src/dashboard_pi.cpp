@@ -419,7 +419,7 @@ void dashboard_pi::OnAuiRender( wxAuiManagerEvent &event )
     event.Skip();
     if ( APPLYSAVEWINRUNNING )
         return;
-    DashboardWindow *dashboard_window = NULL;
+    DashboardWindow *dashboard_window = nullptr;
     wxAuiPaneInfo pane;
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         dashboard_window =

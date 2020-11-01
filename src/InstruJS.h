@@ -57,7 +57,9 @@ enum instruState {
     JSI_UNDEFINED,
     JSI_NO_WINDOW,
     JSI_WINDOW,
+    JSI_WINDOW_ERR,
     JSI_WINDOW_LOADED,
+    JSI_WINDOW_RELOADED,
     JSI_NO_REQUEST,
     JSI_GETID,
     JSI_GETALL,
@@ -200,6 +202,7 @@ protected:
     wxWebView           *m_pWebPanel;
     wxTimer             *m_pThreadInstruJSTimer;
     wxSize               m_lastSize;
+    wxSize               m_initialSize;
 
     callbackFunction     m_pushHere;
 
@@ -207,6 +210,8 @@ protected:
 
     void OnClose( wxCloseEvent& event );
     void OnSize( wxSizeEvent& event );
+    void OnWebViewLoaded( wxWebViewEvent& event );
+    void OnWebViewError( wxWebViewEvent& event );
     void OnThreadTimerTick( wxTimerEvent& event);
     wxString RunScript(const wxString& javascript);
     

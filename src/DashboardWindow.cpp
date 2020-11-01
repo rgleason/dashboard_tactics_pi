@@ -150,9 +150,11 @@ void DashboardWindow::OnContextMenu( wxContextMenuEvent &event )
             contextMenu->Append( ID_DASH_UNDOCK, _( "Undock" ) );
         } // then docked
         else {
-            wxMenuItem* btnVertical = contextMenu->AppendRadioItem( ID_DASH_VERTICAL, _("Vertical") );
+            wxMenuItem* btnVertical = contextMenu->AppendRadioItem(
+                ID_DASH_VERTICAL, _("Vertical") );
             btnVertical->Check( itemBoxSizer->GetOrientation() == wxVERTICAL );
-            wxMenuItem* btnHorizontal = contextMenu->AppendRadioItem( ID_DASH_HORIZONTAL, _("Horizontal") );
+            wxMenuItem* btnHorizontal = contextMenu->AppendRadioItem(
+                ID_DASH_HORIZONTAL, _("Horizontal") );
             btnHorizontal->Check( itemBoxSizer->GetOrientation() == wxHORIZONTAL );
             contextMenu->AppendSeparator();
         } // else non-docked
@@ -173,7 +175,9 @@ void DashboardWindow::OnContextMenuSelect( wxCommandEvent& event )
 {
     if( event.GetId() < ID_DASH_PREFS ) { // Toggle dashboard visibility
         m_plugin->ShowDashboard( event.GetId()-1, event.IsChecked() );
-        SetToolbarItemState( m_plugin->GetToolbarItemId(), m_plugin->GetDashboardWindowShownCount() != 0 );
+        SetToolbarItemState(
+            m_plugin->GetToolbarItemId(),
+            m_plugin->GetDashboardWindowShownCount() != 0 );
     }
 
     switch( event.GetId() ){

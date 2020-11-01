@@ -102,8 +102,12 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
     m_istate = JSI_NO_WINDOW;
+    Bind(wxEVT_WEBVIEW_LOADED, &InstruJS::OnWebViewLoaded, this, m_pWebPanel->GetId());
+    Bind(wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError, this, m_pWebPanel->GetId());
+
     m_pThreadInstruJSTimer = NULL;
     m_lastSize = wxControl::GetSize();
+    m_initialSize = m_lastSize;
 }
 
 InstruJS::~InstruJS(void)
@@ -223,22 +227,35 @@ wxString InstruJS::RunScript( const wxString &javascript )
     return result;
 }
 
+void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
+{
+    m_istate = JSI_WINDOW_LOADED;
+    wxSizer *thisSizer = GetSizer();
+    m_pWebPanel->SetSizer( thisSizer );
+    m_pWebPanel->SetAutoLayout( true );
+    m_pWebPanel->SetInitialSize( m_initialSize );
+    FitIn();
+    m_webpanelCreateWait = true;
+    /* Start the instrument pane control thread (faster polling,
+       1/10 seconds for initial loading) */
+    m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+    m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
+                                   wxTIMER_CONTINUOUS);
+}
+
+void InstruJS::OnWebViewError( wxWebViewEvent &event )
+{
+    m_istate = JSI_WINDOW_ERR;
+    wxLogMessage( "dashboard_tactics_pi: ERROR : WebViewError( %i )",
+                  event.GetInt() );
+}
+
 void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 {
-    if ( !m_webpanelCreated && !m_webpanelCreateWait ) {
-        m_pWebPanel->Create(
-            this, wxID_ANY, fullPath );
+    if ( !m_webpanelCreated && !m_webpanelCreateWait && !m_webpanelReloadWait ) {
+        m_initialSize = initialSize;
+        m_pWebPanel->Create( this, wxID_ANY, fullPath );
         m_istate = JSI_WINDOW;
-        wxSizer *thisSizer = GetSizer();
-        m_pWebPanel->SetSizer( thisSizer );
-        m_pWebPanel->SetAutoLayout( true );
-        m_pWebPanel->SetInitialSize( initialSize );
-        FitIn();
-        m_webpanelCreateWait = true;
-        // Start the instrument pane control thread (faster polling 1/10 seconds for initial loading)
-        m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
-                                       wxTIMER_CONTINUOUS);
     }
 }
 
@@ -301,7 +318,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     m_pThreadInstruJSTimer->Stop();
     m_threadRunning = true;
-    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_LOADED) &&
+    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_RELOADED) &&
          m_pWebPanel ) {
         // see  ../instrujs/src/iface.js for the interface,
         // see  ../instrujs/<instrument>/src/statemachine.js for the states
@@ -752,7 +769,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         if ( m_webpanelCreated && m_webpanelReloadWait ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
-                m_istate = JSI_WINDOW_LOADED;
+                m_istate = JSI_WINDOW_RELOADED;
             } // then page is reloaded
         } // then poll until page reloaded - to make sure to have the latest .js versions
 
