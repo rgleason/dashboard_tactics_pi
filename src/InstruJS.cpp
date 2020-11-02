@@ -233,28 +233,55 @@ wxString InstruJS::RunScript( const wxString &javascript )
 void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
 {
     wxString eventURL = event.GetURL();
-    if ( (m_istate == JSI_WINDOW) &&
-         (eventURL == m_pWebPanel->GetCurrentURL()) &&
-         (eventURL == m_fullPath) ) {
-        m_istate = JSI_WINDOW_LOADED;
-        wxSizer *thisSizer = GetSizer();
-        m_pWebPanel->SetSizer( thisSizer );
-        m_pWebPanel->SetAutoLayout( true );
-        m_pWebPanel->SetInitialSize( m_initialSize );
-        FitIn();
-        m_webpanelCreateWait = true;
-        /* Start the instrument pane control thread (faster polling,
-           1/10 seconds for initial loading) */
-        m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
-                                       wxTIMER_CONTINUOUS);
-    } // then initial page load has terminated
+    if ( (m_istate == JSI_WINDOW) || (m_istate == JSI_WINDOW_RELOADING) ) {
+        if ( eventURL == m_fullPath ) {
+            if ( eventURL == m_pWebPanel->GetCurrentURL() ) {
+                // Something for us
+                if ( m_istate == JSI_WINDOW ) {
+                    m_istate = JSI_WINDOW_LOADED;
+                    wxSizer *thisSizer = GetSizer();
+                    m_pWebPanel->SetSizer( thisSizer );
+                    m_pWebPanel->SetAutoLayout( true );
+                    m_pWebPanel->SetInitialSize( m_initialSize );
+                    FitIn();
+                    m_webpanelCreateWait = true;
+                } // then first load
+                else {
+                    m_istate = JSI_WINDOW_RELOADED;
+                } // else reload (on IE, does not come here, there is polling!)
+                /* Start the instrument pane control thread (faster polling,
+                   1/10 seconds for initial loading) */
+                m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+                m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
+                                               wxTIMER_CONTINUOUS);
+            } // then event and the window URL match
+            else {
+                m_istate = JSI_WINDOW_ERR;
+                wxLogMessage(
+                    "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
+                    "panel URL does not match: m_fullPath ( %s ), "
+                    "m_pWebPanel->GetCurrentURL() (%s), "
+                    "m_istate( %d )",
+                    eventURL, m_fullPath,
+                    m_pWebPanel->GetCurrentURL(), m_istate );
+            }
+        } // then event and our client's URL match
+        else {
+            m_istate = JSI_WINDOW_ERR;
+            wxLogMessage(
+                "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
+                "event URL does not match: m_fullPath ( %s ), "
+                "m_istate( %d )",
+                eventURL, m_fullPath, m_istate );
+        }
+    } // then either window first load or content reload
     else {
         m_istate = JSI_WINDOW_ERR;
-        wxLogMessage( "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
-                      "m_fullPath ( %s ), m_pWebPanel->GetCurrentURL() (%s), "
-                      "m_istate( %d )",
-                      eventURL, m_pWebPanel->GetCurrentURL(), m_istate );
+        wxLogMessage(
+            "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
+            "a load event occurred but non-expected state: "
+            "m_istate( %d ), m_fullPath ( %s )",
+            eventURL, m_istate, m_fullPath );
     } // else fatal state violation, probably no way out, report.
 }
 
