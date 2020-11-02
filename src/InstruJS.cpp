@@ -102,12 +102,15 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
     m_istate = JSI_NO_WINDOW;
-    Bind(wxEVT_WEBVIEW_LOADED, &InstruJS::OnWebViewLoaded, this, m_pWebPanel->GetId());
-    Bind(wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError, this, m_pWebPanel->GetId());
+    Bind( wxEVT_WEBVIEW_LOADED, &InstruJS::OnWebViewLoaded,
+          this, m_pWebPanel->GetId() );
+    Bind( wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError,
+         this, m_pWebPanel->GetId() );
 
     m_pThreadInstruJSTimer = NULL;
     m_lastSize = wxControl::GetSize();
     m_initialSize = m_lastSize;
+    m_fullPath = wxEmptyString;
 }
 
 InstruJS::~InstruJS(void)
@@ -229,31 +232,63 @@ wxString InstruJS::RunScript( const wxString &javascript )
 
 void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
 {
-    m_istate = JSI_WINDOW_LOADED;
-    wxSizer *thisSizer = GetSizer();
-    m_pWebPanel->SetSizer( thisSizer );
-    m_pWebPanel->SetAutoLayout( true );
-    m_pWebPanel->SetInitialSize( m_initialSize );
-    FitIn();
-    m_webpanelCreateWait = true;
-    /* Start the instrument pane control thread (faster polling,
-       1/10 seconds for initial loading) */
-    m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-    m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
-                                   wxTIMER_CONTINUOUS);
+    wxString eventURL = event.GetURL();
+    if ( (m_istate == JSI_WINDOW) &&
+         (eventURL == m_pWebPanel->GetCurrentURL()) &&
+         (eventURL == m_fullPath) ) {
+        m_istate = JSI_WINDOW_LOADED;
+        wxSizer *thisSizer = GetSizer();
+        m_pWebPanel->SetSizer( thisSizer );
+        m_pWebPanel->SetAutoLayout( true );
+        m_pWebPanel->SetInitialSize( m_initialSize );
+        FitIn();
+        m_webpanelCreateWait = true;
+        /* Start the instrument pane control thread (faster polling,
+           1/10 seconds for initial loading) */
+        m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
+                                       wxTIMER_CONTINUOUS);
+    } // then initial page load has terminated
+    else {
+        m_istate = JSI_WINDOW_ERR;
+        wxLogMessage( "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
+                      "m_fullPath ( %s ), m_pWebPanel->GetCurrentURL() (%s), "
+                      "m_istate( %d )",
+                      eventURL, m_pWebPanel->GetCurrentURL(), m_istate );
+    } // else fatal state violation, probably no way out, report.
 }
 
 void InstruJS::OnWebViewError( wxWebViewEvent &event )
 {
+#define WX_WEBVIEW_ERROR_CASE(type) \
+    case type: \
+        category = #type; \
+        break;
+
+    wxString category;
+    switch (event.GetInt())
+    {
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_CONNECTION);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_CERTIFICATE);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_AUTH);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_SECURITY);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_NOT_FOUND);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_REQUEST);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_USER_CANCELLED);
+        WX_WEBVIEW_ERROR_CASE(wxWEBVIEW_NAV_ERR_OTHER);
+    }
+    
     m_istate = JSI_WINDOW_ERR;
-    wxLogMessage( "dashboard_tactics_pi: ERROR : WebViewError( %i )",
-                  event.GetInt() );
+    wxLogMessage( "dashboard_tactics_pi: ERROR : WebViewError ( %s ), "
+                  "m_fullPath ( %s )",
+                  category, m_fullPath );
 }
 
 void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 {
     if ( !m_webpanelCreated && !m_webpanelCreateWait && !m_webpanelReloadWait ) {
         m_initialSize = initialSize;
+        m_fullPath = fullPath;
         m_pWebPanel->Create( this, wxID_ANY, fullPath );
         m_istate = JSI_WINDOW;
     }
@@ -758,20 +793,23 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     } // then all code loaded
     
     else {
-        if ( !m_webpanelCreated && m_webpanelCreateWait ) {
+        if ( !m_webpanelCreated && m_webpanelCreateWait &&
+             (m_istate >= JSI_WINDOW) ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-                m_pWebPanel->Reload(); // local servers w/ no time: clean cache
+                m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE); // get the latest
                 m_webpanelReloadWait = true;
+                m_istate = JSI_WINDOW_RELOADING;
             } // then, apparently (for IE), the page is loaded - handler also in JS
-        } //then poll until the initial page is loaded (load event _not_ working down here)
-        if ( m_webpanelCreated && m_webpanelReloadWait ) {
+        } // then not absolutely sure about that event on all platforms, better poll
+        if ( m_webpanelCreated && m_webpanelReloadWait &&
+             (m_istate == JSI_WINDOW_RELOADING) ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
                 m_istate = JSI_WINDOW_RELOADED;
             } // then page is reloaded
-        } // then poll until page reloaded - to make sure to have the latest .js versions
+        } // then poll until page reloaded, again, not always the event
 
         m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
                                        wxTIMER_CONTINUOUS);

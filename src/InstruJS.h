@@ -56,9 +56,10 @@
 enum instruState {
     JSI_UNDEFINED,
     JSI_NO_WINDOW,
-    JSI_WINDOW,
     JSI_WINDOW_ERR,
+    JSI_WINDOW,
     JSI_WINDOW_LOADED,
+    JSI_WINDOW_RELOADING,
     JSI_WINDOW_RELOADED,
     JSI_NO_REQUEST,
     JSI_GETID,
@@ -203,6 +204,7 @@ protected:
     wxTimer             *m_pThreadInstruJSTimer;
     wxSize               m_lastSize;
     wxSize               m_initialSize;
+    wxString             m_fullPath;
 
     callbackFunction     m_pushHere;
 
