@@ -260,9 +260,9 @@ void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
                 wxLogMessage(
                     "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
                     "panel URL does not match: m_fullPath ( %s ), "
-                    "m_pWebPanel->GetCurrentURL() (%s), "
+                    "m_pWebPanel(%p)->GetCurrentURL() (%s), "
                     "m_istate( %d )",
-                    eventURL, m_fullPath,
+                    eventURL, m_fullPath, m_pWebPanel,
                     m_pWebPanel->GetCurrentURL(), m_istate );
             }
         } // then event and our client's URL match
@@ -316,8 +316,9 @@ void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
     if ( !m_webpanelCreated && !m_webpanelCreateWait && !m_webpanelReloadWait ) {
         m_initialSize = initialSize;
         m_fullPath = fullPath;
-        m_pWebPanel->Create( this, wxID_ANY, fullPath );
         m_istate = JSI_WINDOW;
+        // m_pWebPanel->Create( this, wxID_ANY, fullPath );
+        m_pWebPanel->Create( this, wxID_ANY );
     }
 }
 
@@ -830,14 +831,22 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_WINDOW_RELOADING;
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } // then not absolutely sure about that event on all platforms, better poll
+#if wxUSE_WEBVIEW_IE
         if ( m_webpanelCreated && m_webpanelReloadWait &&
              (m_istate == JSI_WINDOW_RELOADING) ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
                 m_istate = JSI_WINDOW_RELOADED;
             } // then page is reloaded
-        } // then poll until page reloaded, again, not always the event
-
+        } // then poll until page reloaded, WebView IE no reload event
+#else
+        if ( m_webpanelCreated && m_webpanelReloadWait &&
+             (m_istate == JSI_WINDOW_RELOADED) ) {
+            if ( !m_pWebPanel->IsBusy() ) {
+                m_webpanelReloadWait = false;
+            } // then page is reloaded
+        } // then poll until page reloaded and event occurred
+#endif
         m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
                                        wxTIMER_CONTINUOUS);
 

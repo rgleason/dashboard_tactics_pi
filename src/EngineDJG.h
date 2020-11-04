@@ -68,7 +68,8 @@
 #define ENGINEDJG_H_MIN_WIDTH  ENGINEDJG_H_WIDTH
 #define ENGINEDJG_H_MIN_HEIGHT (ENGINEDJG_H_TITLEH + ENGINEDJG_H_HEIGHT + ENGINEDJG_H_BOTTOM)
 
-#define ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS 2 // if initially no server, wait for it
+// if initially no server, give it break when it finally appears
+#define ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS 2
 
 //+------------------------------------------------------------------------------
 //|

@@ -54,20 +54,20 @@
 #include "ocpn_plugin.h"
 
 enum instruState {
-    JSI_UNDEFINED,
-    JSI_NO_WINDOW,
-    JSI_WINDOW_ERR,
-    JSI_WINDOW,
-    JSI_WINDOW_LOADED,
-    JSI_WINDOW_RELOADING,
-    JSI_WINDOW_RELOADED,
-    JSI_NO_REQUEST,
-    JSI_GETID,
-    JSI_GETALL,
-    JSI_GETPATH,
-    JSI_SHOWDATA,
-    JSI_GETDBOUT,
-    JSI_NOF_STATES
+    JSI_UNDEFINED,        //  0
+    JSI_NO_WINDOW,        //  1
+    JSI_WINDOW_ERR,       //  2
+    JSI_WINDOW,           //  3
+    JSI_WINDOW_LOADED,    //  4
+    JSI_WINDOW_RELOADING, //  5
+    JSI_WINDOW_RELOADED,  //  6
+    JSI_NO_REQUEST,       //  7
+    JSI_GETID,            //  8
+    JSI_GETALL,           //  9
+    JSI_GETPATH,          // 10
+    JSI_SHOWDATA,         // 11
+    JSI_GETDBOUT,         // 12
+    JSI_NOF_STATES        // 13
 };
 enum instruHandShake {
     JSI_HDS_NO_REQUEST,
