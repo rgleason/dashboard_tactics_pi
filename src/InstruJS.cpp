@@ -854,17 +854,12 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     else {
         bool eventHandlerArmsTimer = false;
 #if wxUSE_WEBVIEW_IE
-        if ( !m_webpanelCreated && m_webpanelCreateWait &&
-             (m_istate >= JSI_WINDOW) ) {
+        if ( m_webpanelCreated && !m_webpanelReloadWait &&
+             (m_istate == JSI_WINDOW_RELOADED) ) {
             if ( !m_pWebPanel->IsBusy() ) {
-                m_webpanelCreateWait = false;
-                m_webpanelCreated = true;
-                m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE); // get the latest
-                m_webpanelReloadWait = true;
-                eventHandlerArmsTimer = true;
-                m_istate = JSI_WINDOW_RELOADING;
-            } // then, apparently (for IE), the page is loaded - handler also in JS
-        } // then not absolutely sure about that event on all platforms, better poll
+                m_istate = JSI_NO_REQUEST;
+            } // then page is reloaded + 1 poll tick wait
+        } // then poll until confirmed by previous poll tick
         if ( m_webpanelCreated && m_webpanelReloadWait &&
              (m_istate == JSI_WINDOW_RELOADING) ) {
             if ( !m_pWebPanel->IsBusy() ) {
@@ -872,6 +867,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_istate = JSI_WINDOW_RELOADED;
             } // then page is reloaded with URL loaded in creation
         } // then poll until page reloaded, WebView IE no reload event
+        if ( !m_webpanelCreated && m_webpanelCreateWait &&
+             (m_istate >= JSI_WINDOW) ) {
+            if ( !m_pWebPanel->IsBusy() ) {
+                m_webpanelCreateWait = false;
+                m_webpanelCreated = true;
+                m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE); // get the latest
+                m_webpanelReloadWait = true;
+                m_istate = JSI_WINDOW_RELOADING;
+            } // then, apparently (for IE), the page is loaded - handler also in JS
+        } // then not absolutely sure about that event on all platforms, better poll
 #else
         wxLogMessage("dashboard_tactics_pi: loading wait on a tick...");
         wxLogMessage("dashboard_tactics_pi: waiting RELOADING on the same tick...");
@@ -908,7 +913,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         } // then, apparently (for IE), the page is loaded - handler also in JS
 #endif
         if ( !eventHandlerArmsTimer )
-            m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
+            m_pThreadInstruJSTimer->Start( GetRandomNumber( 1500,2499 ),
                                            wxTIMER_CONTINUOUS);
 
     } // else the webpanel is not yet loaded / scripts are not running
