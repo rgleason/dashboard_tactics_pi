@@ -59,7 +59,7 @@ enum instruState {
     JSI_WINDOW_ERR,       //  2
     JSI_WINDOW,           //  3
     JSI_WINDOW_LOADED,    //  4
-    JSI_WINDOW_RELOADING, //  5
+    JSI_WINDOW_URLLOADED, //  5
     JSI_WINDOW_RELOADED,  //  6
     JSI_NO_REQUEST,       //  7
     JSI_GETID,            //  8

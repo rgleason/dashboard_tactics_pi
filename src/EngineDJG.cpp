@@ -157,7 +157,7 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
 
     pConf->SetPath(_T("/PlugIns/DashT/WebView/EngineDJG/"));
     pConf->Read(_T("instrujsURL"), &m_fullPathHTML, sFullPathHTML );
-    
+
     m_httpServer = this->testURLretHost( m_fullPathHTML );
 
     if ( m_httpServer.IsEmpty() ) {

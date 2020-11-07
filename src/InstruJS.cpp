@@ -89,6 +89,7 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
     m_fData = 0.0;
     m_lastdataout = wxString::Format( m_format, 9.9 ); // just make it different
     m_threadRunning = false;
+    m_pThreadInstruJSTimer = nullptr;
     std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
@@ -101,21 +102,21 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
 #if wxUSE_WEBVIEW_IE
     wxWebViewIE::MSWSetModernEmulationLevel();
 #endif
-    m_istate = JSI_NO_WINDOW;
-    Bind( wxEVT_WEBVIEW_LOADED, &InstruJS::OnWebViewLoaded,
-          this, m_pWebPanel->GetId() );
-    Bind( wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError,
+   m_istate = JSI_NO_WINDOW;
+   m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
+   Bind( wxEVT_WEBVIEW_LOADED, &InstruJS::OnWebViewLoaded,
+         this, m_pWebPanel->GetId() );
+   Bind( wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError,
          this, m_pWebPanel->GetId() );
 
-    m_pThreadInstruJSTimer = NULL;
-    m_lastSize = wxControl::GetSize();
-    m_initialSize = m_lastSize;
-    m_fullPath = wxEmptyString;
+   m_lastSize = wxControl::GetSize();
+   m_initialSize = m_lastSize;
+   m_fullPath = wxEmptyString;
 }
 
 InstruJS::~InstruJS(void)
 {
-    if ( this->m_pThreadInstruJSTimer != NULL ) {
+    if ( this->m_pThreadInstruJSTimer ) {
         this->m_pThreadInstruJSTimer->Stop();
         delete this->m_pThreadInstruJSTimer;
     }
@@ -132,6 +133,9 @@ InstruJS::~InstruJS(void)
 }
 
 bool InstruJS::testHTTPServer( wxString urlIpOrNamePort ) {
+    if ( urlIpOrNamePort.Cmp(_T("about:blank")) == 0 ) {
+        return true;
+    } // then useful for debugging the target wxWebView back-end
     wxSocketClient testSocket;
     testSocket.SetTimeout( 1 );
     testSocket.SetFlags( wxSOCKET_BLOCK );
@@ -148,6 +152,9 @@ bool InstruJS::testHTTPServer( wxString urlIpOrNamePort ) {
 }
 
 wxString InstruJS::testURLretHost( wxString url ) {
+    if ( url.Cmp(_T("about:blank")) == 0 ) {
+        return url;
+    } // then useful for debugging the target wxWebView back-end
     wxURL testURL( url );
     if ( testURL.GetError() != wxURL_NOERR )
         return wxEmptyString;
@@ -172,7 +179,7 @@ void InstruJS::stopScript( )
 
 void InstruJS::OnClose( wxCloseEvent &event )
 {
-    if ( this->m_pThreadInstruJSTimer != NULL ) {
+    if ( this->m_pThreadInstruJSTimer ) {
         this->m_pThreadInstruJSTimer->Stop();
     }
     if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
@@ -233,7 +240,10 @@ wxString InstruJS::RunScript( const wxString &javascript )
 void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
 {
     wxString eventURL = event.GetURL();
-    if ( (m_istate == JSI_WINDOW) || (m_istate == JSI_WINDOW_RELOADING) ) {
+    wxLogMessage("dashboard_tactics_pi: OnWebViewLoaded(), m_istate=%d, eventURL:%s",
+                 m_istate, eventURL );
+    if ( (m_istate >= JSI_WINDOW) ||
+         (m_istate <= JSI_WINDOW_RELOADED) ) {
         if ( eventURL == m_fullPath ) {
             if ( eventURL == m_pWebPanel->GetCurrentURL() ) {
                 // Something for us
@@ -245,15 +255,32 @@ void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
                     m_pWebPanel->SetInitialSize( m_initialSize );
                     FitIn();
                     m_webpanelCreateWait = true;
-                } // then first load
+                } // then first load (this is common for IE and WebKit2)
+#ifdef __WXGTK__
                 else {
-                    m_istate = JSI_WINDOW_RELOADED;
-                } // else reload (on IE, does not come here, there is polling!)
+                    switch ( m_istate ) {
+                    case JSI_WINDOW_LOADED:
+                        m_istate = JSI_WINDOW_URLLOADED;
+                        break;
+                    case JSI_WINDOW_URLLOADED:
+                        m_istate = JSI_WINDOW_RELOADED;
+                        break;
+                    default:
+                        wxLogMessage(
+                            "dashboard_tactics_pi: ERROR : OnWebViewLoaded ( %s ), "
+                            "state machine : unexpected : m_istate( %d ), "
+                            "m_fullPath ( %s ), "
+                            "m_pWebPanel(%p)->GetCurrentURL() (%s), ",
+                            eventURL, m_istate, m_fullPath, m_pWebPanel,
+                            m_pWebPanel->GetCurrentURL() );
+                    }
+                } // else reload (on IE, does not come here, got to do polling!)
+#endif
                 /* Start the instrument pane control thread (faster polling,
                    1/10 seconds for initial loading) */
-                m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
-                m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
-                                               wxTIMER_CONTINUOUS);
+                if ( m_pThreadInstruJSTimer )
+                    m_pThreadInstruJSTimer->Start( GetRandomNumber( 100,199 ),
+                                                   wxTIMER_CONTINUOUS);
             } // then event and the window URL match
             else {
                 m_istate = JSI_WINDOW_ERR;
@@ -313,12 +340,16 @@ void InstruJS::OnWebViewError( wxWebViewEvent &event )
 
 void InstruJS::loadHTML( wxString fullPath, wxSize initialSize )
 {
+    wxLogMessage("dashboard_tactics_pi: loadHTML(%s)", fullPath);
     if ( !m_webpanelCreated && !m_webpanelCreateWait && !m_webpanelReloadWait ) {
         m_initialSize = initialSize;
         m_fullPath = fullPath;
         m_istate = JSI_WINDOW;
-        // m_pWebPanel->Create( this, wxID_ANY, fullPath );
+#ifdef __WXGTK__
         m_pWebPanel->Create( this, wxID_ANY );
+#else
+        m_pWebPanel->Create( this, wxID_ANY, fullPath );
+#endif
     }
 }
 
@@ -381,7 +412,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     m_pThreadInstruJSTimer->Stop();
     m_threadRunning = true;
-    if ( !m_webPanelSuspended && (m_istate >= JSI_WINDOW_RELOADED) &&
+    if ( !m_webPanelSuspended && (m_istate >= JSI_NO_REQUEST) &&
          m_pWebPanel ) {
         // see  ../instrujs/src/iface.js for the interface,
         // see  ../instrujs/<instrument>/src/statemachine.js for the states
@@ -821,6 +852,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
     } // then all code loaded
     
     else {
+        bool eventHandlerArmsTimer = false;
+#if wxUSE_WEBVIEW_IE
         if ( !m_webpanelCreated && m_webpanelCreateWait &&
              (m_istate >= JSI_WINDOW) ) {
             if ( !m_pWebPanel->IsBusy() ) {
@@ -828,27 +861,55 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 m_webpanelCreated = true;
                 m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE); // get the latest
                 m_webpanelReloadWait = true;
+                eventHandlerArmsTimer = true;
                 m_istate = JSI_WINDOW_RELOADING;
             } // then, apparently (for IE), the page is loaded - handler also in JS
         } // then not absolutely sure about that event on all platforms, better poll
-#if wxUSE_WEBVIEW_IE
         if ( m_webpanelCreated && m_webpanelReloadWait &&
              (m_istate == JSI_WINDOW_RELOADING) ) {
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
                 m_istate = JSI_WINDOW_RELOADED;
-            } // then page is reloaded
+            } // then page is reloaded with URL loaded in creation
         } // then poll until page reloaded, WebView IE no reload event
 #else
+        wxLogMessage("dashboard_tactics_pi: loading wait on a tick...");
+        wxLogMessage("dashboard_tactics_pi: waiting RELOADING on the same tick...");
         if ( m_webpanelCreated && m_webpanelReloadWait &&
              (m_istate == JSI_WINDOW_RELOADED) ) {
+            wxLogMessage("dashboard_tactics_pi: JSI_WINDOW_RELOADED");
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelReloadWait = false;
-            } // then page is reloaded
-        } // then poll until page reloaded and event occurred
+                m_istate = JSI_NO_REQUEST;
+                wxLogMessage("dashboard_tactics_pi: Ready: JSI_NO_REQUEST");
+            } // then page is reloaded, confirmed, ready
+        } // then poll until page re-loaded event occurred
+        wxLogMessage("dashboard_tactics_pi: waiting url-loading on the same tick...");
+        if ( m_webpanelCreated && !m_webpanelCreateWait &&
+             (m_istate == JSI_WINDOW_URLLOADED) ) {
+            wxLogMessage("dashboard_tactics_pi: JSI_WINDOW_URLLOADED");
+            if ( !m_pWebPanel->IsBusy() ) {
+                m_webpanelReloadWait = true;
+                m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE); // get the latest;
+                eventHandlerArmsTimer = true;
+                wxLogMessage("dashboard_tactics_pi: m_pWebPanel->Reload()");
+            } // then page is loaded, reload
+        } // then poll until page loaded event occurred
+        if ( !m_webpanelCreated && m_webpanelCreateWait &&
+             (m_istate >= JSI_WINDOW_LOADED) ) {
+            if ( !m_pWebPanel->IsBusy() ) {
+                wxLogMessage("dashboard_tactics_pi: JSI_WINDOW_LOADED...");
+                m_webpanelCreateWait = false;
+                m_webpanelCreated = true;
+                m_pWebPanel->LoadURL( m_fullPath );
+                eventHandlerArmsTimer = true;
+                wxLogMessage("dashboard_tactics_pi: m_pWebPanel->LoadURL()");
+            }
+        } // then, apparently (for IE), the page is loaded - handler also in JS
 #endif
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
-                                       wxTIMER_CONTINUOUS);
+        if ( !eventHandlerArmsTimer )
+            m_pThreadInstruJSTimer->Start( GetRandomNumber( 3900,4099 ),
+                                           wxTIMER_CONTINUOUS);
 
     } // else the webpanel is not yet loaded / scripts are not running
 
