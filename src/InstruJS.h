@@ -131,7 +131,7 @@ class InstruJS : public DashboardInstrument
 {
 public:
     InstruJS( TacticsWindow* pparent, wxWindowID id, wxString ids,
-              PI_ColorScheme cs, unsigned long ds );
+              PI_ColorScheme cs, unsigned long ds, bool isInit );
     ~InstruJS(void);
 
     virtual void loadHTML( wxString fullPath, wxSize initialSize );
@@ -190,6 +190,7 @@ protected:
     bool                 m_hasSchemDataCollected;
     wxWindowID           m_id;
     wxString             m_ids;
+    bool                 m_isInit;
     wxString             m_substyle;
     wxString             m_newsubstyle;
     wxString             m_title;
