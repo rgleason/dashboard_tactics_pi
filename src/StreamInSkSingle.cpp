@@ -422,30 +422,31 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         wxQueueEvent( m_frame, event.Clone() );
                     }
                     wxMilliSleep( 500 );
-                    break;
                 } // the first hello message read failed
 
-                // Change path subscriptions on the fly if requested
-                wxJSONWriter writer(wxJSONWRITER_NONE); // note: "non-human-readable" JSON
-                if ( m_subscribeAllPending || m_subscribeToPending ) {
-                    if ( m_subscribeToPending ) {
+                if ( !(m_stateComm == SKTM_STATE_ERROR) ) {
+                    // Change path subscriptions on the fly if requested
+                    wxJSONWriter writer(wxJSONWRITER_NONE); // note: "non-human-readable" JSON
+                    if ( m_subscribeAllPending || m_subscribeToPending ) {
+                        if ( m_subscribeToPending ) {
+                            writer.Write( m_subscribeTo, sData );
+                            m_subscribeToPending = false;
+                        }
+                        else if ( m_subscribeAllPending ) {
+                            writer.Write( m_subscribeAll, sData );
+                            m_subscribeAllPending = false;
+                        }
+                        if ( !sData.IsEmpty() ) {
+                            sHdrOut += sData;
+                            sHdrOut += "\r\n"; // quite necessary in SK server node TCP
+                        }
+                    } // then subscription change on-the fly possible and requested
+                    else {
                         writer.Write( m_subscribeTo, sData );
-                        m_subscribeToPending = false;
-                    }
-                    else if ( m_subscribeAllPending ) {
-                        writer.Write( m_subscribeAll, sData );
-                        m_subscribeAllPending = false;
-                    }
-                    if ( !sData.IsEmpty() ) {
                         sHdrOut += sData;
-                        sHdrOut += "\r\n"; // quite necessary in SK server node TCP
-                    }
-                } // then subscription change on-the fly possible and requested
-                else {
-                    writer.Write( m_subscribeTo, sData );
-                    sHdrOut += sData;
-                    sHdrOut += "\r\n"; // quite necessary to make the signalk-server-node to read the socket
-                } // else subscribe to default data, this is first or reconnection
+                        sHdrOut += "\r\n"; // quite necessary to make the signalk-server-node to read the socket
+                    } // else subscribe to default data, this is first or reconnection
+                } // then initial connection has failed, can continue w/ message
             } // then Signal K standard respecting, subscription based TCP delta channel
             else {
                 sHdrOut += wxString::Format("%d", sData.Len() );
@@ -454,23 +455,26 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                 sHdrOut += sData;
             } // else an older server, with no subscription scheme for TCP delta channel
 
-            if ( m_verbosity > 4) {
-                m_threadMsg = wxString::Format
-                    ("dashboard_tactics_pi: StreamInSkSingle: OnTheFly : writing out to socket:\n%s",
-                     sHdrOut);
-                wxQueueEvent( m_frame, event.Clone() );
-                wxMilliSleep( 500 );
-            }  // avoid, slows down
+            if ( !(m_stateComm == SKTM_STATE_ERROR) ) {
+                if ( m_verbosity > 4) {
+                    m_threadMsg = wxString::Format
+                        ("dashboard_tactics_pi: StreamInSkSingle: OnTheFly : writing out to socket:\n%s",
+                         sHdrOut);
+                    wxQueueEvent( m_frame, event.Clone() );
+                    wxMilliSleep( 500 );
+                }  // avoid, slows down
 
-            wxScopedCharBuffer scb = sHdrOut.mb_str();
-            size_t len = scb.length();
+                wxScopedCharBuffer scb = sHdrOut.mb_str();
+                size_t len = scb.length();
 
-            m_socket.Write( scb.data(), len );
+                m_socket.Write( scb.data(), len );
 
-            if ( m_socket.Error() ) {
-                m_stateComm = SKTM_STATE_ERROR;
-            }
-            else {
+                if ( m_socket.Error() ) {
+                    m_stateComm = SKTM_STATE_ERROR;
+                }
+            } // then initial connection has not failed, handshake OK
+
+            if ( !(m_stateComm == SKTM_STATE_ERROR) ) {
 
                 // Start the main loop reading / parsing delta messages
                 while ( __NOT_STOP_THREAD__ && (m_stateComm == SKTM_STATE_WAITING) ) {
@@ -722,7 +726,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                         } // while continuously parsing from the socket input stream
                     } // then poked that a read() is possible
                 } // while waiting on the socket for read()
-            } // else socket is not in error after writing subscription and/or HTTP header into it
+            } // then handshake OK and socket is not in error after writing subscription and/or HTTP header into it
         } // then connected to the socket, waiting for transaction
     } // while not to be stopped / destroyed
 
