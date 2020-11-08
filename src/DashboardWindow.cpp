@@ -308,7 +308,8 @@ bool DashboardWindow::isInstrumentListEqual( const wxArrayInt& list )
     return isArrayIntEqual( list, m_ArrayOfInstrument );
 }
 
-void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs )
+void DashboardWindow::SetInstrumentList(
+    wxArrayInt list, wxArrayString listIDs, bool isInit )
 {
     /* options
        ID_DBP_D_SOG: config max value, show STW optional
@@ -771,25 +772,29 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list, wxArrayString listIDs 
             if ( ids.IsEmpty() )
                 ids = GetUUID();  // Dial instrument
             instrument = new DashboardInstrument_EngineDJG(
-                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+                this, wxID_ANY, ids,
+                m_plugin->m_colorScheme, "", isInit );
             break;
         case ID_DBP_D_TSETUI:
             if ( ids.IsEmpty() )
                 ids = GetUUID(); // Time-series DB graph
             instrument = new DashboardInstrument_TimesTUI( 
-                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+                this, wxID_ANY, ids,
+                m_plugin->m_colorScheme, "", isInit );
             break;
         case ID_DBP_D_RACESTA:
             if ( ids.IsEmpty() )
                 ids = GetUUID();  // Start line tactician
             instrument = new DashboardInstrument_RaceStart(
-                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+                this, wxID_ANY, ids,
+                m_plugin->m_colorScheme, "", isInit );
             break;
         case ID_DBP_D_RACEMRK:
             if ( ids.IsEmpty() )
                 ids = GetUUID();  // Race mark  tactician
             instrument = new DashboardInstrument_RaceMark(
-                this, wxID_ANY, ids, m_plugin->m_colorScheme );
+                this, wxID_ANY, ids,
+                m_plugin->m_colorScheme, "", isInit );
             break;
         }
         if( instrument ) {

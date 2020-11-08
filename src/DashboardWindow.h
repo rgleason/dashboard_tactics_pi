@@ -59,7 +59,8 @@ public:
     void OnContextMenu( wxContextMenuEvent& evt );
     void OnContextMenuSelect( wxCommandEvent& evt ); 
     bool isInstrumentListEqual( const wxArrayInt& list );
-    void SetInstrumentList( wxArrayInt list, wxArrayString listIDs );
+    void SetInstrumentList(
+        wxArrayInt list, wxArrayString listIDs, bool isInit = false );
     void SetMinSizes( void );
     void RebuildPane( wxArrayInt list, wxArrayString listIDs);
     void SendSentenceToAllInstruments(
