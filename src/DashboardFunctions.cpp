@@ -177,14 +177,14 @@ wxDateTime parseRfc3359UTC( wxString *rfc3359UTCmsStr, bool &parseError, int ver
        In case of failure (check parseError) returns wxGetUTCTimeMillis() */
     wxDateTime utcS;
     wxLongLong wxLLms;
-    long long  LLms;
     if ( verbosity > 5) {
-        wxLogMessage("dashboard_tactics_pi: DEBUG : parseRfc3359UTC() : got : %s", *rfc3359UTCmsStr );
+        wxLogMessage(
+            "dashboard_tactics_pi: DEBUG : parseRfc3359UTC() : got : %s", *rfc3359UTCmsStr );
     }
     if ( utcS.ParseISOCombined( rfc3359UTCmsStr->BeforeLast('.') ) ) { // rfc3359 not understood
         utcS = utcS.FromTimezone(wxDateTime::UTC); // (w/ DST):the "Z", still no ms
         wxLLms = utcS.GetValue();
-        LLms = wxLLms.GetValue();
+        long long LLms = wxLLms.GetValue();
         wxString utcMs = rfc3359UTCmsStr->AfterLast('.');
         utcMs = utcMs.BeforeLast('Z');
         utcMs = utcMs.Truncate(3); // milliseconds only
