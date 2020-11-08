@@ -2314,7 +2314,6 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         mGPS_Watchdog = gps_watchdog_timeout_ticks;
     }
     if( mPriCOGSOG >= 1 && !std::isnan( pfix.Cog ) && !std::isnan( pfix.Sog ) ) {
-        double dMagneticCOG;
         mPriCOGSOG = 1;
         SendSentenceToAllInstruments(
             OCPN_DBP_STC_SOG,
@@ -2325,7 +2324,7 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
             mCOGFilter.filter(pfix.Cog),
             _T("\u00B0") );
         if ( !std::isnan( pfix.Var ) ) {
-            dMagneticCOG = mCOGFilter.get() - pfix.Var;
+            double dMagneticCOG = mCOGFilter.get() - pfix.Var;
             if ( dMagneticCOG < 0.0 ) dMagneticCOG = 360.0 + dMagneticCOG;
             if ( dMagneticCOG > 360.0 ) dMagneticCOG = dMagneticCOG - 360.0;
             SendSentenceToAllInstruments( OCPN_DBP_STC_MCOG,
@@ -2679,184 +2678,228 @@ void dashboard_pi::ApplyConfig(
     bool init
     )
 {
-    // Reverse order to handle deletes
-    for( size_t i = m_ArrayOfDashboardWindow.GetCount(); i > 0; i-- ) {
+    wxArrayOfDashboard replacedDashboards;
+    replacedDashboards.Clear();
+    wxArrayOfDashboard addedDashboards;
+    addedDashboards.Clear();
+    // Reverse order to allow deleting using indexed container
+    for ( size_t i = m_ArrayOfDashboardWindow.GetCount(); i > 0; i-- ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i - 1 );
-        int orient = ( cont->m_sOrientation == _T("V") ? wxVERTICAL : wxHORIZONTAL );
         if( cont->m_bIsDeleted ) {
             if( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                 cont->m_pDashboardWindow->Close();
                 cont->m_pDashboardWindow->Destroy();
-                cont->m_pDashboardWindow = NULL;
             }
             m_ArrayOfDashboardWindow.Remove( cont );
             delete cont;
         }
-        else {
-            DashboardWindowContainer *newcont = new DashboardWindowContainer( cont );
-            /*
-              Prepare a new window pane with instruments if first time or if a floating
-              replacement is needed
-            */
-            wxAuiPaneInfo p_cont;
-            bool wIsDocked = false;
-            if ( newcont->m_pDashboardWindow ) {
-                p_cont = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
-                if ( p_cont.IsOk() ) {
-                    if ( p_cont.IsDocked() ) {
+    } // For loop array searching for deleted Dashboards
+    
+    for ( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+        DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
+        int orient =
+            ( cont->m_sOrientation == _T("V") ? wxVERTICAL : wxHORIZONTAL );
+        DashboardWindowContainer *newcont =
+            new DashboardWindowContainer( cont );
+        /*
+          Prepare a new window pane with instruments if first time
+          or if a floating replacement is needed
+        */
+        wxAuiPaneInfo p_cont;
+        bool wIsDocked = false;
+        if ( newcont->m_pDashboardWindow ) {
+            p_cont = m_pauimgr->GetPane( newcont->m_pDashboardWindow );
+            if ( p_cont.IsOk() ) {
+                if ( p_cont.IsDocked() ) {
                     wIsDocked = true;
-                    } // then window is in a pane which is docked
-                } // then a valid pane
-            } // then this is non-init (run-time) and there is a window pane
-            bool addpane = false;
-            bool rebuildpane = false; // either or but not both
-            if ( init ) {
-                addpane = true;
-            } // in the init we need always a new pane, pro-forma
-            else {
-                if ( cont->m_pDashboardWindow ) {
-                    if( !cont->m_pDashboardWindow->isInstrumentListEqual( newcont->m_aInstrumentList ) ) {
-                        addpane = true;
-                    } // then a change in instruments replacement window is needed, needs a pane
-                    else {
-                        p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
-                        if ( !p_cont.IsOk() ) {
-                            addpane = true;
-                        } // then there is no pane for this window, create one (with a replacement window)
-                        else {
-                            if ( wIsDocked ) {
-                                if ( !newcont->m_bIsDocked ) {
-                                    cont->m_bIsDocked = newcont->m_bIsDocked = true;
-                                    rebuildpane = true;
-                                } // has been just docked, a rerarrangement is needed (ov50 some cases)
-                            } // then there is a pane, unmodified instuments, docked
-                            else {
-                                if ( newcont->m_bIsDocked ) {
-                                    cont->m_bIsDocked = newcont->m_bIsDocked = false;
-                                } // from docked to undocked, just register, no need for rearrangement (ov50)
-                                int orientNow = cont->m_pDashboardWindow->GetSizerOrientation();
-                                if ( (orientNow == wxHORIZONTAL) &&
-                                     (newcont->m_sOrientation == _T("V")) ) {
-                                    addpane = true;
-                                } // then orientation change request to vertical
-                                if ( (orientNow == wxVERTICAL) &&
-                                     (newcont->m_sOrientation == _T("H")) ) {
-                                    addpane = true;
-                                } // then orientation change request to horizontal
-                            } // else there is a pane, unmodified instruments, floating
-                        } // else pane is OK
-                    } // else there is no change in the instrument list
-                } // then there is an instrument dashboard window
-                else {
+                } // then window is in a pane which is docked
+            } // then a valid pane
+        } // then this is non-init (run-time) and there is a window pane
+        bool addpane = false;
+        bool rebuildpane = false; // either or but not both
+        if ( init ) {
+            addpane = true;
+        } // in the init we need always a new pane, pro-forma
+        else {
+            if ( cont->m_pDashboardWindow ) {
+                if( !cont->m_pDashboardWindow->isInstrumentListEqual(
+                        newcont->m_aInstrumentList ) ) {
                     addpane = true;
-                } // else there is no instrument window
-            } // else not init, study run-time dashboard window
-
-            bool NewDashboardCreated = false;
-            if ( addpane ) {
-                newcont->m_pDashboardWindow = new DashboardWindow(
-                    GetOCPNCanvasWindow(), wxID_ANY,
-                    m_pauimgr, this, orient, (init ? cont : newcont),
-                    wxPanelNameStr,   // note, ov51 commit https://git.io/JfoVy, requires "panel"
-                    this->m_pSkData );
-                newcont->m_pDashboardWindow->Show( false );
-                newcont->m_pDashboardWindow->SetInstrumentList(
-                    newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );
-                if ( !init )
-                    newcont->m_sName = MakeName();
-                NewDashboardCreated = true;
-            } // then a pane will be added, create a window for it.
-            /*
-              Position of the frame, initial or existing.
-            */
-            bool vertical = true;
-            if ( orient == wxHORIZONTAL )
-                vertical = false;
-
-            wxPoint position;
-            if ( wIsDocked )
-                position = wxDefaultPosition;
-            else {
-                position = m_pluginFrame->GetPosition();
-                position.x += 100;
-                position.y += 100;
-            }
-            if ( !init && NewDashboardCreated ) {
-                if ( newcont->m_pDashboardWindow ) {
-                    if ( p_cont.IsOk() ) {
-                        if ( !wIsDocked )
-                            position = p_cont.floating_pos;
-                    } // then let's study if we can put the window in its original position
-                } // then there is a window in this pane
-            } // then this is a run-time call
-            /*
-              The logic for creating a new window pane is as follows
-              init: always create a new window pane
-              otherwise: create only if change in the contents, orientation, etc.
-            */
-            wxAuiPaneInfo p;
-            if ( addpane ) {
-                wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
-                // Mac has a little trouble with initial Layout() sizing...
-#ifdef __WXOSX__
-                if(sz.x == 0)
-                    sz.IncTo( wxSize( 160, 388) );
-#endif
-                p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption( newcont->m_sCaption ).CaptionVisible(
-                    false ).TopDockable( !vertical ).BottomDockable( !vertical ).LeftDockable(
-                        false ).RightDockable( vertical ).MinSize( sz ).BestSize( sz ).FloatingSize(
-                            sz ).FloatingPosition( position ).Float().Show( false ).Gripper(false) ;
-            } // then it was necessary to add new pane for init or replacement resizing
-            else {
-                m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption( newcont->m_sCaption ).Show( newcont->m_bIsVisible );
-            } // else is non-init run on an existing and unmodified pane, keep it
-            if ( addpane && !init ) {
-                newcont->m_bPersVisible = cont->m_bIsVisible;
-                if ( cont->m_pDashboardWindow ) {
-                    m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                    cont->m_pDashboardWindow->Close();
-                    cont->m_pDashboardWindow->Destroy();
-                } // then this is an existing window in an existing window pane, replaced with a new one
-                m_ArrayOfDashboardWindow.Remove( cont );
-                m_ArrayOfDashboardWindow.Add( newcont );
-                m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-                newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
-                m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
-                m_pauimgr->Update();
-            } // then we have created a pane and it is a replacement of an exiting pane, detach/destroy the old
-            else {
-                if ( init ) {
-                    m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
-                    newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
-                    newcont->m_bPersVisible = newcont->m_bIsVisible;
-                    m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show( newcont->m_bIsVisible );
-                    cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
-                    if ( wIsDocked ) {
-                        cont->m_bIsDocked = true;  // Memo ov50: never comes here in Init() - docked pane is nor recognized as such
-                    } // was created as docked, however the container constructor defaults to floating
-                    //cont->m_pDashboardWindow->SetMinSizes();
-                    m_pauimgr->Update();
-                } // then a brand new window, register it
+                } /* then a change in instruments replacement window is
+                     needed, needs a pane */
                 else {
-                    m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show( newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
-                    if ( rebuildpane ) {
-                        cont->m_pDashboardWindow->RebuildPane(
-                            newcont->m_aInstrumentList, newcont->m_aInstrumentIDs );
+                    p_cont = m_pauimgr->GetPane( cont->m_pDashboardWindow );
+                    if ( !p_cont.IsOk() ) {
+                        addpane = true;
+                    } /* then there is no pane for this window, create one
+                         (with a replacement window) */
+                    else {
                         if ( wIsDocked ) {
-                            cont->m_bIsDocked = true;
-                        } // was docked and rebuilt, however the constructor defaults to floating
-                    }
-                    m_pauimgr->Update();
-                    if ( NewDashboardCreated ) {
-                        newcont->m_pDashboardWindow->Close();
-                        newcont->m_pDashboardWindow->Destroy();
-                        newcont->m_pDashboardWindow = NULL;
-                    } // then, just in case, garbage collection
-                } // no need to do a replacement or to create a new window
-            } // else brand new pane or no action
-        } // else not a deleted window, to be created or recreated
-    }  // for dashboard window arrays
+                            if ( !newcont->m_bIsDocked ) {
+                                cont->m_bIsDocked = true;
+                                newcont->m_bIsDocked = true;
+                                rebuildpane = true;
+                            } /* Has been just docked, a rerarrangement is
+                                 needed (ov50 some cases) */
+                        } /* then there is a pane, unmodified instuments,
+                             docked */
+                        else {
+                            if ( newcont->m_bIsDocked ) {
+                                cont->m_bIsDocked = false;
+                                newcont->m_bIsDocked = false;
+                            } /* from docked to undocked, just register,
+                                 no need for rearrangement (ov50) */
+                            int orientNow =
+                                cont->m_pDashboardWindow->GetSizerOrientation();
+                            if ( (orientNow == wxHORIZONTAL) &&
+                                 (newcont->m_sOrientation == _T("V")) ) {
+                                addpane = true;
+                            } // then orientation change request to vertical
+                            if ( (orientNow == wxVERTICAL) &&
+                                 (newcont->m_sOrientation == _T("H")) ) {
+                                addpane = true;
+                            } // then orientation change request to horiz.
+                        } /* else there is a pane, unmodified instruments,
+                             floating */
+                    } // else pane is OK
+                } // else there is no change in the instrument list
+            } // then there is an instrument dashboard window
+            else {
+                addpane = true;
+            } // else there is no instrument window
+        } // else not init, study run-time dashboard window
+
+        bool NewDashboardCreated = false;
+        if ( addpane ) {
+            newcont->m_pDashboardWindow = new DashboardWindow(
+                GetOCPNCanvasWindow(), wxID_ANY,
+                m_pauimgr, this, orient, (init ? cont : newcont),
+                wxPanelNameStr,   /* note, ov51 commit https://git.io/JfoVy,
+                                     _requires_ "panel" (as Dashboard) */
+                this->m_pSkData );
+            newcont->m_pDashboardWindow->Show( false );
+            newcont->m_pDashboardWindow->SetInstrumentList(
+                newcont->m_aInstrumentList, newcont->m_aInstrumentIDs, init );
+            if ( !init )
+                newcont->m_sName = MakeName();
+            NewDashboardCreated = true;
+        } // then a pane will be added, create a window for it.
+        /*
+          Position of the frame, initial or existing.
+        */
+        bool vertical = true;
+        if ( orient == wxHORIZONTAL )
+            vertical = false;
+
+        wxPoint position;
+        if ( wIsDocked )
+            position = wxDefaultPosition;
+        else {
+            position = m_pluginFrame->GetPosition();
+            position.x += 100;
+            position.y += 100;
+        }
+        if ( !init && NewDashboardCreated ) {
+            if ( newcont->m_pDashboardWindow ) {
+                if ( p_cont.IsOk() ) {
+                    if ( !wIsDocked )
+                        position = p_cont.floating_pos;
+                } /* then let's study if we can put the window in its
+                     original position */
+            } // then there is a window in this pane
+        } // then this is a run-time call
+        /*
+          The logic for creating a new window pane is as follows
+          init: always create a new window pane
+          otherwise: create only if change in the contents, orientation, etc.
+        */
+        wxAuiPaneInfo p;
+        if ( addpane ) {
+            wxSize sz = newcont->m_pDashboardWindow->GetMinSize();
+            // Mac has a little trouble with initial Layout() sizing...
+#ifdef __WXOSX__
+            if(sz.x == 0)
+                sz.IncTo( wxSize( 160, 388) );
+#endif
+            p = wxAuiPaneInfo().Name( newcont->m_sName ).Caption(
+                newcont->m_sCaption ).CaptionVisible(
+                    false ).TopDockable( !vertical ).BottomDockable(
+                        !vertical ).LeftDockable( false ).RightDockable(
+                            vertical ).MinSize( sz ).BestSize(
+                                sz ).FloatingSize( sz ).FloatingPosition(
+                                    position ).Float().Show(
+                                        false ).Gripper(false) ;
+        } /* then it was necessary to add new pane for init
+             or replacement resizing */
+        else {
+            m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Caption(
+                newcont->m_sCaption ).Show( newcont->m_bIsVisible );
+        } /* else is a non-init run on an existing and unmodified
+             pane, keep it */
+        if ( addpane && !init ) {
+            newcont->m_bPersVisible = cont->m_bIsVisible;
+            if ( cont->m_pDashboardWindow ) {
+                m_pauimgr->DetachPane( cont->m_pDashboardWindow );
+                cont->m_pDashboardWindow->Close();
+                cont->m_pDashboardWindow->Destroy();
+            } /* then this is an existing window in an existing window pane,
+                 replaced with a new one */
+            replacedDashboards.Add( cont ); // do not disturb the loop now
+            addedDashboards.Add( newcont );
+            m_pauimgr->AddPane( newcont->m_pDashboardWindow, p, position);
+            newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
+            m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show(
+                newcont->m_bIsVisible );
+            m_pauimgr->Update();
+        } /* then we have created a pane and it is a replacement of an
+             excisting pane: detach/destroy the one it replaces */
+        else {
+            if ( init ) {
+                m_pauimgr->AddPane(
+                    newcont->m_pDashboardWindow, p, position);
+                newcont->m_pDashboardWindow->Show( newcont->m_bIsVisible );
+                newcont->m_bPersVisible = newcont->m_bIsVisible;
+                m_pauimgr->GetPane( newcont->m_pDashboardWindow ).Show(
+                    newcont->m_bIsVisible );
+                cont->m_pDashboardWindow = newcont->m_pDashboardWindow;
+                if ( wIsDocked ) {
+                    cont->m_bIsDocked = true;  /* Memo ov50: never comes
+                                                  here in Init() - docked
+                                                  pane is nor recognized as
+                                                  such ! */
+                } /* Then was created as docked, however the container
+                     constructor defaults to floating */
+                m_pauimgr->Update();
+            } // then a brand new window, register it
+            else {
+                m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show(
+                    newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
+                if ( rebuildpane ) {
+                    cont->m_pDashboardWindow->RebuildPane(
+                        newcont->m_aInstrumentList,
+                        newcont->m_aInstrumentIDs );
+                    if ( wIsDocked ) {
+                        cont->m_bIsDocked = true;
+                    } /* was docked and rebuilt, however the constructor
+                         defaults to floating */
+                }
+                m_pauimgr->Update();
+                if ( NewDashboardCreated ) {
+                    newcont->m_pDashboardWindow->Close();
+                    newcont->m_pDashboardWindow->Destroy();
+                    newcont->m_pDashboardWindow = NULL;
+                } // then, just in case, garbage collection
+            } // no need to do a replacement or to create a new window
+        } // else brand new pane or no action
+    }  // for dashboard window containers remaining after deletions
+
+    for( size_t i = 0; i < replacedDashboards.GetCount(); i++ ) {
+        m_ArrayOfDashboardWindow.Remove( replacedDashboards.Item( i ) );
+    }
+    for( size_t i = 0; i < addedDashboards.GetCount(); i++ ) {
+        m_ArrayOfDashboardWindow.Add( addedDashboards.Item( i ) );
+    }
 
     this->TacticsApplyConfig();
 
