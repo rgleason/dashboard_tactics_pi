@@ -945,7 +945,6 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             else {
                     wxLogMessage("Reload() - skip");
                     m_webpanelReloadWait = false;
-                    m_webpanelReloadWait = false;
                     m_istate = JSI_NO_REQUEST;
             } // else this object has been reconstructed, speedier start
         } // then poll until page url loaded event occurred
