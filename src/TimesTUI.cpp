@@ -55,8 +55,8 @@ wxEND_EVENT_TABLE ()
 
 DashboardInstrument_TimesTUI::DashboardInstrument_TimesTUI(
     TacticsWindow *pparent, wxWindowID id, wxString ids,
-    PI_ColorScheme cs, wxString format ) :
-    InstruJS ( pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE )
+    PI_ColorScheme cs, wxString format, bool isInit ) : InstruJS (
+        pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE, isInit )
 {
     m_pparent = pparent;
     previousTimestamp = 0LL; // dashboard instru base class

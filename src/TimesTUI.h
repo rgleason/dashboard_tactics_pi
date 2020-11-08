@@ -84,7 +84,7 @@ class DashboardInstrument_TimesTUI : public InstruJS
 public:
     DashboardInstrument_TimesTUI(
         TacticsWindow *pparent, wxWindowID id, wxString ids,
-        PI_ColorScheme cs, wxString format = "" );
+        PI_ColorScheme cs, wxString format = "", bool isInit = false );
     ~DashboardInstrument_TimesTUI(void);
     void SetData(
         unsigned long long, double, wxString,

@@ -53,8 +53,8 @@ wxEND_EVENT_TABLE ()
 
 DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
     TacticsWindow *pparent, wxWindowID id, wxString ids,
-    PI_ColorScheme cs, wxString format ) : InstruJS (
-        pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE )
+    PI_ColorScheme cs, wxString format, bool isInit ) : InstruJS (
+        pparent, id, ids, cs, JSI_DS_EXTERNAL_DATABASE, isInit )
 {
     m_pparent = pparent;
     m_orient = wxHORIZONTAL;

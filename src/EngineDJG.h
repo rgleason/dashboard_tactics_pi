@@ -85,7 +85,7 @@ class DashboardInstrument_EngineDJG : public InstruJS
 public:
     DashboardInstrument_EngineDJG(
         TacticsWindow *pparent, wxWindowID id, wxString ids,
-        PI_ColorScheme cs, wxString format = "" );
+        PI_ColorScheme cs, wxString format = "", bool isInit = false );
     ~DashboardInstrument_EngineDJG(void);
     void SetData(
         unsigned long long, double, wxString,

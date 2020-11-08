@@ -110,7 +110,7 @@ class DashboardInstrument_RaceStart : public InstruJS
 public:
     DashboardInstrument_RaceStart(
         TacticsWindow *pparent, wxWindowID id, wxString ids,
-        PI_ColorScheme cs, wxString format = "" );
+        PI_ColorScheme cs, wxString format = "", bool isInit = false  );
     ~DashboardInstrument_RaceStart(void);
     void SetData(
         unsigned long long, double, wxString,
