@@ -199,6 +199,7 @@ protected:
     wxString             m_format;
     wxString             m_lastdataout;
     std::mutex           m_mtxScriptRun;
+    bool                 m_closing;
     bool                 m_threadRunning;
     bool                 m_webpanelCreated;
     bool                 m_webpanelCreateWait;

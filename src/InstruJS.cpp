@@ -85,13 +85,16 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
         m_substyle = "night";
     m_newsubstyle = wxEmptyString;
     m_title = L"InstruJS";
-    m_format = L"%.2e"; // unlike trad. Dashboard instrument, class manages the format
+    m_format = L"%.2e"; /* unlike trad. Dashboard instrument, class manages the
+                           format */
     m_data = wxString::Format( m_format, 0.0 );
     m_fData = 0.0;
-    m_lastdataout = wxString::Format( m_format, 9.9 ); // just make it different
+    m_lastdataout = wxString::Format( m_format, 9.9 ); // just make a diff
     m_threadRunning = false;
     m_pThreadInstruJSTimer = nullptr;
-    std::unique_lock<std::mutex> init_m_mtxScriptRun( m_mtxScriptRun, std::defer_lock );
+    std::unique_lock<std::mutex> init_m_mtxScriptRun(
+        m_mtxScriptRun, std::defer_lock );
+    m_closing = false;
     m_webpanelCreated = false;
     m_webpanelCreateWait = false;
     m_webpanelReloadWait = false;
@@ -173,6 +176,7 @@ wxString InstruJS::testURLretHost( wxString url ) {
 
 void InstruJS::stopScript( )
 {
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
     if ( m_pThreadInstruJSTimer != NULL ) {
         m_pThreadInstruJSTimer->Stop();
     }
@@ -186,6 +190,9 @@ void InstruJS::stopScript( )
 
 void InstruJS::OnClose( wxCloseEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    m_closing = true;
+
     wxLogMessage("OnClose()");
     if ( m_pThreadInstruJSTimer ) {
         m_pThreadInstruJSTimer->Stop();
@@ -198,7 +205,6 @@ void InstruJS::OnClose( wxCloseEvent &event )
     if ( m_istate >= JSI_WINDOW ) {
         if ( m_pWebPanel ) {
             wxLogMessage("OnClose() - pWebPanel");
-#if wxUSE_WEBVIEW_IE
             if ( m_istate == JSI_SHOWDATA ) {
                 wxLogMessage("OnClose() - pWebPanel - Run-Script");
                 wxString javascript =
@@ -208,8 +214,7 @@ void InstruJS::OnClose( wxCloseEvent &event )
                 RunScript( javascript );
                 m_istate = JSI_NO_WINDOW;
             } /* then allow the instrument code to gracefully close
-                 if showing data */
-#endif
+                 if showing data but do not wait any answer  */
             wxLogMessage("OnClose() - pWebPanel - Stop");
             m_pWebPanel->Stop();
             m_webpanelStopped = true;
@@ -438,6 +443,9 @@ void InstruJS::setColorScheme ( PI_ColorScheme cs )
 void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
 {
     std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    if ( m_closing )
+        return;
+
     m_pThreadInstruJSTimer->Stop();
     m_threadRunning = true;
     if ( !m_webPanelSuspended && (m_istate >= JSI_NO_REQUEST) &&
