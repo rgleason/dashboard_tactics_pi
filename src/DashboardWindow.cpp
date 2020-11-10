@@ -91,7 +91,7 @@ DashboardWindow::~DashboardWindow()
 {
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        if ( pdic->m_pInstrument != NULL ) {
+        if ( pdic->m_pInstrument ) {
             delete pdic;
         }
     }
@@ -99,14 +99,24 @@ DashboardWindow::~DashboardWindow()
 
 void DashboardWindow::OnClose( wxCloseEvent &event )
 {
+    bool hasDelayedThreadedApps = false;
+    bool canVeto = event.CanVeto();
+
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
-        if ( pdic->m_pInstrument != NULL ) {
+        if ( pdic->m_pInstrument ) {
             pdic->m_pInstrument->Close();
+            if ( canVeto && pdic->m_bDelayedDestruction )
+                hasDelayedThreadedApps = true;
+            else
+                pdic->m_pInstrument->Destroy();
         }
     }
     m_Container->m_bIsVisible = false;
-    event.Skip(); // Destroy() must be called
+    if ( hasDelayedThreadedApps )
+        m_Container->m_bIsDeleted = true;
+    
+    event.Skip(); // Continue with default Window class handlers
 }
 
 void DashboardWindow::RebuildPane( wxArrayInt list, wxArrayString listIDs )
@@ -334,8 +344,8 @@ void DashboardWindow::SetInstrumentList(
 
     for( size_t i = 0; i < list.GetCount(); i++ ) {
 
-        DashboardInstrument *instrument;
-        instrument = NULL;
+        DashboardInstrument *instrument = nullptr;
+        bool delayedDestruction = false;
         int id = list.Item( i );
         wxString ids = listIDs.Item( i );
 
@@ -774,6 +784,7 @@ void DashboardWindow::SetInstrumentList(
             instrument = new DashboardInstrument_EngineDJG(
                 this, wxID_ANY, ids,
                 m_plugin->m_colorScheme, "", isInit );
+            delayedDestruction = true;
             break;
         case ID_DBP_D_TSETUI:
             if ( ids.IsEmpty() )
@@ -781,6 +792,7 @@ void DashboardWindow::SetInstrumentList(
             instrument = new DashboardInstrument_TimesTUI( 
                 this, wxID_ANY, ids,
                 m_plugin->m_colorScheme, "", isInit );
+            delayedDestruction = true;
             break;
         case ID_DBP_D_RACESTA:
             if ( ids.IsEmpty() )
@@ -788,6 +800,7 @@ void DashboardWindow::SetInstrumentList(
             instrument = new DashboardInstrument_RaceStart(
                 this, wxID_ANY, ids,
                 m_plugin->m_colorScheme, "", isInit );
+            delayedDestruction = true;
             break;
         case ID_DBP_D_RACEMRK:
             if ( ids.IsEmpty() )
@@ -795,6 +808,7 @@ void DashboardWindow::SetInstrumentList(
             instrument = new DashboardInstrument_RaceMark(
                 this, wxID_ANY, ids,
                 m_plugin->m_colorScheme, "", isInit );
+            delayedDestruction = true;
             break;
         }
         if( instrument ) {
@@ -802,7 +816,8 @@ void DashboardWindow::SetInstrumentList(
             Unbind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
             m_ArrayOfInstrument.Add(
                 new DashboardInstrumentContainer(
-                    id, instrument, instrument->GetCapacity(), ids ) );
+                    id, instrument, instrument->GetCapacity(), ids,
+                    delayedDestruction ) );
             itemBoxSizer->Add( instrument, 0, wxEXPAND, 0 );
             Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
             itemBoxSizer->SetSizeHints( this );

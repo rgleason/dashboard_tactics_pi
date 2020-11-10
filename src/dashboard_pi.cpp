@@ -273,7 +273,8 @@ bool dashboard_pi::DeInit( void )
         Stop(); // Stop timer
 
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
+        DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item(
+            i )->m_pDashboardWindow;
         if( dashboard_window ) {
             m_pauimgr->DetachPane( dashboard_window );
             dashboard_window->Close();
@@ -2651,11 +2652,12 @@ void dashboard_pi::OnContextMenuItemCallback(int id)
 
 void dashboard_pi::UpdateAuiStatus( void )
 {
-    //    This method is called by OpenCPN (pluginmanager.cpp) after the PlugIn is initialized
-    //    and the frame has done its initial layout, possibly from a saved wxAuiManager "Perspective"
-    //    (see also OCPN_AUIManager.cpp, v5.0 knows type "Dashboard" but not "DashT"... what can one do...). 
-    //    It is a chance for the PlugIn to syncronize itself internally with the state of any Panes that
-    //    were added to the frame in the PlugIn ctor.
+    /* This method is called by OpenCPN (pluginmanager.cpp) after the PlugIn
+       is initialized and the frame has done its initial layout, possibly
+       from a saved wxAuiManager "Perspective" (see also OCPN_AUIManager.cpp,
+       v5.0 knows type "Dashboard" but not "DashT"... what can one do...). 
+       It is a chance for the PlugIn to syncronize itself internally with the
+       state of any Panes that were added to the frame in the PlugIn ctor. */
 
      for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindowContainer *cont = m_ArrayOfDashboardWindow.Item( i );
@@ -2666,7 +2668,8 @@ void dashboard_pi::UpdateAuiStatus( void )
     }
     m_pauimgr->Update();
 
-    //    We use this callback here to keep the context menu selection in sync with the window state
+    /* We use this callback here to keep the context menu selection in sync
+       with the window state */
     int iUpdateAuiShownWindows = GetDashboardWindowShownCount();
     ( iUpdateAuiShownWindows != 0 ?
         m_bToggledStateVisible = true : m_bToggledStateVisible = false );
@@ -2688,7 +2691,7 @@ void dashboard_pi::ApplyConfig(
         if( cont->m_bIsDeleted ) {
             if( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                cont->m_pDashboardWindow->Close();
+                cont->m_pDashboardWindow->Close( true ); // tell: Destroy!
                 cont->m_pDashboardWindow->Destroy();
             }
             m_ArrayOfDashboardWindow.Remove( cont );
@@ -2841,8 +2844,11 @@ void dashboard_pi::ApplyConfig(
             newcont->m_bPersVisible = cont->m_bIsVisible;
             if ( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                cont->m_pDashboardWindow->Close();
-                cont->m_pDashboardWindow->Destroy();
+                cont->m_pDashboardWindow->Close( false ); // tell: can postpone
+
+                // DEBUG DEBUG DEBUG
+                // cont->m_pDashboardWindow->Destroy();
+
             } /* then this is an existing window in an existing window pane,
                  replaced with a new one */
             replacedDashboards.Add( cont ); // do not disturb the loop now

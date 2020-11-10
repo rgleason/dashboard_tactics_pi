@@ -80,17 +80,20 @@ class DashboardInstrumentContainer
 public:
     DashboardInstrumentContainer(
         int id, DashboardInstrument *instrument,
-        unsigned long long capa, wxString ids = _T("") )
+        unsigned long long capa, wxString ids = _T(""),
+        bool delayedDestruction = false )
         {
             m_ID = id;
             m_pInstrument = instrument;
             m_cap_flag = capa;
+            m_bDelayedDestruction = delayedDestruction;
             m_IDs = ids;
         };
     ~DashboardInstrumentContainer(){ delete m_pInstrument; };
     DashboardInstrument    *m_pInstrument;
     int                     m_ID;
     unsigned long long      m_cap_flag;
+    bool                    m_bDelayedDestruction;
     wxString                m_IDs;
 };
 
