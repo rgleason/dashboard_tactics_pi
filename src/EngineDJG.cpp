@@ -62,6 +62,9 @@ InstruJS ( pparent, id, ids, cs, JSI_DS_INCOMING_DATA_SUBSCRIPTION, isInit )
     previousTimestamp = 0LL; // dashboard instru base class
     m_orient = wxVERTICAL;
     m_htmlLoaded= false;
+    std::unique_lock<std::mutex> init_m_mtxEDJGRun(
+        m_mtxEngineDJGRun, std::defer_lock );
+    m_closingEngineDJG = false;
     m_goodHttpServerDetects = -1; // default is: there is a server at startup
     m_pconfig = GetOCPNConfigObject();
     m_fullPathHTML = wxEmptyString;
@@ -78,15 +81,20 @@ InstruJS ( pparent, id, ids, cs, JSI_DS_INCOMING_DATA_SUBSCRIPTION, isInit )
 }
 DashboardInstrument_EngineDJG::~DashboardInstrument_EngineDJG(void)
 {
-    this->m_pThreadEngineDJGTimer->Stop();
-    delete this->m_pThreadEngineDJGTimer;
-    SaveConfig();
+    if ( m_pThreadEngineDJGTimer ) {
+        m_pThreadEngineDJGTimer->Stop();
+        delete m_pThreadEngineDJGTimer;
+    }
     return;
 }
 void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
 {
-    this->m_pThreadEngineDJGTimer->Stop();
-    this->stopScript(); // base class implements, we are first to be called
+    std::unique_lock<std::mutex> lckmRunTickEDJG( m_mtxEngineDJGRun );
+    m_closingEngineDJG = true;
+
+     if ( m_pThreadEngineDJGTimer )
+         this->m_pThreadEngineDJGTimer->Stop();
+    SaveConfig();
     event.Skip(); // Destroy() must be called
 }
 
@@ -99,16 +107,22 @@ void DashboardInstrument_EngineDJG::derivedTimeoutEvent()
 void DashboardInstrument_EngineDJG::SetData(
     unsigned long long st, double data, wxString unit, long long timestamp)
 {
-    return; // this derived class gets its data from the multiplexer through a callback PushData()
+    return; /* this derived class gets its data from the multiplexer
+               through a callback PushData() */
 }
 
 void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickEDJG( m_mtxEngineDJGRun );
+    if ( m_closingEngineDJG )
+        return;
+
     m_pThreadEngineDJGTimer->Stop();
     if ( !m_htmlLoaded) {
         if ( testHTTPServer( m_httpServer ) ) {
             if ( (m_goodHttpServerDetects == -1) ||
-                 (m_goodHttpServerDetects >= ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS) ) {
+                 (m_goodHttpServerDetects >=
+                  ENGINEDJG_WAIT_NEW_HTTP_SERVER_TICKS) ) {
                 wxSize thisSize = wxControl::GetSize();
                 wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
                 SetInitialSize ( thisFrameInitSize );
@@ -119,14 +133,17 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
             } // then either a straigth start with server or detected a stable server
             else {
                 m_goodHttpServerDetects += 1;
-                m_pThreadEngineDJGTimer->Start( GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
+                m_pThreadEngineDJGTimer->Start(
+                    GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
             }
         } // then there is a server serving the page, can ask content to be loaded
         else {
             m_goodHttpServerDetects = 0;
-            m_pThreadEngineDJGTimer->Start( GetRandomNumber( 5000,8000 ), wxTIMER_CONTINUOUS);
+            m_pThreadEngineDJGTimer->Start(
+                GetRandomNumber( 5000,8000 ), wxTIMER_CONTINUOUS);
         }   // else need to wait until a server appears, not in a hurry
-    } // else thread is not running (no JS instrument created in this frame, create one)
+    } /* else thread is not running (no JS instrument created in this frame,
+         create one) */
 
 }
 

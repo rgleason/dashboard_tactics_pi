@@ -105,6 +105,8 @@ protected:
     int                  m_orient;
     bool                 m_htmlLoaded;
     wxTimer             *m_pThreadEngineDJGTimer;
+    std::mutex           m_mtxEngineDJGRun;
+    bool                 m_closingEngineDJG;
     int                  m_goodHttpServerDetects;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;
