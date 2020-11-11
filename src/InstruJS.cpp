@@ -122,22 +122,52 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
 
 InstruJS::~InstruJS(void)
 {
-    wxLogMessage("~InstruJS(void)");
     if ( m_pThreadInstruJSTimer ) {
-        wxLogMessage("~InstruJS(void) - timer stop.");
         m_pThreadInstruJSTimer->Stop();
         delete m_pThreadInstruJSTimer;
     }
-    if ( !m_pushHereUUID.IsEmpty() ) { // if parent window itself is going away
-        wxLogMessage("~InstruJS(void) - unsubscribe.");
+    if ( !m_pushHereUUID.IsEmpty() ) {
         m_pparent->unsubscribeFrom( m_pushHereUUID );
     }
     if ( m_pWebPanel ) {
-        wxLogMessage("~InstruJS(void) - stop panel.");
-        m_pWebPanel->Stop();
-        wxLogMessage("~InstruJS(void) - delete panel.");
-        delete m_pWebPanel;
+        /* On WebKit based implementation, prefer to delete
+           in Close event handler: it gives more time for
+           the pthread of WebKit2 to die before the host window
+           goes away. */
+           delete m_pWebPanel;
     }
+}
+
+void InstruJS::OnClose( wxCloseEvent &event )
+{
+    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
+    m_closing = true;
+
+    if ( m_pThreadInstruJSTimer ) {
+        m_pThreadInstruJSTimer->Stop();
+    }
+    if ( !m_pushHereUUID.IsEmpty() ) {
+        m_pparent->unsubscribeFrom( m_pushHereUUID );
+        m_pushHereUUID = wxEmptyString;
+    }
+    if ( m_istate >= JSI_WINDOW ) {
+        if ( m_pWebPanel ) {
+            if ( m_istate == JSI_SHOWDATA ) {
+                wxString javascript =
+                    wxString::Format(
+                    L"%s",
+                    "window.iface.setclosing();");
+                RunScript( javascript );
+                m_istate = JSI_NO_WINDOW;
+            } /* then allow the instrument code to gracefully close
+                 if showing data but do not wait any answer  */
+            m_pWebPanel->Stop();
+            m_webpanelStopped = true;
+            delete m_pWebPanel;
+            m_pWebPanel = nullptr;
+        }
+    }
+    event.Skip(); // Destroy() must be called
 }
 
 bool InstruJS::testHTTPServer( wxString urlIpOrNamePort ) {
@@ -188,41 +218,6 @@ void InstruJS::stopScript( )
     }
 }
 
-void InstruJS::OnClose( wxCloseEvent &event )
-{
-    std::unique_lock<std::mutex> lckmRunScript( m_mtxScriptRun );
-    m_closing = true;
-
-    wxLogMessage("OnClose()");
-    if ( m_pThreadInstruJSTimer ) {
-        m_pThreadInstruJSTimer->Stop();
-    }
-    if ( !m_pushHereUUID.IsEmpty() ) { // civilized parent window informs: Close()
-        m_pparent->unsubscribeFrom( m_pushHereUUID );
-        m_pushHereUUID = wxEmptyString;
-    }
-    wxLogMessage( "m_pWebPanel(%p), m_istate=%d", m_pWebPanel, m_istate );
-    if ( m_istate >= JSI_WINDOW ) {
-        if ( m_pWebPanel ) {
-            wxLogMessage("OnClose() - pWebPanel");
-            if ( m_istate == JSI_SHOWDATA ) {
-                wxLogMessage("OnClose() - pWebPanel - Run-Script");
-                wxString javascript =
-                    wxString::Format(
-                    L"%s",
-                    "window.iface.setclosing();");
-                RunScript( javascript );
-                m_istate = JSI_NO_WINDOW;
-            } /* then allow the instrument code to gracefully close
-                 if showing data but do not wait any answer  */
-            wxLogMessage("OnClose() - pWebPanel - Stop");
-            m_pWebPanel->Stop();
-            m_webpanelStopped = true;
-        }
-    }
-    event.Skip(); // Destroy() must be called
-}
-
 void InstruJS::timeoutEvent()
 {
     derivedTimeoutEvent();
@@ -266,8 +261,6 @@ void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
 {
     wxString eventURL = event.GetURL();
     
-    wxLogMessage("OnWebViewLoaded %s", eventURL);
-
     if ( (m_istate >= JSI_WINDOW) &&
          (m_istate <= JSI_WINDOW_RELOADED) ) {
         if ( eventURL == m_pWebPanel->GetCurrentURL() ) {
@@ -314,9 +307,9 @@ void InstruJS::OnWebViewLoaded( wxWebViewEvent &event )
             if ( m_pThreadInstruJSTimer )
                 m_pThreadInstruJSTimer->Start(
 #ifdef __WXGTK__
-                    GetRandomNumber( 2000,2999 ),
+                    GetRandomNumber( 150,249 ), // WebKit and pthreads
 #else
-                    GetRandomNumber( 100,199 ), // on IE, only occurs on first load
+                    GetRandomNumber( 100,199 ), // IE event on first load only
 #endif
                     wxTIMER_CONTINUOUS);
         } // then event and the window URL match
@@ -512,16 +505,17 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
         case JSI_HDS_SERVING:
             /*
-              Developer's note: please read the WebView dev. note about the state
-              machine implementation which, for now is based on one single and
-              unique JavaScript interface module definition. The below structure
-              of if-then-else-if statements is therefore forced to recognize
-              all the commands and requests from all instrument types. Also,
-              the base class may need to define virtual service functions for
-              those, which the instrument implementation classes need to override.
-              Maybe the future versions, or new instruments can create their own,
-              specific interfaces and we can identify the common, nominating
-              functions after a while, which shall stay in the commong interface,
+              Developer's note: please read the WebView dev. note about the
+              state machine implementation which, for now is based on one
+              single and unique JavaScript interface module definition.
+                  The below structure of if-then-else-if statements is
+              therefore forced to recognize all the commands and requests from
+              all instrument types. Also, this base class needs to define
+              virtual service functions for those, which the instrument
+              implementation classes needs to override.
+                  Maybe the future versions, or new instruments can create
+              their own, specific interfaces and we can identify the common,
+              nominating functions which shall stay in the commong interface,
               i.e. served here.
             */
             if ( request == wxEmptyString ) {
@@ -749,7 +743,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                             } // then there are schemas
                         } // else then gracetime passed
                         m_setAllPathGraceCount--;
-                    } // then instrument with a memory of its path, needs schemas
+                    } /* then instrument with a memory of its path,
+                         needs schemas */
                     if ( m_hasSchemDataCollected ) {
                         m_istate = JSI_GETPATH;
                         m_subscribedPath = request;
@@ -943,15 +938,11 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( m_isInit ) { // get the latest HTML5/JS code
                 if ( !m_pWebPanel->IsBusy() ) {
                     m_webpanelReloadWait = true;
-
-                    // DEBUG DEBUG DEBUG
-                    wxLogMessage("Reload()");
                     m_pWebPanel->Reload(wxWEBVIEW_RELOAD_NO_CACHE);
                     eventHandlerArmsTimer = true;
                 } // then page is loaded, reload
             }
             else {
-                    wxLogMessage("Reload() - skip");
                     m_webpanelReloadWait = false;
                     m_istate = JSI_NO_REQUEST;
             } // else this object has been reconstructed, speedier start
@@ -961,12 +952,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( !m_pWebPanel->IsBusy() ) {
                 m_webpanelCreateWait = false;
                 m_webpanelCreated = true;
-
-                // DEBUG DEBUG DEBUG
-                wxLogMessage("LoadURL()");
-                //m_pWebPanel->LoadURL( _T("about:blank") );
                 m_pWebPanel->LoadURL( m_fullPath );
-                
                 eventHandlerArmsTimer = true;
             }
         } // then the page is loaded - initial load event (without URL here)
@@ -975,14 +961,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( m_pWebPanel ) {
                 if ( !m_pWebPanel->IsBusy() ) {
                     m_istate = JSI_WINDOW;
-
-                    // DEBUG DEBUG DEBUG
-                    wxLogMessage("Create()");
-                    // m_pWebPanel->Create( this, wxID_ANY, m_fullPath,
-                    //                      wxDefaultPosition, wxDefaultSize,
-                    //                      0, _T("InstruJS") );
                     m_pWebPanel->Create( this, wxID_ANY );
-
+                    eventHandlerArmsTimer = true;
                 } // then webpanel is not busy
             } // there is a web panel
             else {
@@ -995,7 +975,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         } // then delayed creation of the window, no URL-load
         
         if ( !eventHandlerArmsTimer )
-            m_pThreadInstruJSTimer->Start( GetRandomNumber( 2000,2999 ),
+            m_pThreadInstruJSTimer->Start( GetRandomNumber( 150,249 ),
                                            wxTIMER_CONTINUOUS);
 #endif
 

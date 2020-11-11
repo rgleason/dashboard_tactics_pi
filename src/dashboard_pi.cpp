@@ -130,18 +130,18 @@ extern "C" DECL_EXP void destroy_pi( opencpn_plugin* p )
 }
 
 
-//---------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 //
 //    Dashboard PlugIn Implementation
 //
-//---------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 
-//---------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 //
 //          PlugIn initialization and de-init
 //
-//---------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
     tactics_pi(), wxTimer( this ), opencpn_plugin_117( ppimgr )
@@ -189,6 +189,19 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 
 dashboard_pi::~dashboard_pi( void )
 {
+    // for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+    //     DashboardWindow *dashboard_window =
+    //         m_ArrayOfDashboardWindow.Item(
+    //             i )->m_pDashboardWindow;
+    //     if( dashboard_window ) {
+    //         if ( !dashboard_window->HasDelayedThreadedApps() ) {
+    //             delete dashboard_window; /* brute force for instrument
+    //                                         window delete is OK */
+    //             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow =
+    //                 nullptr;
+    //         }
+    //     }
+    // }
     delete m_NMEA0183;
     delete _img_dashboard_tactics_pi;
     delete _img_dashboard_tactics;
@@ -227,7 +240,8 @@ int dashboard_pi::Init( void )
 
     m_pconfig->SetPath( _T("/PlugIns/DashT") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
-    // Tick for average wind calculations is taken care in Tactics class, we host the timers  
+    /* Tick for average wind calculations is taken care in Tactics class,
+       we host the timers */
     m_avgWindUpdTimer = new wxTimer ( this, myID_THREAD_AVGWIND );
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 
@@ -236,8 +250,10 @@ int dashboard_pi::Init( void )
 #ifdef OCPN_USE_SVG
     m_toolbar_item_id = InsertPlugInToolSVG(
         this->GetCommonName(),
-        _svg_dashboard_tactics, _svg_dashboard_tactics_rollover, _svg_dashboard_tactics_toggled,
-        wxITEM_CHECK, this->GetShortDescription(), _T( "" ), NULL, DASHBOARD_TOOL_POSITION, 0, this);
+        _svg_dashboard_tactics, _svg_dashboard_tactics_rollover,
+        _svg_dashboard_tactics_toggled,
+        wxITEM_CHECK, this->GetShortDescription(), _T( "" ), NULL,
+        DASHBOARD_TOOL_POSITION, 0, this);
 #else
     // Use memory allocated PNG-images (icons.cpp)
     m_toolbar_item_id = InsertPlugInTool
@@ -277,16 +293,29 @@ bool dashboard_pi::DeInit( void )
             i )->m_pDashboardWindow;
         if( dashboard_window ) {
             m_pauimgr->DetachPane( dashboard_window );
-            dashboard_window->Close();
-            dashboard_window->Destroy();
-            m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow = NULL;
+            dashboard_window->PluginIsClosing(); // tell that this is the end
+            dashboard_window->Close( false ); // threaded apps will die w/ O
+            // dashboard_window->Destroy(); // brute force for instruments is OK
+            // m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow = nullptr;
         }
     }
 
-    for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
-        DashboardWindowContainer *pdwc = m_ArrayOfDashboardWindow.Item( i );
-        delete pdwc;
-    }
+    /* Developer's note: is the below even necessary? Anyway, no matter what,
+       in DashT, when running on Linux, we may have pending pthreads,
+       belonging to WebKit2 libraries and on which we have no control.
+       They are attached to these instances of DashboardWindow pane. If we
+       now destroy the panes, the orphan pthreads will point to nothing
+       and will crash the entire application (OpenCPN) which will not close
+       gracefully. It is better, IMO to leave the instances of these
+       panes there - once the application (OpenCPN) closes the (wxWindow
+       based) instances will be destructed and it will be the _Linux_, not
+       us who will then kill the wWebKit2 pthreads attached to it.
+       Thus, commenting out:
+       for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
+          DashboardWindowContainer *pdwc = m_ArrayOfDashboardWindow.Item( i );
+          delete pdwc;
+       }
+    */
 
     delete g_pFontTitle;
     delete g_pFontData;
@@ -325,10 +354,11 @@ void dashboard_pi::Notify()
         mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
         if ( !mLogUntrustedLocalTimeNotify ) {
             int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
-            wxLogMessage("dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
-                         "difference >= %i ms. Is this a recording playback? Accuracy "
-                         "of calculated values timestamps is now reduced to the last "
-                         "received GNSS (GPS) time.", gteThan );
+            wxLogMessage(
+                "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                "difference >= %i ms. Is this a recording playback? Accuracy "
+                "of calculated values timestamps is now reduced to the last "
+                "received GNSS (GPS) time.", gteThan );
             mLogUntrustedLocalTimeNotify = true;
         }
     }
@@ -336,9 +366,11 @@ void dashboard_pi::Notify()
         mUntrustedLocalTime = false; // CPU withing reasonable limit
         if ( mLogUntrustedLocalTimeNotify ) {
             int lessThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
-            wxLogMessage("dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
-                         "difference returned to be < %i ms. Considering this accurate "
-                         "enough to timestamp calculated values with CPU time.", lessThan );
+            wxLogMessage(
+                "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                "difference returned to be < %i ms. Considering this accurate "
+                "enough to timestamp calculated values with CPU time.",
+                lessThan );
             mLogUntrustedLocalTimeNotify = false;
         }
     }
@@ -571,7 +603,8 @@ void dashboard_pi::pSendSentenceToAllInstruments(
     }
     wxString stToDashboardPath = getDashboardTacticsInstrumentIdStr( st );
     if ( !stToDashboardPath.IsEmpty() )
-        SendDataToAllPathSubscribers ( stToDashboardPath, value, unit, timestamp );
+        SendDataToAllPathSubscribers (
+            stToDashboardPath, value, unit, timestamp );
 }
 /* Porting note: with Tactics, new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the TacticsWP
@@ -1613,12 +1646,15 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // GGA
 
-            else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) { // https://git.io/JeYQK
-                // Note: Signal K does not send delta is no validy flag set, see the link
+            else if ( sentenceId->CmpNoCase(_T("GLL")) == 0 ) {
+                /* Note: Signal K does not send delta is no validy flag set,
+                   see https://git.io/JeYQK */
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( (mPriPosition >= 2)  && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
+                    if( (mPriPosition >= 2)  && (key != NULL) ) {
+                        // See SetPositionFix() - It rules, even if no fix!
                         mPriPosition = 2;
-                        if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                        if ( key->CmpNoCase(_T("longitude")) == 0 )
+                            // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
                                                           value, _T("SDMM"),
                                                           timestamp );
@@ -1630,9 +1666,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // GLL
 
-            // Note: Sentence GSV not implemented in Signal K delta, see https://git.io/JeYdd - see GGA
+            /* Note: Sentence GSV not implemented in Signal K delta, see
+               https://git.io/JeYdd - see GGA */
 
-            else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
+            else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) {
+                // https://git.io/JeYdxn
                 if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
                     if( mPriHeadingM >= 1 ) { 
                         if ( !std::isnan( value )) {
@@ -1645,8 +1683,10 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         }
                     }
                 }
-                else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
-                    if( mPriVar >= 2 ) { // see comment in NMEA equivalent: not really useful
+                else if ( path->CmpNoCase(_T("navigation.magneticVariation")) ==
+                          0 ) {
+                    if( mPriVar >= 2 ) {
+                        // see comment in NMEA equivalent: not really useful
                         if ( !std::isnan( value )) {
                             if ( value != 0.0 ) {
                                 mPriVar = 2;
@@ -1659,7 +1699,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         }
                     }
                 }
-                if ( !std::isnan( mVar )  && !std::isnan( mHdm ) && (mPriHeadingT > 3) ) {
+                if ( !std::isnan( mVar )  && !std::isnan( mHdm ) &&
+                     (mPriHeadingT > 3) ) {
                     mPriHeadingT = 4;
                     double heading = mHdm + mVar;
                     if (heading < 0)
@@ -1673,7 +1714,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // HDG
         
-            else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) { // https://git.io/JeYdxn
+            else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) {
+                // https://git.io/JeYdxn
                 if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
                     if( mPriHeadingM >= 2 ) { 
                         if ( !std::isnan( value )) {
@@ -1688,7 +1730,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // HDM
         
-            else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) { // https://git.io/JeOCC
+            else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) {
+                // https://git.io/JeOCC
                 if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
                     if( mPriHeadingM >= 1 ) { 
                         if ( !std::isnan( value )) {
@@ -1703,9 +1746,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // HDT
 
-            // MTA is not implemented in Signal K delta, cf. https://git.io/JeYdd - see XDR
+            /* MTA is not implemented in Signal K delta,
+               cf. https://git.io/JeYdd - see XDR */
 
-            else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) { // https://git.io/JeOWL
+            else if ( sentenceId->CmpNoCase(_T("MDA")) == 0 ) {
+                // https://git.io/JeOWL
                 if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
                     // Note: value from Signal K is SI units Pa, convet to hPa
                     double hPaPressure = value / 100.;
@@ -1714,27 +1759,35 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                                       hPaPressure, _T("hPa"),
                                                       timestamp );
                     } // then valid pressure in hPa
-                    // Note: Dashboard does not deal with other values in MDA as for now so we skip them
+                    /* Note: Dashboard does not deal with other values in MDA
+                       as for now so we skip them */
                 }
             } // MDA
 
-            else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
+            else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) {
+                // https://git.io/JeOwA
                 if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
-                    // Note: value from Signal K is SI units, thus we receive Kelvins
+                    /* Note: value from Signal K is SI units, thus we
+                       receive Kelvins */
                     double TemperatureValue = value - CELCIUS_IN_KELVIN; 
                     wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
-                    checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                    checkNMEATemperatureDataAndUnit(
+                        TemperatureValue, TemperatureUnitOfMeasurement );
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
-                                                  TemperatureValue, TemperatureUnitOfMeasurement,
+                                                  TemperatureValue,
+                                                  TemperatureUnitOfMeasurement,
                                                   timestamp );
                 }
             } // MTW
 
-            // MWD is not implemented in Signal K, cf. https://git.io/JeYdd (but calculated in Tactics)
+            /* MWD is not implemented in Signal K, cf. https://git.io/JeYdd
+               (but true wind will be calculated in Tactics) */
 
-            else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) { // https://git.io/JeOov
+            else if ( sentenceId->CmpNoCase(_T("MWV")) == 0 ) {
+                // https://git.io/JeOov
                 if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
-                    // Note: value from Signal K is SI units, thus we receive m/s
+                    /* Note: value from Signal K is SI units, thus we
+                       receive [m/s] */
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_AWS,
                         toUsrSpeed_Plugin( value * MS_IN_KNOTS,
@@ -1743,7 +1796,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         timestamp );
                     this->SetNMEASentence_Arm_AWS_Watchdog();
                 }
-                else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                else if ( path->CmpNoCase(_T("environment.wind.angleApparent"))
+                          == 0 ) {
                     if( mPriAWA >= 1 ) {
                         mPriAWA = 1;
                         SendSentenceToAllInstruments(
@@ -1753,7 +1807,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             timestamp );
                     } // AWA priority
                 }
-                else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
+                else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) ==
+                          0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_TWS,
                         toUsrSpeed_Plugin( value * MS_IN_KNOTS,
@@ -1768,38 +1823,52 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         timestamp );
                     this->SetNMEASentence_Arm_TWS_Watchdog();
                 }
-                else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
+                else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater"))
+                          == 0 ) {
                     if( mPriTWA >= 1 ) {
                         mPriTWA = 1;
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
-                                                      std::abs( value ) * RAD_IN_DEG,
-                                                      ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
-                                                      timestamp );
+                        double windTWSDir = std::abs( value ) * RAD_IN_DEG;
+                        if ( windTWSDir > 360.0 )
+                            windTWSDir -= 360.;
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_TWA,
+                            windTWSDir,
+                            ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                            timestamp );
                         this->SetNMEASentence_Arm_TWD_Watchdog();
                     } // TWA priority
                 }
             } // MWV
         
-            else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) { // https://git.io/Je3UV
-                /* See the comment in the same sentence's interpretation above (when coming
-                   from OpenCPN): the controversy of having it here is the same:
-                   the infamous VMG interpretation of next destination waypoint is not
-                   the same as in Tactics, i.e. for the sailing boat performance criteria.
-                   It is kept here since it can be considered belonging to Dashboard which
-                   needs to serve also the needs of a cruising sailing and motor boats but
-                   it can be useful in the off-shore races, too.
-                */
-                // Dashboard ignores navigation.courseRhumbline.nextPoint, as for now
-                if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.bearingTrue")) == 0 ) {
+            else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) {
+                /* https://git.io/Je3UV
+                   See the comment in the same sentence's interpretation above
+                   (when coming from OpenCPN): the controversy of having it here
+                   is the same: the infamous VMG interpretation of next
+                   destination waypoint is not the same as in Tactics,
+                   i.e. for the sailing boat performance criteria.
+                   It is kept here since it can be considered belonging to
+                   Dashboard which needs to serve also the needs of a cruising
+                   sailing and motor boats but it can be useful in the off-shore
+                   races, too.
+                   Dashboard ignores navigation.courseRhumbline.nextPoint, as
+                   for now */
+                if ( path->CmpNoCase(
+                         _T("navigation.courseRhumbline.nextPoint.bearingTrue") )
+                     == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_BRG,
                         value * RAD_IN_DEG,
-                        _T("\u00B0"), // as for now, Origin ID not available from Signal K
+                        _T("\u00B0"), /* as for now, Origin ID not available
+                                         from Signal K */
                         timestamp );
                     this->SetNMEASentence_Arm_BRG_Watchdog();
                 }
-                else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.velocityMadeGood")) == 0 ) {
-                    // This is THE carburator for hours of useless "discussions" in forums; comment it out if you don't like it :)
+                else if ( path->CmpNoCase(
+                   _T("navigation.courseRhumbline.nextPoint.velocityMadeGood"))
+                   == 0 ) {
+                    /* This is THE carburator for hours of useless "discussions"
+                       in forums; comment it out if you don't like it :) */
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_VMG,
                         toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
@@ -1807,7 +1876,9 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         timestamp );
                     this->SetNMEASentence_Arm_VMG_Watchdog();
                 }
-                else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
+                else if (
+                    path->CmpNoCase(
+                   _T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_DTW,
                         value * KM_IN_NM, _T("Nm"),
@@ -1815,11 +1886,14 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // RMB
 
-            else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) { // https://git.io/Je3T3
+            else if ( sentenceId->CmpNoCase(_T("RMC")) == 0 ) {
+                // https://git.io/Je3T3
                 if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
-                    if( (mPriPosition >= 4) && (key != NULL) ) {  // See SetPositionFix() - It rules, even if no fix!
+                    if( (mPriPosition >= 4) && (key != NULL) ) {
+                        // See SetPositionFix() - It rules, even if no fix!
                         mPriPosition = 4;
-                        if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                        if ( key->CmpNoCase(_T("longitude")) == 0 )
+                            // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
                                                           value, _T("SDMM"),
                                                           timestamp );
@@ -1829,11 +1903,15 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                                           timestamp );
                     } // selected by (low) priority
                 }
-                else if ( ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
-                          ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) ||
-                          ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) ) {
+                else if ( ( path->CmpNoCase(
+                          _T("navigation.courseOverGroundTrue")) == 0 ) ||
+                          ( path->CmpNoCase(_T("navigation.speedOverGround"))
+                            == 0 ) ||
+                          ( path->CmpNoCase(_T("navigation.magneticVariation"))
+                            == 0 ) ) {
                     if ( mPriCOGSOG >= 3 ) {
-                        if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                        if ( path->CmpNoCase(
+                             _T("navigation.courseOverGroundTrue")) == 0 ) {
                             mPriCOGSOG = 3;
                             SendSentenceToAllInstruments(
                                 OCPN_DBP_STC_COG,
@@ -1841,12 +1919,14 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                                 _T("\u00B0"),
                                 timestamp );
                         }
-                        else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                        else if ( path->CmpNoCase(
+                                  _T("navigation.speedOverGround")) == 0 ) {
                             mPriCOGSOG = 3;
                             SendSentenceToAllInstruments(
                                 OCPN_DBP_STC_SOG,
                                 toUsrSpeed_Plugin(
-                                    mSOGFilter.filter( value * MS_IN_KNOTS ), g_iDashSpeedUnit ),
+                                    mSOGFilter.filter( value * MS_IN_KNOTS ),
+                                    g_iDashSpeedUnit ),
                                 getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                                 timestamp );
                         }
@@ -1856,7 +1936,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     if( mPriDateTime >= 3 ) {
                         mPriDateTime = 3;
                         bool parseError;
-                        wxDateTime msParsedDateTime = parseRfc3359UTC( valStr, parseError );
+                        wxDateTime msParsedDateTime =
+                            parseRfc3359UTC( valStr, parseError );
                         if ( !parseError ) {
                             mUTCDateTime = msParsedDateTime;
                             mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
@@ -1865,7 +1946,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // then date/time update received with the above data
             } // RMC
 
-            else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) { // https://git.io/Je3sA
+            else if ( sentenceId->CmpNoCase(_T("RSA")) == 0 ) {
+                // https://git.io/Je3sA
                 if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_RSA,
@@ -1874,7 +1956,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             } // RSA
 
-            else if ( sentenceId->CmpNoCase(_T("VHW")) == 0 ) { // https://git.io/Je3GE
+            else if ( sentenceId->CmpNoCase(_T("VHW")) == 0 ) {
+                // https://git.io/Je3GE
                 if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
                     if ( mPriHeadingT >= 2 ) {
                         mPriHeadingT = 2;
@@ -1885,7 +1968,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mHDT_Watchdog = gps_watchdog_timeout_ticks;
                     } // priority activation
                 }
-                else if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+                else if ( path->CmpNoCase(
+                              _T("navigation.headingMagnetic")) == 0 ) {
                     if ( mPriHeadingM >= 3 ) {
                         mPriHeadingM = 3;
                         SendSentenceToAllInstruments(
@@ -1895,40 +1979,48 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         mHDx_Watchdog = gps_watchdog_timeout_ticks;
                     } // priority activation
                 }
-                else if ( path->CmpNoCase(_T("navigation.speedThroughWater")) == 0 ) {
+                else if ( path->CmpNoCase(_T("navigation.speedThroughWater"))
+                          == 0 ) {
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_STW,
-                        toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashSpeedUnit ),
+                        toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                           g_iDashSpeedUnit ),
                         getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                         timestamp );
                     mStW_Watchdog = gps_watchdog_timeout_ticks;
                 }
             } // VHW
 
-            else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) { // https://git.io/JeOrS (was nm here, now meters)
+            else if ( sentenceId->CmpNoCase(_T("VLW")) == 0 ) {
+                // https://git.io/JeOrS (was nm here, now meters)
                 if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
-                    // Note: value from Signal K is "as received", i.e. nautical miles
+                    /* Note: value from Signal K is "as received",
+                       i.e. nautical miles */
                     if ( value >= 0.0 )
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                                      toUsrDistance_Plugin( (value * M_IN_NM),
-                                                                            g_iDashDistanceUnit ),
-                                                      getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                      timestamp );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_VLW1,
+                            toUsrDistance_Plugin( (value * M_IN_NM),
+                                                  g_iDashDistanceUnit ),
+                            getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                            timestamp );
                 }
                 else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
                     if ( value >= 0.0 )
-                        SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                                      toUsrDistance_Plugin( (value * M_IN_NM),
-                                                                            g_iDashDistanceUnit ),
-                                                      getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                      timestamp );
+                        SendSentenceToAllInstruments(
+                            OCPN_DBP_STC_VLW2,
+                            toUsrDistance_Plugin( (value * M_IN_NM),
+                                                  g_iDashDistanceUnit ),
+                            getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                            timestamp );
                 }
             } // VLW
 
-            else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) { // https://git.io/Je3Zp
-                // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"           
+            else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) {
+                /* https://git.io/Je3Zp for now, Dashboard ignores
+                   "navigation.courseOverGroundMagnetic" */
                 if ( mPriCOGSOG >= 2 ) {
-                    if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                    if ( path->CmpNoCase(
+                             _T("navigation.speedOverGround")) == 0 ) {
                         mPriCOGSOG = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_SOG,
@@ -1938,7 +2030,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                             timestamp );
                     }
-                    else if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                    else if ( path->CmpNoCase(
+                              _T("navigation.courseOverGroundTrue")) == 0 ) {
                         mPriCOGSOG = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_COG,
@@ -1951,7 +2044,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 
             else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
                 if( mPriAWA >= 2 ) {
-                    if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+                    if ( path->CmpNoCase(
+                         _T("environment.wind.speedApparent")) == 0 ) {
                         mPriAWA = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_AWS,
@@ -1961,7 +2055,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             timestamp );
                         this->SetNMEASentence_Arm_AWS_Watchdog();
                     }
-                    else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+                    else if ( path->CmpNoCase(
+                              _T("environment.wind.angleApparent")) == 0 ) {
                         mPriAWA = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_AWA,
@@ -1974,11 +2069,13 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 
             // VWT not implemented as for now (but Tactics calculates it)
 
-            /*
-              XDR is not implemented in the Signal K TCP delta stream yet but it is
-              available from the NMEA stream which the OpenCPN receives from Signal K.
-              Therefore it is searched and executed in the above non-SignalK section.
-            */
+            /* XDR is not implemented in the Signal K TCP delta stream yet
+               but it is available from the NMEA stream which the OpenCPN
+               can receive from Signal K - or it receives it from the
+               multiplexer.
+               Therefore it is searched and executed in the above,
+               non-SignalK section. */
+
         } // then NMEA-0183 delta from Signal K
 
         else {  // Else another data source on SignalK, like NMEA-2000
@@ -1998,11 +2095,13 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             */
 
             bool depthvalue = false;
-            if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
+            if ( path->CmpNoCase(_T("environment.depth.belowTransducer"))
+                 == 0 ) {
                 if ( !mSiK_DPT_environmentDepthBelowKeel )
                     depthvalue = true;
             }
-            else if ( path->CmpNoCase(_T("environment.depth.belowKeel")) == 0 ) {  // depth + offset
+            else if ( path->CmpNoCase(_T("environment.depth.belowKeel"))
+                      == 0 ) {  // depth + offset
                 depthvalue = true;
                 mSiK_DPT_environmentDepthBelowKeel = true; // lock priority
             }
@@ -2015,7 +2114,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                     timestamp );
             }
 
-            else if ( path->CmpNoCase(_T("navigation.gnss.methodQuality")) == 0 ) {
+            else if ( path->CmpNoCase(_T("navigation.gnss.methodQuality"))
+                      == 0 ) {
                 if ( valStr->CmpNoCase(_T("GNSS fix")) == 0 ) {
                     mSiK_navigationGnssMethodQuality = 1;
                 }
@@ -2029,7 +2129,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             }
 
-           else if ( path->CmpNoCase(_T("navigation.gnss.satellites")) == 0 ) {
+           else if ( path->CmpNoCase(_T("navigation.gnss.satellites"))
+                     == 0 ) {
                 if ( mSiK_navigationGnssMethodQuality > 0 ) {
                     mSatsInView = value;
                     SendSentenceToAllInstruments(
@@ -2042,9 +2143,11 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
             
             else if ( path->CmpNoCase(_T("navigation.position")) == 0 ) {
                 if ( mSiK_navigationGnssMethodQuality > 0 ) {
-                    if ( (mPriPosition >= 3) && (key != NULL) ) { // See SetPositionFix() - It rules, even if no fix!
+                    if ( (mPriPosition >= 3) && (key != NULL) ) {
+                        // See SetPositionFix() - It rules, even if no fix!
                         mPriPosition = 3;
-                        if ( key->CmpNoCase(_T("longitude")) == 0 ) // coordinate: https://git.io/JeYry
+                        if ( key->CmpNoCase(_T("longitude")) == 0 )
+                            // coordinate: https://git.io/JeYry
                             SendSentenceToAllInstruments( OCPN_DBP_STC_LON,
                                                           value, _T("SDMM"),
                                                           timestamp );
@@ -2056,7 +2159,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             }
 
-            else if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
+            else if ( path->CmpNoCase(_T("navigation.headingMagnetic"))
+                      == 0 ) {
                 if ( mPriHeadingM >= 1 ) { 
                     if ( !std::isnan( value )) {
                         mPriHeadingM = 1;
@@ -2069,7 +2173,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             }
 
-            else if ( path->CmpNoCase(_T("navigation.magneticVariation")) == 0 ) {
+            else if ( path->CmpNoCase(_T("navigation.magneticVariation"))
+                      == 0 ) {
                 if( mPriVar >= 2 ) { // see comment in NMEA equivalent: not really useful
                     if ( !std::isnan( value )) {
                         if ( value != 0.0 ) {
@@ -2083,7 +2188,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                         }
                     }
                 }
-                if ( !std::isnan( mVar )  && !std::isnan( mHdm ) && (mPriHeadingT > 3) ) {
+                if ( !std::isnan( mVar )  && !std::isnan( mHdm ) &&
+                     (mPriHeadingT > 3) ) {
                     mPriHeadingT = 4;
                     double heading = mHdm + mVar;
                     if (heading < 0)
@@ -2110,7 +2216,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 }
             }
 
-            else if ( path->CmpNoCase(_T("environment.outside.pressure")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.outside.pressure"))
+                      == 0 ) {
                 // Note: value from Signal K is SI units Pa, convet to hPa
                 double hPaPressure = value / 100.;
                 if ( (hPaPressure > 800) && (hPaPressure < 1100) ) {
@@ -2120,21 +2227,26 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // then valid pressure in hPa
             }
 
-            else if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
-                // Note: value from Signal K is SI units, thus we receive Kelvins
+            else if ( path->CmpNoCase(_T("environment.water.temperature"))
+                      == 0 ) {
+                /* Note: value from Signal K is SI units, thus we
+                   receive Kelvins */
                 double TemperatureValue = value - CELCIUS_IN_KELVIN; 
-                wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
-                checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
+                wxString TemperatureUnitOfMeasurement = _T("C"); // as MTW
+                checkNMEATemperatureDataAndUnit(
+                    TemperatureValue, TemperatureUnitOfMeasurement );
                 SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
                                               TemperatureValue,
                                               TemperatureUnitOfMeasurement,
                                               timestamp );
             }
 
-            else if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.wind.speedApparent"))
+                      == 0 ) {
                 if( mPriAWA >= 1 ) {
                     mPriAWA = 1;
-                    // Note: value from Signal K is SI units, thus we receive m/s
+                    /* Note: value from Signal K is SI units, thus we
+                       receive [m/s] */
                     SendSentenceToAllInstruments(
                         OCPN_DBP_STC_AWS,
                         toUsrSpeed_Plugin( value * MS_IN_KNOTS,
@@ -2145,7 +2257,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // AWA priority
             }
 
-            else if ( path->CmpNoCase(_T("environment.wind.angleApparent")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.wind.angleApparent"))
+                      == 0 ) {
                 if( mPriAWA >= 1 ) {
                     mPriAWA = 1;
                     SendSentenceToAllInstruments(
@@ -2156,7 +2269,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // AWA priority
             }
 
-            else if ( path->CmpNoCase(_T("environment.wind.speedTrue")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.wind.speedTrue"))
+                      == 0 ) {
                 if( mPriTWA >= 1 ) {
                     mPriTWA = 1;
                     SendSentenceToAllInstruments(
@@ -2175,56 +2289,75 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // TWA priority
             }
 
-            else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater")) == 0 ) {
+            else if ( path->CmpNoCase(_T("environment.wind.angleTrueWater"))
+                      == 0 ) {
                 if( mPriTWA >= 1 ) {
                     mPriTWA = 1;
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_TWA,
-                                                  std::abs( value ) * RAD_IN_DEG,
-                                                  ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
-                                                  timestamp );
+                    double windDegDir = std::abs( value ) * RAD_IN_DEG;
+                    if ( windDegDir > 360.0 )
+                        windDegDir -= 360.;
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_TWA,
+                        windDegDir,
+                        ( value < 0 ? L"\u00B0lr" : L"\u00B0rl" ),
+                        timestamp );
                     this->SetNMEASentence_Arm_TWD_Watchdog();
                 } // TWA priority
             }
         
-            /* See the comment in the RMB  sentence's interpretation above (when coming
-               from OpenCPN): the controversy of having it here is the same:
-               the infamous VMG interpretation of next destination waypoint is not
-               the same as in Tactics, i.e. for the sailing boat performance criteria.
-               It is kept here since it can be considered belonging to Dashboard which
-               needs to serve also the needs of a cruising sailing and motor boats but
-               it can be useful in the off-shore races, too.
-            */
-            // Dashboard ignores navigation.courseRhumbline.nextPoint, as for now
-            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.bearingTrue")) == 0 ) {
+            /* See the comment in the RMB  sentence's interpretation above
+               (when coming from OpenCPN): the controversy of having it here
+               is the same: the infamous VMG interpretation of next
+               destination waypoint is not the same as in Tactics,
+               i.e. for the sailing boat performance criteria.
+               It is kept here since it can be considered belonging to
+               Dashboard which needs to serve also the needs of a cruising
+               sailing and motor boats but it can be useful in the off-shore
+               races, too.
+               Dashboard ignores navigation.courseRhumbline.nextPoint,
+               as for now */
+            else if ( path->CmpNoCase(
+                      _T("navigation.courseRhumbline.nextPoint.bearingTrue"))
+                      == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_BRG,
                     value * RAD_IN_DEG,
-                    _T("\u00B0"), // as for now, Origin ID not available from Signal K
+                    _T("\u00B0"), /* as for now, Origin ID not available
+                                     from Signal K */
                     timestamp );
                 this->SetNMEASentence_Arm_BRG_Watchdog();
             }
 
-            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.velocityMadeGood")) == 0 ) {
-                // This is THE carburator for hours of useless "discussions" in forums; comment it out if you don't like it :)
+            else if ( path->CmpNoCase(
+                 _T("navigation.courseRhumbline.nextPoint.velocityMadeGood"))
+                      == 0 ) {
+                /* This is THE carburator for hours of useless "discussions"
+                   in forums; comment it out if you don't like it :) */
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_VMG,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashWindSpeedUnit ),
+                    toUsrSpeed_Plugin( value * MS_IN_KNOTS,
+                                       g_iDashWindSpeedUnit ),
                     getUsrSpeedUnit_Plugin( g_iDashWindSpeedUnit ),
                     timestamp );
                 this->SetNMEASentence_Arm_VMG_Watchdog();
             }
 
-            else if ( path->CmpNoCase(_T("navigation.courseRhumbline.nextPoint.distance")) == 0 ) {
+            else if ( path->CmpNoCase(
+                      _T("navigation.courseRhumbline.nextPoint.distance"))
+                      == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_DTW,
                     value * KM_IN_NM, _T("Nm"),
                     timestamp );
             }
 
-            else if ( ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) ||
-                      ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) ) {
+            else if ( ( path->CmpNoCase(
+                       _T("navigation.courseOverGroundTrue")) == 0 ) ||
+                      ( path->CmpNoCase(
+                          _T("navigation.speedOverGround")) == 0 ) ) {
                 if ( mPriCOGSOG >= 2 ) {
-                    if ( path->CmpNoCase(_T("navigation.courseOverGroundTrue")) == 0 ) {
+                    if ( path->CmpNoCase(
+                             _T("navigation.courseOverGroundTrue")) == 0 ) {
                         mPriCOGSOG = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_COG,
@@ -2232,7 +2365,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                             _T("\u00B0"),
                             timestamp );
                     }
-                    else if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
+                    else if ( path->CmpNoCase(
+                                  _T("navigation.speedOverGround")) == 0 ) {
                         mPriCOGSOG = 2;
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_SOG,
@@ -2245,7 +2379,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // mPriCOGSOG
             } // then COGSOG contents
 
-            else if ( path->CmpNoCase(_T("navigation.courseOverGroundMagnetic")) == 0 ) {
+            else if ( path->CmpNoCase(
+                      _T("navigation.courseOverGroundMagnetic")) == 0 ) {
                 mPriCOGSOG = 3;
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_MCOG,
@@ -2258,7 +2393,8 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 if( mPriDateTime >= 3 ) {
                     mPriDateTime = 3;
                     bool parseError;
-                    wxDateTime msParsedDateTime = parseRfc3359UTC( valStr, parseError );
+                    wxDateTime msParsedDateTime =
+                        parseRfc3359UTC( valStr, parseError );
                     if ( !parseError ) {
                         mUTCDateTime = msParsedDateTime;
                         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
@@ -2266,38 +2402,44 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
                 } // mPriDateTime
             } // then date/time update received with the above data
 
-            else if ( path->CmpNoCase(_T("steering.rudderAngle")) == 0 ) {
+            else if ( path->CmpNoCase(
+                      _T("steering.rudderAngle")) == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_RSA,
                     value * RAD_IN_DEG, _T("\u00B0"),
                     timestamp );
             }
 
-            else if ( path->CmpNoCase(_T("navigation.speedThroughWater")) == 0 ) {
+            else if ( path->CmpNoCase(
+                      _T("navigation.speedThroughWater")) == 0 ) {
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_STW,
-                    toUsrSpeed_Plugin( value * MS_IN_KNOTS, g_iDashSpeedUnit ),
+                    toUsrSpeed_Plugin(
+                        value * MS_IN_KNOTS, g_iDashSpeedUnit ),
                     getUsrSpeedUnit_Plugin( g_iDashSpeedUnit ),
                     timestamp );
                 mStW_Watchdog = gps_watchdog_timeout_ticks;
             }
 
-            else if ( path->CmpNoCase(_T("navigation.trip.log")) == 0 ) {
+            else if ( path->CmpNoCase(
+                      _T("navigation.trip.log")) == 0 ) {
                 // Note: value from Signal K is meters here
                 if ( value >= 0.0 )
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW1,
-                                                  toUsrDistance_Plugin( (value * M_IN_NM),
-                                                                        g_iDashDistanceUnit ),
-                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                  timestamp );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_VLW1,
+                        toUsrDistance_Plugin( (value * M_IN_NM),
+                                              g_iDashDistanceUnit ),
+                        getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                        timestamp );
             }
             else if ( path->CmpNoCase(_T("navigation.log")) == 0 ) {
                 if ( value >= 0.0 )
-                    SendSentenceToAllInstruments( OCPN_DBP_STC_VLW2,
-                                                  toUsrDistance_Plugin( (value * M_IN_NM),
-                                                                        g_iDashDistanceUnit ),
-                                                  getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
-                                                  timestamp );
+                    SendSentenceToAllInstruments(
+                        OCPN_DBP_STC_VLW2,
+                        toUsrDistance_Plugin( (value * M_IN_NM),
+                                              g_iDashDistanceUnit ),
+                        getUsrDistanceUnit_Plugin( g_iDashDistanceUnit ),
+                        timestamp );
             }
 
         } // then non-NMEA-0183 (like NMEA-2000) delta from Signal K
@@ -2691,8 +2833,7 @@ void dashboard_pi::ApplyConfig(
         if( cont->m_bIsDeleted ) {
             if( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                cont->m_pDashboardWindow->Close( true ); // tell: Destroy!
-                cont->m_pDashboardWindow->Destroy();
+                cont->m_pDashboardWindow->Close( false ); // tell: can postpone
             }
             m_ArrayOfDashboardWindow.Remove( cont );
             delete cont;
@@ -2753,7 +2894,7 @@ void dashboard_pi::ApplyConfig(
                                 newcont->m_bIsDocked = false;
                             } /* from docked to undocked, just register,
                                  no need for rearrangement (ov50) */
-                            int orientNow =
+                            int orientNow=
                                 cont->m_pDashboardWindow->GetSizerOrientation();
                             if ( (orientNow == wxHORIZONTAL) &&
                                  (newcont->m_sOrientation == _T("V")) ) {
@@ -2845,10 +2986,6 @@ void dashboard_pi::ApplyConfig(
             if ( cont->m_pDashboardWindow ) {
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                 cont->m_pDashboardWindow->Close( false ); // tell: can postpone
-
-                // DEBUG DEBUG DEBUG
-                // cont->m_pDashboardWindow->Destroy();
-
             } /* then this is an existing window in an existing window pane,
                  replaced with a new one */
             replacedDashboards.Add( cont ); // do not disturb the loop now
@@ -2872,7 +3009,7 @@ void dashboard_pi::ApplyConfig(
                 if ( wIsDocked ) {
                     cont->m_bIsDocked = true;  /* Memo ov50: never comes
                                                   here in Init() - docked
-                                                  pane is nor recognized as
+                                                  pane is not recognized as
                                                   such ! */
                 } /* Then was created as docked, however the container
                      constructor defaults to floating */
@@ -2894,7 +3031,7 @@ void dashboard_pi::ApplyConfig(
                 if ( NewDashboardCreated ) {
                     newcont->m_pDashboardWindow->Close();
                     newcont->m_pDashboardWindow->Destroy();
-                    newcont->m_pDashboardWindow = NULL;
+                    newcont->m_pDashboardWindow = nullptr;
                 } // then, just in case, garbage collection
             } // no need to do a replacement or to create a new window
         } // else brand new pane or no action

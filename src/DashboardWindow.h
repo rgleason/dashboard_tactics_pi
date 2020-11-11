@@ -70,6 +70,9 @@ public:
     void SendUtcTimeToAllInstruments( wxDateTime value );
     void SendColorSchemeToAllJSInstruments( PI_ColorScheme cs );
     void ChangePaneOrientation( int orient, bool updateAUImgr );
+    virtual void PluginIsClosing(void) { m_pluginClosing = true; };
+    virtual bool HasDelayedThreadedApps(void) {
+        return m_hasDelayedThreadedApps; };
     /*TODO: OnKeyPress pass event to main window or disable focus*/
 
     DashboardWindowContainer* m_Container;
@@ -81,6 +84,8 @@ protected:
 private:
     wxAuiManager         *m_pauimgr;
     dashboard_pi         *m_plugin;
+    bool                  m_pluginClosing;
+    bool                  m_hasDelayedThreadedApps;
 
     wxBoxSizer           *itemBoxSizer;
     wxArrayOfInstrument  m_ArrayOfInstrument;

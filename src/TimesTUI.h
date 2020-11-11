@@ -104,6 +104,8 @@ protected:
     int                  m_orient;
     bool                 m_htmlLoaded;
     wxTimer             *m_pThreadTimesTUITimer;
+    std::mutex           m_mtxTimesTUIRun;
+    bool                 m_closingTimesTUI;
     int                  m_goodHttpServerDetects;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;

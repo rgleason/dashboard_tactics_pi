@@ -22,7 +22,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
- ***************************************************************************
+ ***************************************************************************----
  */
 
 #include "DashboardWindow.h"
@@ -77,14 +77,18 @@ DashboardWindow::DashboardWindow(
     m_pauimgr = auimgr;
     m_plugin = plugin;
     m_Container = mycont;
+    m_pluginClosing = false;
+    m_hasDelayedThreadedApps = false;
 
-    //wx2.9      itemBoxSizer = new wxWrapSizer( orient );
     itemBoxSizer = new wxBoxSizer( orient );
     SetSizerAndFit( itemBoxSizer );
-    // Dynamic binding used for event handlers
-    Bind( wxEVT_SIZE, &DashboardWindow::OnSize, this );
-    Bind( wxEVT_CONTEXT_MENU, &DashboardWindow::OnContextMenu, this );
-    Bind( wxEVT_COMMAND_MENU_SELECTED, &DashboardWindow::OnContextMenuSelect, this);
+    // Dynamic binding used for these event handlers
+    Bind( wxEVT_SIZE,
+          &DashboardWindow::OnSize, this );
+    Bind( wxEVT_CONTEXT_MENU,
+          &DashboardWindow::OnContextMenu, this );
+    Bind( wxEVT_COMMAND_MENU_SELECTED,
+          &DashboardWindow::OnContextMenuSelect, this);
 }
 
 DashboardWindow::~DashboardWindow()
@@ -99,22 +103,24 @@ DashboardWindow::~DashboardWindow()
 
 void DashboardWindow::OnClose( wxCloseEvent &event )
 {
-    bool hasDelayedThreadedApps = false;
     bool canVeto = event.CanVeto();
 
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
         if ( pdic->m_pInstrument ) {
             pdic->m_pInstrument->Close();
-            if ( canVeto && pdic->m_bDelayedDestruction )
-                hasDelayedThreadedApps = true;
-            else
-                pdic->m_pInstrument->Destroy();
+            if ( canVeto && pdic->m_bDelayedDestruction ) {
+                m_hasDelayedThreadedApps = true;
+            } // then threaded application: if phtreads, potential crash
+            else {
+                if ( !m_pluginClosing )
+                    pdic->m_pInstrument->Destroy();
+            } // else wxWidgets-only, clean up unless plug-in is closing
         }
     }
     m_Container->m_bIsVisible = false;
-    if ( hasDelayedThreadedApps )
-        m_Container->m_bIsDeleted = true;
+    if ( m_hasDelayedThreadedApps )
+        m_Container->m_bIsDeleted = true; // mark for future removal
     
     event.Skip(); // Continue with default Window class handlers
 }

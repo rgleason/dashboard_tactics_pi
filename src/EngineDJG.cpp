@@ -93,7 +93,7 @@ void DashboardInstrument_EngineDJG::OnClose( wxCloseEvent &event )
     m_closingEngineDJG = true;
 
      if ( m_pThreadEngineDJGTimer )
-         this->m_pThreadEngineDJGTimer->Stop();
+         m_pThreadEngineDJGTimer->Stop();
     SaveConfig();
     event.Skip(); // Destroy() must be called
 }
@@ -130,13 +130,15 @@ void DashboardInstrument_EngineDJG::OnThreadTimerTick( wxTimerEvent &event )
                 this->loadHTML( m_fullPathHTML, webViewInitSize );
                 // No more threaded jobs, InstruJS is working now
                 m_htmlLoaded= true;
-            } // then either a straigth start with server or detected a stable server
+            } /* then either a straigth start with server or detected
+                 a stable server */
             else {
                 m_goodHttpServerDetects += 1;
                 m_pThreadEngineDJGTimer->Start(
                     GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
             }
-        } // then there is a server serving the page, can ask content to be loaded
+        } /* then there is a server serving the page, can ask content
+             to be loaded */
         else {
             m_goodHttpServerDetects = 0;
             m_pThreadEngineDJGTimer->Start(
@@ -169,7 +171,8 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
     if (!pConf)
         return false;
     
-    // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
+    /* Make a proposal for the defaul path _and_ the protocol,
+       which user can then override in the file: */
     wxString sFullPathHTML = "http://127.0.0.1:8080/enginedjg/";
 
     pConf->SetPath(_T("/PlugIns/DashT/WebView/EngineDJG/"));
@@ -178,7 +181,9 @@ bool DashboardInstrument_EngineDJG::LoadConfig()
     m_httpServer = this->testURLretHost( m_fullPathHTML );
 
     if ( m_httpServer.IsEmpty() ) {
-        wxString message( _("Malformed URL string in WebView/EngineDJG ini-file entry: ") + "\n" );
+        wxString message(
+            _("Malformed URL string in WebView/EngineDJG ini-file entry: ") +
+            "\n" );
         message += m_fullPathHTML;
         wxMessageDialog *dlg = new wxMessageDialog(
             GetOCPNCanvasWindow(), message, _T("DashT E-Dial"), wxOK|wxICON_ERROR);

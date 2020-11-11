@@ -62,6 +62,9 @@ DashboardInstrument_TimesTUI::DashboardInstrument_TimesTUI(
     previousTimestamp = 0LL; // dashboard instru base class
     m_orient = wxHORIZONTAL;
     m_htmlLoaded= false;
+    std::unique_lock<std::mutex> init_m_mtxTUIRun(
+        m_mtxTimesTUIRun, std::defer_lock );
+    m_closingTimesTUI = false;
     m_goodHttpServerDetects = -1; // default is: there is a server at startup
     m_pconfig = GetOCPNConfigObject();
     m_fullPathHTML = wxEmptyString;
@@ -78,15 +81,20 @@ DashboardInstrument_TimesTUI::DashboardInstrument_TimesTUI(
 }
 DashboardInstrument_TimesTUI::~DashboardInstrument_TimesTUI(void)
 {
-    this->m_pThreadTimesTUITimer->Stop();
-    delete this->m_pThreadTimesTUITimer;
-    SaveConfig();
+    if ( m_pThreadTimesTUITimer ) {
+        m_pThreadTimesTUITimer->Stop();
+        delete m_pThreadTimesTUITimer;
+    }
     return;
 }
 void DashboardInstrument_TimesTUI::OnClose( wxCloseEvent &event )
 {
-    this->m_pThreadTimesTUITimer->Stop();
-    this->stopScript(); // base class implements, we are first to be called
+    std::unique_lock<std::mutex> lckmRunTickTUI( m_mtxTimesTUIRun );
+    m_closingTimesTUI = true;
+
+     if ( m_pThreadTimesTUITimer )
+         m_pThreadTimesTUITimer->Stop();
+    SaveConfig();
     event.Skip(); // Destroy() must be called
 }
 
@@ -104,12 +112,16 @@ void DashboardInstrument_TimesTUI::SetData(
 
 void DashboardInstrument_TimesTUI::OnThreadTimerTick( wxTimerEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickTUI( m_mtxTimesTUIRun );
+    if ( m_closingTimesTUI )
+        return;
 
     m_pThreadTimesTUITimer->Stop();
     if ( !m_htmlLoaded) {
         if ( testHTTPServer( m_httpServer ) ) {
             if ( (m_goodHttpServerDetects == -1) ||
-                 (m_goodHttpServerDetects >= TIMESTUI_WAIT_NEW_HTTP_SERVER_TICKS) ) {
+                 (m_goodHttpServerDetects >=
+                  TIMESTUI_WAIT_NEW_HTTP_SERVER_TICKS) ) {
                 wxSize thisSize = wxControl::GetSize();
                 wxSize thisFrameInitSize = GetSize( m_orient, thisSize );
                 SetInitialSize ( thisFrameInitSize );
@@ -117,17 +129,20 @@ void DashboardInstrument_TimesTUI::OnThreadTimerTick( wxTimerEvent &event )
                 this->loadHTML( m_fullPathHTML, webViewInitSize );
                 // No more threaded jobs, InstruJS is working now
                 m_htmlLoaded= true;
-            } // then either a straigth start with server or detected a stable server
+            } /* then either a straigth start with server or detected
+                 a stable server */
             else {
                 m_goodHttpServerDetects += 1;
                 m_pThreadTimesTUITimer->Start( GetRandomNumber( 800,1100 ), wxTIMER_CONTINUOUS);
             }
-        } // then there is a server serving the page, can ask content to be loaded
+        } /* then there is a server serving the page, can ask content
+             to be loaded */
         else {
             m_goodHttpServerDetects = 0;
             m_pThreadTimesTUITimer->Start( GetRandomNumber( 8000,11000 ), wxTIMER_CONTINUOUS);
         }  // else need to wait until a server appears
-    } // else thread is not running (no JS instrument created in this frame, create one)
+    } /* else thread is not running (no JS instrument created in this frame,
+         create one) */
 
 }
 
@@ -153,7 +168,8 @@ bool DashboardInstrument_TimesTUI::LoadConfig()
     if (!pConf)
         return false;
     
-    // Make a proposal for the defaul path _and_ the protocool, which user can then override in the file:
+    /* Make a proposal for the defaul path _and_ the protocol,
+       which user can then override in the file: */
     wxString sFullPathHTML = "http://127.0.0.1:8088/timestui/";
 
     pConf->SetPath(_T("/PlugIns/DashT/WebView/TimesTUI/"));
@@ -162,7 +178,9 @@ bool DashboardInstrument_TimesTUI::LoadConfig()
     m_httpServer = this->testURLretHost( m_fullPathHTML );
     
     if ( m_httpServer.IsEmpty() ) {
-        wxString message( _("Malformed URL string in WebView/TimesTUI ini-file entry: ") + "\n" );
+        wxString message(
+            _("Malformed URL string in WebView/TimesTUI ini-file entry: ") +
+            "\n" );
         message += m_fullPathHTML;
         wxMessageDialog *dlg = new wxMessageDialog(
             GetOCPNCanvasWindow(), message, _T("DashT Line Chart"), wxOK|wxICON_ERROR);
