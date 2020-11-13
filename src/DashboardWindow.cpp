@@ -22,7 +22,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
- ***************************************************************************----
+ ***************************************************************************
  */
 
 #include "DashboardWindow.h"
@@ -96,6 +96,11 @@ DashboardWindow::~DashboardWindow()
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
         if ( pdic->m_pInstrument ) {
+            /* Normally, all instrument windows are Destroyed() in close
+               event handler OnClose(). However, it may chose to leave some
+               windows since they may run, for example a threaded child
+               application (wxWebView). But now it is time even for them
+               to go: */
             delete pdic;
         }
     }
@@ -104,25 +109,48 @@ DashboardWindow::~DashboardWindow()
 void DashboardWindow::OnClose( wxCloseEvent &event )
 {
     bool canVeto = event.CanVeto();
+    wxArrayOfInstrument destroyedInstruments;
+    destroyedInstruments.Clear();
 
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
         if ( pdic->m_pInstrument ) {
             pdic->m_pInstrument->Close();
-            if ( canVeto && pdic->m_bDelayedDestruction ) {
-                m_hasDelayedThreadedApps = true;
-            } // then threaded application: if phtreads, potential crash
-            else {
-                if ( !m_pluginClosing )
+            if ( canVeto ) {
+                if ( m_pluginClosing ) {
                     pdic->m_pInstrument->Destroy();
-            } // else wxWidgets-only, clean up unless plug-in is closing
-        }
-    }
+                    destroyedInstruments.Add (
+                        m_ArrayOfInstrument.Item( i ) );
+                } // then not much choice, gotta go
+                else {
+                    if ( pdic->m_bDelayedDestruction ) {
+                        m_hasDelayedThreadedApps = true;
+                    } // then threaded application, give grace time
+                    else {
+                        pdic->m_pInstrument->Destroy();
+                        destroyedInstruments.Add (
+                            m_ArrayOfInstrument.Item( i ) );
+                    } // else non-threaded application, can veto but no reason
+                } // else not plug-in closure
+            } // then parent calls Close( false ) - or Close()
+            else {
+                pdic->m_pInstrument->Destroy();
+                destroyedInstruments.Add (
+                    m_ArrayOfInstrument.Item( i ) );
+            } // then parent calls Close( true ) - forced close
+        } // then not a zombie instrument 
+    } // for instruments in the Dashboard Window
+
     m_Container->m_bIsVisible = false;
-    if ( m_hasDelayedThreadedApps )
-        m_Container->m_bIsDeleted = true; // mark for future removal
+    if ( m_hasDelayedThreadedApps ) {
+        m_Container->m_bIsDeleted = true; // mark that we have future deletions
+    }
+    for( size_t i = 0; i < destroyedInstruments.GetCount(); i++ ) {
+        m_ArrayOfInstrument.Remove(
+            destroyedInstruments.Item( i ) );
+    } // for destroyed instruments, rest will be deleted in dtor
     
-    event.Skip(); // Continue with default Window class handlers
+    event.Skip( false ); // Do not continue with any other handler
 }
 
 void DashboardWindow::RebuildPane( wxArrayInt list, wxArrayString listIDs )
@@ -257,9 +285,13 @@ void DashboardWindow::ChangePaneOrientation( int orient, bool updateAUImgr )
             bool isvertical = ( (orient == wxVERTICAL) ? true : false );
             m_pauimgr->AddPane(
                 this, wxAuiPaneInfo().Name( m_Container->m_sName ).Caption(
-                    m_Container->m_sCaption ).CaptionVisible( true ).TopDockable( !isvertical ).BottomDockable(
-                        !isvertical ).LeftDockable( false ).RightDockable( isvertical ).MinSize( sz ).BestSize(
-                    sz ).FloatingSize( sz ).FloatingPosition( position ).Float().Show( m_Container->m_bIsVisible ) );
+                    m_Container->m_sCaption ).CaptionVisible(
+                        true ).TopDockable( !isvertical ).BottomDockable(
+                            !isvertical ).LeftDockable( false ).RightDockable(
+                                isvertical ).MinSize( sz ).BestSize(
+                                    sz ).FloatingSize( sz ).FloatingPosition(
+                                        position ).Float().Show(
+                                            m_Container->m_bIsVisible ) );
             if ( updateAUImgr ){
                 m_pauimgr->Update();
             } // then update (saving in event handler)
