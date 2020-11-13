@@ -60,6 +60,9 @@ DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
     m_orient = wxHORIZONTAL;
     previousTimestamp = 0LL; // see dashboard instru base class
     m_htmlLoaded= false;
+    std::unique_lock<std::mutex> init_m_mtxRaceMarkRun(
+        m_mtxRaceMarkRun, std::defer_lock );
+    m_closingRaceMark = false;
     m_goodHttpServerDetects = -1; // default is: there is a server at startup
     m_httpServer = wxEmptyString;
     m_fullPathHTML = wxEmptyString;
@@ -138,6 +141,9 @@ DashboardInstrument_RaceMark::~DashboardInstrument_RaceMark(void)
 }
 void DashboardInstrument_RaceMark::OnClose( wxCloseEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickRaMR( m_mtxRaceMarkRun );
+    m_closingRaceMark = true;
+
     this->m_pThreadRaceMarkTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
     if ( !this->m_rendererCallbackUUID.IsEmpty() )
@@ -707,6 +713,10 @@ raceRouteJSData *DashboardInstrument_RaceMark::getRmDataPtr()
 
 void DashboardInstrument_RaceMark::OnThreadTimerTick( wxTimerEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickRaSR( m_mtxRaceMarkRun );
+    if ( m_closingRaceMark )
+        return;
+
     m_pThreadRaceMarkTimer->Stop();
     
     if ( !(m_raceAsRoute) )

@@ -155,6 +155,8 @@ protected:
     int                  m_orient;
     bool                 m_htmlLoaded;
     wxTimer             *m_pThreadRaceStartTimer;
+    std::mutex           m_mtxRaceStartRun;
+    bool                 m_closingRaceStart;
     int                  m_goodHttpServerDetects;
     wxFileConfig        *m_pconfig;
     wxString             m_fullPathHTML;

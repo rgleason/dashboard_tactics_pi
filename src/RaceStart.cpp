@@ -6,7 +6,7 @@
 * Author:   Jean-Eudes Onfray
 * 
 ***************************************************************************
-*   Copyright (C) 2010 by David S. Register   *
+*   Copyright (C) 2010 by David S. Register                               *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -21,7 +21,7 @@
 *   You should have received a copy of the GNU General Public License     *
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
+*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
 ***************************************************************************
 */
 
@@ -61,6 +61,9 @@ DashboardInstrument_RaceStart::DashboardInstrument_RaceStart(
     m_orient = wxHORIZONTAL;
     previousTimestamp = 0LL; // see dashboard instru base class
     m_htmlLoaded= false;
+    std::unique_lock<std::mutex> init_m_mtxRaceStartRun(
+        m_mtxRaceStartRun, std::defer_lock );
+    m_closingRaceStart = false;
     m_goodHttpServerDetects = -1; // default is: there is a server at startup
     m_httpServer = wxEmptyString;
     m_fullPathHTML = wxEmptyString;
@@ -157,6 +160,9 @@ DashboardInstrument_RaceStart::~DashboardInstrument_RaceStart(void)
 }
 void DashboardInstrument_RaceStart::OnClose( wxCloseEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickRaSR( m_mtxRaceStartRun );
+    m_closingRaceStart = true;
+    
     this->m_pThreadRaceStartTimer->Stop();
     this->stopScript(); // base class implements, we are first to be called
     if ( !this->m_sRendererCallbackUUID.IsEmpty() )
@@ -576,6 +582,10 @@ bool DashboardInstrument_RaceStart::CheckForMovedUserDroppedWaypoints()
 
 void DashboardInstrument_RaceStart::OnThreadTimerTick( wxTimerEvent &event )
 {
+    std::unique_lock<std::mutex> lckmRunTickRaSR( m_mtxRaceStartRun );
+    if ( m_closingRaceStart )
+        return;
+
     m_pThreadRaceStartTimer->Stop();
     
     if ( !(m_startLineAsRoute) ) {
