@@ -248,7 +248,7 @@ void dashboard_pi::LoadColorSettings( wxFileConfig *pConf )
 void dashboard_pi::LoadFontSettings( wxFileConfig *pConf )
 {
     pConf->Read( _T("TitleFontSize"),
-                 &g_sTitleFontSize,      10 );
+                 &g_sTitleFontSize,      9 );
     pConf->Read( _T("TitleFontFamily"),
                  &g_sTitleFontFamily,    _T("SWISS"));
     pConf->Read( _T("TitleFontStyle"),
@@ -256,7 +256,7 @@ void dashboard_pi::LoadFontSettings( wxFileConfig *pConf )
     pConf->Read( _T("TitleFontWeight"),
                  &g_sTitleFontWeight,    _T("wxNORMAL"));
     pConf->Read( _T("DataFontSize"),
-                 &g_sDataFontSize,       14 );
+                 &g_sDataFontSize,       12 );
     pConf->Read( _T("DataFontFamily"),
                  &g_sDataFontFamily,     _T("TELETYPE"));
     pConf->Read( _T("DataFontStyle"),
