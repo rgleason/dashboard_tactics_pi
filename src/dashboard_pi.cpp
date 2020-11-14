@@ -3201,10 +3201,10 @@ void dashboard_pi::ApplyConfig(
         } /* else is a non-init run on an existing and unmodified
              pane, keep it */
         if ( addpane && !init ) {
-            newcont->m_bPersVisible = cont->m_bIsVisible;
             addedDashboards.Add( newcont );
+            replacedDashboards.Add( cont );
+            newcont->m_bPersVisible = cont->m_bIsVisible;
             if ( cont->m_pDashboardWindow ) {
-                replacedDashboards.Add( cont );
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                 (void ) cont->m_pDashboardWindow->Close( false );
                 if ( !cont->m_pDashboardWindow->Destroy() ) {
@@ -3243,17 +3243,9 @@ void dashboard_pi::ApplyConfig(
                 m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show(
                     newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                 if ( rebuildpane ) {
-
-                    ///// DEBUG DEBUG DEBUG DEBUG
-                    /*
-                    cont->m_pDashboardWindow->RebuildPane(
-                        newcont->m_aInstrumentList,
-                        newcont->m_aInstrumentIDs );
-                    */
                     if ( wIsDocked ) {
                         cont->m_bIsDocked = true;
-                    } /* was docked and rebuilt, however the constructor
-                         defaults to floating */
+                    } // was docked and rebuilt
                 }
                 m_pauimgr->Update();
                 if ( NewDashboardCreated ) {
@@ -3266,11 +3258,9 @@ void dashboard_pi::ApplyConfig(
     }  // for dashboard window containers remaining after deletions
 
     for( size_t i = 0; i < replacedDashboards.GetCount(); i++ ) {
-        wxLogMessage("ApplyConfig(): Removed item %d", i);
         m_ArrayOfDashboardWindow.Remove( replacedDashboards.Item( i ) );
     }
     for( size_t i = 0; i < addedDashboards.GetCount(); i++ ) {
-        wxLogMessage("ApplyConfig(): Added item %d", i);
         m_ArrayOfDashboardWindow.Add( addedDashboards.Item( i ) );
     }
 

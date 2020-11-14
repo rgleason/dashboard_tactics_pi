@@ -101,7 +101,6 @@ DashboardWindow::~DashboardWindow()
                windows since they may run, for example a threaded child
                application (wxWebView). But now it is time even for them
                to go: */
-            wxLogMessage("dtor(): deleted item %d", i);
             delete pdic;
         }
     }
@@ -157,7 +156,6 @@ void DashboardWindow::OnClose( wxCloseEvent &event )
         m_Container->m_bIsDeleted = true; // mark that we have future deletions
     }
     for( size_t i = 0; i < destroyedInstruments.GetCount(); i++ ) {
-        wxLogMessage("OnClose(): Removed item %d", i);
         m_ArrayOfInstrument.Remove( destroyedInstruments.Item( i ) );
     } // for destroyed instruments, rest will be deleted in dtor
     
