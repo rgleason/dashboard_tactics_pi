@@ -71,7 +71,7 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_nofStreamInSk = &nofStreamInSk;
     m_echoStreamerInSkShow = &echoStreamerInSkShow;
     m_state = SSKM_STATE_UNKNOWN;
-    m_timer = NULL;
+    m_timer = nullptr;
 
     wxString emptyStr = wxEmptyString;
     emptyStr = emptyStr.wc_str();
@@ -83,7 +83,8 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
         m_state = SSKM_STATE_DISPLAYRELAY;
         m_data = echoStreamerInSkShow;
         return;
-    } // check against case that there is multiple disaplays and this is just slave
+    } /*  check against case that there is multiple disaplays and this
+          is just slave */
     m_state = SSKM_STATE_INIT;
     m_data += L"\u2013 \u2013 \u2013";
     echoStreamerInSkShow = m_data;
@@ -122,10 +123,13 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_subscribeTo["context"] = sSubscribeContext;
     m_subscribeToPending = false;
     m_subscribeToJS = m_pskdata->getAllSubscriptionsJSON( m_subscribeTo );
-
+    m_thread = nullptr;
+    
     if ( CreateThread() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
-            wxLogMessage ("dashboard_tactics_pi: StreamInSkSingle : FAILED : Signal K Delta Streamer : could not create communication thread.");
+            wxLogMessage ("dashboard_tactics_pi: StreamInSkSingle : FAILED : "
+                          "Signal K Delta Streamer : could not create "
+                          "communication thread.");
         m_state = SSKM_STATE_FAIL;
         return;
     } // will not talk
@@ -133,7 +137,9 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_thread->SetPriority( ((wxPRIORITY_MAX * 5) / 10) );
     if ( m_thread->Run() != wxTHREAD_NO_ERROR ) {
         if ( m_verbosity > 0)
-            wxLogMessage ("dashboard_tactics_pi: StreamInSkSingle : FAILED : Signal K Delta Streamer: cannot run communication thread.");
+            wxLogMessage ("dashboard_tactics_pi: StreamInSkSingle : FAILED : "
+                          "Signal K Delta Streamer: cannot run "
+                          "communication thread.");
         m_state = SSKM_STATE_FAIL;
         return;
     }
@@ -141,51 +147,67 @@ TacticsInstrument_StreamInSkSingle::TacticsInstrument_StreamInSkSingle(
     m_timer->Start( SSKM_TICK_COUNT, wxTIMER_CONTINUOUS );
     m_state = SSKM_STATE_READY;
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 TacticsInstrument_StreamInSkSingle::~TacticsInstrument_StreamInSkSingle()
 {
-    std::unique_lock<std::mutex> lck_mtxNofStreamInSk( *m_mtxNofStreamInSk);
-    (*m_nofStreamInSk)--;
+    if ( m_timer ) {
+        m_timer->Stop();
+        delete m_timer;
+    }
+
     if ( m_state == SSKM_STATE_DISPLAYRELAY )
         return;
-    if ( this->m_timer != NULL ) {
-        this->m_timer->Stop();
-        delete this->m_timer;
-    }
+
     m_data = L"\u2013 HALT \u2013";
     *m_echoStreamerInSkShow = m_data;
     SaveConfig();
-    if ( GetThread() ) { // in case if no Close() event
-        if ( m_thread->IsRunning() ) {
-            m_cmdThreadStop = true;
+    if ( m_thread ) {
+        if ( GetThread() ) { // in case if no Close() event
+            if ( m_thread->IsRunning() ) {
+                m_cmdThreadStop = true;
             m_socket.InterruptWait();
             m_thread->Wait();
+            }
         }
     }
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnClose( wxCloseEvent &event )
 {
-    if ( m_state == SSKM_STATE_DISPLAYRELAY )
-        return;
-    if ( m_verbosity > 1)
-        wxLogMessage ("dashboard_tactics_pi: Streaming SK in : received CloseEvent, shutting down comm. thread.");
-    if ( GetThread() ) {
-        if ( m_thread->IsRunning() ) {
-            m_cmdThreadStop = true;
-            m_socket.InterruptWait();
-            m_thread->Wait();
-        }
-    }
-    event.Skip(); // let the destructor to finalize
-}
-/***********************************************************************************
+    std::unique_lock<std::mutex> lck_mtxNofStreamInSk( *m_mtxNofStreamInSk);
+    (*m_nofStreamInSk)--;
 
-************************************************************************************/
+    if ( m_timer ) {
+        m_timer->Stop();
+        delete m_timer;
+        m_timer = nullptr;
+    }
+
+    if ( m_state == SSKM_STATE_DISPLAYRELAY ) {
+        return;
+    }
+
+    if ( m_verbosity > 1)
+        wxLogMessage ( "dashboard_tactics_pi: Streaming SK In : "
+                       "received CloseEvent, shutting down comm. thread.");
+    if ( m_thread ) {
+        if ( GetThread() ) {
+            if ( m_thread->IsRunning() ) {
+                m_cmdThreadStop = true;
+                m_socket.InterruptWait();
+                m_thread->Wait();
+            }
+        }
+        m_thread = nullptr;
+    }
+}
+/******************************************************************************
+
+*******************************************************************************/
 wxSize TacticsInstrument_StreamInSkSingle::GetSize(int orient, wxSize hint)
 {
 	wxClientDC dc(this);
@@ -194,24 +216,38 @@ wxSize TacticsInstrument_StreamInSkSingle::GetSize(int orient, wxSize hint)
 	dc.GetTextExtent(_T("000"), &w, &m_DataHeight, 0, 0, g_pFontData);
 
 	if (orient == wxHORIZONTAL) {
-		return wxSize(DefaultWidth, wxMax(hint.y, m_TitleHeight + m_DataHeight));
+		return wxSize(
+            DefaultWidth,
+#ifdef __WXMSW__
+            // On Win10 wxW3.1.2 allow making a narrow, horizontal strip
+            (m_TitleHeight + m_DataHeight + 3) );
+#else
+        // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+              wxMax( hint.y, (m_TitleHeight + m_DataHeight) ) );
+#endif
 	}
 	else {
-		return wxSize(wxMax(hint.x, DefaultWidth), m_TitleHeight + m_DataHeight);
+		return wxSize(
+            wxMax(hint.x, DefaultWidth),
+#ifdef __WXMSW__
+            m_TitleHeight + m_DataHeight + 3);
+#else
+            m_TitleHeight + m_DataHeight);
+#endif
 	}
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::sLL(long long cnt, wxString &retString)
 {
     wxLongLong wxLL = cnt;
     wxString sBuffer = wxLL.ToString();
     retString = sBuffer.wc_str();
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::Draw(wxGCDC* dc)
 {
 	wxColour cl;
@@ -242,9 +278,9 @@ void TacticsInstrument_StreamInSkSingle::Draw(wxGCDC* dc)
 #endif
 
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
 {
 #define giveUpConnectionRetry100ms(__MS_100__) int waitMilliSeconds = 0; \
@@ -744,18 +780,18 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
     return (wxThread::ExitCode)0;
 
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnThreadUpdate( wxThreadEvent &evt )
 {
     if ( !m_threadMsg.IsEmpty() )         // NOTE: not to slow down the thread
         wxLogMessage ("%s", m_threadMsg); // w/ high debug rate can't catch them all!
     m_threadMsg = wxEmptyString;
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt )
 {
     if ( m_state == SSKM_STATE_DISPLAYRELAY ) {
@@ -809,9 +845,9 @@ void TacticsInstrument_StreamInSkSingle::OnStreamInSkUpdTimer( wxTimerEvent &evt
     } 
 
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::UpdateSkSnVersion( wxString vString )
 {
     wxStringTokenizer tokenizer(vString, ".");
@@ -841,9 +877,9 @@ void TacticsInstrument_StreamInSkSingle::UpdateSkSnVersion( wxString vString )
         }
     }
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 bool TacticsInstrument_StreamInSkSingle::LoadConfig()
 {
     if ( *m_nofStreamInSk > 1 )
@@ -939,9 +975,9 @@ bool TacticsInstrument_StreamInSkSingle::LoadConfig()
 
     return true;
 }
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::SaveConfig()
 {
     if ( *m_nofStreamInSk > 1 )
@@ -958,9 +994,9 @@ void TacticsInstrument_StreamInSkSingle::SaveConfig()
     return;
 }
 
-/***********************************************************************************
+/******************************************************************************
 
-************************************************************************************/
+*******************************************************************************/
 void TacticsInstrument_StreamInSkSingle::SetNMEASentence(wxString& delta)
 {
     return;
