@@ -145,7 +145,6 @@ void DashboardInstrument::OnDPBITimerTick( wxTimerEvent &event )
     }
 }
 
-
 void DashboardInstrument::MouseEvent( wxMouseEvent &event )
 {
     if ( event.GetEventType() == wxEVT_RIGHT_DOWN )
@@ -158,7 +157,7 @@ void DashboardInstrument::MouseEvent( wxMouseEvent &event )
     }
 }
 
-    unsigned long long DashboardInstrument::GetCapacity()
+unsigned long long DashboardInstrument::GetCapacity()
 {
       return m_cap_flag;
 }
@@ -270,13 +269,17 @@ wxSize DashboardInstrument_Single::GetSize( int orient, wxSize hint )
 {
       wxClientDC dc(this);
       int w;
-      dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-      dc.GetTextExtent(_T("000"), &w, &m_DataHeight, 0, 0, g_pFontData);
+      dc.GetTextExtent( m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle );
+      dc.GetTextExtent( _T("000"), &w, &m_DataHeight, 0, 0, g_pFontData );
 
       if( orient == wxHORIZONTAL ) {
-          return wxSize( DefaultWidth, wxMax(hint.y, m_TitleHeight+m_DataHeight) );
+          return wxSize(
+              DefaultWidth, wxMax(
+                  hint.y, (m_TitleHeight + m_DataHeight) ) );
       } else {
-          return wxSize( wxMax(hint.x, DefaultWidth), m_TitleHeight+m_DataHeight );
+          return wxSize(
+              wxMax( hint.x, DefaultWidth ),
+              (m_TitleHeight + m_DataHeight) );
       }
 }
 
@@ -410,12 +413,16 @@ wxSize DashboardInstrument_Position::GetSize( int orient, wxSize hint )
       wxClientDC dc(this);
       int w;
       dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-      dc.GetTextExtent(_T("000  00.0000 W"), &w, &m_DataHeight, 0, 0, g_pFontData);
+      dc.GetTextExtent(
+          _T("000  00.0000 W"), &w, &m_DataHeight, 0, 0, g_pFontData);
 
       if( orient == wxHORIZONTAL ) {
-          return wxSize( w+10, wxMax(hint.y, m_TitleHeight+m_DataHeight*2) );
+          return wxSize(
+              w+10, wxMax(
+                  hint.y, (m_TitleHeight + (2 * m_DataHeight)) ) );
       } else {
-          return wxSize( wxMax(hint.x, w+10), m_TitleHeight+m_DataHeight*2 );
+          return wxSize( wxMax( hint.x, (w + 10) ),
+                         (m_TitleHeight +(2 * m_DataHeight)) );
       }
 }
 

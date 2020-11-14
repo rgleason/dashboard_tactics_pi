@@ -205,13 +205,13 @@ int dashboard_pi::Init( void )
     AddLocaleCatalog( _T("opencpn-dashboard_tactics_pi") );
 
     g_pFontTitle = new wxFont(
-        10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
+        9, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL );
     g_pFontData = new wxFont(
-        14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        12, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontLabel = new wxFont(
-        8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
     g_pFontSmall = new wxFont(
-        8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );    
+        8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );    
 
     m_pauimgr = GetFrameAuiManager();
     m_pluginFrame = m_pauimgr->GetManagedWindow();
@@ -611,7 +611,8 @@ void dashboard_pi::SendSentenceToAllInstruments(
     if ( datatimestamp == 0LL ) {
         wxLongLong wxllNowMs = wxGetUTCTimeMillis();
         if ( mUntrustedLocalTime ) {
-            wxLongLong msElapsedSinceLastGNSStime = wxllNowMs - mGNSSreceivedAtLocalMs;
+            wxLongLong msElapsedSinceLastGNSStime =
+                wxllNowMs - mGNSSreceivedAtLocalMs;
             wxLongLong msEstimatedTimestamp =
                 mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
             datatimestamp = msEstimatedTimestamp.GetValue();
