@@ -906,6 +906,7 @@ void DashboardWindow::SetInstrumentList(
                 m_plugin->m_echoStreamerShow,
                 m_plugin->GetStandardPath(),
                 this->m_pSkData );
+            delayedDestruction = true;
             break;
         case ID_DBP_V_INSK:
             instrument = new TacticsInstrument_StreamInSkSingle(
@@ -918,6 +919,7 @@ void DashboardWindow::SetInstrumentList(
                 m_plugin->m_echoStreamerInSkShow,
                 m_plugin->GetStandardPath(),
                 this->m_pSkData );
+            delayedDestruction = true;
             break;
         case ID_DBP_D_POLPERF:
             instrument = new TacticsInstrument_PolarPerformance(
