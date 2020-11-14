@@ -25,7 +25,8 @@
 var  instrustat = {
     theme : 'default',
     debuglevel : 1,
-    alerts : true,
+    /* Leave alerts : false on Ubuntu 20.04LTS (GTK3/WebKit2/wxWidgets3.0.5) */
+    alerts : false,
     alertdelay : 5,
     corsproxy: 'http://localhost:8089',
     knownpaths: [
