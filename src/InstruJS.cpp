@@ -167,7 +167,6 @@ void InstruJS::OnClose( wxCloseEvent &event )
             m_pWebPanel = nullptr;
         }
     }
-    event.Skip(); // Destroy() must be called
 }
 
 bool InstruJS::testHTTPServer( wxString urlIpOrNamePort ) {
