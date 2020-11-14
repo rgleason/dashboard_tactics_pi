@@ -62,19 +62,23 @@ DashboardInstrument::DashboardInstrument( wxWindow *pparent, wxWindowID id, wxSt
       int width;
       dc.GetTextExtent(m_title, &width, &m_TitleHeight, 0, 0, g_pFontTitle);
 
-      Connect(wxEVT_ERASE_BACKGROUND, wxEraseEventHandler(DashboardInstrument::OnEraseBackground));
-      Connect(wxEVT_PAINT, wxPaintEventHandler(DashboardInstrument::OnPaint));
+      Connect( wxEVT_ERASE_BACKGROUND,
+               wxEraseEventHandler(
+                   DashboardInstrument::OnEraseBackground) );
+      Connect( wxEVT_PAINT, wxPaintEventHandler(
+                   DashboardInstrument::OnPaint) );
       
-      //  On OSX, there is an orphan mouse event that comes from the automatic
-      //  exEVT_CONTEXT_MENU synthesis on the main wxWindow mouse handler.
-      //  The event goes to an instrument window (here) that may have been deleted by the
-      //  preferences dialog.  Result is NULL deref.
-      //  Solution:  Handle right-click here, and DO NOT skip()
-      //  Strangely, this does not work for GTK...
-      //  See: http://trac.wxwidgets.org/ticket/15417
+      /* On OSX, there is an orphan mouse event that comes from the automatic
+         exEVT_CONTEXT_MENU synthesis on the main wxWindow mouse handler.
+         The event goes to an instrument window (here) that may have been
+         deleted by the preferences dialog.  Result is NULL deref.
+         Solution:  Handle right-click here, and DO NOT skip()
+         Strangely, this does not work for GTK...
+         See: http://trac.wxwidgets.org/ticket/15417 */
       
 #ifdef __WXOSX__
-      Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(DashboardInstrument::MouseEvent), NULL, this);
+      Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler(
+                  DashboardInstrument::MouseEvent), NULL, this );
 #endif
       m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
       previousTimestamp = 0LL;
@@ -267,26 +271,26 @@ DashboardInstrument_Single::DashboardInstrument_Single(wxWindow *pparent, wxWind
 
 wxSize DashboardInstrument_Single::GetSize( int orient, wxSize hint )
 {
-      wxClientDC dc(this);
-      int w;
-      dc.GetTextExtent( m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle );
-      dc.GetTextExtent( _T("000"), &w, &m_DataHeight, 0, 0, g_pFontData );
+    wxClientDC dc(this);
+    int w;
+    dc.GetTextExtent( m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle );
+    dc.GetTextExtent( _T("000"), &w, &m_DataHeight, 0, 0, g_pFontData );
 
-      if( orient == wxHORIZONTAL ) {
-          return wxSize(
-              DefaultWidth,
+    if( orient == wxHORIZONTAL ) {
+        return wxSize(
+            DefaultWidth,
 #ifdef __WXMSW__
-              // On Win10 wxW3.1.2 allow making a narrow, horizontal strip
-              (m_TitleHeight + m_DataHeight + 3) );
+            // On Win10 wxW3.1.2 allow making a narrow, horizontal strip
+            (m_TitleHeight + m_DataHeight + 3) );
 #else
-              // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
-              wxMax( hint.y, (m_TitleHeight + m_DataHeight) ) );
+            // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+            wxMax( hint.y, (m_TitleHeight + m_DataHeight) ) );
 #endif
-      } else {
-          return wxSize(
-              wxMax( hint.x, DefaultWidth ),
-              (m_TitleHeight + m_DataHeight) );
-      }
+    }
+    else {
+        return wxSize(
+            wxMax( hint.x, DefaultWidth ), (m_TitleHeight + m_DataHeight) );
+    }
 }
 
 void DashboardInstrument_Single::Draw(wxGCDC* dc)
@@ -331,21 +335,26 @@ void DashboardInstrument_Single::SetData(
       if ( m_cap_flag & st ){
             if( !std::isnan( data ) && (data < 9999.) ) {
                 if (unit == _T("C"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("C");
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_T("C");
                 else if (unit == _T("F"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("F");
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_T("F");
                 else if (unit == _T("\u00B0"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN;
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN;
                 else if (unit == _T("\u00B0T"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" true");
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_(" true");
                 else if (unit == _T("\u00B0M"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" mag");
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_(" mag");
                 else if (unit == _T("\u00B0l")){
                     if (data < 0) data = -data;
                     m_data = L"\u2190" +
                         wxString::Format(m_format, data) + DEGREE_SIGN;
                 }
-                else if (unit == _T("\u00B0rl")){ // wind arrow on starboard side
+                else if (unit == _T("\u00B0rl")){ // arrow starboard side
                   if (data < 0) data = -data;
                   m_data = wxString::Format(m_format, data) +
                       DEGREE_SIGN + L"\u2190";
