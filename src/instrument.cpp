@@ -274,8 +274,14 @@ wxSize DashboardInstrument_Single::GetSize( int orient, wxSize hint )
 
       if( orient == wxHORIZONTAL ) {
           return wxSize(
-              DefaultWidth, wxMax(
-                  hint.y, (m_TitleHeight + m_DataHeight) ) );
+              DefaultWidth,
+#ifdef __WXMSW__
+              // On Win10 wxW3.1.2 allow making a narrow, horizontal strip
+              (m_TitleHeight + m_DataHeight + 3) );
+#else
+              // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+              wxMax( hint.y, (m_TitleHeight + m_DataHeight) ) );
+#endif
       } else {
           return wxSize(
               wxMax( hint.x, DefaultWidth ),
@@ -418,11 +424,17 @@ wxSize DashboardInstrument_Position::GetSize( int orient, wxSize hint )
 
       if( orient == wxHORIZONTAL ) {
           return wxSize(
-              w+10, wxMax(
-                  hint.y, (m_TitleHeight + (2 * m_DataHeight)) ) );
+              (w + 5),
+#ifdef __WXMSW__
+              // On Win10 wxW3.1.2 optimize the height to make narrower strip
+              (m_TitleHeight + (2 * m_DataHeight) + 3) );
+#else
+              // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+              wxMax( hint.y, (m_TitleHeight + (2 * m_DataHeight)) ) );
+#endif
       } else {
-          return wxSize( wxMax( hint.x, (w + 10) ),
-                         (m_TitleHeight +(2 * m_DataHeight)) );
+          return wxSize( wxMax( hint.x, (w + 5) ),
+                         (m_TitleHeight + (2 * m_DataHeight)) );
       }
 }
 
