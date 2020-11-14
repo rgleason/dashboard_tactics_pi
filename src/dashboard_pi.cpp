@@ -3206,15 +3206,11 @@ void dashboard_pi::ApplyConfig(
             if ( cont->m_pDashboardWindow ) {
                 replacedDashboards.Add( cont );
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
-                if ( !cont->m_pDashboardWindow->Close( false ) ) {
-                    wxLogMessage(
-                        "dashboard_tactics_pi: INFO: rearranged instr.window "
-                        "closure vetoed or failed." );
-                }
+                (void ) cont->m_pDashboardWindow->Close( false );
                 if ( !cont->m_pDashboardWindow->Destroy() ) {
                     wxLogMessage(
                         "dashboard_tactics_pi: INFO: rearranged window pane "
-                        "marked for delayed deletion (ex. threaded apps.)." );
+                        "failed in Destroy()." );
                 } // then window pane added to a list for later deletion
             } /* then this is an existing window in an existing window pane,
                  replaced with a new one */
@@ -3247,9 +3243,13 @@ void dashboard_pi::ApplyConfig(
                 m_pauimgr->GetPane( cont->m_pDashboardWindow ).Show(
                     newcont->m_bIsVisible ).Caption( newcont->m_sCaption );
                 if ( rebuildpane ) {
+
+                    ///// DEBUG DEBUG DEBUG DEBUG
+                    /*
                     cont->m_pDashboardWindow->RebuildPane(
                         newcont->m_aInstrumentList,
                         newcont->m_aInstrumentIDs );
+                    */
                     if ( wIsDocked ) {
                         cont->m_bIsDocked = true;
                     } /* was docked and rebuilt, however the constructor
@@ -3266,9 +3266,11 @@ void dashboard_pi::ApplyConfig(
     }  // for dashboard window containers remaining after deletions
 
     for( size_t i = 0; i < replacedDashboards.GetCount(); i++ ) {
+        wxLogMessage("ApplyConfig(): Removed item %d", i);
         m_ArrayOfDashboardWindow.Remove( replacedDashboards.Item( i ) );
     }
     for( size_t i = 0; i < addedDashboards.GetCount(); i++ ) {
+        wxLogMessage("ApplyConfig(): Added item %d", i);
         m_ArrayOfDashboardWindow.Add( addedDashboards.Item( i ) );
     }
 

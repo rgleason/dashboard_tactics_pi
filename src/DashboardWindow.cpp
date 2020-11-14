@@ -101,6 +101,7 @@ DashboardWindow::~DashboardWindow()
                windows since they may run, for example a threaded child
                application (wxWebView). But now it is time even for them
                to go: */
+            wxLogMessage("dtor(): deleted item %d", i);
             delete pdic;
         }
     }
@@ -109,34 +110,44 @@ DashboardWindow::~DashboardWindow()
 void DashboardWindow::OnClose( wxCloseEvent &event )
 {
     bool canVeto = event.CanVeto();
+    bool hasVetoed = false;
     wxArrayOfInstrument destroyedInstruments;
     destroyedInstruments.Clear();
+    unsigned long msNoDelay = 0;
+    unsigned long msGiveDelay = 500;
 
+#define __DESTROY_INSTRU_AND_COLLECT__(__DELAYMS__) \
+    destroyedInstruments.Add ( \
+        m_ArrayOfInstrument.Item( i ) ); \
+    unsigned long graceMs = ms##__DELAYMS__; \
+    if ( graceMs > 0 ) \
+        wxMilliSleep( graceMs ); \
+    pdic->m_pInstrument->Destroy()
+    
     for( size_t i = 0; i < m_ArrayOfInstrument.GetCount(); i++ ) {
         DashboardInstrumentContainer *pdic = m_ArrayOfInstrument.Item( i );
         if ( pdic->m_pInstrument ) {
             pdic->m_pInstrument->Close();
             if ( canVeto ) {
                 if ( m_pluginClosing ) {
-                    pdic->m_pInstrument->Destroy();
-                    destroyedInstruments.Add (
-                        m_ArrayOfInstrument.Item( i ) );
+                    __DESTROY_INSTRU_AND_COLLECT__(NoDelay);
                 } // then not much choice, gotta go
                 else {
                     if ( pdic->m_bDelayedDestruction ) {
                         m_hasDelayedThreadedApps = true;
+                        if ( !hasVetoed ) {
+                            event.Veto();
+                            hasVetoed = true;
+                        }
+                        __DESTROY_INSTRU_AND_COLLECT__(GiveDelay);
                     } // then threaded application, give grace time
                     else {
-                        pdic->m_pInstrument->Destroy();
-                        destroyedInstruments.Add (
-                            m_ArrayOfInstrument.Item( i ) );
+                        __DESTROY_INSTRU_AND_COLLECT__(NoDelay);
                     } // else non-threaded application, can veto but no reason
                 } // else not plug-in closure
             } // then parent calls Close( false ) - or Close()
             else {
-                pdic->m_pInstrument->Destroy();
-                destroyedInstruments.Add (
-                    m_ArrayOfInstrument.Item( i ) );
+                __DESTROY_INSTRU_AND_COLLECT__(NoDelay);
             } // then parent calls Close( true ) - forced close
         } // then not a zombie instrument 
     } // for instruments in the Dashboard Window
@@ -146,8 +157,8 @@ void DashboardWindow::OnClose( wxCloseEvent &event )
         m_Container->m_bIsDeleted = true; // mark that we have future deletions
     }
     for( size_t i = 0; i < destroyedInstruments.GetCount(); i++ ) {
-        m_ArrayOfInstrument.Remove(
-            destroyedInstruments.Item( i ) );
+        wxLogMessage("OnClose(): Removed item %d", i);
+        m_ArrayOfInstrument.Remove( destroyedInstruments.Item( i ) );
     } // for destroyed instruments, rest will be deleted in dtor
     
     event.Skip( false ); // Do not continue with any other handler
