@@ -207,6 +207,8 @@ protected:
     bool                 m_webPanelSuspended;
     bool                 m_webpanelStopped;
     wxWebView           *m_pWebPanel;
+    int                  m_dataOutTicks;
+    int                  m_dataOutTickCnt;
     wxTimer             *m_pThreadInstruJSTimer;
     wxSize               m_lastSize;
     wxSize               m_initialSize;

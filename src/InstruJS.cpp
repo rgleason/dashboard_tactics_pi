@@ -111,8 +111,10 @@ InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
    Bind( wxEVT_WEBVIEW_ERROR, &InstruJS::OnWebViewError,
          this, m_pWebPanel->GetId() );
 #else
-    m_pWebPanel = nullptr;
+   m_pWebPanel = nullptr;
 #endif
+   m_dataOutTicks = 1;
+   m_dataOutTickCnt = -1;
    m_pThreadInstruJSTimer = new wxTimer( this, myID_TICK_INSTRUJS );
 
    m_lastSize = wxControl::GetSize();
@@ -237,7 +239,7 @@ void InstruJS::PushData(double data, wxString unit, long long timestamp)
         } // else detected issues with negative value conversions
         // wxString temp = wxString::Format( m_format, data ); // DEBUG
         m_fData = data;
-        m_data = wxString::Format( m_format, data );
+        m_data  = wxString::Format( m_format, data );
     } // then valid data
 }
 
@@ -725,36 +727,6 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                             m_subscribedPath,
                             "');");
                     RunScript( javascript );
-                    /*
-                      We do not load up the system with the script execution
-                      if the subsribed data remains unchanged.
-                      We use scientific notation with two decimals.
-                      While for some data this does make sense, for others,
-                      like the battery voltage,temperature (in Kelvins!),
-                      electrical current it does not, while Signal K thinks so.
-                      Let's reduce the decimal digits to one for those in order
-                      to reduce the load on lower power CPUs (Raspberry Pi)
-                      wxWidgets v3.0.4 and WebKit2 v4.0 and GTK3 3.9.0
-                      (Debian 10 and Ubuntu 20.04LTS) threads.
-                    */
-                    if ( m_subscribedPath.Find(_T("electrical"))
-                         != wxNOT_FOUND ) {
-                        if ( m_subscribedPath.Find(_T("current"))
-                             != wxNOT_FOUND )
-                            m_format = L"%.1e";
-                        else if ( m_subscribedPath.Find(_T("voltage"))
-                                  != wxNOT_FOUND )
-                            m_format = L"%.1e";
-                        else if ( m_subscribedPath.Find(_T("temperature"))
-                                  != wxNOT_FOUND )
-                            m_format = L"%.1e";
-                    } // then _electrical_ current
-                    else if ( m_subscribedPath.Find(_T("temperature"))
-                              != wxNOT_FOUND )
-                        m_format = L"%.1e";
-                    else if ( m_subscribedPath.Find(_T("pressure"))
-                              != wxNOT_FOUND )
-                        m_format = L"%.1e";
                     m_istate = JSI_SHOWDATA;
                     m_dsRequestedInSource = JSI_IS_INSTRUJS_DATA_SUBSCRIPTION;
                     m_handshake = JSI_HDS_SERVED;
@@ -786,6 +758,16 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                         javascript = javascript +
                             wxString::Format( L"%s", "');" );
                         RunScript( javascript );
+                        /*
+                          We do not load up the system with the script execution
+                          if the subsribed data remains unchanged.
+                          We use scientific notation with two decimals.
+                          That's good for more SI value sent by Signal K.
+                          But not for all, like atmospheric pressure.
+                        */
+                        if ( m_subscribedPath.Find(_T("pressure"))
+                             != wxNOT_FOUND )
+                            m_format = L"%.3e";
                         m_istate = JSI_SHOWDATA;
                         m_handshake = JSI_HDS_SERVED;
                     } /* has got all DB paths, now wants a DB schema
@@ -804,21 +786,60 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             if ( m_dsRequestedInSource == JSI_IS_INSTRUJS_DATA_SUBSCRIPTION ) {
                 if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION)
                      != 0 ) {
-
+                    /*
+                      We do not load up the system with the script execution
+                      if the subsribed data remains unchanged, or by nature
+                      does not require that the last digit changes are
+                      sent to the instrument every second or so.
+                      We use scientific notation with two decimals.
+                      While for some data this does make sense, for others,
+                      like the battery voltage,temperature (in Kelvins!),
+                      electrical current it does not, while Signal K thinks so.
+                      Let's reduce the load on lower power CPUs (Raspberry Pi)
+                      wxWidgets v3.0.4 and WebKit2 v4.0 and GTK3 3.9.0
+                      (Debian 10 and Ubuntu 20.04LTS) threads.
+                    */
+                    if ( m_dataOutTickCnt == -1 ) {
+                        m_dataOutTickCnt = 1; // default
+                        if ( m_subscribedPath.Find(_T("electrical"))
+                             != wxNOT_FOUND ) {
+                            if ( m_subscribedPath.Find(_T("current"))
+                                 != wxNOT_FOUND )
+                                m_dataOutTickCnt = 3;
+                            else if ( m_subscribedPath.Find(_T("voltage"))
+                                      != wxNOT_FOUND )
+                                m_dataOutTickCnt = 5;
+                            else if ( m_subscribedPath.Find(_T("temperature"))
+                                      != wxNOT_FOUND )
+                                m_dataOutTickCnt = 5;
+                        } // then _electrical_ current
+                        else if ( m_subscribedPath.Find(_T("temperature"))
+                                  != wxNOT_FOUND )
+                                m_dataOutTickCnt = 5;
+                        else if ( m_subscribedPath.Find(
+                                      _T("environment.outside.pressure"))
+                                  != wxNOT_FOUND )
+                                m_dataOutTickCnt = 10;
+                    } // then a new (possible) wait cycle for changed digits
+                   
                     if ( m_data != m_lastdataout ) {
-                        wxString javascript =
-                            wxString::Format(
-                                L"%s%s%s",
-                                "window.iface.newdata(",
-                                m_data,
-                                ");");
-                        RunScript( javascript );
-                        m_lastdataout = m_data;
-                        m_pparent->SendPerfSentenceToAllInstruments(
-                            OCPN_DBP_STC_SKSUBSCRIBE,
-                            m_fData,
-                            m_subscribedPath,
-                            getTimestamp() );
+                        m_dataOutTickCnt--;
+                        if ( m_dataOutTickCnt <= 0 ) {
+                            wxString javascript =
+                                wxString::Format(
+                                    L"%s%s%s",
+                                    "window.iface.newdata(",
+                                    m_data,
+                                    ");");
+                            RunScript( javascript );
+                            m_lastdataout = m_data;
+                            m_pparent->SendPerfSentenceToAllInstruments(
+                                OCPN_DBP_STC_SKSUBSCRIBE,
+                                m_fData,
+                                m_subscribedPath,
+                                getTimestamp() );
+                            m_dataOutTickCnt = -1;
+                        } // then n times digit changes
                     } // then send data which has changed
                 } // then subscription is valid
             } // then subscription to single incoming data
