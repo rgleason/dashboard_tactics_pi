@@ -75,15 +75,15 @@ IF(UNIX AND NOT APPLE)
 # need apt-get install rpm, for rpmbuild
     SET(PACKAGE_DEPS "opencpn, bzip2, gzip")
     SET(PACKAGE_RELEASE 1)
-
+    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
 
   IF (CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
-    SET (ARCH "armhf")
-    # don't bother with rpm on armhf
-    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
+    IF (CMAKE_SIZEOF_VOID_P MATCHES "8")
+      SET (ARCH "arm64")
+    ELSE ()
+      SET (ARCH "armhf")
+    ENDIF ()
   ELSE ()
-    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
-
     IF (CMAKE_SIZEOF_VOID_P MATCHES "8")
       SET (ARCH "amd64")
       SET(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
