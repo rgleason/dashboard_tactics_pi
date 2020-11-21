@@ -693,7 +693,7 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             }
             else if ( request.CmpNoCase("getdisf") == 0 ) {
                 bool disfRetval = false;
-                wxString sUsrUnit = getUsrDistanceUnit_Plugin(); // get O global
+                wxString sUsrUnit = getUsrDistanceUnit_Plugin(); // get O glob.
                 if ( (sUsrUnit.Cmp("mi") == 0) || (sUsrUnit.Cmp("ft") == 0) )
                      disfRetval = true;
                 wxString javascript = wxString::Format(
@@ -706,7 +706,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                 break;
             }
             else if ( request.Find(".") != wxNOT_FOUND ) {
-                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
+                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION)
+                     != 0 ) {
                     m_istate = JSI_GETPATH;
                     if ( m_pushHere == NULL )
                         m_pushHere = std::bind(&InstruJS::PushData,
@@ -724,6 +725,36 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
                             m_subscribedPath,
                             "');");
                     RunScript( javascript );
+                    /*
+                      We do not load up the system with the script execution
+                      if the subsribed data remains unchanged.
+                      We use scientific notation with two decimals.
+                      While for some data this does make sense, for others,
+                      like the battery voltage,temperature (in Kelvins!),
+                      electrical current it does not, while Signal K thinks so.
+                      Let's reduce the decimal digits to one for those in order
+                      to reduce the load on lower power CPUs (Raspberry Pi)
+                      wxWidgets v3.0.4 and WebKit2 v4.0 and GTK3 3.9.0
+                      (Debian 10 and Ubuntu 20.04LTS) threads.
+                    */
+                    if ( m_subscribedPath.Find(_T("electrical"))
+                         != wxNOT_FOUND ) {
+                        if ( m_subscribedPath.Find(_T("current"))
+                             != wxNOT_FOUND )
+                            m_format = L"%.1e";
+                        else if ( m_subscribedPath.Find(_T("voltage"))
+                                  != wxNOT_FOUND )
+                            m_format = L"%.1e";
+                        else if ( m_subscribedPath.Find(_T("temperature"))
+                                  != wxNOT_FOUND )
+                            m_format = L"%.1e";
+                    } // then _electrical_ current
+                    else if ( m_subscribedPath.Find(_T("temperature"))
+                              != wxNOT_FOUND )
+                        m_format = L"%.1e";
+                    else if ( m_subscribedPath.Find(_T("pressure"))
+                              != wxNOT_FOUND )
+                        m_format = L"%.1e";
                     m_istate = JSI_SHOWDATA;
                     m_dsRequestedInSource = JSI_IS_INSTRUJS_DATA_SUBSCRIPTION;
                     m_handshake = JSI_HDS_SERVED;
@@ -771,11 +802,9 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
         }
         if ( m_istate == JSI_SHOWDATA ) {
             if ( m_dsRequestedInSource == JSI_IS_INSTRUJS_DATA_SUBSCRIPTION ) {
-                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION) != 0 ) {
-                    /*
-                      We not load up the system with the script execution
-                      if the subsribed data remains unchanged.
-                    */
+                if ( (m_dsDataSource & JSI_DS_INCOMING_DATA_SUBSCRIPTION)
+                     != 0 ) {
+
                     if ( m_data != m_lastdataout ) {
                         wxString javascript =
                             wxString::Format(
@@ -879,7 +908,8 @@ void InstruJS::OnThreadTimerTick( wxTimerEvent &event )
             } // then there is a reason to ask the instrument to change style
         } // then instru state machine allows luminosity changes
 
-        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ), wxTIMER_CONTINUOUS);
+        m_pThreadInstruJSTimer->Start( GetRandomNumber( 900,1099 ),
+                                       wxTIMER_CONTINUOUS);
         
     } // then all code loaded
     
