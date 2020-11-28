@@ -12,8 +12,10 @@ engines:
      - src/PolarPerformance.cpp
      - src/baro_history.cpp
      - src/wind_history.cpp
+     - src/Odograph.cpp
      - src/avg_wind.cpp
      - src/clock.cpp
+     - src/icons/*.png.h
 exclude_paths:
   - .github/workflows/**'
   - 'instrujs/**/webpack.config.js'
