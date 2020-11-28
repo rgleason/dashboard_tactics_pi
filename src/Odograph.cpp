@@ -258,7 +258,7 @@ m_##__INSDATA__ = data;
 void DashboardInstrument_Odograph::PushLogHere(
     double data, wxString unit, long long timestamp)
 {
-    if ( !std::isnan(m_Log) && ( data < m_Log ) )
+    if ( !std::isnan(m_Log) && ( data <= m_Log ) )
         return; /* backward movement? - or just wrong, big negative
                    value like from Raymarine ST60+. Have to ignore. */
     __ODOGRAPH_CHECK_DATA__(Log)
@@ -365,8 +365,7 @@ void DashboardInstrument_Odograph::OnLogHistUpdTimer(wxTimerEvent &event)
                     m_ArrayLogDist[ ODOM_RECORD_COUNT - 1] = logDiff;
                 }
                 else {
-                    m_ArrayLogOdom[ ODOM_RECORD_COUNT - 1] = 0.0;
-                    m_ArrayLogDist[ ODOM_RECORD_COUNT - 1] = 0.0;
+                    m_ArrayLogOdom[ ODOM_RECORD_COUNT - 1] = -1.;
                 }
             } // then valid earlier log value, calculate trip
         } // then valid total log value
@@ -479,9 +478,9 @@ void DashboardInstrument_Odograph::SetMinMaxLogScale()
     if ( !m_useLog || std::isnan( m_logTotal ) || ( m_logTotal == -1 ) )
         logLowRef = DBL_MAX;
     else {
-        logTotalRef = m_ArrayLogOdom[ODOM_RECORD_COUNT - m_SampleCount];
-        if ( logTotalRef <= 0 )
-            logTotalRef = DBL_MAX;
+        logLowRef = m_ArrayLogOdom[ODOM_RECORD_COUNT - m_SampleCount];
+        if ( logLowRef <= 0 )
+            logLowRef = DBL_MAX;
     }
     double gnssLowRef = m_ArrayOdometer[ODOM_RECORD_COUNT - m_SampleCount];
     double lowerRef = ( (logLowRef < gnssLowRef ) ?
@@ -639,7 +638,7 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
     wxColour col;
     double ratioH;
     int gnsw, gnsh;
-    int width, height, sec, min, hour;
+    int width, height;
     wxString gnssTrip, logTrip;
     wxPen pen;
     wxString label;
@@ -763,9 +762,8 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
         if (m_ArrayRecTime[idx].year != 999) {
             wxDateTime localTime(
                 m_ArrayRecTime[idx] );
-            min = localTime.GetMinute();
-            hour= localTime.GetHour();
-            sec = localTime.GetSecond();
+            int min = localTime.GetMinute();
+            int hour= localTime.GetHour();
             if ( ((hour * 100 + min) != done) &&
                  (min % 15 == 0) ) {
                 if ( min != prevfiverfit ) {
