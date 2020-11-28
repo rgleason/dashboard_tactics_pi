@@ -9,6 +9,11 @@
 #include "icons.h"
 #include "ocpn_plugin.h"
 
+#include "icons/btnstartrec.png.h"
+#include "icons/btnstoprec.png.h"
+#include "icons/btnbackstop.png.h"
+#include "icons/btneject.png.h"
+
 wxBitmap *_img_dashboard_tactics_pi;
 wxBitmap *_img_dashboard_tactics;
 wxBitmap *_img_dial;

@@ -38,6 +38,7 @@
 #include "clock.h"
 #include "wind_history.h"
 #include "baro_history.h"
+#include "Odograph.h"
 #include "from_ownship.h"
 #include "PerformanceSingle.h"
 #include "PolarPerformance.h"
@@ -693,6 +694,11 @@ void DashboardWindow::SetInstrumentList(
             break;
         case ID_DBP_D_BPH:
             instrument = new DashboardInstrument_BaroHistory(
+                this, wxID_ANY,
+                getInstrumentCaption( id ) );
+            break;
+        case ID_DBP_D_ODG:
+            instrument = new DashboardInstrument_Odograph(
                 this, wxID_ANY,
                 getInstrumentCaption( id ) );
             break;

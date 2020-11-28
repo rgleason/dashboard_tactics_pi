@@ -41,15 +41,7 @@ using namespace std;
 
 #include "dashboard_pi_ext.h"
 #include "tactics_pi_ext.h"
-
-//extern int g_iPolarMode; //0=do nothing, 1=create new, 2=update existing
-#define ID_EXPORTRATE_1   11001
-#define ID_EXPORTRATE_5   11005
-#define ID_EXPORTRATE_10  11010
-#define ID_EXPORTRATE_20  11020
-#define ID_EXPORTRATE_60  11060
-
-
+#include "plugin_ids.h"
 
 //***********************************************************************************
 // Polar Performance instrument
@@ -120,10 +112,13 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCP
     pos.x = pos.y = 0;
     m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize,
                                wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
-    m_LogButton->SetToolTip(_("'>' starts data export and creates a new or appends to an existing file,\n'X' stops data export"));
+    m_LogButton->SetToolTip(
+        _("'>' starts data export. Creates a new, or append "
+          "to an existing file,\n'X' stops data export"));
     m_LogButton->Connect(
         wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(TacticsInstrument_PolarPerformance::OnLogDataButtonPressed),
+        wxCommandEventHandler(
+            TacticsInstrument_PolarPerformance::OnLogDataButtonPressed),
         NULL,
         this);
     if (LoadConfig() == false) {
@@ -132,11 +127,11 @@ DashboardInstrument(parent, id, title, OCPN_DBP_STC_STW | OCPN_DBP_STC_TWA | OCP
     }
  
     m_pExportmenu = new wxMenu();
-    btn1Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_1, _("Export rate 1 Second"));
-    btn5Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_5, _("Export rate 5 Seconds"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Export rate 10 Seconds"));
-    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
-    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
+    btn1Sec = m_pExportmenu->AppendRadioItem(myID_PP_EXPORTRATE_1, _("Export rate 1 Second"));
+    btn5Sec = m_pExportmenu->AppendRadioItem(myID_PP_EXPORTRATE_5, _("Export rate 5 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(myID_PP_EXPORTRATE_10, _("Export rate 10 Seconds"));
+    btn20Sec = m_pExportmenu->AppendRadioItem(myID_PP_EXPORTRATE_20, _("Export rate 20 Seconds"));
+    btn60Sec = m_pExportmenu->AppendRadioItem(myID_PP_EXPORTRATE_60, _("Export rate 60 Seconds"));
 
     if (m_exportInterval == 1) btn1Sec->Check(true);
     if (m_exportInterval == 5) btn5Sec->Check(true);
@@ -250,33 +245,6 @@ void TacticsInstrument_PolarPerformance::OnPolarPerfUpdTimer(wxTimerEvent & even
 
         m_AvgTWA = mExpSmAvgTWA->GetSmoothVal(m_TWA);
         m_AvgTWS = mExpSmAvgTWS->GetSmoothVal(m_TWS);
-        //TR 20.08.2019 : temp. for Polar Creation Tests
-        /*
-          if (m_isExporting == true) { //temp for now.. .do it only when data export it runnning ...
-          //if (m_AvgSpdPercent > 100 && m_AvgTWA > 30 && m_AvgTWS >= 2) {
-          int tmp = (int)m_AvgTWS;
-          int i_tws = wxRound(m_AvgTWS);
-          double dectws = m_AvgTWS - tmp;
-          double AvgSTW;
-          if (dectws > 0.70) { //greater x.70 -->round tws up, but keep STW unchanged.
-          i_tws = (int)m_AvgTWS + 1;
-          AvgSTW = m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1];
-          }
-          else { //take the next lower value and recalc STW down.
-          i_tws = (int)m_AvgTWS;
-          AvgSTW = m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1] * tmp / m_AvgTWS;
-          }
-          int i_twa = wxRound(m_AvgTWA);
-          //AvgSTW = m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1];
-
-          //if the avg value is bigger than the current value in the array ...
-          if (AvgSTW > tmpwindsp[i_tws].tmpwinddir[i_twa] && i_twa > m_MinTWAAngle && i_tws > 0) {
-          tmpwindsp[i_tws].tmpwinddir[i_twa] = AvgSTW;
-          tmpwindsp[i_tws].tmpwinddir[360 - i_twa] = AvgSTW;
-          tmpwindsp[i_tws].ischanged[i_twa] = true;
-          tmpwindsp[i_tws].ischanged[360 - i_twa] = true;
-          }
-          }*/
         // Data export  
         ExportData();
 
@@ -339,7 +307,14 @@ void  TacticsInstrument_PolarPerformance::DrawBoatSpeedScale(wxGCDC* dc)
   }
   m_RightLegend += 4; //leave some space to the edge
   for (int i = 0; i < num_of_scales; i++)
-    dc->DrawText(label[i], m_WindowRect.width - m_RightLegend, (int)(m_TopLineHeight + m_DrawAreaRect.height - (m_DrawAreaRect.height* i * 1./(double)(num_of_scales-1)) - height / 2));
+    dc->DrawText(
+        label[i],
+        (m_WindowRect.width - m_RightLegend),
+        static_cast<int>(
+            m_TopLineHeight + m_DrawAreaRect.height -
+            (m_DrawAreaRect.height * i * 1. /
+             static_cast<double>(num_of_scales - 1) ) -
+            height / 2) );
 }
 //*********************************************************************************
 // draw percent boat speed scale (left side)
@@ -386,8 +361,15 @@ void  TacticsInstrument_PolarPerformance::DrawPercentSpeedScale(wxGCDC* dc)
   }
   m_LeftLegend += 4;
 
-  for (int i = 0; i < num_of_scales; i++){
-    dc->DrawText(label[i], 4, (int)(m_TopLineHeight + m_DrawAreaRect.height - (m_DrawAreaRect.height* i *  1. / (num_of_scales - 1)) - height / 2));
+  for ( int i = 0; i < num_of_scales; i++ ) {
+      dc->DrawText(
+          label[i],
+          4,
+          static_cast<int>(
+              m_TopLineHeight + m_DrawAreaRect.height -
+              (m_DrawAreaRect.height* i *  1. /
+               static_cast<double>(num_of_scales - 1) ) -
+              height / 2));
   }
 }
 
@@ -602,31 +584,56 @@ void TacticsInstrument_PolarPerformance::DrawForeground(wxGCDC* dc)
       }
   }
 }
-void TacticsInstrument_PolarPerformance::OnLogDataButtonPressed(wxCommandEvent& event) {
+void TacticsInstrument_PolarPerformance::OnLogDataButtonPressed(
+    wxCommandEvent& event)
+{
 
-  if (m_isExporting == false) {
-    wxPoint pos;
-    m_LogButton->GetSize(&pos.x, &pos.y);
-    pos.x = 0;
-    this->PopupMenu(m_pExportmenu, pos);
-    if (btn1Sec->IsChecked()) m_exportInterval = 1;
-    if (btn5Sec->IsChecked()) m_exportInterval = 5;
-    if (btn10Sec->IsChecked()) m_exportInterval = 10;
-    if (btn20Sec->IsChecked()) m_exportInterval = 20;
-    if (btn60Sec->IsChecked()) m_exportInterval = 60;
+    if (m_isExporting == false) {
+        wxPoint pos;
+        m_LogButton->GetSize(&pos.x, &pos.y);
+        pos.x = 0;
+        this->PopupMenu(m_pExportmenu, pos);
+        if (btn1Sec->IsChecked()) m_exportInterval = 1;
+        if (btn5Sec->IsChecked()) m_exportInterval = 5;
+        if (btn10Sec->IsChecked()) m_exportInterval = 10;
+        if (btn20Sec->IsChecked()) m_exportInterval = 20;
+        if (btn60Sec->IsChecked()) m_exportInterval = 60;
 
-    wxFileDialog fdlg(GetOCPNCanvasWindow(), _("Choose a new or existing file"), wxT(""), m_logfile, wxT("*.*"), wxFD_SAVE);
-    if (fdlg.ShowModal() != wxID_OK) {
-      return;
-    }
-    m_logfile.Clear();
-    m_logfile = fdlg.GetPath();
-    bool exists = m_ostreamlogfile->Exists(m_logfile);
-    m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
-    if (!exists) {
-      wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _T("");
-      wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _T("");
-      wxString str = wxString::Format(_T("%s%s%s%s%s%s%s%s%s%s%s%s%s\n"), str_ticks, str_utc, "Date", g_sDataExportSeparator, "local Time", g_sDataExportSeparator, "AvgTWA", g_sDataExportSeparator, "AvgTWS", g_sDataExportSeparator, "smoothed BoatSpd", g_sDataExportSeparator, "Percent");
+        wxFileDialog fdlg(GetOCPNCanvasWindow(), _("Choose a new or existing file"), wxT(""), m_logfile, wxT("*.*"), wxFD_SAVE);
+        if (fdlg.ShowModal() != wxID_OK) {
+            return;
+        }
+        m_logfile.Clear();
+        m_logfile = fdlg.GetPath();
+        bool exists = m_ostreamlogfile->Exists(m_logfile);
+        m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
+        if (!exists) {
+            wxString str_ticks =
+                g_bDataExportClockticks ? wxString::Format(
+                    _("   ClockTicks%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str_utc =
+                g_bDataExportUTC ? wxString::Format(
+                    _("         UTC-ISO8601%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str = wxString::Format(
+                _T(
+                    "%s"    // ticks
+                    "%s"    // utc
+                    "%s%s"  // local date, separator
+                    "%s%s"  // local time, separator
+                    "%s%s"  // AvgTWA, separator
+                    "%s%s"  // AvgTWS, separator
+                    "%s%s"  // Smoothed Boastspeed, separator
+                    "%s\n"),// Perf.Percentage
+                str_ticks,
+                str_utc,
+                "      Date", g_sDataExportSeparator,
+                " Local Time", g_sDataExportSeparator,
+                " aTWA", g_sDataExportSeparator,
+                "aTWS", g_sDataExportSeparator,
+                " sSpd", g_sDataExportSeparator,
+                " PerfP");
       m_ostreamlogfile->Write(str);
     }
     SaveConfig(); //save the new export-rate &filename to opencpn.ini
@@ -674,28 +681,50 @@ bool TacticsInstrument_PolarPerformance::SaveConfig(void)
     return false;
 }
 void TacticsInstrument_PolarPerformance::ExportData(void) {
-  if (m_isExporting == true) {
-    wxDateTime localTime(m_ArrayRecTime[DATA_RECORD_COUNT - 1]);
-    if (localTime.GetSecond() % m_exportInterval == 0) {
-        wxString str_utc, ticks, sBuffer, ticksString;
-        if (g_bDataExportUTC) {
-            wxDateTime utc = localTime.ToUTC();
-            str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'), g_sDataExportSeparator);
-        }
-        else
-            str_utc = _T("");
-        if (g_bDataExportClockticks) {
-            wxLongLong ti = wxGetUTCTimeMillis();
-            sBuffer = ti.ToString();
-            ticksString = sBuffer.wc_str();
-            ticks = wxString::Format(_T("%s%s"), ticksString, g_sDataExportSeparator);
-        }
-        else
-            ticks = _T("");
-        // Albeit we print on the screen the wind angle with %3.0f precision, for export let's have one decimal: %3.1f
-        wxString str = wxString::Format(_T("%s%s%s%s%s%s%3.1f%s%3.1f%s%3.2f%s%3.2f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_AvgTWA, g_sDataExportSeparator, toUsrSpeed_Plugin(m_AvgTWS, g_iDashWindSpeedUnit), g_sDataExportSeparator, toUsrSpeed_Plugin(m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1], g_iDashSpeedUnit), g_sDataExportSeparator, m_AvgSpdPercent);
-        m_ostreamlogfile->Write(str);
-    }
+  if ( !m_isExporting )
+      return;
+  wxDateTime localTime(m_ArrayRecTime[DATA_RECORD_COUNT - 1]);
+  if (localTime.GetSecond() % m_exportInterval == 0) {
+      wxString str_utc, ticks;
+      if (g_bDataExportUTC) {
+          wxDateTime utc = localTime.ToUTC();
+          str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'),
+                                     g_sDataExportSeparator);
+      }
+      else
+          str_utc = _T("");
+      if (g_bDataExportClockticks) {
+          wxLongLong ti = wxGetUTCTimeMillis();
+          wxString sBuffer = ti.ToString();
+          wxString ticksString = sBuffer.wc_str();
+          ticks = wxString::Format(_T("%s%s"), ticksString,
+                                   g_sDataExportSeparator);
+      }
+      else
+          ticks = _T("");
+      /* Albeit we print on the screen the wind angle with %3.0f precision,
+         for export let's have one decimal: %5.1f */
+      wxString str = wxString::Format(
+          _T(
+                "%s"       // ticks
+                "%s"       // utc
+                "%s%s"     // local date, separator
+                "%11s%s"   // local time, separator
+                "%5.1f%s"  // AvgTWA, separator
+                "%4.1f%s"  // AvgTWS, separator
+                "%5.2f%s"  // Smoothed Boatspeed, separator
+                "%6.2f\n"),// Polar Perf. Percentage
+          ticks,
+          str_utc,
+          localTime.FormatDate(), g_sDataExportSeparator,
+          localTime.FormatTime(), g_sDataExportSeparator,
+          m_AvgTWA, g_sDataExportSeparator,
+          toUsrSpeed_Plugin(
+              m_AvgTWS, g_iDashWindSpeedUnit), g_sDataExportSeparator,
+          toUsrSpeed_Plugin(
+              m_ExpSmoothArrayBoatSpd[DATA_RECORD_COUNT - 1],
+              g_iDashSpeedUnit), g_sDataExportSeparator,
+          m_AvgSpdPercent);
+      m_ostreamlogfile->Write(str);
   }
-
 }

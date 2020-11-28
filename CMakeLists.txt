@@ -77,6 +77,8 @@ SET(SRC_DASHT
     src/wind_history.h
     src/baro_history.cpp
     src/baro_history.h
+    src/Odograph.h
+    src/Odograph.cpp
     src/from_ownship.cpp
     src/from_ownship.h
     src/wxJSON/jsonval.cpp

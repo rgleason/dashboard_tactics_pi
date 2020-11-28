@@ -177,7 +177,7 @@ public:
 #ifndef __DERIVEDTIMEOUT_OVERRIDE__
     virtual void derivedTimeoutEvent(void){};
 #else
-    virtual void derivedTimeoutEvent(void);
+    virtual void derivedTimeoutEvent(void) = 0;
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
 
 protected:

@@ -28,15 +28,7 @@
 #ifndef __WIND_HISTORY_H__
 #define __WIND_HISTORY_H__
 
-// For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
@@ -45,7 +37,6 @@
 #define WIND_RECORD_COUNT 3000
 
 #include "instrument.h"
-#include "dial.h"
 
 #include <wx/filename.h>
 

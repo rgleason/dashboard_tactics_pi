@@ -58,9 +58,10 @@ wxEND_EVENT_TABLE ()
 // Numerical instrument for engine monitoring data
 //************************************************************************************************************************
 
-InstruJS::InstruJS( TacticsWindow *pparent, wxWindowID id, wxString ids,
-                    PI_ColorScheme cs, unsigned long ds, bool isInit ) :
-                    DashboardInstrument( pparent, id, "---", 0LL, true )
+InstruJS::InstruJS(
+    TacticsWindow *pparent, wxWindowID id, wxString ids,
+    PI_ColorScheme cs, unsigned long ds, bool isInit ) :
+DashboardInstrument( pparent, id, "---", 0LL, true )
 {
     m_pparent = pparent;
 

@@ -80,7 +80,6 @@ bool IsObsolete( int id ) {
     case ID_DBP_R_EABC:
     case ID_DBP_R_EABD:
     case ID_DBP_R_EABE:
-    case ID_DBP_R_EABF:
         return true;
     default:
         return false;
@@ -219,6 +218,8 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191InfluxDB Out");
     case ID_DBP_V_INSK:
 		return _(L"\u2191Signal K In");
+    case ID_DBP_D_ODG:
+        return  _(L"\u2191Odograph");
     case ID_DBP_D_ENGDJG:
 		return _(L"\u2b24 DashT E-Dial");
     case ID_DBP_D_TSETUI:
@@ -400,6 +401,7 @@ bool getListItemForInstrument( wxListItem &item, unsigned int id )
     case ID_DBP_D_MON:
     case ID_DBP_D_WDH:
     case ID_DBP_D_BPH:
+    case ID_DBP_D_ODG:
 	case ID_DBP_D_BRG:
 	case ID_DBP_D_POLPERF:
 	case ID_DBP_D_AVGWIND:

@@ -6,7 +6,7 @@
 * Author:   Jean-Eudes Onfray
 * 
 ***************************************************************************
-*   Copyright (C) 2010 by David S. Register   *
+*   Copyright (C) 2010 by David S. Register                               *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -21,14 +21,11 @@
 *   You should have received a copy of the GNU General Public License     *
 *   along with this program; if not, write to the                         *
 *   Free Software Foundation, Inc.,                                       *
-*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
-***************************************************************************
+*   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
+***************************************************************************---
 */
-// For compilers that support precompilation, includes "wx/wx.h".
-#include <wx/wxprec.h>
 
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -47,9 +44,9 @@ wxBEGIN_EVENT_TABLE (DashboardInstrument_RaceMark, InstruJS)
    EVT_TIMER (myID_TICK_RACEMARK, DashboardInstrument_RaceMark::OnThreadTimerTick)
    EVT_CLOSE (DashboardInstrument_RaceMark::OnClose)
 wxEND_EVENT_TABLE ()
-//************************************************************************************************************************
+//****************************************************************************
 // Class providing assistance for race start line tactics
-//************************************************************************************************************************
+//****************************************************************************
 
 DashboardInstrument_RaceMark::DashboardInstrument_RaceMark(
     TacticsWindow *pparent, wxWindowID id, wxString ids,

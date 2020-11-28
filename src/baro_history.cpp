@@ -28,15 +28,7 @@
 #include <climits>
 #include <cstdint>
 
-// For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
@@ -47,9 +39,6 @@
 
 #include "tactics_pi_ext.h"
 
-#define ID_EXPORTRATE_10 11110
-#define ID_EXPORTRATE_20 11120
-#define ID_EXPORTRATE_60 11160
 #define SETDRAWSOLOINPANE true
 
 #include "plugin_ids.h"
@@ -114,10 +103,13 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     pos.x = pos.y = 0;
     m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize,
                                wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
-    m_LogButton->SetToolTip(_("'>' starts data export and creates a new or appends to an existing file,\n'X' stops data export"));
+    m_LogButton->SetToolTip(
+        _("'>' starts data export. Create a new, or append "
+          "to an existing file,\n'X' stops data export") );
     m_LogButton->Connect(
         wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(DashboardInstrument_BaroHistory::OnLogDataButtonPressed),
+        wxCommandEventHandler(
+            DashboardInstrument_BaroHistory::OnLogDataButtonPressed),
         NULL,
         this);
     if (LoadConfig() == false) {
@@ -127,9 +119,9 @@ DashboardInstrument_BaroHistory::DashboardInstrument_BaroHistory( wxWindow *pare
     m_pExportmenu = new wxMenu();
     // this is a dummy menu required by Windows as parent to item created
     //wxMenuItem *pmi = new wxMenuItem(m_pExportmenu, -1, _T("Data Export"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Export rate 10 Seconds"));
-    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
-    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(myID_BH_EXPORTRATE_10, _("Export rate 10 Seconds"));
+    btn20Sec = m_pExportmenu->AppendRadioItem(myID_BH_EXPORTRATE_20, _("Export rate 20 Seconds"));
+    btn60Sec = m_pExportmenu->AppendRadioItem(myID_BH_EXPORTRATE_60, _("Export rate 60 Seconds"));
     
     if (m_exportInterval == 10) btn10Sec->Check(true);
     if (m_exportInterval == 20) btn20Sec->Check(true);
@@ -314,7 +306,7 @@ void  DashboardInstrument_BaroHistory::DrawPressureScale(wxGCDC* dc)
     label5.Printf(_T("%.0f hPa"), (m_TotalMinPress-18));
   }
   dc->GetTextExtent(label1, &m_LeftLegend, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label1, 4, (int)(m_TopLineHeight-height/2));
+  dc->DrawText(label1, 4, (int)(m_TopLineHeight + 7 - height/2));
   dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
   dc->DrawText(label2, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height/4-height/2));
   m_LeftLegend = wxMax(width,m_LeftLegend);
@@ -453,10 +445,15 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
             if ( (hour*100+min) != done && (min % 15 == 0 ) ) {
                 if ( min != prevfiverfit ) {
                     pointTime.x = idx * m_ratioW + 3 + m_LeftLegend;
-                    dc->DrawLine( pointTime.x, m_TopLineHeight+1, pointTime.x,(m_TopLineHeight+m_DrawAreaRect.height+1) );
+                    dc->DrawLine( pointTime.x, m_TopLineHeight+1,
+                                  pointTime.x,(
+                                      m_TopLineHeight +
+                                      m_DrawAreaRect.height +1 ) );
                     label.Printf(_T("%02d:%02d"), hour,min);
-                    dc->GetTextExtent(label, &width, &height, 0, 0, g_pFontSmall);
-                    dc->DrawText(label, pointTime.x-width/2, m_WindowRect.height-height);
+                    dc->GetTextExtent(label, &width, &height, 0, 0,
+                                      g_pFontSmall);
+                    dc->DrawText(label, pointTime.x-width / 2,
+                                 m_WindowRect.height-height);
                     done=hour*100+min;
                     prevfiverfit = min;
                 } // then avoid double printing in faster devices
@@ -465,7 +462,9 @@ void DashboardInstrument_BaroHistory::DrawForeground(wxGCDC* dc)
     }
 }
 
-void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& event) {
+void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(
+    wxCommandEvent& event)
+{
 
     if (m_isExporting == false) {
         wxPoint pos;
@@ -485,9 +484,26 @@ void DashboardInstrument_BaroHistory::OnLogDataButtonPressed(wxCommandEvent& eve
         bool exists = m_ostreamlogfile->Exists(m_logfile);
         m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
         if (!exists) {
-            wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _T("");
-            wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _T("");
-            wxString str = wxString::Format(_T("%s%s%s%s%s%s%s\n"), str_ticks, str_utc, "Date", g_sDataExportSeparator, "local Time", g_sDataExportSeparator, "Pressure");
+            wxString str_ticks =
+                g_bDataExportClockticks ? wxString::Format(
+                    _("   ClockTicks%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str_utc =
+                g_bDataExportUTC ? wxString::Format(
+                    _("         UTC-ISO8601%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str = wxString::Format(
+                _T(
+                    "%s"    // ticks
+                    "%s"    // utc
+                    "%s%s"  // local date, separator
+                    "%s%s"  // local time, separator
+                    "%s\n"),// pressure
+                str_ticks,
+                str_utc,
+                "      Date", g_sDataExportSeparator,
+                " Local Time", g_sDataExportSeparator,
+                "Press.");
             m_ostreamlogfile->Write(str);
         }
         SaveConfig(); //save the new export-rate &filename to opencpn.ini
@@ -542,7 +558,8 @@ void DashboardInstrument_BaroHistory::ExportData()
     wxString str_utc, ticks, sBuffer, ticksString;
     if (g_bDataExportUTC) {
         wxDateTime utc = localTime.ToUTC();
-        str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'), g_sDataExportSeparator);
+        str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'),
+                                   g_sDataExportSeparator);
     }
     else
         str_utc = _T("");
@@ -550,10 +567,23 @@ void DashboardInstrument_BaroHistory::ExportData()
         wxLongLong ti = wxGetUTCTimeMillis();
         sBuffer = ti.ToString();
         ticksString = sBuffer.wc_str();
-        ticks = wxString::Format(_T("%s%s"), ticksString, g_sDataExportSeparator);
+        ticks = wxString::Format(_T("%s%s"), ticksString,
+                                 g_sDataExportSeparator);
     }
     else
         ticks = _T("");
-    wxString str = wxString::Format(_T("%s%s%s%s%s%s%4.1f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_LastReceivedPressure);
+    wxString str = wxString::Format(
+        _T(
+            "%s"       // ticks
+            "%s"       // utc
+            "%s%s"     // local date, separator
+            "%11s%s"   // local time, separator
+            "%6.1f\n" // barometric pressure [hPa]
+            ),
+        ticks,
+        str_utc,
+        localTime.FormatDate(), g_sDataExportSeparator,
+        localTime.FormatTime(), g_sDataExportSeparator,
+        m_LastReceivedPressure);
     m_ostreamlogfile->Write(str);
 }

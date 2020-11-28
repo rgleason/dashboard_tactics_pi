@@ -22,4 +22,9 @@ extern wxString _svg_dashboard_tactics_rollover;
 extern wxString _svg_dashboard_tactics_toggled;
 #endif //  OCPN_USE_SVG
 
+extern const unsigned char btnstartrec_png[1170];
+extern const unsigned char btnstoprec_png[1005];
+extern const unsigned char btnbackstop_png[1121];
+extern const unsigned char btneject_png[1139];
+
 #endif /* ICONS_H */

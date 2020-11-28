@@ -27,13 +27,6 @@
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
@@ -44,11 +37,6 @@
 #include "tactics_pi_ext.h"
 #include "dashboard_pi_ext.h"
 
-#define ID_EXPORTRATE_1   11201
-#define ID_EXPORTRATE_5   11205
-#define ID_EXPORTRATE_10  11210
-#define ID_EXPORTRATE_20  11220
-#define ID_EXPORTRATE_60  11260
 #define SETDRAWSOLOINPANE true
 
 #include "plugin_ids.h"
@@ -113,10 +101,13 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
     pos.x = pos.y = 0;
     m_LogButton = new wxButton(this, wxID_ANY, _(">"), pos, wxDefaultSize,
                                wxBU_TOP | wxBU_EXACTFIT | wxFULL_REPAINT_ON_RESIZE | wxBORDER_NONE);
-    m_LogButton->SetToolTip(_("'>' starts data export and creates a new or appends to an existing file,\n'X' stops data export"));
+    m_LogButton->SetToolTip(
+        _("'>' starts data export. Create a new, or append "
+          "to an existing file,\n'X' stops data export") );
     m_LogButton->Connect(
         wxEVT_COMMAND_BUTTON_CLICKED,
-        wxCommandEventHandler(DashboardInstrument_WindDirHistory::OnLogDataButtonPressed),
+        wxCommandEventHandler(
+            DashboardInstrument_WindDirHistory::OnLogDataButtonPressed),
         NULL,
         this);
     m_pconfig = GetOCPNConfigObject();
@@ -125,11 +116,11 @@ DashboardInstrument_WindDirHistory::DashboardInstrument_WindDirHistory( wxWindow
         SaveConfig();
     }
     m_pExportmenu = new wxMenu();
-    btn1Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_1, _("Export rate 1 Second"));
-    btn5Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_5, _("Export rate 5 Seconds"));
-    btn10Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_10, _("Export rate 10 Seconds"));
-    btn20Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_20, _("Export rate 20 Seconds"));
-    btn60Sec = m_pExportmenu->AppendRadioItem(ID_EXPORTRATE_60, _("Export rate 60 Seconds"));
+    btn1Sec = m_pExportmenu->AppendRadioItem(myID_WH_EXPORTRATE_1, _("Export rate 1 Second"));
+    btn5Sec = m_pExportmenu->AppendRadioItem(myID_WH_EXPORTRATE_5, _("Export rate 5 Seconds"));
+    btn10Sec = m_pExportmenu->AppendRadioItem(myID_WH_EXPORTRATE_10, _("Export rate 10 Seconds"));
+    btn20Sec = m_pExportmenu->AppendRadioItem(myID_WH_EXPORTRATE_20, _("Export rate 20 Seconds"));
+    btn60Sec = m_pExportmenu->AppendRadioItem(myID_WH_EXPORTRATE_60, _("Export rate 60 Seconds"));
     
     if (m_exportInterval == 1) btn1Sec->Check(true);
     if (m_exportInterval == 5) btn5Sec->Check(true);
@@ -207,7 +198,8 @@ void DashboardInstrument_WindDirHistory::OnWindHistUpdTimer(wxTimerEvent &event)
             // Data export  
             ExportData();
 
-            // set wind angle scale to full +/- 90° depending on the real max/min value recorded
+            /* set wind angle scale to full +/- 90 deg. depending on
+               the real max/min value recorded */
             SetMinMaxWindScale();
         }
     }
@@ -305,109 +297,115 @@ void DashboardInstrument_WindDirHistory::Draw(wxGCDC* dc)
 //*********************************************************************************
 void DashboardInstrument_WindDirHistory::SetMinMaxWindScale()
 {
-  // set wind direction legend to full +/- 90° depending on the real max/min value recorded
-  // example : max wind dir. = 45°  ==> max = 90°
-  //           min wind dir. = 45°  ==> min = 0°
-  //first calculate the max wind direction
-  int fulldeg = m_MaxWindDir / 90; //we explicitly chop off the decimals by type conversion from double to int !
-  if(fulldeg == 0)
-    fulldeg=m_MaxWindDir<0 ?0:1;
-  else if (m_MaxWindDir>0)
-    fulldeg+=1;
-  m_MaxWindDir=fulldeg*90;
-  //now calculate the min wind direction
-  fulldeg = m_MinWindDir / 90;
-  if(fulldeg == 0)
-    fulldeg=m_MinWindDir<0 ?-1:0;
-  else
-    fulldeg=m_MinWindDir>0 ? fulldeg:(fulldeg-1);
-  m_MinWindDir=fulldeg*90;
+    /* set wind direction legend to full +/- 90 deg depending on the
+       real max/min value recorded,
+       example : max wind dir. = 45 deg  ==> max = 90 deg
+       min wind dir. = 45deg  ==> min = 0 deg.
+       First, calculate the max wind direction */
+    int fulldeg = m_MaxWindDir / 90; /* we explicitly chop off the decimals
+                                        by type conversion from double
+                                        to int ! */
+    if(fulldeg == 0)
+        fulldeg=m_MaxWindDir<0 ?0:1;
+    else if (m_MaxWindDir>0)
+        fulldeg+=1;
+    m_MaxWindDir=fulldeg*90;
+    //now calculate the min wind direction
+    fulldeg = m_MinWindDir / 90;
+    if(fulldeg == 0)
+        fulldeg=m_MinWindDir<0 ?-1:0;
+    else
+        fulldeg=m_MinWindDir>0 ? fulldeg:(fulldeg-1);
+    m_MinWindDir=fulldeg*90;
 
-  // limit the visible wind dir range to 360°; remove the extra range on the opposite side of the current wind dir value
-  m_WindDirRange=m_MaxWindDir-m_MinWindDir;
-  if (m_WindDirRange > 360) {
-    int diff2min=m_WindDir-m_MinWindDir;    //diff between min value and current value
-    int diff2max=m_MaxWindDir-m_WindDir;    //diff between max value and current value
-    if(diff2min > diff2max) {
-      while (m_WindDirRange > 360) {
-        m_MinWindDir+=90;
-        m_WindDirRange=m_MaxWindDir-m_MinWindDir;
-      }
+    /* limit the visible wind dir range to 360 deg; remove the extra range
+       on the opposite side of the current wind dir value */
+    m_WindDirRange=m_MaxWindDir-m_MinWindDir;
+    if (m_WindDirRange > 360) {
+        int diff2min=m_WindDir-m_MinWindDir;    /* diff between min value
+                                                   and current value */
+        int diff2max=m_MaxWindDir-m_WindDir;    /* diff between max value
+                                                   and current value */
+        if(diff2min > diff2max) {
+            while (m_WindDirRange > 360) {
+                m_MinWindDir+=90;
+                m_WindDirRange=m_MaxWindDir-m_MinWindDir;
+            }
+        }
+        if(diff2min < diff2max) {
+            while (m_WindDirRange > 360) {
+                m_MaxWindDir-=90;
+                m_WindDirRange=m_MaxWindDir-m_MinWindDir;
+            }
+        }
     }
-    if(diff2min < diff2max) {
-      while (m_WindDirRange > 360) {
-        m_MaxWindDir-=90;
-        m_WindDirRange=m_MaxWindDir-m_MinWindDir;
-      }
-    }
-  }
 }
 //*********************************************************************************
 // wind direction legend
 //*********************************************************************************
 void  DashboardInstrument_WindDirHistory::DrawWindDirScale(wxGCDC* dc)
 {
-  wxString label1,label2,label3,label4,label5;
-  wxColour cl;
-  wxPen pen;
-  int width, height;
-  cl=wxColour(204,41,41,255); //red, opague
+    wxString label1,label2,label3,label4,label5;
+    wxColour cl;
+    wxPen pen;
+    int width, height;
+    cl=wxColour( 204,41,41,255 ); //red, opaque
 
-  dc->SetTextForeground(cl);
-  dc->SetFont(*g_pFontSmall);
-  if(!m_IsRunning) {
-    label1=_T("---");
-    label2=_T("---");
-    label3=_T("---");
-    label4=_T("---");
-    label5=_T("---");
-  }
-  else {
-    // label 1 : legend for bottom line. By definition always w/o decimals
-    double tempdir=m_MinWindDir;
-    while (tempdir < 0)    tempdir+=360;
-    while (tempdir >= 360) tempdir-=360;
-    label1=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
-    // label 2 : 1/4
-    tempdir=m_MinWindDir+m_WindDirRange/4.;
-    while (tempdir < 0)    tempdir+=360;
-    while (tempdir >= 360) tempdir-=360;
-    label2=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
-    // label 3 : legend for center line
-    tempdir=m_MinWindDir+m_WindDirRange/2;
-    while (tempdir < 0)    tempdir+=360;
-    while (tempdir >= 360) tempdir-=360;
-    label3=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
-    // label 4 :  3/4
-    tempdir=m_MinWindDir+m_WindDirRange*0.75;
-    while (tempdir < 0)    tempdir+=360;
-    while (tempdir >= 360) tempdir-=360;
-    label4=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
-    // label 5 : legend for top line
-    tempdir=m_MaxWindDir;
-    while (tempdir < 0)    tempdir+=360;
-    while (tempdir >= 360) tempdir-=360;
-    label5=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
-  }
-  //draw the legend with the labels; find the widest string and store it in m_RightLegend.
-  // m_RightLegend is the basis for the horizontal lines !
-  dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend=width;
-  dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend=wxMax(width,m_RightLegend);
-  dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend=wxMax(width,m_RightLegend);
-  dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend=wxMax(width,m_RightLegend);
-  dc->GetTextExtent(label1, &width, &height, 0, 0, g_pFontSmall);
-  m_RightLegend=wxMax(width,m_RightLegend);
+    dc->SetTextForeground( cl );
+    dc->SetFont( *g_pFontSmall );
+    if( !m_IsRunning ) {
+        label1=_T("---");
+        label2=_T("---");
+        label3=_T("---");
+        label4=_T("---");
+        label5=_T("---");
+    }
+    else {
+        // label 1 : legend for bottom line. By definition always w/o decimals
+        double tempdir=m_MinWindDir;
+        while (tempdir < 0)    tempdir+=360;
+        while (tempdir >= 360) tempdir-=360;
+        label1=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
+        // label 2 : 1/4
+        tempdir=m_MinWindDir+m_WindDirRange/4.;
+        while (tempdir < 0)    tempdir+=360;
+        while (tempdir >= 360) tempdir-=360;
+        label2=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
+        // label 3 : legend for center line
+        tempdir=m_MinWindDir+m_WindDirRange/2;
+        while (tempdir < 0)    tempdir+=360;
+        while (tempdir >= 360) tempdir-=360;
+        label3=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
+        // label 4 :  3/4
+        tempdir=m_MinWindDir+m_WindDirRange*0.75;
+        while (tempdir < 0)    tempdir+=360;
+        while (tempdir >= 360) tempdir-=360;
+        label4=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
+        // label 5 : legend for top line
+        tempdir=m_MaxWindDir;
+        while (tempdir < 0)    tempdir+=360;
+        while (tempdir >= 360) tempdir-=360;
+        label5=GetWindDirStr(wxString::Format(_T("%.1f"), tempdir));
+    }
+    //draw the legend with the labels; find the widest string and store it in m_RightLegend.
+    // m_RightLegend is the basis for the horizontal lines !
+    dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
+    m_RightLegend=width;
+    dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
+    m_RightLegend=wxMax(width,m_RightLegend);
+    dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
+    m_RightLegend=wxMax(width,m_RightLegend);
+    dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
+    m_RightLegend=wxMax(width,m_RightLegend);
+    dc->GetTextExtent(label1, &width, &height, 0, 0, g_pFontSmall);
+    m_RightLegend=wxMax(width,m_RightLegend);
 
-  m_RightLegend+=4; //leave some space to the edge
-  dc->DrawText(label5, m_WindowRect.width-m_RightLegend, m_TopLineHeight-height/2);
-  dc->DrawText(label4, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height/4-height/2));
-  dc->DrawText(label3, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height/2-height/2));
-  dc->DrawText(label2, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75-height/2));
-  dc->DrawText(label1, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height-height/2));
+    m_RightLegend+=4; //leave some space to the edge
+    dc->DrawText(label5, m_WindowRect.width-m_RightLegend, m_TopLineHeight-height/2);
+    dc->DrawText(label4, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height/4-height/2));
+    dc->DrawText(label3, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height/2-height/2));
+    dc->DrawText(label2, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75-height/2));
+    dc->DrawText(label1, m_WindowRect.width-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height-height/2));
 }
 
 //*********************************************************************************
@@ -415,77 +413,77 @@ void  DashboardInstrument_WindDirHistory::DrawWindDirScale(wxGCDC* dc)
 //*********************************************************************************
 void  DashboardInstrument_WindDirHistory::DrawWindSpeedScale(wxGCDC* dc)
 {
-  wxString label1,label2,label3,label4,label5;
-  wxColour cl;
-  int width, height;
+    wxString label1,label2,label3,label4,label5;
+    wxColour cl;
+    int width, height;
 
-  cl=wxColour(61,61,204,255);
-  dc->SetTextForeground(cl);
-  dc->SetFont(*g_pFontSmall);
-  //round maxWindSpd up to the next full knot; nicer view ...
-  m_MaxWindSpdScale=(int)m_MaxWindSpd + 1;
-  if(!m_IsRunning) {
- 	label1.Printf(_T("--- %s"), m_WindSpeedUnit.c_str());
-	label2 = label1;
-	label3 = label1;
-	label4 = label1;
-	label5 = label1;
-  }
-  else {
-/*we round the speed up to the next full knot ==> the top and bottom line have full numbers as legend (e.g. 23 kn -- 0 kn)
- but the intermediate lines may have decimal values (e.g. center line : 23/2=11.5 or quarter line 23/4=5.75), so in worst case
- we end up with 23 - 17.25 - 11.5 - 5.75 - 0
- The goal is to draw the legend with decimals only, if we really have them !
-*/
-    // top legend for max wind
-    label1.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(m_MaxWindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-    // 3/4 legend
-    double WindSpdScale=m_MaxWindSpdScale*3./4.;
-    // do we need a decimal ?
-    double val1=(int)((WindSpdScale-(int)WindSpdScale)*100);
-    if(val1==25 || val1==75)  // it's a .25 or a .75
-        label2.Printf(_T("%.2f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-	else if (val1 == 50)
-        label2.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-    else	
-        label2.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-    // center legend
-    WindSpdScale=m_MaxWindSpdScale/2.;
-    // center line can either have a .0 or .5 value !
-    if((int)(WindSpdScale*10) % 10 == 5)
-        label3.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-    else
-      label3.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+    cl=wxColour(61,61,204,255);
+    dc->SetTextForeground(cl);
+    dc->SetFont(*g_pFontSmall);
+    //round maxWindSpd up to the next full knot; nicer view ...
+    m_MaxWindSpdScale=(int)m_MaxWindSpd + 1;
+    if(!m_IsRunning) {
+        label1.Printf(_T("--- %s"), m_WindSpeedUnit.c_str());
+        label2 = label1;
+        label3 = label1;
+        label4 = label1;
+        label5 = label1;
+    }
+    else {
+        /*we round the speed up to the next full knot ==> the top and bottom line have full numbers as legend (e.g. 23 kn -- 0 kn)
+          but the intermediate lines may have decimal values (e.g. center line : 23/2=11.5 or quarter line 23/4=5.75), so in worst case
+          we end up with 23 - 17.25 - 11.5 - 5.75 - 0
+          The goal is to draw the legend with decimals only, if we really have them !
+        */
+        // top legend for max wind
+        label1.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(m_MaxWindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        // 3/4 legend
+        double WindSpdScale=m_MaxWindSpdScale*3./4.;
+        // do we need a decimal ?
+        double val1=(int)((WindSpdScale-(int)WindSpdScale)*100);
+        if(val1==25 || val1==75)  // it's a .25 or a .75
+            label2.Printf(_T("%.2f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        else if (val1 == 50)
+            label2.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        else	
+            label2.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        // center legend
+        WindSpdScale=m_MaxWindSpdScale/2.;
+        // center line can either have a .0 or .5 value !
+        if((int)(WindSpdScale*10) % 10 == 5)
+            label3.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        else
+            label3.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
 
-    // 1/4 legend
-    WindSpdScale=m_MaxWindSpdScale/4.;
-    // do we need a decimal ?
-    val1=(int)((WindSpdScale-(int)WindSpdScale)*100);
-    if(val1==25 || val1==75)
-      label4.Printf(_T("%.2f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-	else if (val1 == 50)
-        label4.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
-	else
-        label4.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        // 1/4 legend
+        WindSpdScale=m_MaxWindSpdScale/4.;
+        // do we need a decimal ?
+        val1=(int)((WindSpdScale-(int)WindSpdScale)*100);
+        if(val1==25 || val1==75)
+            label4.Printf(_T("%.2f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        else if (val1 == 50)
+            label4.Printf(_T("%.1f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
+        else
+            label4.Printf(_T("%.0f %s"), toUsrSpeed_Plugin(WindSpdScale, g_iDashWindSpeedUnit), m_WindSpeedUnit.c_str());
 
-    //bottom legend for min wind, always 0
-	label5.Printf(_T("%.0f %s"), 0.0, m_WindSpeedUnit.c_str());
-  }
-  dc->GetTextExtent(label1, &m_LeftLegend, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label1, 4, (int)(m_TopLineHeight-height/2));
-  dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label2, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height/4-height/2));
-  m_LeftLegend = wxMax(width,m_LeftLegend);
-  dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label3, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height/2-height/2));
-  m_LeftLegend = wxMax(width,m_LeftLegend);
-  dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label4, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75-height/2));
-  m_LeftLegend = wxMax(width,m_LeftLegend);
-  dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
-  dc->DrawText(label5, 4,  (int)(m_TopLineHeight+m_DrawAreaRect.height-height/2));
-  m_LeftLegend = wxMax(width,m_LeftLegend);
-  m_LeftLegend+=4;
+        //bottom legend for min wind, always 0
+        label5.Printf(_T("%.0f %s"), 0.0, m_WindSpeedUnit.c_str());
+    }
+    dc->GetTextExtent(label1, &m_LeftLegend, &height, 0, 0, g_pFontSmall);
+    dc->DrawText(label1, 4, (int)(m_TopLineHeight + 7 - height/2));
+    dc->GetTextExtent(label2, &width, &height, 0, 0, g_pFontSmall);
+    dc->DrawText(label2, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height/4-height/2));
+    m_LeftLegend = wxMax(width,m_LeftLegend);
+    dc->GetTextExtent(label3, &width, &height, 0, 0, g_pFontSmall);
+    dc->DrawText(label3, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height/2-height/2));
+    m_LeftLegend = wxMax(width,m_LeftLegend);
+    dc->GetTextExtent(label4, &width, &height, 0, 0, g_pFontSmall);
+    dc->DrawText(label4, 4, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75-height/2));
+    m_LeftLegend = wxMax(width,m_LeftLegend);
+    dc->GetTextExtent(label5, &width, &height, 0, 0, g_pFontSmall);
+    dc->DrawText(label5, 4,  (int)(m_TopLineHeight+m_DrawAreaRect.height-height/2));
+    m_LeftLegend = wxMax(width,m_LeftLegend);
+    m_LeftLegend+=4;
 }
 
 //*********************************************************************************
@@ -493,32 +491,32 @@ void  DashboardInstrument_WindDirHistory::DrawWindSpeedScale(wxGCDC* dc)
 //*********************************************************************************
 void DashboardInstrument_WindDirHistory::DrawBackground(wxGCDC* dc)
 {
-  wxString label,label1,label2,label3,label4,label5;
-  wxColour cl;
-  wxPen pen;
-  //---------------------------------------------------------------------------------
-  // draw legends for speed and direction
-  //---------------------------------------------------------------------------------
-  DrawWindDirScale(dc);
-  DrawWindSpeedScale(dc);
+    wxString label,label1,label2,label3,label4,label5;
+    wxColour cl;
+    wxPen pen;
+    //---------------------------------------------------------------------------------
+    // draw legends for speed and direction
+    //---------------------------------------------------------------------------------
+    DrawWindDirScale(dc);
+    DrawWindSpeedScale(dc);
 
-  //---------------------------------------------------------------------------------
-  // horizontal lines
-  //---------------------------------------------------------------------------------
-  GetGlobalColor(_T("UBLCK"), &cl);
-  pen.SetColour(cl);
-  dc->SetPen(pen);
-  dc->DrawLine(m_LeftLegend+3, m_TopLineHeight, m_WindowRect.width-3-m_RightLegend, m_TopLineHeight); // the upper line
-  dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height));
-  pen.SetStyle(wxPENSTYLE_DOT);
-  dc->SetPen(pen);
-  dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.25), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.25));
-  dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75));
+    //---------------------------------------------------------------------------------
+    // horizontal lines
+    //---------------------------------------------------------------------------------
+    GetGlobalColor(_T("UBLCK"), &cl);
+    pen.SetColour(cl);
+    dc->SetPen(pen);
+    dc->DrawLine(m_LeftLegend+3, m_TopLineHeight, m_WindowRect.width-3-m_RightLegend, m_TopLineHeight); // the upper line
+    dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height));
+    pen.SetStyle(wxPENSTYLE_DOT);
+    dc->SetPen(pen);
+    dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.25), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.25));
+    dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.75));
 #ifdef __WXMSW__
-  pen.SetStyle(wxPENSTYLE_SHORT_DASH);
-  dc->SetPen(pen);
+    pen.SetStyle(wxPENSTYLE_SHORT_DASH);
+    dc->SetPen(pen);
 #endif
-  dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.5), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.5));
+    dc->DrawLine(m_LeftLegend+3, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.5), m_WindowRect.width-3-m_RightLegend, (int)(m_TopLineHeight+m_DrawAreaRect.height*0.5));
 }
 
 //***********************************************************************************
@@ -742,32 +740,56 @@ void DashboardInstrument_WindDirHistory::DrawForeground(wxGCDC* dc)
   }
 }
 
-void DashboardInstrument_WindDirHistory::OnLogDataButtonPressed(wxCommandEvent& event) {
+void DashboardInstrument_WindDirHistory::OnLogDataButtonPressed(
+    wxCommandEvent& event)
+{
  
-  if (m_isExporting == false) {
-    wxPoint pos;
-    m_LogButton->GetSize(&pos.x, &pos.y);
-    pos.x = 0;
-    this->PopupMenu(m_pExportmenu, pos);
-    if(btn1Sec->IsChecked()) m_exportInterval=1;
-    if (btn5Sec->IsChecked()) m_exportInterval = 5;
-    if (btn10Sec->IsChecked()) m_exportInterval = 10;
-    if (btn20Sec->IsChecked()) m_exportInterval = 20;
-    if (btn60Sec->IsChecked()) m_exportInterval = 60;
+    if (m_isExporting == false) {
+        wxPoint pos;
+        m_LogButton->GetSize(&pos.x, &pos.y);
+        pos.x = 0;
+        this->PopupMenu(m_pExportmenu, pos);
+        if(btn1Sec->IsChecked()) m_exportInterval=1;
+        if (btn5Sec->IsChecked()) m_exportInterval = 5;
+        if (btn10Sec->IsChecked()) m_exportInterval = 10;
+        if (btn20Sec->IsChecked()) m_exportInterval = 20;
+        if (btn60Sec->IsChecked()) m_exportInterval = 60;
 
-    wxFileDialog fdlg(GetOCPNCanvasWindow(), _("Choose a new or existing file"), wxT(""), m_logfile, wxT("*.*"), wxFD_SAVE);
-    if (fdlg.ShowModal() != wxID_OK) {
-      return;
-    }
-    m_logfile.Clear();
-    m_logfile = fdlg.GetPath();
-    bool exists = m_ostreamlogfile->Exists(m_logfile);
-    m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
-    if (!exists) {
-        wxString str_ticks = g_bDataExportClockticks ? wxString::Format(_("ClockTicks%s"), g_sDataExportSeparator) : _T("");
-        wxString str_utc = g_bDataExportUTC ? wxString::Format(_("UTC-ISO8601%s"), g_sDataExportSeparator) : _T("");
-
-        wxString str = wxString::Format(_T("%s%s%s%s%s%s%s%s%s%s%s%s%s\n"), str_ticks, str_utc, "Date", g_sDataExportSeparator, "local Time", g_sDataExportSeparator, "TWD", g_sDataExportSeparator, "TWS", g_sDataExportSeparator, "smoothed TWD", g_sDataExportSeparator, "smoothed TWS");
+        wxFileDialog fdlg(GetOCPNCanvasWindow(), _("Choose a new or existing file"), wxT(""), m_logfile, wxT("*.*"), wxFD_SAVE);
+        if (fdlg.ShowModal() != wxID_OK) {
+            return;
+        }
+        m_logfile.Clear();
+        m_logfile = fdlg.GetPath();
+        bool exists = m_ostreamlogfile->Exists(m_logfile);
+        m_ostreamlogfile->Open(m_logfile, wxFile::write_append);
+        if (!exists) {
+            wxString str_ticks =
+                g_bDataExportClockticks ? wxString::Format(
+                    _("   ClockTicks%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str_utc =
+                g_bDataExportUTC ? wxString::Format(
+                    _("         UTC-ISO8601%s"), g_sDataExportSeparator) :
+                _T("");
+            wxString str = wxString::Format(
+                _T(
+                    "%s"    // ticks
+                    "%s"    // utc
+                    "%s%s"  // local date, separator
+                    "%s%s"  // local time, separator
+                    "%s%s"  // TWD, separator
+                    "%s%s"  // TWS, separator
+                    "%s%s"  // Smoothed TWD, separator
+                    "%s\n"),// Smoothed TWS
+                str_ticks,
+                str_utc,
+                "      Date", g_sDataExportSeparator,
+                " Local Time", g_sDataExportSeparator,
+                "  TWD", g_sDataExportSeparator,
+                " TWS", g_sDataExportSeparator,
+                " sTWD", g_sDataExportSeparator,
+                "sTWS");
         m_ostreamlogfile->Write(str);
     }
     SaveConfig(); //save the new export-rate &filename to opencpn.ini
@@ -815,27 +837,51 @@ bool DashboardInstrument_WindDirHistory::SaveConfig(void)
 }
 void DashboardInstrument_WindDirHistory::ExportData(void)
 {
-  if (m_isExporting == true) {
+    if ( !m_isExporting )
+        return;
     wxDateTime localTime(m_ArrayRecTime[WIND_RECORD_COUNT - 1]);
     if (localTime.GetSecond() % m_exportInterval == 0) {
-        wxString str_utc, ticks, sBuffer, ticksString;
+        wxString str_utc, ticks;
         if (g_bDataExportUTC) {
             wxDateTime utc = localTime.ToUTC();
-            str_utc = wxString::Format(_T("%sZ%s"), utc.FormatISOCombined('T'), g_sDataExportSeparator);
+            str_utc = wxString::Format(_T("%sZ%s"),
+                                       utc.FormatISOCombined('T'),
+                                       g_sDataExportSeparator);
         }
         else
             str_utc = _T("");
         if (g_bDataExportClockticks) {
             wxLongLong ti = wxGetUTCTimeMillis();
-            sBuffer = ti.ToString();
-            ticksString = sBuffer.wc_str();
-            ticks = wxString::Format(_T("%s%s"), ticksString, g_sDataExportSeparator);
+            wxString sBuffer = ti.ToString();
+            wxString ticksString = sBuffer.wc_str();
+            ticks = wxString::Format(_T("%s%s"), ticksString,
+                                     g_sDataExportSeparator);
         }
         else
             ticks = _T("");
-        // Albeit we print on the screen the wind direction with %3.0f precision, for export let's have one decimal: %3.1f
-        wxString str = wxString::Format(_T("%s%s%s%s%s%s%3.1f%s%3.1f%s%3.1f%s%3.1f\n"), ticks, str_utc, localTime.FormatDate(), g_sDataExportSeparator, localTime.FormatTime(), g_sDataExportSeparator, m_WindDir, g_sDataExportSeparator, toUsrSpeed_Plugin(m_WindSpd, g_iDashWindSpeedUnit), g_sDataExportSeparator, m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 1], g_sDataExportSeparator, toUsrSpeed_Plugin(m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT - 1], g_iDashWindSpeedUnit));
+        /* Albeit we print on the screen the wind direction with %3.0f
+           precision, for export let's have one decimal: %5.1f */
+        wxString str = wxString::Format(
+            _T(
+                "%s"       // ticks
+                "%s"       // utc
+                "%s%s"     // local date, separator
+                "%11s%s"   // local time, separator
+                "%5.1f%s"  // TWD, separator
+                "%4.1f%s"  // TWS, separator
+                "%5.1f%s"  // Smoothed TWD, separator
+                "%4.1f\n"),// Smoothed TWS
+            ticks,
+            str_utc,
+            localTime.FormatDate(), g_sDataExportSeparator,
+            localTime.FormatTime(), g_sDataExportSeparator,
+            m_WindDir, g_sDataExportSeparator,
+            toUsrSpeed_Plugin(
+                m_WindSpd, g_iDashWindSpeedUnit), g_sDataExportSeparator,
+            m_ExpSmoothArrayWindDir[WIND_RECORD_COUNT - 1],
+            g_sDataExportSeparator, toUsrSpeed_Plugin(
+                m_ExpSmoothArrayWindSpd[WIND_RECORD_COUNT - 1],
+                g_iDashWindSpeedUnit) );
         m_ostreamlogfile->Write(str);
     }
-  }
 }

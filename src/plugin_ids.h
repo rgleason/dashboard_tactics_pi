@@ -38,6 +38,7 @@ enum pluginids {
     myID_THREAD_WINDHISTORY,
     myID_THREAD_POLARPERFORMANCE,
     myID_THREAD_BAROHISTORY,
+    myID_THREAD_ODOGRAPH,
     myID_THREAD_IFLXAPI,
     myID_TICK_IFLXAPI,
     myID_THREAD_SK_IN,
@@ -50,6 +51,24 @@ enum pluginids {
     myID_TICK_RACESTART,
     myID_TICK_RACEMARK,
     myID_TICK_INSTRUJS,
+    // widgets and their events
+    myID_BH_EXPORTRATE_10,
+    myID_BH_EXPORTRATE_20,
+    myID_BH_EXPORTRATE_60,
+    myID_WH_EXPORTRATE_1,
+    myID_WH_EXPORTRATE_5,
+    myID_WH_EXPORTRATE_10,
+    myID_WH_EXPORTRATE_20,
+    myID_WH_EXPORTRATE_60,
+    myID_PP_EXPORTRATE_1,
+    myID_PP_EXPORTRATE_5,
+    myID_PP_EXPORTRATE_10,
+    myID_PP_EXPORTRATE_20,
+    myID_PP_EXPORTRATE_60,
+    myID_OG_BUTTON,
+    myID_OG_SAVESTOP,
+    myID_OG_RESET,
+    myID_OG_RESETALL,
     // end of tacticsEvents
     myID_EDIT_LAST
 };

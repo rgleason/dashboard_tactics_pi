@@ -28,21 +28,12 @@
 #ifndef __BARO_HISTORY_H__
 #define __BARO_HISTORY_H__
 
-// For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
 
 #include "instrument.h"
-#include "dial.h"
 
 #include <wx/filename.h>
 #define BARO_RECORD_COUNT 1500 // w/ 5s. tick, 1500 points = 7,500 sec = 125 minutes = env 2h
