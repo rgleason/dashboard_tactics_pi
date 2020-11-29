@@ -34,7 +34,7 @@
 
     /*
       Sentence mapping as a DB schema planned for InfluxDB time series database
-      The mapping of dashoard_tactics_pi sentences is according to
+      The mapping of dashboard_tactics_pi sentences is according to
         ../instruments.h : normally, do not change "sentence" and "mask" values.
       The template DB schema is according to the Signal K schema, see
           https://github.com/SignalK/specification/blob/master/schemas/
