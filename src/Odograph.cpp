@@ -701,9 +701,8 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
     dc->SetPen( pen );
     wxPoint points[ODOM_RECORD_COUNT + 2];
     wxPoint pointDist_old;
-    pointDist_old.x = 3 + m_LeftLegend;
-    pointDist_old.y = m_TopLineHeight + m_DrawAreaRect.height -
-                           (m_ArrayOdometer[0] * ratioH);
+    pointDist_old.x = INT_MIN;
+    pointDist_old.y = INT_MIN;
     for ( int idx = (ODOM_RECORD_COUNT - 1);
           idx >= hasSampleIdx; idx-- ) {
         points[idx].x = idx * m_ratioW + 3 + m_LeftLegend;
@@ -711,7 +710,7 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
             (m_ArrayOdometer[idx] * ratioH);
         if ( (points[idx].y > m_TopLineHeight) &&
              (pointDist_old.y > m_TopLineHeight) &&
-             (points[idx].y <= (m_TopLineHeight +m_DrawAreaRect.height) ) &&
+             (points[idx].y <= (m_TopLineHeight + m_DrawAreaRect.height) ) &&
              (pointDist_old.y <= (m_TopLineHeight + m_DrawAreaRect.height) )
             )
             dc->DrawLine( pointDist_old.x, pointDist_old.y,
@@ -725,9 +724,8 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
         pen.SetColour( wxColour(61,61,204,195) ); //blue, transparent
         pen.SetWidth( 3 );
         dc->SetPen( pen );
-        pointDist_old.x = m_LeftLegend + 3;
-        pointDist_old.y = m_TopLineHeight + m_DrawAreaRect.height -
-            m_ArrayLogOdom[0] * ratioH;
+        pointDist_old.x = INT_MIN;
+        pointDist_old.y = INT_MIN;
         for ( int idx = (ODOM_RECORD_COUNT - 1);
               idx >= hasSampleIdx; idx-- ) {
             points[idx].x = idx * m_ratioW + 3 + m_LeftLegend;
@@ -736,7 +734,7 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
             if ( (points[idx].y > m_TopLineHeight) &&
                  (pointDist_old.y > m_TopLineHeight) &&
                  (points[idx].y <= (m_TopLineHeight +
-                                    m_DrawAreaRect.height)) &&
+                                    m_DrawAreaRect.height) ) &&
                  (pointDist_old.y <= (m_TopLineHeight +
                                       m_DrawAreaRect.height) )
                 )
