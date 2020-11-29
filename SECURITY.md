@@ -16,3 +16,8 @@ For this reason, it is adviced to use always the latest stable version or the la
 ## Reporting a Vulnerability
 
 [Issues](https://github.com/canne/dashboard_tactics_pi/issues)
+
+## Currently open security reports
+
+[Open isues labeled 'security'](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aopen+label%3Asecurity)
+
