@@ -16,10 +16,15 @@
         - make a copy of this one with name common.min.js and modify it;
         - (no need for compression with this non-executing file!)
         - or, modify enginedjg/index.html to load your own file, no problem!
+        - (the same for the other instruments, with their index.html files.)
         - issues? open the index.html in a browser, hit Shift+Ctrl+I and reload;
                   * Console gives you the reason why it does not load anymore:
                   * Look for messages in r e d: a typo, missing comma?
-        - note: next update/reinstallation overrides this file, keep backups!
+                  * If you are on Windows, it is also worthwhile to use
+                    Internet Explorer IE 11 -yes the old one, OpenCPN uses
+                    wxWidgets3 and the WebView backed on Windows is that.
+                    On IE 11 the consoler for debugging is openeded with F12.
+        - NOTE: next update/reinstallation overrides this file, keep backups!
 */
 
 var  instrustat = {
