@@ -672,6 +672,7 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                             if ( !values[v].HasMember( "value" )) throw (i+1)*100000 + (v+1)*10000 + 5020;
                                             double   value = 0.0;
                                             int      valInt = 0;
+                                            long     valLong = 0;
                                             wxString valStr = wxEmptyString;
                                             wxJSONValue valueset = values[v]["value"];
                                             if ( !valueset.IsObject() ) {
@@ -681,6 +682,10 @@ wxThread::ExitCode TacticsInstrument_StreamInSkSingle::Entry( )
                                                 else if ( valueset.IsInt() ) {
                                                     valInt = valueset.AsInt();
                                                     value = static_cast<double>(valInt);
+                                                }
+                                                else if ( valueset.IsLong() ) {
+                                                    valLong = valueset.AsLong();
+                                                    value = static_cast<double>(valLong);
                                                 }
                                                 valStr = valueset.AsString();
                                                 m_pparent->SetUpdateSignalK (
