@@ -145,13 +145,13 @@ DashboardInstrument(pparent, id, "---", 0LL, SETDRAWSOLOINPANE)
     m_pExportmenu = nullptr;
     m_btnStartStop = nullptr;
     m_btnStartStopSep = nullptr;
-    m_btnBmpStartRec = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnstartrec ) );
-    m_btnBmpStopRec = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnstoprec ) );
+    m_btnBmpStartRec = bmpBtnStartRec; // see icons.cpp
+    m_btnBmpStopRec = bmpBtnStopRec;
     m_btnReset = nullptr;
-    m_btnBmpReset = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnbackstop ) );
+    m_btnBmpReset = bmpBtnBackstop;
     m_btnResetSep = nullptr;
     m_btnResetAll = nullptr;
-    m_btnBmpResetAll = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btneject ) );
+    m_btnBmpResetAll = bmpBtnEject;
 
     // Start thread
     m_OdographUpdTimer->Start(1000, wxTIMER_CONTINUOUS);

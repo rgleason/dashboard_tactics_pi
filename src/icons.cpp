@@ -5,14 +5,19 @@
 #endif
 #include <wx/fileconf.h>
 #include <wx/mstream.h>
+#include <wx/bitmap.h>
 
-#include "icons.h"
 #include "ocpn_plugin.h"
 
 #include "icons/btnstartrec.png.h"
+wxBitmap *bmpBtnStartRec;
 #include "icons/btnstoprec.png.h"
+wxBitmap *bmpBtnStopRec;
 #include "icons/btnbackstop.png.h"
+wxBitmap *bmpBtnBackstop;
 #include "icons/btneject.png.h"
+wxBitmap *bmpBtnEject;
+
 
 wxBitmap *_img_dashboard_tactics_pi;
 wxBitmap *_img_dashboard_tactics;
@@ -29,6 +34,10 @@ wxString _svg_dashboard_tactics_toggled;
 
 void initialize_images(void)
 {
+    bmpBtnStartRec = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnstartrec ) );
+    bmpBtnStopRec  = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnstoprec ) );
+    bmpBtnBackstop = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btnbackstop ) );
+    bmpBtnEject    = new wxBitmap( wxBITMAP_PNG_FROM_DATA( btneject ) );
 
 #ifdef OCPN_USE_SVG
     wxFileName fn;
