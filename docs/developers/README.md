@@ -1,74 +1,49 @@
 # Information for developers, contributors and collaborators
 
-## Project's situation report June 2020
+## Project's situation report the 30th of November 2020
 
->[Previous report and roadmap after publication of v1.5.11](https://github.com/canne/dashboard_tactics_pi/blob/c7656142b49c6bb38b3d1c681db9b2426f22193a/docs/developers/README.md)
+### v2.0.0
 
-v2.0 alpha has made a successful POC (proof of concept) which allows to integrate webpack development within the project, enabling instruments similar but not equivalent to the SignalK full-blown browser based instruments. But despite the limitations of wxWebView and its back-ends, they come very close to make them attractive. InfluxDB 2.0 open source version entered beta phase in the beginning of 2020. OpenCPN has embraced Signal K (finally) and is actively developing a Signal K data interface and an event based distribution of that data to plug-ins.
+[v2.0.0 Project](https://github.com/canne/dashboard_tactics_pi/projects/1) has been successfully completed.
 
-One of the main development paradigms of the v1.5.11 was to maintain compatibility with OpenCPN Dashboard - at that time frozen - in order to provide a way to transfer the numerous improvements into the mother project. Currently, OpenCPN project team is implementing Signal K data event based distribution parser directly into the code base from which this project was forked from.
+[20 Requirements of 22 total defined](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+milestone%3Av2.0.0+label%3ARequirement) have been fulfilled with a tested implementation.
 
-This project cannot contribute the corrections done for v1.5.11 in Dashboard back to the main project - the overall deviation is now too large. Dashboard's original code base carried over from the Dashboard project will be removed to ease the maintenance effort.
+v2.0.0 builds have been published in GitHub [Releases](https://github.com/canne/dashboard_tactics_pi/releases)
 
-The SignalK node server's delta channel remains the sole source of Signal K provided data. There is no plans to make the _DastT_ to accept Signal K data provided eventually by OpenCPN but direct connection with timestamps is preferred. This may exclude some other Signal K data sources like the COTS router ones but until there is no use case and equipment available for testing this will not be considered as a bug but a feature request.
+Documentation is made available in [dashboard-tactics-pi.readthedocs.io](https://dashboard-tactics-pi.readthedocs.io).
 
-## v1.5.11 roadmap
+### v2.0 Patch versions
 
-_v1.5.11_ enters into a minimum maintenance mode which means that only real show-stoppers will be fixed if they concern OpenCPN v5.0. That statement does not concern the upcoming versions of OpenCPN with eventual changes in the plug-in API.
+Maintenance (patch) versions, if needed will be enumerated v2.0.1, v2.0.2 etc.
 
-### v1.5.111 - an i18n version
+### v2.2 $\beta$-version
 
-Volunteers are apparently working on providing i18n .po files for the project. Their work will be respected by implementing the pull requests in `pr151` branch and with a publication of eventual v1.5.111 version, and successively v1.5.112, etc. if needed.
+Maintenance versions shall be stopped in `dev220` branch or continued in the `master`. v2.1.xx shall be a used for v2.2 $\beta$-versions.
 
-## v1.6
+### v2.2
 
-From the conclusions above follows that v1.6 hypothesis discussed in the [previous report](https://github.com/canne/dashboard_tactics_pi/blob/c7656142b49c6bb38b3d1c681db9b2426f22193a/docs/developers/README.md) is abandoned and the reserved development branches are deleted.
+v2.2 shall be published only tested, with and because of any new feature, alternatively for a new minor or major version of _OpenCPN_, or both.
 
-## v2.0 alpha (v1.98.101) and onwards
+### Earlier versions
 
-Development site's main branch switches to `dev200` branch. `mnt151` branch remains for maintenance work of _v1.5.11_.
+The development of v1.5.11 and its derivates has moved to an [OpenCPN Pluginmanager dashboardtactics_pi plug-in, in its own repository](https://github.com/rgleason/dashboard_tactics_pi).
 
-Each part above is divided into its own thread structure, presented by two `git` branches:
+Please do not address in this repository any pull requests or issues regarding the earlier versions prior to v2.0.0.
 
-* Development and testing branch for the project owner(s)
-* Staging branch for the solicited and unsolicited pull requests
+### Pull Requests
 
-> **Pull requests to master branch (trunk) are not accepted until dev200 branch reaches an advanced beta stage** Please submit any PR in these branches, instead:
+The below diagram depicts the branch schema starting from this holdpoint (`v2.0.0`) and provides a roadmap for future versions - without a time axis due to the lack of the dedicated resources.
 
-* `pr151` - Staging branch for pull requests for bug fixes in v1.5.11 - **no new features will be accepted in this branch**
+>All pull requests to the `master` thread coming outside of this repository will be automatically and systematically rejected. Please read further.
 
-  * Suitable for small changes like new language files
+#### Bug fixes for v2.0
 
-* `pr200` - For those who wish to contribute to new features, even unstable ones in `dev200` R&D branch
+Please fork the dev220 branch which is the default and the _live_ development branch of the author and provide your well tested and CI test (minimum) passing pull requests in this thread.
 
-   * **Free spirit R&D and new ideas goes here**
-   
-   * It would be appreciated if the ideas would be presented with some use case, allowing an assembly of a test use case:
-   
-     * Please do not get offended if the pull request will not get accepted - this is a hobby project and time is a limited resource ;
-     
-     * I'll try to comment back to at least thank you for your ideas!
+#### New features or functions
 
->You may notice occasional _Flying Fish_ branches appear in the repository. They are for not break the development build by some test-only ideas. However, they can be created on simple demand for pull requests not meeting the below requirements of the CI (continuous integration and QA applied in commits and PRs):
+Please fork the `dev220` branch and invite the author to study your own fork. Do not make unsolicited pull request for new features or functions into this repository.
 
-Commit messages ìn tense and semantic format
+Alternatively one can fill in the form as for the feature requests or ideas in the repository's _Issues_ section by opening a ticket.
 
-```
-<type>: <desc>
-<type>: chore, docs, feat, fix, refactor, style, or test.
-<desc>: present tense description
-```
-
-Coding style - please do not change existing coding style to yours.
-
-Tabs 4 spaces.
-
-Common CI QA requirements (mandatory to pass) for all branches are
-* [Codacy static code analysis](https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/dashboard)
-* [Travis CI for pull requests](https://travis-ci.org/canne/dashboard_tactics_pi)
-* [AppVeyor CI for Windows build of commits](https://ci.appveyor.com/project/canne/dashboard-tactics-pi)
-* [Travis CI for Linux and Mac builds of commits](https://travis-ci.org/canne/dashboard_tactics_pi)
-
-The below diagram depicts the branch schema starting from this holdpoint and provides a roadmap for future versions - without a time axis due to the lack of that information from the OpenCPN main project.
-
-![v1.98.103_holdpoint_threads.png](v1.98.103_holdpoint_threads.png) [(zoom)](img/v1.98.103_holdpoint_threads.png)
+![v2.0.0_holdpoint_threads.png](v2.0.0_holdpoint_threads.png)[(zoom)](img/v2.0.0_holdpoint_threads.png)

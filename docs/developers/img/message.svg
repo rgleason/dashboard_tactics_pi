@@ -5,9 +5,9 @@
      width="600" height="24"
 >
   <text font-size="16" x="10" y="20">
-    <tspan fill="blue">----&gt; All user </tspan>
-    <tspan fill="blue">docs now in </tspan>
-    <tspan fill="red">readthedocs.io </tspan>
-    <tspan fill="blue">in HTML/PDF/EPUB &lt;----</tspan>
+    <tspan fill="blue">----&gt; Developers </tspan>
+    <tspan fill="blue">please read  </tspan>
+    <tspan fill="red">the manifesto</tspan>
+    <tspan fill="blue"> and save time! &lt;----</tspan>
   </text>
 </svg>
