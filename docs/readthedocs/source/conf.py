@@ -22,7 +22,7 @@ copyright = '2020, Petri Mäkijärvi'
 author = 'Petri Mäkijärvi'
 
 # The full version, including alpha/beta/rc tags
-release = 'v2.0-beta02'
+release = 'v2.0.0'
 
 
 # -- General configuration ---------------------------------------------------
