@@ -11,7 +11,8 @@ For this reason, it is adviced to use always the latest stable version or the la
 | ------- | ------------------ |
 | <=1.5.1 | :x:                |
 | 1.98.x  | :x:                |
-| 1.99.x  | :white_check_mark: |
+| 1.99.x  | :x:                |
+| 2.0.x   | :white_check_mark: |
 
 ## Currently open security reports
 
