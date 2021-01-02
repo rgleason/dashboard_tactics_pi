@@ -28,7 +28,7 @@ install:
         tar xJf wx312B_opencpn50_macos109.tar.xz -C /tmp;
         export PATH="/usr/local/opt/gettext/bin:$PATH";
         echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile;
-        hdiutil attach Packages.dmg;
+        hdiutil attach /tmp/Packages.dmg;
         sudo installer -pkg "/Volumes/Packages 1.2.5/Install Packages.pkg" -target "/";
       fi
 
