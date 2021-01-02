@@ -165,7 +165,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     ClearActiveRouteMessages();
     mUTCDateTime.Set( (time_t) -1 );
     mGNSSreceivedAtLocalMs = 0LL;
-    mGNSSvsLocalTimeDeltaMs = 0LL;
+    mGNSSvsLocalTimeDeltaS = 0L;
     mUntrustedLocalTime = false;
     mLogUntrustedLocalTimeNotify = false;
     m_config_version = -1;
@@ -176,6 +176,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mVar_Watchdog = 2;
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mTim_Watchdog = 10;
     mApS_Watchcat = 0;
     mBmajorVersion_warning_given = false;
     mBminorVersion_warning_given = false;
@@ -327,28 +328,42 @@ void dashboard_pi::ResetAllSourcePriorities()
 void dashboard_pi::Notify()
 {
 
-    wxLongLong cpuTimeNowMsUTC = wxGetUTCTimeMillis();
-    mGNSSvsLocalTimeDeltaMs = mUTCDateTime.GetValue() - cpuTimeNowMsUTC;
-    if ( mGNSSvsLocalTimeDeltaMs.Abs() >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
-        mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
-        if ( !mLogUntrustedLocalTimeNotify ) {
-            int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
-            wxLogMessage(
-                "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
-                "difference >= %i ms. Is this a recording playback? Accuracy "
-                "of calculated values timestamps is now reduced to the last "
-                "received GNSS (GPS) time.", gteThan );
-            mLogUntrustedLocalTimeNotify = true;
+    wxDateTime cpuDateTimeNow( wxGetUTCTimeMillis() );
+    wxDateTime cpuDateTimeUTC = cpuDateTimeNow.ToUTC();
+    time_t cpuTicksNow = cpuDateTimeUTC.GetTicks();
+    time_t mGNSSsinceEpoch = mUTCDateTime.GetTicks();
+    mGNSSvsLocalTimeDeltaS = static_cast<long int>(mGNSSsinceEpoch - cpuTicksNow);
+    if ( labs( mGNSSvsLocalTimeDeltaS) >=
+         (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT/1000) ) {
+        if ( mTim_Watchdog <= 0 ) {
+            mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
+            if ( !mLogUntrustedLocalTimeNotify ) {
+                int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
+                wxLogMessage(
+                    "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                    "difference >= %i ms. Accuracy of timestamps for "
+                    "calculated values or for values received from OpenCPN "
+                    "with no timestamps is now reduced to the approximation "
+                    "based on the last received GNSS (GPS) time, usually "
+                    "obtained from the OpenCPN or from a SignalK server node. "
+                    "Perhaps the GNSS (GPS) is from a play-back file?",
+                    gteThan );
+                mLogUntrustedLocalTimeNotify = true;
+            }
         }
+        else
+            mTim_Watchdog--;
     }
     else {
+        mTim_Watchdog = 10;
         mUntrustedLocalTime = false; // CPU withing reasonable limit
         if ( mLogUntrustedLocalTimeNotify ) {
             int lessThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
             wxLogMessage(
                 "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
                 "difference returned to be < %i ms. Considering this accurate "
-                "enough to timestamp calculated values with CPU time.",
+                "enough to timestamp with CPU time the calculated values and "
+                "the values received from OpenCPN with no timestamps.",
                 lessThan );
             mLogUntrustedLocalTimeNotify = false;
         }
@@ -358,9 +373,10 @@ void dashboard_pi::Notify()
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item(
             i )->m_pDashboardWindow;
-        if( dashboard_window ) dashboard_window->Refresh();
+        if ( dashboard_window )
+            dashboard_window->Refresh();
     }
-    //  Manage the watchdogs
+    //  Manage the watchdogs as left here by the original Dashboard
     mSrc_Watchdog--;
     if( mSrc_Watchdog <= 0 ) {
         ResetAllSourcePriorities();

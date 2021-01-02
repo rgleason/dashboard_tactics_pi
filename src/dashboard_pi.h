@@ -213,7 +213,7 @@ private:
     double               mHdm;
     wxDateTime           mUTCDateTime;
     wxLongLong           mGNSSreceivedAtLocalMs;
-    wxLongLong           mGNSSvsLocalTimeDeltaMs;
+    long int             mGNSSvsLocalTimeDeltaS;
     bool                 mUntrustedLocalTime;
     bool                 mLogUntrustedLocalTimeNotify;
     int                  m_config_version;
@@ -225,6 +225,7 @@ private:
     int                  mVar_Watchdog;
     int                  mStW_Watchdog;
     int                  mSiK_Watchdog;
+    int                  mTim_Watchdog;
     bool                 mSiK_DPT_environmentDepthBelowKeel;
     int                  mSiK_navigationGnssMethodQuality;
     int                  mApS_Watchcat;
