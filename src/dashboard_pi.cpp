@@ -562,6 +562,24 @@ wxString dashboard_pi::GetStandardPath()
     return stdPath;
 }
 
+long long dashboard_pi::checkTimestamp( long long timestamp )
+{
+    long long datatimestamp = timestamp;
+    if ( datatimestamp == 0LL ) {
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        if ( mUntrustedLocalTime ) {
+            wxLongLong msElapsedSinceLastGNSStime =
+                wxllNowMs - mGNSSreceivedAtLocalMs;
+            wxLongLong msEstimatedTimestamp =
+                mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
+            datatimestamp = msEstimatedTimestamp.GetValue();
+        }
+        else {
+            datatimestamp = wxllNowMs.GetValue();
+        }
+    } // then, oops, the source has no timestamps of its own, let's make one
+    return datatimestamp;
+}
 
 /* Porting note: this section is the cornerstone of the Tactics porting effort.
    The below private method is about the original dashboard's simple and real
@@ -574,20 +592,21 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 {
     if ( APPLYSAVEWINRUNNING )
         return;
+    long long datatimestamp = checkTimestamp( timestamp );
     // The classical Dashboard-type instrument push data by an ID
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window )
             dashboard_window->SendSentenceToAllInstruments(
-                st, value, unit, timestamp );
+                st, value, unit, datatimestamp );
     }
     /* An instrument can also subscribe to the classical Dashboard-type
        sentences by their name */
     wxString stToDashboardPath = getDashboardTacticsInstrumentIdStr( st );
     if ( !stToDashboardPath.IsEmpty() )
         SendDataToAllPathSubscribers (
-            stToDashboardPath, value, unit, timestamp );
+            stToDashboardPath, value, unit, datatimestamp );
 }
 /* Porting note: with Tactics, new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the TacticsWP
@@ -607,20 +626,7 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 void dashboard_pi::SendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp )
 {
-    long long datatimestamp = timestamp;
-    if ( datatimestamp == 0LL ) {
-        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        if ( mUntrustedLocalTime ) {
-            wxLongLong msElapsedSinceLastGNSStime =
-                wxllNowMs - mGNSSreceivedAtLocalMs;
-            wxLongLong msEstimatedTimestamp =
-                mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
-            datatimestamp = msEstimatedTimestamp.GetValue();
-        }
-        else {
-            datatimestamp = wxllNowMs.GetValue();
-        }
-    } // then, oops, the source has no timestamps of its own, let's make one
+    long long datatimestamp = checkTimestamp( timestamp );
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
         // we have a valid AWS sentence here, it may require heel correction
@@ -728,11 +734,7 @@ void dashboard_pi::SendDataToAllPathSubscribers (
     if ( APPLYSAVEWINRUNNING )
         return;
 
-    long long datatimestamp = timestamp;
-    if ( datatimestamp == 0LL ) {
-        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        datatimestamp = wxllNowMs.GetValue();
-    } // then, oops, the source has no timestamps of its own, let's make one
+    long long datatimestamp = checkTimestamp( timestamp );
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
@@ -2695,7 +2697,7 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
     }
     mSatsInView = pfix.nSats;
-    //    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
 
 }
 

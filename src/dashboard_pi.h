@@ -91,6 +91,7 @@ public:
     wxString GetStandardPath();
     // implementation of parent classes methods (w/ call-backs)
     void OnContextMenuItemCallback(int id);
+    long long checkTimestamp( long long timestamp );
     void SendSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp=0LL);
     void pSendSentenceToAllInstruments(
