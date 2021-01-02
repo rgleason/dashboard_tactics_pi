@@ -24,11 +24,10 @@ install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
       then
         brew install cairo libexif xz libarchive;
-        wget http://opencpn.navnux.org/build_deps/wx312_opencpn50_macos109.tar.xz;
-        tar xJf wx312_opencpn50_macos109.tar.xz -C /tmp;
+        curl -o wx312B_opencpn50_macos109.tar.xz https://download.opencpn.org/s/SneCR3z9XM3aRc6/download 
+        tar xJf wx312B_opencpn50_macos109.tar.xz -C /tmp;
         export PATH="/usr/local/opt/gettext/bin:$PATH";
         echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile;
-        wget https://download.opencpn.org/s/SneCR3z9XM3aRc6/download
         hdiutil attach Packages.dmg;
         sudo installer -pkg "/Volumes/Packages 1.2.5/Install Packages.pkg" -target "/";
       fi
