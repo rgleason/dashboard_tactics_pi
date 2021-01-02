@@ -6,6 +6,7 @@ matrix:
     - dist: focal
       compiler: gcc
     - os: osx
+      osx_image: xcode11.3
       compiler: clang
 
 install:
