@@ -2894,9 +2894,6 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
         m_ArrayOfDashboardWindow = dialog->m_Config;
 
         SetApplySaveWinRequest();
-        ApplyConfig();
-        SaveConfig();
-        APPLYSAVEWINSERVED;
 
         SetToolbarItemState(
             m_toolbar_item_id, GetDashboardWindowShownCount() != 0 );
@@ -3223,8 +3220,12 @@ void dashboard_pi::ApplyConfig(
             replacedDashboards.Add( cont );
             newcont->m_bPersVisible = cont->m_bIsVisible;
             if ( cont->m_pDashboardWindow ) {
+                m_pauimgr->GetPane(
+                    cont->m_pDashboardWindow ).FloatingPosition(
+                        position ).Float(); // undock if docked
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                 (void ) cont->m_pDashboardWindow->Close( false );
+                m_pauimgr->Update();
                 if ( !cont->m_pDashboardWindow->Destroy() ) {
                     wxLogMessage(
                         "dashboard_tactics_pi: INFO: rearranged window pane "
