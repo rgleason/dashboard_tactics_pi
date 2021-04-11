@@ -2806,7 +2806,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         }
     }
     else if ( message_id == _T("OpenCPN Config") ) {
-        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;
+        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();
         if ( !mBmajorVersion_warning_given ) {
             if ( ocpnMajorVersion != PLUGIN_TARGET_OCPN_VERSION_MAJOR ) {
                 wxString message = wxString::Format(
@@ -2840,7 +2840,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         }
     }
     else if ( message_id == _T("OCPN_OPENGL_CONFIG") ) {
-        if ( this->getTacticsDCmsgShown() ) {
+        if ( !this->getTacticsDCmsgShown() ) {
             bool bOpenGLsetupComplete = root[_T("setupComplete")].AsBool();
             if ( !bOpenGLsetupComplete ) {
                 wxString message(
