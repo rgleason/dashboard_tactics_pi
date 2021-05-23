@@ -18,9 +18,9 @@
 # -- Project information -----------------------------------------------------
 
 project = 'DashT - OpenCPN Overlay Plug-in'
-copyright = '2020, Petri Mäkijärvi'
+copyright = '2021, Petri Mäkijärvi'
 author = 'Petri Mäkijärvi'
-
+version = 'v2.0.2'
 # The full version, including alpha/beta/rc tags
 release = 'v2.0.2'
 
@@ -57,4 +57,4 @@ html_theme = 'agogo'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
