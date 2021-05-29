@@ -1,7 +1,7 @@
 <a href="https://github.com/canne/dashboard_tactics_pi/blob/dev220/docs/developers/README.md"><img src="docs/developers/img/message.svg" /></a><br />
 # _DashT_ - an OpenCPN plug-in with Dashboard, Tactics, Race, Engine/Energy, Signal K, Time Series DB and Line Graphs
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings) [![Documentation Status](https://readthedocs.org/projects/dashboard-tactics-pi/badge/?version=dev200)](https://dashboard-tactics-pi.readthedocs.io/en/dev220/?badge=dev220)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/23e5625c7b5a4aa4a3b3696b5a7795d2)](https://app.codacy.com/app/petri38-github/dashboard_tactics_pi?utm_source=github.com&utm_medium=referral&utm_content=canne/dashboard_tactics_pi&utm_campaign=Badge_Grade_Settings) [![Documentation Status](https://readthedocs.org/projects/dashboard-tactics-pi/badge)](https://dashboard-tactics-pi.readthedocs.io/en/latest/)
 
 _dashboard_tactics_pi_ in your OpenCPN plug-in catalog.
 
