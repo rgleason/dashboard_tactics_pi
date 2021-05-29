@@ -164,6 +164,8 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mActiveLegInfo = nullptr;
     ClearActiveRouteMessages();
     mUTCDateTime.Set( (time_t) -1 );
+    mUTCDateTzOffsetLL = 0LL;
+    mUTCRealGpsEpoch = 0LL;
     mGNSSreceivedAtLocalMs = 0LL;
     mGNSSvsLocalTimeDeltaS = 0L;
     mUntrustedLocalTime = false;
@@ -331,7 +333,7 @@ void dashboard_pi::Notify()
     wxDateTime cpuDateTimeNow( wxGetUTCTimeMillis() );
     wxDateTime cpuDateTimeUTC = cpuDateTimeNow.ToUTC();
     time_t cpuTicksNow = cpuDateTimeUTC.GetTicks();
-    time_t mGNSSsinceEpoch = mUTCDateTime.GetTicks();
+    time_t mGNSSsinceEpoch = mUTCDateTime.GetTicks(); // remember, this has TZ!
     mGNSSvsLocalTimeDeltaS = static_cast<long int>(mGNSSsinceEpoch - cpuTicksNow);
     if ( labs( mGNSSvsLocalTimeDeltaS) >=
          (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT/1000) ) {
@@ -586,9 +588,24 @@ long long dashboard_pi::checkTimestamp( long long timestamp )
         if ( mUntrustedLocalTime ) {
             wxLongLong msElapsedSinceLastGNSStime =
                 wxllNowMs - mGNSSreceivedAtLocalMs;
-            wxLongLong msEstimatedTimestamp =
-                mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
-            datatimestamp = msEstimatedTimestamp.GetValue();
+            // DEBUG
+            // wxString sBuffer = msElapsedSinceLastGNSStime.ToString();
+            // wxString sString = sBuffer.wc_str();
+            // wxLogMessage(
+            //     "dashboard_tactics_pi: checkTimestamp() :\nmsElapsedSinceLastGNSStime : %s",
+            //     sString );
+            // END DEBUG
+            datatimestamp =
+                mUTCRealGpsEpoch + msElapsedSinceLastGNSStime.GetValue();
+            // DEBUG
+            // wxLongLong wxLL = datatimestamp;
+            // sBuffer = wxLL.ToString();
+            // sString = sBuffer.wc_str();
+            // wxLogMessage(
+            //     "dashboard_tactics_pi: checkTimestamp() :\ndatatimestamp : %s",
+            //     sString );
+            // Put the above in https://www.epochconverter.com
+            // END DEBUG
         }
         else {
             datatimestamp = wxllNowMs.GetValue();
@@ -929,7 +946,6 @@ void dashboard_pi::SetNMEASentence(
                         //mPriDateTime = 4;
                         //mUTCDateTime.ParseFormat(
                         //    m_NMEA0183->Gga.UTCTime.c_str(), _T("%H%M%S") );
-                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
 
                     mSatsInView = m_NMEA0183->Gga.NumberOfSatellitesInUse;
@@ -971,7 +987,6 @@ void dashboard_pi::SetNMEASentence(
                         //mPriDateTime = 5;
                         //mUTCDateTime.ParseFormat(
                         //    m_NMEA0183->Gll.UTCTime.c_str(), _T("%H%M%S") );
-                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
             }
@@ -1447,6 +1462,21 @@ void dashboard_pi::SetNMEASentence(
                             m_NMEA0183->Rmc.UTCTime;
                         mUTCDateTime.ParseFormat( dt.c_str(),
                                                   _T("%d%m%y%H%M%S") );
+                        /* Note: in Dashboard, this is a "fake" UTC,
+                           just a string representation, memorized,
+                           i.e. the parsed value has time zone applied to it
+                           within the wxDateTime object, its Epoch value is
+                           therefore off by the value defined by the timezone.
+                           In order not to break the clock.cpp, we register
+                           the offset to the real UTC LL (Epoch) value:
+                        */
+                        wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                        wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                        wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                        mUTCDateTzOffsetLL =
+                            fakeEpoch.GetValue() - resEpoch.GetValue();
+                        mUTCRealGpsEpoch =
+                            fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
@@ -1719,6 +1749,13 @@ void dashboard_pi::SetNMEASentence(
                     mUTCDateTime.ParseFormat(
                         dt.c_str(),
                         _T("%Y%m%d%H%M%S") );
+                    wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                    wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                    wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                    mUTCDateTzOffsetLL =
+                        fakeEpoch.GetValue() - resEpoch.GetValue();
+                    mUTCRealGpsEpoch =
+                        fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                     mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                 }
             }
@@ -2159,6 +2196,13 @@ void dashboard_pi::SetNMEASentence(
                             parseRfc3359UTC( valStr, parseError );
                         if ( !parseError ) {
                             mUTCDateTime = msParsedDateTime;
+                            wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                            wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                            wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                            mUTCDateTzOffsetLL =
+                                fakeEpoch.GetValue() - resEpoch.GetValue();
+                            mUTCRealGpsEpoch =
+                                fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                             mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                         }
                     } // mPriDateTime
@@ -2617,6 +2661,13 @@ void dashboard_pi::SetNMEASentence(
                         parseRfc3359UTC( valStr, parseError );
                     if ( !parseError ) {
                         mUTCDateTime = msParsedDateTime;
+                        wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                        wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                        wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                        mUTCDateTzOffsetLL =
+                            fakeEpoch.GetValue() - resEpoch.GetValue();
+                        mUTCRealGpsEpoch =
+                            fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 } // mPriDateTime
@@ -2710,6 +2761,8 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         mPriDateTime = 6;
         mUTCDateTime.Set( pfix.FixTime );
         mUTCDateTime = mUTCDateTime.ToUTC();
+        mUTCDateTzOffsetLL = 0LL;
+        mUTCRealGpsEpoch = mUTCDateTime.GetValue().GetValue(); // now the same
         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
     }
     mSatsInView = pfix.nSats;

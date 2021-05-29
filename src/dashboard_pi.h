@@ -212,6 +212,8 @@ private:
     double               mSatsInView;
     double               mHdm;
     wxDateTime           mUTCDateTime;
+    long long            mUTCDateTzOffsetLL;
+    long long            mUTCRealGpsEpoch;
     wxLongLong           mGNSSreceivedAtLocalMs;
     long int             mGNSSvsLocalTimeDeltaS;
     bool                 mUntrustedLocalTime;
