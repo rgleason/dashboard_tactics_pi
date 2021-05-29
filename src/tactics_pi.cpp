@@ -2284,13 +2284,19 @@ void tactics_pi::CalculatePerformanceData(void)
     }
 
     mPolarTargetSpeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
-    if ( std::isnan(mPolarTargetSpeed) ) {
+    if ( std::isnan(mPolarTargetSpeed) || mPolarTargetSpeed <= 0. ) {
         mPercentTargetVMGupwind = mPercentTargetVMGdownwind = 0.;
         mPolarTargetSpeed = mPercentUserTargetSpeed = 0.;
-    } // then a polar but we are out of it - the numerical instrument show "no polar data" - here it is 0.0
+    } /* then a polar but we are out of it - the numerical instrument
+         show "no polar data" - here it is 0.0 */
     else {
         // Calculate the StW's performance against the polar target speed
         mPercentUserTargetSpeed = mStW / mPolarTargetSpeed * 100;
+        // Avoid impossible values for mast display caused by crazy polars:
+        if ( std::isnan(mPercentUserTargetSpeed) ||
+             (mPercentUserTargetSpeed >=
+              POLAR_PERFORMANCE_PERCENTAGE_LIMIT) )
+            mPercentUserTargetSpeed = POLAR_PERFORMANCE_PERCENTAGE_LIMIT;
     }
 
     // get Target VMG Angle from Polar
@@ -2385,27 +2391,36 @@ void tactics_pi::ExportPerformanceData(void)
 {
 	// PolarTargetSpeed
 	if (g_bExpPerfData01 && !std::isnan(mPolarTargetSpeed)){
-		createPNKEP_NMEA(1, mPolarTargetSpeed, mPolarTargetSpeed  * 1.852, 0, 0);
+		createPNKEP_NMEA(1, mPolarTargetSpeed,
+                         mPolarTargetSpeed  * 1.852, 0, 0);
 	}
-	// todo : extract mPredictedCoG calculation from layline.calc and add to CalculatePerformanceData
-	if (g_bExpPerfData02 && !std::isnan(mPredictedCoG)){
-		createPNKEP_NMEA(2, mPredictedCoG, 0, 0, 0); // course (CoG) on other tack
+	// todo : extract mPredictedCoG calculation from layline.calc
+    // and add to CalculatePerformanceData
+	if (g_bExpPerfData02 && !std::isnan(mPredictedCoG)) {
+        // course (CoG) on other tack
+		createPNKEP_NMEA(2, mPredictedCoG, 0, 0, 0);
 	}
 	// Target VMG angle, act. VMG % upwind, act. VMG % downwind
-	if (g_bExpPerfData03 && !std::isnan(tvmg.TargetAngle) && tvmg.TargetSpeed > 0){
+	if (g_bExpPerfData03 && !std::isnan(tvmg.TargetAngle) &&
+        tvmg.TargetSpeed > 0) {
 		createPNKEP_NMEA(3, 
                          tvmg.TargetAngle,
-                         ( (mPercentTargetVMGupwind == 0)? mPercentTargetVMGdownwind : mPercentTargetVMGupwind ),
+                         ( (mPercentTargetVMGupwind == 0) ?
+                           mPercentTargetVMGdownwind :
+                           mPercentTargetVMGupwind ),
                          mPercentUserTargetSpeed,
                          0);
     }
-	// Gain VMG de 0-99%, Angle pour optimiser le VMG de 0-359deg,Gain CMG de 0-99%,
-    // Angle pour optimiser le CMG de 0-359deg�
+	// Gain VMG de 0-99%, Angle pour optimiser le VMG de 0-359deg,
+    // Gain CMG de 0-99%,
+    // Angle pour optimiser le CMG de 0-359deg
 	if (g_bExpPerfData04)
 		createPNKEP_NMEA(4, mCMGoptAngle, mCMGGain, mVMGoptAngle, mVMGGain);
 	// current direction, current speed kts, current speed in km/h,
-	if (g_bExpPerfData05 && !std::isnan(m_CurrentDirection) && !std::isnan(m_ExpSmoothCurrSpd)){
-		createPNKEP_NMEA(5, m_CurrentDirection, m_ExpSmoothCurrSpd, m_ExpSmoothCurrSpd  * 1.852, 0);
+	if (g_bExpPerfData05 && !std::isnan(m_CurrentDirection) &&
+        !std::isnan(m_ExpSmoothCurrSpd)){
+		createPNKEP_NMEA(5, m_CurrentDirection, m_ExpSmoothCurrSpd,
+                         m_ExpSmoothCurrSpd  * 1.852, 0);
 	}
 }
 
@@ -2418,36 +2433,47 @@ void tactics_pi::createPNKEP_NMEA(int sentence, double data1, double data2, doub
 		//strcpy(nmeastr, "$PNKEPA,");
 		break;
 	case 1:
-		nmeastr = _T("$PNKEP,01,") + wxString::Format("%.2f,N,", data1) + wxString::Format("%.2f,K", data2);
+		nmeastr = _T("$PNKEP,01,") + wxString::Format("%.2f,N,", data1) +
+            wxString::Format("%.2f,K", data2);
 		break;
 	case 2:
 		/*course on next tack(code PNKEP02)
 		$PNKEP, 02, x.x*hh<CR><LF>
-		\ Cap sur bord Oppos� / prochain bord de 0 � 359�*/
+		\ Cap sur bord Oppose / prochain bord de 0 a 359deg */
 		nmeastr = _T("$PNKEP,02,") + wxString::Format("%.1f", data1);
 		break;
 	case 3:
-        /* Opt. VMG angle and performance up and downwind + polar speed perfomance
+        /* Opt. VMG angle and performance up and downwind +
+           polar speed perfomance
         $PNKEP,03,x.x,x.x,x.x*hh<CR><LF>
                    |    |   \ polar speed performance TWA/TWS from 0 to 99%
                    |    \ performance upwind or downwind from 0 to 99%
                    \ opt.VMG angle  0-359deg  */
-		nmeastr = _T("$PNKEP,03,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f", data3);
+		nmeastr = _T("$PNKEP,03,") + wxString::Format("%.1f,", data1) +
+            wxString::Format("%.1f,", data2) +
+            wxString::Format("%.1f", data3);
 		break;
 	case 4:
-		/*Calculates the gain for VMG & CMG and stores it in the variables
-		mVMGGain, mCMGGain,mVMGoptAngle,mCMGoptAngle
-		Gain is the percentage btw. the current boat speed mStW value and Target-VMG/CMG
-		Question : shouldn't we compare act.VMG with Target-VMG ? To be investigated ...
-		$PNKEP, 04, x.x, x.x, x.x, x.x*hh<CR><LF>
-		|    |    |    \ Gain VMG de 0-99%
-		|    |     \ Angle pour optimiser le VMG de 0-359deg
-		|    \ Gain CMG de 0-99%
-		\ Angle pour optimiser le CMG de 0-359deg */
-		nmeastr = _T("$PNKEP,04,") + wxString::Format("%.1f,", data1) + wxString::Format("%.1f,", data2) + wxString::Format("%.1f,", data3) + wxString::Format("%.1f", data4);
+		/* Calculates the gain for VMG & CMG and stores it in the variables
+           mVMGGain, mCMGGain,mVMGoptAngle,mCMGoptAngle
+           Gain is the percentage btw. the current boat speed mStW value and
+           Target-VMG/CMG
+           Question : shouldn't we compare act.VMG with Target-VMG ?
+           To be investigated ...
+           $PNKEP, 04, x.x, x.x, x.x, x.x*hh<CR><LF>
+                        |    |    |    \ Gain VMG de 0-99%
+                        |    |     \ Angle pour optimiser le VMG de 0-359deg
+                        |    \ Gain CMG de 0-99%
+                        \ Angle pour optimiser le CMG de 0-359deg */
+		nmeastr = _T("$PNKEP,04,") + wxString::Format("%.1f,", data1) +
+            wxString::Format("%.1f,", data2) +
+            wxString::Format("%.1f,", data3) +
+            wxString::Format("%.1f", data4);
 		break;
 	case 5:
-		nmeastr = _T("$PNKEP,05,") + wxString::Format("%.1f,", data1) + wxString::Format("%.2f,N,", data2) + wxString::Format("%.2f,K", data3);
+		nmeastr = _T("$PNKEP,05,") + wxString::Format("%.1f,", data1) +
+            wxString::Format("%.2f,N,", data2) +
+            wxString::Format("%.2f,K", data3);
 		break;
 	default:
 		nmeastr = _T("");
