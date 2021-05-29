@@ -492,18 +492,13 @@ void DashboardInstrument_Odograph::SetMinMaxLogScale()
     if ( lowerRef > higherRef )
         lowerRef = higherRef;
     
-    if ( lowerRef <= 1.0 ) {
+    if ( lowerRef < 10.0 )
         iMaxLogTotLow = 0;
-    }
-    else if ( lowerRef <= 5.0 ) {
-        iMaxLogTotLow = 5;
-    }
     else {
-        int topTenner = static_cast<int>( lowerRef ) ;
-        topTenner /= 10;
-        topTenner += 1;
-        topTenner *= 10;
-        iMaxLogTotLow = topTenner;
+        int lowTenner = static_cast<int>( lowerRef ) ;
+        lowTenner /= 10;
+        lowTenner *= 10;
+        iMaxLogTotLow = lowTenner;
     }
     m_logRangeLow = iMaxLogTotLow;
 }
@@ -538,11 +533,14 @@ void  DashboardInstrument_Odograph::DrawDistanceScale( wxGCDC* dc )
         // top legend for max distance
         label1.Printf( formatDecStr, rangeUp );
         // 3/4 legend
-        label2.Printf( formatDecStr, (rangeUp - rangeLow) * 3. / 4. );
+        label2.Printf( formatDecStr, rangeLow + 
+                       ((rangeUp - rangeLow) * 3. / 4.) );
         // center legend
-        label3.Printf( formatDecStr, (rangeUp - rangeLow) / 2. );
+        label3.Printf( formatDecStr, rangeLow +
+                       ((rangeUp - rangeLow) / 2.) );
         // 1/4 legend
-        label4.Printf( formatDecStr, (rangeUp - rangeLow) / 4. );
+        label4.Printf( formatDecStr, rangeLow +
+                       ((rangeUp - rangeLow) / 4.) );
         // y origin legend
         label5.Printf( formatDecStr, rangeLow );
     }
@@ -649,15 +647,12 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
     dc->SetFont( *g_pFontData );
     col=wxColour( 204,41,41,255 ); //red, opaque
     dc->SetTextForeground( col );
-    if( !m_IsRunning || std::isnan( m_gnssTotal ) )
-        gnssTrip=_T("---- [----] (----) --");
-    else {
-        if ( m_gnssTotal < 0 )
-            gnssTrip=_T("GNSS [----]|(----) nm");
-        else
-            gnssTrip = wxString::Format(
-                _T("GNSS [%4.1f]|(%4.1f) nm"), m_gnssTotal, m_grandTotal);
-    }
+    if ( !m_IsRunning || std::isnan( m_gnssTotal ) || (m_gnssTotal < 0.) )
+        gnssTrip = wxString::Format(
+            _T("GNSS [----](%5.1f) nm"), m_grandTotal);
+    else
+        gnssTrip = wxString::Format(
+            _T("GNSS [%4.1f](%5.1f) nm"), m_gnssTotal, m_grandTotal);
     dc->GetTextExtent( gnssTrip, &gnsw, &gnsh, 0, 0, g_pFontData );
     dc->DrawText( gnssTrip,
                   m_WindowRect.width -gnsw - m_RightLegend - 3,
@@ -708,7 +703,8 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
           idx >= hasSampleIdx; idx-- ) {
         points[idx].x = idx * m_ratioW + 3 + m_LeftLegend;
         points[idx].y = m_TopLineHeight + m_DrawAreaRect.height -
-            (m_ArrayOdometer[idx] * ratioH);
+            ((m_ArrayOdometer[idx] -
+              static_cast<double>(m_logRangeLow)) * ratioH);
         if ( (points[idx].y > m_TopLineHeight) &&
              (pointDist_old.y > m_TopLineHeight) &&
              (points[idx].y <= (m_TopLineHeight + m_DrawAreaRect.height) ) &&
@@ -731,7 +727,8 @@ void DashboardInstrument_Odograph::DrawForeground( wxGCDC* dc )
               idx >= hasSampleIdx; idx-- ) {
             points[idx].x = idx * m_ratioW + 3 + m_LeftLegend;
             points[idx].y = m_TopLineHeight + m_DrawAreaRect.height -
-                (m_ArrayLogOdom[idx] * ratioH);
+                ((m_ArrayLogOdom[idx] -
+                  static_cast<double>(m_logRangeLow)) * ratioH);
             if ( (points[idx].y > m_TopLineHeight) &&
                  (pointDist_old.y > m_TopLineHeight) &&
                  (points[idx].y <= (m_TopLineHeight +
