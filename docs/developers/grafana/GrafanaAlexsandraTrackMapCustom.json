@@ -1,0 +1,73 @@
+{
+  "description": "Derived from table format presentation combining and flattening tree queries.",
+  "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+  },
+  "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 0
+  },
+  "id": 23763571993,
+  "maxDataPoints": 500,
+  "pluginVersion": "7.5.7",
+  "targets": [
+    {
+      "refId": "A",
+      "query": "data_lat = from(bucket: \"nmea\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"navigation\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"position\")\r\n  |> filter(fn: (r) => r[\"prop1\"] == \"latitude\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"latmean\")\r\ndata_lon = from(bucket: \"nmea\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"navigation\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"position\")\r\n  |> filter(fn: (r) => r[\"prop1\"] == \"longitude\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"lonmean\")\r\njoin(tables: {d1: data_lat, d2: data_lon}, on: [\"_time\",\"_field\",\"prop1\"])\r\n"
+    }
+  ],
+  "title": "Alexandra Track Map ",
+  "transformations": [],
+  "type": "alexandra-trackmap-panel",
+  "timeFrom": null,
+  "timeShift": null,
+  "options": {
+    "discardZeroOrNull": true,
+    "map": {
+      "useCenterFromFirstPos": true,
+      "useCenterFromLastPos": false,
+      "zoomToDataBounds": false,
+      "centerLatitude": 56.17203,
+      "centerLongitude": 10.1865203,
+      "zoom": 6,
+      "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "useBoundsInQuery": false
+    },
+    "viewType": "ant",
+    "ant": {
+      "delay": 400,
+      "weight": 5,
+      "color": "green",
+      "pulseColor": "rgb(0, 0, 0)",
+      "paused": true,
+      "reverse": false
+    },
+    "heat": {
+      "fitBoundsOnLoad": false,
+      "fitBoundsOnUpdate": false
+    },
+    "marker": {
+      "size": 25,
+      "sizeLast": 25,
+      "showOnlyLastMarker": false,
+      "useSecondaryIconForLastMarker": false,
+      "useSecondaryIconForAllMarkers": false,
+      "alwaysShowTooltips": false
+    },
+    "hex": {
+      "opacity": 0.6,
+      "colorRangeFrom": "#f7fbff",
+      "colorRangeTo": "#ff0000",
+      "radiusRangeFrom": 5,
+      "radiusRangeTo": 12
+    },
+    "coordinates": {
+      "customLatitudeColumnName": "position {name=\"navigation\", prop1=\"latitude\"}",
+      "customLongitudeColumnName": "position {name=\"navigation\", prop1=\"longitude\"}"
+    }
+  },
+  "datasource": null
+}
