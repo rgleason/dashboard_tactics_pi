@@ -239,7 +239,7 @@ Start-Process -Wait $composerCmd $composerArg
 # One just need to add "T" in the date to make it ISO compatible.
 
 ### NOTE: DEPENDENCY TO THE INFLUXDB OFFICIAL IMAGE NAME ###
-$influxImgName = "quay.io/influxdb/influxdb:2.0.0-beta"
+$influxImgName = "influxdb:latest"
 if ( $param -ne "stop" ) {
     sleep 3
     echo "Adjusting Hyper-V sleep affected date and time (UTC) on all InfluxDB containers..."
