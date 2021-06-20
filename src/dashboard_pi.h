@@ -99,6 +99,7 @@ public:
     bool getIsUntrustedLocalTime(void) { return mUntrustedLocalTime; };
     wxDateTime getGNSSuTCDateTime(void) { return mUTCDateTime; };
     wxLongLong getGNSSreceivedAtLocalMs(void) { return mGNSSreceivedAtLocalMs; };
+    long long getmUTCRealGpsEpoch(void) { return mUTCRealGpsEpoch; };
     void SendDataToAllPathSubscribers(
         wxString path, double value, wxString unit, long long timestamp );
     void callAllRegisteredGLRenderers(

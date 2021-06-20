@@ -1426,13 +1426,12 @@ void tactics_pi::SendPerfSentenceToAllInstruments(
     // use the shortcut to instruments, i.e. not making callbacks to this module
     long long datatimestamp = timestamp;
     if ( (timestamp > 0LL) && this->getIsUntrustedLocalTime() ) {
-        wxDateTime lastUTCfromGNSS = this->getGNSSuTCDateTime();
-        wxLongLong lastGNSSlocStamp = this->getGNSSreceivedAtLocalMs();
-        wxLongLong msElapsedSinceLastGNSStime = timestamp - lastGNSSlocStamp;
-        wxLongLong msEstimatedTimestamp =
-            lastUTCfromGNSS.GetValue() + msElapsedSinceLastGNSStime;
-        datatimestamp = msEstimatedTimestamp.GetValue();
-    } // then localtime timestamp needs to be corrected to GNSS-based
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        wxLongLong msElapsedSinceLastGNSStime =
+            wxllNowMs - this->getGNSSreceivedAtLocalMs();
+        datatimestamp = this->getmUTCRealGpsEpoch() +
+            msElapsedSinceLastGNSStime.GetValue();
+    } // then localtime timestamp needs to be corrected to estimated GNSS-based
     pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
 }
 
