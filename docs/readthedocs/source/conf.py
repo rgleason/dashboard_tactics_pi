@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'DashT - OpenCPN Overlay Plug-in'
-copyright = '2021, Petri Mäkijärvi'
+copyright = '2019-2021, Petri Mäkijärvi'
 author = 'Petri Mäkijärvi'
-version = 'v2.0.2'
+version = 'v2.0.3'
 # The full version, including alpha/beta/rc tags
-release = 'v2.0.2'
+release = 'v2.0.3'
 
 
 # -- General configuration ---------------------------------------------------

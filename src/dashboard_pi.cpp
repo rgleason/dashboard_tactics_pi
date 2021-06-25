@@ -606,6 +606,8 @@ long long dashboard_pi::checkTimestamp( long long timestamp )
             //     sString );
             // Put the above in https://www.epochconverter.com
             // END DEBUG
+            if ( datatimestamp < 0LL ) // the first GNSS data only arrived
+                datatimestamp = wxllNowMs.GetValue(); // wait for next 
         }
         else {
             datatimestamp = wxllNowMs.GetValue();
@@ -715,16 +717,19 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            if ( !this->IsConfigSetToForcedTrueWindCalculation() )
+            if ( this->IsConfigSetToForcedTrueWindCalculation() ) {
+                if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD) ||
+                        (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2)
+                         ) ) {
+                    pSendSentenceToAllInstruments(
+                        st, value, unit, datatimestamp );
+                } // then not TW data from instruments, can send
+            } // then forced True Wind calculations, check data type
+            else {
                 pSendSentenceToAllInstruments(
                     st, value, unit, datatimestamp );
-            else if ( !( (st == OCPN_DBP_STC_TWA) ||
-                         (st == OCPN_DBP_STC_TWD) ||
-                         (st == OCPN_DBP_STC_TWS) ||
-                         (st == OCPN_DBP_STC_TWS2) ) )
-                pSendSentenceToAllInstruments(
-                    st, value, unit, datatimestamp );
-        } // else send the sentence as it is
+            }
+        } // else send the sentence as it is, unless it is True Wind
         // Leeway
         unsigned long long st_leeway;
         double value_leeway;

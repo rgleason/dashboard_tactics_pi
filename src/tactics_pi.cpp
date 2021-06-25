@@ -1431,6 +1431,8 @@ void tactics_pi::SendPerfSentenceToAllInstruments(
             wxllNowMs - this->getGNSSreceivedAtLocalMs();
         datatimestamp = this->getmUTCRealGpsEpoch() +
             msElapsedSinceLastGNSStime.GetValue();
+        if ( datatimestamp < 0LL ) // the first GNSS time only arrived
+            datatimestamp = timestamp; // must wait for the next
     } // then localtime timestamp needs to be corrected to estimated GNSS-based
     pSendSentenceToAllInstruments( st, value, unit, datatimestamp );
 }
