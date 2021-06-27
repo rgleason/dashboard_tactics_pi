@@ -134,6 +134,7 @@ public:
     virtual bool getIsUntrustedLocalTime(void) = 0;
     virtual wxDateTime getGNSSuTCDateTime(void) = 0;
     virtual wxLongLong getGNSSreceivedAtLocalMs(void) = 0;
+    virtual long long getmUTCRealGpsEpoch(void) = 0;
     virtual void SendPerfSentenceToAllInstruments(
         unsigned long long st, double value, wxString unit, long long timestamp ) final;
     virtual bool SendSentenceToAllInstruments_PerformanceCorrections(

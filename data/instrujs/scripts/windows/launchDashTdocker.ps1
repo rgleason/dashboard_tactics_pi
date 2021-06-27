@@ -132,6 +132,7 @@ if ( $dockerProxyProcessExists -ne $True ) {
     }
 #
 # check if Docker Composer programs exists or is in the path
+# Apparently works also on Docker Desktop 3.x distro, keep this
 #
 $composerCmd = "docker-compose.exe"
 $composerCmdExists = $False
@@ -238,10 +239,11 @@ Start-Process -Wait $composerCmd $composerArg
 # One just need to add "T" in the date to make it ISO compatible.
 
 ### NOTE: DEPENDENCY TO THE INFLUXDB OFFICIAL IMAGE NAME ###
-$influxImgName = "quay.io/influxdb/influxdb:2.0.0-beta"
+$influxImgName = "influxdb:latest"
 if ( $param -ne "stop" ) {
     sleep 3
     echo "Adjusting Hyper-V sleep affected date and time (UTC) on all InfluxDB containers..."
+    echo "... in case your are using WSL2 and not Hyper-V time sync will not hurt ..."
     $datetime = Get-Date
     $dt = $datetime.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss')
     echo $dt

@@ -44,8 +44,10 @@
 
 #include "TacticsEnums.h"
 
+// Above this value the polar performance shall be ignored, data is wrong?
+#define POLAR_PERFORMANCE_PERCENTAGE_LIMIT 150
 
-//*************************************************************************************
+//***************************************************************************
 class Polar
 {
 

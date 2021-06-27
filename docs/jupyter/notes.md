@@ -31,9 +31,10 @@ Most difficult is to have images in the PDF like in the HTML or Jupyter versions
 6. Open with TeXworks
 7. Find out where the generated `*.tex` file is, in Windows, `~AppData\Local\Temp` or in `~Downloads`
 8. Copy all flat structure (small size) image files into this directory
-9. You may want to change the paper size to A4: ` \geometry{verbose,a4paper,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}`
-10. In TeXworks launch the conversion
-11. Import the generated PDF-file into the Jupyter-directory, next to `.ipynb`
+9. Depending of the version, `\includegraphics{s_010_mypic.png}` has been stripped away. Find the corresponding `\href` link to big image and replace it with the above graphics inlcude to the smaller picture.
+10. You may want to change the paper size to A4 - search for `geometry` and replace it with ` \geometry{verbose,a4paper,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}`
+11. In TeXworks launch the conversion
+12. Import the generated PDF-file into the Jupyter-directory, next to `.ipynb`
 
 For the last, conversion part, I took this [annotated screenshot](img/Annotation_2019-10-12_125711_Jupyter-LaTeX-TeXworks-PDF_with_images.png)
 

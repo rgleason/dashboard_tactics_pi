@@ -23,10 +23,10 @@ services:
     ports:
       - 30000:3000
   db: 
-    image: quay.io/influxdb/influxdb:2.0.0-beta
+    image: influxdb:latest
     container_name: dasht_influxdb
     volumes:
       - DASHTUSERINSTRUJS/influxdb2:/var/lib/influxdb2
     command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt --reporting-disabled
     ports:
-      - 9999:9999
+      - 9999:8086

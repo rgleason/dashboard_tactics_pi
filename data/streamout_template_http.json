@@ -11,18 +11,23 @@
       Either file output (default) or HTTP Influx DB API (live dashboards)
     */
     "influxdb" : {
-        "target"    : "localhost:9999", // set to InfluxDB HTTP (no https) API
+        "target"    : "host.docker.internal:9999", /* set to InfluxDB HTTP API
+                                                      in Docker Desktop v3.x,
+                                                      note: has dependency in
+                                                      nginx.conf: proxy_pass,
+                                                      in case localhost is
+                                                      used. */
         "api"       : "v2",             // HTTP: currently only v2 is supported
         "org"       : "myboat",         // HTTP: Influx DB organization name
         "bucket"    : "nmea",           // HTTP: Influx DB bucket to write to
         "precision" : "ms",             // HTTP: timestamps "local" -> "ms"
         "token"     : "piQjV9_89oU70xv8SauIP4CZlFqnUYDrgX5BHdWIS7ahlzAncrFWpJhqAv2ELdrvYMSmFWci9p-pnvSY8gZ4AA=="
-    }, // "token" only HTTP: InfluxAPI UI generates, allows writing in "bucket"
+    }, // "token" to replace: InfluxDB UI generated, allows writing in "bucket"
 
     // Data streamer configuration
     "streamer" : {
         "connectionretry" : 5,           // [s] (min.=1s to reduce CPU load)
-        "linesperwrite"   : 50,          /* number of lines per Write()
+        "linesperwrite"   : 60,          /* number of lines per Write()
                                             - optimize throughput by reducing
                                               HTTP handshakes or file writes */
         "timestamps"      : "local",     // "local" (file/HTTP) or "db" (HTTP)

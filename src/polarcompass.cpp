@@ -294,8 +294,13 @@ void TacticsInstrument_PolarCompass::Draw(wxGCDC* bdc)
         else {
             m_PolSpd = BoatPolar->GetPolarSpeed(m_TWA, m_TWS);
         }
-        if (!std::isnan(m_PolSpd) )
-            m_PolSpd_Percent = fromUsrSpeed_Plugin(m_StW, g_iDashSpeedUnit) / m_PolSpd * 100;
+        if ( !std::isnan(m_PolSpd) && (m_PolSpd > 0.) ) {
+            m_PolSpd_Percent = fromUsrSpeed_Plugin(
+                m_StW, g_iDashSpeedUnit) / m_PolSpd * 100;
+            if ( std::isnan(m_PolSpd_Percent) ||
+                 (m_PolSpd_Percent >= POLAR_PERFORMANCE_PERCENTAGE_LIMIT) )
+                m_PolSpd_Percent = POLAR_PERFORMANCE_PERCENTAGE_LIMIT;
+        }
         else
             m_PolSpd = m_PolSpd_Percent = std::nan("1");
     }
@@ -311,7 +316,9 @@ void TacticsInstrument_PolarCompass::Draw(wxGCDC* bdc)
     else
         DrawData(bdc, 0, _T(""), _T(""), DIAL_POSITION_BOTTOMLEFT);
     if ( !std::isnan( m_PolSpd_Percent ) )
-        DrawData(bdc, m_PolSpd_Percent, _T("%"), _T("%.0f"), DIAL_POSITION_BOTTOMRIGHT);
+        DrawData(bdc, m_PolSpd_Percent,
+                 ((m_PolSpd_Percent >= POLAR_PERFORMANCE_PERCENTAGE_LIMIT) ? L"\u2191" : _T("%") ),
+                 _T("%.0f"), DIAL_POSITION_BOTTOMRIGHT);
     else
         DrawData(bdc, 0, _T(""), _T(""), DIAL_POSITION_BOTTOMRIGHT);
 

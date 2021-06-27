@@ -164,8 +164,10 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mActiveLegInfo = nullptr;
     ClearActiveRouteMessages();
     mUTCDateTime.Set( (time_t) -1 );
+    mUTCDateTzOffsetLL = 0LL;
+    mUTCRealGpsEpoch = 0LL;
     mGNSSreceivedAtLocalMs = 0LL;
-    mGNSSvsLocalTimeDeltaMs = 0LL;
+    mGNSSvsLocalTimeDeltaS = 0L;
     mUntrustedLocalTime = false;
     mLogUntrustedLocalTimeNotify = false;
     m_config_version = -1;
@@ -176,6 +178,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mVar_Watchdog = 2;
     mStW_Watchdog = 2;
     mSiK_Watchdog = 0;
+    mTim_Watchdog = 10;
     mApS_Watchcat = 0;
     mBmajorVersion_warning_given = false;
     mBminorVersion_warning_given = false;
@@ -327,28 +330,42 @@ void dashboard_pi::ResetAllSourcePriorities()
 void dashboard_pi::Notify()
 {
 
-    wxLongLong cpuTimeNowMsUTC = wxGetUTCTimeMillis();
-    mGNSSvsLocalTimeDeltaMs = mUTCDateTime.GetValue() - cpuTimeNowMsUTC;
-    if ( mGNSSvsLocalTimeDeltaMs.Abs() >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
-        mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
-        if ( !mLogUntrustedLocalTimeNotify ) {
-            int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
-            wxLogMessage(
-                "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
-                "difference >= %i ms. Is this a recording playback? Accuracy "
-                "of calculated values timestamps is now reduced to the last "
-                "received GNSS (GPS) time.", gteThan );
-            mLogUntrustedLocalTimeNotify = true;
+    wxDateTime cpuDateTimeNow( wxGetUTCTimeMillis() );
+    wxDateTime cpuDateTimeUTC = cpuDateTimeNow.ToUTC();
+    time_t cpuTicksNow = cpuDateTimeUTC.GetTicks();
+    time_t mGNSSsinceEpoch = mUTCDateTime.GetTicks(); // remember, this has TZ!
+    mGNSSvsLocalTimeDeltaS = static_cast<long int>(mGNSSsinceEpoch - cpuTicksNow);
+    if ( labs( mGNSSvsLocalTimeDeltaS) >=
+         (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT/1000) ) {
+        if ( mTim_Watchdog <= 0 ) {
+            mUntrustedLocalTime = true; // CPU drifting, or playback from a recording
+            if ( !mLogUntrustedLocalTimeNotify ) {
+                int gteThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
+                wxLogMessage(
+                    "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
+                    "difference >= %i ms. Accuracy of timestamps for "
+                    "calculated values or for values received from OpenCPN "
+                    "with no timestamps is now reduced to the approximation "
+                    "based on the last received GNSS (GPS) time, usually "
+                    "obtained from the OpenCPN or from a SignalK server node. "
+                    "Perhaps the GNSS (GPS) is from a play-back file?",
+                    gteThan );
+                mLogUntrustedLocalTimeNotify = true;
+            }
         }
+        else
+            mTim_Watchdog--;
     }
     else {
+        mTim_Watchdog = 10;
         mUntrustedLocalTime = false; // CPU withing reasonable limit
         if ( mLogUntrustedLocalTimeNotify ) {
             int lessThan = DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT;
             wxLogMessage(
                 "dashboard_tactics_pi: NOTE: CPU clock and GNSS (GPS) time "
                 "difference returned to be < %i ms. Considering this accurate "
-                "enough to timestamp calculated values with CPU time.",
+                "enough to timestamp with CPU time the calculated values and "
+                "the values received from OpenCPN with no timestamps.",
                 lessThan );
             mLogUntrustedLocalTimeNotify = false;
         }
@@ -358,9 +375,10 @@ void dashboard_pi::Notify()
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window = m_ArrayOfDashboardWindow.Item(
             i )->m_pDashboardWindow;
-        if( dashboard_window ) dashboard_window->Refresh();
+        if ( dashboard_window )
+            dashboard_window->Refresh();
     }
-    //  Manage the watchdogs
+    //  Manage the watchdogs as left here by the original Dashboard
     mSrc_Watchdog--;
     if( mSrc_Watchdog <= 0 ) {
         ResetAllSourcePriorities();
@@ -562,6 +580,41 @@ wxString dashboard_pi::GetStandardPath()
     return stdPath;
 }
 
+long long dashboard_pi::checkTimestamp( long long timestamp )
+{
+    long long datatimestamp = timestamp;
+    if ( datatimestamp == 0LL ) {
+        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
+        if ( mUntrustedLocalTime ) {
+            wxLongLong msElapsedSinceLastGNSStime =
+                wxllNowMs - mGNSSreceivedAtLocalMs;
+            // DEBUG
+            // wxString sBuffer = msElapsedSinceLastGNSStime.ToString();
+            // wxString sString = sBuffer.wc_str();
+            // wxLogMessage(
+            //     "dashboard_tactics_pi: checkTimestamp() :\nmsElapsedSinceLastGNSStime : %s",
+            //     sString );
+            // END DEBUG
+            datatimestamp =
+                mUTCRealGpsEpoch + msElapsedSinceLastGNSStime.GetValue();
+            // DEBUG
+            // wxLongLong wxLL = datatimestamp;
+            // sBuffer = wxLL.ToString();
+            // sString = sBuffer.wc_str();
+            // wxLogMessage(
+            //     "dashboard_tactics_pi: checkTimestamp() :\ndatatimestamp : %s",
+            //     sString );
+            // Put the above in https://www.epochconverter.com
+            // END DEBUG
+            if ( datatimestamp < 0LL ) // the first GNSS data only arrived
+                datatimestamp = wxllNowMs.GetValue(); // wait for next 
+        }
+        else {
+            datatimestamp = wxllNowMs.GetValue();
+        }
+    } // then, oops, the source has no timestamps of its own, let's make one
+    return datatimestamp;
+}
 
 /* Porting note: this section is the cornerstone of the Tactics porting effort.
    The below private method is about the original dashboard's simple and real
@@ -574,20 +627,21 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 {
     if ( APPLYSAVEWINRUNNING )
         return;
+    long long datatimestamp = checkTimestamp( timestamp );
     // The classical Dashboard-type instrument push data by an ID
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
         if( dashboard_window )
             dashboard_window->SendSentenceToAllInstruments(
-                st, value, unit, timestamp );
+                st, value, unit, datatimestamp );
     }
     /* An instrument can also subscribe to the classical Dashboard-type
        sentences by their name */
     wxString stToDashboardPath = getDashboardTacticsInstrumentIdStr( st );
     if ( !stToDashboardPath.IsEmpty() )
         SendDataToAllPathSubscribers (
-            stToDashboardPath, value, unit, timestamp );
+            stToDashboardPath, value, unit, datatimestamp );
 }
 /* Porting note: with Tactics, new, virtual NMEA sentences are introduced, like
    the true wind calculations. Likewise, the bearing to the TacticsWP
@@ -607,20 +661,7 @@ void dashboard_pi::pSendSentenceToAllInstruments(
 void dashboard_pi::SendSentenceToAllInstruments(
     unsigned long long st, double value, wxString unit, long long timestamp )
 {
-    long long datatimestamp = timestamp;
-    if ( datatimestamp == 0LL ) {
-        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        if ( mUntrustedLocalTime ) {
-            wxLongLong msElapsedSinceLastGNSStime =
-                wxllNowMs - mGNSSreceivedAtLocalMs;
-            wxLongLong msEstimatedTimestamp =
-                mUTCDateTime.GetValue() + msElapsedSinceLastGNSStime;
-            datatimestamp = msEstimatedTimestamp.GetValue();
-        }
-        else {
-            datatimestamp = wxllNowMs.GetValue();
-        }
-    } // then, oops, the source has no timestamps of its own, let's make one
+    long long datatimestamp = checkTimestamp( timestamp );
     if ( this->SendSentenceToAllInstruments_LaunchTrueWindCalculations(
              st, value ) ) {
         // we have a valid AWS sentence here, it may require heel correction
@@ -676,16 +717,19 @@ void dashboard_pi::SendSentenceToAllInstruments(
         } // then send with corrections
         else {
             this->SetCalcVariables(st, value, unit);
-            if ( !this->IsConfigSetToForcedTrueWindCalculation() )
+            if ( this->IsConfigSetToForcedTrueWindCalculation() ) {
+                if ( !( (st == OCPN_DBP_STC_TWA) || (st == OCPN_DBP_STC_TWD) ||
+                        (st == OCPN_DBP_STC_TWS) || (st == OCPN_DBP_STC_TWS2)
+                         ) ) {
+                    pSendSentenceToAllInstruments(
+                        st, value, unit, datatimestamp );
+                } // then not TW data from instruments, can send
+            } // then forced True Wind calculations, check data type
+            else {
                 pSendSentenceToAllInstruments(
                     st, value, unit, datatimestamp );
-            else if ( !( (st == OCPN_DBP_STC_TWA) ||
-                         (st == OCPN_DBP_STC_TWD) ||
-                         (st == OCPN_DBP_STC_TWS) ||
-                         (st == OCPN_DBP_STC_TWS2) ) )
-                pSendSentenceToAllInstruments(
-                    st, value, unit, datatimestamp );
-        } // else send the sentence as it is
+            }
+        } // else send the sentence as it is, unless it is True Wind
         // Leeway
         unsigned long long st_leeway;
         double value_leeway;
@@ -728,11 +772,7 @@ void dashboard_pi::SendDataToAllPathSubscribers (
     if ( APPLYSAVEWINRUNNING )
         return;
 
-    long long datatimestamp = timestamp;
-    if ( datatimestamp == 0LL ) {
-        wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-        datatimestamp = wxllNowMs.GetValue();
-    } // then, oops, the source has no timestamps of its own, let's make one
+    long long datatimestamp = checkTimestamp( timestamp );
     for( size_t i = 0; i < m_ArrayOfDashboardWindow.GetCount(); i++ ) {
         DashboardWindow *dashboard_window =
             m_ArrayOfDashboardWindow.Item( i )->m_pDashboardWindow;
@@ -1429,6 +1469,21 @@ void dashboard_pi::SetNMEASentence(
                             m_NMEA0183->Rmc.UTCTime;
                         mUTCDateTime.ParseFormat( dt.c_str(),
                                                   _T("%d%m%y%H%M%S") );
+                        /* Note: in Dashboard, this is a "fake" UTC,
+                           just a string representation, memorized,
+                           i.e. the parsed value has time zone applied to it
+                           within the wxDateTime object, its Epoch value is
+                           therefore off by the value defined by the timezone.
+                           In order not to break the clock.cpp, we register
+                           the offset to the real UTC LL (Epoch) value:
+                        */
+                        wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                        wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                        wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                        mUTCDateTzOffsetLL =
+                            fakeEpoch.GetValue() - resEpoch.GetValue();
+                        mUTCRealGpsEpoch =
+                            fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
@@ -1701,6 +1756,13 @@ void dashboard_pi::SetNMEASentence(
                     mUTCDateTime.ParseFormat(
                         dt.c_str(),
                         _T("%Y%m%d%H%M%S") );
+                    wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                    wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                    wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                    mUTCDateTzOffsetLL =
+                        fakeEpoch.GetValue() - resEpoch.GetValue();
+                    mUTCRealGpsEpoch =
+                        fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                     mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                 }
             }
@@ -2141,6 +2203,13 @@ void dashboard_pi::SetNMEASentence(
                             parseRfc3359UTC( valStr, parseError );
                         if ( !parseError ) {
                             mUTCDateTime = msParsedDateTime;
+                            wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                            wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                            wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                            mUTCDateTzOffsetLL =
+                                fakeEpoch.GetValue() - resEpoch.GetValue();
+                            mUTCRealGpsEpoch =
+                                fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                             mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                         }
                     } // mPriDateTime
@@ -2599,6 +2668,13 @@ void dashboard_pi::SetNMEASentence(
                         parseRfc3359UTC( valStr, parseError );
                     if ( !parseError ) {
                         mUTCDateTime = msParsedDateTime;
+                        wxDateTime resultingFakeUTC = mUTCDateTime.ToUTC();
+                        wxLongLong resEpoch = resultingFakeUTC.GetValue();
+                        wxLongLong fakeEpoch = mUTCDateTime.GetValue();
+                        mUTCDateTzOffsetLL =
+                            fakeEpoch.GetValue() - resEpoch.GetValue();
+                        mUTCRealGpsEpoch =
+                            fakeEpoch.GetValue() + mUTCDateTzOffsetLL;
                         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 } // mPriDateTime
@@ -2692,10 +2768,12 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
         mPriDateTime = 6;
         mUTCDateTime.Set( pfix.FixTime );
         mUTCDateTime = mUTCDateTime.ToUTC();
+        mUTCDateTzOffsetLL = 0LL;
+        mUTCRealGpsEpoch = mUTCDateTime.GetValue().GetValue(); // now the same
         mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
     }
     mSatsInView = pfix.nSats;
-    //    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
+    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
 
 }
 
@@ -2788,7 +2866,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         }
     }
     else if ( message_id == _T("OpenCPN Config") ) {
-        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();;
+        int ocpnMajorVersion = root[_T("OpenCPN Version Major")].AsInt();
         if ( !mBmajorVersion_warning_given ) {
             if ( ocpnMajorVersion != PLUGIN_TARGET_OCPN_VERSION_MAJOR ) {
                 wxString message = wxString::Format(
@@ -2822,7 +2900,7 @@ void dashboard_pi::SetPluginMessage(wxString &message_id, wxString &message_body
         }
     }
     else if ( message_id == _T("OCPN_OPENGL_CONFIG") ) {
-        if ( this->getTacticsDCmsgShown() ) {
+        if ( !this->getTacticsDCmsgShown() ) {
             bool bOpenGLsetupComplete = root[_T("setupComplete")].AsBool();
             if ( !bOpenGLsetupComplete ) {
                 wxString message(
@@ -2876,9 +2954,6 @@ void dashboard_pi::ShowPreferencesDialog( wxWindow* parent )
         m_ArrayOfDashboardWindow = dialog->m_Config;
 
         SetApplySaveWinRequest();
-        ApplyConfig();
-        SaveConfig();
-        APPLYSAVEWINSERVED;
 
         SetToolbarItemState(
             m_toolbar_item_id, GetDashboardWindowShownCount() != 0 );
@@ -3205,8 +3280,12 @@ void dashboard_pi::ApplyConfig(
             replacedDashboards.Add( cont );
             newcont->m_bPersVisible = cont->m_bIsVisible;
             if ( cont->m_pDashboardWindow ) {
+                m_pauimgr->GetPane(
+                    cont->m_pDashboardWindow ).FloatingPosition(
+                        position ).Float(); // undock if docked
                 m_pauimgr->DetachPane( cont->m_pDashboardWindow );
                 (void ) cont->m_pDashboardWindow->Close( false );
+                m_pauimgr->Update();
                 if ( !cont->m_pDashboardWindow->Destroy() ) {
                     wxLogMessage(
                         "dashboard_tactics_pi: INFO: rearranged window pane "

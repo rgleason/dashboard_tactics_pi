@@ -197,7 +197,8 @@ void TacticsInstrument_PerformanceSingle::SetData(
         m_pMark = NULL;
     if (m_pMark && m_lat > 0 && m_lon > 0) {
         double dist;
-        DistanceBearingMercator_Plugin(m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
+        DistanceBearingMercator_Plugin(
+            m_pMark->m_lat, m_pMark->m_lon, m_lat, m_lon, &mBRG, &dist);
     }
     if (!std::isnan(mSTW) && !std::isnan(mTWA) && !std::isnan(mTWS)){
     
@@ -207,15 +208,28 @@ void TacticsInstrument_PerformanceSingle::SetData(
             }
             else {
                 double targetspeed = BoatPolar->GetPolarSpeed(mTWA, mTWS);
-                //double avgtargetspeed = BoatPolar->GetAvgPolarSpeed(mTWA, mTWS);
+                // double avgtargetspeed = BoatPolar->GetAvgPolarSpeed(
+                //     mTWA, mTWS);
       
-                if (std::isnan(targetspeed) || mSTW == 0) {
+                if (std::isnan(targetspeed) || mSTW <= 0. ||
+                    targetspeed <= 0. ) {
                     m_data = _T("no polar targetspeed");
                 }
                 else {
                     double percent = mSTW / targetspeed * 100;
-                    double user_targetSpeed = toUsrSpeed_Plugin(targetspeed, g_iDashSpeedUnit);
-                    m_data = wxString::Format("%d", wxRound(percent)) + _T(" % / ") + wxString::Format("%.2f ", user_targetSpeed) + stwunit;
+                    // Tactics-wide limit for foolish performance values
+                    bool overshoot = false;
+                    if ( std::isnan(percent) ||
+                         (percent > POLAR_PERFORMANCE_PERCENTAGE_LIMIT) ) {
+                        percent = POLAR_PERFORMANCE_PERCENTAGE_LIMIT;
+                        overshoot = true;
+                    }
+                    double user_targetSpeed = toUsrSpeed_Plugin(
+                        targetspeed, g_iDashSpeedUnit);
+                    m_data = wxString::Format("%3d", wxRound(percent)) +
+                        (overshoot ? L"\u2191 / " : _T(" % / ") ) +
+                        wxString::Format(
+                            "%.2f ", user_targetSpeed) + stwunit;
                     wxLongLong wxllNowMs = wxGetUTCTimeMillis();
                     m_pparent->SendPerfSentenceToAllInstruments(
                         OCPN_DBP_STC_POLPERF,
