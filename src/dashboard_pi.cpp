@@ -951,7 +951,6 @@ void dashboard_pi::SetNMEASentence(
                         //mPriDateTime = 4;
                         //mUTCDateTime.ParseFormat(
                         //    m_NMEA0183->Gga.UTCTime.c_str(), _T("%H%M%S") );
-                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
 
                     mSatsInView = m_NMEA0183->Gga.NumberOfSatellitesInUse;
@@ -993,7 +992,6 @@ void dashboard_pi::SetNMEASentence(
                         //mPriDateTime = 5;
                         //mUTCDateTime.ParseFormat(
                         //    m_NMEA0183->Gll.UTCTime.c_str(), _T("%H%M%S") );
-                        //mGNSSreceivedAtLocalMs = wxGetUTCTimeMillis();
                     }
                 }
             }
