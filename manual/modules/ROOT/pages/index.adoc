@@ -1,6 +1,7 @@
 = Dashboard Tactics
 
-*DashT* - Race, Engine/Energy, Signal K, Database, Line Graphs
+*DashT* - Race, Engine/Energy, Signal K, Database, Line Graphs +
+Any Tactician would find this extensive set of sailing instruments useful and effective.
 
 == Links
 
