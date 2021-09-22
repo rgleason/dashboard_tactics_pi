@@ -8,7 +8,7 @@ content:
     - url: ..
       start_path: manual
       branches: HEAD
-      edit_url: https://github.com/opencpn-manuals/dashboard_tacticss_pi/edit/master/{path}
+      edit_url: https://github.com/rgleason/dashboard_tacticss_pi/edit/master/{path}
 
 ui:   
   bundle:
