@@ -293,7 +293,7 @@ void DashboardInstrument_WindDirHistory::SetData(
             m_TrueWindSpd = fromUsrSpeed_Plugin(data, g_iDashWindSpeedUnit);
 #endif // _TACTICSPI_H_
             // if unit changes, reset everything ...
-            if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _("--")) {
+            if (unit != m_WindSpeedUnit && m_WindSpeedUnit != _T("--")) {
 #ifdef _TACTICSPI_H_
                 if ( !m_bWindSpeedUnitResetLogged ) {
                     wxLogMessage(
@@ -552,7 +552,7 @@ void  DashboardInstrument_WindDirHistory::DrawWindSpeedScale(wxGCDC* dc)
 #ifdef _TACTICSPI_H_
  	label1.Printf(_T("--- %s"), m_WindSpeedUnit.c_str());
 #else
- 	label1.Printf(_("--- %s"), m_WindSpeedUnit.c_str());
+ 	label1.Printf(_T("--- %s"), m_WindSpeedUnit.c_str());
 #endif // _TACTICSPI_H_
 	label2 = label1;
 	label3 = label1;
