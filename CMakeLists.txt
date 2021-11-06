@@ -18,7 +18,7 @@
 ## *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ## ***************************************************************************
 # Frontend2 Author: Jon Gough  
-# Frontend2: v1.0.132
+# Frontend2: v1.0.180
 # ---------------------------------------------------------------------------
 ## ----- When changing this file do NOT change the order in which sections occur        ----- ##
 ## ----- Changes should only be made between the section blocks that identify where     ----- ##
@@ -31,12 +31,14 @@
 set(CMLOC "CMakeLists: ")
 
 # define minimum cmake version
-cmake_minimum_required(VERSION 3.1.1)
+cmake_minimum_required(VERSION 3.5.1)
 if(COMMAND cmake_policy)
     if(POLICY CMP0043)
         cmake_policy(SET CMP0043 NEW)
     endif(POLICY CMP0043)
     cmake_policy(SET CMP0048 NEW)
+# Need cmake 3.13 to implement this, but raspbian builds are at 3.7.2 and bionic at 3.10 and xenial builds at 3.5.1
+#    cmake_policy(SET CMP0076 NEW)
     if(POLICY CMP0077)
         cmake_policy(SET CMP0077 NEW)
     endif(POLICY CMP0077)
@@ -48,15 +50,15 @@ SET(TACTICS_INSTRUMENTS ON)
 
 # define plugin name, owner and versions
 IF (TACTICS_INSTRUMENTS)
-   set(PACKAGE "dashboardtactics")
-   set(VERBOSE_NAME "DashboardTactics")
-   set(COMMON_NAME "DashboardTactics")  # Search "getcommonname"in <plugin_pi>.cpp
+   set(PACKAGE "dashboard_tactics")
+   set(VERBOSE_NAME "Dashboard_Tactics")
+   set(COMMON_NAME "Dashboard_Tactics")  # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "DashboardTactics")
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
    set(VERSION_PATCH 6)
-   set(VERSION_TWEAK 3)
+   set(VERSION_TWEAK 23)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
@@ -121,6 +123,8 @@ option(PLUGIN_USE_SVG "Use SVG graphics" ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# Use local version of GLU library
+# set(USE_LOCAL_GLU TRUE)
 # Prefer libGL.so to libOpenGL.so, see CMP0072
 set(OpenGL_GL_PREFERENCE "LEGACY")
 # Don't use local version of GLU library
@@ -129,9 +133,7 @@ option(USE_GL "Enable OpenGL support" ON)
 message(STATUS "${CMLOC}USE_GL: ${USE_GL}")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-    set(CMAKE_BUILD_TYPE
-        "Release"
-        CACHE STRING "Choose the type of build" FORCE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build" FORCE)
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "" "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 message(STATUS "${CMLOC}Build type: ${CMAKE_BUILD_TYPE}")
@@ -142,7 +144,7 @@ message(STATUS "${CMLOC}Build type: ${CMAKE_BUILD_TYPE}")
 
 project(${PACKAGE})
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 ## =====================================
 include("PluginSetup")
@@ -152,7 +154,7 @@ include("PluginSetup")
 ## ----- Modify section below if there are special requirements for the plugin ----- ##
 ##
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE "Activate verbose mode for make files" ON)
 
 option(Plugin_CXX11 "Use c++11" OFF)
 
@@ -207,6 +209,7 @@ SET(SRC_DASHBOARD
     include/wx/jsonreader.h
     include/wx/jsonval.h
     include/wx/jsonwriter.h
+    
 )
 
 IF (TACTICS_INSTRUMENTS)
@@ -226,9 +229,10 @@ IF (TACTICS_INSTRUMENTS)
       src/polarcompass.cpp
       src/avg_wind.h
       src/avg_wind.cpp
-	  api-16/ocpn_plugin.h
-	  
+#	  api-16/ocpn_plugin.h
+	  libs/ocpn-api/ocpn_plugin.h
   )
+
 ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
@@ -302,37 +306,42 @@ SET(SRC_NMEA0183
 
 ## ===================================================================================
 IF (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
+  SET(SRCS ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
 ELSE (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
+  SET(SRCS ${SRC_DASHBOARD} ${SRC_NMEA0183})
 ENDIF (TACTICS_INSTRUMENTS)
 ## ===================================================================================
 
-ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
+# ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
+# cant create Shared lib src one already exists.
+
+# For Json Validation
+#set(EXTSRC
+#)
+
+# For Json Validation and Odapi
+#set(EXTINCLUDE
+#    extinclude/ODAPI.h
+#    extinclude/ODJSONSchemas.h
+#)
 
 # Above From Dashboardtactics
 #------------------------------------
 add_definitions(-DPLUGIN_USE_SVG)
 
-if(APPLE)
-    option(PI_JSON_SCHEMA_VALIDATOR "Use JSON Schema validator" OFF)
-else(APPLE)
-    option(PI_JSON_SCHEMA_VALIDATOR "Use JSON Schema validator" ON)
-endif(APPLE)
+# For JSON validation
 
-# JSON Validator requires folders "extsrc" and  "extinclude" 
-if(PI_JSON_SCHEMA_VALIDATOR)
-    message(STATUS "${CMLOC}Using JSON Schema validation - warning this changes the 'flavour' of the executable and it may not be compatible with OpenCPN")
-    add_definitions(-DPI_JSON_SCHEMA_VALIDATOR)
-    message(STATUS "${CMLOC}Adding JSON Schema validation")
+set(EXTINCLUDE_DIR ${EXTINCLUDE_DIR} extinclude libs/ocpn-api/)
 
-    set(EXTSRC ${EXTSRC} extsrc/json-schema-validator/json-schema-draft7.json.cpp extsrc/json-schema-validator/json-uri.cpp extsrc/json-schema-validator/json-validator.cpp)
-    set(EXTINCLUDE ${EXTINCLUDE} extinclude/nlohmann/json.hpp extinclude/json-schema-validator/json-schema.hpp)
-    include_directories(BEFORE ${PROJECT_SOURCE_DIR}/extinclude/json-schema-validator)
-else(PI_JSON_SCHEMA_VALIDATOR)
-    message(STATUS "${CMLOC}Not using JSON Schema validation - warning invalid JSON 'may' cause unexpected crashes")
-endif(PI_JSON_SCHEMA_VALIDATOR)
+#
+# ----- If using JSON validation in plugin section below is needed ----- ##
+#
 
+# Not doing JSON Validation here.
+
+#
+# ----- If using JSON validation in plugin section above is needed ----- ##
+#
 ##
 # Modify/configure 'Include' Directories below for the Plugin
 ##
@@ -340,8 +349,11 @@ endif(PI_JSON_SCHEMA_VALIDATOR)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wx/include)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/lz4)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/bitmaps)
+
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/${EXTINCLUDE_DIR})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/extinclude)
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/api-16)
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
 
 ##
 ## Statement below is required to collect all the set( headers and SRCS  - Adjust as required
@@ -353,29 +365,17 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR}/api-16)
 # add_library(${PACKAGE_NAME} SHARED ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
 ## ===================================================================================
 
+target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} )
+
+# target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
+
+
 add_definitions(-DTIXML_USE_STL)
 
 # All plugins useing JSON to passing messages should use the validator, which ignores non-conformant messages. 
-if(UNIX AND NOT APPLE)
-    if(PI_JSON_SCHEMA_VALIDATOR)
-        # Change OS/ABI to be UNIX - System V to make it run with OCPN
-        set(lib_name lib${PACKAGE_NAME}.so)
-        message(STATUS "${CMLOC}lib-name: ${lib_name}")
-        find_file(elfedit elfedit)
-        if(NOT (${elfedit} STREQUAL "elfedit-NOTFOUND"))
-            message(STATUS "${CMLOC}Will ensure OS/ABI is set to 0 to match OCPN")
-            add_custom_command(
-                TARGET ${PACKAGE_NAME}
-                POST_BUILD
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                DEPENDS ${PACKAGE_NAME}
-                COMMENT " Running post build action on ${lib_name}."
-                COMMAND sh -c 'elfedit --input-osabi=Linux --output-osabi=none ${lib_name} || (echo 0) ')
-        else(NOT (${elfedit} STREQUAL "elfedit-NOTFOUND"))
-            message(STATUS "${CMLOC}Cannot correct OS/ABI to match OCPN if it is generated incorrectly. Package binutils needed")
-        endif(NOT (${elfedit} STREQUAL "elfedit-NOTFOUND"))
-    endif(PI_JSON_SCHEMA_VALIDATOR)
-endif(UNIX AND NOT APPLE)
+
+
+# Not doing JSON Validation here
 
 
 #These are NOT used in Testplugin, used for other plugins
