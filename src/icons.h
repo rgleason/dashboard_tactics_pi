@@ -6,6 +6,9 @@
 #ifndef WX_PRECOMP
 #	include <wx/wx.h>
 #endif
+
+#include <wx/filename.h>
+#include <wx/mstream.h>		
 #include "dashboard_pi.h"
 
 extern void initialize_images(void);
@@ -22,7 +25,7 @@ extern wxBitmap *_img_instrument;
 extern wxBitmap *_img_minus;
 extern wxBitmap *_img_plus;
 
-#ifdef OCPN_USE_SVG
+#ifdef PLUGIN_USE_SVG
 #ifdef _TACTICSPI_H_
 extern wxString _svg_dashboard_tactics;
 extern wxString _svg_dashboard_tactics_rollover;
@@ -32,6 +35,6 @@ extern wxString _svg_dashboard;
 extern wxString _svg_dashboard_rollover;
 extern wxString _svg_dashboard_toggled;
 #endif // _TACTICSPI_H_
-#endif //  OCPN_USE_SVG
+#endif //  PLUGIN_USE_SVG
 
 #endif /* ICONS_H */
