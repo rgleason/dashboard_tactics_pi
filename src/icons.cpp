@@ -19,7 +19,6 @@ wxBitmap *_img_minus;
 wxBitmap *_img_plus;
 
 #ifdef PLUGIN_USE_SVG
-#include "ocpn_plugin.h"
 #ifdef _TACTICSPI_H_
 wxString _svg_dashboard_tactics;
 wxString _svg_dashboard_tactics_rollover;
@@ -40,22 +39,25 @@ void initialize_images(void)
 //    fn.AppendDir(_T("plugins"));
 #ifdef _TACTICSPI_H_
     fn.SetPath(GetPluginDataDir("dashboard_tactics_pi"));
-//    fn.AppendDir(_T("dashboard_tactics_pi"));
     fn.AppendDir(_T("data"));
     fn.SetFullName(_T("Dashboard_Tactics.svg"));
     _svg_dashboard_tactics = fn.GetFullPath();
+
     fn.SetFullName(_T("Dashboard_Tactics_rollover.svg"));
     _svg_dashboard_tactics_rollover = fn.GetFullPath();
+
     fn.SetFullName(_T("Dashboard_Tactics_toggled.svg"));
     _svg_dashboard_tactics_toggled = fn.GetFullPath();
 #else
 	fn.SetPath(GetPluginDataDir("dashboard_tactics_pi"));
-//    fn.AppendDir(_T("dashboard_pi"));
     fn.AppendDir(_T("data"));
+
     fn.SetFullName(_T("Dashboard.svg"));
     _svg_dashboard = fn.GetFullPath();
+	
     fn.SetFullName(_T("Dashboard_rollover.svg"));
     _svg_dashboard_rollover = fn.GetFullPath();
+
     fn.SetFullName(_T("Dashboard_toggled.svg"));
     _svg_dashboard_toggled = fn.GetFullPath();
 #endif // _TACTICSPI_H_
@@ -99,4 +101,3 @@ void initialize_images(void)
 	}
 	return;
 }
-

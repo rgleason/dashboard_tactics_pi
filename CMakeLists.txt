@@ -50,19 +50,19 @@ SET(TACTICS_INSTRUMENTS ON)
 
 # define plugin name, owner and versions
 IF (TACTICS_INSTRUMENTS)
-   set(PACKAGE "dashboard_tactics")
+   set(PACKAGE "dashboard_tactics_pi")
    set(VERBOSE_NAME "Dashboard_Tactics")
    set(COMMON_NAME "DashboardTactics")  # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "DashboardTactics")
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
-   set(VERSION_PATCH 6)
-   set(VERSION_TWEAK 25)
+   set(VERSION_PATCH 7)
+   set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
-   set(PACKAGE "dashboard")
+   set(PACKAGE "dashboard_pi")
    set(VERBOSE_NAME "Dashboard")
    set(COMMON_NAME "Dashboard") # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "Dashboard")
@@ -119,7 +119,7 @@ set(XML_DESCRIPTION ${LONG_DESCRIPTION})
 ## ----- Modify section below if there are special requirements for the plugin ----- ##
 ##
 
-option(OCPN_USE_SVG "Use SVG graphics" ON)
+option(PLUGIN_USE_SVG "Use SVG graphics" ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
