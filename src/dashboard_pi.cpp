@@ -84,7 +84,7 @@ static const long long lNaN = 0xfff8000000000000;
 #endif
 
 #ifdef _TACTICSPI_H_
-const char *dashboard_pi::s_common_name = _("Dashboard_Tactics");
+const char *dashboard_pi::s_common_name = "DashboardTactics";
 #endif // _TACTICSPI_H_
 
 // the class factories, used to create and destroy instances of the PlugIn

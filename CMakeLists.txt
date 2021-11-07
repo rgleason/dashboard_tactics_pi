@@ -52,13 +52,13 @@ SET(TACTICS_INSTRUMENTS ON)
 IF (TACTICS_INSTRUMENTS)
    set(PACKAGE "dashboard_tactics")
    set(VERBOSE_NAME "Dashboard_Tactics")
-   set(COMMON_NAME "Dashboard_Tactics")  # Search "getcommonname"in <plugin_pi>.cpp
+   set(COMMON_NAME "DashboardTactics")  # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "DashboardTactics")
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
    set(VERSION_PATCH 6)
-   set(VERSION_TWEAK 23)
+   set(VERSION_TWEAK 25)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
@@ -119,7 +119,7 @@ set(XML_DESCRIPTION ${LONG_DESCRIPTION})
 ## ----- Modify section below if there are special requirements for the plugin ----- ##
 ##
 
-option(PLUGIN_USE_SVG "Use SVG graphics" ON)
+option(OCPN_USE_SVG "Use SVG graphics" ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -377,13 +377,6 @@ add_definitions(-DTIXML_USE_STL)
 
 # Not doing JSON Validation here
 
-
-#These are NOT used in Testplugin, used for other plugins
-## =====================================
-#include("PluginJSON")
-#include("PluginXML")
-#include("PluginGL")
-## =====================================
 ##
 ## ----- Change above to match project requirements ----- ##
 ## ----- do not change next section - needed to configure build process ----- ##
