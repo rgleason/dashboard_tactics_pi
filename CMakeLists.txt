@@ -207,6 +207,9 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
+# include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
+INCLUDE_DIRECTORIES(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
+  
 SET(SRC ${SRC_DASHT} ${SRC_NMEA0183})
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 
