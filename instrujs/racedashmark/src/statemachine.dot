@@ -1,0 +1,28 @@
+digraph "fsm" {
+  "window";
+  "loading";
+  "initga";
+  "getid";
+  "hasid";
+  "getack";
+  "waiting";
+  "running";
+  "halt";
+  "window" -> "loading" [ label=" init " ];
+  "loading" -> "initga" [ label=" loaded " ];
+  "initga" -> "getid" [ label=" initok " ];
+  "getid" -> "hasid" [ label=" setid " ];
+  "hasid" -> "getack" [ label=" nocfg " ];
+  "hasid" -> "getack" [ label=" hascfg " ];
+  "getack" -> "waiting" [ label=" mrkdataack " ];
+  "waiting" -> "running" [ label=" actvrte " ];
+  "running" -> "running" [ label=" newmrkdata " ];
+  "running" -> "waiting" [ label=" noroute " ];
+  "waiting" -> "waiting" [ label=" mrkdstopack " ];
+  "getack" -> "getack" [ label=" luminsty " ];
+  "waiting" -> "waiting" [ label=" luminsty " ];
+  "running" -> "running" [ label=" luminsty " ];
+  "getack" -> "halt" [ label=" closing " ];
+  "waiting" -> "halt" [ label=" closing " ];
+  "running" -> "halt" [ label=" closing " ];
+}

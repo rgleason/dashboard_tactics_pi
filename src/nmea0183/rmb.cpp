@@ -43,9 +43,7 @@
 
 RMB::RMB()
 {
-#ifdef _TACTICSPI_H_
    isVersion2dot3OrLater = false;
-#endif // _TACTICSPI_H_
    Mnemonic = _T("RMB");
    Empty();
 }
@@ -78,7 +76,6 @@ bool RMB::Parse( const SENTENCE& sentence )
    ** RMB - Recommended Minimum Navigation Information
    **
    */
-#ifdef _TACTICSPI_H_
    /*
    **                                                             14
    **        1 2   3 4    5    6       7 8        9 10  11  12  13|  15
@@ -86,14 +83,6 @@ bool RMB::Parse( const SENTENCE& sentence )
    ** $--RMB,A,x.x,a,c--c,c--c,llll.ll,a,yyyyy.yy,a,x.x,x.x,x.x,A,m,*hh<CR><LF>
    ** cf. https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:opencpn_user_manual:advanced_features:nmea_sentences#rmb_-_recommended_minimum_navigation_information
    */
-#else
-   /*
-   **                                                             14
-   **        1 2   3 4    5    6       7 8        9 10  11  12  13|
-   **        | |   | |    |    |       | |        | |   |   |   | |
-   ** $--RMB,A,x.x,a,c--c,c--c,llll.ll,a,yyyyy.yy,a,x.x,x.x,x.x,A*hh<CR><LF>
-   */
-#endif // _TACTICSPI_H_
    /*
    ** Field Number:
    **  1) Status, V = Navigation receiver warning
@@ -109,9 +98,6 @@ bool RMB::Parse( const SENTENCE& sentence )
    ** 11) Bearing to destination in degrees True
    ** 12) Destination closing velocity in knots
    ** 13) Arrival Status, A = Arrival Circle Entered
-   */
-#ifdef _TACTICSPI_H_
-   /*
    ** 14) FAA mode indicator (NMEA 2.3 and later)
    **     A = Autonomous mode
    **     D = Differential Mode
@@ -121,17 +107,11 @@ bool RMB::Parse( const SENTENCE& sentence )
    **     N = Data Not Valid
    ** 15) Checksum
    */
-#else
-   /*
-   ** 14) Checksum
-   */
-#endif // _TACTICSPI_H_
 
     /*
    ** First we check the checksum...
    */
 
-#ifdef _TACTICSPI_H_
     NMEA0183_BOOLEAN check;
     wxString field14 = sentence.Field( 14 );
     isVersion2dot3OrLater = true;
@@ -142,9 +122,6 @@ bool RMB::Parse( const SENTENCE& sentence )
     else {
         check = sentence.IsChecksumBad( 15 );
     } // this is a v2.3 or higher and field 14 is Status, chksum 15
-#else
-    NMEA0183_BOOLEAN check = sentence.IsChecksumBad( 14 );
-#endif // _TACTICSPI_H_
 
     if ( check == NTrue )
     {
@@ -160,7 +137,6 @@ bool RMB::Parse( const SENTENCE& sentence )
       }
     */
 
-#ifdef _TACTICSPI_H_
     wxString signalValidity;
     if ( isVersion2dot3OrLater ) {
         signalValidity = sentence.Field( 14 );
@@ -174,9 +150,6 @@ bool RMB::Parse( const SENTENCE& sentence )
     else {
         IsDataValid = sentence.Boolean( 1 );
     } // in older versions field 1 is used, NMEA boolean logic (A/V)
-#else
-    IsDataValid                     = sentence.Boolean( 1 );
-#endif // _TACTICSPI_H_
     CrossTrackError                 = sentence.Double( 2 );
     DirectionToSteer                = sentence.LeftOrRight( 3 );
     From                            = sentence.Field( 4 );
@@ -213,10 +186,8 @@ bool RMB::Write( SENTENCE& sentence )
     sentence += BearingToDestinationDegreesTrue;
     sentence += DestinationClosingVelocityKnots;
     sentence += IsArrivalCircleEntered;
-#ifdef _TACTICSPI_H_
     if ( isVersion2dot3OrLater )
         sentence += FAA_ModeIndicator;
-#endif // _TACTICSPI_H_
 
     sentence.Finish();
 
@@ -238,10 +209,8 @@ const RMB& RMB::operator = ( const RMB &source )
     BearingToDestinationDegreesTrue = source.BearingToDestinationDegreesTrue;
     DestinationClosingVelocityKnots = source.DestinationClosingVelocityKnots;
     IsArrivalCircleEntered          = source.IsArrivalCircleEntered;
-#ifdef _TACTICSPI_H_
     FAA_ModeIndicator               = source.FAA_ModeIndicator;
     isVersion2dot3OrLater           = source.isVersion2dot3OrLater;
-#endif // _TACTICSPI_H_
   }
   return *this;
 }

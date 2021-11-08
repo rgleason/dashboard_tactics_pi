@@ -25,9 +25,6 @@
  ***************************************************************************
  */
 
-#include "rudder_angle.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -40,6 +37,10 @@
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include "rudder_angle.h"
+
+#include "dashboard_pi_ext.h"
 
 DashboardInstrument_RudderAngle::DashboardInstrument_RudderAngle( wxWindow *parent, wxWindowID id, wxString title) :
       DashboardInstrument_Dial( parent, id, title, OCPN_DBP_STC_RSA, 100, 160, -40, +40)
@@ -69,22 +70,14 @@ wxSize DashboardInstrument_RudderAngle::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_RudderAngle::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
-#endif // _TACTICSPI_H_
     if (st == m_MainValueCap)
     {
         // Dial works clockwise but Rudder has negative values for left
@@ -104,7 +97,6 @@ void DashboardInstrument_RudderAngle::SetData(
     else return;
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_RudderAngle::derivedTimeoutEvent()
 {
     m_MainValue = static_cast<double>(m_s_value);
@@ -112,7 +104,6 @@ void DashboardInstrument_RudderAngle::derivedTimeoutEvent()
     m_ExtraValue = 0.0;
     m_ExtraValueUnit = _T("");
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_RudderAngle::DrawFrame(wxGCDC* dc)
 {
@@ -130,7 +121,7 @@ void DashboardInstrument_RudderAngle::DrawFrame(wxGCDC* dc)
       wxPen pen;
       pen.SetStyle(wxPENSTYLE_SOLID);
       pen.SetWidth(2);
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl);
       pen.SetColour(cl);
       dc->SetPen(pen);
 
@@ -149,7 +140,7 @@ void DashboardInstrument_RudderAngle::DrawBackground(wxGCDC* dc)
       wxCoord x = m_cx - (m_radius * 0.3);
       wxCoord y = m_cy - (m_radius * 0.5);
       wxColour cl;
-      GetGlobalColor(_T("DASH1"), &cl);
+      GetGlobalColor( g_sDialColorIs1, &cl);
       dc->SetBrush( cl );
       dc->DrawEllipticArc(x, y, m_radius * 0.6, m_radius * 1.4, 0, 180);
 }

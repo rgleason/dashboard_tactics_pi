@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -e
+# /* $Id: postrm, v1.0 2019/11/30 VaderDarth Exp $ */
+#
+# Post-removal script for Debian package dashboard_tactics_pi<version>.deb
+
+SCRIPTNAME="postrm"
+# Source definition
+OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
+DASHTPLUGINNAME="dashboard_tactics_pi"
+DASHTGLOBDATADIR="${OPLUGINGLOBDATADIR}/${DASHTPLUGINNAME}/data"
+DASHTGLOBINSTUJS="${DASHTGLOBDATADIR}/instrujs/"
+DASHTGLOBSCRIPTDIR="${DASHTGLOBDATADIR}/instrujs/scripts/linux"
+SCRIPTFULLPATH="${DASHTGLOBSCRIPTDIR}/${SCRIPTNAME}"
+# Target definition
+TARGETBIN="/usr/local/bin"
+
+if [ "$EUID" -ne 0 ]
+then
+    echo ""
+    echo "${SCRIPTNAME} - not executed without root privileges, try with sudo(8)."
+    echo "${SCRIPTFULLPATH}"
+    echo "- intedend to be executed as part of the *.deb package post-removal"
+    echo ""
+    exit 1
+fi
+
+echo "${SCRIPTNAME} - Removing DashT scripted helper launchers from"
+echo "${TARGETBIN}:"
+rm -f {TARGETBIN}/dashtengine
+echo "- dashtengine"
+rm -f {TARGETBIN}/dashtdb
+echo "- dashtdb"
+
+echo "${SCRIPTNAME} - Done."
+
+exit 0
+
+

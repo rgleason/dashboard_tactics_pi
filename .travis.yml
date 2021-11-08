@@ -3,9 +3,10 @@ language: cpp
 
 matrix:
   include:
-    - dist: trusty
+    - dist: focal
       compiler: gcc
     - os: osx
+      osx_image: xcode11.3
       compiler: clang
 
 install:
@@ -13,18 +14,21 @@ install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]];
       then
         sudo apt-get -qq update;
-        sudo apt-get install libwxgtk3.0-dev libwxgtk3.0-0 libgps-dev libglu1-mesa-dev libgtk2.0-dev libbz2-dev libtinyxml-dev;
+        sudo apt-get install libwxbase3.0-0v5 libwxbase3.0-dev wx-common;
+        sudo apt-get install libwxgtk3.0-gtk3-0v5 libwxgtk3.0-gtk3-dev;
+        sudo apt-get install libwxgtk-webview3.0-gtk3-0v5 libwxgtk-webview3.0-gtk3-dev;
+        sudo apt-get install libgps-dev libglu1-mesa-dev libgtk2.0-dev libbz2-dev libtinyxml-dev;
         sudo apt-get install libexpat1-dev libcairo2-dev;
         sudo apt-get install rpm;
       fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
       then
         brew install cairo libexif xz libarchive;
-        wget http://opencpn.navnux.org/build_deps/wx312_opencpn50_macos109.tar.xz;
-        tar xJf wx312_opencpn50_macos109.tar.xz -C /tmp;
+        curl -o wx312B_opencpn50_macos109.tar.xz https://download.opencpn.org/s/rwoCNGzx6G34tbC/download;
+        tar xJf wx312B_opencpn50_macos109.tar.xz -C /tmp;
         export PATH="/usr/local/opt/gettext/bin:$PATH";
         echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile;
-        wget http://opencpn.navnux.org/build_deps/Packages.dmg;
+        curl -o Packages.dmg https://download.opencpn.org/s/SneCR3z9XM3aRc6/download;
         hdiutil attach Packages.dmg;
         sudo installer -pkg "/Volumes/Packages 1.2.5/Install Packages.pkg" -target "/";
       fi
@@ -42,8 +46,9 @@ script:
     fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
     then
-        cmake -DwxWidgets_CONFIG_EXECUTABLE=/tmp/wx312_opencpn50_macos109/bin/wx-config -DwxWidgets_CONFIG_OPTIONS="--prefix=/tmp/wx312_opencpn50_macos109" -DCMAKE_INSTALL_PREFIX=/tmp/opencpn -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 .. && make -sj2 && make create-pkg;
+        cmake -DwxWidgets_CONFIG_EXECUTABLE=/tmp/wx312B_opencpn50_macos109/bin/wx-config -DwxWidgets_CONFIG_OPTIONS="--prefix=/tmp/wx312B_opencpn50_macos109" -DCMAKE_INSTALL_PREFIX=/tmp/opencpn -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 .. && make -sj2 && make create-pkg;
      fi
+  - ctest -j2
   - ls -l;
 
 notifications:
@@ -51,14 +56,14 @@ notifications:
 git:
   depth: 10
 before_install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
+- if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-6
-    - g++-6
+    - gcc-9
+    - g++-9
 deploy:
 - provider: releases
   api_key:

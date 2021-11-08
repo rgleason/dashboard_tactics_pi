@@ -19,36 +19,37 @@
 ## ***************************************************************************
 
 
-# define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.1)
+# define minimum cmake version and backward compatibility policy
+# Set as per Ubuntu 18.04.4LTS as reference
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10.1)
+# Ignore COMPILE_DEFINITIONS_<Config> properties:
 CMAKE_POLICY(SET CMP0043 NEW)
 
-# ON = performance instruments, OFF = exclude all tactics_pi originated code from compilation _and_ build
-SET(TACTICS_INSTRUMENTS ON)
+PROJECT(dashboard_tactics_pi)
+SET(PACKAGE_NAME dashboard_tactics_pi)
+SET(VERBOSE_NAME DashT)
+SET(TITLE_NAME DashT)
+SET(CPACK_PACKAGE_CONTACT "petri38-github@yahoo.com")
 
-IF (TACTICS_INSTRUMENTS)
-   PROJECT(dashboard_tactics_pi)
-   SET(PACKAGE_NAME dashboard_tactics_pi)
-   SET(VERBOSE_NAME DashboardTactics)
-   SET(TITLE_NAME DashboardTactics)
-ELSE (TACTICS_INSTRUMENTS)
-   PROJECT(dashboard_pi)
-   SET(PACKAGE_NAME dashboard_pi)
-   SET(VERBOSE_NAME Dashboard)
-   SET(TITLE_NAME Dashboard)
-ENDIF (TACTICS_INSTRUMENTS)
-SET(CPACK_PACKAGE_CONTACT "TBD")
-
-# SET (CMAKE_BUILD_TYPE Debug)
-
-IF (TACTICS_INSTRUMENTS)
-  ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
-ENDIF (TACTICS_INSTRUMENTS)
+INCLUDE(CTest)
 
 INCLUDE("cmake/PluginConfigure.cmake")
 
-SET(SRC_DASHBOARD
+SET(SRC_DASHT
     src/dashboard_pi.h
+    src/DashboardConfig.cpp
+    src/DashboardFunctions.h
+    src/DashboardFunctions.cpp
+    src/DashboardWindow.h
+    src/DashboardWindowContainer.h
+    src/DashboardWindow.h
+    src/DashboardWindow.cpp
+    src/AddInstrumentDlg.h
+    src/AddInstrumentDlg.cpp
+    src/DashboardInstrumentContainer.h
+    src/DashboardInstrumentContainer.cpp
+    src/DashboardPreferencesDialog.h
+    src/DashboardPreferencesDialog.cpp
     src/dashboard_pi.cpp
     src/instrument.cpp
     src/instrument.h
@@ -76,35 +77,66 @@ SET(SRC_DASHBOARD
     src/wind_history.h
     src/baro_history.cpp
     src/baro_history.h
+    src/Odograph.h
+    src/Odograph.cpp
     src/from_ownship.cpp
     src/from_ownship.h
     src/wxJSON/jsonval.cpp
     src/wxJSON/jsonreader.cpp
-    include/wx/json_defs.h
-    include/wx/jsonreader.h
-    include/wx/jsonval.h
-    include/wx/jsonwriter.h
+    src/wxJSON/json_defs.h
+    src/wxJSON/jsonreader.h
+    src/wxJSON/jsonval.h
+    src/wxJSON/jsonwriter.h
+    src/tactics_pi.h
+    src/tactics_pi.cpp
+    src/TacticsConfig.cpp
+    src/TacticsWindow.h
+    src/TacticsWindow.cpp
+    src/TacticsPreferencesDialog.h
+    src/TacticsPreferencesDialog.cpp
+    src/TacticsEnums.h
+    src/TacticsStructs.h
+    src/TacticsFunctions.h
+    src/TacticsFunctions.cpp
+    src/ExpSmooth.h
+    src/ExpSmooth.cpp
+    src/DoubleExpSmooth.h
+    src/DoubleExpSmooth.cpp
+    src/Polar.h
+    src/Polar.cpp
+    src/PerformanceSingle.h
+    src/PerformanceSingle.cpp
+    src/PolarPerformance.h
+    src/PolarPerformance.cpp
+    src/StreamInSkSingle.h
+    src/StreamInSkSingle.cpp
+    src/wxJSON/jsonwriter.cpp
+    src/StreamoutSchema.h
+    src/LineProtocol.h
+    src/StreamoutSingle.h
+    src/StreamoutSingle.cpp
+    src/plugin_ids.h
+    src/bearingcompass.h
+    src/bearingcompass.cpp
+    src/polarcompass.h
+    src/polarcompass.cpp
+    src/avg_wind.h
+    src/avg_wind.cpp
+    src/EngineDJG.h
+    src/EngineDJG.cpp
+    src/InstruJS.h
+    src/InstruJS.cpp
+    src/TimesTUI.h
+    src/TimesTUI.cpp
+    src/RaceStart.h
+    src/RaceStart.cpp 
+    src/RaceStartGL.cpp
+    src/RaceMark.h
+    src/RaceMark.cpp 
+    src/RaceMarkGL.cpp
+    src/SkData.h
+    src/SkData.cpp
 )
-
-IF (TACTICS_INSTRUMENTS)
-  SET(SRC_TACTICS
-      src/tactics_pi.h
-      src/tactics_pi.cpp
-      src/performance.h
-      src/performance.cpp
-      src/streamin-sk.h
-      src/streamin-sk.cpp
-      src/streamout.h
-      src/streamout.cpp
-      src/plugin_ids.h
-      src/bearingcompass.h
-      src/bearingcompass.cpp
-      src/polarcompass.h
-      src/polarcompass.cpp
-      src/avg_wind.h
-      src/avg_wind.cpp
-  )
-ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
     src/nmea0183/LatLong.hpp
@@ -175,13 +207,11 @@ SET(SRC_NMEA0183
     src/nmea0183/xdr.hpp
 )
 
-IF (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_TACTICS} ${SRC_NMEA0183})
-ELSE (TACTICS_INSTRUMENTS)
-  SET(SRC ${SRC_DASHBOARD} ${SRC_NMEA0183})
-ENDIF (TACTICS_INSTRUMENTS)
+SET(SRC ${SRC_DASHT} ${SRC_NMEA0183})
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")
 INCLUDE("cmake/PluginPackage.cmake")
+
+ADD_SUBDIRECTORY("tests")

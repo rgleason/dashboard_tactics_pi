@@ -1,54 +1,49 @@
 # Information for developers, contributors and collaborators
 
-## v1.5.11 and onwards
+## Project's situation report the 30th of November 2020
 
-On release of v1.5.11 in the 30th of November, 2019 the project contained
-* 37 [closed requirements](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
-* 0 [open requirement](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+label%3ARequirement+milestone%3Av1.5.11)
+### v2.0.0
 
-Starting from this holdpoint **the project enters into long term maintenance phase** for its main product, Dashboard-Tactics plug-in for OpenCPN v5.0.
+[v2.0.0 Project](https://github.com/canne/dashboard_tactics_pi/projects/1) has been successfully completed.
 
-The long term maintenance may continue to cover other minor versions of the OpenCPN v5.
+[20 Requirements of 22 total defined](https://github.com/canne/dashboard_tactics_pi/issues?q=is%3Aissue+is%3Aclosed+milestone%3Av2.0.0+label%3ARequirement) have been fulfilled with a tested implementation.
 
-The maintenance patch releases will be numbered v1.5.111, v1.5.112,...,v1.5.119.
+v2.0.0 builds have been published in GitHub [Releases](https://github.com/canne/dashboard_tactics_pi/releases)
 
-Due to non-existing - or non-published - roadmap for OpenCPN v5 there is no possibility to define or predict additional requirements which could justify the continuous development phase.
+Documentation is made available in [dashboard-tactics-pi.readthedocs.io](https://dashboard-tactics-pi.readthedocs.io).
 
-Therefore the project is divided in three parts at this holdpoint:
+### v2.0 Patch versions
 
-1. **Long term maintenance**
-2. **R&D based on v1.6 hypothesis**
-  * Presuming that OpenCPN and plug-in API continues without any major changes or new plug-in supporting data retrieval and process intercommunicatio features are not introduced outside the API
-  * In this hypothesis, data originating from a NMEA-2000 bus is not available
-3. **R&D based on v2.0 hypothesis**
-  * Presuming that OpenCPN and plug-in API evolve moderately in order to provide support for currently undefined data retrieval and process intercommunicatio features outside the API
-  * In this hypothesis, data originating from a NMEA-2000 bus will be available
+Maintenance (patch) versions, if needed will be enumerated v2.0.1, v2.0.2 etc.
 
-Each part above is divided into its own thread structure, presented by two `git` branches:
+### v2.2 $\beta$-version
 
-* Development and testing branch for the project owner(s)
-* Staging branch for the solicited and unsolicited pull requests
+Maintenance versions shall be stopped in `dev220` branch or continued in the `master`. v2.1.xx shall be a used for v2.2 $\beta$-versions.
 
-> **Pull requests to master branch (trunk) are, for now, rejected**:
+### v2.2
 
-* `pr151` - Staging branch for pull requests for bug fixes in v1.5.11 - **no new features will be accepted in this branch**
-  * Mandatory to be joined with a test use case and a test report, preferably in [canne.testquality.com](https://canne.testquality.com) - other formats accepted, of course
-* `pr160` - v1.6 hypothesis staging branch for pull requests for major bug fixes changing the functionality or introducing new functions or suggesting major code reorganization
-   * Mapping to an existing requirement (see above) or proposal for a new requirement is mandatory for any new feature proposed
-   * Test use case and test report are optional but welcome
-* `pr200` - v2.0 hypothesis staging branch for R&D any guessed or announced data retrieval and process intercommunication feature from OpenCPN or over it
-   * **Free spirit R&D and new ideas goes here**
-   * It would be appreciated that the ideas, however would become with some use case allowing the assembly of a test use case in the stage area if the pull request is accepted:
-   * please do not get offended if the pull request will not get accepted - comments not guaranteed but an attempt will be made
+v2.2 shall be published only tested, with and because of any new feature, alternatively for a new minor or major version of _OpenCPN_, or both.
 
->_Flying Fish_ branches can be created on simple demand for pull requests not meeting the above, or even below requirements:
+### Earlier versions
 
-Common automatic QA requirements (mandatory to pass) for all branches are
-* [Codacy static code analysis](https://app.codacy.com/manual/petri38-github/dashboard_tactics_pi/dashboard)
-* [Travis CI for pull requests](https://travis-ci.org/canne/dashboard_tactics_pi)
-* [AppVeyor CI for Windows build](https://ci.appveyor.com/project/canne/dashboard-tactics-pi)
-* [Travis CI for Linux and Mac builds](https://travis-ci.org/canne/dashboard_tactics_pi)
+The development of v1.5.11 and its derivates has moved to an [OpenCPN Pluginmanager dashboardtactics_pi plug-in, in its own repository](https://github.com/rgleason/dashboard_tactics_pi).
 
-The below diagram depicts the branch schema starting from this holdpoint and provides a roadmap for future versions - without a time axis due to the lack of that information from the OpenCPN main project.
+Please do not address in this repository any pull requests or issues regarding the earlier versions prior to v2.0.0.
 
-![v1.5.11_holdpoint_threads.png](v1.5.11_holdpoint_threads.png) [(zoom)](img/v1.5.11_holdpoint_threads.png)
+### Pull Requests
+
+The below diagram depicts the branch schema starting from this holdpoint (`v2.0.0`) and provides a roadmap for future versions - without a time axis due to the lack of the dedicated resources.
+
+>All pull requests to the `master` thread coming outside of this repository will be automatically and systematically rejected. Please read further.
+
+#### Bug fixes for v2.0
+
+Please fork the dev220 branch which is the default and the _live_ development branch of the author and provide your well tested and CI test (minimum) passing pull requests in this thread.
+
+#### New features or functions
+
+Please fork the `dev220` branch and invite the author to study your own fork. Do not make unsolicited pull request for new features or functions into this repository.
+
+Alternatively one can fill in the form as for the feature requests or ideas in the repository's _Issues_ section by opening a ticket.
+
+![v2.0.0_holdpoint_threads.png](v2.0.0_holdpoint_threads.png)[(zoom)](img/v2.0.0_holdpoint_threads.png)

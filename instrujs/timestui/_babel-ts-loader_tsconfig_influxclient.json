@@ -1,0 +1,35 @@
+{
+    "exclude": ["node_modules", "**/*"],
+    "compilerOptions": {
+        "baseUrl": "./influxdb-client/packages/core/src",
+        "strict": true,
+        "target": "es2015",
+        "resolveJsonModule": false,
+        "strictPropertyInitialization": false,
+        "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
+        "sourceMap": true,
+    },
+    "files": [
+        "./influxdb-client/packages/core/src/InfluxDB.ts",
+        "./influxdb-client/packages/core/src/errors.ts",
+        "./influxdb-client/packages/core/src/options.ts",
+        "./influxdb-client/packages/core/src/QueryApi.ts",
+        "./influxdb-client/packages/core/src/impl/ChunksToLines.ts",
+        "./influxdb-client/packages/core/src/impl/completeCommunicationObserver.ts",
+        "./influxdb-client/packages/core/src/impl/linesToTables.ts",
+        "./influxdb-client/packages/core/src/impl/Logger.ts",
+        "./influxdb-client/packages/core/src/impl/ObservableQuery.ts",
+        "./influxdb-client/packages/core/src/impl/RetryBuffer.ts",
+        "./influxdb-client/packages/core/src/impl/retryStrategy.ts",
+        "./influxdb-client/packages/core/src/impl/QueryApiImpl.ts",
+        "./influxdb-client/packages/core/src/impl/WriteApiImpl.ts",
+        "./influxdb-client/packages/core/src/impl/browser/FetchTransport.ts",
+        "./influxdb-client/packages/core/src/observable/symbol.ts",
+        "./influxdb-client/packages/core/src/observable/types.ts",
+        "./influxdb-client/packages/core/src/query/FluxTableColumn.ts",
+        "./influxdb-client/packages/core/src/query/FluxTableMetaData.ts",
+        "./influxdb-client/packages/core/src/util/currentTime.ts",
+        "./influxdb-client/packages/core/src/util/escape.ts",
+        "./influxdb-client/packages/core/src/util/LineSplitter.ts"
+    ]
+}

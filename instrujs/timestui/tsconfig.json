@@ -1,0 +1,50 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "strict": true,
+        "target": "es2015",
+        "module": "commonjs",
+        "resolveJsonModule": false,
+        "strictPropertyInitialization": false,
+        "lib": ["dom","es2015","ScriptHost","es2017", "es2018.promise"],
+        "types": ["node"],
+        "paths": {
+            "observable": ["./influxdb-client/packages/core/src/observable/index.ts"],
+            "query": ["./influxdb-client/packages/core/src/query/index.ts"],
+            "instrumentFiniteStateMachine": ["./src/statemachine"]
+        }
+    },
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true,
+        "babelOptions": {
+            "babelrc": false,
+            "presets": [
+              ["@babel/preset-env", {
+                  "useBuiltIns": "usage",
+                  "corejs": {"version": 3, "proposals": true},
+                  "debug": true,
+                  "targets": {
+                      "ie": "11",
+                      "safari": "6"
+                  }
+              }]
+            ],
+            "plugins": ["@babel/plugin-transform-runtime"]
+        },
+        "babelCore": "@babel/core",
+        "useCache": true
+    },
+    "exclude": [
+        "node_modules",
+        "*.js",
+        "./influxdb-client/**/*"
+    ],
+    "include": [
+        "src/**/*.ts",
+        ".influxdb-client/packages/core/src/*.ts",
+        "./influxdb-client/packages/core/src/impl/*.ts",
+        ".influxdb-client/packages/core/src/query/*.ts",
+        "./influxdb-client/packages/core/src/util/*.ts",
+        "./influxdb-client/packages/core/src/observable/*.ts"
+    ]
+}

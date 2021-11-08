@@ -255,8 +255,8 @@ class NMEA0183
       ZTG Ztg;
 */
       wxString ErrorMessage; // Filled when Parse returns FALSE
-      wxString LastSentenceIDParsed; // ID of the lst sentence successfully parsed
       wxString LastSentenceIDReceived; // ID of the last sentence received, may not have parsed successfully
+      wxString LastSentenceIDParsed; // ID of the lst sentence successfully parsed
 
       wxString TalkerID;
       wxString ExpandedTalkerID;

@@ -54,8 +54,12 @@ IF (NOT WIN32)
 endif(NOT WIN32)
 
 IF (CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
-  SET (ARCH "armhf")
-  ADD_DEFINITIONS( -DARMHF )
+  IF (CMAKE_SIZEOF_VOID_P MATCHES "8")
+    SET (ARCH "arm64")
+  ELSE ()
+    SET (ARCH "armhf")
+    ADD_DEFINITIONS( -DARMHF )
+  ENDIF ()
 ENDIF (CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
 
 MESSAGE (STATUS "*** Build Architecture is ${ARCH}")
@@ -91,6 +95,7 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/wxWTranslateCatalog.h.in ${CMAKE_CURR
 #  thereby allowing building from a read-only source tree.
 IF(NOT SKIP_VERSION_CONFIG)
     configure_file(${PROJECT_SOURCE_DIR}/cmake/version.h.in ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/include/version.h)
+    configure_file(${PROJECT_SOURCE_DIR}/cmake/plugin_static_ids.h.in ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/include/plugin_static_ids.h)
     configure_file(cmake/wxWTranslateCatalog.h.in ${PROJECT_SOURCE_DIR}/src/wxWTranslateCatalog.h)
     INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/include)
 ENDIF(NOT SKIP_VERSION_CONFIG)
@@ -101,23 +106,8 @@ INCLUDE_DIRECTORIES(BEFORE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/s
 
 # SET(PROFILING 1)
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-  if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    message(STATUS "Setting C++11 standard via CXX flags")
-  elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    message(STATUS "Setting C++0x standard via CXX FLAGS")
-  else()
-        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-  endif()
-else ()
   set (CMAKE_CXX_STANDARD 11)
   message(STATUS "Setting C++11 standard via cmake standard mecahnism")
-endif ()
 
 
 #  IF NOT DEBUGGING CFLAGS="-O2 -march=native"
@@ -143,11 +133,10 @@ IF(MSVC)
     ADD_DEFINITIONS(-D__MSVC__)
     ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE)
 ENDIF(MSVC)
-
+ 
 IF(NOT DEFINED wxWidgets_USE_FILE)
-  SET(wxWidgets_USE_LIBS base core net xml html adv aui)
+    SET(wxWidgets_FIND_COMPONENTS base core net xml html adv aui webview)
 ENDIF(NOT DEFINED wxWidgets_USE_FILE)
-
 
 #  QT_ANDROID is a cross-build, so the native FIND_PACKAGE(wxWidgets...) and wxWidgets_USE_FILE is not useful.
 #  We add the dependencies manually.
@@ -196,7 +185,11 @@ IF(OCPN_USE_SVG)
   ADD_DEFINITIONS(-DOCPN_USE_SVG)
 ENDIF(OCPN_USE_SVG)
 
-  
+IF (CMAKE_VERSION VERSION_GREATER_EQUAL "3.12.0")
+  # `FindOpenGL`` prefers GLVND by default when available:
+  CMAKE_POLICY(SET CMP0072 NEW)
+ENDIF(CMAKE_VERSION VERSION_GREATER_EQUAL "3.12.0")
+
 FIND_PACKAGE(OpenGL)
 IF(OPENGL_GLU_FOUND)
 
@@ -238,11 +231,7 @@ IF(QT_ANDROID)
 ENDIF(QT_ANDROID)
 
 IF (NOT QT_ANDROID )
-    set (WXWIDGETS_FORCE_VERSION CACHE VERSION "Force usage of a specific wxWidgets version.")
-    if(WXWIDGETS_FORCE_VERSION)
-        set (wxWidgets_CONFIG_OPTIONS --version=${WXWIDGETS_FORCE_VERSION})
-    endif()
-    FIND_PACKAGE(wxWidgets REQUIRED)
+    FIND_PACKAGE(wxWidgets COMPONENTS ${wxWidgets_FIND_COMPONENTS})
     INCLUDE(${wxWidgets_USE_FILE})
 ENDIF (NOT QT_ANDROID )
 
@@ -277,8 +266,6 @@ IF (QT_ANDROID )
         )
 
 ENDIF(QT_ANDROID)
-
-
 
 
 SET(BUILD_SHARED_LIBS TRUE)

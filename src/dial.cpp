@@ -27,9 +27,6 @@
  */
 
 
-#include "dial.h"
-#include "wx28compat.h"
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
 
@@ -46,43 +43,33 @@
 #include <cmath>
 #include "wx/tokenzr.h"
 
-double rad2deg(double angle)
-{
-      return angle*180.0/M_PI;
-}
-double deg2rad(double angle)
-{
-      return angle/180.0*M_PI;
-}
+#include "dial.h"
+
+#include "TacticsFunctions.h"
+
+#include "dashboard_pi_ext.h"
 
 DashboardInstrument_Dial::DashboardInstrument_Dial(
     wxWindow *parent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
     unsigned long long cap_flag,
-#else
-    int cap_flag,
-#endif // _TACTICSPI_H_
     int s_angle, int r_angle, int s_value, int e_value) : DashboardInstrument(parent, id, title, cap_flag)
 {
     m_cx = 0;
     m_cy = 0;
     m_radius = 0;
     m_AngleStart = s_angle;
-#ifdef _TACTICSPI_H_
     m_s_angle = s_angle;
-#endif // _TACTICSPI_H_
     m_AngleRange = r_angle;
-    m_MainValue = static_cast<double>(s_value);
-#ifdef _TACTICSPI_H_
+    m_MainValue = std::nan("1");
     m_s_value = s_value;
-#endif // _TACTICSPI_H_
+    m_s_cap_flag = cap_flag;
     m_MainValueCap = cap_flag;
-    m_MainValueMin = m_MainValue;
+    m_MainValueMin = static_cast<double>(s_value);;
     m_MainValueMax = static_cast<double>(e_value);
     m_MainValueFormat = _T("%d");
     m_MainValueUnit = _T("");
     m_MainValueOption = DIAL_POSITION_NONE;
-    m_ExtraValue = 0.0;
+    m_ExtraValue = std::nan("1");
     m_ExtraValueCap = 0;
     m_ExtraValueFormat = _T("%d");
     m_ExtraValueUnit = _T("");
@@ -110,19 +97,25 @@ wxSize DashboardInstrument_Dial::GetSize( int orient, wxSize hint )
 }
 
 void DashboardInstrument_Dial::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
+    if ( std::isnan( data ) ) {
+        if ( st == m_MainValueCap ) {
+            m_MainValue = std::nan("1");
+            m_MainValueUnit = _T("");
+        }
+        if ( st == m_ExtraValueCap ) {
+            m_ExtraValue = std::nan("1");
+            m_ExtraValueUnit = _T("");
+        }
+        return;
+    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
+
     setTimestamp( timestamp );
+
     if ( (unit == _T("\u00B0l")) || (unit == _T("\u00B0lr")) ) {
         unit = DEGREE_SIGN + L"\u2192";
     }
@@ -135,14 +128,6 @@ void DashboardInstrument_Dial::SetData(
     else if (unit == _T("\u00B0d")){
         unit = DEGREE_SIGN + L"\u2193";
     }
-    if ( std::isnan(data) ) {
-        if ( st == m_MainValueCap )
-            m_MainValue = 0.0;
-        if ( st == m_ExtraValueCap )
-            m_ExtraValue = 0.0;
-        return;
-    } // then having NaN: can mean that data stream has ended and it is the watchog barking.
-#endif // _TACTICSPI_H_
 
     // Filter out undefined data, normally comes through as "999".
     // Test value must be greater than 360 to enable some compass-type displays.
@@ -158,22 +143,21 @@ void DashboardInstrument_Dial::SetData(
     }
 }
 
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Dial::timeoutEvent()
 {
-    m_MainValue = static_cast<double>(m_s_value);
     m_AngleStart = m_s_angle;
+    m_MainValue = std::nan("1");
     m_MainValueUnit = _T("");
-    m_ExtraValue = 0.0;
+    m_MainValueCap = m_s_cap_flag;
+    m_ExtraValue = std::nan("1");
     m_ExtraValueUnit = _T("");
     this->derivedTimeoutEvent();
 }
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument_Dial::Draw(wxGCDC* bdc)
 {
     wxColour c1;
-    GetGlobalColor(_T("DASHB"), &c1);
+    GetGlobalColor( g_sDialColorBackground, &c1 );
     wxBrush b1(c1);
     bdc->SetBackground(b1);
     bdc->Clear();
@@ -201,20 +185,42 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
 {
     wxSize size = GetClientSize();
     wxColour cl;
-    GetGlobalColor( _T("DASHL"), &cl );
+    GetGlobalColor( g_sDialColorLabel, &cl );
     dc->SetTextForeground( cl );
     dc->SetBrush( *wxTRANSPARENT_BRUSH);
     
     int penwidth = 1 + size.x / 100;
     wxPen pen( cl, penwidth, wxPENSTYLE_SOLID );
     
-    if( m_MarkerOption == DIAL_MARKER_REDGREENBAR ) {
+    if( (m_MarkerOption == DIAL_MARKER_REDGREENBAR) && g_bDialShowRedGreen ) {
         pen.SetWidth( penwidth * 2 );
-        GetGlobalColor( _T("DASHR"), &cl );
+        GetGlobalColor( g_sDialColorRed , &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        double angle1 = deg2rad( 270 ); // 305-ANGLE_OFFSET
-        double angle2 = deg2rad( 90 ); // 55-ANGLE_OFFSET
+        // Let's check for eventual user tweak for reduced angle
+        int userLowDeg = abs( g_iDialLowDegRedGreen ) ;
+        int userHighDeg = abs( g_iDialHighDegRedGreen );
+        if ( userLowDeg > userHighDeg ) {
+            userLowDeg = abs( g_iDialHighDegRedGreen ) ;
+            userHighDeg = abs( g_iDialLowDegRedGreen );
+        }
+        if ( ((userLowDeg % 10) == 0) || ((userLowDeg % 5) == 0) )
+            userLowDeg += 1; //  this is purely cosmetic due to rounded-end arc
+        if ( ((userHighDeg % 10) == 0) || ((userHighDeg % 5) == 0) )
+            userHighDeg -= 1; // same reason as above but backwards
+        if ( userLowDeg >= userHighDeg ) {
+            userLowDeg = userHighDeg; // can happen w/ adjustements, like user 90 and 90...
+            userHighDeg += 1; // there must be min. 1 degree difference
+        }
+        if (userLowDeg >= 179) // this works only with dual 180-degree instruments
+            userLowDeg = 178;
+        if (userLowDeg < 1)
+            userLowDeg = 1;
+        if (userHighDeg >= 180)
+            userHighDeg = 179;
+        // Quadrants II and III
+        double angle1 = (3*M_PI/2) - deg2rad( userLowDeg );
+        double angle2 = (3*M_PI/2) - deg2rad( userHighDeg );
         int radi = m_radius - 1 - penwidth;
         wxCoord x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         wxCoord y1 = m_cy + ( ( radi ) * sin( angle1 ) );
@@ -222,11 +228,14 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         wxCoord y2 = m_cy + ( ( radi ) * sin( angle2 ) );
         dc->DrawArc( x1, y1, x2, y2, m_cx, m_cy );
         
-        GetGlobalColor( _T("DASHG"), &cl );
+        GetGlobalColor( g_sDialColorGreen, &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
-        angle1 = deg2rad( 89 ); // 305-ANGLE_OFFSET
-        angle2 = deg2rad( 271 ); // 55-ANGLE_OFFSET
+        // Quadrants IV and I
+        double quadrIandIV = (3*M_PI/2) + deg2rad( userHighDeg );
+        angle1 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( userHighDeg ) - M_PI/2) : quadrIandIV;
+        quadrIandIV = (3*M_PI/2) + deg2rad( userLowDeg );
+        angle2 = (quadrIandIV >= (2*M_PI)) ? (deg2rad( userLowDeg ) - M_PI/2) : quadrIandIV;
         x1 = m_cx + ( ( radi ) * cos( angle1 ) );
         y1 = m_cy + ( ( radi ) * sin( angle1 ) );
         x2 = m_cx + ( ( radi ) * cos( angle2 ) );
@@ -235,7 +244,7 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
 
         // Some platforms have trouble with transparent pen.
         // so we simply draw arcs for the outer ring.
-        GetGlobalColor( _T("DASHF"), &cl );
+        GetGlobalColor( g_sDialColorForeground, &cl );
         pen.SetWidth( penwidth );
         pen.SetColour( cl );
         dc->SetPen( pen );
@@ -252,7 +261,7 @@ void DashboardInstrument_Dial::DrawFrame( wxGCDC* dc )
         
     }
     else{
-        GetGlobalColor( _T("DASHF"), &cl );
+        GetGlobalColor( g_sDialColorForeground, &cl );
         pen.SetColour( cl );
         dc->SetPen( pen );
         dc->DrawCircle( m_cx, m_cy, m_radius );
@@ -264,7 +273,7 @@ void DashboardInstrument_Dial::DrawMarkers(wxGCDC* dc)
     if( m_MarkerOption == DIAL_MARKER_NONE ) return;
 
     wxColour cl;
-    GetGlobalColor( _T("DASHF"), &cl );
+    GetGlobalColor( g_sDialColorForeground, &cl );
     int penwidth = GetClientSize().x / 100;
     wxPen pen( cl, penwidth, wxPENSTYLE_SOLID );
     dc->SetPen( pen );
@@ -277,12 +286,12 @@ void DashboardInstrument_Dial::DrawMarkers(wxGCDC* dc)
 
     int offset = 0;
     for( double angle = m_AngleStart - ANGLE_OFFSET; angle <= diff_angle; angle += abm ) {
-        if( m_MarkerOption == DIAL_MARKER_REDGREEN ) {
+        if( (m_MarkerOption == DIAL_MARKER_REDGREEN) && g_bDialShowRedGreen ) {
             int a = int( angle + ANGLE_OFFSET ) % 360;
-            if( a > 180 ) GetGlobalColor( _T("DASHR"), &cl );
-            else if( ( a > 0 ) && ( a < 180 ) ) GetGlobalColor( _T("DASHG"), &cl );
+            if( a > 180 ) GetGlobalColor( g_sDialColorRed, &cl );
+            else if( ( a > 0 ) && ( a < 180 ) ) GetGlobalColor( g_sDialColorGreen, &cl );
             else
-                GetGlobalColor( _T("DASHF"), &cl );
+                GetGlobalColor( g_sDialColorForeground, &cl );
 
             pen.SetColour( cl );
             dc->SetPen( pen );
@@ -300,8 +309,8 @@ void DashboardInstrument_Dial::DrawMarkers(wxGCDC* dc)
                 m_cy + ( (m_radius-1) * sin( deg2rad( angle ) ) ) );
     }
     // We must reset pen color so following drawings are fine
-    if( m_MarkerOption == DIAL_MARKER_REDGREEN ) {
-        GetGlobalColor( _T("DASHF"), &cl );
+    if( (m_MarkerOption == DIAL_MARKER_REDGREEN) && g_bDialShowRedGreen ) {
+        GetGlobalColor( g_sDialColorForeground, &cl );
         pen.SetStyle( wxPENSTYLE_SOLID );
         pen.SetColour( cl );
         dc->SetPen( pen );
@@ -316,7 +325,7 @@ void DashboardInstrument_Dial::DrawLabels(wxGCDC* dc)
       wxPoint TextPoint;
       wxPen pen;
       wxColor cl;
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl);
 
 #ifdef __WXMSW__
       wxSize size = GetClientSize();
@@ -325,7 +334,7 @@ void DashboardInstrument_Dial::DrawLabels(wxGCDC* dc)
       wxMemoryDC tdc( tbm );
 
       wxColour cback;
-      GetGlobalColor( _T("DASHB"), &cback );
+      GetGlobalColor( g_sDialColorBackground, &cback );
       tdc.SetBackground( cback );
       tdc.Clear();
       tdc.SetFont(*g_pFontSmall);
@@ -417,7 +426,7 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
 
       dc->SetFont(*g_pFontLabel);
       wxColour cl;
-      GetGlobalColor(_T("DASHF"), &cl);
+      GetGlobalColor( g_sDialColorForeground, &cl);
       dc->SetTextForeground(cl);
 
       wxSize size = GetClientSize();
@@ -425,16 +434,14 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       wxString text;
       if(!std::isnan(value))
       {
-#ifdef _TACTICSPI_H_
         if ( (unit != (DEGREE_SIGN + L"\u2192")) && (unit != (DEGREE_SIGN + L"\u2190")) &&
              (unit != (DEGREE_SIGN + L"\u2191")) && (unit != (DEGREE_SIGN + L"\u2193")) )
         {
-#endif
             if (unit == _T("\u00B0"))
                 text = wxString::Format(format, value)+DEGREE_SIGN;
-            else if (unit == _T("\u00B0L")) // No special display for now, might be XX°< (as in text-only instrument)
+            else if (unit == _T("\u00B0L")) // No special display for now, might be XX deg < (as in text-only instrument)
                 text = wxString::Format(format, value)+DEGREE_SIGN;
-            else if (unit == _T("\u00B0R")) // No special display for now, might be >XX°
+            else if (unit == _T("\u00B0R")) // No special display for now, might be > XX deg
                 text = wxString::Format(format, value)+DEGREE_SIGN;
             else if (unit == _T("\u00B0T"))
                 text = wxString::Format(format, value)+DEGREE_SIGN+_T("T");
@@ -444,12 +451,10 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
                 text = wxString::Format(format, value)+_T(" Kts");
             else
                 text = wxString::Format(format, value)+_T(" ")+unit;
-#ifdef _TACTICSPI_H_
         } // then "unit" value is not set yet for wind SetData()data,
         else {
             text = wxString::Format(format, value) + unit;
         } // else "unit" value has been set for wind SetData()data,
-#endif
       }
       else
            text = _T("---");
@@ -462,51 +467,49 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
       TextPoint.height = height;
       switch (position)
       {
-            case DIAL_POSITION_NONE:
-                  // This case was already handled before, it's here just
-                  // to avoid compiler warning.
-                  return;
-            case DIAL_POSITION_INSIDE:
-            {
-                  TextPoint.x = m_cx - (width / 2) - 1;
-                  TextPoint.y = (size.y * .75) - height;
-                  GetGlobalColor(_T("DASHL"), &cl);
-                  int penwidth = size.x / 100;
-                  wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
-                  dc->SetPen( *pen );
-                  GetGlobalColor(_T("DASHB"), &cl);
-                  dc->SetBrush(cl);
-                  // There might be a background drawn below
-                  // so we must clear it first.
-                  dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
-                  break;
-            }
-            case DIAL_POSITION_TOPLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_TOPRIGHT:
-                  TextPoint.x = size.x-width-1;
-                  TextPoint.y = m_TitleHeight;
-                  break;
-            case DIAL_POSITION_BOTTOMLEFT:
-                  TextPoint.x = 0;
-                  TextPoint.y = size.y-height;
-                  break;
-            case DIAL_POSITION_BOTTOMRIGHT:
-                  TextPoint.x = size.x-width-1;
-#ifdef _TACTICSPI_H_
-                  TextPoint.y = size.y-height;
-#else
-                  TextPoint.y = size.x-height;
-#endif
-                  break;
+      case DIAL_POSITION_NONE:
+          // This case was already handled before, it's here just
+          // to avoid compiler warning.
+          return;
+      case DIAL_POSITION_TOPINSIDE:
+          return;
+      case DIAL_POSITION_INSIDE:
+      {
+          TextPoint.x = m_cx - (width / 2) - 1;
+          TextPoint.y = (size.y * .75) - height;
+          GetGlobalColor( g_sDialColorLabel, &cl );
+          int penwidth = size.x / 100;
+          wxPen* pen = wxThePenList->FindOrCreatePen( cl, penwidth, wxPENSTYLE_SOLID );
+          dc->SetPen( *pen );
+          GetGlobalColor( g_sDialColorBackground, &cl );
+          dc->SetBrush(cl);
+          // There might be a background drawn below
+          // so we must clear it first.
+          dc->DrawRoundedRectangle(TextPoint.x-2, TextPoint.y-2, width+4, height+4, 3);
+          break;
+      }
+      case DIAL_POSITION_TOPLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_TOPRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = m_TitleHeight;
+          break;
+      case DIAL_POSITION_BOTTOMLEFT:
+          TextPoint.x = 0;
+          TextPoint.y = size.y-height;
+          break;
+      case DIAL_POSITION_BOTTOMRIGHT:
+          TextPoint.x = size.x-width-1;
+          TextPoint.y = size.y-height;
+          break;
       }
 
      wxColour c2;
-     GetGlobalColor( _T("DASHB"), &c2 );
+     GetGlobalColor( g_sDialColorBackground, &c2 );
      wxColour c3;
-     GetGlobalColor( _T("DASHF"), &c3 );
+     GetGlobalColor( g_sDialColorForeground, &c3 );
 
      wxStringTokenizer tkz( text, _T("\n") );
       wxString token;
@@ -542,59 +545,33 @@ void DashboardInstrument_Dial::DrawData(wxGCDC* dc, double value,
 
 void DashboardInstrument_Dial::DrawForeground(wxGCDC* dc)
 {
-      // The default foreground is the arrow used in most dials
-      wxColour cl;
-      GetGlobalColor(_T("DASH2"), &cl);
-      wxPen pen1;
-      pen1.SetStyle(wxPENSTYLE_SOLID);
-      pen1.SetColour(cl);
-      pen1.SetWidth(2);
-      dc->SetPen(pen1);
-      GetGlobalColor(_T("DASH1"), &cl);
-      wxBrush brush1;
-      brush1.SetStyle(wxBRUSHSTYLE_SOLID);
-      brush1.SetColour(cl);
-      dc->SetBrush(brush1);
-      dc->DrawCircle(m_cx, m_cy, m_radius / 8);
+    // The default foreground is the arrow used in most dials
+    DrawNeedleHub( dc, m_cx, m_cy, m_radius, (std::isnan( m_MainValue ) ? false : true) );
 
-      dc->SetPen(*wxTRANSPARENT_PEN);
+    if( !std::isnan( m_MainValue ) ) { // Start, or watchdog timne has hit
+        
+        /* this is fix for a +/-180deg round instrument, when m_MainValue is supplied as <0..180><L | R>
+         * for example TWA & AWA */
+        double data;
+        if( m_MainValueUnit == (DEGREE_SIGN + L"\u2192") )
+            data = 360 - m_MainValue;
+        else
+            data = m_MainValue;
 
-      GetGlobalColor(_T("DASHN"), &cl);
-      wxBrush brush;
-      brush.SetStyle(wxBRUSHSTYLE_SOLID);
-      brush.SetColour(cl);
-      dc->SetBrush(brush);
+        // The arrow should stay inside fixed limits
+        double val;
+        if (data < m_MainValueMin)
+            val = m_MainValueMin;
+        else if (data > m_MainValueMax)
+            val = m_MainValueMax;
+        else
+            val = data;
 
-      /* this is fix for a +/-180deg round instrument, when m_MainValue is supplied as <0..180><L | R>
-       * for example TWA & AWA */
-      double data;
-#ifdef _TACTICSPI_H_
-      if( m_MainValueUnit == (DEGREE_SIGN + L"\u2192") )
-#else
-      if(m_MainValueUnit == _T("\u00B0L"))
-#endif // _TACTICSPI_H_
-          data=360-m_MainValue;
-      else
-          data=m_MainValue;
+        double value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
 
-      // The arrow should stay inside fixed limits
-      double val;
-      if (data < m_MainValueMin) val = m_MainValueMin;
-      else if (data > m_MainValueMax) val = m_MainValueMax;
-      else val = data;
+        DrawNeedle( dc, m_cx, m_cy, m_radius, value, g_sDialNeedleColor );
 
-      double value = deg2rad((val - m_MainValueMin) * m_AngleRange / (m_MainValueMax - m_MainValueMin)) + deg2rad(m_AngleStart - ANGLE_OFFSET);
-
-      wxPoint points[4];
-      points[0].x = m_cx + (m_radius * 0.95 * cos(value - .010));
-      points[0].y = m_cy + (m_radius * 0.95 * sin(value - .010));
-      points[1].x = m_cx + (m_radius * 0.95 * cos(value + .015));
-      points[1].y = m_cy + (m_radius * 0.95 * sin(value + .015));
-      points[2].x = m_cx + (m_radius * 0.22 * cos(value + 2.8));
-      points[2].y = m_cy + (m_radius * 0.22 * sin(value + 2.8));
-      points[3].x = m_cx + (m_radius * 0.22 * cos(value - 2.8));
-      points[3].y = m_cy + (m_radius * 0.22 * sin(value - 2.8));
-      dc->DrawPolygon(4, points, 0, 0);
+    }
 }
 
 /* Shared functions */
@@ -609,11 +586,11 @@ void DrawCompassRose(wxGCDC* dc, int cx, int cy, int radius, int startangle, boo
 
       wxColour cl;
       wxPen* pen;
-      GetGlobalColor(_T("DASH2"), &cl);
+      GetGlobalColor( g_sDialColorIs1, &cl );
       pen = wxThePenList->FindOrCreatePen( cl, 1, wxPENSTYLE_SOLID );
       wxBrush* b2 = wxTheBrushList->FindOrCreateBrush( cl );
 
-      GetGlobalColor(_T("DASH1"), &cl);
+      GetGlobalColor( g_sDialColorIs1, &cl);
       wxBrush* b1 = wxTheBrushList->FindOrCreateBrush( cl );
 
       dc->SetPen(*pen);
@@ -669,10 +646,10 @@ void DrawBoat( wxGCDC* dc, int cx, int cy, int radius )
 {
     // Now draw the boat
     wxColour cl;
-    GetGlobalColor(_T("DASH2"), &cl);
+    GetGlobalColor( g_sDialColorIs2, &cl );
     wxPen* pen = wxThePenList->FindOrCreatePen( cl, 1, wxPENSTYLE_SOLID );
     dc->SetPen( *pen );
-    GetGlobalColor(_T("DASH1"), &cl);
+    GetGlobalColor( g_sDialColorIs1, &cl );
     dc->SetBrush(cl);
     wxPoint points[7];
 
@@ -707,3 +684,126 @@ void DrawBoat( wxGCDC* dc, int cx, int cy, int radius )
     dc->DrawPolygon(7, points, 0, 0);
 }
 
+
+
+void DrawNeedleHub( wxGCDC* dc, int cx, int cy, int radius, bool dataAvailable )
+{
+    wxColour cl;
+
+    if ( dataAvailable )
+        GetGlobalColor( g_sDialCentralCircleColor, &cl );
+    else
+        GetGlobalColor( g_sDialColorIs2, &cl );
+
+    wxPen pen1;
+    pen1.SetStyle(wxPENSTYLE_SOLID);
+    pen1.SetColour(cl);
+    pen1.SetWidth(3);
+    dc->SetPen(pen1);
+    wxBrush brush1;
+    brush1.SetStyle(wxBRUSHSTYLE_SOLID);
+    if ( dataAvailable ) {
+        wxColour centershade;
+        centershade = cl.ChangeLightness( 130 );
+        brush1.SetColour( centershade );
+    }
+    else {
+        GetGlobalColor( g_sDialColorIs1, &cl );
+        brush1.SetColour( cl );
+   }
+    dc->SetBrush(brush1);
+    dc->DrawCircle(cx, cy, radius / 8);
+}
+
+
+void DrawNeedle( wxGCDC* dc, int cx, int cy, int radius, double value, wxString ocpnColorCode )
+{
+    wxColour cl;
+
+    if ( g_bDialNeedleEmbossed ) {
+            
+        wxPoint pointswestfront[4];
+        pointswestfront[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        pointswestfront[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        pointswestfront[1].x = cx + (radius * 0.95 * cos(value + .01));
+        pointswestfront[1].y = cy + (radius * 0.95 * sin(value + .01));
+        pointswestfront[2].x = cx + (radius * 0.22 * cos(value + 2.8));
+        pointswestfront[2].y = cy + (radius * 0.22 * sin(value + 2.8));
+        pointswestfront[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        pointswestfront[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+
+        wxPoint pointswestback[4];
+        pointswestback[0].x = cx + (radius * 0.95 * cos(value - 0.));
+        pointswestback[0].y = cy + (radius * 0.95 * sin(value - 0.));
+        pointswestback[1].x = cx + (radius * 0.95 * cos(value - .01));
+        pointswestback[1].y = cy + (radius * 0.95 * sin(value - .01));
+        pointswestback[2].x = cx + (radius * 0.22 * cos(value - 2.8));
+        pointswestback[2].y = cy + (radius * 0.22 * sin(value - 2.8));
+        pointswestback[3].x = cx + (radius * 0.22 * cos(value - 3.14));
+        pointswestback[3].y = cy + (radius * 0.22 * sin(value - 3.14));
+        
+        wxPen nonshadepen;
+        wxColour pennonshade;
+        nonshadepen.SetStyle(wxPENSTYLE_SOLID);
+        GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
+        pennonshade = cl.ChangeLightness( 130 );
+        nonshadepen.SetColour( pennonshade ); // towards the observer = less dark!
+        nonshadepen.SetWidth(1);
+        wxPen shadepen;
+        shadepen.SetStyle(wxPENSTYLE_SOLID);
+        GetGlobalColor( g_sDialNeedleContourColor, &cl ); // normally, quite dark color
+        shadepen.SetColour( cl ); // away from the observer = original!
+        shadepen.SetWidth(2);
+            
+        wxBrush needlebrush;
+        wxBrush needleshadebrush;
+        wxColour needleshade;
+        GetGlobalColor( ocpnColorCode, &cl );
+        needlebrush.SetColour( cl ); // towards the observer = original
+        needleshade = cl.ChangeLightness( 85 );
+        needleshadebrush.SetColour( needleshade ); // away from the observer = darker
+
+        if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
+            dc->SetPen( shadepen );
+            dc->SetBrush( needleshadebrush );
+        }
+        else {
+            dc->SetPen( nonshadepen );
+            dc->SetBrush( needlebrush );
+        }
+        dc->DrawPolygon(4, pointswestfront, 0, 0);
+
+
+        if ( (value > (0.5*M_PI)) && (value < (1.5*M_PI)) ) {
+            dc->SetPen( nonshadepen );
+            dc->SetBrush( needlebrush );
+        }
+        else {
+            dc->SetPen( shadepen );
+            dc->SetBrush( needleshadebrush );
+        }
+        dc->DrawPolygon(4, pointswestback, 0, 0);
+
+    }
+    else {
+        dc->SetPen(*wxTRANSPARENT_PEN);
+        GetGlobalColor( ocpnColorCode, &cl );
+
+        wxBrush brush;
+        brush.SetStyle(wxBRUSHSTYLE_SOLID);
+        brush.SetColour(cl);
+        dc->SetBrush(brush);
+
+        wxPoint points[4];
+        points[0].x = cx + (radius * 0.95 * cos(value - .010));
+        points[0].y = cy + (radius * 0.95 * sin(value - .010));
+        points[1].x = cx + (radius * 0.95 * cos(value + .015));
+        points[1].y = cy + (radius * 0.95 * sin(value + .015));
+        points[2].x = cx + (radius * 0.22 * cos(value + 2.8));
+        points[2].y = cy + (radius * 0.22 * sin(value + 2.8));
+        points[3].x = cx + (radius * 0.22 * cos(value - 2.8));
+        points[3].y = cy + (radius * 0.22 * sin(value - 2.8));
+        dc->DrawPolygon(4, points, 0, 0);
+    }
+
+}

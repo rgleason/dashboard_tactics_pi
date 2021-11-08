@@ -41,11 +41,6 @@
 // Required GetGlobalColor
 #include "ocpn_plugin.h"
 
-#ifdef _INCLUDE_TACTICS_PI_
-#ifndef _TACTICSPI_H_
-#define _TACTICSPI_H_ // compatibility adjustements: more instruments - extended capacity flags (64-bit)
-#endif // _TACTICSPI_H_
-#endif // _INCLUDE_TACTICS_PI_
 
 #include <wx/dcbuffer.h>
 #include <wx/dcgraph.h>         // supplemental, for Mac
@@ -65,11 +60,7 @@ class DashboardInstrument_Single;
 class DashboardInstrument_Position;
 class DashboardInstrument_Sun;
 
-#ifndef _TACTICSPI_H_
-enum {
-#else
 enum eSentenceType : unsigned long long {
-#endif // _TACTICSPI_H_
     OCPN_DBP_STC_LAT   = 1 << 0,
     OCPN_DBP_STC_LON   = 1 << 1,
     OCPN_DBP_STC_SOG   = 1 << 2,
@@ -101,9 +92,6 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_MDA   = 1 << 28,  // Bareometic pressure
     OCPN_DBP_STC_MCOG  = 1 << 29,  // Magnetic Course over Ground
 	OCPN_DBP_STC_PITCH = 1 << 30,  //Pitch
-#ifndef _TACTICSPI_H_
-	OCPN_DBP_STC_HEEL  = 1 << 31  //Heel
-#else
     // >32 sentence capacity identifiers needs 64 bits enumeration
 	OCPN_DBP_STC_HEEL         = 1ULL << 31,  //Heel
     OCPN_DBP_STC_LEEWAY       = 1ULL << 32,
@@ -119,164 +107,112 @@ enum eSentenceType : unsigned long long {
     OCPN_DBP_STC_POLCMG       = 1ULL << 42, // Actual (towards WP) CMG
     OCPN_DBP_STC_POLTCMG      = 1ULL << 43, // Target CMG
     OCPN_DBP_STC_POLTCMGANGLE = 1ULL << 44,  // Target CMG Angle
-    // Reservation for the engine and propulsion
-    OCPN_DBP_STC_ENGPRPM      = 1ULL << 58,  // Port side or main engine RPM
-    OCPN_DBP_STC_ENGSRPM      = 1ULL << 59,  // Starboard side engine RPM
-    OCPN_DBP_STC_ENGPTEMP     = 1ULL << 60,  // Port side or main engine temperature
-    OCPN_DBP_STC_ENGSTEMP     = 1ULL << 61,  // Starboard side engine temperature
-    OCPN_DBP_STC_ENGPOILP     = 1ULL << 62,  // Port side or main engine oil pressure
-    OCPN_DBP_STC_ENGSOILP     = 1ULL << 63   // Starboard side engine oil pressure
-#endif // _TACTICSPI_H_
+    // Reservation for Signal K subcription based instruments (no push)
+    OCPN_DBP_STC_SKSUBSCRIBE  = 1ULL << 63   // data subcription from SK srv
 };
 
-#ifdef _TACTICSPI_H_
 #define DBP_I_TIMER_TICK      1000 // in milliseconds
 #define DBP_I_DATA_TIMEOUT    5    // about 5s, then call-back if no update
-#endif // _TACTICSPI_H_
-
 
 class DashboardInstrument : public wxControl
 {
 public:
     DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                         unsigned long long cap_flag, bool drawSoloInPane = false
-#else
-                        int cap_flag
-#endif // _TACTICSPI_H_
         );
-#ifdef _TACTICSPI_H_
     ~DashboardInstrument();
-#else
-    ~DashboardInstrument(){}
-#endif // _TACTICSPI_H_
 
-#ifdef _TACTICSPI_H_
     unsigned long long GetCapacity(void);
     virtual void timeoutEvent(void) = 0;
     virtual void setTimestamp( long long ts ) final;
+    virtual void clearTimeStamp(void) final { previousTimestamp = 0LL; };
     virtual long long getTimestamp(void) final;
-#else
-    int GetCapacity();
-#endif // _TACTICSPI_H_
+    virtual void setColorScheme ( PI_ColorScheme cs ) {};
     void OnEraseBackground(wxEraseEvent& WXUNUSED(evt));
     virtual wxSize GetSize( int orient, wxSize hint ) = 0;
-    void OnPaint(wxPaintEvent& WXUNUSED(event));
+    virtual void OnPaint(wxPaintEvent& WXUNUSED(event));
     virtual void SetData(
-#ifdef _TACTICSPI_H_
         unsigned long long st,
-#else
-        int st,
-#endif // _TACTICSPI_H_
         double data, wxString unit
-#ifdef _TACTICSPI_H_
         , long long timestamp=0LL
-#endif // _TACTICSPI_H_
         ) = 0;
     void SetDrawSoloInPane(bool value);
     void MouseEvent( wxMouseEvent &event );
+    void OnClose( wxCloseEvent& event );
+    void OnDPBITimerTick(wxTimerEvent &event);
       
     int               instrumentTypeId;
 
 protected:
-#ifdef _TACTICSPI_H_
     long long          previousTimestamp;
+    long long          deltaOfTimeStamps;
+    bool               receivedTimeStamp;
+    int                sameGoodDeltaTsCnt;
     unsigned long long m_cap_flag;
-#else
-    int m_cap_flag;
-#endif // _TACTICSPI_H_
     int               m_TitleHeight;
     wxString          m_title;
 
     virtual void Draw(wxGCDC* dc) = 0;
 private:
     bool m_drawSoloInPane;
-#ifdef _TACTICSPI_H_
     wxTimer *m_DPBITickTimer;
-    void OnDPBITimerTick(wxTimerEvent &event);
     wxDECLARE_EVENT_TABLE();
-#endif // _TACTICSPI_H_
 };
 
 class DashboardInstrument_Single : public DashboardInstrument
 {
 public:
     DashboardInstrument_Single(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                unsigned long long cap,
-#else
-                               int cap,
-#endif // _TACTICSPI_H_
                                wxString format);
     ~DashboardInstrument_Single(){}
 
-    wxSize GetSize( int orient, wxSize hint );
+    wxSize GetSize( int orient, wxSize hint ) override;
     void SetData(
-#ifdef _TACTICSPI_H_
         unsigned long long st,
-#else
-        int st,
-#endif // _TACTICSPI_H_
         double data, wxString unit
-#ifdef _TACTICSPI_H_
         , long long timestamp=0LL
-#endif // _TACTICSPI_H_
-        );
-#ifdef _TACTICSPI_H_
+        ) override;
     void timeoutEvent(void) override;
-#endif // _TACTICSPI_H_
+#ifndef __DERIVEDTIMEOUT_OVERRIDE__
+    virtual void derivedTimeoutEvent(void){};
+#else
+    virtual void derivedTimeoutEvent(void) = 0;
+#endif // __DERIVEDTIMEOUT_OVERRIDE__
 
 protected:
     wxString          m_data;
     wxString          m_format;
     int               m_DataHeight;
 
-    void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc) override;
 };
 
 class DashboardInstrument_Position : public DashboardInstrument
 {
 public:
       DashboardInstrument_Position(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                    unsigned long long cap_flag1=OCPN_DBP_STC_LAT,
                                    unsigned long long cap_flag2=OCPN_DBP_STC_LON
-#else
-                                   int cap_flag1=OCPN_DBP_STC_LAT,
-                                   int cap_flag2=OCPN_DBP_STC_LON
-#endif // _TACTICSPI_H_
           );
     ~DashboardInstrument_Position(){}
     
-    wxSize GetSize( int orient, wxSize hint );
+    wxSize GetSize( int orient, wxSize hint ) override;
     void SetData(
-#ifdef _TACTICSPI_H_
         unsigned long long st,
-#else
-        int st,
-#endif // _TACTICSPI_H_
         double data, wxString unit
-#ifdef _TACTICSPI_H_
         , long long timestamp=0LL
-#endif // _TACTICSPI_H_
-        );
-#ifdef _TACTICSPI_H_
+        ) override;
     void timeoutEvent(void) override;
-#endif // _TACTICSPI_H_
 
 protected:
     wxString          m_data1;
     wxString          m_data2;
-#ifdef _TACTICSPI_H_
     unsigned long long     m_cap_flag1;
     unsigned long long     m_cap_flag2;
-#else
-    int               m_cap_flag1;
-    int               m_cap_flag2;
-#endif // _TACTICSPI_H_
     int               m_DataHeight;
 
-    void Draw(wxGCDC* dc);
+    void Draw(wxGCDC* dc) override;
 };
 
 #endif

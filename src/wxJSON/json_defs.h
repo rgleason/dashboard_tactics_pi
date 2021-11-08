@@ -189,16 +189,6 @@
 
 
 //
-// some compilers (i.e. MSVC++) defines their own 'snprintf' function
-// so if it is not defined, define it in the following lines
-// please note that we cannot use the wxWidget's counterpart 'wxSnprintf'
-// because the latter uses 'wxChar' but wxJSON only use 'char'
-#if !defined(snprintf) && defined(_MSC_VER)
-#define snprintf _snprintf
-#endif
-
-
-//
 // check if wxWidgets is compiled using --enable-stl in which case
 // we have to use different aproaches when declaring the array and
 // key/value containers (see the docs: wxJSON internals: array and hash_map
@@ -215,5 +205,3 @@
 
 
 #endif // _WX_JSON_DEFS_H_
-
-

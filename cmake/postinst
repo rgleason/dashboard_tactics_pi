@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -e
+# /* $Id: postinst, v1.0 2019/11/30 VaderDarth Exp $ */
+#
+# Post-install script for Debian package dashboard_tactics_pi<version>.deb
+
+SCRIPTNAME="postinst"
+# Source definition
+OPLUGINGLOBDATADIR="/usr/share/opencpn/plugins"
+DASHTPLUGINNAME="dashboard_tactics_pi"
+DASHTGLOBDATADIR="${OPLUGINGLOBDATADIR}/${DASHTPLUGINNAME}/data"
+DASHTGLOBINSTUJS="${DASHTGLOBDATADIR}/instrujs/"
+DASHTGLOBSCRIPTDIR="${DASHTGLOBDATADIR}/instrujs/scripts/linux"
+SCRIPTFULLPATH="${DASHTGLOBSCRIPTDIR}/${SCRIPTNAME}"
+# Target definition
+TARGETBIN="/usr/local/bin"
+
+if [ "$EUID" -ne 0 ]
+then
+    echo ""
+    echo "${SCRIPTNAME} - not executed without root privileges, try with sudo(8)."
+    echo "${SCRIPTFULLPATH}"
+    echo "- intedend to be executed as part of the *.deb package post-install"
+    echo ""
+    exit 1
+fi
+
+
+echo "${SCRIPTNAME} - Installing DashT scripted helper launchers into"
+mkdir -p ${TARGETBIN}
+echo "${TARGETBIN}:"
+cp -f ${DASHTGLOBSCRIPTDIR}/dashtengine ${TARGETBIN}
+chown root.root ${TARGETBIN}/dashtengine
+chmod 755 ${TARGETBIN}/dashtengine
+echo "+ dashtengine" 
+cp -f ${DASHTGLOBSCRIPTDIR}/dashtdb ${TARGETBIN}
+chown root.root ${TARGETBIN}/dashtdb
+chmod 755 ${TARGETBIN}/dashtdb
+echo "+ dashtdb"
+echo "${SCRIPTNAME} - Enabling the execution of DashT system analysis script:"
+echo ${DASHTGLOBSCRIPTDIR}/o-platforminfo.sh
+chmod 755 ${DASHTGLOBSCRIPTDIR}/o-platforminfo.sh
+echo "(enabled)"
+
+echo "${SCRIPTNAME} - Done."
+
+exit 0

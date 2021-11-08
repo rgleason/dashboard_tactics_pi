@@ -33,14 +33,14 @@
 #include <cmath>
 
 #include "instrument.h"
-#include "wx28compat.h"
 
-#ifdef _TACTICSPI_H_
+#include "dashboard_pi_ext.h"
+
 #include "plugin_ids.h"
 wxBEGIN_EVENT_TABLE (DashboardInstrument,wxControl)
-    EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
+EVT_TIMER (myID_DBP_I_TIMER_TICK, DashboardInstrument::OnDPBITimerTick)
+EVT_CLOSE (DashboardInstrument::OnClose)
 wxEND_EVENT_TABLE ()
-#endif // _TACTICSPI_H_
 
 //----------------------------------------------------------------
 //
@@ -48,61 +48,78 @@ wxEND_EVENT_TABLE ()
 //
 //----------------------------------------------------------------
 
-DashboardInstrument::DashboardInstrument(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
-                        unsigned long long cap_flag, bool drawSoloInPane
-#else
-                        int cap_flag
-#endif // _TACTICSPI_H_
-    ):wxControl(pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
+DashboardInstrument::DashboardInstrument( wxWindow *pparent, wxWindowID id, wxString title,
+                                          unsigned long long cap_flag, bool drawSoloInPane ) :
+    wxControl( pparent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE )
 {
 
-#ifdef _TACTICSPI_H_
       m_title = title.wc_str();
-#else
-      m_title = title;
-#endif // _TACTICSPI_H_
       m_cap_flag = cap_flag;
       instrumentTypeId = 0;
       SetBackgroundStyle( wxBG_STYLE_CUSTOM );
-#ifdef _TACTICSPI_H_
       SetDrawSoloInPane( drawSoloInPane );
-#else
-      SetDrawSoloInPane(false);
-#endif // _TACTICSPI_H_
       wxClientDC dc(this);
       int width;
       dc.GetTextExtent(m_title, &width, &m_TitleHeight, 0, 0, g_pFontTitle);
 
-      Connect(wxEVT_ERASE_BACKGROUND, wxEraseEventHandler(DashboardInstrument::OnEraseBackground));
-      Connect(wxEVT_PAINT, wxPaintEventHandler(DashboardInstrument::OnPaint));
+      Connect( wxEVT_ERASE_BACKGROUND,
+               wxEraseEventHandler(
+                   DashboardInstrument::OnEraseBackground) );
+      Connect( wxEVT_PAINT, wxPaintEventHandler(
+                   DashboardInstrument::OnPaint) );
       
-      //  On OSX, there is an orphan mouse event that comes from the automatic
-      //  exEVT_CONTEXT_MENU synthesis on the main wxWindow mouse handler.
-      //  The event goes to an instrument window (here) that may have been deleted by the
-      //  preferences dialog.  Result is NULL deref.
-      //  Solution:  Handle right-click here, and DO NOT skip()
-      //  Strangely, this does not work for GTK...
-      //  See: http://trac.wxwidgets.org/ticket/15417
+      /* On OSX, there is an orphan mouse event that comes from the automatic
+         exEVT_CONTEXT_MENU synthesis on the main wxWindow mouse handler.
+         The event goes to an instrument window (here) that may have been
+         deleted by the preferences dialog.  Result is NULL deref.
+         Solution:  Handle right-click here, and DO NOT skip()
+         Strangely, this does not work for GTK...
+         See: http://trac.wxwidgets.org/ticket/15417 */
       
 #ifdef __WXOSX__
-      Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(DashboardInstrument::MouseEvent), NULL, this);
+      Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler(
+                  DashboardInstrument::MouseEvent), NULL, this );
 #endif
-#ifdef _TACTICSPI_H_
       m_DPBITickTimer = new wxTimer( this, myID_DBP_I_TIMER_TICK );
       previousTimestamp = 0LL;
+      deltaOfTimeStamps = LLONG_MAX;
+      receivedTimeStamp = false;
+      sameGoodDeltaTsCnt = 0;
       m_DPBITickTimer->Start( DBP_I_TIMER_TICK, wxTIMER_CONTINUOUS );
-#endif // _TACTICSPI_H_
 }
 
-#ifdef _TACTICSPI_H_
 DashboardInstrument::~DashboardInstrument()
 {
-    this->m_DPBITickTimer->Stop();
+    if ( this->m_DPBITickTimer != NULL ) {
+        this->m_DPBITickTimer->Stop();
+        delete this->m_DPBITickTimer;
+    }
+}
+void DashboardInstrument::OnClose( wxCloseEvent &event )
+{
+    if ( this->m_DPBITickTimer != NULL ) {
+        this->m_DPBITickTimer->Stop();
+    }
+    event.Skip(); // Destroy() must be called
 }
 void DashboardInstrument::setTimestamp( long long ts )
 {
-    previousTimestamp = ts;
+    if ( ts != 0LL ) {
+        if ( previousTimestamp > 0LL) { 
+            deltaOfTimeStamps = ts - previousTimestamp;
+            if ( deltaOfTimeStamps > 0LL )
+                receivedTimeStamp = true;
+            else if ( deltaOfTimeStamps < 0LL ) {
+                if ( llabs( deltaOfTimeStamps ) > DBP_I_TIMER_TICK )
+                    deltaOfTimeStamps = LLONG_MIN; // a blast from past!
+            }
+        }
+        previousTimestamp = ts;
+    }
+    else {
+        if ( previousTimestamp > 0LL)
+            deltaOfTimeStamps = LLONG_MIN; // stopped
+    }
 }
 long long DashboardInstrument::getTimestamp()
 {
@@ -111,16 +128,26 @@ long long DashboardInstrument::getTimestamp()
 void DashboardInstrument::OnDPBITimerTick( wxTimerEvent &event )
 {
     if (previousTimestamp == 0LL)
-        return;
-    wxLongLong wxllNowMs = wxGetUTCTimeMillis();
-    long long  llNowMs = wxllNowMs.GetValue();
-    if ( (llNowMs - previousTimestamp) >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) {
+        return; // no timestamps yet
+    if (deltaOfTimeStamps == LLONG_MAX)
+        return; // no at least two timestamps yet
+    // Note: we use relative time, not "now" because of play-back plug-ins
+    if ( receivedTimeStamp ) {
+        receivedTimeStamp = false;
+        sameGoodDeltaTsCnt = 0;
+    }
+    else
+        sameGoodDeltaTsCnt++;
+    if ( ( deltaOfTimeStamps >= (DBP_I_TIMER_TICK * DBP_I_DATA_TIMEOUT) ) ||
+         ( deltaOfTimeStamps < 0LL ) || // time running backwards
+         ( sameGoodDeltaTsCnt >= DBP_I_DATA_TIMEOUT ) ) {
         this->timeoutEvent();
-        previousTimestamp = llNowMs;
+        previousTimestamp = 0LL;
+        deltaOfTimeStamps = LLONG_MAX;
+        receivedTimeStamp = false;
+        sameGoodDeltaTsCnt = 0;
     }
 }
-
-#endif // _TACTICSPI_H_
 
 void DashboardInstrument::MouseEvent( wxMouseEvent &event )
 {
@@ -134,11 +161,7 @@ void DashboardInstrument::MouseEvent( wxMouseEvent &event )
     }
 }
 
-#ifdef _TACTICSPI_H_
-    unsigned long long DashboardInstrument::GetCapacity()
-#else
-    int DashboardInstrument::GetCapacity()
-#endif // _TACTICSPI_H_
+unsigned long long DashboardInstrument::GetCapacity()
 {
       return m_cap_flag;
 }
@@ -172,7 +195,7 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
 #endif
 
     wxColour cl;
-    GetGlobalColor( _T("DASHB"), &cl );
+    GetGlobalColor( g_sDialColorBackground, &cl );
     dc.SetBackground( cl );
 #ifdef __WXGTK__
     dc.SetBrush( cl );
@@ -193,14 +216,14 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
         {
             wxPen pen;
             pen.SetStyle( wxPENSTYLE_SOLID );
-            GetGlobalColor( _T("DASHL"), &cl );
+            GetGlobalColor( g_sDialColorLabel, &cl );
             pen.SetColour( cl );
             dc.SetPen( pen );
             dc.SetBrush( cl );
             dc.DrawRoundedRectangle( 0, 0, size.x, m_TitleHeight, 3 );
 
             dc.SetFont( *g_pFontTitle );
-            GetGlobalColor( _T("DASHF"), &cl );
+            GetGlobalColor( g_sDialColorForeground, &cl );
             dc.SetTextForeground( cl );
             dc.DrawText( m_title, 5, 0 );
         }
@@ -208,26 +231,27 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
 #ifdef __WXMSW__
         if( g_pFontTitle->GetPointSize() <= 12 ) {
             wxColour cl;
-            GetGlobalColor( _T("DASHB"), &cl );
+            GetGlobalColor( g_sDialColorBackground, &cl );
             pdc.SetBrush(cl);
             pdc.DrawRectangle(0, 0, size.x, m_TitleHeight);
 
             wxPen pen;
             pen.SetStyle( wxPENSTYLE_SOLID );
-            GetGlobalColor( _T("DASHL"), &cl );
+            GetGlobalColor( g_sDialColorLabel, &cl );
             pen.SetColour( cl );
             pdc.SetPen( pen );
             pdc.SetBrush( cl );
             pdc.DrawRoundedRectangle( 0, 0, size.x, m_TitleHeight, 3 );
 
             pdc.SetFont( *g_pFontTitle );
-            GetGlobalColor( _T("DASHF"), &cl );
+            GetGlobalColor( g_sDialColorForeground, &cl );
             pdc.SetTextForeground( cl );
             pdc.DrawText( m_title, 5, 0 );
         }
 #endif
     }
 }
+
 
 //----------------------------------------------------------------
 //
@@ -236,11 +260,7 @@ void DashboardInstrument::OnPaint( wxPaintEvent& WXUNUSED(event) )
 //----------------------------------------------------------------
 
 DashboardInstrument_Single::DashboardInstrument_Single(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                        unsigned long long cap_flag,
-#else
-                                                       int cap_flag,
-#endif // _TACTICSPI_H_
                                                        wxString format)
       :DashboardInstrument(pparent, id, title, cap_flag)
 {
@@ -251,16 +271,26 @@ DashboardInstrument_Single::DashboardInstrument_Single(wxWindow *pparent, wxWind
 
 wxSize DashboardInstrument_Single::GetSize( int orient, wxSize hint )
 {
-      wxClientDC dc(this);
-      int w;
-      dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-      dc.GetTextExtent(_T("000"), &w, &m_DataHeight, 0, 0, g_pFontData);
+    wxClientDC dc(this);
+    int w;
+    dc.GetTextExtent( m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle );
+    dc.GetTextExtent( _T("000"), &w, &m_DataHeight, 0, 0, g_pFontData );
 
-      if( orient == wxHORIZONTAL ) {
-          return wxSize( DefaultWidth, wxMax(hint.y, m_TitleHeight+m_DataHeight) );
-      } else {
-          return wxSize( wxMax(hint.x, DefaultWidth), m_TitleHeight+m_DataHeight );
-      }
+    if( orient == wxHORIZONTAL ) {
+        return wxSize(
+            DefaultWidth,
+#ifdef __WXMSW__
+            // On Win10 wxW3.1.2 allow making a narrow, horizontal strip
+            (m_TitleHeight + m_DataHeight + 3) );
+#else
+            // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+            wxMax( hint.y, (m_TitleHeight + m_DataHeight) ) );
+#endif
+    }
+    else {
+        return wxSize(
+            wxMax( hint.x, DefaultWidth ), (m_TitleHeight + m_DataHeight) );
+    }
 }
 
 void DashboardInstrument_Single::Draw(wxGCDC* dc)
@@ -270,12 +300,12 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
       wxBitmap tbm( dc->GetSize().x, m_DataHeight, -1 );
       wxMemoryDC tdc( tbm );
       wxColour c2;
-      GetGlobalColor( _T("DASHB"), &c2 );
+      GetGlobalColor( g_sDialColorBackground, &c2 );
       tdc.SetBackground( c2 );
       tdc.Clear();
 
       tdc.SetFont(*g_pFontData );
-      GetGlobalColor( _T("DASHF"), &cl );
+      GetGlobalColor( g_sDialColorForeground, &cl );
       tdc.SetTextForeground( cl );
 
       tdc.DrawText(m_data, 10, 0);
@@ -285,7 +315,7 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
       dc->DrawBitmap(tbm, 0, m_TitleHeight, false);
 #else
       dc->SetFont(*g_pFontData );
-      GetGlobalColor( _T("DASHF"), &cl );
+      GetGlobalColor( g_sDialColorForeground, &cl );
       dc->SetTextForeground( cl );
 
       dc->DrawText(m_data, 10, m_TitleHeight);
@@ -295,43 +325,36 @@ void DashboardInstrument_Single::Draw(wxGCDC* dc)
 }
 
 void DashboardInstrument_Single::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
-    setTimestamp( timestamp );
     // units strings shall allow passing long format strings
     unit = unit.wc_str();
-#endif // _TACTICSPI_H_
-      if (m_cap_flag & st){
-            if(!std::isnan(data) && (data < 9999)){
+      if ( m_cap_flag & st ){
+            if( !std::isnan( data ) && (data < 9999.) ) {
                 if (unit == _T("C"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("C");
-#ifdef _TACTICSPI_H_
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_T("C");
                 else if (unit == _T("F"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("F");
-#endif // _TACTICSPI_H_
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_T("F");
                 else if (unit == _T("\u00B0"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN;
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN;
                 else if (unit == _T("\u00B0T"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" true");
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_(" true");
                 else if (unit == _T("\u00B0M"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_(" mag");
-#ifdef _TACTICSPI_H_
+                  m_data = wxString::Format(
+                      m_format, data)+DEGREE_SIGN+_(" mag");
                 else if (unit == _T("\u00B0l")){
                     if (data < 0) data = -data;
                     m_data = L"\u2190" +
                         wxString::Format(m_format, data) + DEGREE_SIGN;
                 }
-                else if (unit == _T("\u00B0rl")){ // wind arrow on starboard side
+                else if (unit == _T("\u00B0rl")){ // arrow starboard side
                   if (data < 0) data = -data;
                   m_data = wxString::Format(m_format, data) +
                       DEGREE_SIGN + L"\u2190";
@@ -356,34 +379,30 @@ void DashboardInstrument_Single::SetData(
                   m_data = wxString::Format(m_format, data) +
                       DEGREE_SIGN + L"\u2193";
                 }
-#else
-                else if (unit == _T("\u00B0L"))
-                  m_data = _T(">")+ wxString::Format(m_format, data)+DEGREE_SIGN;
-                else if (unit == _T("\u00B0R"))
-                  m_data = wxString::Format(m_format, data)+DEGREE_SIGN+_T("<");
-#endif // _TACTICSPI_H_
                 else if (unit == _T("N")) //Knots
                   m_data = wxString::Format(m_format, data)+_T(" Kts");
-/* maybe in the future ...
+                /* maybe in the future ...
                 else if (unit == _T("M")) // m/s
                   m_data = wxString::Format(m_format, data)+_T(" m/s");
                 else if (unit == _T("K")) // km/h
                   m_data = wxString::Format(m_format, data)+_T(" km/h");
- ... to be completed
- */
+                  ... to be completed
+                */
                 else
                   m_data = wxString::Format(m_format, data)+_T(" ")+unit;
+
+                setTimestamp( timestamp );
+
             }
             else
                 m_data = _T("---");
       }
 }
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Single::timeoutEvent()
 {
     m_data = _T("---");
+    derivedTimeoutEvent();
 }
-#endif // _TACTICSPI_H_
 //----------------------------------------------------------------
 //
 //    DashboardInstrument_Position Implementation
@@ -391,13 +410,8 @@ void DashboardInstrument_Single::timeoutEvent()
 //----------------------------------------------------------------
 
 DashboardInstrument_Position::DashboardInstrument_Position(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                                            unsigned long long cap_flag1,
                                                            unsigned long long cap_flag2
-#else
-                                                           int cap_flag1,
-                                                           int cap_flag2
-#endif // _TACTICSPI_H_
     )
       :DashboardInstrument(pparent, id, title, cap_flag1 | cap_flag2)
 {
@@ -414,12 +428,22 @@ wxSize DashboardInstrument_Position::GetSize( int orient, wxSize hint )
       wxClientDC dc(this);
       int w;
       dc.GetTextExtent(m_title, &w, &m_TitleHeight, 0, 0, g_pFontTitle);
-      dc.GetTextExtent(_T("000  00.0000 W"), &w, &m_DataHeight, 0, 0, g_pFontData);
+      dc.GetTextExtent(
+          _T("000  00.0000 W"), &w, &m_DataHeight, 0, 0, g_pFontData);
 
       if( orient == wxHORIZONTAL ) {
-          return wxSize( w+10, wxMax(hint.y, m_TitleHeight+m_DataHeight*2) );
+          return wxSize(
+              (w + 5),
+#ifdef __WXMSW__
+              // On Win10 wxW3.1.2 optimize the height to make narrower strip
+              (m_TitleHeight + (2 * m_DataHeight) + 3) );
+#else
+              // On Ubuntu 20.04LS wxW3.0.5 one can make a narrow strip:
+              wxMax( hint.y, (m_TitleHeight + (2 * m_DataHeight)) ) );
+#endif
       } else {
-          return wxSize( wxMax(hint.x, w+10), m_TitleHeight+m_DataHeight*2 );
+          return wxSize( wxMax( hint.x, (w + 5) ),
+                         (m_TitleHeight + (2 * m_DataHeight)) );
       }
 }
 
@@ -431,12 +455,12 @@ void DashboardInstrument_Position::Draw(wxGCDC* dc)
       wxBitmap tbm( dc->GetSize().x, m_DataHeight * 2, -1 );
       wxMemoryDC tdc( tbm );
       wxColour c2;
-      GetGlobalColor( _T("DASHB"), &c2 );
+      GetGlobalColor( g_sDialColorBackground, &c2 );
       tdc.SetBackground( c2 );
       tdc.Clear();
 
       tdc.SetFont(*g_pFontData );
-      GetGlobalColor( _T("DASHF"), &cl );
+      GetGlobalColor( g_sDialColorForeground, &cl );
       tdc.SetTextForeground( cl );
 
       tdc.DrawText(m_data1, 10, 0);
@@ -447,7 +471,7 @@ void DashboardInstrument_Position::Draw(wxGCDC* dc)
       dc->DrawBitmap(tbm, 0, m_TitleHeight, false);
 #else
       dc->SetFont(*g_pFontData );
-      GetGlobalColor( _T("DASHF"), &cl );
+      GetGlobalColor( g_sDialColorForeground, &cl );
       dc->SetTextForeground( cl );
 
       dc->DrawText(m_data1, 10, m_TitleHeight);
@@ -458,20 +482,12 @@ void DashboardInstrument_Position::Draw(wxGCDC* dc)
 }
 
 void DashboardInstrument_Position::SetData(
-#ifdef _TACTICSPI_H_
     unsigned long long st,
-#else
-    int st,
-#endif // _TACTICSPI_H_
     double data, wxString unit
-#ifdef _TACTICSPI_H_
     , long long timestamp
-#endif // _TACTICSPI_H_
     )
 {
-#ifdef _TACTICSPI_H_
     setTimestamp( timestamp );
-#endif // _TACTICSPI_H_
     if (st == m_cap_flag1)
     {
         m_data1 = toSDMM(1, data);
@@ -484,13 +500,11 @@ void DashboardInstrument_Position::SetData(
     else return;
     Refresh();
 }
-#ifdef _TACTICSPI_H_
 void DashboardInstrument_Position::timeoutEvent()
 {
       m_data1 = _T("---");
       m_data2 = _T("---");
 }
-#endif // _TACTICSPI_H_
 
 /**************************************************************************/
 /*          Some assorted utilities                                       */

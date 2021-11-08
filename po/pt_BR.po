@@ -2,461 +2,803 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-12 22:19-0400\n"
-"PO-Revision-Date: 2019-03-18 02:56\n"
-"Last-Translator: nohal <pavel@kalian.cz>\n"
+"POT-Creation-Date: 2020-04-01 19:52+0200\n"
+"PO-Revision-Date: 2020-03-09 15:28\n"
+"Last-Translator: iamnoman <iamnoman@noman.com>\n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: pt-BR\n"
-"X-Crowdin-File: /plugins/dashboard_pi/po/dashboard_pi.pot\n"
-
-#: src/clock.cpp:164 src/dial.cpp:526 src/gps.cpp:142 src/wind.cpp:66
-#: src/wind_history.cpp:433
-msgid "N"
-msgstr "N"
-
-#: src/dashboard_pi.cpp:107
-msgid "Position"
-msgstr "Posição"
-
-#: src/dashboard_pi.cpp:109
-msgid "SOG"
-msgstr "SOG"
-
-#: src/dashboard_pi.cpp:111
-msgid "Speedometer"
-msgstr "Velocímetro"
-
-#: src/dashboard_pi.cpp:113
-msgid "COG"
-msgstr "COG"
-
-#: src/dashboard_pi.cpp:115
-msgid "Mag COG"
-msgstr "Mag COG"
-
-#: src/dashboard_pi.cpp:117
-msgid "GPS Compass"
-msgstr "Bússola GPS"
-
-#: src/dashboard_pi.cpp:119
-msgid "True Compass"
-msgstr "Verdadeira bússola"
-
-#: src/dashboard_pi.cpp:121
-msgid "STW"
-msgstr "STW"
-
-#: src/dashboard_pi.cpp:123
-msgid "True HDG"
-msgstr "Verdadeiro HDG"
-
-#: src/dashboard_pi.cpp:125
-msgid "Mag HDG"
-msgstr "Magnético HDG"
-
-#: src/dashboard_pi.cpp:128
-msgid "App. Wind Angle & Speed"
-msgstr "Velocidade e ângulo do vento aparente"
-
-#: src/dashboard_pi.cpp:130
-msgid "App & True Wind Angle"
-msgstr "Angulo do vento Aparente e Verdadeiro"
-
-#: src/dashboard_pi.cpp:132 src/dashboard_pi.cpp:134
-msgid "App. Wind Speed"
-msgstr "Velocidade do vento aparente"
-
-#: src/dashboard_pi.cpp:136
-msgid "True Wind Angle & Speed"
-msgstr "Velocidade e ângulo do vento verdadeiro"
-
-#: src/dashboard_pi.cpp:138 src/dashboard_pi.cpp:140
-msgid "Depth"
-msgstr "Profundidade"
-
-#: src/dashboard_pi.cpp:142 src/dashboard_pi.cpp:144
-msgid "Barometric pressure"
-msgstr "Pressão barométrica"
-
-#: src/dashboard_pi.cpp:146
-msgid "Water Temp."
-msgstr "Temperatura da água."
-
-#: src/dashboard_pi.cpp:148
-msgid "Air Temp."
-msgstr "Temperatura do ar."
-
-#: src/dashboard_pi.cpp:150
-msgid "App. Wind Angle"
-msgstr "Ângulo do vento aparente"
-
-#: src/dashboard_pi.cpp:152
-msgid "True Wind Angle"
-msgstr "Angulo do vento verdadeiro"
-
-#: src/dashboard_pi.cpp:154
-msgid "True Wind Direction"
-msgstr "Direção do vento verdadeiro"
-
-#: src/dashboard_pi.cpp:156
-msgid "True Wind Speed"
-msgstr "Velocidade do vento verdadeira"
-
-#: src/dashboard_pi.cpp:158
-msgid "True Wind Dir. & Speed"
-msgstr "Dir. do vento verdadeiro & velocidade"
-
-#: src/dashboard_pi.cpp:160 src/dashboard_pi.cpp:162
-msgid "VMG"
-msgstr "VMG"
-
-#: src/dashboard_pi.cpp:164 src/dashboard_pi.cpp:166
-msgid "Rudder Angle"
-msgstr "Ângulo do leme"
-
-#: src/dashboard_pi.cpp:168
-msgid "GPS in View"
-msgstr "GPS no modo de exibição"
-
-#: src/dashboard_pi.cpp:170
-msgid "GPS Status"
-msgstr "Status do GPS"
-
-#: src/dashboard_pi.cpp:172
-msgid "Cursor"
-msgstr "Cursor"
-
-#: src/dashboard_pi.cpp:174
-msgid "GPS Clock"
-msgstr "Relógio GPS"
-
-#: src/dashboard_pi.cpp:176
-msgid "Sunrise/Sunset"
-msgstr "Nascer/pôr do sol"
-
-#: src/dashboard_pi.cpp:178
-msgid "Moon phase"
-msgstr "Fase da lua"
-
-#: src/dashboard_pi.cpp:180
-msgid "Wind history"
-msgstr "Histórico do vento"
-
-#: src/dashboard_pi.cpp:182
-msgid "Barometric history"
-msgstr "Histórico barométrica"
-
-#: src/dashboard_pi.cpp:184
-msgid "Trip Log"
-msgstr "Log de viagem"
-
-#: src/dashboard_pi.cpp:186
-msgid "Sum Log"
-msgstr "Soma Log"
-
-#: src/dashboard_pi.cpp:188
-msgid "From Ownship"
-msgstr "Do Próprio Barco"
-
-#: src/dashboard_pi.cpp:190
-msgid "Pitch"
-msgstr "Pitch"
-
-#: src/dashboard_pi.cpp:192
-msgid "Heel"
-msgstr "Salto"
-
-#: src/dashboard_pi.cpp:194
-msgid "Local GPS Clock"
-msgstr "Relógio local GPS"
-
-#: src/dashboard_pi.cpp:196
-msgid "Local CPU Clock"
-msgstr "Relógio local CPU"
-
-#: src/dashboard_pi.cpp:198
-msgid "Local Sunrise/Sunset"
-msgstr "Nascer/Pôr do sol Local"
-
-#: src/dashboard_pi.cpp:395 src/dashboard_pi.cpp:510 src/dashboard_pi.cpp:1494
-#: src/dashboard_pi.cpp:1507 src/dashboard_pi.cpp:1693 src/dashboard_pi.cpp:1732
-#: src/dashboard_pi.cpp:2071
-msgid "Dashboard"
-msgstr "Painel de controle"
-
-#: src/dashboard_pi.cpp:515
-msgid "Dashboard PlugIn for OpenCPN"
-msgstr "Dashboard PlugIn for OpenCPN"
-
-#: src/dashboard_pi.cpp:520
-msgid "Dashboard PlugIn for OpenCPN\n"
-"Provides navigation instrument display from NMEA source."
-msgstr "PlugIn Dashboard OpenCPN\n"
-"Fornece a exibição de instrumentos de navegação da fonte NMEA."
-
-#: src/dashboard_pi.cpp:1670
-msgid "Dashboard preferences"
-msgstr "Dashboard preferences"
-
-#: src/dashboard_pi.cpp:1739
-msgid "show this dashboard"
-msgstr "mostrar este painel"
-
-#: src/dashboard_pi.cpp:1745
-msgid "Caption:"
-msgstr "Legenda:"
-
-#: src/dashboard_pi.cpp:1753
-msgid "Orientation:"
-msgstr "orientação:"
-
-#: src/dashboard_pi.cpp:1757 src/dashboard_pi.cpp:2268
-msgid "Vertical"
-msgstr "Vertical"
-
-#: src/dashboard_pi.cpp:1758 src/dashboard_pi.cpp:2270
-msgid "Horizontal"
-msgstr "Horizontal"
-
-#: src/dashboard_pi.cpp:1765 src/dashboard_pi.cpp:1773 src/dashboard_pi.cpp:2190
-msgid "Instruments"
-msgstr "Instrumentos"
-
-#: src/dashboard_pi.cpp:1781
+"X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
+#
+msgid ""
+"\n"
+"(↑Tactics at the end of the list)"
+msgstr ""
+"\n"
+"(「Táticas no final da lista)"
+#
+msgid " + corresp.gain"
+msgstr " + ganho corresp"
+#
+msgid " 45°"
+msgstr " 45°"
+#
+msgid " 90°"
+msgstr " 90°"
+#
+#, c-format
+msgid " Max %.1f since %02d:%02d  Overall Max %.1f Min %.1f "
+msgstr " Max %.1f desde %02d: %02d Total %.1f Min %.1f "
+#
+msgid " Preferences"
+msgstr " Preferências"
+#
+msgid " angle + Perf. %"
+msgstr " angulo+ Perf. %"
+#
+msgid " mag"
+msgstr ""
+#
+msgid " true"
+msgstr " verdadeiro"
+#
+msgid ""
+"'>' starts data export and creates a new or appends to an existing file,\n"
+"'X' stops data export"
+msgstr ""
+"'>' inicia a exportação de dados e cria um novo ou anexa a um ficheiro "
+"existente,\n"
+"'X' interrompe a exportação de dados"
+#
+msgid "--"
+msgstr "--"
+#
+msgid "-Angle"
+msgstr ""
+#
+msgid "10 kn"
+msgstr "10 nós"
+#
+msgid "135°"
+msgstr "135°"
+#
+msgid "15 kn"
+msgstr "15 nós"
+#
+msgid "20 kn"
+msgstr "20 nós"
+#
+msgid "25 kn"
+msgstr "25 nós"
+#
+msgid "5 kn"
+msgstr "5 nós"
+#
+msgid ";"
+msgstr ";"
+#
+msgid ">"
+msgstr ">"
+#
 msgid "Add"
 msgstr "Adicionar"
-
-#: src/dashboard_pi.cpp:1794
-msgid "Delete"
-msgstr "Apagar"
-
-#: src/dashboard_pi.cpp:1800
-msgid "Up"
-msgstr "Para cima"
-
-#: src/dashboard_pi.cpp:1805
-msgid "Down"
-msgstr "Para baixo"
-
-#: src/dashboard_pi.cpp:1815
+#
+msgid "Add instrument"
+msgstr "Adicionar instrumento"
+#
+msgid ""
+"Adds Clockticks to the data exports of BaroHistory, PolarPerformance and "
+"WindHistory"
+msgstr ""
+#
+msgid ""
+"Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, "
+"PolarPerformance and WindHistory"
+msgstr ""
+#
+msgid "Air Temp."
+msgstr "Temperatura do ar."
+#
+msgid "App & True Wind Angle"
+msgstr ""
+#
+msgid "App. Wind Angle"
+msgstr "Ângulo do vento aparente"
+#
+msgid "App. Wind Angle & Speed"
+msgstr ""
+#
+msgid "App. Wind Speed"
+msgstr ""
+#
 msgid "Appearance"
 msgstr "Aparência"
-
-#: src/dashboard_pi.cpp:1817
-msgid "Fonts"
-msgstr "Fontes"
-
-#: src/dashboard_pi.cpp:1823
-msgid "Title:"
-msgstr "Título:"
-
-#: src/dashboard_pi.cpp:1829
-msgid "Data:"
-msgstr "Dados:"
-
-#: src/dashboard_pi.cpp:1835
-msgid "Label:"
-msgstr "Etiqueta:"
-
-#: src/dashboard_pi.cpp:1841
-msgid "Small:"
-msgstr "Pequeno:"
-
-#: src/dashboard_pi.cpp:1849
-msgid "Units, Ranges, Formats"
-msgstr "Unidades, Intervalos, Formatos"
-
-#: src/dashboard_pi.cpp:1855
-msgid "Speedometer max value:"
-msgstr "Valor máximo do velocímetro:"
-
-#: src/dashboard_pi.cpp:1861
-msgid "Speed Over Ground Damping Factor:"
-msgstr "Velocidade sobre solo, fator de amortecimento:"
-
-#: src/dashboard_pi.cpp:1867
-msgid "COG Damping Factor:"
-msgstr "COG Fator de amortecimento:"
-
-#: src/dashboard_pi.cpp:1873
-msgid "Local Time Offset From UTC:"
-msgstr "Deslocamento da hora local da UTC:"
-
-#: src/dashboard_pi.cpp:1892
+#
+msgid ""
+"Apply a correction to your log speed throughout the plugin based on the "
+"calculated Leeway and Current.\n"
+"Only makes sense with a real heel sensor.\n"
+"Make sure your instruments do not already apply this correction !"
+msgstr ""
+#
+msgid "Barometric history"
+msgstr ""
+#
+msgid "Barometric pressure"
+msgstr "Pressão barométrica"
+#
 msgid "Boat speed units:"
 msgstr "Unidades de velocidade do barco:"
-
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1936
-msgid "Honor OpenCPN settings"
-msgstr "Configurações do OpenCPN de honra"
-
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
-msgid "Kts"
-msgstr "KTs"
-
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
-msgid "mph"
-msgstr "mph"
-
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
-msgid "km/h"
-msgstr "km/h"
-
-#: src/dashboard_pi.cpp:1895 src/dashboard_pi.cpp:1945
-msgid "m/s"
-msgstr "m/s"
-
-#: src/dashboard_pi.cpp:1901
-msgid "Depth units:"
-msgstr "Unidades de Profundidade:"
-
-#: src/dashboard_pi.cpp:1904 src/dashboard_pi.cpp:1936
-msgid "Meters"
-msgstr "Metros"
-
-#: src/dashboard_pi.cpp:1904
-msgid "Feet"
-msgstr "Pés"
-
-#: src/dashboard_pi.cpp:1904
-msgid "Fathoms"
-msgstr "Braças"
-
-#: src/dashboard_pi.cpp:1904
-msgid "Inches"
-msgstr "Polegadas"
-
-#: src/dashboard_pi.cpp:1904
+#
+msgid "Boat's Leeway factor [0-20]:  "
+msgstr ""
+#
+msgid "COG"
+msgstr "COG"
+#
+msgid "COG Damping Factor:"
+msgstr "Factor de Amortecimento do Rumo Verdadeiro (COG):"
+#
+msgid "Caption:"
+msgstr "Legenda:"
+#
+msgid "Celsius"
+msgstr "Celsius"
+#
 msgid "Centimeters"
 msgstr "Centímetros"
-
-#: src/dashboard_pi.cpp:1909
+#
+msgid "Choose a new or existing file"
+msgstr "Escolha um ficheiro novo ou existente"
+#
+#, c-format
+msgid "ClockTicks%s"
+msgstr "Tiques de relógio%s"
+#
+msgid "CoG on other Tack"
+msgstr "Rumo verdadeiro (CoG) na outra amura"
+#
+msgid "Correct AWS/AWA with Heel"
+msgstr ""
+#
+msgid "Correct STW with Leeway"
+msgstr ""
+#
+msgid "Current"
+msgstr "Currente"
+#
+msgid "Current Direction + Speed"
+msgstr ""
+#
+msgid "Current damping factor [1-400]:  "
+msgstr "Factor de amortecimento atual[1-400]:  "
+#
+msgid ""
+"Currently only set up for NKE instruments. Exports a predefined set of up to "
+"5 NMEA records which are 'known' by NKE instruments and can be displayed "
+"there.\n"
+"Read the manual how to set up the interface connection !"
+msgstr ""
+#
+msgid "Cursor"
+msgstr "Cursor"
+#
+msgid "Dashboard"
+msgstr ""
+#
+msgid ""
+"Dashboard PlugIn for OpenCPN\n"
+"Provides navigation instrument display from NMEA source."
+msgstr ""
+#
+msgid ""
+"Dashboard PlugIn with Tactics for OpenCPN\n"
+"Provides navigation instruments enhanced with performance functions and "
+"alternative input/output functions."
+msgstr ""
+#
+msgid "Dashboard and Tactics"
+msgstr ""
+#
+msgid "Dashboard preferences"
+msgstr ""
+#
+msgid "Dashboard_Tactics"
+msgstr ""
+#
+msgid "Data Separator :"
+msgstr "Separador de Dados :"
+#
+msgid "Data:"
+msgstr "Dados:"
+#
+msgid "Delete"
+msgstr "Eliminar"
+#
+msgid "Depth"
+msgstr "Profundidade"
+#
 #, c-format
 msgid "Depth Offset (%s):"
 msgstr "Diferença de Profundidade (%s):"
-
-#: src/dashboard_pi.cpp:1933
+#
+msgid "Depth units:"
+msgstr "Unidades de Profundidade:"
+#
+msgid "Diff. angle to Target-"
+msgstr "Dif. angulo para Alvo-"
+#
+msgid "Display Current on Chart (OpenGL)"
+msgstr ""
+#
 msgid "Distance units:"
 msgstr "Unidades de distância:"
-
-#: src/dashboard_pi.cpp:1936
-msgid "Nautical miles"
-msgstr "Milhas Náuticas"
-
-#: src/dashboard_pi.cpp:1936
-msgid "Statute miles"
-msgstr "Milhas Regulamento"
-
-#: src/dashboard_pi.cpp:1936
-msgid "Kilometers"
-msgstr "Quilômetros"
-
-#: src/dashboard_pi.cpp:1942
-msgid "Wind speed units:"
-msgstr "Unidades de velocidade do vento:"
-
-#: src/dashboard_pi.cpp:2173
-msgid "Add instrument"
-msgstr "Adicionar  instrumento"
-
-#: src/dashboard_pi.cpp:2179
-msgid "Select instrument to add:"
-msgstr "Selecione instrumento para adicionar:"
-
-#: src/dashboard_pi.cpp:2266
-msgid "Undock"
+#
+msgid "Down"
+msgstr "Para baixo"
+#
+msgid ""
+"Dual purpose !\n"
+"If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
+" If Radiobutton is set, then it fixes Leeway to this constant value."
 msgstr ""
-
-#: src/dashboard_pi.cpp:2277
-msgid "Preferences..."
-msgstr "Preferências..."
-
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:439
-msgid "NE"
-msgstr "NE"
-
-#: src/dial.cpp:526 src/gps.cpp:146 src/wind.cpp:66 src/wind_history.cpp:445
+#
 msgid "E"
 msgstr "E"
-
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:451
-msgid "SE"
-msgstr "SE"
-
-#: src/dial.cpp:526 src/gps.cpp:150 src/wind.cpp:66 src/wind_history.cpp:457
-msgid "S"
-msgstr "S"
-
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:463
-msgid "SW"
-msgstr "SW"
-
-#: src/dial.cpp:526 src/gps.cpp:154 src/wind.cpp:66 src/wind_history.cpp:469
-msgid "W"
-msgstr "W"
-
-#: src/dial.cpp:526 src/wind.cpp:66 src/wind_history.cpp:475
-msgid "NW"
-msgstr "NW"
-
-#: src/instrument.cpp:238
-msgid " true"
-msgstr " Verdadeiro"
-
-#: src/instrument.cpp:240
-msgid " mag"
-msgstr " Magnético"
-
-#: src/wind_history.cpp:56 src/wind_history.cpp:107
-msgid "--"
-msgstr "--"
-
-#: src/wind_history.cpp:331
-#, c-format
-msgid "--- %s"
-msgstr "---%s"
-
-#: src/wind_history.cpp:436
-msgid "NNE"
-msgstr "NNE"
-
-#: src/wind_history.cpp:442
+#
 msgid "ENE"
 msgstr "ENE"
-
-#: src/wind_history.cpp:448
+#
 msgid "ESE"
 msgstr "ESE"
-
-#: src/wind_history.cpp:454
-msgid "SSE"
-msgstr "SSE"
-
-#: src/wind_history.cpp:460
-msgid "SSW"
-msgstr "SSW"
-
-#: src/wind_history.cpp:466
-msgid "WSW"
-msgstr "WSW"
-
-#: src/wind_history.cpp:472
-msgid "WNW"
-msgstr "WNW"
-
-#: src/wind_history.cpp:478
-msgid "NNW"
-msgstr "NNW"
-
-#: src/wind_history.cpp:575
+#
+msgid "Export Data to File"
+msgstr "Exportar dados para ficheiro"
+#
+msgid "Export NMEA Performance Data"
+msgstr "Exportar dados de performance NMEA"
+#
+msgid "Export rate 1 Second"
+msgstr "Taxa de exportação 1 segundo"
+#
+msgid "Export rate 10 Seconds"
+msgstr "Taxa de exportação 10 segundos"
+#
+msgid "Export rate 20 Seconds"
+msgstr "Taxa de exportação 20 segundos"
+#
+msgid "Export rate 5 Seconds"
+msgstr "Taxa de exportação 5 segundos"
+#
+msgid "Export rate 60 Seconds"
+msgstr "Taxa de exportação 60 segundos"
+#
+msgid "Fahrenheit"
+msgstr "Fahrenheit"
+#
+msgid "Fathoms"
+msgstr "Braças"
+#
+msgid "Feet"
+msgstr "Pés"
+#
+msgid "Fonts"
+msgstr "Fontes"
+#
+msgid "Force True Wind Calculation"
+msgstr "Forçar o cálculo com vento verdadeiro"
+#
+msgid "Format in this file not recognised"
+msgstr ""
+#
+msgid "From Ownship"
+msgstr ""
+#
+msgid "GPS Clock"
+msgstr ""
+#
+msgid "GPS Compass"
+msgstr ""
+#
+msgid "GPS Status"
+msgstr "Estado do GPS"
+#
+msgid "GPS in View"
+msgstr ""
+#
+msgid "Heel"
+msgstr ""
+#
+msgid "Honor OpenCPN settings"
+msgstr "Respeitar configurações do OpenCPN"
+#
+msgid "Horizontal"
+msgstr "Horizontal"
+#
+msgid ""
+"If no heel sensor is available, you can create a manual 'heel polar' here.\n"
+"Just read/enter the data from a mechanical heel sensor (e.g. on compass).\n"
+"Use True Wind Speed & Angle only !\n"
+"Take care: motoring w/o sails&heel will show wrong current data !!!"
+msgstr ""
+#
+msgid ""
+"Import existing Tactics plugin settings into Dashboard's integrated Tactics "
+"settings? (Cancel=later)"
+msgstr ""
+#
+msgid "Inches"
+msgstr "Polegadas"
+#
+msgid "InfluxDB Steamer configuration file parsing error, see log file."
+msgstr ""
+#
+msgid "Instruments"
+msgstr "Instrumentos"
+#
+msgid ""
+"Internally calculates True Wind data (TWS,TWA,TWD) and uses it within the "
+"whole plugin even if there is True Wind data available via NMEA."
+msgstr ""
+#
+msgid "Kilometers"
+msgstr "Kilómetros"
+#
+msgid "Kts"
+msgstr "Nós"
+#
+msgid "L"
+msgstr "L"
+#
+msgid "Label:"
+msgstr "Etiqueta:"
+#
+msgid "Layline damping factor [0.025-1]:  "
+msgstr ""
+#
+msgid "Layline length on Chart [nm]:  "
+msgstr ""
+#
+msgid "Layline width damping factor [0.025-1]:  "
+msgstr ""
+#
+msgid "Laylines"
+msgstr ""
+#
+msgid "Leeway"
+msgstr ""
+#
+msgid ""
+"Leeway='Drift' of boat due to heel/wind influence\n"
+"Low values mean high performance of hull\n"
+"Leeway = (LeewayFactor * Heel) / STW²;"
+msgstr ""
+#
+msgid "Length of the boat laylines in [nm]"
+msgstr ""
+#
+msgid "Load"
+msgstr "Carregar"
+#
+msgid "Local CPU Clock"
+msgstr ""
+#
+msgid "Local GPS Clock"
+msgstr ""
+#
+msgid "Local Sunrise/Sunset"
+msgstr ""
+#
+msgid "Local Time Offset From UTC:"
+msgstr "Diferença da hora local para UTC:"
+#
+msgid "Mag COG"
+msgstr "COG Magnético"
+#
+msgid "Mag HDG"
+msgstr ""
+#
+msgid ""
+"Make sure your instruments do not internally correct AWS / AWA with heel.\n"
+"This may result in wrong wind data."
+msgstr ""
+#
+msgid "Max"
+msgstr "Max"
+#
 #, c-format
 msgid "Max %.1f %s since %02d:%02d  Overall %.1f %s"
-msgstr "Max %.1f %s desde %02d:%02d geral %.1f %s"
-
+msgstr ""
+#
+msgid "Max. Layline Width [°]:"
+msgstr ""
+#
+msgid "Max. width of boat laylines in degrees."
+msgstr ""
+#
+msgid "Meters"
+msgstr "Metros"
+#
+msgid "Min"
+msgstr "Min"
+#
+msgid "Min. Layline Width [°]:"
+msgstr ""
+#
+msgid "Min. width of boat laylines in degrees."
+msgstr ""
+#
+msgid "Moon phase"
+msgstr "Fase da lua"
+#
+msgid "N"
+msgstr "N"
+#
+msgid "NE"
+msgstr "NE"
+#
+msgid "NKE format ($PNKEP)"
+msgstr "formato NKE ($PNKEP)"
+#
+msgid "NNE"
+msgstr "NNE"
+#
+msgid "NNW"
+msgstr "NNO"
+#
+msgid "NW"
+msgstr "NO"
+#
+msgid "Nautical miles"
+msgstr "Milhas Náuticas"
+#
+msgid "Orientation:"
+msgstr "Orientação:"
+#
+msgid "Overall"
+msgstr "Absoluto"
+#
+msgid "Overall Max"
+msgstr "Máximo absoluto"
+#
+msgid "Persistent Chart Perf. Animations"
+msgstr ""
+#
+msgid "Pitch"
+msgstr ""
+#
+msgid "Polar - NOTE: ↑Tactics instruments need your boat's polars!"
+msgstr "Polar - NOTA: instrumentos táticos precisam dos polares de seu barco!"
+#
+msgid "Polar file:"
+msgstr "Ficheiro Polar:"
+#
+msgid "Position"
+msgstr "Posição"
+#
+#, fuzzy
+msgid "Preferences"
+msgstr " Preferências"
+#
+msgid "Prepend Clockticks"
+msgstr ""
+#
+msgid "Prepend UTC Timestamp"
+msgstr ""
+#
+msgid "R"
+msgstr "R"
+#
+msgid ""
+"Recommended. As True Wind blows over the earth surface, we should calc. it "
+"with Speed Over Ground.\n"
+"Eliminates the influence of currents."
+msgstr ""
+"Recomendado. Como o vento verdadeiro sopra sobre a superfície deve-se "
+"calcular com Velocidade Verdadeira.\n"
+"Elimina a influencia das correntes."
+#
+msgid "Rudder Angle"
+msgstr "Ângulo do leme"
+#
+msgid "S"
+msgstr "S"
+#
+msgid "SE"
+msgstr "SE"
+#
+msgid "SOG"
+msgstr "SOG"
+#
+msgid "SSE"
+msgstr "SSE"
+#
+msgid "SSW"
+msgstr "SSO"
+#
+msgid "STW"
+msgstr ""
+#
+msgid "SW"
+msgstr "SO"
+#
+msgid "Select a Polar-File"
+msgstr "Selecione um ficheiro Polar"
+#
+msgid "Select instrument to add:"
+msgstr "Selecione instrumento para adicionar:"
+#
+msgid ""
+"Sets the separator for the data exports of BaroHistory, PolarPerformance and "
+"WindHistory;"
+msgstr ""
+"Define o separador de dados para a exportação de BaroHistory, "
+"PolarPerformance e WindHistor;"
+#
+msgid "Show Polar on Chart (OpenGL)"
+msgstr "Mostrar Polar na carta (OpenGL)"
+#
+msgid "Show Wind Barb on Chart (OpenGL)"
+msgstr "Apresentar barbelas de vento na carta (OpenGL)"
+#
+msgid "Signal K Steamer configuration file parsing error, see log file."
+msgstr ""
+#
+msgid "Small:"
+msgstr "Pequeno:"
+#
+msgid "Speed Over Ground Damping Factor:"
+msgstr "Factor de Amortecimento da Velocidade Verdadeira:"
+#
+msgid "Speedometer"
+msgstr "Velocímetro"
+#
+msgid "Speedometer max value:"
+msgstr "Valor máximo do velocímetro:"
+#
+msgid ""
+"Stabilizes the surface current 'arrow' in the chart overlay, bearing compass "
+"and also the numerical instruments\n"
+"Low values mean high damping"
+msgstr ""
+#
+msgid "Statute miles"
+msgstr ""
+#
+msgid "Sum Log"
+msgstr ""
+#
+msgid "Sunrise/Sunset"
+msgstr "Nascer/pôr do sol"
+#
+msgid "TWS/TWA "
+msgstr ""
+#
+msgid "Target Polar Speed"
+msgstr "Velocidade Polar objetivo"
+#
+msgid "Target-"
+msgstr "Alvo-"
+#
+msgid "Temperature units:"
+msgstr "Unidades de temperatura:"
+#
+msgid "The default on program startup"
+msgstr ""
+#
+msgid ""
+"The layline damping factor determines how fast the  laylines react on your "
+"course changes, i.e. your COG changes.\n"
+" Low values mean high damping."
+msgstr ""
+#
+msgid ""
+"The width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the COG range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+#
+msgid "This option makes only sense with a real heel sensor."
+msgstr "Esta opção só faz sentido com um sensor verdadeiro de inclinação."
+#
+msgid "This will also disable the AWA/AWS correction."
+msgstr ""
+#
+msgid "Title:"
+msgstr "Título:"
+#
+msgid "Trip Log"
+msgstr ""
+#
+msgid "True Compass"
+msgstr ""
+#
+msgid "True HDG"
+msgstr ""
+#
+msgid "True Wind"
+msgstr "Vento verdadeiro"
+#
+msgid "True Wind Angle"
+msgstr "Angulo do vento verdadeiro"
+#
+msgid "True Wind Angle & Speed"
+msgstr ""
+#
+msgid "True Wind Dir. & Speed"
+msgstr "Direção && velocidade do vento verdadeiro"
+#
+msgid "True Wind Direction"
+msgstr "Direção do vento verdadeiro"
+#
+msgid "True Wind Speed"
+msgstr "Velocidade do vento verdadeiro"
+#
+#, c-format
+msgid "UTC-ISO8601%s"
+msgstr "UTC-ISO8601%s"
+#
+msgid "Undock"
+msgstr ""
+#
+msgid "Units, Ranges, Formats"
+msgstr "Unidades, Intervalos, Formatos"
+#
+msgid "Up"
+msgstr "Para cima"
+#
+msgid "Use Heel Sensor"
+msgstr ""
+#
+msgid "Use SOG instead of STW for True Wind Calc."
+msgstr ""
+#
+msgid ""
+"Use the internal heel sensor if available\n"
+"Important for the correct calculation of the surface current."
+msgstr ""
+#
+msgid ""
+"Use with care, this is normally done by the instruments themselves as soon as "
+"you have an integrated, original equipment heel sensor"
+msgstr ""
+"Usar com precaução, isto deve normalmente ser feito pelos próprios "
+"instrumentos desde que disponha de um sensor de inclinação de origem integrado"
+#
+msgid "VMG"
+msgstr ""
+#
+msgid "Vertical"
+msgstr "Vertical"
+#
+msgid "W"
+msgstr "O"
+#
+msgid "WNW"
+msgstr "ONO"
+#
+msgid "WSW"
+msgstr "OSO"
+#
+msgid "Water Temp."
+msgstr "Temperatura da água."
+#
+msgid ""
+"Width of the boat laylines is based on the yawing of the boat (vertical "
+"axis), i.e. your COG changes.\n"
+"The idea is to display the range where you're sailing to.\n"
+" Low values mean high damping."
+msgstr ""
+#
+msgid "Wind history"
+msgstr "Histórico do vento"
+#
+msgid "Wind speed units:"
+msgstr "Unidades de velocidade do vento:"
+#
+msgid "X"
+msgstr "X"
+#
+msgid "You have to turn on OpenGL to use chart overlay "
+msgstr ""
+#
+msgid "^Tactics Performance Parameters: Select a polar file"
+msgstr ""
+#
+msgid "avg."
+msgstr "méd."
+#
+msgid "fixed/max Leeway [°]:"
+msgstr ""
+#
+msgid "km/h"
+msgstr "km/h"
+#
+msgid "m/s"
+msgstr "m/s"
+#
+msgid "manual Heel input:"
+msgstr ""
+#
+msgid "mph"
+msgstr "mph"
+#
+msgid "show this dashboard"
+msgstr ""
+#
+msgid "since"
+msgstr "desde"
+#
+msgid "↑Actual "
+msgstr ""
+#
+msgid "↑Average Wind Direction"
+msgstr ""
+#
+msgid "↑Bearing Compass"
+msgstr ""
+#
+msgid "↑Current Direction"
+msgstr ""
+#
+msgid "↑Current Speed"
+msgstr ""
+#
+msgid "↑InfluxDB Out"
+msgstr ""
+#
+msgid "↑Leeway"
+msgstr ""
+#
+msgid "↑Polar Compass"
+msgstr ""
+#
+msgid "↑Polar Performance"
+msgstr ""
+#
+msgid "↑Polar Speed"
+msgstr ""
+#
+msgid "↑Show Current"
+msgstr "↑Mostrar currente"
+#
+msgid "↑Show Laylines"
+msgstr ""
+#
+msgid "↑Show Polar"
+msgstr "↑Mostrar Polar"
+#
+msgid "↑Show Windbarb"
+msgstr "↑Mostrar barbelas de vento"
+#
+msgid "↑Signal K In"
+msgstr ""
+#
+msgid "↑TWA to Waypoint"
+msgstr ""
+#
+msgid "↑Tactics Performance Parameters"
+msgstr ""
+#
+msgid "↑Target "
+msgstr ""
+#
+msgid "⬤ DashT E-Dial"
+msgstr ""
+#
+msgid "⬤ DashT Line Chart"
+msgstr ""
+#
+#
+#~ msgid "Expor trate 10 Seconds"
+#~ msgstr "Taxa de exportação 10 segundos"
+#
+#
+#~ msgid "Preferences..."
+#~ msgstr "Preferências..."

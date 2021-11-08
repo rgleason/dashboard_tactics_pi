@@ -1,4 +1,9 @@
+; /* $Id: NSIS.template.in, v1.0 2019/11/30 VaderDarth Exp $ */
 ; CPack install script designed for a nmake build
+; - project: dashboard_tactics_pi
+
+  ; Comment out for OpenCPN let-it-close-before-nobody-can-see-what-was-installed
+  !define MUI_FINISHPAGE_NOAUTOCLOSE
 
 ;--------------------------------
 ; You must define these values
@@ -23,6 +28,10 @@
 ;Include Modern UI
 
   !include "MUI.nsh"
+
+;Include File Function Header
+
+  !include "FileFunc.nsh"
 
   ;Default installation folder
   InstallDir "@CPACK_NSIS_INSTALL_ROOT@\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
@@ -149,6 +158,7 @@ Var AR_RegFlags
 
   "${SecName}_unchanged:"
 !macroend
+    
 ;--- End of Add/Remove macros ---
 
 ;--------------------------------
@@ -156,13 +166,6 @@ Var AR_RegFlags
 
   !define MUI_HEADERIMAGE
   !define MUI_ABORTWARNING
-
-;--------------------------------
-; path functions
-
-!verbose 3
-!include "WinMessages.NSH"
-!verbose 4
 
 ;----------------------------------------
 ; based upon a script of "Written by KiCHiK 2003-01-18 05:57:02"
@@ -388,13 +391,63 @@ Function un.RemoveFromPath
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Uninstall sutff
+; Uninstall stuff
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ###########################################
 #            Utility Functions            #
 ###########################################
 
+; Execute Application Specific Functions as for EXTRA_INSTALL EXTRA_UNINSTALL
+; - the below is _not_ portable to your application by cut-and-paste
+
+; Install DastT InstruJS specific filesystem templage with HTML and JS files
+; and placeholders for InfluxDB, Grafana, nginx folders, Docker Desktop
+; based container applications being the main target but making them available
+; for any application needing the access from the 'All' (Public) domain
+
+    ; Docker is Hyper V based and thus the runtime context is 'All' (Public)
+    ; However, it cannot "build mount" Windows "Public Documents " folder
+    ; contained directories because this folder can be mapped anywhere.
+    ; Therefore we install DasthT InstruJS in Public home folder.
+    ; Alternative would be to install in ~\AppData folder during
+    ; the first start of the application. However, the scripted solution
+    ; beats the C++/wxWidgets in large directory content management
+    ; Debugging: In case of a issues, leave the "pause at end" on
+    ;            (see the switch at the beginning of this template)
+    ;            and uncomment 'DetailPrint'-commands below
+
+Function installInstruJS
+    DetailPrint "installInstruJS"
+    SetShellVarContext All
+    ;DetailPrint $Documents
+    ${GetParent} $Documents $R0
+    ;DetailPrint "Parent (R0): '$R0'"
+    ; v1.98.103: Public\DashT installation given to first time run, handled
+    ;            by StartDashTDocker link: reason for this is two folded:
+    ;            1/ this respects even better the Windows installation policy
+    ;            2/ risk mitigation of fragile 'bind mount' of Docker Desktop
+    ;            please feel free to re-deploy here if 2/ not a risk anymore
+    ;SetOutPath "$R0\DashT"
+    ;File /nonfatal /a /r "${INST_DIR}\plugins\dashboard_tactics_pi\data\instrujs\"
+    SetOutPath "$R0\Desktop"
+    File /nonfatal /a /r "${INST_DIR}\plugins\dashboard_tactics_pi\data\instrujs\scripts\windows\Desktop\"
+FunctionEnd
+
+Function un.installInstruJS
+    DetailPrint "un.installInstruJS"
+    SetShellVarContext All
+    ${GetParent} $Documents $R0
+    ;DetailPrint "Parent (R0): '$R0'"
+    RMDir /r $R0\DashT
+    ; Public\Desktop is well populated... maintain our desktop entries list:
+    Delete "$R0\Desktop\Engine Gage.lnk"
+    Delete "$R0\Desktop\Start DB.lnk"
+    Delete "$R0\Desktop\Stop DB.lnk"
+FunctionEnd
+
+; End of Application Specific Functions as for EXTRA_INSTALL EXTRA_UNINSTALL
+        
 ;====================================================
 ; IsNT - Returns 1 if the current system is NT, 0
 ;        otherwise.
@@ -542,6 +595,14 @@ FunctionEnd
 ; Define some macro setting for the gui
 @CPACK_NSIS_INSTALLER_MUI_ICON_CODE@
 @CPACK_NSIS_INSTALLER_ICON_CODE@
+; this works and is coming from PluginPackage.cmake
+@CPACK_NSIS_INSTALLER_MUI_WELCOMEFINISH_CODE@
+; let's try to add hardcoded header image bitmap because CPack does not allow to
+!define MUI_HEADERIMAGE_BITMAP "@CPACK_NSIS_MUI_OPENCPN_PLUGIN_INST_HEADER_BITMAP@"
+; this if pro-forma, it works down to NSIS but never shown since no "unwelcome page"
+@CPACK_NSIS_INSTALLER_MUI_UNWELCOMEFINISH_CODE@
+; like the install header, this is not supported by CPack but let's add it:
+!define MUI_HEADERIMAGE_UNBITMAP "@CPACK_NSIS_MUI_OPENCPN_PLUGIN_UNINST_HEADER_BITMAP@"
 @CPACK_NSIS_INSTALLER_MUI_COMPONENTS_DESC@
 @CPACK_NSIS_INSTALLER_MUI_FINISHPAGE_RUN_CODE@
 
@@ -621,7 +682,6 @@ FunctionEnd
   !insertmacro MUI_LANGUAGE "Turkish"
   !insertmacro MUI_LANGUAGE "Ukrainian"
   !insertmacro MUI_LANGUAGE "Welsh"
-
 
 ;--------------------------------
 ;Reserve Files
@@ -910,7 +970,7 @@ Function .onInit
 
   MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION \
   "@CPACK_NSIS_PACKAGE_NAME@ is already installed. $\n$\nDo you want to uninstall the old version before installing the new one?" \
-  IDYES uninst IDNO inst
+  /SD IDYES IDYES uninst IDNO inst
   Abort
 
 ;Run the uninstaller

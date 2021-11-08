@@ -47,26 +47,15 @@ class DashboardInstrument_FromOwnship : public DashboardInstrument
 {
 public:
     DashboardInstrument_FromOwnship(wxWindow *pparent, wxWindowID id, wxString title,
-#ifdef _TACTICSPI_H_
                                     unsigned long long cap_flag1=OCPN_DBP_STC_PLA,
                                     unsigned long long cap_flag2=OCPN_DBP_STC_PLO,
                                     unsigned long long cap_flag3=OCPN_DBP_STC_LAT,
                                     unsigned long long cap_flag4=OCPN_DBP_STC_LON
-#else
-                                    int cap_flag1=OCPN_DBP_STC_PLA,
-                                    int cap_flag2=OCPN_DBP_STC_PLO,
-                                    int cap_flag3=OCPN_DBP_STC_LAT,
-                                    int cap_flag4=OCPN_DBP_STC_LON
-#endif // _TACTICSPI_H_
         );
     ~DashboardInstrument_FromOwnship(){}
 
-#ifdef _TACTICSPI_H_
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp);
     void timeoutEvent(void);
-#else
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
     wxSize GetSize( int orient, wxSize hint );
       
 protected:
@@ -77,17 +66,10 @@ protected:
     double             s_lat;
     double             s_lon;
     int                m_DataHeight;
-#ifdef _TACTICSPI_H_
     unsigned long long m_cap_flag1;
     unsigned long long m_cap_flag2;
     unsigned long long m_cap_flag3;
     unsigned long long m_cap_flag4;
-#else
-    int                m_cap_flag1;
-    int                m_cap_flag2;
-    int                m_cap_flag3;
-    int                m_cap_flag4;
-#endif // _TACTICSPI_H_
 
     void Draw(wxGCDC* dc);
 };

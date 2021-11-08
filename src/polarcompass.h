@@ -44,8 +44,8 @@
 #endif // __DERIVEDTIMEOUT_OVERRIDE__
 #include "dial.h"
 
-class ExpSmooth;
-class DoubleExpSmooth;
+#include "ExpSmooth.h"
+#include "DoubleExpSmooth.h"
 
 #define COGRANGE 60
 //+------------------------------------------------------------------------------
@@ -106,11 +106,12 @@ public:
 
 private:
     bool LoadConfig(void);
+    bool m_timeout;
     wxFileConfig     *m_pconfig;
 
 protected:
-    void DrawBackground(wxGCDC* dc);
-    void DrawForeground(wxGCDC* dc);
+    void DrawBackground(wxGCDC* dc) override;
+    void DrawForeground(wxGCDC* dc) override;
     void DrawBearing(wxGCDC* dc);
     void DrawWindAngles(wxGCDC* dc);
     void DrawBoat(wxGCDC* dc, int cx, int cy, int radius);
@@ -118,8 +119,10 @@ protected:
     void DrawTargetxMGAngle(wxGCDC* dc);
     void DrawTargetAngle(wxGCDC* dc, double TargetAngle, wxString color1, int size);
     void DrawLaylines(wxGCDC* dc);
-    virtual void DrawData(wxGCDC* dc, double value, wxString unit, wxString format, DialPositionOption position);
-    virtual void Draw(wxGCDC* dc);
+    virtual void DrawData(
+        wxGCDC* dc, double value, wxString unit, wxString format,
+        DialPositionOption position) override;
+    virtual void Draw(wxGCDC* dc) override;
     void CalculateLaylineDegreeRange(void);
 };
 

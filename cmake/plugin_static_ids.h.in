@@ -1,0 +1,8 @@
+static const char s_plugin_name[] = "dashboard_tactics_pi";
+static const char s_plugin_name_version[] = "dashboard_tactics_pi_v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}";
+static const char s_plugin_name_version_date[] = "dashboard_tactics_pi_v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${VERSION_DATE}";
+static const char s_plugin_id[] = "$plugin_id$:${PACKAGE_NAME}_${PLUGIN_VERSION_MAJOR}.${PLUGIN_VERSION_MINOR}.${PLUGIN_VERSION_PATCH}-${PLUGIN_NAME_SUFFIX}-${PACKAGE_RELEASE}_${ARCH}";
+static const char s_plugin_version_id[] = "$plugin_version$: v${PLUGIN_VERSION_MAJOR}.${PLUGIN_VERSION_MINOR}.${PLUGIN_VERSION_PATCH}";
+static const char s_plugin_date_id[] = "$plugin_date$: ${PLUGIN_VERSION_DATE} ";
+static const char s_plugin_api_version_id[] = "$plugin_api$:v${PLUGIN_OAPI_VERSION}";
+

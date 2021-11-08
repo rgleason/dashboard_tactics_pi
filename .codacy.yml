@@ -1,0 +1,36 @@
+---
+engines:
+ duplication:
+   exclude_paths:
+     - data/instrujs/www/common.js
+     - data/instrujs/www/common.min.js
+     - data/instrujs/www/confstat.js
+     - instrujs/enginedjg/src/statemachine.js
+     - instrujs/timestui/src/statemachine.js
+     - src/polarcompass.cpp
+     - src/bearingcompass.cpp
+     - src/PolarPerformance.cpp
+     - src/baro_history.cpp
+     - src/wind_history.cpp
+     - src/Odograph.cpp
+     - src/avg_wind.cpp
+     - src/clock.cpp
+     - src/icons/*.png.h
+exclude_paths:
+  - .github/workflows/**'
+  - 'instrujs/**/webpack.config.js'
+  - 'instrujs/timestui/influxdb-client/**'
+  - 'instrujs/timestui/_babel-ts-loader_*'
+  - 'instrujs/src/ifaceops*.js'
+  - 'instrujs/src/dbschema.js'
+  - 'instrujs/timestui/src/idbclient.js'
+  - 'instrujs/timestui/src/index.js'
+  - 'instrujs/**/src/bootstrap-sass.d.ts'
+  - 'data/instrujs/www/*.min.js'
+  - 'data/instrujs/www/**/bundle.js'
+  - 'data/instrujs/www/**/bundle.css'
+  - 'tests/test*.cpp'
+  - 'tests/**/test*.cpp'
+  - '.github/*.md'
+  - 'docs/**/*.md'
+  - 'docs/**/*.py'

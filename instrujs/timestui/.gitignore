@@ -1,0 +1,8 @@
+dist
+.awcache
+node_modules
+*.swp
+npm-debug.log
+/influxdb-client/.*
+/influxdb-client/*
+!/influxdb-client/packages

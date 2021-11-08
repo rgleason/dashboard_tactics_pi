@@ -1,0 +1,4 @@
+ipykernel==5.5.5
+nbsphinx==0.8.5
+Sphinx==4.0.2
+Pygments==2.9.0

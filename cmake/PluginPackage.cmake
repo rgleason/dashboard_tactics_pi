@@ -22,27 +22,24 @@ SET(CPACK_PACKAGE_EXECUTABLES OpenCPN ${PACKAGE_NAME})
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_CONTACT})
 
 IF(WIN32)
-# to protect against confusable windows users, let us _not_ generate zip packages
-#  SET(CPACK_GENERATOR "NSIS;ZIP")
 
   # override install directory to put package files in the opencpn directory
   SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenCPN")
-
-# CPACK_NSIS_DIR ??
-# CPACK_BUILDWIN_DIR ??
-# CPACK_PACKAGE_ICON ??
-
   SET(CPACK_NSIS_PACKAGE_NAME "${PACKAGE_NAME}")
 
-  # Let cmake find NSIS.template.in
-  SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/buildwin")
+  # Let cmake find _customized_ NSIS.template.in first here, then continue with its own modules
+  SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/buildwin ${CMAKE_MODULE_PATH})
 
-#  These lines set the name of the Windows Start Menu shortcut and the icon that goes with it
-#  SET(CPACK_NSIS_INSTALLED_ICON_NAME "${PACKAGE_NAME}")
-SET(CPACK_NSIS_DISPLAY_NAME "OpenCPN ${PACKAGE_NAME}")
-
-  SET(CPACK_NSIS_DIR "${PROJECT_SOURCE_DIR}/buildwin/NSIS_Unicode")  #Gunther
-  SET(CPACK_BUILDWIN_DIR "${PROJECT_SOURCE_DIR}/buildwin")  #Gunther
+  #  Set the name of the Windows Start Menu shortcut and the icon that goes with it
+  SET(CPACK_NSIS_DISPLAY_NAME "OpenCPN ${PACKAGE_NAME}")
+  set (CPACK_NSIS_EXTRA_INSTALL_COMMANDS "Call installInstruJS")
+  set (CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "Call un.installInstruJS")
+  set (CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/cmake/icons/Dashboard_Tactics.ico")
+  set (CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/cmake/icons/Dashboard_Tactics_toggled.ico")
+  set (CPACK_NSIS_MUI_WELCOMEFINISHPAGE_BITMAP "${PROJECT_SOURCE_DIR}\\\\cmake\\\\bitmaps\\\\wizard-install.bmp")
+  set (CPACK_NSIS_MUI_OPENCPN_PLUGIN_INST_HEADER_BITMAP "${PROJECT_SOURCE_DIR}\\\\cmake\\\\bitmaps\\\\header-install.bmp") 
+  set (CPACK_NSIS_MUI_UNWELCOMEFINISHPAGE_BITMAP "${PROJECT_SOURCE_DIR}\\\\cmake\\\\bitmaps\\\\wizard-uninstall.bmp")
+  set (CPACK_NSIS_MUI_OPENCPN_PLUGIN_UNINST_HEADER_BITMAP "${PROJECT_SOURCE_DIR}\\\\cmake\\\\bitmaps\\\\header-uninstall.bmp") 
 
 ELSE(WIN32)
   SET(CPACK_PACKAGE_INSTALL_DIRECTORY ${PACKAGE_NAME})
@@ -78,15 +75,15 @@ IF(UNIX AND NOT APPLE)
 # need apt-get install rpm, for rpmbuild
     SET(PACKAGE_DEPS "opencpn, bzip2, gzip")
     SET(PACKAGE_RELEASE 1)
-
+    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
 
   IF (CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
-    SET (ARCH "armhf")
-    # don't bother with rpm on armhf
-    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
+    IF (CMAKE_SIZEOF_VOID_P MATCHES "8")
+      SET (ARCH "arm64")
+    ELSE ()
+      SET (ARCH "armhf")
+    ENDIF ()
   ELSE ()
-    SET(CPACK_GENERATOR "DEB;RPM;TBZ2")
-
     IF (CMAKE_SIZEOF_VOID_P MATCHES "8")
       SET (ARCH "amd64")
       SET(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
@@ -102,7 +99,8 @@ IF(UNIX AND NOT APPLE)
     SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${ARCH})
     SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
     SET(CPACK_DEBIAN_PACKAGE_SECTION "misc")
-    SET(CPACK_DEBIAN_COMPRESSION_TYPE "xz") # requires my patches to cmake
+    SET(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
+    SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA ${PROJECT_SOURCE_DIR}/cmake/postinst;${PROJECT_SOURCE_DIR}/cmake/postrm;)
 
     SET(CPACK_RPM_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
     SET(CPACK_RPM_PACKAGE_REQUIRES  ${PACKAGE_DEPS})
@@ -160,7 +158,7 @@ MESSAGE (STATUS "*** Staging to build PlugIn OSX Package ***")
 configure_file(${PROJECT_SOURCE_DIR}/cmake/gpl.txt
             ${CMAKE_CURRENT_BINARY_DIR}/license.txt COPYONLY)
 	    
-configure_file(${PROJECT_SOURCE_DIR}/buildosx/InstallOSX/pkg_background.jpg
+configure_file(${PROJECT_SOURCE_DIR}/cmake/buildosx/InstallOSX/pkg_background.jpg
             ${CMAKE_CURRENT_BINARY_DIR}/pkg_background.jpg COPYONLY)
 
  # Patch the pkgproj.in file to make the output package name conform to Xxx-Plugin_x.x.pkg format
@@ -168,7 +166,7 @@ configure_file(${PROJECT_SOURCE_DIR}/buildosx/InstallOSX/pkg_background.jpg
  #  <key>NAME</key>
  #  <string>${VERBOSE_NAME}-Plugin_${VERSION_MAJOR}.${VERSION_MINOR}</string>
 
- configure_file(${PROJECT_SOURCE_DIR}/buildosx/InstallOSX/${PACKAGE_NAME}.pkgproj.in
+ configure_file(${PROJECT_SOURCE_DIR}/cmake/buildosx/InstallOSX/${PACKAGE_NAME}.pkgproj.in
             ${CMAKE_CURRENT_BINARY_DIR}/${VERBOSE_NAME}.pkgproj)
 
  ADD_CUSTOM_COMMAND(

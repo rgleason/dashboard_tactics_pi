@@ -1,0 +1,36 @@
+---
+version: 2.1
+
+orbs:
+    cloudsmith: cloudsmith/cloudsmith@1.0.4
+    python: circleci/python@0.3.0
+
+jobs:
+    publishfocal:
+        executor: python/default
+        docker:
+        - image: circleci/buildpack-deps:focal-scm
+        steps:
+        - checkout
+        - cloudsmith/ensure-api-key
+        - run: >
+            echo "deb-src http://us.archive.ubuntu.com/ubuntu/ focal main"
+            | sudo tee -a /etc/apt/sources.list
+        - run: >
+            echo "deb-src http://us.archive.ubuntu.com/ubuntu/ focal-updates main"
+            | sudo tee -a /etc/apt/sources.list
+        - run: cat /etc/apt/sources.list
+        - run: chmod a+x .circleci/*.sh
+        - run: .circleci/circleci-build-debian.sh
+        - cloudsmith/install-cli
+        - cloudsmith/publish:
+            cloudsmith-repository: canne/DashT
+            package-format: deb
+            package-distribution: ubuntu/focal
+            allow-republish: true
+            package-path: build/dashboard_tactics_pi*.deb
+
+workflows:
+    cloudsmith_publish:
+        jobs:
+            - publishfocal

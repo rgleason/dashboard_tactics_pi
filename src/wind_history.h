@@ -28,15 +28,7 @@
 #ifndef __WIND_HISTORY_H__
 #define __WIND_HISTORY_H__
 
-// For compilers that support precompilation, includes "wx/wx.h".
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
@@ -45,26 +37,18 @@
 #define WIND_RECORD_COUNT 3000
 
 #include "instrument.h"
-#include "dial.h"
 
-#ifdef _TACTICSPI_H_
 #include <wx/filename.h>
-#endif
 
 
 class DashboardInstrument_WindDirHistory: public DashboardInstrument
 {
 public:
     DashboardInstrument_WindDirHistory( wxWindow *parent, wxWindowID id, wxString title);
-#ifdef _TACTICSPI_H_
     ~DashboardInstrument_WindDirHistory(void);
     void SetData(unsigned long long st, double data, wxString unit, long long timestamp=0LL);
     void OnWindHistUpdTimer(wxTimerEvent &event);
     virtual void timeoutEvent(void){};
-#else
-    ~DashboardInstrument_WindDirHistory(void){}
-    void SetData(int, double, wxString);
-#endif // _TACTICSPI_H_
     wxSize GetSize( int orient, wxSize hint );
 
 private:
@@ -72,14 +56,12 @@ private:
     int m_DirRecCnt;
     int m_SpdStartVal;
     int m_DirStartVal;
-#ifdef _TACTICSPI_H_
     wxFileConfig  *m_pconfig;
     bool m_bWindSpeedUnitResetLogged;
     bool LoadConfig(void);
     bool SaveConfig(void);
 
     wxDECLARE_EVENT_TABLE();
-#endif // _TACTICSPI_H_
 
 protected:
     double alpha;
@@ -96,19 +78,15 @@ protected:
     double m_TotalMaxWindSpd; // since O is started
     double m_WindDir;
     double m_WindSpd;
-#ifdef _TACTICSPI_H_
     double m_TrueWindDir;
     double m_TrueWindSpd;
-#endif // _TACTICSPI_H_
     double m_MaxWindSpdScale;
     double m_ratioW;
     double m_oldDirVal;
     bool m_IsRunning;
     int m_SampleCount;
     wxString m_WindSpeedUnit;
-#ifdef _TACTICSPI_H_
     wxTimer *m_WindHistUpdTimer;
-#endif // _TACTICSPI_H_
     wxRect m_WindowRect;
     wxRect m_DrawAreaRect; //the coordinates of the real darwing area
     int m_TopLineHeight;
@@ -116,7 +94,6 @@ protected:
     int m_height;
     int m_LeftLegend;
     int m_RightLegend;
-#ifdef _TACTICSPI_H_
     wxString    m_logfile;        //for data export
     wxFile     *m_ostreamlogfile; //for data export
     bool        m_isExporting;      //for data export
@@ -128,7 +105,6 @@ protected:
     wxMenuItem *btn10Sec;
     wxMenuItem *btn20Sec;
     wxMenuItem *btn60Sec;
-#endif // _TACTICSPI_H_
 
     void Draw(wxGCDC* dc);
     void DrawBackground(wxGCDC* dc);
@@ -137,10 +113,8 @@ protected:
     void DrawWindDirScale(wxGCDC* dc);
     void DrawWindSpeedScale(wxGCDC* dc);
     wxString GetWindDirStr(wxString WindDir);
-#ifdef _TACTICSPI_H_
     void OnLogDataButtonPressed(wxCommandEvent& event);
     void ExportData(void);
-#endif // _TACTICSPI_H_
 
 };
 

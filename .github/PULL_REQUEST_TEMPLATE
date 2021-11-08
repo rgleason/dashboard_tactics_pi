@@ -1,0 +1,15 @@
+## Fixes
+
+_What will be fixed_
+
+## Proposed Changes
+
+_Briefly describe your proposed changes:_
+
+## Checklist (change to [X] when sure)
+
+  - [ ] You are committing a branch which starts with a 'dev', such as 'dev220'
+  - [ ] A test use case has been added or modified if appropriate
+  - [ ] Your pull request passes CI on Windows (AppVeyor), Linux, optionally MacOS (Travis)
+  - [ ] Your pull request does not create static QA (Codacy) rejection
+  - [ ] Commit messages are in [semantic format](https://seesparkbox.com/foundry/semantic_commit_messages)

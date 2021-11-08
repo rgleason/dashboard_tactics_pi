@@ -1,0 +1,78 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ dev200 ]
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.scss'
+      - '**.html'
+      - 'package-lock.json'
+  pull_request:
+    branches: [ pr200 ]
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.scss'
+      - '**.html'
+      - 'package-lock.json'
+
+jobs:
+  enginedjg:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/enginedjg
+    steps:
+    - uses: actions/checkout@v2
+    - name: racestart
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm run build
+#    - run: npm test
+  racedashstart:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/racedashstart
+    steps:
+    - uses: actions/checkout@v2
+    - name: racedashstart
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm run build
+  racedashmark:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/racedashmark
+    steps:
+    - uses: actions/checkout@v2
+    - name: racedashmark
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm run build
+  timestui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./instrujs/timestui
+    steps:
+    - uses: actions/checkout@v2
+    - name: timestui
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm run build

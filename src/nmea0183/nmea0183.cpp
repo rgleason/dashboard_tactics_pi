@@ -32,6 +32,10 @@
 
 #include "nmea0183.h"
 
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+
 /*
 ** Author: Samuel R. Blackburn
 ** CI$: 76300,326
@@ -150,7 +154,11 @@ void NMEA0183::initialize( void )
 {
 //   ASSERT_VALID( this );
 
-   ErrorMessage.Empty();
+    ErrorMessage = wxEmptyString;
+    LastSentenceIDParsed = wxEmptyString;
+    LastSentenceIDReceived = wxEmptyString;
+    TalkerID = wxEmptyString;
+    ExpandedTalkerID = wxEmptyString;
 }
 
 void NMEA0183::set_container_pointers( void )
@@ -286,77 +294,81 @@ bool NMEA0183::Parse( void )
    if(PreParse())
    {
 
-      wxString mnemonic = sentence.Field( 0 );
+       wxString mnemonic = sentence.Field( 0 );
 
-      /*
-      ** See if this is a proprietary field
-      */
+       /*
+       ** See if this is a proprietary field
+       */
 
-      if ( mnemonic.Left( 1 ) == 'P' )
-      {
-          mnemonic = _T("P");
-      }
-      else
-      {
-         mnemonic = mnemonic.Right( 3 );
-      }
+       if ( mnemonic.Left( 1 ) == 'P' )
+       {
+           mnemonic = _T("P");
+       }
+       else
+       {
+           mnemonic = mnemonic.Right( 3 );
+       }
 
-      /*
-      ** Set up our default error message
-      */
+       /*
+       ** Set up our default error message
+       */
 
-      ErrorMessage = mnemonic;
-      ErrorMessage += _T(" is an unknown type of sentence");
+       ErrorMessage = mnemonic;
+       ErrorMessage += _T(" is an unknown type of sentence");
 
-      LastSentenceIDReceived = mnemonic;
+       LastSentenceIDReceived = mnemonic;
 
-      RESPONSE *response_p = (RESPONSE *) NULL;
+       RESPONSE *response_p = (RESPONSE *) NULL;
 
 
-//          Traverse the response list to find a mnemonic match
+       //          Traverse the response list to find a mnemonic match
 
+#if defined( wxUSE_STL ) && wxUSE_STL == 1
+       MRL::compatibility_iterator node = response_table.GetFirst();
+#else
        wxMRLNode *node = response_table.GetFirst();
+#endif
 
-        while(node)
-        {
-           RESPONSE *resp = node->GetData();
-
-            int comparison = mnemonic.Cmp( resp->Mnemonic );
-
-            if ( comparison == 0 )
-            {
-                        response_p = resp;
-                        return_value = response_p->Parse( sentence );
-
-                        /*
-                        ** Set your ErrorMessage
-                        */
-
-                        if ( return_value == TRUE )
-                        {
-                           ErrorMessage = _T("No Error");
-                           LastSentenceIDParsed = response_p->Mnemonic;
-                           TalkerID = talker_id( sentence );
-                           ExpandedTalkerID = expand_talker_id( TalkerID );
-                        }
-                        else
-                        {
-                           ErrorMessage = response_p->ErrorMessage;
-                        }
-
-                        break;
-                   }
-
-              node = node->GetNext();
-        }
-
-   }
-   else
+   while(node)
    {
-      return_value = FALSE;
+       RESPONSE *resp = node->GetData();
+
+       int comparison = mnemonic.Cmp( resp->Mnemonic );
+
+       if ( comparison == 0 )
+       {
+           response_p = resp;
+           return_value = response_p->Parse( sentence );
+
+           /*
+           ** Set your ErrorMessage
+           */
+
+           if ( return_value == TRUE )
+           {
+               ErrorMessage = _T("No Error");
+               LastSentenceIDParsed = response_p->Mnemonic;
+               TalkerID = talker_id( sentence );
+               ExpandedTalkerID = expand_talker_id( TalkerID );
+           }
+           else
+           {
+               ErrorMessage = response_p->ErrorMessage;
+           }
+
+           break;
+       }
+
+       node = node->GetNext();
    }
 
-   return( return_value );
+}
+else
+{
+    return_value = FALSE;
+}
+
+return( return_value );
 }
 
 NMEA0183& NMEA0183::operator << ( wxString &source )
