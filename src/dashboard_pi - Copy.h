@@ -193,8 +193,6 @@ public:
     wxString GetCommonName();
     wxString GetShortDescription();
     wxString GetLongDescription();
-    wxBitmap m_panelBitmap;
-	
 
 #ifdef _TACTICSPI_H_
     wxString GetStandardPath();
@@ -362,8 +360,7 @@ public:
 #ifdef _TACTICSPI_H_
     wxChoice                     *m_pChoiceTemperatureUnit;
 #endif // _TACTICSPI_H_
-    wxBitmap m_panelBitmap;
-	
+
 private:
     void UpdateDashboardButtonsState(void);
     void UpdateButtonsState(void);

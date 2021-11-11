@@ -559,9 +559,59 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     mSiK_DPT_environmentDepthBelowKeel = false;
     mSiK_navigationGnssMethodQuality = 0;
 #endif // _TACTICSPI_H_
+
     // Create the PlugIn icons
     initialize_images();
+	
+	 // Create the PlugIn icons  -from shipdriver
+	 // loads png file for the listing panel icon
+#ifdef _TACTICSPI_H_
+    wxFileName fn;
+    auto path = GetPluginDataDir("dashboard_tactics_pi");
+    fn.SetPath(path);
+    fn.AppendDir("data");
+    fn.SetFullName("Dashboard_Tactics_panel.png");
+
+    path = fn.GetFullPath();
+
+    wxInitAllImageHandlers();
+
+    wxLogDebug(wxString("Using icon path: ") + path);
+    if (!wxImage::CanRead(path)) {
+        wxLogDebug("Initiating image handlers.");
+        wxInitAllImageHandlers();
+    }
+    wxImage panelIcon(path);
+    if (panelIcon.IsOk())
+        m_panelBitmap = wxBitmap(panelIcon);
+    else
+        wxLogWarning("Dashboard_Tactics panel icon has NOT been loaded");
+
+#else	
+   wxFileName fn;
+    auto path = GetPluginDataDir("dashboard_tactics_pi");
+    fn.SetPath(path);
+    fn.AppendDir("data");
+    fn.SetFullName("Dashboard_panel.png");
+
+    path = fn.GetFullPath();
+
+    wxInitAllImageHandlers();
+
+    wxLogDebug(wxString("Using icon path: ") + path);
+    if (!wxImage::CanRead(path)) {
+        wxLogDebug("Initiating image handlers.");
+        wxInitAllImageHandlers();
+    }
+    wxImage panelIcon(path);
+    if (panelIcon.IsOk())
+        m_panelBitmap = wxBitmap(panelIcon);
+    else
+        wxLogWarning("Dashboard panel icon has NOT been loaded");
+#endif // _TACTICSPI_H_	
+	 // END OF Create the PlugIn icons  -from shipdriver
 }
+
 
 dashboard_pi::~dashboard_pi( void )
 {
@@ -614,7 +664,7 @@ int dashboard_pi::Init( void )
 
     LoadConfig();
 
-#ifdef OCPN_USE_SVG
+#ifdef PLUGIN_USE_SVG
     m_toolbar_item_id = InsertPlugInToolSVG(
         this->GetCommonName(),
 #ifdef _TACTICSPI_H_
@@ -634,7 +684,7 @@ int dashboard_pi::Init( void )
 #endif // _TACTICSPI_H_
          wxITEM_CHECK, this->GetCommonName(), _T(""), NULL,
          DASHBOARD_TOOL_POSITION, 0, this);
-#endif // OCPN_USE_SVG
+#endif // PLUGIN_USE_SVG
 
 #ifndef _TACTICSPI_H_
     /* porting note: I reckon that this is obsolete in ov50, but since the code is there
@@ -807,6 +857,8 @@ int dashboard_pi::GetPlugInVersionMinor()
     return PLUGIN_VERSION_MINOR;
 }
 
+/*  For Shipdriver  Panel Listing Icon changes
+
 wxBitmap *dashboard_pi::GetPlugInBitmap()
 {
 #ifdef _TACTICSPI_H_
@@ -815,6 +867,12 @@ wxBitmap *dashboard_pi::GetPlugInBitmap()
     return new wxBitmap(_img_dashboard_pi->ConvertToImage().Copy());
 #endif // _TACTICSPI_H_
 }
+*/
+
+// From Shipdriver to read png images directly
+
+wxBitmap *dashboard_pi::GetPlugInBitmap()  { return &m_panelBitmap; }
+
 
 #ifdef _TACTICSPI_H_
 wxString dashboard_pi::GetNameVersion()
