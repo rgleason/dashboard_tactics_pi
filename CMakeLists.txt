@@ -58,7 +58,7 @@ IF (TACTICS_INSTRUMENTS)
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
    set(VERSION_PATCH 7)
-   set(VERSION_TWEAK 12)
+   set(VERSION_TWEAK 15)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
@@ -312,8 +312,6 @@ ELSE (TACTICS_INSTRUMENTS)
 ENDIF (TACTICS_INSTRUMENTS)
 ## ===================================================================================
 
-# ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
-# cant create Shared lib src one already exists.
 
 # For Json Validation
 #set(EXTSRC
@@ -345,43 +343,47 @@ set(EXTINCLUDE_DIR ${EXTINCLUDE_DIR} extinclude libs/ocpn-api/)
 ##
 # Modify/configure 'Include' Directories below for the Plugin
 ##
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wx/include)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/lz4)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/bitmaps)
+
 
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/${EXTINCLUDE_DIR})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/extinclude)
+
+
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpninclude)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/glu/include)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/${EXTINCLUDE_DIR})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/GL)
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wxJSON/include)
 
 ##
 ## Statement below is required to collect all the set( headers and SRCS  - Adjust as required
 ## This add_library  can be used in conditionals below.
 ##
-##    SET(EXTSRC  ${EXTSRC}   etc   Can be in an if statement as below
-##
-## ===================================================================================
-# add_library(${PACKAGE_NAME} SHARED ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
-## ===================================================================================
 
 target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} )
 
-# target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
-
-
 add_definitions(-DTIXML_USE_STL)
 
+
 # All plugins useing JSON to passing messages should use the validator, which ignores non-conformant messages. 
-
-
 # Not doing JSON Validation here
+
 
 ##
 ## ----- Change above to match project requirements ----- ##
 ## ----- do not change next section - needed to configure build process ----- ##
 ##
 ## =====================================
+
+# Needed for android builds
+if(QT_ANDROID)
+    include_directories(BEFORE ${qt_android_include})
+endif(QT_ANDROID)
+
+# Needed for all builds
 include("PluginInstall")
 include("PluginLocalization")
 include("PluginPackage")
