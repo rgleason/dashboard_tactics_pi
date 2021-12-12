@@ -50,19 +50,19 @@ SET(TACTICS_INSTRUMENTS ON)
 
 # define plugin name, owner and versions
 IF (TACTICS_INSTRUMENTS)
-   set(PACKAGE "dashboard_tactics")
+   set(PACKAGE "dashboard_tactics_pi")
    set(VERBOSE_NAME "Dashboard_Tactics")
    set(COMMON_NAME "DashboardTactics")  # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "DashboardTactics")
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
-   set(VERSION_PATCH 6)
-   set(VERSION_TWEAK 25)
+   set(VERSION_PATCH 9)
+   set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
-   set(PACKAGE "dashboard")
+   set(PACKAGE "dashboard_pi")
    set(VERBOSE_NAME "Dashboard")
    set(COMMON_NAME "Dashboard") # Search "getcommonname"in <plugin_pi>.cpp
    set(TITLE_NAME "Dashboard")
@@ -75,7 +75,7 @@ ELSE (TACTICS_INSTRUMENTS)
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
 ENDIF (TACTICS_INSTRUMENTS)
 set(CPACK_PACKAGE_CONTACT "Rick Gleason")
-set(VERSION_DATE "08/24/2020")
+set(VERSION_DATE "17/11/2020")
 set(OCPN_MIN_VERSION "ov50")
 set(OCPN_API_VERSION_MAJOR 1)
 set(OCPN_API_VERSION_MINOR 16)
@@ -119,7 +119,7 @@ set(XML_DESCRIPTION ${LONG_DESCRIPTION})
 ## ----- Modify section below if there are special requirements for the plugin ----- ##
 ##
 
-option(OCPN_USE_SVG "Use SVG graphics" ON)
+option(PLUGIN_USE_SVG "Use SVG graphics" ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -312,8 +312,6 @@ ELSE (TACTICS_INSTRUMENTS)
 ENDIF (TACTICS_INSTRUMENTS)
 ## ===================================================================================
 
-# ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC} )
-# cant create Shared lib src one already exists.
 
 # For Json Validation
 #set(EXTSRC
@@ -345,43 +343,47 @@ set(EXTINCLUDE_DIR ${EXTINCLUDE_DIR} extinclude libs/ocpn-api/)
 ##
 # Modify/configure 'Include' Directories below for the Plugin
 ##
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wx/include)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/lz4)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/bitmaps)
+
 
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/${EXTINCLUDE_DIR})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/extinclude)
+
+
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpninclude)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/ocpnsrc/glu/include)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/${EXTINCLUDE_DIR})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/GL)
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
+#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wxJSON/include)
 
 ##
 ## Statement below is required to collect all the set( headers and SRCS  - Adjust as required
 ## This add_library  can be used in conditionals below.
 ##
-##    SET(EXTSRC  ${EXTSRC}   etc   Can be in an if statement as below
-##
-## ===================================================================================
-# add_library(${PACKAGE_NAME} SHARED ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
-## ===================================================================================
 
 target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} )
 
-# target_sources(${PACKAGE_NAME} PUBLIC ${SRCS} ${HDRS} ${OCPNSRC} ${EXTSRC} ${LIBSSRC})
-
-
 add_definitions(-DTIXML_USE_STL)
 
+
 # All plugins useing JSON to passing messages should use the validator, which ignores non-conformant messages. 
-
-
 # Not doing JSON Validation here
+
 
 ##
 ## ----- Change above to match project requirements ----- ##
 ## ----- do not change next section - needed to configure build process ----- ##
 ##
 ## =====================================
+
+# Needed for android builds
+if(QT_ANDROID)
+    include_directories(BEFORE ${qt_android_include})
+endif(QT_ANDROID)
+
+# Needed for all builds
 include("PluginInstall")
 include("PluginLocalization")
 include("PluginPackage")
