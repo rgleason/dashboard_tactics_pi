@@ -331,11 +331,11 @@ wxString getInstrumentCaption( unsigned int id )
 		return _(L"\u2191InfluxDB Out");
     case ID_DBP_V_INSK:
 		return _(L"\u2191Signal K In");
-    case ID_DBP_I_ENGPRPM: 
+    case ID_DBP_I_ENGPRPM:
 		return _(L"\u2191z Eng1 RPM");
-    case ID_DBP_I_ENGPTEMP: 
+    case ID_DBP_I_ENGPTEMP:
 		return _(L"\u2191z Eng1 Temp");
-    case ID_DBP_I_ENGPOILP: 
+    case ID_DBP_I_ENGPOILP:
 		return _(L"\u2191z Eng1 Oil P");
 #endif // _TACTICSPI_H_
     }
@@ -562,7 +562,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
 
     // Create the PlugIn icons
     initialize_images();
-	
+
 	 // Create the PlugIn icons  -from shipdriver
 	 // loads png file for the listing panel icon
 #ifdef _TACTICSPI_H_
@@ -587,7 +587,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
     else
         wxLogWarning("Dashboard_Tactics panel icon has NOT been loaded");
 
-#else	
+#else
    wxFileName fn;
     auto path = GetPluginDataDir("dashboard_tactics_pi");
     fn.SetPath(path);
@@ -608,7 +608,7 @@ dashboard_pi::dashboard_pi( void *ppimgr ) :
         m_panelBitmap = wxBitmap(panelIcon);
     else
         wxLogWarning("Dashboard panel icon has NOT been loaded");
-#endif // _TACTICSPI_H_	
+#endif // _TACTICSPI_H_
 	 // END OF Create the PlugIn icons  -from shipdriver
 }
 
@@ -657,7 +657,7 @@ int dashboard_pi::Init( void )
 #ifdef _TACTICSPI_H_
     m_pconfig->SetPath( _T("/PlugIns/Dashboard") );
     int what_tactics_pi_wants = this->TacticsInit( this, m_pconfig );
-    // Tick for average wind calculations is taken care in Tactics class, we host the timers  
+    // Tick for average wind calculations is taken care in Tactics class, we host the timers
     m_avgWindUpdTimer = new wxTimer ( this, myID_THREAD_AVGWIND );
     m_avgWindUpdTimer->Start(1000, wxTIMER_CONTINUOUS);
 #endif //  _TACTICSPI_H_
@@ -903,18 +903,18 @@ wxString dashboard_pi::GetCommonName()
 
 wxString dashboard_pi::GetShortDescription()
 {
-//    return _(PLUGIN_SHORT_DESCRIPTION);  
+//    return _(PLUGIN_SHORT_DESCRIPTION);
 #ifdef _TACTICSPI_H_
     return _("Dashboard and Tactics");
 #else
     return _("Dashboard");
 #endif // _TACTICSPI_H_
-    
+
 }
 
 wxString dashboard_pi::GetLongDescription()
 {
-//   return _(PLUGIN_LONG_DESCRIPTION);	
+//   return _(PLUGIN_LONG_DESCRIPTION);
 #ifdef _TACTICSPI_H_
     return _("Dashboard PlugIn with Tactics for OpenCPN\n\
 Provides navigation instruments enhanced with performance functions and alternative input/output functions.");
@@ -1104,10 +1104,10 @@ void dashboard_pi::SetNMEASentence( // NMEA0183-sentence either from O main, or 
 #else
 void dashboard_pi::SetNMEASentence(wxString &sentence)
 #endif // _TACTICSPI_H_
-	
+
 {
 
-    
+
 #ifdef _TACTICSPI_H_
     bool SignalK = false;
     // Select datasource: either O's NMEA event distribution or Signal K input stream
@@ -1135,7 +1135,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             m_NMEA0183 << sentence;
             if( !m_NMEA0183.PreParse() )
                 return; // failure in NMEA sentence
-        }  // else no Signal K, this is a normal cycle with NMEA-0183 coming from OpenCPN 
+        }  // else no Signal K, this is a normal cycle with NMEA-0183 coming from OpenCPN
     } // else this is NMEA-0183 coming via OpenCPN
 
     if ( !SignalK ) {
@@ -1509,7 +1509,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                 m_awaunit = _T("\u00B0L");
 #endif // _TACTICSPI_H_
 
-                                
+
                                 m_awaangle = 180.0 - (m_NMEA0183.Mwv.WindAngle - 180.0);
                             }
                             else {
@@ -1581,7 +1581,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         SendSentenceToAllInstruments(
                             OCPN_DBP_STC_BRG, m_NMEA0183.Rmb.BearingToDestinationDegreesTrue, m_NMEA0183.Rmb.To);
                         this->SetNMEASentence_Arm_BRG_Watchdog();
-                        
+
                     }
                     if ( !std::isnan(m_NMEA0183.Rmb.RangeToDestinationNauticalMiles) &&
                          (m_NMEA0183.Rmb.RangeToDestinationNauticalMiles < 999.) ) // empty field
@@ -1878,7 +1878,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                 xdrunit = L"\u00B0u";
 #else
                                 xdrunit = _T("\u00B0 Nose up");
-#endif // _TACTICSPI_H_                                
+#endif // _TACTICSPI_H_
                             }
                             else if (m_NMEA0183.Xdr.TransducerInfo[i].Data < 0) {
 #ifdef _TACTICSPI_H_
@@ -1886,7 +1886,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 #else
                                 xdrunit = _T("\u00B0 Nose down");
                                 xdrdata *= -1;
-#endif // _TACTICSPI_H_                                
+#endif // _TACTICSPI_H_
                             }
                             else {
                                 xdrunit = _T("\u00B0");
@@ -1919,7 +1919,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                                 xdrunit = _T("\u00B0");
                             }
                             SendSentenceToAllInstruments(OCPN_DBP_STC_HEEL, xdrdata, xdrunit);
-                        } 
+                        }
                         //Nasa style water temp
                         else if (m_NMEA0183.Xdr.TransducerInfo[i].Name == _T("ENV_WATER_T")){
 #ifdef _TACTICSPI_H_
@@ -1942,7 +1942,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             if( m_NMEA0183.Parse() ) {
                 if( mPriDateTime >= 2 ) {
                     mPriDateTime = 2;
-                    
+
                     /*
                       wxString m_NMEA0183.Zda.UTCTime;
                       int      m_NMEA0183.Zda.Day;
@@ -1963,13 +1963,13 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
         else if( sentence.Mid( 1, 5 ).IsSameAs( _T("AIVDO") ) ) {
             PlugIn_Position_Fix_Ex gpd;
             if( DecodeSingleVDOMessage(sentence, &gpd, &m_VDO_accumulator) ) {
-                    
+
                 if( !std::isnan(gpd.Lat) )
                     SendSentenceToAllInstruments( OCPN_DBP_STC_LAT, gpd.Lat, _T("SDMM") );
-                    
+
                 if( !std::isnan(gpd.Lon) )
                     SendSentenceToAllInstruments( OCPN_DBP_STC_LON, gpd.Lon, _T("SDMM") );
-                    
+
                 SendSentenceToAllInstruments(
                     OCPN_DBP_STC_SOG, toUsrSpeed_Plugin(
                         mSOGFilter.filter(gpd.Sog), g_iDashSpeedUnit),
@@ -1999,7 +1999,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     }
                 }
             } // DBT
-                
+
             else if ( sentenceId->CmpNoCase(_T("DPT")) == 0 ) { // https://git.io/JeYf4
                 bool depthvalue = false;
                 if ( path->CmpNoCase(_T("environment.depth.belowTransducer")) == 0 ) {
@@ -2074,7 +2074,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
 
             else if ( sentenceId->CmpNoCase(_T("HDG")) == 0 ) { // https://git.io/JeYdxn
                 if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
-                    if( mPriHeadingM >= 1 ) { 
+                    if( mPriHeadingM >= 1 ) {
                         if ( !std::isnan( value )) {
                             mPriHeadingM = 1;
                             mHdm = value * RAD_IN_DEG;
@@ -2114,10 +2114,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     mHDT_Watchdog = gps_watchdog_timeout_ticks;
                 }
             } // HDG
-        
+
             else if ( sentenceId->CmpNoCase(_T("HDM")) == 0 ) { // https://git.io/JeYdxn
                 if ( path->CmpNoCase(_T("navigation.headingMagnetic")) == 0 ) {
-                    if( mPriHeadingM >= 2 ) { 
+                    if( mPriHeadingM >= 2 ) {
                         if ( !std::isnan( value )) {
                             mPriHeadingM = 2;
                             mHdm = value * RAD_IN_DEG;
@@ -2130,10 +2130,10 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     }
                 }
             } // HDM
-        
+
             else if ( sentenceId->CmpNoCase(_T("HDT")) == 0 ) { // https://git.io/JeOCC
                 if ( path->CmpNoCase(_T("navigation.headingTrue")) == 0 ) {
-                    if( mPriHeadingM >= 1 ) { 
+                    if( mPriHeadingM >= 1 ) {
                         if ( !std::isnan( value )) {
                             mPriHeadingM = 1;
                             mHdm = value * RAD_IN_DEG;
@@ -2165,7 +2165,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             else if ( sentenceId->CmpNoCase(_T("MTW")) == 0 ) { // https://git.io/JeOwA
                 if ( path->CmpNoCase(_T("environment.water.temperature")) == 0 ) {
                     // Note: value from Signal K is SI units, thus we receive Kelvins
-                    double TemperatureValue = value - CELCIUS_IN_KELVIN; 
+                    double TemperatureValue = value - CELCIUS_IN_KELVIN;
                     wxString TemperatureUnitOfMeasurement = _T("C"); // MTW default
                     checkNMEATemperatureDataAndUnit( TemperatureValue, TemperatureUnitOfMeasurement );
                     SendSentenceToAllInstruments( OCPN_DBP_STC_TMP,
@@ -2223,7 +2223,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                     } // TWA priority
                 }
             } // MWV
-        
+
             else if ( sentenceId->CmpNoCase(_T("RMB")) == 0 ) { // https://git.io/Je3UV
                 /* See the comment in the same sentence's interpretation above (when coming
                    from OpenCPN): the controversy of having it here is the same:
@@ -2380,7 +2380,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
             } // VLW
 
             else if ( sentenceId->CmpNoCase(_T("VTG")) == 0 ) { // https://git.io/Je3Zp
-                // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"           
+                // for now, Dashboard ignores "navigation.courseOverGroundMagnetic"
                 if ( mPriCOGSOG >= 2 ) {
                     if ( path->CmpNoCase(_T("navigation.speedOverGround")) == 0 ) {
                         mPriCOGSOG = 2;
@@ -2403,7 +2403,7 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                 } // priority activation
             } // VTG
 
-            else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { // 
+            else if ( sentenceId->CmpNoCase(_T("VWR")) == 0 ) { //
                 if( mPriAWA >= 2 ) {
                     if ( path->CmpNoCase(_T("environment.wind.speedApparent")) == 0 ) {
                         mPriAWA = 2;
@@ -2461,9 +2461,9 @@ void dashboard_pi::SetNMEASentence(wxString &sentence)
                         timestamp );
                 }
             }
-            
+
         } // then NMEA-2000 delta from Signal K
-                
+
     } // else Signal K
 
 #endif // _TACTICSPI_H_
@@ -2497,8 +2497,10 @@ void dashboard_pi::SetPositionFix( PlugIn_Position_Fix &pfix )
     }
     if( mPriDateTime >= 6 ) { //We prefer the GPS datetime
         mPriDateTime = 6;
-        mUTCDateTime.Set( pfix.FixTime );
-        mUTCDateTime = mUTCDateTime.ToUTC();
+        if (pfix.FixTime > 0){
+            mUTCDateTime.Set( pfix.FixTime );
+            mUTCDateTime = mUTCDateTime.ToUTC();
+        }
     }
     mSatsInView = pfix.nSats;
     //    SendSentenceToAllInstruments( OCPN_DBP_STC_SAT, mSatsInView, _T("") );
@@ -4100,7 +4102,7 @@ void DashboardWindow::SetInstrumentList( wxArrayInt list )
     Refresh();
 #endif // _TACTICSPI_H_
 
-    
+
     for( size_t i = 0; i < list.GetCount(); i++ ) {
         int id = list.Item( i );
         DashboardInstrument *instrument = NULL;

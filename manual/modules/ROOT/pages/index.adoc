@@ -1,0 +1,54 @@
+= Dashboard Tactics
+
+*DashT* - Race, Engine/Energy, Signal K, Database, Line Graphs +
+Any Tactician would find this extensive set of sailing instruments useful and effective.
+
+== Links
+
+* Documentation: https://dashboard-tactics-pi.readthedocs.io/[DashT@ readthedocs.io] for the complete Manual.
+* Source: https://github.com/canne/dashboard_tactics_pi
+* Maintainer Source: https://github.com/rgleason/dashboard_tactics_pi 
+* Installation Instructions: xref:opencpn-plugins:misc:plugin-install.adoc[Plugin Download, Install and Enable]
+* Legacy Download: https://github.com/canne/dashboard_tactics_pi/releases/latest[Latest Stable]
+* Legacy Download Beta Release: https://github.com/canne/dashboard_tactics_pi/releases[beta releases] (Click on Assets tab to expand, select your platform's installer)
+* Cruisers Forum https://www.cruisersforum.com/forums/f134/dashboard-tactics-dash-t-226601.html[Dashboard-Tactics Thread]
+
+== Installation
+
+xref:opencpn-plugins:misc:plugin-install.adoc[Install and Enable Plugins] and Dashboard_Tactics plugin from within OpenCPN using _Options > Plugins_. That's it.
+
+Note: Legacy PI Package installation files are still available from https://opencpn.org/OpenCPN/plugins/dashT.html[Download Page -Linux, Windows, Mac].
+Make sure you choose the file that is compatible with your computer system.
+
+== Features
+
+Enhanced replacement of Dashboard and Tactics Plugins for OpenCPN v5.2 or greater. 
+
+All https://dashboard-tactics-pi.readthedocs.io/en/latest/dashinst/dashinst.html[Dashboard]
+*and*
+ https://dashboard-tactics-pi.readthedocs.io/en/latest/tactics/tactics.html[Tactics]
+instruments are included within the same plug-in, no need to swap. 
+
+The combination of network connectivity processing threads, enhanced Tactics
+originated numerical algorithms and the usage of latest web-development
+techniques allow _DashT_ to provide, in addition these great functions:
+
+https://dashboard-tactics-pi.readthedocs.io/en/latest/tactics/tactics.html[Tactics] instruments and regatta/race processor has been improved, follow the link for details. To mention a few improvements:
+
+* https://dashboard-tactics-pi.readthedocs.io/en/latest/tactics/tactics.html#Average-Wind-Instrument[Average Wind Instrument] has a background thread which distributes the same information to all other instruments, such as the below Race assistant instruments. For that purpose it provides a short term and long term integration of the average wind, making it more suitable for different race configurations.The instrument itself has been modified accordingly:
+image:average-wind-instrument.jpg[Average Wind Direction,?width=240,height=218]
+* A **new**  Tactics instrument which may interest also cruisers is the registering odometer (i.e. an https://dashboard-tactics-pi.readthedocs.io/en/latest/tactics/tactics.html#Odograph[odograph]) which has also two independent trip counters, one of which is persistent. +
+image:odograph.jpg[Odograph,width=320,height=111]
+* https://dashboard-tactics-pi.readthedocs.io/en/latest/racestart/racestart.html[Race Start Line] training assistance with Zero Burn, laylines, marker dropping, favoured marker indicator, etc. +
+image:race-start-line.jpg[RaceStart Information,width=241,height=320]
+* https://dashboard-tactics-pi.readthedocs.io/en/latest/racemark/racemark.html[Race Mark] - your training assistance for windward/leeward races with ladder rungs, decision assistance for lifts/headers and a peek to next legs +
+image:race-mark.jpg[Race Mark information screen,width=500,height=350]
+* Rolling back every single detail of your race or training data or even long term cruising collected into https://dashboard-tactics-pi.readthedocs.io/en/latest/idbout/idbout.html[InfluxDB v2.0 time series database] - comes with helper scripts! +
+image:influxDB.jpg[STW on InluxDB v2 dashboard,width=400,height=292]
+* Visualisation of any collected data parameter underway either with a https://dashboard-tactics-pi.readthedocs.io/en/latest/linechart/linechart.html[built in line graphs] +
+image:external-grafana-dashboard.jpg[STW read-back from DB w/ averaging, underway, on Dashboard,width-291,height=320]
+* https://dashboard-tactics-pi.readthedocs.io/en/latest/signalk/signalk.html[Signal K data delta channel connector] - by-passing OpenCPN (using different channel) - both for NMEA-0183 and NMEA-2000 originated data
+* //Ad infini// creation of dials or numerical data https://dashboard-tactics-pi.readthedocs.io/en/latest/enginedjg/enginedjg.html[Instruments for Engine and Energy Data] originating from NMEA-2000 data bus +
+image:instruments.jpg[EngineDJG instruments,width=400,height=267]
+
+
