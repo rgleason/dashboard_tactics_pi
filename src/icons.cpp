@@ -28,7 +28,7 @@ wxString _svg_dashboard;
 wxString _svg_dashboard_rollover;
 wxString _svg_dashboard_toggled;
 #endif // _TACTICSPI_H_
-#endif //  PLUGIN_USE_SVG
+#endif  //  PLUGIN_USE_SVG
 
 void initialize_images(void)
 {
