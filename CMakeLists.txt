@@ -18,7 +18,7 @@
 ## *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.         *
 ## ***************************************************************************
 # Frontend2 Author: Jon Gough  
-# Frontend2: v1.0.213.0 17/06/2022  # DD/MM/YYYY format
+# Frontend2: v1.0.222.0 25/12/2022  # DD/MM/YYYY format
 # ---------------------------------------------------------------------------
 ## ----- When changing this file do NOT change the order in which sections occur        ----- ##
 ## ----- Changes should only be made between the section blocks that identify where     ----- ##
@@ -57,7 +57,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 6)
-   set(VERSION_PATCH 17)
+   set(VERSION_PATCH 18)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
