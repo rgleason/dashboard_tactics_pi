@@ -60,8 +60,8 @@ workflows:
              <<: *std-filters
 ## Appveyor also builds for Windows.
 ## Frozen - 28/05/2023
-        - build-msvc-2022:
-            <<: *std-filters
+##        - build-msvc-2022:
+##            <<: *std-filters
 ## Frozen - 28/05/2023
         - build-debian-armhf-10-buster:
             <<: *std-filters
@@ -317,23 +317,19 @@ jobs:
         - run: bash ci/circleci-build-macos.sh
         - deploy-code
 ## Appveyor builds Windows including WinXT.
-## If below is used, WinXT will not work.
+## If below is used, will WinXT work?
     build-msvc-2022:
-        executor:
-            name: win/server-2022
-            shell: cmd.exe
+        executor: win/server-2022
         environment:
         - OCPN_TARGET: MSVC
         - MSVC_VERSION: 2022
         - WX_VER: 31
+        - DEPLOY_USE_ORB: true
         steps:
         - checkout
-        - run:
-            privileged: False
-            shell: cmd.exe
-            command: ci\circleci-build-msvc.bat
+        - run: ci/circleci-build-msvc
         - deploy-code:
-            DEPLOY-USE-ORB: false
+            install-python: true
     build-debian-armhf-10-buster:
         machine:
             image: ubuntu-2004:202104-01
