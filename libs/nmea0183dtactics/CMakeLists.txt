@@ -96,7 +96,7 @@ add_library(NMEA0183DTACTICS STATIC ${SRC})
 add_library(ocpn::nmea0183dtactics ALIAS NMEA0183DTACTICS)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-  set_property(TARGET NMEA0183 PROPERTY COMPILE_FLAGS "-fvisibility=hidden")
+  set_property(TARGET NMEA0183DTACTICS PROPERTY COMPILE_FLAGS "-fvisibility=hidden")
 endif ()
 target_include_directories(NMEA0183DTACTICS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(NMEA0183DTACTICS PRIVATE ${wxWidgets_INCLUDE_DIRS})
