@@ -44,7 +44,7 @@
 #include "instrument.h"
 
 // Required for struct SAT_INFO
-#include "nmea0183/SatInfo.h"
+#include "SatInfo.h"
 
 class DashboardInstrument_GPS: public DashboardInstrument
 {

@@ -65,7 +65,7 @@
 //#define     MY_API_VERSION_MINOR    6
 #endif // _TACTICSPI_H_
 
-#include "nmea0183/nmea0183.h"
+#include "nmea0183.h"
 #include "instrument.h"
 #include "speedometer.h"
 #include "compass.h"

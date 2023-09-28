@@ -47,7 +47,7 @@ using namespace std;
 
 #include "dashboard_pi.h"
 
-#include "nmea0183/nmea0183.h"
+#include "nmea0183.h"
 #include "performance.h"
 
 extern Polar* BoatPolar;
