@@ -57,7 +57,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 7)
-   set(VERSION_PATCH 4)
+   set(VERSION_PATCH 5)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -229,72 +229,72 @@ IF (TACTICS_INSTRUMENTS)
 ENDIF (TACTICS_INSTRUMENTS)
 
 SET(SRC_NMEA0183
-    src/nmea0183/LatLong.hpp
-    src/nmea0183/latlong.cpp
-    src/nmea0183/long.cpp
-    src/nmea0183/nmea0183.cpp
-    src/nmea0183/nmea0183.hpp
-    src/nmea0183/Response.hpp
-    src/nmea0183/response.cpp
-    src/nmea0183/RMB.hpp
-    src/nmea0183/rmb.cpp
-    src/nmea0183/Sentence.hpp
-    src/nmea0183/sentence.cpp
-    src/nmea0183/talkerid.cpp
-    src/nmea0183/RMC.HPP
-    src/nmea0183/rmc.cpp
-    src/nmea0183/hexvalue.cpp
-    src/nmea0183/lat.cpp
-    src/nmea0183/expid.cpp
-    src/nmea0183/wpl.hpp
-    src/nmea0183/wpl.cpp
-    src/nmea0183/rte.hpp
-    src/nmea0183/rte.cpp
-    src/nmea0183/hdt.hpp
-    src/nmea0183/hdt.cpp
-    src/nmea0183/hdg.hpp
-    src/nmea0183/hdg.cpp
-    src/nmea0183/hdm.hpp
-    src/nmea0183/hdm.cpp
-    src/nmea0183/gll.hpp
-    src/nmea0183/gll.cpp
-    src/nmea0183/vtg.hpp
-    src/nmea0183/vtg.cpp
-    src/nmea0183/gga.hpp
-    src/nmea0183/gga.cpp
-    src/nmea0183/gsv.hpp
-    src/nmea0183/gsv.cpp
-    src/nmea0183/dbt.cpp
-    src/nmea0183/dbt.hpp
-    src/nmea0183/dpt.cpp
-    src/nmea0183/dpt.hpp
-    src/nmea0183/mtw.cpp
-    src/nmea0183/mtw.hpp
-    src/nmea0183/mwv.cpp
-    src/nmea0183/mwv.hpp
-    src/nmea0183/vhw.hpp
-    src/nmea0183/vhw.cpp
-    src/nmea0183/vwr.cpp
-    src/nmea0183/vwr.hpp
-    src/nmea0183/xte.cpp
-    src/nmea0183/xte.hpp
-    src/nmea0183/zda.cpp
-    src/nmea0183/zda.hpp
-    src/nmea0183/rsa.hpp
-    src/nmea0183/rsa.cpp
-    src/nmea0183/SatInfo.h
-    src/nmea0183/mwd.cpp
-    src/nmea0183/mwd.hpp
-    src/nmea0183/vwt.cpp
-    src/nmea0183/vwt.hpp
-    src/nmea0183/mta.cpp
-    src/nmea0183/mta.hpp
-    src/nmea0183/vlw.cpp
-    src/nmea0183/vlw.hpp
-    src/nmea0183/mda.cpp
-    src/nmea0183/mda.hpp
-    src/nmea0183/xdr.cpp
-    src/nmea0183/xdr.hpp
+    libs/nmea0183/LatLong.hpp
+    libs/nmea0183/latlong.cpp
+    libs/nmea0183/long.cpp
+    libs/nmea0183/nmea0183.cpp
+    libs/nmea0183/nmea0183.hpp
+    libs/nmea0183/Response.hpp
+    libs/nmea0183/response.cpp
+    libs/nmea0183/RMB.hpp
+    libs/nmea0183/rmb.cpp
+    libs/nmea0183/Sentence.hpp
+    libs/nmea0183/sentence.cpp
+    libs/nmea0183/talkerid.cpp
+    libs/nmea0183/RMC.HPP
+    libs/nmea0183/rmc.cpp
+    libs/nmea0183/hexvalue.cpp
+    libs/nmea0183/lat.cpp
+    libs/nmea0183/expid.cpp
+    libs/nmea0183/wpl.hpp
+    libs/nmea0183/wpl.cpp
+    libs/nmea0183/rte.hpp
+    libs/nmea0183/rte.cpp
+    libs/nmea0183/hdt.hpp
+    libs/nmea0183/hdt.cpp
+    libs/nmea0183/hdg.hpp
+    libs/nmea0183/hdg.cpp
+    libs/nmea0183/hdm.hpp
+    libs/nmea0183/hdm.cpp
+    libs/nmea0183/gll.hpp
+    libs/nmea0183/gll.cpp
+    libs/nmea0183/vtg.hpp
+    libs/nmea0183/vtg.cpp
+    libs/nmea0183/gga.hpp
+    libs/nmea0183/gga.cpp
+    libs/nmea0183/gsv.hpp
+    libs/nmea0183/gsv.cpp
+    libs/nmea0183/dbt.cpp
+    libs/nmea0183/dbt.hpp
+    libs/nmea0183/dpt.cpp
+    libs/nmea0183/dpt.hpp
+    libs/nmea0183/mtw.cpp
+    libs/nmea0183/mtw.hpp
+    libs/nmea0183/mwv.cpp
+    libs/nmea0183/mwv.hpp
+    libs/nmea0183/vhw.hpp
+    libs/nmea0183/vhw.cpp
+    libs/nmea0183/vwr.cpp
+    libs/nmea0183/vwr.hpp
+    libs/nmea0183/xte.cpp
+    libs/nmea0183/xte.hpp
+    libs/nmea0183/zda.cpp
+    libs/nmea0183/zda.hpp
+    libs/nmea0183/rsa.hpp
+    libs/nmea0183/rsa.cpp
+    libs/nmea0183/SatInfo.h
+    libs/nmea0183/mwd.cpp
+    libs/nmea0183/mwd.hpp
+    libs/nmea0183/vwt.cpp
+    libs/nmea0183/vwt.hpp
+    libs/nmea0183/mta.cpp
+    libs/nmea0183/mta.hpp
+    libs/nmea0183/vlw.cpp
+    libs/nmea0183/vlw.hpp
+    libs/nmea0183/mda.cpp
+    libs/nmea0183/mda.hpp
+    libs/nmea0183/xdr.cpp
+    libs/nmea0183/xdr.hpp
 )
 
 
@@ -322,9 +322,6 @@ ENDIF (TACTICS_INSTRUMENTS)
 ## Modify/configure 'Include' Directories below for the Plugin
 ##=============================================================
 
-
-
-
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/GL)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/glu/include)
@@ -333,7 +330,7 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wxJSON/include)
 
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/jsoncpp)
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/nmea0183/src)
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/src/nmea0183)
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/nmea0183)
 
 #include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/pluginDC/include)
 
@@ -347,13 +344,11 @@ if(NOT OCPN_FLATPAK_CONFIG)
     # Build environment not available when flatpak is being configured so following statements will not work
     message(STATUS "${CMLOC}Adding target link libraries to ${PACKAGE_NAME}")
 
+    add_subdirectory(libs/tinyxml)
+    target_link_libraries(${PACKAGE_NAME} ocpn::tinyxml)
 
 #    add_subdirectory(libs/nmea0183)
-    add_subdirectory(libs/tinyxml)
-
-
-#    target_link_libraries(${PACKAGE_NAME} ocpn::nmea0183)
-    target_link_libraries(${PACKAGE_NAME} ocpn::tinyxml)
+#    target_link_libraries(${PACKAGE_NAME} ocpn::nmea0183)	
     
 endif(NOT OCPN_FLATPAK_CONFIG)
 
