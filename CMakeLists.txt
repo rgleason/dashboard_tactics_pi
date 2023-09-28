@@ -57,7 +57,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 7)
-   set(VERSION_PATCH 7)
+   set(VERSION_PATCH 8)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -83,7 +83,7 @@ set(OCPN_API_VERSION_MINOR "16")
 set(TP_COMMENT "  * Release using CI")
 
 set(PARENT "opencpn")
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 IF (TACTICS_INSTRUMENTS)
   ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
@@ -242,11 +242,7 @@ ENDIF (TACTICS_INSTRUMENTS)
 ## Modify/configure 'Include' Directories below for the Plugin
 ##=============================================================
 
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include)
 
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/ocpn-api)
-#include_directories(BEFORE ${PROJECT_SOURCE_DIR}/libs/wxJSON/include)
 
 ## Change target_sources to match your project needs.
 ##==============================================================
@@ -259,9 +255,6 @@ if(NOT OCPN_FLATPAK_CONFIG)
     # Build environment not available when flatpak is being configured 
 	# so following statements will not work
     message(STATUS "${CMLOC}Adding target link libraries to ${PACKAGE_NAME}")
-
-#    add_subdirectory(libs/tinyxml)
-#    target_link_libraries(${PACKAGE_NAME} ocpn::tinyxml)
 
     add_subdirectory(opencpn-libs/WindowsHeaders)
     target_link_libraries(${PACKAGE_NAME} windows::headers)
