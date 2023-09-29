@@ -1663,6 +1663,7 @@ Basics taken from tackandlay_pi and adopted
 ***********************************************************************/
 void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
 {
+#ifndef __OCPN__ANDROID__
     if (!m_bShowWindbarbOnChart)
         return;
     std::unique_lock<std::mutex> lckmTWS( mtxTWS );
@@ -1763,6 +1764,7 @@ void tactics_pi::DrawWindBarb(wxPoint pp, PlugIn_ViewPort *vp)
             glEnd();
         }
     }
+#endif
 }
 
 /********************************************************************
