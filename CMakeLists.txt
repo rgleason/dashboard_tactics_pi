@@ -57,7 +57,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 7)
-   set(VERSION_PATCH 8)
+   set(VERSION_PATCH 9)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -75,15 +75,17 @@ ELSE (TACTICS_INSTRUMENTS)
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
 ENDIF (TACTICS_INSTRUMENTS)
 set(CPACK_PACKAGE_CONTACT "Rick Gleason")
-set(VERSION_DATE  "25/09/2023")#DD/MM/YYYY format
+set(VERSION_DATE  "29/09/2023")#DD/MM/YYYY format
 set(OCPN_MIN_VERSION "ov58")
 
 set(OCPN_API_VERSION_MAJOR "1")
 set(OCPN_API_VERSION_MINOR "16")
 set(TP_COMMENT "  * Release using CI")
 
+
 set(PARENT "opencpn")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 
 IF (TACTICS_INSTRUMENTS)
   ADD_DEFINITIONS(-D_INCLUDE_TACTICS_PI_)
@@ -272,6 +274,12 @@ if(NOT OCPN_FLATPAK_CONFIG)
 
     add_subdirectory(opencpn-libs/nmea0183)
     target_link_libraries(${PACKAGE_NAME} ocpn::nmea0183)
+	
+#  Dashboard_tactics has been converted to use opencpn-libs/nmea0183
+#  Below is original Dashboard_Tactics nmea0183 version
+#  Keep this private version around for awhile as it may be useful.
+#    add_subdirectory(libs/nmea0183dtactics)
+#    target_link_libraries(${PACKAGE_NAME} ocpn::nmea0183dtactics)	
 
 endif(NOT OCPN_FLATPAK_CONFIG)
 
