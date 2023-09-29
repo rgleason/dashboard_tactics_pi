@@ -835,6 +835,8 @@ Called by Plugin Manager on main system process cycle
 **********************************************************************/
 bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
+#ifndef __OCPN__ANDROID__
+
 	b_tactics_dc_message_shown = false; // show message box if RenderOverlay() is called again
 #ifndef __linux__
     if ( !pcontext->IsOK() )
@@ -852,7 +854,8 @@ bool tactics_pi::TacticsRenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *
 		glPopMatrix();
 		glPopAttrib();
 	}
-	return true;
+#endif
+    return true;
 }
 
 bool tactics_pi::TacticsRenderOverlay(wxDC &dc, PlugIn_ViewPort *vp)
@@ -872,6 +875,8 @@ Draw the OpenGL Layline overlay
 *********************************************************************/
 void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
+#ifndef __OCPN__ANDROID__
+
     if (m_bDisplayCurrentOnChart && !std::isnan(mlat) && !std::isnan(mlon) && !std::isnan(m_CurrentDirection)) {
         //draw the current on the chart here
         /*
@@ -936,6 +941,7 @@ void tactics_pi::DoRenderCurrentGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
         glVertex2d(currpoints[6].x, currpoints[6].y);
         glEnd();
     }
+#endif
 }
 
 /*********************************************************************
@@ -943,7 +949,9 @@ Draw the OpenGL Layline overlay
 **********************************************************************/
 void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 {
-	wxPoint  mark_center;
+#ifndef __OCPN__ANDROID__
+
+    wxPoint  mark_center;
 	wxPoint boat;
 	if (!std::isnan(mlat) && !std::isnan(mlon)) {
 		GetCanvasPixLL(vp, &vpoints[0], mlat, mlon);
@@ -1386,6 +1394,7 @@ void tactics_pi::DoRenderLaylineGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort
             }
         }
     }
+#endif
 }
 
 
@@ -1401,6 +1410,8 @@ What should be drawn:
 
 void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 {
+#ifndef __OCPN__ANDROID__
+
     if ( !m_bShowPolarOnChart )
         return;
     if ( !BoatPolar->isValid() ) {
@@ -1495,12 +1506,15 @@ void tactics_pi::DrawPolar(PlugIn_ViewPort *vp, wxPoint pp, double PolarAngle)
 			}
 		}
 	}
+#endif
 }
 /***********************************************************************
 Draw pointers for the optimum target VMG- and CMG Angle (if bearing is available)
 ************************************************************************/
 void tactics_pi::DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, wxString color, int size, double rad){
-	//  if (TargetAngle > 0){
+#ifndef __OCPN__ANDROID__
+
+    //  if (TargetAngle > 0){
 	double rotate = vp->rotation;
 	//    double value = deg2rad(PolarAngle + TargetAngle) + deg2rad(0 - ANGLE_OFFSET) + rotate;
 	//    double value1 = deg2rad(PolarAngle + 5 + TargetAngle) + deg2rad(0 - ANGLE_OFFSET) + rotate;
@@ -1551,6 +1565,7 @@ void tactics_pi::DrawTargetAngle(PlugIn_ViewPort *vp, wxPoint pp, double Angle, 
 
 	//}
 	//  }
+#endif
 }
 /***********************************************************************
 Toggle Layline Render overlay
