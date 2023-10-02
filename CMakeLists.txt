@@ -19,7 +19,7 @@
 ## *   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                       *
 #-----------------------------------------------------------------------------
 # Frontend2 Author: Jon Gough 
-# Testplugn(TP) v1.0.256.0 17/09/2023 DD/MM/YYYY format
+# Testplugin(TP) v1.0.259.0 01/10/2023 DD/MM/YYYY format
 # buildCI:yes useODAPI:no validateJSON:no
 # ---------------------------------------------------------------------------
 ## -- When changing this file do NOT change the order of the sections.    -- ##
@@ -57,7 +57,7 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 7)
-   set(VERSION_PATCH 9)
+   set(VERSION_PATCH 10)
    set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -79,7 +79,7 @@ set(VERSION_DATE  "29/09/2023")#DD/MM/YYYY format
 set(OCPN_MIN_VERSION "ov58")
 
 set(OCPN_API_VERSION_MAJOR "1")
-set(OCPN_API_VERSION_MINOR "16")
+set(OCPN_API_VERSION_MINOR "17")
 set(TP_COMMENT "  * Release using CI")
 
 
@@ -260,7 +260,7 @@ if(NOT OCPN_FLATPAK_CONFIG)
     add_subdirectory(opencpn-libs/WindowsHeaders)
     target_link_libraries(${PACKAGE_NAME} windows::headers)
 
-    add_subdirectory(opencpn-libs/api-16)
+    add_subdirectory(opencpn-libs/api-17)
     target_link_libraries(${PACKAGE_NAME} ocpn::api)
 
     add_subdirectory(opencpn-libs/tinyxml)

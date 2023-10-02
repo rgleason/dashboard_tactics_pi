@@ -170,9 +170,9 @@ WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
 
 class dashboard_pi : public
 #ifdef _TACTICSPI_H_
-    tactics_pi, wxTimer, opencpn_plugin_116
+    tactics_pi, wxTimer, opencpn_plugin_117
 #else
-    wxTimer, opencpn_plugin_116
+    wxTimer, opencpn_plugin_117
 #endif // _TACTICSPI_H_
 {
 public:
@@ -189,6 +189,9 @@ public:
     int GetAPIVersionMinor();
     int GetPlugInVersionMajor();
     int GetPlugInVersionMinor();
+    int GetPlugInVersionPatch();
+    int GetPlugInVersionPost();
+	
     wxBitmap *GetPlugInBitmap();
     wxString GetCommonName();
     wxString GetShortDescription();

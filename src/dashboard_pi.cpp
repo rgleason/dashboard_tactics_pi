@@ -519,9 +519,9 @@ void checkNMEATemperatureDataAndUnit(double &TemperatureValue, wxString &Tempera
 
 dashboard_pi::dashboard_pi( void *ppimgr ) :
 #ifdef _TACTICSPI_H_
-    tactics_pi(), wxTimer( this ), opencpn_plugin_116( ppimgr )
+    tactics_pi(), wxTimer( this ), opencpn_plugin_117( ppimgr )
 #else
-     wxTimer( this ), opencpn_plugin_116( ppimgr )
+     wxTimer( this ), opencpn_plugin_117( ppimgr )
 #endif // _TACTICSPI_H_
 {
 #ifdef _TACTICSPI_H_
@@ -855,6 +855,16 @@ int dashboard_pi::GetPlugInVersionMajor()
 int dashboard_pi::GetPlugInVersionMinor()
 {
     return PLUGIN_VERSION_MINOR;
+}
+
+int dashboard_pi::GetPlugInVersionPatch()
+{
+    return PLUGIN_VERSION_PATCH;
+}
+
+int dashboard_pi::GetPlugInVersionPost()
+{
+    return PLUGIN_VERSION_TWEAK;
 }
 
 /*  For Shipdriver  Panel Listing Icon changes
