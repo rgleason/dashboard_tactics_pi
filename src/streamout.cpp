@@ -33,7 +33,7 @@
 
 #include "streamout.h"
 #include "ocpn_plugin.h"
-#include "jsonreader.h"
+#include "wx/jsonreader.h"
 #include "plugin_ids.h"
 
 extern int g_iDashWindSpeedUnit;
