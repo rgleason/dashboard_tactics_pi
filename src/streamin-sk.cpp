@@ -32,7 +32,7 @@
 #include <wx/socket.h>
 #include <wx/sckstrm.h>
 
-#include "jsonreader.h"
+#include "wx/jsonreader.h"
 #include "plugin_ids.h"
 
 #include "dashboard_pi.h"
