@@ -47,8 +47,8 @@ using namespace std;
 
 
 #include "icons.h"
-#include "jsonreader.h"
-#include "jsonwriter.h"
+#include "wx/jsonreader.h"
+#include "wx/jsonwriter.h"
 
 #include "ocpn_plugin.h"
 #include <wx/glcanvas.h>
