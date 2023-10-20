@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-22 21:40+0100\n"
-"PO-Revision-Date: 2020-02-13 02:57\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-10-19 09:17\n"
+"Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Crowdin-Project: opencpn\n"
+"X-Crowdin-Project-ID: 49843\n"
 "X-Crowdin-Language: fr\n"
 "X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
+"X-Crowdin-File-ID: 339\n"
 
 #: src\baro_history.cpp:139 src\baro_history.cpp:639 src\performance.cpp:1326
 #: src\performance.cpp:1846 src\wind_history.cpp:140 src\wind_history.cpp:954
@@ -68,7 +70,7 @@ msgstr "Choisir un nouveau fichier ou un existant"
 #: src\baro_history.cpp:626 src\performance.cpp:1832 src\wind_history.cpp:940
 #, c-format
 msgid "ClockTicks%s"
-msgstr ""
+msgstr "Battement d'horloge%s"
 
 #: src\baro_history.cpp:627 src\performance.cpp:1833 src\wind_history.cpp:941
 #, c-format
@@ -304,31 +306,31 @@ msgstr "↑Performance de la polaire"
 
 #: src\dashboard_pi.cpp:327
 msgid "↑Average Wind Direction"
-msgstr "<unk> Direction moyenne du vent"
+msgstr "↑Direction moyenne du vent"
 
 #: src\dashboard_pi.cpp:329
 msgid "↑Polar Compass"
-msgstr ""
+msgstr "Compas de route"
 
 #: src\dashboard_pi.cpp:331
 msgid "↑InfluxDB Out"
-msgstr ""
+msgstr "↑InfluxDB Sortie"
 
 #: src\dashboard_pi.cpp:333
 msgid "↑Signal K In"
-msgstr "<unk> Signal K entrant"
+msgstr "↑Signal K entrant"
 
 #: src\dashboard_pi.cpp:335
 msgid "↑z Eng1 RPM"
-msgstr ""
+msgstr "↑ z moteur1 RPM"
 
 #: src\dashboard_pi.cpp:337
 msgid "↑z Eng1 Temp"
-msgstr ""
+msgstr "↑z Eng1 Temp"
 
 #: src\dashboard_pi.cpp:339
 msgid "↑z Eng1 Oil P"
-msgstr ""
+msgstr "↑z Moteur1 Eng1 pres. huile"
 
 #: src\dashboard_pi.cpp:648 src\dashboard_pi.cpp:841 src\dashboard_pi.cpp:851
 #: src\dashboard_pi.cpp:2762 src\dashboard_pi.cpp:2781 src\dashboard_pi.cpp:3149
@@ -349,8 +351,8 @@ msgstr "Complément Tableau de bord avec Tactick pour OpenCPN\n"
 #: src\dashboard_pi.cpp:862
 msgid "Dashboard PlugIn for OpenCPN\n"
 "Provides navigation instrument display from NMEA source."
-msgstr "Complément \"Tableau de bord\" pour OpenCPN\n"
-"Fournit des instruments de navigation qui exploitent les données NMEA."
+msgstr "Le complément \"Tableau de bord\" pour OpenCPN\n"
+"fournit des instruments de navigation qui exploitent les données NMEA."
 
 #: src\dashboard_pi.cpp:3114
 msgid " Preferences"
@@ -541,7 +543,7 @@ msgstr "Sélectionnez l'instrument à ajouter :"
 msgid "\n"
 "(↑Tactics at the end of the list)"
 msgstr "\n"
-"(<unk> Tactick à la fin de la liste)"
+"(↑ Tactick à la fin de la liste)"
 
 #: src\dashboard_pi.cpp:3846
 msgid "Undock"
@@ -609,11 +611,11 @@ msgstr "moy."
 
 #: src\streamin-sk.cpp:672 src\streamin-sk.cpp:716
 msgid "Signal K Steamer configuration file parsing error, see log file."
-msgstr ""
+msgstr "Erreur d'analyse du fichier de configuration de Signal K, voir le fichier journal."
 
 #: src\streamout.cpp:773 src\streamout.cpp:917
 msgid "InfluxDB Steamer configuration file parsing error, see log file."
-msgstr ""
+msgstr "Erreur d'analyse du fichier de configuration de InfluxDB Steamer, voir le fichier journal."
 
 #: src\tactics_pi.cpp:454
 msgid "Import existing Tactics plugin settings into Dashboard's integrated Tactics settings? (Cancel=later)"
@@ -625,11 +627,11 @@ msgstr ";"
 
 #: src\tactics_pi.cpp:863
 msgid "You have to turn on OpenGL to use chart overlay "
-msgstr "Vous devez utiliser OpenGL ON pour utiliser la superposition de carte"
+msgstr "Vous devez utiliser OpenGL ON pour avoir la superposition de carte"
 
 #: src\tactics_pi.cpp:2926
 msgid "↑Tactics Performance Parameters"
-msgstr "<unk> Paramètres de performance tactick"
+msgstr "↑Paramètres de performance de tactick"
 
 #: src\tactics_pi.cpp:2928
 msgid "Laylines"
@@ -788,7 +790,7 @@ msgstr "Facteur d'amortissement du courant [1-400]:  "
 #: src\tactics_pi.cpp:3128 src\tactics_pi.cpp:3133
 msgid "Stabilizes the surface current 'arrow' in the chart overlay, bearing compass and also the numerical instruments\n"
 "Low values mean high damping"
-msgstr "Stabilise la «flèche» du courant de surface dans la superposition de cartes, le compas de relèvement et les instruments numériques \n\n"
+msgstr "Stabilise le «vecteur» du courant de surface dans la superposition de cartes, le compas de relèvement et les instruments numériques \n\n"
 "Les faibles valeurs signifient un amortissement élevé."
 
 #: src\tactics_pi.cpp:3135
@@ -921,7 +923,7 @@ msgstr "Pré-fixer l'horodatage l'UTC"
 
 #: src\tactics_pi.cpp:3257
 msgid "Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, PolarPerformance and WindHistory"
-msgstr ""
+msgstr "Ajoute ISO8601 UTC-Date&Time aux exportations de données de BaroHistory, PolarPerformance et WindHistory"
 
 #: src\tactics_pi.cpp:3259
 msgid "Data Separator :"
@@ -933,7 +935,7 @@ msgstr "Définit le séparateur pour les exportations de données de BaroHistory
 
 #: src\tactics_pi.cpp:3266
 msgid "Persistent Chart Perf. Animations"
-msgstr ""
+msgstr "Animations de Perf. Graphique persistant"
 
 #: src\tactics_pi.cpp:3277
 msgid "This will also disable the AWA/AWS correction."
