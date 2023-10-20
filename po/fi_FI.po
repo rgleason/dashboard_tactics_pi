@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-22 21:40+0100\n"
-"PO-Revision-Date: 2020-03-09 15:27\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-10-08 20:19\n"
+"Last-Translator: \n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: opencpn\n"
+"X-Crowdin-Project-ID: 49843\n"
 "X-Crowdin-Language: fi\n"
 "X-Crowdin-File: /plugins/dashboard_tactics_pi/po/dashboard_tactics_pi.pot\n"
+"X-Crowdin-File-ID: 339\n"
 
 #: src\baro_history.cpp:139 src\baro_history.cpp:639 src\performance.cpp:1326
 #: src\performance.cpp:1846 src\wind_history.cpp:140 src\wind_history.cpp:954
@@ -643,61 +645,68 @@ msgstr "Asetuslinjan vaimennuskerroin [0.025-1]:  "
 #: src\tactics_pi.cpp:2939 src\tactics_pi.cpp:2944
 msgid "The layline damping factor determines how fast the  laylines react on your course changes, i.e. your COG changes.\n"
 " Low values mean high damping."
-msgstr ""
+msgstr "Asetuslinjan vaimennuskerroin määrittää, kuinka nopeasti laylinet reagoivat kurssimuutoksiin, eli COG muuttuu.\n"
+" Pienet arvot tarkoittavat korkeaa vaimennusta."
 
 #: src\tactics_pi.cpp:2947
 msgid "Layline width damping factor [0.025-1]:  "
-msgstr ""
+msgstr "Asetuslinjan leveyden vaimennuskerroin [0.025-1]:  "
 
 #: src\tactics_pi.cpp:2949
 msgid "The width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\n"
 "The idea is to display the COG range where you're sailing to.\n"
 " Low values mean high damping."
-msgstr ""
+msgstr "Veneen asetuslinjojen laajuus perustuu veneen (pystyakseli) kulman, eli COG muutoksin.\n"
+"Ajatuksena on näyttää COG alue jossa purjehdit.\n"
+" alhaiset arvot tarkoittavat suurta vaimennusta."
 
 #: src\tactics_pi.cpp:2954
 msgid "Width of the boat laylines is based on the yawing of the boat (vertical axis), i.e. your COG changes.\n"
 "The idea is to display the range where you're sailing to.\n"
 " Low values mean high damping."
-msgstr ""
+msgstr "Veneen asetuslinjojen laajuus perustuu veneen (pystyakseli) kulman, eli COG muutoksin.\n"
+"Ajatuksena on näyttää alue jossa purjehdit.\n"
+" alhaiset arvot tarkoittavat suurta vaimennusta."
 
 #: src\tactics_pi.cpp:2957
 msgid "Layline length on Chart [nm]:  "
-msgstr ""
+msgstr "Asetuslinjan pituus kartalla [nm]:  "
 
 #: src\tactics_pi.cpp:2959 src\tactics_pi.cpp:2965
 msgid "Length of the boat laylines in [nm]"
-msgstr ""
+msgstr "Veneen asetuslinjojen pituus [nm]"
 
 #: src\tactics_pi.cpp:2967
 msgid "Min. Layline Width [°]:"
-msgstr ""
+msgstr "Min. asetuslinjan leveys [°]:"
 
 #: src\tactics_pi.cpp:2969 src\tactics_pi.cpp:2972
 msgid "Min. width of boat laylines in degrees."
-msgstr ""
+msgstr "Veneen asetuslinjojen min. väli asteina."
 
 #: src\tactics_pi.cpp:2976
 msgid "Max. Layline Width [°]:"
-msgstr ""
+msgstr "Max. asetuslinjan leveys [°]:"
 
 #: src\tactics_pi.cpp:2978 src\tactics_pi.cpp:2981
 msgid "Max. width of boat laylines in degrees."
-msgstr ""
+msgstr "Veneen asetuslinjojen maks. väli asteina."
 
 #: src\tactics_pi.cpp:2984
 msgid "Leeway"
-msgstr ""
+msgstr "Sorto"
 
 #: src\tactics_pi.cpp:2993
 msgid "Boat's Leeway factor [0-20]:  "
-msgstr ""
+msgstr "Veneen sortokerroin [0-20]:  "
 
 #: src\tactics_pi.cpp:2994 src\tactics_pi.cpp:2997
 msgid "Leeway='Drift' of boat due to heel/wind influence\n"
 "Low values mean high performance of hull\n"
 "Leeway = (LeewayFactor * Heel) / STW²;"
-msgstr ""
+msgstr "Sorto=Veneen 'ajautuma' kallistuksen/tuulen vaikutuksesta\n"
+"Pienet arvot johtuvat rungon hyvästä suorituskyvystä\n"
+"Sorja = (LeewayFactor * Heel) /STWP²;"
 
 #: src\tactics_pi.cpp:3002
 msgid "Use Heel Sensor"
@@ -711,13 +720,15 @@ msgstr "Käytä sisäistä kallistusanturia, jos käytettävissä\n"
 
 #: src\tactics_pi.cpp:3009
 msgid "fixed/max Leeway [°]:"
-msgstr ""
+msgstr "kiinteä/max sorto [°]:"
 
 #: src\tactics_pi.cpp:3012
 msgid "Dual purpose !\n"
 "If Radiobutton is NOT set, then it's used to limit Leeway to a max value.\n"
 " If Radiobutton is set, then it fixes Leeway to this constant value."
-msgstr ""
+msgstr "Kaksoismerkitys!\n"
+"jos radionappia ei ole asetettu, niin sitä käytetään rajoittamaan sorron max arvoa.\n"
+" Jos radionappi on asetettu niin se asettaa suojanpuolen vakioarvoon."
 
 #: src\tactics_pi.cpp:3020
 msgid "manual Heel input:"
@@ -803,7 +814,9 @@ msgstr "Korjaa STW sorrolla"
 msgid "Apply a correction to your log speed throughout the plugin based on the calculated Leeway and Current.\n"
 "Only makes sense with a real heel sensor.\n"
 "Make sure your instruments do not already apply this correction !"
-msgstr ""
+msgstr "Lisää korjaus lokin nopeuteen lasketun sorron ja virran perusteella. \n"
+"On järkevää vain toimivalla kallistusanturilla.\n"
+"Varmista, että mittaristot eivät jo lisää tätä korjausta!"
 
 #: src\tactics_pi.cpp:3153
 msgid "Correct AWS/AWA with Heel"
@@ -899,15 +912,15 @@ msgstr "Vie tiedot tiedostoon"
 
 #: src\tactics_pi.cpp:3248
 msgid "Prepend Clockticks"
-msgstr ""
+msgstr "Kellotuksen esiasetus"
 
 #: src\tactics_pi.cpp:3251
 msgid "Adds Clockticks to the data exports of BaroHistory, PolarPerformance and WindHistory"
-msgstr ""
+msgstr "Lisää kellotus BaroHistory, PolarPerformance ja WindHistory tietojen vientiin"
 
 #: src\tactics_pi.cpp:3254
 msgid "Prepend UTC Timestamp"
-msgstr ""
+msgstr "UTC-aikaleiman esiasetus"
 
 #: src\tactics_pi.cpp:3257
 msgid "Adds ISO8601 UTC-Date&Time to the data exports of BaroHistory, PolarPerformance and WindHistory"
