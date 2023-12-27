@@ -19,7 +19,7 @@
 ## *   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                       *
 #-----------------------------------------------------------------------------
 # Frontend2 Author: Jon Gough 
-# Testplugin(TP) v1.0.260 07/10/2023 DD/MM/YYYY format
+# Testplugin(TP) v1.0.286.2 24/12/2023 DD/MM/YYYY format
 # buildCI:yes useODAPI:no validateJSON:no
 # ---------------------------------------------------------------------------
 ## -- When changing this file do NOT change the order of the sections.    -- ##
@@ -57,8 +57,8 @@ IF (TACTICS_INSTRUMENTS)
    set(PACKAGE_CONTACT "Rick Gleason")
    set(VERSION_MAJOR 1)
    set(VERSION_MINOR 7)
-   set(VERSION_PATCH 60)
-   set(VERSION_TWEAK 3)
+   set(VERSION_PATCH 61)
+   set(VERSION_TWEAK 0)
    set(SHORT_DESCRIPTION "Dashboard and Tactics")
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
 ELSE (TACTICS_INSTRUMENTS)
@@ -75,7 +75,7 @@ ELSE (TACTICS_INSTRUMENTS)
    set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
 ENDIF (TACTICS_INSTRUMENTS)
 set(CPACK_PACKAGE_CONTACT "Rick Gleason")
-set(VERSION_DATE  "10/10/2023")#DD/MM/YYYY format
+set(VERSION_DATE  "27/12/2023")#DD/MM/YYYY format
 set(OCPN_MIN_VERSION "ov58")
 
 set(OCPN_API_VERSION_MAJOR "1")
@@ -125,7 +125,6 @@ set(USE_LOCAL_GLU TRUE) # Use local opencpn-libs/glu
 set(OpenGL_GL_PREFERENCE "LEGACY")   #not operational
 option(USE_GL "Enable OpenGL support" ON)
 message(STATUS "${CMLOC}USE_GL: ${USE_GL}")
-
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build" FORCE)
