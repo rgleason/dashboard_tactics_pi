@@ -6,11 +6,9 @@ Any Tactician would find this extensive set of sailing instruments useful and ef
 == Links
 
 * Documentation: https://dashboard-tactics-pi.readthedocs.io/[DashT@ readthedocs.io] for the complete Manual.
-* Source: https://github.com/canne/dashboard_tactics_pi
+* Source: https://github.com/rgleason/dashboard_tactics_pi  (Petri's repo is gone.)
 * Maintainer Source: https://github.com/rgleason/dashboard_tactics_pi 
 * Installation Instructions: xref:opencpn-plugins:misc:plugin-install.adoc[Plugin Download, Install and Enable]
-* Legacy Download: https://github.com/canne/dashboard_tactics_pi/releases/latest[Latest Stable]
-* Legacy Download Beta Release: https://github.com/canne/dashboard_tactics_pi/releases[beta releases] (Click on Assets tab to expand, select your platform's installer)
 * Cruisers Forum https://www.cruisersforum.com/forums/f134/dashboard-tactics-dash-t-226601.html[Dashboard-Tactics Thread]
 
 == Installation
