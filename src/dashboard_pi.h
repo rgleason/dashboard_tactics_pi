@@ -170,7 +170,7 @@ WX_DEFINE_ARRAY(DashboardInstrumentContainer *, wxArrayOfInstrument);
 
 class dashboard_pi : public
 #ifdef _TACTICSPI_H_
-    tactics_pi, wxTimer, opencpn_plugin_117
+    tactics_pi, wxTimer, opencpn_plugin_118
 #else
     wxTimer, opencpn_plugin_117
 #endif // _TACTICSPI_H_

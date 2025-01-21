@@ -57,7 +57,7 @@ set(TITLE_NAME "DashboardTactics")
 set(PACKAGE_CONTACT "Rick Gleason")
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 7)
-set(VERSION_PATCH 63)
+set(VERSION_PATCH 64)
 set(VERSION_TWEAK 0)
 set(SHORT_DESCRIPTION "Dashboard and Tactics")
 set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -81,7 +81,7 @@ set(VERSION_DATE  "21/01/2025")#DD/MM/YYYY format
 set(OCPN_MIN_VERSION "ov58")
 
 set(OCPN_API_VERSION_MAJOR "1")
-set(OCPN_API_VERSION_MINOR "17")
+set(OCPN_API_VERSION_MINOR "18")
 set(TP_COMMENT "  * Release using CI")
 
 
@@ -275,7 +275,7 @@ if (NOT OCPN_FLATPAK_CONFIG)
     target_link_libraries(${PACKAGE_NAME} windows::headers)
   endif (WIN32)
 
-  add_subdirectory(opencpn-libs/api-17)
+  add_subdirectory(opencpn-libs/api-18)
   target_link_libraries(${PACKAGE_NAME} ocpn::api)
 
   add_subdirectory(opencpn-libs/tinyxml)
