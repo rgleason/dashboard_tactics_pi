@@ -18,7 +18,7 @@
 ## *   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx,                                       *
 ## *   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                       *
 #-----------------------------------------------------------------------------
-# Frontend2 Author: Jon Gough Testplugin(TP) v1.0.326.0 18/01/2025 DD/MM/YYYY
+# Frontend2 Author: Jon Gough Testplugin(TP) v1.0.358.1 21/01/2026 DD/MM/YYYY
 # buildCI:yes useODAPI:no validateJSON:no
 # ---------------------------------------------------------------------------
 ## -- When changing this file do NOT change the order of the sections.    -- ##
@@ -57,7 +57,7 @@ set(TITLE_NAME "DashboardTactics")
 set(PACKAGE_CONTACT "Rick Gleason")
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 7)
-set(VERSION_PATCH 65)
+set(VERSION_PATCH 66)
 set(VERSION_TWEAK 0)
 set(SHORT_DESCRIPTION "Dashboard and Tactics")
 set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.") 
@@ -70,14 +70,14 @@ set(TITLE_NAME "Dashboard")
 set(PACKAGE_CONTACT "Rick Gleason")
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 5)
-set(VERSION_PATCH 12)
-set(VERSION_TWEAK 2)
+set(VERSION_PATCH 13)
+set(VERSION_TWEAK 0)
 set(SHORT_DESCRIPTION "Dashboard")
 set(LONG_DESCRIPTION "Dashboard PlugIn with Tactics for OpenCPN  Provides navigation instruments enhanced with performance functions and alternative input/output functions.")
 ENDIF (TACTICS_INSTRUMENTS)
 
 set(CPACK_PACKAGE_CONTACT "Rick Gleason")
-set(VERSION_DATE  "21/01/2025")#DD/MM/YYYY format
+set(VERSION_DATE  "26/01/2026")#DD/MM/YYYY format
 set(OCPN_MIN_VERSION "ov58")
 
 set(OCPN_API_VERSION_MAJOR "1")
